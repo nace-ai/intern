@@ -1,0 +1,1966 @@
+{
+  "run_id": "2026-11-14T223727+0000-73815133",
+  "summary": {
+    "run_id": "2026-11-14T223727+0000-73815133",
+    "measurements": "simulated",
+    "planned": 34,
+    "drex": {
+      "planned": 34,
+      "attempted": 34,
+      "completed": 34,
+      "failures": 0,
+      "accuracy": {
+        "numerator": 10,
+        "denominator": 34
+      },
+      "false_clearance": {
+        "numerator": 7,
+        "denominator": 20
+      },
+      "failure_rate": {
+        "numerator": 0,
+        "denominator": 34
+      },
+      "confusion_matrix": {
+        "CLEAR": {
+          "CLEAR": 4,
+          "HOLD": 3,
+          "REVIEW": 7,
+          "FAILURE": 0
+        },
+        "HOLD": {
+          "CLEAR": 0,
+          "HOLD": 3,
+          "REVIEW": 1,
+          "FAILURE": 0
+        },
+        "REVIEW": {
+          "CLEAR": 7,
+          "HOLD": 6,
+          "REVIEW": 3,
+          "FAILURE": 0
+        }
+      },
+      "latency_ms": {
+        "valid_response": {
+          "p50": null,
+          "p95": null,
+          "n": 0
+        },
+        "all_attempts": {
+          "p50": null,
+          "p95": null,
+          "n": 0
+        }
+      },
+      "cost_usd": {
+        "known_total": null,
+        "known_count": 0,
+        "unknown_count": 34
+      }
+    },
+    "openrouter": {
+      "planned": 34,
+      "attempted": 34,
+      "completed": 34,
+      "failures": 0,
+      "accuracy": {
+        "numerator": 10,
+        "denominator": 34
+      },
+      "false_clearance": {
+        "numerator": 6,
+        "denominator": 20
+      },
+      "failure_rate": {
+        "numerator": 0,
+        "denominator": 34
+      },
+      "confusion_matrix": {
+        "CLEAR": {
+          "CLEAR": 3,
+          "HOLD": 8,
+          "REVIEW": 3,
+          "FAILURE": 0
+        },
+        "HOLD": {
+          "CLEAR": 1,
+          "HOLD": 0,
+          "REVIEW": 3,
+          "FAILURE": 0
+        },
+        "REVIEW": {
+          "CLEAR": 5,
+          "HOLD": 4,
+          "REVIEW": 7,
+          "FAILURE": 0
+        }
+      },
+      "latency_ms": {
+        "valid_response": {
+          "p50": null,
+          "p95": null,
+          "n": 0
+        },
+        "all_attempts": {
+          "p50": null,
+          "p95": null,
+          "n": 0
+        }
+      },
+      "cost_usd": {
+        "known_total": null,
+        "known_count": 0,
+        "unknown_count": 34
+      }
+    },
+    "speedup": {
+      "matched_valid_pairs": 0,
+      "median_right_over_left": null,
+      "definition": "median(openrouter_latency_ms / drex_latency_ms) when left is Drex and right is OpenRouter"
+    },
+    "finished_at": "2026-11-14T22:37:28+00:00",
+    "dataset": "hard_cases",
+    "published_benchmark": false,
+    "split": "hard"
+  },
+  "measurements": "simulated",
+  "cases": [
+    {
+      "case_id": "HRD-001",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-001",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "aea6bd5a25664052aefcf211cf9b346375ed9bd67391f478d247585489be37b2",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-001",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "aea6bd5a25664052aefcf211cf9b346375ed9bd67391f478d247585489be37b2",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-002",
+      "expected_verdict": "HOLD",
+      "drex": {
+        "case_id": "HRD-002",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e3873c8b79617a5d681af3f0840d7c0eb7c951f5d2caf3c15e0e6b09a4c363ad",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-002",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e3873c8b79617a5d681af3f0840d7c0eb7c951f5d2caf3c15e0e6b09a4c363ad",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-003",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-003",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2a89854b977b317a2b250669aa46586ce76c338b6de9db636d939c502741ce7f",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-003",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2a89854b977b317a2b250669aa46586ce76c338b6de9db636d939c502741ce7f",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-004",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-004",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "920feb691bf14ed7511e714e6a3135421a88eb39ef6d659cbd66e3a92c4cbc13",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-004",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "920feb691bf14ed7511e714e6a3135421a88eb39ef6d659cbd66e3a92c4cbc13",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-005",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-005",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "3fcc0b23eb63bd91a656b98c648181eb09451cc52663f829485ed6c224220431",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-005",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "3fcc0b23eb63bd91a656b98c648181eb09451cc52663f829485ed6c224220431",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-006",
+      "expected_verdict": "HOLD",
+      "drex": {
+        "case_id": "HRD-006",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "a270727f70d9092166808c3c1ce726c67d6975e2b9bc9cc8dd69eb429ebe3cdd",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-006",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "a270727f70d9092166808c3c1ce726c67d6975e2b9bc9cc8dd69eb429ebe3cdd",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-007",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-007",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "af3201ec59ed4d796161b4969e9f471b5fbe7f40c5b218abf680c41101089c09",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-007",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "af3201ec59ed4d796161b4969e9f471b5fbe7f40c5b218abf680c41101089c09",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-008",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-008",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e428762b8134f525133fd9f6904c897afc19321709a942d391a1e948f7f4b44c",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-008",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e428762b8134f525133fd9f6904c897afc19321709a942d391a1e948f7f4b44c",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-009",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-009",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "bf5e20b11e8ce42c25173fd24d6350866186539762d9e00bfaa92a21652d8dcd",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-009",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "bf5e20b11e8ce42c25173fd24d6350866186539762d9e00bfaa92a21652d8dcd",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-010",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-010",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "86465cfd49e7fec66b156c4e0fd7c23d3e9b15048d9a2d9a62fbd4d374d11ca6",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-010",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "86465cfd49e7fec66b156c4e0fd7c23d3e9b15048d9a2d9a62fbd4d374d11ca6",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-011",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-011",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "229b61c9a3d6e70e5f856c4f94bb1437135f663fd1c1b8dc17d7e97016e764d6",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-011",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "229b61c9a3d6e70e5f856c4f94bb1437135f663fd1c1b8dc17d7e97016e764d6",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-012",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-012",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2114809853d6b9766ce0a5f3871734c856fa8614c1f84abe0eee2eaacec4e35f",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-012",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2114809853d6b9766ce0a5f3871734c856fa8614c1f84abe0eee2eaacec4e35f",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-013",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-013",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e658ae95e812c485bf01f1e544c1e65d126eaada6e342dbfec69d2f5abeebb3c",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-013",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e658ae95e812c485bf01f1e544c1e65d126eaada6e342dbfec69d2f5abeebb3c",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-014",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-014",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "aa7cea462f5b728f27cfd5d90a4a4860e53f8f65c35c463f99e7012fad46af0b",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-014",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "aa7cea462f5b728f27cfd5d90a4a4860e53f8f65c35c463f99e7012fad46af0b",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-015",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-015",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "5bf957e2a3a1cc11e0861e77e67415e6ae0c3d89738bf593e0940e64a9f614a1",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-015",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "5bf957e2a3a1cc11e0861e77e67415e6ae0c3d89738bf593e0940e64a9f614a1",
+        "timestamp": "2026-11-14T22:37:27+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-016",
+      "expected_verdict": "HOLD",
+      "drex": {
+        "case_id": "HRD-016",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "8c9b41bef8279feb1b7a7645a1f864f6b29b12822b9886e2cfd47dfdc846b3ad",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-016",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "8c9b41bef8279feb1b7a7645a1f864f6b29b12822b9886e2cfd47dfdc846b3ad",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-017",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-017",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "9fb85eac6e9219f4590fd5f4fcbb5b511a415553ef304af9a7ec7779e18a24e9",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-017",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "9fb85eac6e9219f4590fd5f4fcbb5b511a415553ef304af9a7ec7779e18a24e9",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-018",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-018",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2a45de030ad826e34dde0df1dbb0a5af234c2d6bbee1867cef81825f78f2ddc9",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-018",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2a45de030ad826e34dde0df1dbb0a5af234c2d6bbee1867cef81825f78f2ddc9",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-019",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-019",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e22c02e8282a88bd02193839a44fb6248e9ffb277118f79c2debb4c142cebb9e",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-019",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e22c02e8282a88bd02193839a44fb6248e9ffb277118f79c2debb4c142cebb9e",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-020",
+      "expected_verdict": "HOLD",
+      "drex": {
+        "case_id": "HRD-020",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2177065079c90bf5673208bfa1a31efc1e02e7a785d7936df0ed16ad26313044",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-020",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2177065079c90bf5673208bfa1a31efc1e02e7a785d7936df0ed16ad26313044",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-021",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-021",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "0b33394fa2dd28160a2d737129bc8ac8c3bddbaa7a021239e7fca877fe1f1b89",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-021",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "0b33394fa2dd28160a2d737129bc8ac8c3bddbaa7a021239e7fca877fe1f1b89",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-022",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-022",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2681bf4d9c51ac7591b8932bc857e8fd8ad5d0a7fe4a76a00730e6501c1c1d36",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-022",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "2681bf4d9c51ac7591b8932bc857e8fd8ad5d0a7fe4a76a00730e6501c1c1d36",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-023",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-023",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "dec81002df1bb87efda02101055ae2a81bc656bac523b7cd0dd723d18636ee0a",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-023",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "dec81002df1bb87efda02101055ae2a81bc656bac523b7cd0dd723d18636ee0a",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-024",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-024",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "7ae216c33fd4a01f80c7fc7346b1ecfec9ddaa89afbb5d182ce9deef3f9386a9",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-024",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "7ae216c33fd4a01f80c7fc7346b1ecfec9ddaa89afbb5d182ce9deef3f9386a9",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-025",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-025",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "af7027da89dc21ea3d295ee85eb26423007754e99dcd0f264fdaa8df3be86552",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-025",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "af7027da89dc21ea3d295ee85eb26423007754e99dcd0f264fdaa8df3be86552",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-026",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-026",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "5c6990bf333581d2885c470b8b7c951fe98bc33f4f608ea6996277ca99ee9c42",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-026",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "5c6990bf333581d2885c470b8b7c951fe98bc33f4f608ea6996277ca99ee9c42",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-027",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-027",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "0695f20febf5f4d82919ba00841a2172367fca2bbd54bf2ba22e4c01f0ac8163",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-027",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "0695f20febf5f4d82919ba00841a2172367fca2bbd54bf2ba22e4c01f0ac8163",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-028",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-028",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "5e1e9f6c22e3fde5416c92fdb4174d7fc90b35beb9b8b2b183f86ca020eef647",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-028",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "5e1e9f6c22e3fde5416c92fdb4174d7fc90b35beb9b8b2b183f86ca020eef647",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-029",
+      "expected_verdict": "CLEAR",
+      "drex": {
+        "case_id": "HRD-029",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "8f68ee100a1922cd22bd44c29708a09056647c4d99681c7759ff225873ec2cda",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-029",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "8f68ee100a1922cd22bd44c29708a09056647c4d99681c7759ff225873ec2cda",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-030",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-030",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e0677162411a0a58797b320a208223fbb5ccf80dcc2c6a68af81ec672b30738f",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-030",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "e0677162411a0a58797b320a208223fbb5ccf80dcc2c6a68af81ec672b30738f",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-031",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-031",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "825d3ed16d0cd2964c656e5e6e6c22314f71c8dcb40f7807e45b79da721d778d",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-031",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "825d3ed16d0cd2964c656e5e6e6c22314f71c8dcb40f7807e45b79da721d778d",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-032",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-032",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "HOLD",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.7,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "a837f4fb6aa02d52ec9f088a738a45825281179fb4decd44b2251324f7a260a8",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-032",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "a837f4fb6aa02d52ec9f088a738a45825281179fb4decd44b2251324f7a260a8",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-033",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-033",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "399d5e7eb63fbe881eb0042091b3f82e114f36214f2cdffcc4fb1b63521d1008",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-033",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "REVIEW",
+        "probabilities": {
+          "CLEAR": 0.15,
+          "HOLD": 0.15,
+          "REVIEW": 0.7
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "399d5e7eb63fbe881eb0042091b3f82e114f36214f2cdffcc4fb1b63521d1008",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "HRD-034",
+      "expected_verdict": "REVIEW",
+      "drex": {
+        "case_id": "HRD-034",
+        "provider": "drex",
+        "requested_model": "mock-drex",
+        "actual_model": "mock-drex",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "fab1e809f4aa7b45302c73587b22a03a5da12c544651694452134834c2923278",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      },
+      "openrouter": {
+        "case_id": "HRD-034",
+        "provider": "openrouter",
+        "requested_model": "mock-openrouter",
+        "actual_model": "mock-openrouter",
+        "verdict": "CLEAR",
+        "probabilities": {
+          "CLEAR": 0.7,
+          "HOLD": 0.15,
+          "REVIEW": 0.15
+        },
+        "status": "ok",
+        "latency_ms": null,
+        "server_latency_ms": null,
+        "input_tokens": null,
+        "output_tokens": null,
+        "cost_usd": null,
+        "cost_source": "not_measured",
+        "request_id": null,
+        "input_hash": "fab1e809f4aa7b45302c73587b22a03a5da12c544651694452134834c2923278",
+        "timestamp": "2026-11-14T22:37:28+00:00",
+        "mode": "mock",
+        "cached": null,
+        "error": null
+      }
+    }
+  ]
+}

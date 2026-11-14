@@ -1,0 +1,57 @@
+{
+  "seeds": {
+    "dev_facts": 20261114,
+    "test_facts": 88141120,
+    "ids": 424242,
+    "layout": 171717,
+    "showcase": 909090
+  },
+  "reserved_signatures": [
+    "hold_low_pressure_overrides_missing",
+    "hold_damaged_seal_overrides_conflict",
+    "hold_damaged_seal_overrides_waiver",
+    "review_weight_overrides_waiver",
+    "review_conflict_overrides_waiver"
+  ],
+  "reserved_templates": [
+    "quartermaster",
+    "signal_log",
+    "archive_card"
+  ],
+  "development_templates": [
+    "ledger",
+    "telegraph",
+    "customs_form"
+  ],
+  "primitive_signatures": [
+    "clear_ordinary",
+    "clear_exact_pressure_90",
+    "clear_exact_weight_3pct",
+    "clear_class4_alone",
+    "clear_waiver_exception",
+    "clear_expired_certificate_nonsinging",
+    "clear_missing_certificate_nonsinging",
+    "clear_corrected_suspicion",
+    "hold_damaged_seal",
+    "hold_low_pressure",
+    "review_conflict",
+    "review_missing_required",
+    "review_weight_mismatch",
+    "review_singing_without_certificate",
+    "review_class4_waiver_exclusion",
+    "review_unknown_certificate"
+  ],
+  "dataset_hashes": {
+    "dev_20": "fac503ee29616c4a30e1352210cb5fd14bb3fc0a5bdcb2d497a0e069a6bf1315",
+    "test_100": "ee1a084fe79c1e66830ee16bf1045a0c29eb68dbebccc1284433efad941d0294"
+  },
+  "rulebook_version": "cosmic-customs-rules-1",
+  "prompt_version": "cosmic-customs-prompt-1",
+  "prompt": {
+    "rulebook_version": "cosmic-customs-rules-1",
+    "prompt_version": "cosmic-customs-prompt-1",
+    "rulebook_sha256": "f3b959e41a5fac8e68fe57b1c282dcbae7da9cfed3ada17e84481f087a7ba0dc"
+  },
+  "freeze_time": "2026-11-14T20:05:00+00:00",
+  "description": "Newly generated synthetic packets. Selected interaction signatures and complete wording families are held out of development. This split is not a claim of zero training-data contamination."
+}

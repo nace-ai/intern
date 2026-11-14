@@ -1,0 +1,71 @@
+{
+  "title": "Cosmic Customs cargo facts",
+  "description": "Read only what the packet states. Use null when a value is unknown. Use the string missing only when the packet explicitly says the item is not on file. Do not repair contradictions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "is_singing_or_telepathic",
+    "hazard_class",
+    "cert_status",
+    "waiver_status",
+    "seal_status",
+    "seal_pressure_kpa",
+    "manifest_gross_weight_kg",
+    "certificate_gross_weight_kg",
+    "conflicted_fields"
+  ],
+  "properties": {
+    "is_singing_or_telepathic": {
+      "type": ["boolean", "null"],
+      "title": "Singing or telepathic",
+      "description": "True when the packet says the cargo is singing or telepathic. False when it explicitly says neither. Null when the packet does not say."
+    },
+    "hazard_class": {
+      "type": ["string", "null"],
+      "enum": ["other", "class4_acoustic", null],
+      "title": "Hazard class",
+      "description": "other for ordinary freight. class4_acoustic only when the packet says acoustic class 4. Null when unknown."
+    },
+    "cert_status": {
+      "type": ["string", "null"],
+      "enum": ["valid", "expired", "missing", null],
+      "title": "Certificate status",
+      "description": "missing means the packet explicitly says the certificate is not on file. Null means the status is unknown."
+    },
+    "waiver_status": {
+      "type": ["string", "null"],
+      "enum": ["valid", "expired", "missing", null],
+      "title": "Waiver status",
+      "description": "missing means an emergency waiver is explicitly not on file. Null means unknown or not stated."
+    },
+    "seal_status": {
+      "type": ["string", "null"],
+      "enum": ["intact", "damaged", null],
+      "title": "Seal status",
+      "description": "damaged only for a confirmed present defect. A corrected historical suspicion is not damaged. Null when unknown."
+    },
+    "seal_pressure_kpa": {
+      "type": ["string", "null"],
+      "title": "Seal pressure",
+      "description": "The printed nonnegative kilopascal reading as a decimal string, or null when no readable measurement is present. Do not invent a number."
+    },
+    "manifest_gross_weight_kg": {
+      "type": ["string", "null"],
+      "title": "Manifest gross weight",
+      "description": "The printed positive manifest gross weight in kilograms as a decimal string, or null when it is not stated."
+    },
+    "certificate_gross_weight_kg": {
+      "type": ["string", "null"],
+      "title": "Certificate gross weight",
+      "description": "The printed positive certificate gross weight in kilograms as a decimal string, or null when it is not stated."
+    },
+    "conflicted_fields": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true,
+      "maxItems": 9,
+      "title": "Conflicted fields",
+      "description": "Names of fields whose statements in the packet do not agree. Empty when there is no contradiction."
+    }
+  }
+}

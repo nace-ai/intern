@@ -1,0 +1,2 @@
+{"type": "non_json", "text": "intern: System 1 (decisions-api:drex-latest) did not answer check in 7s of retries: RuntimeError: every decision model failed: Client error '403 Forbidden' for url 'https://console.nace.ai/v1/systemone'"}
+{"type": "non_json", "text": "For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403; the harness does not run without System 1"}

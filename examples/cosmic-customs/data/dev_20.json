@@ -1,0 +1,2388 @@
+[
+  {
+    "case_id": "DEV-01",
+    "split": "dev",
+    "template_family": "ledger",
+    "rule_signature": "clear_ordinary",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "100",
+      "manifest_gross_weight_kg": "993",
+      "certificate_gross_weight_kg": "993",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-312038",
+        "kind": "cargo_manifest",
+        "text": "CARGO MANIFEST\nReference K628935. Specimen common name: Velvet Spore. Folio 383427.\nBerth note Kite Yard. Canteen chit 9583 has no containment meaning. Officer N. Brant printed the slip.\nOrganism flag: the cargo is not singing and is not telepathic.\nHazard class recorded as ordinary, not acoustic class 4.\nManifest gross weight: 993 kg."
+      },
+      {
+        "document_id": "DOC-998487",
+        "kind": "containment_certificate",
+        "text": "CONTAINMENT CERTIFICATE\nReference K628935. Specimen common name: Velvet Spore. Folio 149018.\nContainment certificate status: valid.\nCertificate gross weight: 993 kg."
+      },
+      {
+        "document_id": "DOC-245453",
+        "kind": "inspector_note",
+        "text": "INSPECTOR NOTE\nReference K628935. Specimen common name: Velvet Spore. Folio 457786.\nContainment seal condition: intact.\nSeal pressure gauge reads 100 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-312038",
+              "quote": "Organism flag: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-312038",
+              "quote": "Hazard class recorded as ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-998487",
+              "quote": "Containment certificate status: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-245453",
+              "quote": "Containment seal condition: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "100",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-245453",
+              "quote": "Seal pressure gauge reads 100 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "993",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-312038",
+              "quote": "Manifest gross weight: 993 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "993",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-998487",
+              "quote": "Certificate gross weight: 993 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-02",
+    "split": "dev",
+    "template_family": "telegraph",
+    "rule_signature": "clear_exact_pressure_90",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "90",
+      "manifest_gross_weight_kg": "1535",
+      "certificate_gross_weight_kg": "1535",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-601261",
+        "kind": "cargo_manifest",
+        "text": "MANIFEST BURST\nBerth note Kite Yard. Canteen chit 9915 has no containment meaning. Officer R. Voss printed the slip.\nCARGO SINGS OR THINKS: no, neither singing nor telepathic.\nHAZARD: ordinary. Not acoustic class 4.\nGROSS ON MANIFEST: 1535 kg.\nReference K680535. Specimen common name: Paper Squid. Folio 575572."
+      },
+      {
+        "document_id": "DOC-862645",
+        "kind": "containment_certificate",
+        "text": "CERTIFICATE BURST\nCERTIFICATE: valid.\nGROSS ON CERTIFICATE: 1535 kg.\nReference K680535. Specimen common name: Paper Squid. Folio 311521."
+      },
+      {
+        "document_id": "DOC-795685",
+        "kind": "inspector_note",
+        "text": "WATCH BURST\nSEAL: intact.\nPRESSURE: 90 kPa.\nReference K680535. Specimen common name: Paper Squid. Folio 263275."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-601261",
+              "quote": "CARGO SINGS OR THINKS: no, neither singing nor telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-601261",
+              "quote": "HAZARD: ordinary. Not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-862645",
+              "quote": "CERTIFICATE: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-795685",
+              "quote": "SEAL: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "90",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-795685",
+              "quote": "PRESSURE: 90 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1535",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-601261",
+              "quote": "GROSS ON MANIFEST: 1535 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1535",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-862645",
+              "quote": "GROSS ON CERTIFICATE: 1535 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-03",
+    "split": "dev",
+    "template_family": "customs_form",
+    "rule_signature": "clear_exact_weight_3pct",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "104",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1030.00",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-565962",
+        "kind": "cargo_manifest",
+        "text": "FORM C-MANIFEST\nDeclared gross mass: 1000 kg.\nHazard box: ordinary freight, outside acoustic class 4.\nBio-signal box: neither a cantor nor a mind-link is present.\nBerth note Vesper Dock. Canteen chit 4251 has no containment meaning. Officer S. Quill printed the slip.\nReference K422972. Specimen common name: Paper Squid. Folio 731774."
+      },
+      {
+        "document_id": "DOC-688936",
+        "kind": "containment_certificate",
+        "text": "FORM C-CERTIFICATE\nCertified gross mass: 1030 kg.\nCertificate box: valid.\nReference K422972. Specimen common name: Paper Squid. Folio 816272."
+      },
+      {
+        "document_id": "DOC-672518",
+        "kind": "inspector_note",
+        "text": "FORM C-NOTE\nPressure box: 104 kPa.\nSeal box: intact.\nReference K422972. Specimen common name: Paper Squid. Folio 127107."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-565962",
+              "quote": "Bio-signal box: neither a cantor nor a mind-link is present."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-565962",
+              "quote": "Hazard box: ordinary freight, outside acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-688936",
+              "quote": "Certificate box: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-672518",
+              "quote": "Seal box: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "104",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-672518",
+              "quote": "Pressure box: 104 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-565962",
+              "quote": "Declared gross mass: 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1030.00",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-688936",
+              "quote": "Certified gross mass: 1030 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-04",
+    "split": "dev",
+    "template_family": "ledger",
+    "rule_signature": "clear_class4_alone",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "class4_acoustic",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "97",
+      "manifest_gross_weight_kg": "1396",
+      "certificate_gross_weight_kg": "1396",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-645625",
+        "kind": "cargo_manifest",
+        "text": "CARGO MANIFEST\nReference K538663. Specimen common name: Glass Newt. Folio 933965.\nBerth note Orchard Lock. Canteen chit 3349 has no containment meaning. Officer R. Voss printed the slip.\nOrganism flag: the cargo is not singing and is not telepathic.\nHazard class recorded as acoustic class 4.\nManifest gross weight: 1396 kg."
+      },
+      {
+        "document_id": "DOC-622658",
+        "kind": "containment_certificate",
+        "text": "CONTAINMENT CERTIFICATE\nReference K538663. Specimen common name: Glass Newt. Folio 496371.\nContainment certificate status: valid.\nCertificate gross weight: 1396 kg."
+      },
+      {
+        "document_id": "DOC-955993",
+        "kind": "inspector_note",
+        "text": "INSPECTOR NOTE\nReference K538663. Specimen common name: Glass Newt. Folio 274020.\nContainment seal condition: intact.\nSeal pressure gauge reads 97 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-645625",
+              "quote": "Organism flag: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "class4_acoustic",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-645625",
+              "quote": "Hazard class recorded as acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-622658",
+              "quote": "Containment certificate status: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-955993",
+              "quote": "Containment seal condition: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "97",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-955993",
+              "quote": "Seal pressure gauge reads 97 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1396",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-645625",
+              "quote": "Manifest gross weight: 1396 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1396",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-622658",
+              "quote": "Certificate gross weight: 1396 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-05",
+    "split": "dev",
+    "template_family": "telegraph",
+    "rule_signature": "clear_waiver_exception",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "111",
+      "manifest_gross_weight_kg": "1380",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-951610",
+        "kind": "cargo_manifest",
+        "text": "MANIFEST BURST\nBerth note North Cask. Canteen chit 1170 has no containment meaning. Officer N. Brant printed the slip.\nCARGO SINGS OR THINKS: yes.\nHAZARD: ordinary. Not acoustic class 4.\nGROSS ON MANIFEST: 1380 kg.\nReference K566737. Specimen common name: Velvet Spore. Folio 645972."
+      },
+      {
+        "document_id": "DOC-836408",
+        "kind": "containment_certificate",
+        "text": "CERTIFICATE BURST\nCERTIFICATE: not on file.\nWAIVER: valid.\nReference K566737. Specimen common name: Velvet Spore. Folio 870344."
+      },
+      {
+        "document_id": "DOC-760618",
+        "kind": "inspector_note",
+        "text": "WATCH BURST\nSEAL: intact.\nPRESSURE: 111 kPa.\nReference K566737. Specimen common name: Velvet Spore. Folio 313149."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-951610",
+              "quote": "CARGO SINGS OR THINKS: yes."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-951610",
+              "quote": "HAZARD: ordinary. Not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-836408",
+              "quote": "CERTIFICATE: not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-836408",
+              "quote": "WAIVER: valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-760618",
+              "quote": "SEAL: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "111",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-760618",
+              "quote": "PRESSURE: 111 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1380",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-951610",
+              "quote": "GROSS ON MANIFEST: 1380 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-06",
+    "split": "dev",
+    "template_family": "customs_form",
+    "rule_signature": "clear_expired_certificate_nonsinging",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "expired",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "105",
+      "manifest_gross_weight_kg": "554",
+      "certificate_gross_weight_kg": "554",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-145526",
+        "kind": "cargo_manifest",
+        "text": "FORM C-MANIFEST\nDeclared gross mass: 554 kg.\nHazard box: ordinary freight, outside acoustic class 4.\nBio-signal box: neither a cantor nor a mind-link is present.\nBerth note Blue Gantries. Canteen chit 4702 has no containment meaning. Officer A. Keene printed the slip.\nReference K813474. Specimen common name: Choir Eel. Folio 574277."
+      },
+      {
+        "document_id": "DOC-491452",
+        "kind": "containment_certificate",
+        "text": "FORM C-CERTIFICATE\nCertified gross mass: 554 kg.\nCertificate box: expired.\nReference K813474. Specimen common name: Choir Eel. Folio 478462."
+      },
+      {
+        "document_id": "DOC-642441",
+        "kind": "inspector_note",
+        "text": "FORM C-NOTE\nPressure box: 105 kPa.\nSeal box: intact.\nReference K813474. Specimen common name: Choir Eel. Folio 197721."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-145526",
+              "quote": "Bio-signal box: neither a cantor nor a mind-link is present."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-145526",
+              "quote": "Hazard box: ordinary freight, outside acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "expired",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-491452",
+              "quote": "Certificate box: expired."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-642441",
+              "quote": "Seal box: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "105",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-642441",
+              "quote": "Pressure box: 105 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "554",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-145526",
+              "quote": "Declared gross mass: 554 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "554",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-491452",
+              "quote": "Certified gross mass: 554 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-07",
+    "split": "dev",
+    "template_family": "ledger",
+    "rule_signature": "clear_missing_certificate_nonsinging",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "122",
+      "manifest_gross_weight_kg": "1276",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-936397",
+        "kind": "cargo_manifest",
+        "text": "CARGO MANIFEST\nReference K178667. Specimen common name: Amber Krill. Folio 331467.\nBerth note Kite Yard. Canteen chit 7773 has no containment meaning. Officer I. Pell printed the slip.\nOrganism flag: the cargo is not singing and is not telepathic.\nHazard class recorded as ordinary, not acoustic class 4.\nManifest gross weight: 1276 kg."
+      },
+      {
+        "document_id": "DOC-615979",
+        "kind": "containment_certificate",
+        "text": "CONTAINMENT CERTIFICATE\nReference K178667. Specimen common name: Amber Krill. Folio 639906.\nContainment certificate status: not on file."
+      },
+      {
+        "document_id": "DOC-198684",
+        "kind": "inspector_note",
+        "text": "INSPECTOR NOTE\nReference K178667. Specimen common name: Amber Krill. Folio 979653.\nContainment seal condition: intact.\nSeal pressure gauge reads 122 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-936397",
+              "quote": "Organism flag: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-936397",
+              "quote": "Hazard class recorded as ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-615979",
+              "quote": "Containment certificate status: not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-198684",
+              "quote": "Containment seal condition: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "122",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-198684",
+              "quote": "Seal pressure gauge reads 122 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1276",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-936397",
+              "quote": "Manifest gross weight: 1276 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-08",
+    "split": "dev",
+    "template_family": "telegraph",
+    "rule_signature": "clear_corrected_suspicion",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1055",
+      "certificate_gross_weight_kg": "1055",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-219732",
+        "kind": "cargo_manifest",
+        "text": "MANIFEST BURST\nBerth note Kite Yard. Canteen chit 7194 has no containment meaning. Officer I. Pell printed the slip.\nCARGO SINGS OR THINKS: no, neither singing nor telepathic.\nHAZARD: ordinary. Not acoustic class 4.\nGROSS ON MANIFEST: 1055 kg.\nReference K246934. Specimen common name: Lumen Moth. Folio 780657."
+      },
+      {
+        "document_id": "DOC-124930",
+        "kind": "containment_certificate",
+        "text": "CERTIFICATE BURST\nCERTIFICATE: valid.\nGROSS ON CERTIFICATE: 1055 kg.\nReference K246934. Specimen common name: Lumen Moth. Folio 368997."
+      },
+      {
+        "document_id": "DOC-828318",
+        "kind": "inspector_note",
+        "text": "WATCH BURST\nSEAL: intact.\nFIRST GUESS: ruptured seal. CORRECTION: that suspicion was withdrawn. SEAL NOW: intact.\nPRESSURE: 101 kPa.\nReference K246934. Specimen common name: Lumen Moth. Folio 314593."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-219732",
+              "quote": "CARGO SINGS OR THINKS: no, neither singing nor telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-219732",
+              "quote": "HAZARD: ordinary. Not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-124930",
+              "quote": "CERTIFICATE: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-828318",
+              "quote": "SEAL: intact."
+            },
+            {
+              "document_id": "DOC-828318",
+              "quote": "FIRST GUESS: ruptured seal. CORRECTION: that suspicion was withdrawn. SEAL NOW: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-828318",
+              "quote": "PRESSURE: 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1055",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-219732",
+              "quote": "GROSS ON MANIFEST: 1055 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1055",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-124930",
+              "quote": "GROSS ON CERTIFICATE: 1055 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-09",
+    "split": "dev",
+    "template_family": "customs_form",
+    "rule_signature": "hold_damaged_seal",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "damaged",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "989",
+      "certificate_gross_weight_kg": "989",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-269449",
+        "kind": "cargo_manifest",
+        "text": "FORM C-MANIFEST\nDeclared gross mass: 989 kg.\nHazard box: ordinary freight, outside acoustic class 4.\nBio-signal box: neither a cantor nor a mind-link is present.\nBerth note Blue Gantries. Canteen chit 3620 has no containment meaning. Officer S. Quill printed the slip.\nReference K180415. Specimen common name: Quiet Fern. Folio 879206."
+      },
+      {
+        "document_id": "DOC-935569",
+        "kind": "containment_certificate",
+        "text": "FORM C-CERTIFICATE\nCertified gross mass: 989 kg.\nCertificate box: valid.\nReference K180415. Specimen common name: Quiet Fern. Folio 411635."
+      },
+      {
+        "document_id": "DOC-869856",
+        "kind": "inspector_note",
+        "text": "FORM C-NOTE\nPressure box: 110 kPa.\nSeal box: damaged.\nReference K180415. Specimen common name: Quiet Fern. Folio 472310."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-269449",
+              "quote": "Bio-signal box: neither a cantor nor a mind-link is present."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-269449",
+              "quote": "Hazard box: ordinary freight, outside acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-935569",
+              "quote": "Certificate box: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "damaged",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-869856",
+              "quote": "Seal box: damaged."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-869856",
+              "quote": "Pressure box: 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "989",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-269449",
+              "quote": "Declared gross mass: 989 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "989",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-935569",
+              "quote": "Certified gross mass: 989 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "HOLD"
+  },
+  {
+    "case_id": "DEV-10",
+    "split": "dev",
+    "template_family": "ledger",
+    "rule_signature": "hold_low_pressure",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "89.999",
+      "manifest_gross_weight_kg": "806",
+      "certificate_gross_weight_kg": "806",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-956803",
+        "kind": "cargo_manifest",
+        "text": "CARGO MANIFEST\nReference K902333. Specimen common name: Cinder Bee. Folio 345056.\nBerth note Orchard Lock. Canteen chit 1420 has no containment meaning. Officer S. Quill printed the slip.\nOrganism flag: the cargo is not singing and is not telepathic.\nHazard class recorded as ordinary, not acoustic class 4.\nManifest gross weight: 806 kg."
+      },
+      {
+        "document_id": "DOC-434224",
+        "kind": "containment_certificate",
+        "text": "CONTAINMENT CERTIFICATE\nReference K902333. Specimen common name: Cinder Bee. Folio 230134.\nContainment certificate status: valid.\nCertificate gross weight: 806 kg."
+      },
+      {
+        "document_id": "DOC-838678",
+        "kind": "inspector_note",
+        "text": "INSPECTOR NOTE\nReference K902333. Specimen common name: Cinder Bee. Folio 229747.\nContainment seal condition: intact.\nSeal pressure gauge reads 89.999 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-956803",
+              "quote": "Organism flag: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-956803",
+              "quote": "Hazard class recorded as ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-434224",
+              "quote": "Containment certificate status: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-838678",
+              "quote": "Containment seal condition: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "89.999",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-838678",
+              "quote": "Seal pressure gauge reads 89.999 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "806",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-956803",
+              "quote": "Manifest gross weight: 806 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "806",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-434224",
+              "quote": "Certificate gross weight: 806 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "HOLD"
+  },
+  {
+    "case_id": "DEV-11",
+    "split": "dev",
+    "template_family": "telegraph",
+    "rule_signature": "review_conflict",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "129",
+      "manifest_gross_weight_kg": "932",
+      "certificate_gross_weight_kg": "932",
+      "conflicted_fields": [
+        "hazard_class"
+      ]
+    },
+    "documents": [
+      {
+        "document_id": "DOC-473203",
+        "kind": "cargo_manifest",
+        "text": "MANIFEST BURST\nBerth note Blue Gantries. Canteen chit 6876 has no containment meaning. Officer R. Voss printed the slip.\nCARGO SINGS OR THINKS: no, neither singing nor telepathic.\nHAZARD: ordinary. Not acoustic class 4.\nGROSS ON MANIFEST: 932 kg.\nReference K402419. Specimen common name: Lumen Moth. Folio 123617."
+      },
+      {
+        "document_id": "DOC-958866",
+        "kind": "containment_certificate",
+        "text": "CERTIFICATE BURST\nCERTIFICATE: valid.\nGROSS ON CERTIFICATE: 932 kg.\nReference K402419. Specimen common name: Lumen Moth. Folio 595317."
+      },
+      {
+        "document_id": "DOC-472414",
+        "kind": "inspector_note",
+        "text": "WATCH BURST\nLATER TICK: clerk marks acoustic class 4.\nThe two readings do not agree.\nSEAL: intact.\nPRESSURE: 129 kPa.\nReference K402419. Specimen common name: Lumen Moth. Folio 377896."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-473203",
+              "quote": "CARGO SINGS OR THINKS: no, neither singing nor telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "conflicted",
+          "quotes": [
+            {
+              "document_id": "DOC-473203",
+              "quote": "HAZARD: ordinary. Not acoustic class 4."
+            },
+            {
+              "document_id": "DOC-472414",
+              "quote": "LATER TICK: clerk marks acoustic class 4."
+            },
+            {
+              "document_id": "DOC-472414",
+              "quote": "The two readings do not agree."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-958866",
+              "quote": "CERTIFICATE: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-472414",
+              "quote": "SEAL: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "129",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-472414",
+              "quote": "PRESSURE: 129 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "932",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-473203",
+              "quote": "GROSS ON MANIFEST: 932 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "932",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-958866",
+              "quote": "GROSS ON CERTIFICATE: 932 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [
+            "hazard_class"
+          ],
+          "status": "conflicted",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "DEV-12",
+    "split": "dev",
+    "template_family": "customs_form",
+    "rule_signature": "review_missing_required",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": null,
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "119",
+      "manifest_gross_weight_kg": "895",
+      "certificate_gross_weight_kg": "895",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-547997",
+        "kind": "cargo_manifest",
+        "text": "FORM C-MANIFEST\nDeclared gross mass: 895 kg.\nBio-signal box: neither a cantor nor a mind-link is present.\nBerth note Vesper Dock. Canteen chit 1274 has no containment meaning. Officer R. Voss printed the slip.\nReference K259187. Specimen common name: Velvet Spore. Folio 381911."
+      },
+      {
+        "document_id": "DOC-526728",
+        "kind": "containment_certificate",
+        "text": "FORM C-CERTIFICATE\nCertified gross mass: 895 kg.\nCertificate box: valid.\nReference K259187. Specimen common name: Velvet Spore. Folio 805826."
+      },
+      {
+        "document_id": "DOC-115898",
+        "kind": "inspector_note",
+        "text": "FORM C-NOTE\nPressure box: 119 kPa.\nSeal box: intact.\nReference K259187. Specimen common name: Velvet Spore. Folio 801413."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-547997",
+              "quote": "Bio-signal box: neither a cantor nor a mind-link is present."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-526728",
+              "quote": "Certificate box: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-115898",
+              "quote": "Seal box: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "119",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-115898",
+              "quote": "Pressure box: 119 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "895",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-547997",
+              "quote": "Declared gross mass: 895 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "895",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-526728",
+              "quote": "Certified gross mass: 895 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "DEV-13",
+    "split": "dev",
+    "template_family": "ledger",
+    "rule_signature": "review_weight_mismatch",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "121",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1030.001",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-949167",
+        "kind": "cargo_manifest",
+        "text": "CARGO MANIFEST\nReference K653232. Specimen common name: Quiet Fern. Folio 644123.\nBerth note Ring Seven. Canteen chit 9405 has no containment meaning. Officer A. Keene printed the slip.\nOrganism flag: the cargo is not singing and is not telepathic.\nHazard class recorded as ordinary, not acoustic class 4.\nManifest gross weight: 1000 kg."
+      },
+      {
+        "document_id": "DOC-751514",
+        "kind": "containment_certificate",
+        "text": "CONTAINMENT CERTIFICATE\nReference K653232. Specimen common name: Quiet Fern. Folio 613735.\nContainment certificate status: valid.\nCertificate gross weight: 1030.001 kg."
+      },
+      {
+        "document_id": "DOC-621336",
+        "kind": "inspector_note",
+        "text": "INSPECTOR NOTE\nReference K653232. Specimen common name: Quiet Fern. Folio 984635.\nContainment seal condition: intact.\nSeal pressure gauge reads 121 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-949167",
+              "quote": "Organism flag: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-949167",
+              "quote": "Hazard class recorded as ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-751514",
+              "quote": "Containment certificate status: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-621336",
+              "quote": "Containment seal condition: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "121",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-621336",
+              "quote": "Seal pressure gauge reads 121 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-949167",
+              "quote": "Manifest gross weight: 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1030.001",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-751514",
+              "quote": "Certificate gross weight: 1030.001 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "DEV-14",
+    "split": "dev",
+    "template_family": "telegraph",
+    "rule_signature": "review_singing_without_certificate",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "missing",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "114",
+      "manifest_gross_weight_kg": "755",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-177447",
+        "kind": "cargo_manifest",
+        "text": "MANIFEST BURST\nBerth note Kite Yard. Canteen chit 9920 has no containment meaning. Officer A. Keene printed the slip.\nCARGO SINGS OR THINKS: yes.\nHAZARD: ordinary. Not acoustic class 4.\nGROSS ON MANIFEST: 755 kg.\nReference K731773. Specimen common name: Choir Eel. Folio 346190."
+      },
+      {
+        "document_id": "DOC-738617",
+        "kind": "containment_certificate",
+        "text": "CERTIFICATE BURST\nCERTIFICATE: not on file.\nWAIVER: not on file.\nReference K731773. Specimen common name: Choir Eel. Folio 767211."
+      },
+      {
+        "document_id": "DOC-161641",
+        "kind": "inspector_note",
+        "text": "WATCH BURST\nSEAL: intact.\nPRESSURE: 114 kPa.\nReference K731773. Specimen common name: Choir Eel. Folio 340408."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-177447",
+              "quote": "CARGO SINGS OR THINKS: yes."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-177447",
+              "quote": "HAZARD: ordinary. Not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-738617",
+              "quote": "CERTIFICATE: not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-738617",
+              "quote": "WAIVER: not on file."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-161641",
+              "quote": "SEAL: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "114",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-161641",
+              "quote": "PRESSURE: 114 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "755",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-177447",
+              "quote": "GROSS ON MANIFEST: 755 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "DEV-15",
+    "split": "dev",
+    "template_family": "customs_form",
+    "rule_signature": "review_class4_waiver_exclusion",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "class4_acoustic",
+      "cert_status": "expired",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "107",
+      "manifest_gross_weight_kg": "1231",
+      "certificate_gross_weight_kg": "1231",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-153981",
+        "kind": "cargo_manifest",
+        "text": "FORM C-MANIFEST\nDeclared gross mass: 1231 kg.\nHazard box: acoustic class 4.\nBio-signal box: a cantor or mind-link is present.\nBerth note Orchard Lock. Canteen chit 3223 has no containment meaning. Officer R. Voss printed the slip.\nReference K180679. Specimen common name: Quiet Fern. Folio 245777."
+      },
+      {
+        "document_id": "DOC-601821",
+        "kind": "containment_certificate",
+        "text": "FORM C-CERTIFICATE\nWaiver box: valid.\nCertified gross mass: 1231 kg.\nCertificate box: expired.\nReference K180679. Specimen common name: Quiet Fern. Folio 840644."
+      },
+      {
+        "document_id": "DOC-113437",
+        "kind": "inspector_note",
+        "text": "FORM C-NOTE\nPressure box: 107 kPa.\nSeal box: intact.\nReference K180679. Specimen common name: Quiet Fern. Folio 927554."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-153981",
+              "quote": "Bio-signal box: a cantor or mind-link is present."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "class4_acoustic",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-153981",
+              "quote": "Hazard box: acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "expired",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-601821",
+              "quote": "Certificate box: expired."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-601821",
+              "quote": "Waiver box: valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-113437",
+              "quote": "Seal box: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "107",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-113437",
+              "quote": "Pressure box: 107 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1231",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-153981",
+              "quote": "Declared gross mass: 1231 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1231",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-601821",
+              "quote": "Certified gross mass: 1231 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "DEV-16",
+    "split": "dev",
+    "template_family": "ledger",
+    "rule_signature": "review_unknown_certificate",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": null,
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "107",
+      "manifest_gross_weight_kg": "1436",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-680384",
+        "kind": "cargo_manifest",
+        "text": "CARGO MANIFEST\nReference K878234. Specimen common name: Choir Eel. Folio 823679.\nBerth note Vesper Dock. Canteen chit 1760 has no containment meaning. Officer M. Oster printed the slip.\nOrganism flag: the cargo is not singing and is not telepathic.\nHazard class recorded as ordinary, not acoustic class 4.\nManifest gross weight: 1436 kg."
+      },
+      {
+        "document_id": "DOC-387439",
+        "kind": "containment_certificate",
+        "text": "CONTAINMENT CERTIFICATE\nReference K878234. Specimen common name: Choir Eel. Folio 720825.\nContainment certificate status was not read and remains unknown."
+      },
+      {
+        "document_id": "DOC-635176",
+        "kind": "inspector_note",
+        "text": "INSPECTOR NOTE\nReference K878234. Specimen common name: Choir Eel. Folio 185086.\nContainment seal condition: intact.\nSeal pressure gauge reads 107 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-680384",
+              "quote": "Organism flag: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-680384",
+              "quote": "Hazard class recorded as ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": [
+            {
+              "document_id": "DOC-387439",
+              "quote": "Containment certificate status was not read and remains unknown."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-635176",
+              "quote": "Containment seal condition: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "107",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-635176",
+              "quote": "Seal pressure gauge reads 107 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1436",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-680384",
+              "quote": "Manifest gross weight: 1436 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "DEV-17",
+    "split": "dev",
+    "template_family": "telegraph",
+    "rule_signature": "hold_damaged_seal",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "damaged",
+      "seal_pressure_kpa": "122",
+      "manifest_gross_weight_kg": "788",
+      "certificate_gross_weight_kg": "788",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-840123",
+        "kind": "cargo_manifest",
+        "text": "MANIFEST BURST\nBerth note Vesper Dock. Canteen chit 1556 has no containment meaning. Officer R. Voss printed the slip.\nCARGO SINGS OR THINKS: no, neither singing nor telepathic.\nHAZARD: ordinary. Not acoustic class 4.\nGROSS ON MANIFEST: 788 kg.\nReference K605696. Specimen common name: Quiet Fern. Folio 749891."
+      },
+      {
+        "document_id": "DOC-443646",
+        "kind": "containment_certificate",
+        "text": "CERTIFICATE BURST\nCERTIFICATE: valid.\nGROSS ON CERTIFICATE: 788 kg.\nReference K605696. Specimen common name: Quiet Fern. Folio 244671."
+      },
+      {
+        "document_id": "DOC-132817",
+        "kind": "inspector_note",
+        "text": "WATCH BURST\nSEAL: damaged.\nPRESSURE: 122 kPa.\nReference K605696. Specimen common name: Quiet Fern. Folio 422090."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-840123",
+              "quote": "CARGO SINGS OR THINKS: no, neither singing nor telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-840123",
+              "quote": "HAZARD: ordinary. Not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-443646",
+              "quote": "CERTIFICATE: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "damaged",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-132817",
+              "quote": "SEAL: damaged."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "122",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-132817",
+              "quote": "PRESSURE: 122 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "788",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-840123",
+              "quote": "GROSS ON MANIFEST: 788 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "788",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-443646",
+              "quote": "GROSS ON CERTIFICATE: 788 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "HOLD"
+  },
+  {
+    "case_id": "DEV-18",
+    "split": "dev",
+    "template_family": "customs_form",
+    "rule_signature": "clear_ordinary",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "100",
+      "manifest_gross_weight_kg": "949",
+      "certificate_gross_weight_kg": "949",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-920847",
+        "kind": "cargo_manifest",
+        "text": "FORM C-MANIFEST\nDeclared gross mass: 949 kg.\nHazard box: ordinary freight, outside acoustic class 4.\nBio-signal box: neither a cantor nor a mind-link is present.\nBerth note North Cask. Canteen chit 7246 has no containment meaning. Officer R. Voss printed the slip.\nReference K336463. Specimen common name: Cinder Bee. Folio 457124."
+      },
+      {
+        "document_id": "DOC-352623",
+        "kind": "containment_certificate",
+        "text": "FORM C-CERTIFICATE\nCertified gross mass: 949 kg.\nCertificate box: valid.\nReference K336463. Specimen common name: Cinder Bee. Folio 439083."
+      },
+      {
+        "document_id": "DOC-135605",
+        "kind": "inspector_note",
+        "text": "FORM C-NOTE\nPressure box: 100 kPa.\nSeal box: intact.\nReference K336463. Specimen common name: Cinder Bee. Folio 484079."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-920847",
+              "quote": "Bio-signal box: neither a cantor nor a mind-link is present."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-920847",
+              "quote": "Hazard box: ordinary freight, outside acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-352623",
+              "quote": "Certificate box: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-135605",
+              "quote": "Seal box: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "100",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-135605",
+              "quote": "Pressure box: 100 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "949",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-920847",
+              "quote": "Declared gross mass: 949 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "949",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-352623",
+              "quote": "Certified gross mass: 949 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "DEV-19",
+    "split": "dev",
+    "template_family": "ledger",
+    "rule_signature": "review_weight_mismatch",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "107",
+      "manifest_gross_weight_kg": "872",
+      "certificate_gross_weight_kg": "907.752",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-891956",
+        "kind": "cargo_manifest",
+        "text": "CARGO MANIFEST\nReference K486130. Specimen common name: Quiet Fern. Folio 274022.\nBerth note Orchard Lock. Canteen chit 3768 has no containment meaning. Officer N. Brant printed the slip.\nOrganism flag: the cargo is not singing and is not telepathic.\nHazard class recorded as ordinary, not acoustic class 4.\nManifest gross weight: 872 kg."
+      },
+      {
+        "document_id": "DOC-802740",
+        "kind": "containment_certificate",
+        "text": "CONTAINMENT CERTIFICATE\nReference K486130. Specimen common name: Quiet Fern. Folio 507525.\nContainment certificate status: valid.\nCertificate gross weight: 907.752 kg."
+      },
+      {
+        "document_id": "DOC-903306",
+        "kind": "inspector_note",
+        "text": "INSPECTOR NOTE\nReference K486130. Specimen common name: Quiet Fern. Folio 243851.\nContainment seal condition: intact.\nSeal pressure gauge reads 107 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-891956",
+              "quote": "Organism flag: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-891956",
+              "quote": "Hazard class recorded as ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-802740",
+              "quote": "Containment certificate status: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-903306",
+              "quote": "Containment seal condition: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "107",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-903306",
+              "quote": "Seal pressure gauge reads 107 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "872",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-891956",
+              "quote": "Manifest gross weight: 872 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "907.752",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-802740",
+              "quote": "Certificate gross weight: 907.752 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "DEV-20",
+    "split": "dev",
+    "template_family": "telegraph",
+    "rule_signature": "hold_low_pressure",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "70",
+      "manifest_gross_weight_kg": "865",
+      "certificate_gross_weight_kg": "865",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-777012",
+        "kind": "cargo_manifest",
+        "text": "MANIFEST BURST\nBerth note North Cask. Canteen chit 4363 has no containment meaning. Officer N. Brant printed the slip.\nCARGO SINGS OR THINKS: no, neither singing nor telepathic.\nHAZARD: ordinary. Not acoustic class 4.\nGROSS ON MANIFEST: 865 kg.\nReference K971598. Specimen common name: Lumen Moth. Folio 401411."
+      },
+      {
+        "document_id": "DOC-830783",
+        "kind": "containment_certificate",
+        "text": "CERTIFICATE BURST\nCERTIFICATE: valid.\nGROSS ON CERTIFICATE: 865 kg.\nReference K971598. Specimen common name: Lumen Moth. Folio 363156."
+      },
+      {
+        "document_id": "DOC-413008",
+        "kind": "inspector_note",
+        "text": "WATCH BURST\nSEAL: intact.\nPRESSURE: 70 kPa.\nReference K971598. Specimen common name: Lumen Moth. Folio 804517."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-777012",
+              "quote": "CARGO SINGS OR THINKS: no, neither singing nor telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-777012",
+              "quote": "HAZARD: ordinary. Not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-830783",
+              "quote": "CERTIFICATE: valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-413008",
+              "quote": "SEAL: intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "70",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-413008",
+              "quote": "PRESSURE: 70 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "865",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-777012",
+              "quote": "GROSS ON MANIFEST: 865 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "865",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-830783",
+              "quote": "GROSS ON CERTIFICATE: 865 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "HOLD"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "adobe_assets_created": false,
+  "files": [
+    {
+      "file": "specimen_01.png",
+      "prompt": "Scientific illustration of a small luminous moth sealed in a customs specimen tray, cream paper background, no text.",
+      "used_source": "pillow_geometric_fallback"
+    },
+    {
+      "file": "specimen_02.png",
+      "prompt": "Scientific illustration of a glass-green newt in a round specimen dish, cream paper background, no text.",
+      "used_source": "pillow_geometric_fallback"
+    },
+    {
+      "file": "specimen_03.png",
+      "prompt": "Scientific illustration of a paper-colored squid in a brass specimen ring, cream paper background, no text.",
+      "used_source": "pillow_geometric_fallback"
+    },
+    {
+      "file": "containment_seal.png",
+      "prompt": "Circular mechanical containment seal, navy and amber ink, engraved rings, no letters.",
+      "used_source": "pillow_geometric_fallback"
+    },
+    {
+      "file": "customs_stamp.png",
+      "prompt": "Worn circular orbital customs stamp, amber ink on transparent background, no readable verdict.",
+      "used_source": "pillow_geometric_fallback"
+    }
+  ],
+  "note": "Geometric files are generated in this repository. Claim Adobe Firefly only for files placed in assets/adobe_firefly."
+}

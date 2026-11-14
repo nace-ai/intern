@@ -1,0 +1,1754 @@
+{
+  "run_id": "2026-11-14T201531+0000-32645d3f",
+  "summary": {
+    "run_id": "2026-11-14T201531+0000-32645d3f",
+    "mode": "mock",
+    "measurements": "simulated",
+    "planned": 10,
+    "attempted": 10,
+    "field_scores": [
+      {
+        "field_matches": 5,
+        "fields_scored": 8,
+        "missing_or_not_found": 4,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 6,
+        "fields_scored": 8,
+        "missing_or_not_found": 3,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 6,
+        "fields_scored": 8,
+        "missing_or_not_found": 3,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 8,
+        "fields_scored": 8,
+        "missing_or_not_found": 1,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 7,
+        "fields_scored": 8,
+        "missing_or_not_found": 2,
+        "ambiguous": 1,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 7,
+        "fields_scored": 8,
+        "missing_or_not_found": 2,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 6,
+        "fields_scored": 8,
+        "missing_or_not_found": 3,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 7,
+        "fields_scored": 8,
+        "missing_or_not_found": 2,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 8,
+        "fields_scored": 8,
+        "missing_or_not_found": 1,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      {
+        "field_matches": 7,
+        "fields_scored": 8,
+        "missing_or_not_found": 2,
+        "ambiguous": 0,
+        "packet_perfect": false
+      }
+    ],
+    "drex_on_extracted_evidence": {
+      "planned": 10,
+      "attempted": 10,
+      "completed": 10,
+      "failures": 0,
+      "accuracy": {
+        "numerator": 2,
+        "denominator": 10
+      },
+      "false_clearance": {
+        "numerator": 4,
+        "denominator": 7
+      },
+      "failure_rate": {
+        "numerator": 0,
+        "denominator": 10
+      },
+      "confusion_matrix": {
+        "CLEAR": {
+          "CLEAR": 1,
+          "HOLD": 0,
+          "REVIEW": 2,
+          "FAILURE": 0
+        },
+        "HOLD": {
+          "CLEAR": 1,
+          "HOLD": 0,
+          "REVIEW": 2,
+          "FAILURE": 0
+        },
+        "REVIEW": {
+          "CLEAR": 3,
+          "HOLD": 0,
+          "REVIEW": 1,
+          "FAILURE": 0
+        }
+      },
+      "latency_ms": {
+        "valid_response": {
+          "p50": null,
+          "p95": null,
+          "n": 0
+        },
+        "all_attempts": {
+          "p50": null,
+          "p95": null,
+          "n": 0
+        }
+      },
+      "cost_usd": {
+        "known_total": null,
+        "known_count": 0,
+        "unknown_count": 10
+      }
+    },
+    "known_cost_usd": null
+  },
+  "rows": [
+    {
+      "case_id": "TST-056",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": true,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The quartermaster heard song or a telepathic hail from this cask."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "other",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Stowage class is general goods, outside acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The containment paper is not on file."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The emergency chit is not on file."
+            }
+          ]
+        },
+        {
+          "path": "/seal_status",
+          "value": "intact",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The cask seal is intact."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "109",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The gauge on the cask stands at 109 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "651",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Tally weight of the cask is 651 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        }
+      ],
+      "field_score": {
+        "field_matches": 5,
+        "fields_scored": 8,
+        "missing_or_not_found": 4,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-056",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "REVIEW",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.15,
+            "REVIEW": 0.7
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "74423db063c103d737af5059a19bd85531cf14bbce8d8428c95f696eb71a7ad4",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-056",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "CLEAR",
+          "probabilities": {
+            "CLEAR": 0.7,
+            "HOLD": 0.15,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "74423db063c103d737af5059a19bd85531cf14bbce8d8428c95f696eb71a7ad4",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "74423db063c103d737af5059a19bd85531cf14bbce8d8428c95f696eb71a7ad4"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-099",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": true,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: this specimen sings or reaches by thought."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "other",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: hazard is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the certificate is not on file."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": "valid",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the emergency waiver is valid."
+            }
+          ]
+        },
+        {
+          "path": "/seal_status",
+          "value": "damaged",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the seal is damaged."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "106",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: recorded pressure is 106 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "1324",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: manifest gross is 1324 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        }
+      ],
+      "field_score": {
+        "field_matches": 6,
+        "fields_scored": 8,
+        "missing_or_not_found": 3,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-099",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "REVIEW",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.15,
+            "REVIEW": 0.7
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "f9b68a9604f788f0b1bca0927858b1770fa658645dfdfbc1e100c79743b07537",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-099",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "CLEAR",
+          "probabilities": {
+            "CLEAR": 0.7,
+            "HOLD": 0.15,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "f9b68a9604f788f0b1bca0927858b1770fa658645dfdfbc1e100c79743b07537",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "f9b68a9604f788f0b1bca0927858b1770fa658645dfdfbc1e100c79743b07537"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-036",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": true,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: this specimen sings or reaches by thought."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "other",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: hazard is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the certificate is not on file."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": "valid",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the emergency waiver is valid."
+            }
+          ]
+        },
+        {
+          "path": "/seal_status",
+          "value": "intact",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the seal is intact."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "124",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: recorded pressure is 124 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "918",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: manifest gross is 918 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        }
+      ],
+      "field_score": {
+        "field_matches": 6,
+        "fields_scored": 8,
+        "missing_or_not_found": 3,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-036",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "CLEAR",
+          "probabilities": {
+            "CLEAR": 0.7,
+            "HOLD": 0.15,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "902f3f1876c3f68e50a5fc9672ff86e97a48af1101e0c33b6d67a6c9bbdb35f9",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-036",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "CLEAR",
+          "probabilities": {
+            "CLEAR": 0.7,
+            "HOLD": 0.15,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "902f3f1876c3f68e50a5fc9672ff86e97a48af1101e0c33b6d67a6c9bbdb35f9",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "902f3f1876c3f68e50a5fc9672ff86e97a48af1101e0c33b6d67a6c9bbdb35f9"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-082",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": true,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: life aboard is singing or telepathic."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "class4_acoustic",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: hazard channel reads acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": "expired",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: certificate channel reads expired."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": "valid",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: waiver channel reads valid."
+            }
+          ]
+        },
+        {
+          "path": "/seal_status",
+          "value": "intact",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: seal channel reads intact."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "107",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: pressure channel reads 107 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "1355",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: manifest mass channel reads 1355 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": "1355",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: certificate mass channel reads 1355 kg."
+            }
+          ]
+        }
+      ],
+      "field_score": {
+        "field_matches": 8,
+        "fields_scored": 8,
+        "missing_or_not_found": 1,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-082",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "CLEAR",
+          "probabilities": {
+            "CLEAR": 0.7,
+            "HOLD": 0.15,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "ea0245fc7c9405a64739ade852abed0322b8fedddc412d6baab07ecb4f9fa988",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-082",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "HOLD",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.7,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "ea0245fc7c9405a64739ade852abed0322b8fedddc412d6baab07ecb4f9fa988",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "ea0245fc7c9405a64739ade852abed0322b8fedddc412d6baab07ecb4f9fa988"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-040",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": false,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The quartermaster heard neither song nor a telepathic hail."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "other",
+          "status": "found",
+          "ambiguous": true,
+          "citations": [
+            {
+              "source_text": "Stowage class is general goods, outside acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": "valid",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The containment paper is valid."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        },
+        {
+          "path": "/seal_status",
+          "value": "damaged",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The cask seal is damaged."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "113",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The gauge on the cask stands at 113 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "1278",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Tally weight of the cask is 1278 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": "1278",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Paper weight of the cask is 1278 kg."
+            }
+          ]
+        }
+      ],
+      "field_score": {
+        "field_matches": 7,
+        "fields_scored": 8,
+        "missing_or_not_found": 2,
+        "ambiguous": 1,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-040",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "CLEAR",
+          "probabilities": {
+            "CLEAR": 0.7,
+            "HOLD": 0.15,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "59d418eceb3213e5fe7d053685faf9bb07f364760bdda7db4d64690a1ca86ad5",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-040",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "HOLD",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.7,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "59d418eceb3213e5fe7d053685faf9bb07f364760bdda7db4d64690a1ca86ad5",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "59d418eceb3213e5fe7d053685faf9bb07f364760bdda7db4d64690a1ca86ad5"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-057",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": false,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The quartermaster heard neither song nor a telepathic hail."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "other",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Stowage class is general goods, outside acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": "expired",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The containment paper is expired."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        },
+        {
+          "path": "/seal_status",
+          "value": "intact",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The cask seal is intact."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "126",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The gauge on the cask stands at 126 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "1463",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Tally weight of the cask is 1463 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": "1463",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Paper weight of the cask is 1463 kg."
+            }
+          ]
+        }
+      ],
+      "field_score": {
+        "field_matches": 7,
+        "fields_scored": 8,
+        "missing_or_not_found": 2,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-057",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "REVIEW",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.15,
+            "REVIEW": 0.7
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "5fd22415b4d34bff3ca6ffc1d95f05101aa4f03cc03aac69d2b57971cf3ce3bc",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-057",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "HOLD",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.7,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "5fd22415b4d34bff3ca6ffc1d95f05101aa4f03cc03aac69d2b57971cf3ce3bc",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "5fd22415b4d34bff3ca6ffc1d95f05101aa4f03cc03aac69d2b57971cf3ce3bc"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-020",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": false,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: this specimen does not sing and does not reach by thought."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        },
+        {
+          "path": "/cert_status",
+          "value": "valid",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the certificate is valid."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        },
+        {
+          "path": "/seal_status",
+          "value": "intact",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the seal is intact."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "120",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: recorded pressure is 120 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "849",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: manifest gross is 849 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": "849",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: certificate gross is 849 kg."
+            }
+          ]
+        }
+      ],
+      "field_score": {
+        "field_matches": 6,
+        "fields_scored": 8,
+        "missing_or_not_found": 3,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-020",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "CLEAR",
+          "probabilities": {
+            "CLEAR": 0.7,
+            "HOLD": 0.15,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "8228324d5a6a7d63780b5e1f77c591850350d393f25f8081bf87bc1b25d32a04",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-020",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "REVIEW",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.15,
+            "REVIEW": 0.7
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "8228324d5a6a7d63780b5e1f77c591850350d393f25f8081bf87bc1b25d32a04",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "8228324d5a6a7d63780b5e1f77c591850350d393f25f8081bf87bc1b25d32a04"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-060",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": false,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The quartermaster heard neither song nor a telepathic hail."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "other",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Stowage class is general goods, outside acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": "valid",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The containment paper is valid."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        },
+        {
+          "path": "/seal_status",
+          "value": "damaged",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The cask seal is damaged."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "115",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "The gauge on the cask stands at 115 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "1207",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Tally weight of the cask is 1207 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": "1207",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Paper weight of the cask is 1207 kg."
+            }
+          ]
+        }
+      ],
+      "field_score": {
+        "field_matches": 7,
+        "fields_scored": 8,
+        "missing_or_not_found": 2,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-060",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "REVIEW",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.15,
+            "REVIEW": 0.7
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "8b0ffca3766d37b427d14479777279341c244b3579f0dc843ebc90fdad1c7ac4",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-060",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "HOLD",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.7,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "8b0ffca3766d37b427d14479777279341c244b3579f0dc843ebc90fdad1c7ac4",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "8b0ffca3766d37b427d14479777279341c244b3579f0dc843ebc90fdad1c7ac4"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-005",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": true,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: life aboard is singing or telepathic."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "class4_acoustic",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: hazard channel reads acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": "expired",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: certificate channel reads expired."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": "valid",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: waiver channel reads valid."
+            }
+          ]
+        },
+        {
+          "path": "/seal_status",
+          "value": "intact",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: seal channel reads intact."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "121",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: pressure channel reads 121 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "839",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: manifest mass channel reads 839 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": "839",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Signal: certificate mass channel reads 839 kg."
+            }
+          ]
+        }
+      ],
+      "field_score": {
+        "field_matches": 8,
+        "fields_scored": 8,
+        "missing_or_not_found": 1,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-005",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "CLEAR",
+          "probabilities": {
+            "CLEAR": 0.7,
+            "HOLD": 0.15,
+            "REVIEW": 0.15
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "5677c2d2af76ba31c1c32615d03c972289093523a9d7267e9e6db25cf0dfb422",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-005",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "REVIEW",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.15,
+            "REVIEW": 0.7
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "5677c2d2af76ba31c1c32615d03c972289093523a9d7267e9e6db25cf0dfb422",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "5677c2d2af76ba31c1c32615d03c972289093523a9d7267e9e6db25cf0dfb422"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    },
+    {
+      "case_id": "TST-092",
+      "mode": "mock",
+      "measurements": "simulated",
+      "status": "ok",
+      "fields": [
+        {
+          "path": "/is_singing_or_telepathic",
+          "value": false,
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: this specimen does not sing and does not reach by thought."
+            }
+          ]
+        },
+        {
+          "path": "/hazard_class",
+          "value": "other",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: hazard is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        {
+          "path": "/cert_status",
+          "value": "expired",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the certificate is expired."
+            }
+          ]
+        },
+        {
+          "path": "/waiver_status",
+          "value": null,
+          "status": "not_found",
+          "ambiguous": false,
+          "citations": []
+        },
+        {
+          "path": "/seal_status",
+          "value": "intact",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: the seal is intact."
+            }
+          ]
+        },
+        {
+          "path": "/seal_pressure_kpa",
+          "value": "99",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: recorded pressure is 99 kPa."
+            }
+          ]
+        },
+        {
+          "path": "/manifest_gross_weight_kg",
+          "value": "669",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: manifest gross is 669 kg."
+            }
+          ]
+        },
+        {
+          "path": "/certificate_gross_weight_kg",
+          "value": "669",
+          "status": "found",
+          "ambiguous": false,
+          "citations": [
+            {
+              "source_text": "Archive card: certificate gross is 669 kg."
+            }
+          ]
+        }
+      ],
+      "field_score": {
+        "field_matches": 7,
+        "fields_scored": 8,
+        "missing_or_not_found": 2,
+        "ambiguous": 0,
+        "packet_perfect": false
+      },
+      "grounding": {
+        "targets": 8,
+        "found": 8,
+        "coverage": 1,
+        "simulated": true
+      },
+      "decisions": {
+        "drex": {
+          "case_id": "TST-092",
+          "provider": "drex",
+          "requested_model": "mock-drex",
+          "actual_model": "mock-drex",
+          "verdict": "REVIEW",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.15,
+            "REVIEW": 0.7
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "43e66c9c6e21454315fc453ceea67bca2f4ca4cb5693dc68f72ba11597490b01",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "openrouter": {
+          "case_id": "TST-092",
+          "provider": "openrouter",
+          "requested_model": "mock-openrouter",
+          "actual_model": "mock-openrouter",
+          "verdict": "REVIEW",
+          "probabilities": {
+            "CLEAR": 0.15,
+            "HOLD": 0.15,
+            "REVIEW": 0.7
+          },
+          "status": "ok",
+          "latency_ms": null,
+          "server_latency_ms": null,
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "cost_source": "not_measured",
+          "request_id": null,
+          "input_hash": "43e66c9c6e21454315fc453ceea67bca2f4ca4cb5693dc68f72ba11597490b01",
+          "timestamp": "2026-11-14T20:15:31+00:00",
+          "mode": "mock",
+          "cached": null,
+          "error": null
+        },
+        "input_hash": "43e66c9c6e21454315fc453ceea67bca2f4ca4cb5693dc68f72ba11597490b01"
+      },
+      "cost_usd": null,
+      "note": "Annotation fixture. Do not read this as document-model performance.",
+      "run_id": "2026-11-14T201531+0000-32645d3f"
+    }
+  ]
+}

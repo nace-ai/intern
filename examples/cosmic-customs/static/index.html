@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cosmic Customs</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <p class="eyebrow">Orbital customs terminal</p>
+      <h1>Cosmic Customs</h1>
+    </div>
+    <div id="banner" class="banner">Loading saved results</div>
+  </header>
+  <section id="scoreboard" class="scoreboard" aria-live="polite"></section>
+  <main class="deck">
+    <aside class="pane queue">
+      <div class="pane-head">
+        <h2>Queue</h2>
+        <span id="queue-count"></span>
+      </div>
+      <div id="queue"></div>
+    </aside>
+    <section class="pane packet">
+      <div class="pane-head">
+        <h2 id="packet-title">Select a shipment</h2>
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab active" data-doc="cargo_manifest">Manifest</button>
+          <button type="button" class="tab" data-doc="containment_certificate">Certificate</button>
+          <button type="button" class="tab" data-doc="inspector_note">Note</button>
+        </div>
+      </div>
+      <div id="packet-art" class="art"></div>
+      <article id="document" class="paper">No shipment selected.</article>
+      <div id="previews" class="previews"></div>
+      <div id="fields" class="fields"></div>
+    </section>
+    <aside class="pane verdicts">
+      <div class="pane-head">
+        <h2>Decisions</h2>
+        <div class="tabs">
+          <button type="button" class="tab active" id="track-text">Text</button>
+          <button type="button" class="tab" id="track-doc">Documents</button>
+        </div>
+      </div>
+      <div id="verdict-panels"></div>
+      <button type="button" id="inspect" disabled>Run mock inspection</button>
+      <p id="inspect-note" class="fine">The button replays the local mock. It does not spend the live budget.</p>
+      <button type="button" id="scan" disabled>Ultrasonic scan</button>
+      <p id="scan-note" class="fine"></p>
+      <p id="oracle" class="oracle"></p>
+    </aside>
+  </main>
+  <script src="/static/app.js?v=7"></script>
+</body>
+</html>

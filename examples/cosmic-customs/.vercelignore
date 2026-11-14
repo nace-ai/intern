@@ -1,0 +1,8 @@
+.venv
+.venv-wsl
+.git
+.pytest_cache
+__pycache__
+work
+.env
+results/live/inspections

@@ -1,0 +1,4065 @@
+[
+  {
+    "case_id": "HRD-001",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p01_exact_90",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "90",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-731193",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K873826. Specimen common name: Glass Newt. Folio 694513.\nBerth note North Cask. Canteen chit 3899 has no containment meaning. Officer M. Oster printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-966865",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K873826. Specimen common name: Glass Newt. Folio 148135.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-973593",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K873826. Specimen common name: Glass Newt. Folio 333166.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 90 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-731193",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-731193",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-966865",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-973593",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "90",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-973593",
+              "quote": "Dock slip: seal pressure gauge reads 90 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-731193",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-966865",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-002",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p01_below_90",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "89.999",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-731193",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K873826. Specimen common name: Glass Newt. Folio 694513.\nBerth note North Cask. Canteen chit 3899 has no containment meaning. Officer M. Oster printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-966865",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K873826. Specimen common name: Glass Newt. Folio 148135.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-973593",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K873826. Specimen common name: Glass Newt. Folio 333166.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 89.999 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-731193",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-731193",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-966865",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-973593",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "89.999",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-973593",
+              "quote": "Dock slip: seal pressure gauge reads 89.999 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-731193",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-966865",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "HOLD"
+  },
+  {
+    "case_id": "HRD-003",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p02_weight_exact_3pct",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1030",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-254569",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K937631. Specimen common name: Velvet Spore. Folio 508181.\nBerth note Orchard Lock. Canteen chit 9496 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-235653",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K937631. Specimen common name: Velvet Spore. Folio 218617.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1030 kg."
+      },
+      {
+        "document_id": "DOC-781972",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K937631. Specimen common name: Velvet Spore. Folio 299242.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-254569",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-254569",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-235653",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-781972",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-781972",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-254569",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1030",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-235653",
+              "quote": "Dock slip: certificate gross weight is 1030 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-004",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p02_weight_over_3pct",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1030.001",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-254569",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K937631. Specimen common name: Velvet Spore. Folio 508181.\nBerth note Orchard Lock. Canteen chit 9496 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-235653",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K937631. Specimen common name: Velvet Spore. Folio 218617.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1030.001 kg."
+      },
+      {
+        "document_id": "DOC-781972",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K937631. Specimen common name: Velvet Spore. Folio 299242.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-254569",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-254569",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-235653",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-781972",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-781972",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-254569",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1030.001",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-235653",
+              "quote": "Dock slip: certificate gross weight is 1030.001 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-005",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p03_conflict_intact_seal",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": [
+        "hazard_class"
+      ]
+    },
+    "documents": [
+      {
+        "document_id": "DOC-658714",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K785742. Specimen common name: Cinder Bee. Folio 725071.\nBerth note North Cask. Canteen chit 2885 has no containment meaning. Officer M. Oster printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-287749",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K785742. Specimen common name: Cinder Bee. Folio 629780.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-248128",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K785742. Specimen common name: Cinder Bee. Folio 335633.\nA second dock clerk recorded this lot as acoustic class 4.\nThe two readings do not agree.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-658714",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "conflicted",
+          "quotes": [
+            {
+              "document_id": "DOC-658714",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            },
+            {
+              "document_id": "DOC-248128",
+              "quote": "A second dock clerk recorded this lot as acoustic class 4."
+            },
+            {
+              "document_id": "DOC-248128",
+              "quote": "The two readings do not agree."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-287749",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-248128",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-248128",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-658714",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-287749",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [
+            "hazard_class"
+          ],
+          "status": "conflicted",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-006",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p03_conflict_damaged_seal",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "damaged",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": [
+        "hazard_class"
+      ]
+    },
+    "documents": [
+      {
+        "document_id": "DOC-658714",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K785742. Specimen common name: Cinder Bee. Folio 725071.\nBerth note North Cask. Canteen chit 2885 has no containment meaning. Officer M. Oster printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-287749",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K785742. Specimen common name: Cinder Bee. Folio 629780.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-248128",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K785742. Specimen common name: Cinder Bee. Folio 335633.\nA second dock clerk recorded this lot as acoustic class 4.\nThe two readings do not agree.\nDock slip: containment seal condition is damaged.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-658714",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "conflicted",
+          "quotes": [
+            {
+              "document_id": "DOC-658714",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            },
+            {
+              "document_id": "DOC-248128",
+              "quote": "A second dock clerk recorded this lot as acoustic class 4."
+            },
+            {
+              "document_id": "DOC-248128",
+              "quote": "The two readings do not agree."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-287749",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "damaged",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-248128",
+              "quote": "Dock slip: containment seal condition is damaged."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-248128",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-658714",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-287749",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [
+            "hazard_class"
+          ],
+          "status": "conflicted",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "HOLD"
+  },
+  {
+    "case_id": "HRD-007",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p04_certificate_explicitly_missing",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-702106",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K584942. Specimen common name: Lumen Moth. Folio 756063.\nBerth note North Cask. Canteen chit 6764 has no containment meaning. Officer A. Keene printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-639390",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K584942. Specimen common name: Lumen Moth. Folio 565985.\nDock slip: containment certificate status is not on file."
+      },
+      {
+        "document_id": "DOC-826378",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K584942. Specimen common name: Lumen Moth. Folio 362583.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-702106",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-702106",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-639390",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-826378",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-826378",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-702106",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-008",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p04_certificate_unknown",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": null,
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-702106",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K584942. Specimen common name: Lumen Moth. Folio 756063.\nBerth note North Cask. Canteen chit 6764 has no containment meaning. Officer A. Keene printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-639390",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K584942. Specimen common name: Lumen Moth. Folio 565985.\nDock slip: containment certificate status was not read and remains unknown."
+      },
+      {
+        "document_id": "DOC-826378",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K584942. Specimen common name: Lumen Moth. Folio 362583.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-702106",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-702106",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": [
+            {
+              "document_id": "DOC-639390",
+              "quote": "Dock slip: containment certificate status was not read and remains unknown."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-826378",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-826378",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-702106",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-009",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p05_documents_agree",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-941186",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K859796. Specimen common name: Cinder Bee. Folio 116219.\nBerth note Ring Seven. Canteen chit 3024 has no containment meaning. Officer A. Keene printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-967782",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K859796. Specimen common name: Cinder Bee. Folio 899618.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-721106",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K859796. Specimen common name: Cinder Bee. Folio 939700.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-941186",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-941186",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-967782",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-721106",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-721106",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-941186",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-967782",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-010",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p05_documents_conflict",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": [
+        "hazard_class"
+      ]
+    },
+    "documents": [
+      {
+        "document_id": "DOC-941186",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K859796. Specimen common name: Cinder Bee. Folio 116219.\nBerth note Ring Seven. Canteen chit 3024 has no containment meaning. Officer A. Keene printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-967782",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K859796. Specimen common name: Cinder Bee. Folio 899618.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-721106",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K859796. Specimen common name: Cinder Bee. Folio 939700.\nA second dock clerk recorded this lot as acoustic class 4.\nThe two readings do not agree.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-941186",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "conflicted",
+          "quotes": [
+            {
+              "document_id": "DOC-941186",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            },
+            {
+              "document_id": "DOC-721106",
+              "quote": "A second dock clerk recorded this lot as acoustic class 4."
+            },
+            {
+              "document_id": "DOC-721106",
+              "quote": "The two readings do not agree."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-967782",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-721106",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-721106",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-941186",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-967782",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [
+            "hazard_class"
+          ],
+          "status": "conflicted",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-011",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p06_waiver_valid",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-250949",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K185965. Specimen common name: Lumen Moth. Folio 371509.\nBerth note Ring Seven. Canteen chit 7105 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-189700",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K185965. Specimen common name: Lumen Moth. Folio 220612.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-413957",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K185965. Specimen common name: Lumen Moth. Folio 681792.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-250949",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-250949",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-189700",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-189700",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-413957",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-413957",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-250949",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-012",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p06_waiver_expired",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "expired",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-250949",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K185965. Specimen common name: Lumen Moth. Folio 371509.\nBerth note Ring Seven. Canteen chit 7105 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-189700",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K185965. Specimen common name: Lumen Moth. Folio 220612.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is expired."
+      },
+      {
+        "document_id": "DOC-413957",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K185965. Specimen common name: Lumen Moth. Folio 681792.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-250949",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-250949",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-189700",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "expired",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-189700",
+              "quote": "Dock slip: emergency waiver status is expired."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-413957",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-413957",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-250949",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-013",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p07_waiver_not_class4",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-589942",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K683876. Specimen common name: Choir Eel. Folio 404518.\nBerth note Blue Gantries. Canteen chit 6178 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-995222",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K683876. Specimen common name: Choir Eel. Folio 475156.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-518977",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K683876. Specimen common name: Choir Eel. Folio 758839.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-589942",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-589942",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-995222",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-995222",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-518977",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-518977",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-589942",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-014",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p07_waiver_class4",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "class4_acoustic",
+      "cert_status": "missing",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-589942",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K683876. Specimen common name: Choir Eel. Folio 404518.\nBerth note Blue Gantries. Canteen chit 6178 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-995222",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K683876. Specimen common name: Choir Eel. Folio 475156.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-518977",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K683876. Specimen common name: Choir Eel. Folio 758839.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-589942",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "class4_acoustic",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-589942",
+              "quote": "Dock slip: hazard class is acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-995222",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-995222",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-518977",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-518977",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-589942",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-015",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p08_waiver_intact_seal",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-805680",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K624745. Specimen common name: Lumen Moth. Folio 889103.\nBerth note Vesper Dock. Canteen chit 7784 has no containment meaning. Officer N. Brant printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-794852",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K624745. Specimen common name: Lumen Moth. Folio 964312.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-503705",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K624745. Specimen common name: Lumen Moth. Folio 924951.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-805680",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-805680",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-794852",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-794852",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-503705",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-503705",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-805680",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-016",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p08_waiver_damaged_seal",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "valid",
+      "seal_status": "damaged",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-805680",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K624745. Specimen common name: Lumen Moth. Folio 889103.\nBerth note Vesper Dock. Canteen chit 7784 has no containment meaning. Officer N. Brant printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-794852",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K624745. Specimen common name: Lumen Moth. Folio 964312.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-503705",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K624745. Specimen common name: Lumen Moth. Folio 924951.\nDock slip: containment seal condition is damaged.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-805680",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-805680",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-794852",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-794852",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "damaged",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-503705",
+              "quote": "Dock slip: containment seal condition is damaged."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-503705",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-805680",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "HOLD"
+  },
+  {
+    "case_id": "HRD-017",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p09_waiver_weights_match",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "expired",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "800",
+      "certificate_gross_weight_kg": "800",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-118758",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K836592. Specimen common name: Lumen Moth. Folio 840700.\nBerth note Ring Seven. Canteen chit 4450 has no containment meaning. Officer I. Pell printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 800 kg."
+      },
+      {
+        "document_id": "DOC-373392",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K836592. Specimen common name: Lumen Moth. Folio 132868.\nDock slip: containment certificate status is expired.\nDock slip: certificate gross weight is 800 kg.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-312752",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K836592. Specimen common name: Lumen Moth. Folio 339468.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-118758",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-118758",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "expired",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-373392",
+              "quote": "Dock slip: containment certificate status is expired."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-373392",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-312752",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-312752",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "800",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-118758",
+              "quote": "Dock slip: manifest gross weight is 800 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "800",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-373392",
+              "quote": "Dock slip: certificate gross weight is 800 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-018",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p09_waiver_weights_mismatch",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "expired",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "800",
+      "certificate_gross_weight_kg": "860",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-118758",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K836592. Specimen common name: Lumen Moth. Folio 840700.\nBerth note Ring Seven. Canteen chit 4450 has no containment meaning. Officer I. Pell printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 800 kg."
+      },
+      {
+        "document_id": "DOC-373392",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K836592. Specimen common name: Lumen Moth. Folio 132868.\nDock slip: containment certificate status is expired.\nDock slip: certificate gross weight is 860 kg.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-312752",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K836592. Specimen common name: Lumen Moth. Folio 339468.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-118758",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-118758",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "expired",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-373392",
+              "quote": "Dock slip: containment certificate status is expired."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-373392",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-312752",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-312752",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "800",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-118758",
+              "quote": "Dock slip: manifest gross weight is 800 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "860",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-373392",
+              "quote": "Dock slip: certificate gross weight is 860 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-019",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p10_missing_organism_exact_90",
+    "facts": {
+      "is_singing_or_telepathic": null,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "90",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-519457",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K868210. Specimen common name: Glass Newt. Folio 197724.\nBerth note Ring Seven. Canteen chit 1167 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-364309",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K868210. Specimen common name: Glass Newt. Folio 638787.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-496520",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K868210. Specimen common name: Glass Newt. Folio 517104.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 90 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-519457",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-364309",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-496520",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "90",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-496520",
+              "quote": "Dock slip: seal pressure gauge reads 90 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-519457",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-364309",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-020",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p10_missing_organism_below_90",
+    "facts": {
+      "is_singing_or_telepathic": null,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "89.99",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-519457",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K868210. Specimen common name: Glass Newt. Folio 197724.\nBerth note Ring Seven. Canteen chit 1167 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-364309",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K868210. Specimen common name: Glass Newt. Folio 638787.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-496520",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K868210. Specimen common name: Glass Newt. Folio 517104.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 89.99 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-519457",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-364309",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-496520",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "89.99",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-496520",
+              "quote": "Dock slip: seal pressure gauge reads 89.99 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-519457",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-364309",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "HOLD"
+  },
+  {
+    "case_id": "HRD-021",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p11_waiver_without_conflict",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-357891",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K700661. Specimen common name: Velvet Spore. Folio 591621.\nBerth note Blue Gantries. Canteen chit 9829 has no containment meaning. Officer N. Brant printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-226003",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K700661. Specimen common name: Velvet Spore. Folio 117120.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-780833",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K700661. Specimen common name: Velvet Spore. Folio 876271.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-357891",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-357891",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-226003",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-226003",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-780833",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-780833",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-357891",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-022",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p11_waiver_with_weight_conflict",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "valid",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": [
+        "manifest_gross_weight_kg"
+      ]
+    },
+    "documents": [
+      {
+        "document_id": "DOC-357891",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K700661. Specimen common name: Velvet Spore. Folio 591621.\nBerth note Blue Gantries. Canteen chit 9829 has no containment meaning. Officer N. Brant printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-226003",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K700661. Specimen common name: Velvet Spore. Folio 117120.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is valid."
+      },
+      {
+        "document_id": "DOC-780833",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K700661. Specimen common name: Velvet Spore. Folio 876271.\nA duplicate dock slip lists a gross weight that does not agree with the manifest line.\nThe two readings do not agree.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-357891",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-357891",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-226003",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-226003",
+              "quote": "Dock slip: emergency waiver status is valid."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-780833",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-780833",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "conflicted",
+          "quotes": [
+            {
+              "document_id": "DOC-357891",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            },
+            {
+              "document_id": "DOC-780833",
+              "quote": "A duplicate dock slip lists a gross weight that does not agree with the manifest line."
+            },
+            {
+              "document_id": "DOC-780833",
+              "quote": "The two readings do not agree."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [
+            "manifest_gross_weight_kg"
+          ],
+          "status": "conflicted",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-023",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p12_hazard_known",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-994747",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K862529. Specimen common name: Choir Eel. Folio 560667.\nBerth note Blue Gantries. Canteen chit 5754 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-878245",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K862529. Specimen common name: Choir Eel. Folio 571800.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-368370",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K862529. Specimen common name: Choir Eel. Folio 267500.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-994747",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-994747",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-878245",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-368370",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-368370",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-994747",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-878245",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-024",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p12_hazard_unknown",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": null,
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-994747",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K862529. Specimen common name: Choir Eel. Folio 560667.\nBerth note Blue Gantries. Canteen chit 5754 has no containment meaning. Officer S. Quill printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-878245",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K862529. Specimen common name: Choir Eel. Folio 571800.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-368370",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K862529. Specimen common name: Choir Eel. Folio 267500.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-994747",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-878245",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-368370",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-368370",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-994747",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-878245",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-025",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p13_expired_certificate_nonsinging",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "expired",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-604131",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K898851. Specimen common name: Velvet Spore. Folio 716067.\nBerth note Vesper Dock. Canteen chit 1085 has no containment meaning. Officer R. Voss printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-177286",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K898851. Specimen common name: Velvet Spore. Folio 103157.\nDock slip: containment certificate status is expired.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-595798",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K898851. Specimen common name: Velvet Spore. Folio 226366.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-604131",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-604131",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "expired",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-177286",
+              "quote": "Dock slip: containment certificate status is expired."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-595798",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-595798",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-604131",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-177286",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-026",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "p13_expired_certificate_singing_unknown_waiver",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "expired",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-604131",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K898851. Specimen common name: Velvet Spore. Folio 716067.\nBerth note Vesper Dock. Canteen chit 1085 has no containment meaning. Officer R. Voss printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-177286",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K898851. Specimen common name: Velvet Spore. Folio 103157.\nDock slip: containment certificate status is expired.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-595798",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K898851. Specimen common name: Velvet Spore. Folio 226366.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-604131",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-604131",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "expired",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-177286",
+              "quote": "Dock slip: containment certificate status is expired."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-595798",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-595798",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-604131",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-177286",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-027",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "s_class4_alone",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "class4_acoustic",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-863228",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K314105. Specimen common name: Lumen Moth. Folio 143347.\nBerth note Vesper Dock. Canteen chit 8030 has no containment meaning. Officer M. Oster printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-828333",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K314105. Specimen common name: Lumen Moth. Folio 449659.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-153817",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K314105. Specimen common name: Lumen Moth. Folio 836941.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-863228",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "class4_acoustic",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-863228",
+              "quote": "Dock slip: hazard class is acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-828333",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-153817",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-153817",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-863228",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-828333",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-028",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "clear_corrected_suspicion",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-551816",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K970228. Specimen common name: Velvet Spore. Folio 857873.\nBerth note Kite Yard. Canteen chit 5109 has no containment meaning. Officer N. Brant printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-406629",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K970228. Specimen common name: Velvet Spore. Folio 747173.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-227368",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K970228. Specimen common name: Velvet Spore. Folio 234749.\nDock slip: containment seal condition is intact.\nAn earlier dock watch suspected a ruptured seal. That suspicion was corrected after the gauge was reread. The seal is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-551816",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-551816",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-406629",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-227368",
+              "quote": "Dock slip: containment seal condition is intact."
+            },
+            {
+              "document_id": "DOC-227368",
+              "quote": "An earlier dock watch suspected a ruptured seal. That suspicion was corrected after the gauge was reread. The seal is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-227368",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-551816",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-406629",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-029",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "s_singing_valid_certificate",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-151412",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K305112. Specimen common name: Quiet Fern. Folio 476688.\nBerth note Kite Yard. Canteen chit 8551 has no containment meaning. Officer A. Keene printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-900048",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K305112. Specimen common name: Quiet Fern. Folio 124717.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-197700",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K305112. Specimen common name: Quiet Fern. Folio 376715.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-151412",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-151412",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-900048",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-197700",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-197700",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-151412",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-900048",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "CLEAR"
+  },
+  {
+    "case_id": "HRD-030",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "s_waiver_explicitly_missing",
+    "facts": {
+      "is_singing_or_telepathic": true,
+      "hazard_class": "other",
+      "cert_status": "missing",
+      "waiver_status": "missing",
+      "seal_status": "intact",
+      "seal_pressure_kpa": "110",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-612427",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K779923. Specimen common name: Choir Eel. Folio 261742.\nBerth note Ring Seven. Canteen chit 8735 has no containment meaning. Officer M. Oster printed the slip.\nDock slip: the cargo is singing or telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-447531",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K779923. Specimen common name: Choir Eel. Folio 356510.\nDock slip: containment certificate status is not on file.\nDock slip: emergency waiver status is not on file."
+      },
+      {
+        "document_id": "DOC-308025",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K779923. Specimen common name: Choir Eel. Folio 833149.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 110 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": true,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-612427",
+              "quote": "Dock slip: the cargo is singing or telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-612427",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-447531",
+              "quote": "Dock slip: containment certificate status is not on file."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": "missing",
+          "status": "explicitly_absent",
+          "quotes": [
+            {
+              "document_id": "DOC-447531",
+              "quote": "Dock slip: emergency waiver status is not on file."
+            }
+          ]
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-308025",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "110",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-308025",
+              "quote": "Dock slip: seal pressure gauge reads 110 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-612427",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-031",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "s_certificate_weight_absent",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": null,
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-972365",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K126450. Specimen common name: Choir Eel. Folio 515627.\nBerth note North Cask. Canteen chit 2717 has no containment meaning. Officer M. Oster printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-644315",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K126450. Specimen common name: Choir Eel. Folio 820163.\nDock slip: containment certificate status is valid."
+      },
+      {
+        "document_id": "DOC-374017",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K126450. Specimen common name: Choir Eel. Folio 883932.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-972365",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-972365",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-644315",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-374017",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-374017",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-972365",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-032",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "s_pressure_unknown",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": null,
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-418296",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K190253. Specimen common name: Cinder Bee. Folio 634212.\nBerth note Kite Yard. Canteen chit 6830 has no containment meaning. Officer I. Pell printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-414854",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K190253. Specimen common name: Cinder Bee. Folio 370529.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-627314",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K190253. Specimen common name: Cinder Bee. Folio 384617.\nDock slip: containment seal condition is intact."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-418296",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-418296",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-414854",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-627314",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-418296",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-414854",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-033",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "s_seal_unknown",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": null,
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": "1000",
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-825096",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K107554. Specimen common name: Paper Squid. Folio 769133.\nBerth note Vesper Dock. Canteen chit 7543 has no containment meaning. Officer A. Keene printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4.\nDock slip: manifest gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-781435",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K107554. Specimen common name: Paper Squid. Folio 252878.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-138151",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K107554. Specimen common name: Paper Squid. Folio 467703.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-825096",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-825096",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-781435",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-138151",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-825096",
+              "quote": "Dock slip: manifest gross weight is 1000 kg."
+            }
+          ]
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-781435",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  },
+  {
+    "case_id": "HRD-034",
+    "split": "hard",
+    "template_family": "dock_slip",
+    "rule_signature": "s_manifest_weight_unknown",
+    "facts": {
+      "is_singing_or_telepathic": false,
+      "hazard_class": "other",
+      "cert_status": "valid",
+      "waiver_status": null,
+      "seal_status": "intact",
+      "seal_pressure_kpa": "101",
+      "manifest_gross_weight_kg": null,
+      "certificate_gross_weight_kg": "1000",
+      "conflicted_fields": []
+    },
+    "documents": [
+      {
+        "document_id": "DOC-365077",
+        "kind": "cargo_manifest",
+        "text": "DOCK SLIP MANIFEST\nReference K787692. Specimen common name: Quiet Fern. Folio 170199.\nBerth note Kite Yard. Canteen chit 7566 has no containment meaning. Officer N. Brant printed the slip.\nDock slip: the cargo is not singing and is not telepathic.\nDock slip: hazard class is ordinary, not acoustic class 4."
+      },
+      {
+        "document_id": "DOC-599649",
+        "kind": "containment_certificate",
+        "text": "DOCK SLIP CERTIFICATE\nReference K787692. Specimen common name: Quiet Fern. Folio 544406.\nDock slip: containment certificate status is valid.\nDock slip: certificate gross weight is 1000 kg."
+      },
+      {
+        "document_id": "DOC-887735",
+        "kind": "inspector_note",
+        "text": "DOCK SLIP NOTE\nReference K787692. Specimen common name: Quiet Fern. Folio 333342.\nDock slip: containment seal condition is intact.\nDock slip: seal pressure gauge reads 101 kPa."
+      }
+    ],
+    "source_annotations": {
+      "fields": {
+        "is_singing_or_telepathic": {
+          "expected": false,
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-365077",
+              "quote": "Dock slip: the cargo is not singing and is not telepathic."
+            }
+          ]
+        },
+        "hazard_class": {
+          "expected": "other",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-365077",
+              "quote": "Dock slip: hazard class is ordinary, not acoustic class 4."
+            }
+          ]
+        },
+        "cert_status": {
+          "expected": "valid",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-599649",
+              "quote": "Dock slip: containment certificate status is valid."
+            }
+          ]
+        },
+        "waiver_status": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "seal_status": {
+          "expected": "intact",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-887735",
+              "quote": "Dock slip: containment seal condition is intact."
+            }
+          ]
+        },
+        "seal_pressure_kpa": {
+          "expected": "101",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-887735",
+              "quote": "Dock slip: seal pressure gauge reads 101 kPa."
+            }
+          ]
+        },
+        "manifest_gross_weight_kg": {
+          "expected": null,
+          "status": "unknown",
+          "quotes": []
+        },
+        "certificate_gross_weight_kg": {
+          "expected": "1000",
+          "status": "stated",
+          "quotes": [
+            {
+              "document_id": "DOC-599649",
+              "quote": "Dock slip: certificate gross weight is 1000 kg."
+            }
+          ]
+        },
+        "conflicted_fields": {
+          "expected": [],
+          "status": "stated",
+          "quotes": []
+        }
+      }
+    },
+    "expected_verdict": "REVIEW"
+  }
+]

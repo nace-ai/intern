@@ -1,0 +1,87 @@
+{
+  "run_id": "2026-11-14T201845+0000-70aac090",
+  "mode": "live",
+  "measurements": "measured",
+  "track": "decisions",
+  "split": "dev",
+  "planned": 5,
+  "order_seed": 20261114,
+  "case_ids": [
+    "DEV-09",
+    "DEV-10",
+    "DEV-02",
+    "DEV-12",
+    "DEV-06"
+  ],
+  "code_revision": "no-git-revision",
+  "prompt": {
+    "rulebook_version": "cosmic-customs-rules-1",
+    "prompt_version": "cosmic-customs-prompt-1",
+    "rulebook_sha256": "f3b959e41a5fac8e68fe57b1c282dcbae7da9cfed3ada17e84481f087a7ba0dc"
+  },
+  "requested_models": {
+    "drex": "drex-max-v1.1",
+    "openrouter": "openai/gpt-5.4"
+  },
+  "settings": {
+    "drex_price_confirmed": true,
+    "pricing_provenance": "https://console.nace.ai/docs/drex/reference/pricing table row drex-max-v1.1, $0.00000003 (30 nUSD) per input token, $0.03 per 1,000,000 input tokens; output tokens not billed. Captured 2026-11-14. Browser-run Max pricing is a different product and is not used.",
+    "openrouter_model": {
+      "id": "openai/gpt-5.4",
+      "pricing": {
+        "prompt": "0.0000025",
+        "completion": "0.000015",
+        "web_search": "0.01",
+        "input_cache_read": "0.00000025",
+        "overrides": [
+          {
+            "min_prompt_tokens": 272000,
+            "prompt": "0.000005",
+            "completion": "0.0000225",
+            "input_cache_read": "0.0000005"
+          }
+        ]
+      },
+      "supported_parameters": [
+        "include_reasoning",
+        "max_completion_tokens",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "tool_choice",
+        "tools",
+        "verbosity"
+      ],
+      "context_length": 1050000,
+      "architecture": {
+        "modality": "text+image+file->text",
+        "input_modalities": [
+          "text",
+          "image",
+          "file"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "tokenizer": "GPT",
+        "instruct_type": null
+      }
+    },
+    "openrouter_output_field": "max_tokens",
+    "openrouter_output_limit": 2048
+  },
+  "concurrency": {
+    "per_provider": 1,
+    "providers_in_parallel": 2
+  },
+  "timeouts_s": {
+    "drex": 60,
+    "openrouter": 90
+  },
+  "application_response_cache": false,
+  "automatic_retries": 0,
+  "started_at": "2026-11-14T20:18:46+00:00"
+}

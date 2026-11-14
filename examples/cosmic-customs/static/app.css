@@ -1,0 +1,72 @@
+:root {
+  color-scheme: dark;
+  --navy: #07111f;
+  --navy-2: #102033;
+  --ink: #d7e2ef;
+  --muted: #8ea0b5;
+  --amber: #e2a23b;
+  --amber-2: #ffd27a;
+  --cream: #f6f1e6;
+  --paper: #fffaf1;
+  --hold: #d4644a;
+  --clear: #7dcea0;
+  --review: #e2a23b;
+  --line: rgba(226, 162, 59, 0.45);
+  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(226, 162, 59, 0.16), transparent 28%),
+    radial-gradient(circle at 90% 10%, rgba(80, 140, 190, 0.16), transparent 26%),
+    var(--navy);
+}
+button, input { font: inherit; }
+.top, .scoreboard, .deck { width: min(1280px, calc(100% - 28px)); margin: 0 auto; }
+.top { display: flex; justify-content: space-between; gap: 20px; align-items: end; padding: 22px 0 8px; }
+.eyebrow { margin: 0; letter-spacing: 0.18em; text-transform: uppercase; color: var(--amber); font-size: 0.74rem; }
+h1 { margin: 4px 0 0; font-size: 2.2rem; letter-spacing: -0.04em; }
+h2 { margin: 0; font-size: 0.95rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.banner { border: 1px solid var(--line); color: var(--amber-2); padding: 8px 12px; border-radius: 999px; background: rgba(7, 17, 31, 0.7); }
+.scoreboard { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 12px 0 16px; }
+.metric, .pane { background: rgba(16, 32, 51, 0.88); border: 1px solid rgba(215, 226, 239, 0.08); border-radius: 16px; }
+.metric { padding: 10px 12px; min-height: 74px; }
+.metric span, .fine, .muted { color: var(--muted); }
+.metric strong, .metric b { display: block; margin-top: 4px; font-size: 1.05rem; color: var(--cream); }
+.deck { display: grid; grid-template-columns: 250px 1fr 300px; gap: 14px; padding-bottom: 28px; }
+.pane { padding: 14px; min-height: 640px; }
+.pane-head, .tabs, .shipment, .field { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.tabs { justify-content: flex-start; flex-wrap: wrap; }
+.tab, #inspect, .shipment { border: 1px solid transparent; background: transparent; color: var(--ink); }
+.tab { border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+.tab.active { border-color: var(--line); color: var(--amber-2); background: rgba(226, 162, 59, 0.08); }
+.shipment { width: 100%; text-align: left; padding: 10px; border-radius: 12px; cursor: pointer; margin-bottom: 8px; }
+.shipment.selected, .shipment:hover { background: rgba(226, 162, 59, 0.1); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--amber); color: #1b1204; font-size: 0.75rem; font-weight: 700; }
+.paper { background: var(--paper); color: #24190f; border-radius: 12px; min-height: 220px; padding: 16px; white-space: pre-wrap; font-family: Palatino, "Palatino Linotype", "Times New Roman", serif; line-height: 1.45; }
+.mark { background: #ffe1a3; }
+.art { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+.art img { width: 86px; height: 64px; object-fit: cover; border-radius: 10px; background: var(--cream); }
+.previews { display: flex; gap: 8px; overflow: auto; margin-top: 10px; }
+.previews img { width: 120px; border-radius: 8px; border: 1px solid var(--line); background: white; cursor: zoom-in; }
+.fields { margin-top: 12px; display: grid; gap: 6px; }
+.field { color: var(--cream); font-size: 0.86rem; }
+.field button { color: var(--amber-2); background: none; border: 0; cursor: pointer; padding: 0; }
+.stamp { display: inline-block; border: 3px solid currentColor; border-radius: 8px; padding: 4px 8px; font-weight: 800; letter-spacing: 0.12em; transform: rotate(-6deg); }
+.stamp.clear { color: var(--clear); }
+.stamp.hold { color: var(--hold); }
+.stamp.review { color: var(--review); }
+.card { border-top: 1px solid rgba(215, 226, 239, 0.1); padding-top: 10px; margin-top: 10px; }
+#inspect { width: 100%; margin-top: 12px; padding: 10px; border-radius: 12px; background: var(--amber); color: #1b1204; font-weight: 700; cursor: pointer; }
+#inspect:disabled { cursor: not-allowed; opacity: 0.55; }
+.oracle, .error { margin-top: 10px; }
+.error { color: #ffb4a8; }
+@media (max-width: 980px) {
+  .deck, .scoreboard { grid-template-columns: 1fr; }
+  .pane { min-height: 0; }
+  .top { flex-direction: column; align-items: start; }
+}

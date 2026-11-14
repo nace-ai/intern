@@ -1,0 +1,72 @@
+{
+  "run_id": "2026-11-14T223727+0000-73815133",
+  "mode": "mock",
+  "measurements": "simulated",
+  "track": "hard_cases",
+  "split": "hard",
+  "planned": 34,
+  "order_seed": 20261114,
+  "case_ids": [
+    "HRD-001",
+    "HRD-002",
+    "HRD-003",
+    "HRD-004",
+    "HRD-005",
+    "HRD-006",
+    "HRD-007",
+    "HRD-008",
+    "HRD-009",
+    "HRD-010",
+    "HRD-011",
+    "HRD-012",
+    "HRD-013",
+    "HRD-014",
+    "HRD-015",
+    "HRD-016",
+    "HRD-017",
+    "HRD-018",
+    "HRD-019",
+    "HRD-020",
+    "HRD-021",
+    "HRD-022",
+    "HRD-023",
+    "HRD-024",
+    "HRD-025",
+    "HRD-026",
+    "HRD-027",
+    "HRD-028",
+    "HRD-029",
+    "HRD-030",
+    "HRD-031",
+    "HRD-032",
+    "HRD-033",
+    "HRD-034"
+  ],
+  "code_revision": "no-git-revision",
+  "prompt": {
+    "rulebook_version": "cosmic-customs-rules-1",
+    "prompt_version": "cosmic-customs-prompt-1",
+    "rulebook_sha256": "f3b959e41a5fac8e68fe57b1c282dcbae7da9cfed3ada17e84481f087a7ba0dc"
+  },
+  "requested_models": {
+    "drex": "drex-max-v1.1",
+    "openrouter": "openai/gpt-5.4"
+  },
+  "settings": {
+    "mock": true
+  },
+  "concurrency": {
+    "per_provider": 1,
+    "providers_in_parallel": 2
+  },
+  "timeouts_s": {
+    "drex": 60,
+    "openrouter": 90
+  },
+  "application_response_cache": false,
+  "automatic_retries": 0,
+  "started_at": "2026-11-14T22:37:27+00:00",
+  "dataset": "hard_cases",
+  "published_benchmark": false,
+  "live_opt_in": false
+}

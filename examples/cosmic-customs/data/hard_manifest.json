@@ -1,0 +1,243 @@
+{
+  "dataset_id": "hard-cases-1",
+  "description": "Separate deterministic diagnostic set. It is not part of the measured 100-case benchmark. Labels come from the published rulebook. A mock run is simulated and is not model performance.",
+  "seeds": {
+    "ids": 271828,
+    "layout": 0,
+    "phrase_family": "dock_slip"
+  },
+  "fact_policy": "Fact values are fixed in the spec table. Only identity lines use the id seed.",
+  "case_count": 34,
+  "id_prefix": "HRD",
+  "verdict_counts": {
+    "CLEAR": 14,
+    "HOLD": 4,
+    "REVIEW": 16
+  },
+  "counterfactual_pairs": [
+    {
+      "pair_id": "P01",
+      "changed_fact": "seal_pressure_kpa",
+      "case_ids": [
+        "HRD-001",
+        "HRD-002"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "HOLD"
+      ],
+      "note": "Exactly 90 kPa is not a pressure hold."
+    },
+    {
+      "pair_id": "P02",
+      "changed_fact": "certificate_gross_weight_kg",
+      "case_ids": [
+        "HRD-003",
+        "HRD-004"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "Exactly 3 percent is not a weight review. Held-out misses sent some of these exact-boundary CLEAR cases to REVIEW."
+    },
+    {
+      "pair_id": "P03",
+      "changed_fact": "seal_status",
+      "case_ids": [
+        "HRD-005",
+        "HRD-006"
+      ],
+      "expected_verdicts": [
+        "REVIEW",
+        "HOLD"
+      ],
+      "note": "A damaged seal is HOLD even when another field conflicts."
+    },
+    {
+      "pair_id": "P04",
+      "changed_fact": "cert_status",
+      "case_ids": [
+        "HRD-007",
+        "HRD-008"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "The explicit status not-on-file is known. An unknown certificate status is a missing required fact."
+    },
+    {
+      "pair_id": "P05",
+      "changed_fact": "conflicted_fields",
+      "case_ids": [
+        "HRD-009",
+        "HRD-010"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "One unresolved contradiction is REVIEW."
+    },
+    {
+      "pair_id": "P06",
+      "changed_fact": "waiver_status",
+      "case_ids": [
+        "HRD-011",
+        "HRD-012"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "A valid emergency waiver clears singing cargo only when the certificate is absent and the hazard is not class 4."
+    },
+    {
+      "pair_id": "P07",
+      "changed_fact": "hazard_class",
+      "case_ids": [
+        "HRD-013",
+        "HRD-014"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "Class 4 acoustic cargo is excluded from the waiver exception and is not an automatic hold by itself."
+    },
+    {
+      "pair_id": "P08",
+      "changed_fact": "seal_status",
+      "case_ids": [
+        "HRD-015",
+        "HRD-016"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "HOLD"
+      ],
+      "note": "A waiver does not bypass a damaged seal."
+    },
+    {
+      "pair_id": "P09",
+      "changed_fact": "certificate_gross_weight_kg",
+      "case_ids": [
+        "HRD-017",
+        "HRD-018"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "A waiver does not bypass a weight discrepancy above 3 percent."
+    },
+    {
+      "pair_id": "P10",
+      "changed_fact": "seal_pressure_kpa",
+      "case_ids": [
+        "HRD-019",
+        "HRD-020"
+      ],
+      "expected_verdicts": [
+        "REVIEW",
+        "HOLD"
+      ],
+      "note": "Pressure below 90 is still HOLD when another required fact is unknown. Exactly 90 leaves that missing fact as REVIEW."
+    },
+    {
+      "pair_id": "P11",
+      "changed_fact": "conflicted_fields",
+      "case_ids": [
+        "HRD-021",
+        "HRD-022"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "Observed held-out REVIEW to CLEAR misses: Drex cleared singing cargo with a valid waiver while a weight contradiction remained."
+    },
+    {
+      "pair_id": "P12",
+      "changed_fact": "hazard_class",
+      "case_ids": [
+        "HRD-023",
+        "HRD-024"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "Observed held-out REVIEW to CLEAR misses: OpenRouter cleared packets whose hazard class was unknown."
+    },
+    {
+      "pair_id": "P13",
+      "changed_fact": "is_singing_or_telepathic",
+      "case_ids": [
+        "HRD-025",
+        "HRD-026"
+      ],
+      "expected_verdicts": [
+        "CLEAR",
+        "REVIEW"
+      ],
+      "note": "Observed held-out CLEAR to REVIEW miss: an expired certificate on non-singing cargo is still CLEAR. Singing cargo with that certificate and an unknown waiver is REVIEW."
+    }
+  ],
+  "single_cases": [
+    {
+      "case_id": "HRD-027",
+      "key": "s_class4_alone",
+      "expected_verdict": "CLEAR",
+      "note": "Class 4 acoustic cargo is not an automatic hold."
+    },
+    {
+      "case_id": "HRD-028",
+      "key": "s_corrected_suspicion",
+      "expected_verdict": "CLEAR",
+      "note": "A corrected historical suspicion is not a confirmed damaged seal."
+    },
+    {
+      "case_id": "HRD-029",
+      "key": "s_singing_valid_certificate",
+      "expected_verdict": "CLEAR",
+      "note": "A valid certificate means waiver status is not required."
+    },
+    {
+      "case_id": "HRD-030",
+      "key": "s_waiver_explicitly_missing",
+      "expected_verdict": "REVIEW",
+      "note": "An explicit not-on-file waiver is known and is not a valid waiver."
+    },
+    {
+      "case_id": "HRD-031",
+      "key": "s_certificate_weight_absent",
+      "expected_verdict": "REVIEW",
+      "note": "Certificate gross weight is required when a certificate exists."
+    },
+    {
+      "case_id": "HRD-032",
+      "key": "s_pressure_unknown",
+      "expected_verdict": "REVIEW",
+      "note": "Unknown pressure is a missing required fact, not a pressure hold."
+    },
+    {
+      "case_id": "HRD-033",
+      "key": "s_seal_unknown",
+      "expected_verdict": "REVIEW",
+      "note": "Unknown seal condition is a missing required fact."
+    },
+    {
+      "case_id": "HRD-034",
+      "key": "s_manifest_weight_unknown",
+      "expected_verdict": "REVIEW",
+      "note": "Unknown manifest weight is a missing required fact."
+    }
+  ],
+  "dataset_hash": "eb42af97cd7b13c8c951f4042efe0d963a71758ec2d19466a53f2802695bb215",
+  "rulebook_version": "cosmic-customs-rules-1",
+  "prompt_version": "cosmic-customs-prompt-1",
+  "rulebook_sha256": "f3b959e41a5fac8e68fe57b1c282dcbae7da9cfed3ada17e84481f087a7ba0dc",
+  "live_policy": "Mock is the offline default. A live run requires benchmark_decisions.py --hard --confirm-live and stops when the configured Drex or OpenRouter budget would be exceeded."
+}

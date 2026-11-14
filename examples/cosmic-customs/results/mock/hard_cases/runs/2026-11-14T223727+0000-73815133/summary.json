@@ -1,0 +1,124 @@
+{
+  "run_id": "2026-11-14T223727+0000-73815133",
+  "measurements": "simulated",
+  "planned": 34,
+  "drex": {
+    "planned": 34,
+    "attempted": 34,
+    "completed": 34,
+    "failures": 0,
+    "accuracy": {
+      "numerator": 10,
+      "denominator": 34
+    },
+    "false_clearance": {
+      "numerator": 7,
+      "denominator": 20
+    },
+    "failure_rate": {
+      "numerator": 0,
+      "denominator": 34
+    },
+    "confusion_matrix": {
+      "CLEAR": {
+        "CLEAR": 4,
+        "HOLD": 3,
+        "REVIEW": 7,
+        "FAILURE": 0
+      },
+      "HOLD": {
+        "CLEAR": 0,
+        "HOLD": 3,
+        "REVIEW": 1,
+        "FAILURE": 0
+      },
+      "REVIEW": {
+        "CLEAR": 7,
+        "HOLD": 6,
+        "REVIEW": 3,
+        "FAILURE": 0
+      }
+    },
+    "latency_ms": {
+      "valid_response": {
+        "p50": null,
+        "p95": null,
+        "n": 0
+      },
+      "all_attempts": {
+        "p50": null,
+        "p95": null,
+        "n": 0
+      }
+    },
+    "cost_usd": {
+      "known_total": null,
+      "known_count": 0,
+      "unknown_count": 34
+    }
+  },
+  "openrouter": {
+    "planned": 34,
+    "attempted": 34,
+    "completed": 34,
+    "failures": 0,
+    "accuracy": {
+      "numerator": 10,
+      "denominator": 34
+    },
+    "false_clearance": {
+      "numerator": 6,
+      "denominator": 20
+    },
+    "failure_rate": {
+      "numerator": 0,
+      "denominator": 34
+    },
+    "confusion_matrix": {
+      "CLEAR": {
+        "CLEAR": 3,
+        "HOLD": 8,
+        "REVIEW": 3,
+        "FAILURE": 0
+      },
+      "HOLD": {
+        "CLEAR": 1,
+        "HOLD": 0,
+        "REVIEW": 3,
+        "FAILURE": 0
+      },
+      "REVIEW": {
+        "CLEAR": 5,
+        "HOLD": 4,
+        "REVIEW": 7,
+        "FAILURE": 0
+      }
+    },
+    "latency_ms": {
+      "valid_response": {
+        "p50": null,
+        "p95": null,
+        "n": 0
+      },
+      "all_attempts": {
+        "p50": null,
+        "p95": null,
+        "n": 0
+      }
+    },
+    "cost_usd": {
+      "known_total": null,
+      "known_count": 0,
+      "unknown_count": 34
+    }
+  },
+  "speedup": {
+    "matched_valid_pairs": 0,
+    "median_right_over_left": null,
+    "definition": "median(openrouter_latency_ms / drex_latency_ms) when left is Drex and right is OpenRouter"
+  },
+  "finished_at": "2026-11-14T22:37:28+00:00",
+  "dataset": "hard_cases",
+  "published_benchmark": false,
+  "split": "hard"
+}
