@@ -21,4 +21,4 @@ At the MVP checkpoint the local ledgers recorded Parse 1, Extract 1, legacy Drex
 
 ## Known limits
 
-Session/leaderboard state is ephemeral, the local service caps concurrent sessions, and public platform/traffic behavior remains unmeasured. Real provider validation, production abuse testing and real benchmark measurements are outstanding. Request-count caps are not guaranteed dollar billing caps. Uploaded document retention is governed by Nace's service policy.
+The local service uses ephemeral sessions and caps concurrent sessions. The public Training adapter now stores game state, private flags, captures, owner tokens, rankings and rate counters in private SQLite-backed Durable Object storage for the ten-minute session lifetime. Live runtimes/keys are excluded. Public platform/traffic behavior remains unmeasured. Real provider validation, production abuse testing and real benchmark measurements are outstanding. Request-count caps are not guaranteed dollar billing caps. Uploaded document retention is governed by Nace's service policy.

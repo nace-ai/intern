@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import { PlayService } from "../server/play-service";
-import { makeRuntime } from "../server/byok";
+import { TrainingStore } from "./training-store";
 interface Env {
   ASSETS: Fetcher;
   ARENA: DurableObjectNamespace<Arena>;
@@ -13,6 +13,11 @@ const secureHeaders = (response: Response) => {
   r.headers.set("X-Content-Type-Options", "nosniff");
   r.headers.set("Referrer-Policy", "no-referrer");
   r.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()",
+  );
+  r.headers.set("Strict-Transport-Security", "max-age=31536000");
+  r.headers.set(
     "Content-Security-Policy",
     "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
   );
@@ -21,9 +26,16 @@ const secureHeaders = (response: Response) => {
 export default {
   async fetch(request: Request, env: Env) {
     const url = new URL(request.url);
+    // Never let the SPA fallback turn private/source paths into public assets.
+    if (
+      /^\/(?:\.|server(?:\/|$)|worker(?:\/|$)|src(?:\/|$)|node_modules(?:\/|$))/.test(
+        url.pathname,
+      )
+    )
+      return secureHeaders(new Response("Not found", { status: 404 }));
     if (url.pathname.startsWith("/api/")) {
       if (!url.pathname.startsWith("/api/play/"))
-        return new Response("Not found", { status: 404 });
+        return secureHeaders(new Response("Not found", { status: 404 }));
       // The edge supplies this header; never trust a browser-supplied IP header.
       const headers = new Headers(request.headers);
       headers.set(
@@ -39,47 +51,78 @@ export default {
     return secureHeaders(await env.ASSETS.fetch(request));
   },
 };
-// Sessions and BYOK secrets live ONLY in memory. Eviction/restart requires a new session.
+// Training state survives eviction/redeployment in private SQLite storage.
+// Public Live is hard-disabled pending a separately authorized provider/security test.
 export class Arena extends DurableObject<Env> {
   #service: PlayService;
+  #store: TrainingStore;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
-    const enabled = env.ENABLE_LIVE === "true" && !!env.GROQ_API_KEY;
-    this.#service = new PlayService(
-      (key, documents) =>
-        makeRuntime(key, documents, {
-          groqKey: env.GROQ_API_KEY,
-          offline: !enabled,
-          reserveGroq: async (units) => {
-            const response = await env.PROVIDER_QUOTA.get(
-              env.PROVIDER_QUOTA.idFromName("groq-lifetime-v1"),
-            ).fetch("https://internal/reserve", {
-              method: "POST",
-              body: JSON.stringify({ units }),
-            });
-            if (!response.ok) throw Error("Shared Groq quota exhausted.");
-          },
-        }),
-      enabled,
-    );
+    this.#service = new PlayService(() => {
+      throw Error("Public Live is temporarily unavailable.");
+    }, false);
+    this.#store = new TrainingStore(ctx.storage);
+    ctx.blockConcurrencyWhile(async () => {
+      this.#service.restoreTraining(this.#store.load());
+    });
   }
   async fetch(request: Request) {
-    // Alarms sweep expired secrets even when the arena is otherwise idle.
-    await this.ctx.storage.setAlarm(Date.now() + 30000);
-    return this.#service.handle(
-      request,
-      request.headers.get("x-heist-ip") || "unknown",
+    // Bound the stream before entering the serialized state transition.
+    let raw = "";
+    if (request.method !== "GET") {
+      const reader = request.body?.getReader();
+      const decoder = new TextDecoder();
+      let bytes = 0;
+      if (reader)
+        while (true) {
+          const chunk = await reader.read();
+          if (chunk.done) break;
+          bytes += chunk.value.byteLength;
+          if (bytes > 12000) {
+            await reader.cancel();
+            return Response.json(
+              { error: "Request exceeds 12 KB." },
+              { status: 413, headers: { "Cache-Control": "no-store" } },
+            );
+          }
+          raw += decoder.decode(chunk.value, { stream: true });
+        }
+      raw += decoder.decode();
+    }
+    const ip = request.headers.get("x-heist-ip") || "unknown";
+    const digest = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(ip),
     );
+    const bucket = Array.from(new Uint8Array(digest), (b) =>
+      b.toString(16).padStart(2, "0"),
+    ).join("");
+    const bounded = new Request(request.url, {
+      method: request.method,
+      headers: request.headers,
+      ...(request.method !== "GET" ? { body: raw } : {}),
+    });
+    return this.ctx.blockConcurrencyWhile(async () => {
+      const response = await this.#service.handle(bounded, bucket);
+      this.#store.save(this.#service.trainingCheckpoint());
+      if (this.#service.hasExpiringState)
+        await this.ctx.storage.setAlarm(Date.now() + 30000);
+      return response;
+    });
   }
   async alarm() {
-    this.#service.sweep();
-    await this.ctx.storage.setAlarm(Date.now() + 30000);
+    await this.ctx.blockConcurrencyWhile(async () => {
+      this.#service.sweep();
+      this.#store.save(this.#service.trainingCheckpoint());
+      if (this.#service.hasExpiringState)
+        await this.ctx.storage.setAlarm(Date.now() + 30000);
+    });
   }
 }
 export class ProviderQuota extends DurableObject<Env> {
   async fetch(request: Request) {
     if (request.method !== "POST")
-      return new Response("Not found", { status: 404 });
+      return secureHeaders(new Response("Not found", { status: 404 }));
     // Synchronous SQLite statement makes reservation atomic across all sessions.
     this.ctx.storage.sql.exec(
       "CREATE TABLE IF NOT EXISTS quota (id INTEGER PRIMARY KEY, used INTEGER NOT NULL, units INTEGER NOT NULL)",

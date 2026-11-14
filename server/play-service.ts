@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from "node:crypto";
-import { Mission } from "./mission";
+import { Mission, type TrainingMissionCheckpoint } from "./mission";
 import {
   campaignTraining,
   campaignResolve,
@@ -28,6 +28,18 @@ type Session = {
   last: number;
   captured: boolean;
 };
+export type TrainingCheckpoint = {
+  version: 1;
+  sessions: {
+    id: string;
+    owner: string;
+    mission: TrainingMissionCheckpoint;
+    last: number;
+    captured: boolean;
+  }[];
+  rates: [string, { since: number; count: number }][];
+  scores: { missionId: string; mode: string; score: number; rank: string }[];
+};
 export class PlayService {
   #sessions = new Map<string, Session>();
   #rates = new Map<string, { since: number; count: number }>();
@@ -38,6 +50,42 @@ export class PlayService {
     private liveAvailable = false,
     private now = Date.now,
   ) {}
+  // Server-internal snapshots deliberately exclude Live sessions and Runtime objects.
+  trainingCheckpoint(): TrainingCheckpoint {
+    this.sweep();
+    return structuredClone({
+      version: 1,
+      sessions: [...this.#sessions]
+        .filter(([, s]) => s.mission.game.mode === "tutorial")
+        .map(([id, s]) => ({
+          id,
+          owner: s.owner,
+          mission: s.mission.trainingCheckpoint(),
+          last: s.last,
+          captured: s.captured,
+        })),
+      rates: [...this.#rates],
+      scores: this.#scores.filter((s) => s.mode === "tutorial"),
+    });
+  }
+  restoreTraining(saved: TrainingCheckpoint) {
+    if (saved.version !== 1) throw Error("Unknown Training state version.");
+    this.dispose();
+    for (const s of saved.sessions)
+      this.#sessions.set(s.id, {
+        mission: Mission.restoreTraining(s.mission),
+        owner: s.owner,
+        last: s.last,
+        captured: s.captured,
+        busy: false,
+      });
+    this.#rates = new Map(saved.rates);
+    this.#scores = structuredClone(saved.scores);
+    this.sweep();
+  }
+  get hasExpiringState() {
+    return this.#sessions.size > 0 || this.#rates.size > 0;
+  }
   sweep() {
     for (const [id, s] of this.#sessions)
       if (this.now() - s.mission.game.started >= 600000) {

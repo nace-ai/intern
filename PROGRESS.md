@@ -61,3 +61,17 @@ This is a working local hackathon MVP and packaged deployment candidate, not a c
 - [x] Removed a machine-specific credential-file fallback from the legacy evaluation CLI; normal integrations remain intact
 
 The launcher was runtime-tested on macOS. Its Bash/Node implementation targets macOS and Linux; a Linux host was not available for a separate platform run. No Nace/Groq requests were made. Local private ledgers and evidence remain excluded. GitHub push/remote commit verification is reported with the final commit hash after publication.
+
+## Durable public Training preparation — 2026-11-14
+
+- [x] Fetched origin/main before edits; no teammate divergence or local changes
+- [x] Added private SQLite-backed Training checkpoints for game state, flags, ownership, expiry, captures, rankings and rate counters
+- [x] Serialized Training transitions and storage writes in the Durable Object; raw IPs are hashed before rate-limit persistence
+- [x] Explicitly excluded Live runtimes and keys from persisted state; public Live is hard-disabled pending authorized real-provider tests
+- [x] Added security headers and private/source path rejection; bounded request streams before state transitions
+- [x] New persistence tests plus existing suite: 47 tests passed; frontend and Worker typechecks passed
+- [x] Local Worker smoke flows passed for all three missions
+- [x] Actual local Worker-process restart preserved a partially played session through breach and capture
+- [x] Added mandatory inspect/fetch → implement → test → audit → commit → push → verify instructions in AGENTS.md
+- [ ] Public deployment and public gameplay/browser verification
+- [ ] Verified public URL, judge QR and deployment documentation
