@@ -1,0 +1,13 @@
+/* Crashzilla graffiti tag (same handstyle as Chalkzilla) */
+.cz-tag { position: relative; display: inline-block; line-height: .9; font-family: "Sedgwick Ave Display", cursive; font-weight: 400; letter-spacing: -.01em; transform: rotate(-4deg) skewX(-6deg); }
+.cz-tag-word { position: relative; z-index: 1; text-shadow: .012em .012em 0 currentColor, -.008em .01em 0 currentColor; }
+.cz-drips { position: absolute; left: 4%; right: 4%; top: 83%; height: 0; z-index: 2; pointer-events: none; }
+.cz-drips i { position: absolute; top: 0; background: currentColor; border-radius: 0 0 999px 999px; clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%); transform-origin: top; animation: cz-run 1.6s cubic-bezier(.45,0,.2,1) both; animation-delay: calc(1.1s + var(--i, 0) * .14s); }
+.cz-drips i::after { content: ""; position: absolute; left: 50%; bottom: -.06em; width: .085em; height: .085em; transform: translateX(-50%); background: currentColor; border-radius: 50%; }
+.hero .cz-tag-word { animation: cz-spray 1.15s cubic-bezier(.6,.05,.3,1) .25s both; }
+@keyframes cz-spray { from { clip-path: inset(-20% 100% -20% 0); opacity: .5; } 60% { opacity: 1; } to { clip-path: inset(-20% -5% -20% 0); opacity: 1; } }
+@keyframes cz-run { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes cz-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes cz-track { from { opacity: 0; letter-spacing: .9em; } to { opacity: 1; letter-spacing: .32em; } }
+@keyframes cz-kenburns { from { transform: scale(1.04); } to { transform: scale(1.14); } }
+@keyframes cz-pulse { 0%, 100% { transform: scaleY(.35); transform-origin: top; opacity: .4; } 50% { transform: scaleY(1); opacity: .9; } }

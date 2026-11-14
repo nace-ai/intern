@@ -1,0 +1,10 @@
+# Give Intern the Crashzilla tools. Copy to ~/.intern/config.toml (or $INTERN_HOME/config.toml)
+# and replace /ABS/PATH with this repository's absolute path.
+[[capabilities.mcp]]
+namespace = "crashzilla"
+transport = "stdio"
+command = "/ABS/PATH/TO/node"            # absolute path, e.g. the output of `which node`
+args = ["/ABS/PATH/mcp/server.mjs"]
+cwd = "/ABS/PATH"
+env_refs = { NACE_API_KEY = "NACE_API_KEY" }
+remote_tools = { simulate_crash = [], triage_crash = ["network"] }

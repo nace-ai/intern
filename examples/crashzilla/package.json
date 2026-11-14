@@ -1,0 +1,23 @@
+{
+  "name": "crashzilla",
+  "version": "1.0.0",
+  "description": "Crashzilla: driver camera -> crash physics -> organ injury odds -> ER pre-alert, with Drex Max",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/physics.test.mjs",
+    "mcp": "node mcp/server.mjs",
+    "benchmark": "node scripts/benchmark.mjs",
+    "ndi": "node scripts/ndi-intake.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "three": "^0.170.0"
+  }
+}

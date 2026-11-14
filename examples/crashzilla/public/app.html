@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Crashzilla · dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sedgwick+Ave+Display&family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/brand.css" />
+<link rel="icon" href="/icon.svg" />
+<link rel="stylesheet" href="/style.css" />
+<script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
+</head>
+<body>
+<header>
+  <a class="brand" href="/"><span class="cz-tag"><span class="cz-tag-word">Crashzilla</span></span><small>crash → body → ER</small></a>
+  <div class="status"><span id="st-drex" class="dot">DREX MAX</span><span id="st-llm" class="dot">FRONTIER LLM</span><span id="clock">T+0.000 s</span></div>
+</header>
+
+<main>
+  <section class="col left">
+    <div class="panel video">
+      <div class="ph">01 · CABIN CAMERA <em id="src-name">driver cam · NHTSA 56 km/h · Tesla Model 3</em></div>
+      <div class="srcs" id="srcs">
+        <button class="src on" data-src="/media/cabin.mp4" data-name="driver cam · NHTSA 56 km/h · Tesla Model 3">TESLA M3 · 2018</button>
+        <button class="src" data-src="/media/mercedes.mp4" data-name="driver cam · NHTSA 56 km/h · Mercedes C-Class">MERCEDES C · 2013</button>
+        <button class="src" data-src="/media/prius.mp4" data-name="driver cam · NHTSA 56 km/h · Toyota Prius c">PRIUS C · 2013</button>
+        <label class="src up">UPLOAD<input id="file" type="file" accept="video/*" hidden /></label>
+      </div>
+      <video id="vid" src="/media/cabin.mp4" muted playsinline preload="auto" crossorigin="anonymous"></video>
+      <button id="btn-scan" class="scanbtn">◉ WATCH THE DRIVER · DREX MAX</button>
+      <div id="strip" class="strip"></div>
+      <div id="scan-out" class="chips"></div>
+    </div>
+    <div class="panel controls">
+      <div class="ph">02 · OCCUPANT &amp; IMPACT</div>
+      <label>Impact speed <output id="o-speed">56 km/h</output><input id="i-speed" type="range" min="15" max="110" value="56" /></label>
+      <label>Age <output id="o-age">35</output><input id="i-age" type="range" min="6" max="92" value="35" /></label>
+      <div class="toggles">
+        <label class="tg"><input id="i-belt" type="checkbox" checked /><span>SEAT BELT</span></label>
+        <label class="tg"><input id="i-bag" type="checkbox" checked /><span>AIRBAG</span></label>
+        <label class="tg"><input id="i-cmp" type="checkbox" checked /><span>RACE vs LLM</span></label>
+      </div>
+      <label class="ghost ndi">▤ READ CRASH / EMS REPORT · NDI<input id="report" type="file" accept=".pdf,image/*,.docx,.txt" hidden /></label>
+      <div id="ndi-out" class="chips"></div>
+      <div class="ph" style="margin-top:10px">CRASH SCENARIOS</div>
+      <div class="scen">
+        <button data-s='{"speedKmh":56,"belted":true,"airbag":true,"age":35}'>NCAP 56 · BELTED</button>
+        <button data-s='{"speedKmh":56,"belted":false,"airbag":true,"age":35}'>NO SEAT BELT</button>
+        <button data-s='{"speedKmh":56,"belted":false,"airbag":false,"age":35}'>NO BELT · NO AIRBAG</button>
+        <button data-s='{"speedKmh":90,"belted":true,"airbag":true,"age":35}'>HIGHWAY 90</button>
+        <button data-s='{"speedKmh":56,"belted":true,"airbag":true,"age":78}'>ELDERLY 78 Y</button>
+        <button data-s='{"speedKmh":32,"belted":true,"airbag":true,"age":8}'>CITY 32 · CHILD 8 Y</button>
+      </div>
+      <button id="btn-run" class="run">▶ RECONSTRUCT &amp; TRIAGE</button>
+      <button id="btn-batch" class="ghost">⚠ MASS CASUALTY · TRIAGE 100 CRASHES</button>
+    </div>
+  </section>
+
+  <div class="splitter" id="splitter" title="Drag to resize · double-click for big video"><span></span></div>
+  <section class="col center">
+    <canvas id="three"></canvas>
+    <div class="overlay tl"><div class="ph">03 · OCCUPANT RECONSTRUCTION</div><div id="phase">STANDBY</div></div>
+    <div class="overlay bl" id="formulas"></div>
+    <div class="overlay br"><canvas id="chart" width="430" height="170"></canvas></div>
+  </section>
+
+  <section class="col right">
+    <div class="panel">
+      <div class="ph">04 · MEASURED ON THE BODY <em>NHTSA injury criteria</em></div>
+      <div id="metrics" class="metrics"></div>
+    </div>
+    <div class="panel organs">
+      <div class="ph">05 · INJURY ODDS <em id="drex-meta">Drex · per organ</em></div>
+      <div id="organs"></div>
+    </div>
+    <div class="panel er" id="er"><div class="ph">06 · ER PRE-ALERT</div><div class="er-body">Waiting for a crash…</div></div>
+  </section>
+</main>
+
+<footer>
+  <div class="race">
+    <div class="lane"><b>DREX MAX</b><div class="bar"><i id="bar-drex"></i></div><span id="t-drex">—</span></div>
+    <div class="lane"><b id="llm-name">FRONTIER LLM</b><div class="bar"><i id="bar-llm" class="llm"></i></div><span id="t-llm">—</span></div>
+  </div>
+  <div id="verdict" class="verdict">Same crash · same questions · two brains</div>
+</footer>
+
+<section class="analysis" id="analysis">
+  <div class="an-head"><div><div class="an-eb">// analysis · scroll down</div><h2>Rewind the crash</h2></div>
+    <div class="an-ctl"><button id="an-play">▶ PLAY</button><button data-jump="0">0 ms</button><button data-jump="30">IMPACT</button><button data-jump="70">PEAK</button><button data-jump="130">REBOUND</button></div></div>
+  <input id="an-scrub" type="range" min="0" max="200" value="0" />
+  <div id="an-now" class="an-now"></div>
+  <div class="an-grid3">
+    <figure><figcaption>Acceleration (g)</figcaption><canvas id="an-acc" width="1000" height="420"></canvas></figure>
+    <figure><figcaption>Body movement (cm)</figcaption><canvas id="an-mov" width="1000" height="420"></canvas></figure>
+    <figure><figcaption>Femur load (kN)</figcaption><canvas id="an-knee" width="1000" height="420"></canvas></figure>
+  </div>
+  <div class="an-grid2">
+    <figure><figcaption>Injury criteria · NHTSA curves</figcaption><table id="an-crit"></table></figure>
+    <figure><figcaption>Speed &amp; cost · Drex vs LLM</figcaption><table id="an-time"><tr><td class="how">Press RECONSTRUCT &amp; TRIAGE.</td></tr></table></figure>
+  </div>
+  <div class="an-grid2 wide">
+    <figure><figcaption>Organ odds · Drex probability for each severity level (%)</figcaption><table id="an-organs"><tr><td class="how">Press RECONSTRUCT &amp; TRIAGE.</td></tr></table></figure>
+    <figure><figcaption>ER decisions</figcaption><table id="an-er"><tr><td class="how">Press RECONSTRUCT &amp; TRIAGE.</td></tr></table></figure>
+  </div>
+  <figure class="frames-log"><figcaption>Driver camera · what Drex Max saw in every frame (click a row to jump the video)</figcaption><table id="an-frames"></table></figure>
+</section>
+
+<div id="batch" class="modal hidden">
+  <div class="modal-in">
+    <div class="ph">MASS CASUALTY EVENT · every patient triaged by Drex <button id="batch-close">✕</button></div>
+    <div id="batch-head" class="batch-head"></div>
+    <div id="batch-grid" class="batch-grid"></div>
+  </div>
+</div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

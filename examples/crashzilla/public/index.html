@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Crashzilla — the crash lasts 0.1 s. Crashzilla remembers.</title>
+<link rel="icon" href="/icon.svg" />
+<link rel="stylesheet" href="/brand.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Sedgwick+Ave+Display&family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink: #0a0a0a; --mute: #5c5c5c; --line: #e6e6e6; --red: #ff2d3d; --amber: #ff8a1f; --green: #12b886; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: var(--ink); font: 17px/1.6 Montserrat, sans-serif; -webkit-font-smoothing: antialiased;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 64px 64px; background-position: -1px -1px; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+
+  nav { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.92); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .logo .cz-tag { font-size: 34px; color: var(--ink); }
+  .hero-tag { font-size: clamp(72px, 8.4vw, 124px); color: var(--ink); margin: 26px 0 58px 6px; }
+  nav .links { display: flex; gap: 34px; font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+  nav .links a:hover { color: var(--ink); }
+  .btn { display: inline-flex; flex-direction: column; justify-content: center; padding: 16px 26px; border: 2px solid var(--ink); font-weight: 700; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; background: #fff; transition: transform .15s, box-shadow .15s; }
+  .btn small { font: 500 12px "JetBrains Mono"; letter-spacing: 0; text-transform: none; opacity: .7; margin-top: 3px; }
+  .btn.primary { background: var(--ink); color: #fff; }
+  .btn:hover { transform: translate(-3px, -3px); box-shadow: 3px 3px 0 var(--ink); }
+  .btn.sm { padding: 10px 18px; font-size: 13px; }
+
+  /* hero */
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--ink); margin: 56px 0 0; background: #fff; }
+  .hero-copy { padding: 56px 48px; border-right: 1px solid var(--ink); }
+  .eyebrow { font: 500 14px "JetBrains Mono"; color: var(--mute); }
+  h1 { font-size: clamp(34px, 3.6vw, 52px); line-height: 1.08; margin: 0 0 20px; font-weight: 800; letter-spacing: -.02em; }
+  h1 em { font-style: normal; color: var(--red); }
+  .hero-copy p { font-size: 19px; color: #2b2b2b; max-width: 540px; margin: 0 0 34px; }
+  .actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .flow { display: grid; grid-template-rows: auto auto auto; }
+  .flow > div { border-bottom: 1px solid var(--line); padding: 22px 28px; display: grid; grid-template-columns: 64px 1fr; gap: 18px; align-items: center; }
+  .flow > div:last-child { border-bottom: 0; }
+  .flow .n { font: 700 15px "JetBrains Mono"; width: 48px; height: 48px; border: 2px solid var(--ink); display: grid; place-items: center; }
+  .flow h3 { margin: 0 0 4px; font-size: 18px; text-transform: uppercase; letter-spacing: .06em; }
+  .flow p { margin: 0; color: var(--mute); font-size: 15px; }
+  .camstrip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 10px; }
+  .camstrip i { aspect-ratio: 4/5; background: #eee center/cover; position: relative; overflow: hidden; border: 1px solid var(--line); }
+  .camstrip i::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--h); background: rgba(255,45,61,.8); transform-origin: bottom; animation: rise 3s ease-in-out infinite; animation-delay: var(--d); }
+  @keyframes rise { 0%, 20% { transform: scaleY(0); } 45%, 85% { transform: scaleY(1); } 100% { transform: scaleY(0); } }
+  .mini-pulse path { fill: none; stroke-width: 3; stroke-dasharray: 520; stroke-dashoffset: 520; animation: draw 3.4s ease-in-out infinite; }
+  @keyframes draw { 0% { stroke-dashoffset: 520; } 55%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -520; } }
+  .er-mini { margin-top: 10px; border: 2px solid var(--red); padding: 10px 14px; font: 500 14px "JetBrains Mono"; }
+  .er-mini b { display: block; font-size: 20px; color: var(--red); animation: stamp 3s ease-in-out infinite; }
+  @keyframes stamp { 0%, 25% { opacity: 0; transform: scale(1.25); transform-origin: left; } 40%, 90% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
+  section { padding: 110px 0 0; }
+  .sec-head { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; margin-bottom: 36px; }
+  h2 { font-size: clamp(32px, 3.6vw, 50px); line-height: 1.08; margin: 10px 0 0; font-weight: 800; letter-spacing: -.01em; }
+  .sec-head p { margin: 0; font-size: 18px; color: #2b2b2b; }
+
+
+  .vhero { position: relative; height: 100vh; min-height: 640px; display: grid; place-items: center; overflow: hidden; background: #000; color: #fff; text-align: center; margin-top: -73px; }
+  .vhero video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: cz-kenburns 24s ease-in-out infinite alternate; }
+  .vshade { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,.2), rgba(0,0,0,.7) 70%, #000); }
+  .vinner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; border: 0 !important; background: none !important; margin: 0 !important; }
+  .vtag { color: #fff; font-size: clamp(84px, 12.5vw, 196px); margin-bottom: 64px; }
+  .vline { font-size: clamp(13px, 1.3vw, 16px); letter-spacing: .3em; text-transform: uppercase; font-weight: 600; animation: cz-track 1.4s cubic-bezier(.2,.7,.2,1) 1.2s both; }
+  .vact { margin-top: 38px; justify-content: center; animation: cz-rise .9s cubic-bezier(.2,.7,.2,1) 1.7s both; }
+  .btn.inv { background: #fff; color: #000; border-color: #fff; }
+  .btn.ghost { background: transparent; color: #fff; border-color: #fff; }
+  .btn.inv:hover, .btn.ghost:hover { box-shadow: 3px 3px 0 #fff; }
+  .vscroll { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 1; font-size: 12px; letter-spacing: .4em; color: rgba(255,255,255,.7); }
+  .vscroll::after { content: ""; display: block; width: 1px; height: 34px; margin: 10px auto 0; background: rgba(255,255,255,.6); animation: cz-pulse 2.2s ease-in-out 3s infinite; }
+  nav.dark { background: transparent; border-bottom-color: transparent; }
+  nav.dark .cz-tag, nav.dark .links { color: #fff; }
+  nav.dark .btn.primary { background: #fff; color: #000; border-color: #fff; }
+  .vids { display: grid; grid-template-rows: 1fr 1fr; border-right: 1px solid var(--ink); }
+  .vids figure { margin: 0; position: relative; border-bottom: 1px solid var(--ink); overflow: hidden; background: #000; min-height: 260px; }
+  .vids figure:last-child { border-bottom: 0; }
+  .vids video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .vids figcaption { position: absolute; left: 0; bottom: 0; background: #fff; color: var(--ink); font: 600 14px Montserrat; padding: 8px 14px; border-top: 1px solid var(--ink); border-right: 1px solid var(--ink); }
+
+  /* live physics */
+  .live { display: grid; grid-template-columns: 340px 1fr; border: 1px solid var(--ink); background: #fff; }
+  .live .ctl { border-right: 1px solid var(--ink); padding: 28px; display: flex; flex-direction: column; gap: 22px; }
+  .live label { font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; }
+  .live output { float: right; font-family: "JetBrains Mono"; }
+  .live input[type=range] { width: 100%; accent-color: var(--ink); margin-top: 10px; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); }
+  .seg button { padding: 12px; border: 0; background: #fff; font: 700 14px Montserrat; letter-spacing: .06em; cursor: pointer; text-transform: uppercase; }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .risk { text-align: center; padding-top: 6px; }
+  .risk svg { transform: rotate(-90deg); }
+  .risk circle { fill: none; stroke-width: 12; }
+  .risk .fg { stroke-linecap: butt; transition: stroke-dashoffset .5s, stroke .5s; }
+  .rwrap { position: relative; width: 150px; height: 150px; margin: 0 auto; }
+  .risk b { position: absolute; inset: 0; display: grid; place-items: center; font: 800 38px "JetBrains Mono"; }
+  .risk span { display: block; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; margin-top: 8px; }
+  .live .out { display: grid; grid-template-rows: 1fr auto; }
+  .live canvas { width: 100%; height: 300px; display: block; border-bottom: 1px solid var(--line); }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .tile { padding: 20px 22px; border-right: 1px solid var(--line); }
+  .tile:last-child { border-right: 0; }
+  .tile .k { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
+  .tile .v { font: 700 34px "JetBrains Mono"; line-height: 1.2; }
+  .tile .lim { font: 500 13px "JetBrains Mono"; color: var(--mute); }
+  .tile.bad .v { color: var(--red); } .tile.warn .v { color: var(--amber); }
+  .formulas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--ink); border-top: 0; background: #fff; }
+  .formulas > div { padding: 24px 22px; border-right: 1px solid var(--line); }
+  .formulas > div:last-child { border-right: 0; }
+  .formulas .fk { font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); }
+  .formulas .fx { font: 600 17px "JetBrains Mono"; margin: 12px 0 10px; color: var(--ink); line-height: 1.5; }
+  .formulas .fx i { font-style: normal; }
+  .formulas .fx sup { font-size: 12px; }
+  .formulas p { margin: 0; font-size: 15px; color: #3a3a3a; line-height: 1.5; }
+  @media (max-width: 1100px) { .formulas { grid-template-columns: 1fr 1fr; } .formulas .fx { white-space: normal; } }
+
+  /* results */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); background: #fff; }
+  .metrics > div { padding: 30px 26px; border-right: 1px solid var(--line); }
+  .metrics > div:last-child { border-right: 0; }
+  .metrics strong { display: block; font: 800 54px Montserrat; letter-spacing: -.02em; line-height: 1; }
+  .metrics span { display: block; margin-top: 12px; font-size: 15px; color: #2b2b2b; }
+  .compare { border: 1px solid var(--ink); border-top: 0; background: #fff; padding: 30px 26px; }
+  .compare .head { font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+  .row { display: grid; grid-template-columns: 220px 1fr 120px; gap: 18px; align-items: center; margin: 12px 0; font-weight: 600; }
+  .row .track { height: 22px; background: #f2f2f2; position: relative; }
+  .row .track i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--ink); transition: width var(--t) linear; }
+  .row.llm .track i { background: #bdbdbd; }
+  .row strong { font-family: "JetBrains Mono"; text-align: right; }
+  .compare.go .track i { width: var(--w); }
+
+  /* scenarios */
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); background: #fff; }
+  .card { padding: 28px 22px; border-right: 1px solid var(--line); text-align: center; }
+  .card:last-child { border-right: 0; }
+  .card h4 { margin: 0 0 18px; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; }
+  .card .ring { position: relative; width: 150px; height: 150px; margin: 0 auto; }
+  .card svg { transform: rotate(-90deg); }
+  .card circle { fill: none; stroke-width: 12; }
+  .card .fg { transition: stroke-dashoffset 1.6s cubic-bezier(.2,.7,.2,1); }
+  .card .ring b { position: absolute; inset: 0; display: grid; place-items: center; font: 800 32px "JetBrains Mono"; }
+  .card .dest { margin-top: 16px; font-weight: 700; font-size: 14px; }
+
+  .stack { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .stack span { border: 2px solid var(--ink); background: #fff; padding: 8px 14px; font-weight: 600; font-size: 15px; }
+
+  footer { margin-top: 110px; border-top: 1px solid var(--ink); background: #fff; }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; height: 110px; font-size: 15px; color: var(--mute); }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); transition-delay: var(--delay, 0ms); }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (max-width: 980px) { .hero, .live, .sec-head { grid-template-columns: 1fr; } .hero-copy, .live .ctl { border-right: 0; border-bottom: 1px solid var(--ink); } .metrics, .cards, .tiles { grid-template-columns: 1fr 1fr; } nav .links { display: none; } .row { grid-template-columns: 130px 1fr 80px; } }
+</style>
+</head>
+<body>
+<nav class="dark" id="nav"><div class="wrap">
+  <a class="logo" href="/"><span class="cz-tag"><span class="cz-tag-word">Crashzilla</span></span></a>
+  <div class="links"><a href="#live">Live physics</a><a href="#results">Results</a><a href="#scenarios">Scenarios</a></div>
+  <a class="btn primary sm" href="/app">Dashboard</a>
+</div></nav>
+
+<header class="vhero">
+  <video src="/media/hero.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <div class="vshade"></div>
+  <div class="vinner hero">
+    <span class="cz-tag vtag" id="tag"><span class="cz-tag-word">Crashzilla</span><span class="cz-drips"></span></span>
+    <div class="vline">The crash lasts 0.1 s. Crashzilla remembers.</div>
+    <div class="actions vact"><a class="btn primary inv" href="/app">Open dashboard<small>driver cam · NHTSA test</small></a><a class="btn ghost" href="#how">How it works<small>3 steps</small></a></div>
+  </div>
+  <a class="vscroll" href="#how">SCROLL</a>
+</header>
+
+<main class="wrap">
+  <section id="how" style="padding-top:90px">
+    <div class="sec-head reveal">
+      <div><div class="eyebrow">// how it works</div><h2>A camera watches the driver. The ER gets the answer.</h2></div>
+      <p>Drex Max reads every frame, real crash physics measures what hit the body, and the ER gets organ-by-organ odds before the ambulance arrives.</p>
+    </div>
+    <div class="hero reveal">
+      <div class="vids">
+        <figure><video src="/media/cabin-gray.mp4" autoplay muted loop playsinline></video><figcaption>Driver cam · what Drex Max watches</figcaption></figure>
+        <figure><video src="/media/hero.mp4" autoplay muted loop playsinline></video><figcaption>Outside · NHTSA 56 km/h frontal</figcaption></figure>
+      </div>
+      <div class="flow">
+      <div><span class="n">01</span><div><h3>Watch</h3><p>Drex Max reads 36 frames of the driver camera.</p><div class="camstrip" id="camstrip"></div></div></div>
+      <div><span class="n">02</span><div><h3>Measure</h3><p>Crash pulse, head, chest, neck, femur.</p>
+        <svg class="mini-pulse" viewBox="0 0 400 70" width="100%"><line x1="0" y1="66" x2="400" y2="66" stroke="#e6e6e6" /><path d="M2 66 C60 66 80 66 120 40 L150 4 L170 34 C200 64 260 52 300 58 S370 66 398 66" stroke="#ff2d3d" /><path d="M2 66 C50 66 80 20 140 18 S210 66 260 64 S360 66 398 66" stroke="#0a0a0a" style="animation-delay:.25s" /></svg></div></div>
+      <div><span class="n">03</span><div><h3>Alert</h3><p>Odds for 14 organs + where the ambulance should go.</p><div class="er-mini">INCOMING · 35 y · unbelted<b>→ LEVEL I TRAUMA</b></div></div></div>
+    
+    </div>
+  </section>
+
+  <section id="live">
+    <div class="sec-head reveal">
+      <div><div class="eyebrow">// live · the real physics engine, running in this page</div><h2>Move the slider. Watch the body take it.</h2></div>
+      <p>Same code as the dashboard. A crash pulse hits a belted (or unbelted) occupant; we measure what a crash-test dummy would, then run NHTSA's official injury curves.</p>
+    </div>
+    <div class="live reveal">
+      <div class="ctl">
+        <label>Impact speed <output id="o-sp">56 km/h</output><input id="sp" type="range" min="15" max="110" value="56" /></label>
+        <label>Age <output id="o-age">35</output><input id="age" type="range" min="6" max="92" value="35" /></label>
+        <div class="seg" id="belt"><button class="on" data-v="1">Belted</button><button data-v="0">No belt</button></div>
+        <div class="seg" id="bag"><button class="on" data-v="1">Airbag</button><button data-v="0">No airbag</button></div>
+        <div class="risk"><div class="rwrap"><svg width="150" height="150"><circle cx="75" cy="75" r="62" stroke="#f0f0f0" /><circle class="fg" id="rfg" cx="75" cy="75" r="62" /></svg><b id="rnum">0%</b></div><span>chance of a serious injury</span></div>
+      </div>
+      <div class="out">
+        <canvas id="chart" width="1800" height="600"></canvas>
+        <div class="tiles" id="tiles"></div>
+      </div>
+    </div>
+    <div class="formulas reveal">
+      <div><div class="fk">Head score · HIC₁₅</div><div class="fx">HIC = max <i>Δt</i> · ( ā )<sup>2.5</sup></div><p>Average head acceleration over the worst 15 ms window. Above 700 = danger.</p></div>
+      <div><div class="fk">Head injury risk</div><div class="fx">P = Φ( (ln HIC − 7.45) / 0.74 )</div><p>NHTSA's curve: chance of a serious (AIS 3+) head injury.</p></div>
+      <div><div class="fk">Chest injury risk</div><div class="fx">P = 1 / (1 + e<sup>12.6 − 0.059·age − 1.57·δ<sup>0.46</sup></sup>)</div><p>δ = how far the chest is crushed (mm). Older = more fragile.</p></div>
+      <div><div class="fk">Neck injury risk</div><div class="fx">P = 1 / (1 + e<sup>3.23 − 1.97·Nij</sup>)</div><p>Nij combines neck tension and bending. Above 1.0 = danger.</p></div>
+    </div>
+  </section>
+
+  <section id="results">
+    <div class="sec-head reveal">
+      <div><div class="eyebrow">// results · measured, not claimed</div><h2>Faster than a frontier LLM, with real odds.</h2></div>
+      <p>NHTSA 56 km/h frontal test of a 2018 Tesla Model 3. Same crash, same state, same 19 questions, timed live.</p>
+    </div>
+    <div class="metrics reveal">
+      <div><strong data-count="52" data-suffix=" km/h">0</strong><span>speed read from the driver camera alone · real test: 56</span></div>
+      <div><strong data-count="13" data-suffix="×">0</strong><span>faster triage than Claude Opus 5.5 · median of 12 live runs</span></div>
+      <div><strong data-count="216">0</strong><span>Drex Max decisions per crash video, in 2.4 s</span></div>
+      <div><strong data-count="14">0</strong><span>organs and regions scored for the ER</span></div>
+    </div>
+    <div class="compare reveal" id="cmp">
+      <div class="head">Seconds to a full ER triage</div>
+      <div class="row"><span>Drex Max</span><div class="track"><i style="--w:6%;--t:.39s"></i></div><strong>0.41 s</strong></div>
+      <div class="row llm"><span>Claude Opus 5.5</span><div class="track"><i style="--w:100%;--t:6.5s"></i></div><strong>5.5 s</strong></div>
+      <div class="head" style="margin-top:28px">Cost per triage</div>
+      <div class="row"><span>Drex Max</span><div class="track"><i style="--w:.3%;--t:.4s"></i></div><strong>$0.00005</strong></div>
+      <div class="row llm"><span>Claude Opus 5.5</span><div class="track"><i style="--w:100%;--t:1.2s"></i></div><strong>$0.022</strong></div>
+    </div>
+  </section>
+
+  <section id="scenarios">
+    <div class="sec-head reveal">
+      <div><div class="eyebrow">// same car · one difference</div><h2>One choice changes the whole ER.</h2></div>
+      <p>Computed live in your browser with the same physics as the dashboard.</p>
+    </div>
+    <div class="cards reveal" id="cards"></div>
+    <div class="stack reveal"><span>Drex Max · Nace AI</span><span>NHTSA NCAP injury curves</span><span>three.js</span><span>NHTSA crash footage</span><span>Claude Opus 5.5 (baseline)</span><span>Node · Express</span></div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span class="logo"><span class="cz-tag"><span class="cz-tag-word">Crashzilla</span></span></span><span>Made by Akmal at the Drexathon · decision support, not a diagnosis</span><a class="btn sm" href="/app">Open dashboard</a></div></footer>
+
+<script type="module">
+  import { simulate } from "/physics.js";
+  const $ = (id) => document.getElementById(id);
+  const DRIPS = [[9, .22, .045], [24, .46, .055], [31, .14, .04], [49, .62, .058], [63, .24, .042], [78, .38, .05], [92, .17, .04]];
+  $("tag").querySelector(".cz-drips").innerHTML = DRIPS.map(([l, h, w], i) => `<i style="left:${l}%;height:${h}em;width:${w}em;--i:${i}"></i>`).join("");
+  // hero camera strip: real NHTSA driver-cam frames, bars = how violent Drex Max rated each frame
+  const H = [6, 30, 90, 100, 60, 20];
+  $("camstrip").innerHTML = H.map((h, i) => `<i style="background-image:url(/frames/c${[0, 1, 2, 3, 5, 7][i]}.jpg);--h:${h}%;--d:${i * .12}s"></i>`).join("");
+
+  const nav = $("nav"); const onScroll = () => nav.classList.toggle("dark", scrollY < innerHeight - 80); addEventListener("scroll", onScroll); onScroll();
+  // live physics
+  const st = { speedKmh: 56, age: 35, belted: true, airbag: true };
+  const C = 2 * Math.PI * 62;
+  $("rfg").setAttribute("stroke-dasharray", C);
+  function draw() {
+    const r = simulate(st), s = r.series, m = r.metrics;
+    const cv = $("chart"), g = cv.getContext("2d"), W = cv.width, Hh = cv.height;
+    g.clearRect(0, 0, W, Hh);
+    const max = Math.max(60, ...s.chest, ...s.head.map(v => Math.min(v, 160))) * 1.1;
+    const X = (t) => 90 + (t / 200) * (W - 130), Y = (v) => Hh - 70 - (Math.min(v, max) / max) * (Hh - 120);
+    g.font = "26px JetBrains Mono"; g.fillStyle = "#8a8a8a"; g.strokeStyle = "#eee"; g.lineWidth = 2;
+    for (let t = 0; t <= 200; t += 50) { g.beginPath(); g.moveTo(X(t), 30); g.lineTo(X(t), Hh - 70); g.stroke(); g.fillText(t + " ms", X(t) - 34, Hh - 26); }
+    for (let v = 0; v <= max; v += 20) g.fillText(Math.round(v) + "g", 10, Y(v) + 8);
+    const line = (arr, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); arr.forEach((v, i) => { const x = X(s.t[i]), y = Y(v); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); };
+    line(s.car, "#c4c4c4", 4); line(s.chest, "#0a0a0a", 5); line(s.head, "#ff2d3d", 6);
+    g.font = "bold 28px Montserrat"; g.fillStyle = "#c4c4c4"; g.fillText("CAR", W - 400, 60); g.fillStyle = "#0a0a0a"; g.fillText("CHEST", W - 300, 60); g.fillStyle = "#ff2d3d"; g.fillText("HEAD", W - 160, 60);
+    const tile = (k, v, lim, risk, unit) => `<div class="tile ${risk > .25 ? "bad" : risk > .08 ? "warn" : ""}"><div class="k">${k}</div><div class="v">${v}</div><div class="lim">${unit} · ${(risk * 100).toFixed(0)}% risk</div></div>`;
+    $("tiles").innerHTML = tile("Head · HIC", m.hic15.toFixed(0), 700, r.risk.head, "limit 700") + tile("Chest", m.chestDeflMm.toFixed(0) + " mm", 63, r.risk.chest, "limit 63 mm") +
+      tile("Neck · Nij", m.nij.toFixed(2), 1, r.risk.neck, "limit 1.0") + tile("Femur", m.femurKN.toFixed(1) + " kN", 10, r.risk.femur, "limit 10 kN");
+    const j = r.risk.joint, col = j > .5 ? "#ff2d3d" : j > .2 ? "#ff8a1f" : "#12b886";
+    $("rfg").setAttribute("stroke", col); $("rfg").setAttribute("stroke-dashoffset", C * (1 - j)); $("rnum").textContent = Math.round(j * 100) + "%"; $("rnum").style.color = col;
+  }
+  $("sp").oninput = (e) => { st.speedKmh = +e.target.value; $("o-sp").textContent = st.speedKmh + " km/h"; draw(); };
+  $("age").oninput = (e) => { st.age = +e.target.value; $("o-age").textContent = st.age; draw(); };
+  for (const [id, key] of [["belt", "belted"], ["bag", "airbag"]]) $(id).querySelectorAll("button").forEach(b => b.onclick = () => { $(id).querySelectorAll("button").forEach(x => x.classList.remove("on")); b.classList.add("on"); st[key] = b.dataset.v === "1"; draw(); });
+  draw();
+
+  // scenario rings
+  const SC = [["NCAP 56 · belted", {}], ["No seat belt", { belted: false }], ["Elderly · 78 y", { age: 78 }], ["Highway · 90 km/h", { speedKmh: 90 }]];
+  const CC = 2 * Math.PI * 64;
+  $("cards").innerHTML = SC.map(([n, inp]) => { const r = simulate(inp).risk.joint, col = r > .5 ? "#ff2d3d" : r > .2 ? "#ff8a1f" : "#12b886", dest = r > .5 ? "→ Level I trauma" : r > .2 ? "→ Trauma center" : "→ Community ER";
+    return `<div class="card"><h4>${n}</h4><div class="ring"><svg width="150" height="150"><circle cx="75" cy="75" r="64" stroke="#f0f0f0"/><circle class="fg" cx="75" cy="75" r="64" stroke="${col}" stroke-dasharray="${CC}" stroke-dashoffset="${CC}" data-off="${CC * (1 - r)}"/></svg><b data-count="${Math.round(r * 100)}" data-suffix="%" style="color:${col}">0</b></div><div class="dest" style="color:${col}">${dest}</div></div>`; }).join("");
+
+  // reveal + count-up
+  const count = (el) => { const to = +el.dataset.count, suf = el.dataset.suffix || "", t0 = performance.now(); const f = (t) => { const k = Math.min(1, (t - t0) / 1300); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))) + suf; if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); };
+  const io = new IntersectionObserver((es) => es.forEach(e => { if (!e.isIntersecting) return; const el = e.target; el.classList.add("in", "go"); el.querySelectorAll("[data-count]").forEach(count); el.querySelectorAll(".fg[data-off]").forEach(c => c.style.strokeDashoffset = c.dataset.off); io.unobserve(el); }), { threshold: .2 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>

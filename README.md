@@ -1,3 +1,5 @@
+> **Drexathon entry (Nov 14 2026): [Crashzilla](examples/crashzilla)**: a driver camera, crash physics and Drex turn a car crash into an ER pre-alert. Intern drives it through the MCP tool server in `examples/crashzilla/mcp`.
+
 <p align="center">
   <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, its eyes on the top face, glancing around and blinking" width="160">
 </p>

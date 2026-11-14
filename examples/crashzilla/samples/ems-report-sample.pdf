@@ -1,0 +1,51 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 969 >>
+stream
+BT /F1 12 Tf 14 TL 50 760 Td
+(SAMPLE - SYNTHETIC DATA - NOT A REAL PATIENT) Tj T*
+() Tj T*
+(EMS PATIENT CARE REPORT - MOTOR VEHICLE COLLISION) Tj T*
+(Incident 26-114-0932    Date 2026-11-14    Unit Medic 12) Tj T*
+() Tj T*
+(PATIENT: Male, 67 years old. Driver, sole occupant.) Tj T*
+(MECHANISM: Frontal collision into a concrete barrier.) Tj T*
+(Estimated speed at impact: 45 mph \(police estimate from skid marks\).) Tj T*
+(RESTRAINT: Seat belt NOT worn. Frontal airbag deployed.) Tj T*
+(Steering wheel deformed. Windshield intact. No rollover.) Tj T*
+() Tj T*
+(HISTORY: Atrial fibrillation. MEDICATIONS: apixaban \(Eliquis\) 5 mg twice daily, metoprolol.) Tj T*
+(Brief loss of consciousness reported by bystander \(under 1 minute\).) Tj T*
+() Tj T*
+(COMPLAINTS: Chest pain on breathing, right upper abdominal pain, left knee pain.) Tj T*
+(VITALS: BP 102/64, HR 118, RR 26, SpO2 93% room air, GCS 14.) Tj T*
+() Tj T*
+(TRANSPORT: Pending destination decision.) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001261 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1331
+%%EOF
