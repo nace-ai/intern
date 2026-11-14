@@ -32,6 +32,7 @@ from intern.decisions import (
     DecisionsApiBackend,
     System1Unavailable,
 )
+from intern.engagement.extension import EngagementExtension
 from intern.events import EventSink, MemoryMount, SecretUnavailable
 from intern.executor import LocalExecutor, physical_memory
 from intern.extensions import REGISTRY
@@ -312,6 +313,12 @@ CAPABILITY_EXTENSIONS: dict[str, CapabilityExtension] = {
         "cap.memory",
         "memory is a capability, on by default, not loaded as an extension: "
         f"switch it with [capabilities.memory] enabled in {CONFIG_FILE}, --memory/--no-memory, or /caps",
+    ),
+    EngagementExtension.name: CapabilityExtension(
+        EngagementExtension,
+        "cap.engagement",
+        "the engagement harness is turned on by its capability, not loaded as an extension: "
+        f"set [capabilities.engagement] enabled = true in {CONFIG_FILE}, /caps, or /engage <host>",
     ),
 }
 
@@ -634,6 +641,12 @@ class Bootstrap:
         if system2.profile.vision:
             vision_line = HOST_VISION_LINE if isinstance(read, ReadTool) and not read.attach_images else VISION_LINE
             instructions = instructions.model_copy(update={"system": f"{instructions.system}\n{vision_line}"})
+        bootstrap = self
+
+        async def spawn_session(sink: EventSink) -> Session:
+            """A specialist's session: the same models and config, its own journal and events."""
+            return await bootstrap.session(sink)
+
         deps = EngineDeps(
             system2=system2,
             tools=tools,
@@ -646,6 +659,7 @@ class Bootstrap:
             spill_dir=self.home / "spill" / journal.session_id,
             emit=emit,
             system_writes=self.config.guard.system_writes == "allow",
+            spawn_session=spawn_session,
         )
         if memory is not None:
             emit(MemoryMount(drive=str(memory.root), commit=memory.commit))

@@ -9,3 +9,5 @@ build/
 .env
 .DS_Store
 task/
+out/
+35.172.33.96/

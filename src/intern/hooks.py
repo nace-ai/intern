@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from intern.journal import Journal
     from intern.models.profile import Profile
     from intern.providers.base import ProviderRequest
+    from intern.session import Session
     from intern.tools.base import Tool
 
 HookName = Literal[
@@ -129,6 +130,9 @@ class RunContext:
     # The session as System 1 should see it (`session_cut`: the user's requests and the whole session, cut to fit): pass
     # it as `state` to `decisions.ask`, so every System 1 question reads the same picture.
     state: Callable[[], str]
+    #: Opens a child session sharing this run's models and config (None in a session built without
+    #: the bootstrap): the engagement's specialist dispatch runs its agents through it.
+    spawn_session: Callable[[EventSink], Awaitable[Session]] | None = None
 
 
 class Extension:

@@ -326,6 +326,13 @@ class McpConfig(_Settings):
         return self
 
 
+class EngagementConfig(_Settings):
+    """The pentest harness (engagement state, drex gates, evidence, reports, specialists).
+    Off by default: it changes what the agent is for, not how a coding task runs."""
+
+    enabled: bool = False
+
+
 class SessionBudgetConfig(_Settings):
     """One session-cumulative model-call ledger, retained across follow-ups/model changes.
 
@@ -347,6 +354,7 @@ class CapabilitySettings(_Settings):
     code_search: CodeSearchConfig = Field(default_factory=CodeSearchConfig)
     memory: MemoryConfig = Field(default_factory=MemoryConfig)
     workspace: WorkspaceConfig = Field(default_factory=WorkspaceConfig)
+    engagement: EngagementConfig = Field(default_factory=EngagementConfig)
     runner: RunnerConfig = Field(default_factory=RunnerConfig)
     secrets: SecretsConfig = Field(default_factory=SecretsConfig)
     mcp: list[McpConfig] = Field(default_factory=list, max_length=32)

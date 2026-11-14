@@ -29,6 +29,7 @@ intern -p --system2 fireworks/accounts/fireworks/models/nemotron-lightning-3p5-3
 | One task, JSON events (one per line) | `intern -p --json --system2 M -- "task"` |
 | JSON-RPC server over stdio | `intern rpc --system2 M` |
 | Agent Client Protocol server (t3code, Zed; needs `[acp]`, see [acp.md](acp.md)) | `intern acp` |
+| Unattended engagement run, budgeted, with exit codes (the [engagement](engagement.md) harness) | `intern engage <target>` |
 | Event JSON Schema | `intern schema` |
 
 Useful flags: `--window N` caps the working window, `--max-turns N` sets the turn budget,

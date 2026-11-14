@@ -1,6 +1,6 @@
 [project]
 name = "intern-agent"
-version = "0.30.1"
+version = "0.31.0"
 description = "An agent harness for models of 35B parameters or less, with a second model watching every turn"
 readme = "README.md"
 license = "Apache-2.0"
@@ -11,7 +11,11 @@ dependencies = [
     "httpcore>=1.0,<2",
     "httpx>=0.27",
     "pillow>=10",
-    "pydantic>=2.8",
+    "cvss>=3.6",
+    # The engagement harness: the OAST client's interactsh protocol (RSA-OAEP + AES) and OpenAPI
+    # YAML specs. Declared here so `oast` and `api_discover` never depend on an extra.
+    "cryptography>=43",
+    "pyyaml>=6",
     "textual>=8,<9",
     "tomlkit>=0.13",
 ]

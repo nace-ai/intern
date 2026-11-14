@@ -34,6 +34,7 @@ from intern.capability_settings import (
     SecretsConfig,
 )
 from intern.decision_failover import BudgetDecisionBackend
+from intern.engagement.extension import EngagementExtension
 from intern.executor import ClosableExecutor, Executor, JobExecutor, LocalExecutor, mount_of, shell_env
 from intern.extensions.code_search import CodeSearch
 from intern.extensions.workspace.extension import Workspace
@@ -158,6 +159,8 @@ def capability_needs(toggle_id: str) -> Needs | None:
         return CodeSearch.needs
     if toggle_id == f"{capability_toggles.PREFIX}workspace":
         return Workspace.needs
+    if toggle_id == f"{capability_toggles.PREFIX}engagement":
+        return EngagementExtension.needs
     if toggle_id.startswith(capability_toggles.MCP_PREFIX):
         return MCP_NEEDS
     return None
@@ -401,7 +404,11 @@ def capability_extensions(settings: CapabilitySettings) -> list[Extension]:
     """Extensions a capability setting turns on. Code search and the workspace load only this way, never by
     extension name; each needs its extra, checked here so a run fails before it starts, not at the first tool."""
     extensions: list[Extension] = []
-    for extension, enabled in ((CodeSearch, settings.code_search.enabled), (Workspace, settings.workspace.enabled)):
+    for extension, enabled in (
+        (CodeSearch, settings.code_search.enabled),
+        (Workspace, settings.workspace.enabled),
+        (EngagementExtension, settings.engagement.enabled),
+    ):
         if enabled:
             _require(extension.needs)
             extensions.append(extension())

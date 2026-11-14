@@ -29,8 +29,12 @@ RETIRED = frozenset({f"{PREFIX}process"})
 is a base tool."""
 BROWSER_NOTE = "browser: Playwright pages the agent opens, reads, clicks, fills and screenshots"
 CODE_SEARCH_NOTE = "decision_code: System 1 searches the repository for where something is defined or changed"
-WORKSPACE_NOTE = "index_files, decision_files, sql, read: a folder of PDFs, Word files and workbooks the agent indexes"
 MEMORY_NOTE = "a git repository of pages the agent recalls from at the start and adds to"
+WORKSPACE_NOTE = "index_files, decision_files, sql, read: a folder of PDFs, Word files and workbooks the agent indexes"
+ENGAGEMENT_NOTE = (
+    "state_update/state_query, drex_triage/decide, evidence, screenshot, browser_session, report, "
+    "playbooks/payloads, exploit research, oast, dispatch: the pentest harness, one record under out/"
+)
 
 
 class Toggle(BaseModel):
@@ -80,6 +84,13 @@ def toggles(
             on=caps.workspace.enabled,
         ),
         Toggle(id=f"{PREFIX}memory", name="Memory", label="memory drive", note=MEMORY_NOTE, on=caps.memory.enabled),
+        Toggle(
+            id=f"{PREFIX}engagement",
+            name="Engagement",
+            label="engagement",
+            note=ENGAGEMENT_NOTE,
+            on=caps.engagement.enabled,
+        ),
     ]
     for entry in at_start.mcp:
         names = list(entry.remote_tools)
@@ -122,6 +133,8 @@ def flip(
             return caps.model_copy(update={"workspace": caps.workspace.model_copy(update={"enabled": on})})
         case "cap.memory":
             return caps.model_copy(update={"memory": caps.memory.model_copy(update={"enabled": on})})
+        case "cap.engagement":
+            return caps.model_copy(update={"engagement": caps.engagement.model_copy(update={"enabled": on})})
         case _:
             raise KeyError(f"no capability toggle {toggle_id!r}")
 
