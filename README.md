@@ -1,3 +1,72 @@
+# Agent Heist — Pondicherry
+
+Agent Heist is our Drexathon cybersecurity game: players explore three fictional
+agent trust failures through social engineering, document injection, and poisoned
+tool responses. **The complete application is in [`agent-heist/`](agent-heist/).**
+
+- **Play:** https://agent-heist.agent-heist.workers.dev
+- **Grading guide:** [`docs/AGENT_HEIST_GRADING.md`](docs/AGENT_HEIST_GRADING.md)
+- **Game documentation:** [`agent-heist/README.md`](agent-heist/README.md)
+- **Original game repository:** https://github.com/vishalVasanthakumarPoornima/Agent-Heist
+
+Groq supplies Sentinel's conversational proposals. Nace Drex evaluates consequential
+security decisions. NDI parses public PDF documents and extracts evidence for Mission
+02. The deterministic engine alone controls simulated execution; server verification
+controls flag capture. Training is scripted and needs no provider credentials. Live
+uses real providers and does not guarantee an attack succeeds.
+
+## Run and evaluate the game without providers
+
+Use Node.js **22.12+** and npm. From this repository's root:
+
+```bash
+cd agent-heist
+npm ci
+npm test
+npm run check:worker
+npm run build:worker  # production build and local Worker dry run; does not deploy
+npm run audit:secrets
+npm run audit:repo
+npm run dev          # open http://127.0.0.1:5173 and choose Training
+```
+
+In another terminal, `cd agent-heist` and run `npm run smoke:api` while the local
+server is running to verify all three Training breaches and captures. No `.env`,
+private files, or provider keys are required. See the grading guide for exact
+mission paths, pipeline source locations, and Intern inspection instructions.
+
+## Intern and attribution
+
+This repository remains a fork of [`nace-ai/intern`](https://github.com/nace-ai/intern).
+We imported the separate Agent Heist Git history using an unsquashed subtree.
+Our game and its integration documentation are distinct from the upstream Intern
+harness in `src/intern/`. Intern's Python configuration, source, tests, root agent
+instructions, and Apache-2.0 license are retained. The imported game's notices and
+asset attribution are preserved; this integration does not add a new license grant
+for the original game's assets or source.
+
+Use Python **3.12+** and `uv` to install the harness from this checkout:
+
+```bash
+uv sync --locked --all-extras --python 3.12
+uv run intern --help
+uv run pytest -q -m 'not live'
+uv run python -m grading.offline_intern_smoke
+```
+
+Intern's help, schema, and offline tests can run without credentials. An actual
+model-assisted Intern session requires a configured System 2 model and System 1
+decision service; see the [grading guide](docs/AGENT_HEIST_GRADING.md). There is no
+invented automatic grading command or provider-free agent fallback.
+
+The fork uses **Agent-Heist-Intern** because **Agent-Heist** is already our working
+standalone repository. That repository and its production deployment are unchanged.
+CI in this grading fork tests both projects and never deploys the game.
+
+---
+
+## Upstream Intern documentation (preserved below)
+
 <p align="center">
   <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, its eyes on the top face, glancing around and blinking" width="160">
 </p>

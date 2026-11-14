@@ -29,11 +29,12 @@ jobs:
       - run: uv run ruff format --check
       - run: uv run pyright
       - run: uv run pytest -q
+      - run: uv run python -m grading.offline_intern_smoke
 
   # Clients install tags, so a version bump on main is a release.
   tag:
     needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.repository == 'nace-ai/intern' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
