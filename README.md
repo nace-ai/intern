@@ -245,6 +245,10 @@ Intern collects no telemetry. What leaves your machine:
 
 Sessions are journaled, and memory kept, on your machine in `~/.intern/`.
 
+## Community examples
+
+- [Regret Simulator — A Parliament of Future Selves](docs/examples/regret-simulator.md): a Next.js decision-support app using Intern with local Qwen3 and Drex supervision, plus direct Drex decision calls. Independent community project; includes setup, limitations and verification evidence.
+
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) first: one concern per PR, and evidence for any changed default.
