@@ -489,9 +489,11 @@ test("offline guard blocks every provider before reserving or fetching", async (
 test("NDI reuses Parse as Extract source, caches successful extraction and requires consent for new jobs", async () => {
   const operations: string[] = [];
   let parsedSource: unknown;
+  let uploadedName = "";
   const sdk = {
     documents: {
-      upload: async () => {
+      upload: async (_content: unknown, params: { file_name: string }) => {
+        uploadedName = params.file_name;
         operations.push("upload");
         return {
           workspace_id: "11111111-1111-4111-8111-111111111111",
@@ -535,6 +537,7 @@ test("NDI reuses Parse as Extract source, caches successful extraction and requi
     approval: "approved",
   });
   const first = await rt.extract(text);
+  assert.match(uploadedName, /^fictional-authorization-[0-9a-f-]{36}\.pdf$/);
   assert.deepEqual((parsedSource as any).source, {
     type: "parse_result",
     job_id: "parse-1",
