@@ -1,0 +1,11 @@
+# Swarm roster — SendMessage `to` addresses (agents have no names; use these ids)
+- ENGINE    a3575d8217c0e934f
+- BRAINS    a4c6c813d22922fce
+- DECISIONS a0bab548e70938fce
+- ECONOMY   a2ce6a33699302833
+- STORE     a20341785a8e8c33b
+- WEB       ac1901afb1f9d931f
+- CITY2D    acc8dd1d07177e41b
+- CITY3D    ae227d4b980226463
+- main      main
+- GODOT     (see main for id; Open Theft Auto world client, owns integrations/** and apps/server/src/bridge/**)

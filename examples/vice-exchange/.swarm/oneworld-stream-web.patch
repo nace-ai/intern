@@ -1,0 +1,204 @@
+diff --git a/apps/web/src/App.tsx b/apps/web/src/App.tsx
+index b8e5559..5ed919e 100644
+--- a/apps/web/src/App.tsx
++++ b/apps/web/src/App.tsx
+@@ -1,9 +1,8 @@
+-import { WorldFrame } from "./components/WorldFrame";
+-import { useEffect, useMemo, useState } from "react";
++import { WorldStream, worldInput } from "./components/WorldStream";
++import { useEffect, useState } from "react";
+ import { CREDITS_NOTICE, RULES, dist } from "@vice/contracts";
+ import type { CharacterView, MissionView } from "@vice/contracts";
+ import "./styles.css";
+-import { CityView, has3D } from "./scene";
+ import { JoinRoom } from "./components/JoinRoom";
+ import { MarketPanel } from "./components/MarketPanel";
+ import { AgentInspector } from "./components/AgentInspector";
+@@ -147,6 +146,7 @@ function useControls(): void {
+     };
+     const onDown = (e: KeyboardEvent) => {
+       if (typing(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
++      if (worldInput.focused) return; // the game has the keyboard
+       const k = e.key.toLowerCase();
+       if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(k)) {
+         // In the WORLD view the embedded 3D client moves the character (it reports its own pose); the page must not.
+@@ -154,7 +154,7 @@ function useControls(): void {
+         e.preventDefault(); down.add(k); pushMove();
+       } else if (k === "e" && !e.repeat) { void act(); }
+       else if (k === "r" && !e.repeat) { void respawn(); }
+-      else if (k === "f" && !e.repeat && useGame.getState().viewMode !== "world") { void fire(); }
++      else if (k === "f" && !e.repeat) { void fire(); }
+     };
+     const onUp = (e: KeyboardEvent) => { down.delete(e.key.toLowerCase()); pushMove(); };
+     const onBlur = () => { down.clear(); pushMove(); };
+@@ -175,7 +175,6 @@ function Header() {
+   const mode = useGame((s) => s.mode);
+   const conn = useGame((s) => s.conn);
+   const session = useGame((s) => s.session);
+-  const viewMode = useGame((s) => s.viewMode);
+   const online = Object.values(players).filter((p) => p.connected && !p.isBot).length;
+   const badge = ps?.badge ?? (mode === "scripted" ? "SCRIPTED" : "CONNECTING");
+   const pending = ps?.pending ?? 0;
+@@ -191,38 +190,15 @@ function Header() {
+       <div className="hdr-item dim">mode <b>{mode.toUpperCase()}</b></div>
+       <div className="spacer" />
+       {conn !== "connected" && <div className="badge warn">{conn.toUpperCase()}</div>}
+-      <div className="seg" role="group" aria-label="City renderer">
+-        <button className={viewMode === "2d" ? "on" : ""} onClick={() => useGame.setState({ viewMode: "2d" })}>2D</button>
+-        <button className={viewMode === "3d" ? "on" : ""} disabled={!has3D} title={has3D ? "3D city" : "3D view is not available in this build"} onClick={() => useGame.setState({ viewMode: "3d" })}>3D</button>
+-        <button className={viewMode === "world" ? "on" : ""} title="The Open Theft Auto 3D world, playing as you" onClick={() => useGame.setState({ viewMode: "world" })}>WORLD</button>
+-      </div>
+       <div className="hdr-item">{session?.nickname} · <b>{session?.role}</b>{session?.isDirector ? " · DIRECTOR" : ""}</div>
+       <button className="ghost" onClick={leaveRoom}>Leave</button>
+     </header>
+   );
+ }
+ 
++/** The city pane is always the live stream of the one running game: the modified Open Theft Auto world. */
+ function CityHost() {
+-  const map = useGame((s) => s.map);
+-  const characters = useGame((s) => s.characters);
+-  const npcs = useGame((s) => s.npcs);
+-  const missions = useGame((s) => s.missions);
+-  const listings = useGame((s) => s.listings);
+-  const tick = useGame((s) => s.lastTick);
+-  const events = useGame((s) => s.events);
+-  const selectedId = useGame((s) => s.selectedAgentId);
+-  const viewMode = useGame((s) => s.viewMode);
+-  const me = useMyCharacter();
+-  const chars = useMemo(() => Object.values(characters), [characters]);
+-  const npcList = useMemo(() => Object.values(npcs), [npcs]);
+-  const missionList = useMemo(() => Object.values(missions), [missions]);
+-  const listingList = useMemo(() => Object.values(listings), [listings]);
+-  if (viewMode === "world") return <WorldFrame />;
+-  return (
+-    <CityView renderer={viewMode} map={map} characters={chars} npcs={npcList} missions={missionList} listings={listingList}
+-      tick={tick} events={events} youCharacterId={me?.id ?? null} selectedId={selectedId}
+-      onSelect={(id, kind) => { if (kind === "npc" || id === null) useGame.getState().selectAgent(id); }} />
+-  );
++  return <WorldStream />;
+ }
+ 
+ function Hud() {
+@@ -287,7 +263,7 @@ export function App() {
+       <main className={`grid ${expanded ? "xl" : tab !== "timeline" ? "tall" : ""}`}>
+         <section className="city">
+           <CityHost />
+-          <DecisionSpotlight dock="top-right" />
++          <DecisionSpotlight dock="top-right" maxCards={2} />
+           <Hud />
+         </section>
+         <aside className="side">
+diff --git a/apps/web/src/components/JoinRoom.tsx b/apps/web/src/components/JoinRoom.tsx
+index a9e862b..8c166fb 100644
+--- a/apps/web/src/components/JoinRoom.tsx
++++ b/apps/web/src/components/JoinRoom.tsx
+@@ -10,12 +10,12 @@ const ROLES: Array<{ id: HumanRole; title: string; blurb: string }> = [
+   { id: "SPECTATOR", title: "Spectator", blurb: "Watch the swarm think. Inspect every decision." },
+ ];
+ 
+-/** Deep link for demos: /?nick=Ace&role=OUTLAW&room=VICE-42&auto=1 (add &create=1 to create, &view=3d for the 3D city, &director=<secret> for demo-director controls). */
++/** Deep link for demos: /?nick=Ace&role=OUTLAW&room=VICE-42&auto=1 (add &create=1 to create, &crew=NAME for hunters, &director=<secret> for demo-director controls). */
+ function readLink(): { nick: string; role: HumanRole | null; room: string; auto: boolean; create: boolean; director: string } {
+   const q = new URLSearchParams(window.location.search);
+   const r = (q.get("role") ?? "").toUpperCase();
+   const view = (q.get("view") ?? "").toLowerCase();
+-  if (view === "3d" || view === "2d" || view === "world") useGame.setState({ viewMode: view });
++  void view; // one city view only: the Open Theft Auto world
+   return {
+     nick: (q.get("nick") ?? "").slice(0, 16), role: r === "OUTLAW" || r === "HUNTER" || r === "SPECTATOR" ? r : null,
+     room: (q.get("room") ?? "").toUpperCase().slice(0, 12), auto: q.get("auto") === "1", create: q.get("create") === "1",
+diff --git a/apps/web/src/components/WorldFrame.tsx b/apps/web/src/components/WorldFrame.tsx
+index 3ebc9d0..159c80c 100644
+--- a/apps/web/src/components/WorldFrame.tsx
++++ b/apps/web/src/components/WorldFrame.tsx
+@@ -1,4 +1,4 @@
+-import { useEffect, useMemo, useState } from "react";
++import { useEffect, useMemo, useRef, useState } from "react";
+ import { useGame } from "../state/gameStore";
+ 
+ /**
+@@ -10,6 +10,15 @@ export function WorldFrame() {
+   const session = useGame((s) => s.session);
+   const [state, setState] = useState<"checking" | "ready" | "missing" | "nowebgl">("checking");
+   const [loaded, setLoaded] = useState(false);
++  const [focused, setFocused] = useState(false);
++  const frame = useRef<HTMLIFrameElement | null>(null);
++  // Keys go to the game while the frame has focus and to the page panels otherwise: track which one it is.
++  useEffect(() => {
++    const check = () => setFocused(document.activeElement === frame.current);
++    const t = setInterval(check, 250);
++    window.addEventListener("blur", check); window.addEventListener("focus", check);
++    return () => { clearInterval(t); window.removeEventListener("blur", check); window.removeEventListener("focus", check); };
++  }, []);
+   useEffect(() => {
+     let alive = true;
+     const gl = document.createElement("canvas").getContext("webgl2");
+@@ -27,26 +36,27 @@ export function WorldFrame() {
+     const bridge = page.get("bridge") ?? (import.meta.env.VITE_BRIDGE_URL as string | undefined)
+       ?? `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.hostname}:3001/bridge`;
+     const q = new URLSearchParams({ name: session.nickname, role: session.role, room: session.roomCode, token: session.sessionToken, url: bridge });
++    const scale = page.get("scale"); if (scale) q.set("scale", scale);
+     return `/world/index.html?${q.toString()}`;
+   }, [session]);
+-  const back = (
+-    <button className="ghost" onClick={() => useGame.setState({ viewMode: "3d" })}>Back to the 3D city</button>
+-  );
++  const nativeCmd = `cd integrations/open-theft-auto && godot --path . -- --vice --vice-windowed --vice-name=${session?.nickname ?? "ACE"} --vice-role=${session?.role === "HUNTER" ? "HUNTER" : "OUTLAW"} --vice-room=${session?.roomCode ?? "VICE-42"} --vice-url=ws://127.0.0.1:3001/bridge`;
+   if (state === "missing" || state === "nowebgl" || !src) {
+     return (
+       <div className="world-frame world-msg">
+-        <b>{state === "nowebgl" ? "This browser has no WebGL 2, which the 3D world needs." : "The 3D world build is not on this machine."}</b>
+-        <span>{state === "nowebgl" ? "" : "Build it with: python3 integrations/ota-bridge/apply.py, then export the Web preset (see integrations/ota-bridge/README.md)."}</span>
+-        {back}
++        <b>{state === "nowebgl" ? "This browser has no WebGL 2, which the Open Theft Auto world needs." : "The Open Theft Auto world build is not on this machine."}</b>
++        <span>{state === "nowebgl" ? "Run the game natively instead:" : "Build it with: python3 integrations/ota-bridge/apply.py (it exports the Web preset), or run the game natively:"}</span>
++        <code className="world-cmd">{nativeCmd}</code>
+       </div>
+     );
+   }
+   return (
+-    <div className="world-frame">
++    <div className={`world-frame ${focused ? "is-focused" : ""}`}>
+       {state === "ready" && (
+-        <iframe title="Coral Bay 3D world" src={src} allow="fullscreen; gamepad; autoplay; pointer-lock" onLoad={() => setLoaded(true)} />
++        <iframe ref={frame} title="Open Theft Auto world" src={src} tabIndex={0}
++          allow="pointer-lock; fullscreen; gamepad; autoplay; keyboard-map" onLoad={() => setLoaded(true)} />
+       )}
+-      {!loaded && <div className="world-msg world-loading"><b>Loading the 3D world…</b><span>about 400 MB on first load; click inside it to take control (WASD, E, R).</span></div>}
++      {!loaded && <div className="world-msg world-loading"><b>Loading the Open Theft Auto world…</b><span>about 400 MB on first load, then cached. The game shows its own progress bar next.</span></div>}
++      {loaded && !focused && <div className="world-hint" aria-hidden>Click the city to play · WASD move · mouse look · left mouse fires · E job / capture · R respawn · Esc frees the mouse</div>}
+     </div>
+   );
+ }
+diff --git a/apps/web/src/state/gameStore.ts b/apps/web/src/state/gameStore.ts
+index 02f567c..392d064 100644
+--- a/apps/web/src/state/gameStore.ts
++++ b/apps/web/src/state/gameStore.ts
+@@ -82,7 +82,7 @@ export const useGame = create<GameState>((set, get) => ({
+   players: {}, characters: {}, npcs: {}, missions: {}, listings: {}, trades: [], events: [],
+   metrics: null, experiments: [], policy: null, crews: [], providerStatus: null, wallet: null,
+   serverTimeMs: 0, tick: 0, lastTick: null, selectedAgentId: null, selectedEventId: null, selectedTicker: null,
+-  viewMode: "3d", toasts: [], crash: null,
++  viewMode: "world", toasts: [], crash: null,
+ 
+   applyJoin(r, nickname) {
+     set({ session: { roomCode: r.roomCode, playerId: r.playerId, sessionToken: r.sessionToken, role: r.role, isDirector: r.isDirector, walletId: r.walletId, nickname }, wallet: r.wallet });
+diff --git a/apps/web/src/styles.css b/apps/web/src/styles.css
+index d7187ba..f0206ad 100644
+--- a/apps/web/src/styles.css
++++ b/apps/web/src/styles.css
+@@ -158,3 +158,13 @@ h3 { font-size: 11px; letter-spacing: .1em; margin: 12px 0 6px; color: var(--pur
+ .crew-input { width: 92px; background: rgba(0,0,0,.35); border: 1px solid var(--line); border-radius: 6px; color: inherit; font: inherit; padding: 2px 6px; }
+ .crew-btn { background: transparent; border: 1px solid var(--aqua); color: var(--aqua); border-radius: 999px; font: inherit; font-size: 11px; padding: 1px 8px; cursor: pointer; }
+ .crew-btn:disabled { opacity: .4; cursor: default; }
++
++/* One city view: the embedded Open Theft Auto world. */
++.world-frame.is-focused { outline: 2px solid var(--aqua, #2ee6d6); outline-offset: -2px; }
++.world-cmd { font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: #cfd3ff; background: #141230; border: 1px solid #2c2a55; border-radius: 6px; padding: 8px 10px; max-width: 760px; user-select: all; word-break: break-all; }
++.world-hint { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 5; padding: 10px 16px; border-radius: 999px; border: 1px solid #2ee6d6; background: rgba(8, 10, 24, 0.82); color: #e9ecff; font-size: 13px; pointer-events: none; max-width: 86%; }
++.world-stream { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; cursor: crosshair; background: #05060e; }
++.world-live { position: absolute; left: 10px; top: 10px; z-index: 4; padding: 5px 10px; border-radius: 999px; background: rgba(8, 10, 24, 0.78); border: 1px solid #2c2a55; color: #dfe3ff; font-size: 12px; letter-spacing: 0.04em; pointer-events: none; display: flex; gap: 7px; align-items: center; }
++.world-live i { width: 8px; height: 8px; border-radius: 50%; background: #55597a; display: inline-block; }
++.world-live i.on { background: #ff3d7f; box-shadow: 0 0 8px #ff3d7f; }
++.world-nostream { position: absolute; inset: 0; background: #0b0716; }
