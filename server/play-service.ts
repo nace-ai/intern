@@ -18,7 +18,12 @@ import {
   type MissionId,
   type TrainingChoice,
 } from "../src/missions";
-import { usageCaps, type Runtime, type RuntimeFactory } from "./byok";
+import {
+  LiveOperationError,
+  usageCaps,
+  type Runtime,
+  type RuntimeFactory,
+} from "./byok";
 import { rank } from "../src/engine";
 type Session = {
   mission: Mission;
@@ -407,11 +412,14 @@ export class PlayService {
         ...s.mission.response(),
         usage: s.runtime?.usage ?? null,
       });
-    } catch {
+    } catch (error) {
       return respond(
         {
           error:
             "Action unavailable: check JSON, session resources, provider configuration and request limits. No breach recorded; provider failures are not retried.",
+          ...(error instanceof LiveOperationError
+            ? { failedOperation: error.operation }
+            : {}),
           usage: s.runtime?.usage ?? null,
         },
         400,

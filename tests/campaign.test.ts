@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { PlayService } from "../server/play-service";
-import { makeRuntime, type Runtime } from "../server/byok";
+import { LiveOperationError, makeRuntime, type Runtime } from "../server/byok";
 import {
   missionById,
   type MissionId,
@@ -712,4 +712,44 @@ test("ending an in-flight session disposes its key and cannot return a late flag
   const late = await pending;
   assert.equal(late.status, 400);
   assert.equal(late.data.flag, undefined);
+});
+test("Live NDI failures expose only a safe operation code and never a flag", async () => {
+  const runtime: Runtime = {
+    usage: { groq: 1, drex: 0, parse: 1, extract: 0 },
+    dialogue: {
+      respond: async () => ({
+        character: {
+          reply: "I will inspect the document.",
+          mood: "watchful",
+          proposal: "TALK",
+        },
+        evidence: {},
+      }),
+    },
+    extract: async () => {
+      throw new LiveOperationError("ndi-upload");
+    },
+    decide: async () => {
+      throw Error("Drex must not run after NDI failure");
+    },
+    dispose() {},
+  };
+  const service = new PlayService(() => runtime, true);
+  const c = client(service);
+  const { data: session } = await c("session", {
+    missionId: "credentials",
+    mode: "live",
+    hardened: true,
+    naceKey: userKey,
+    consent: true,
+    allowDocuments: true,
+  });
+  const result = await c(
+    "turn",
+    turn(session.id, { commit: true, payload: "document" }),
+  );
+  assert.equal(result.status, 400);
+  assert.equal(result.data.failedOperation, "ndi-upload");
+  assert.equal(result.data.flag, undefined);
+  assert.deepEqual(result.data.usage, runtime.usage);
 });

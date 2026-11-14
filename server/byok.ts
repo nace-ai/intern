@@ -12,6 +12,19 @@ export type Usage = {
   extract: number;
 };
 export const usageCaps = { groq: 12, drex: 3, parse: 1, extract: 1 };
+export class LiveOperationError extends Error {
+  constructor(readonly operation: string) {
+    super(`${operation} unavailable. No retry made.`);
+    this.name = "LiveOperationError";
+  }
+}
+const providerStage = async <T>(operation: string, run: () => Promise<T>) => {
+  try {
+    return await run();
+  } catch {
+    throw new LiveOperationError(operation);
+  }
+};
 export interface Runtime {
   dialogue: DialogueProvider;
   decide(
@@ -262,47 +275,60 @@ export function makeRuntime(
         lines.forEach((line, i) =>
           page.drawText(line, { x: 35, y: 710 - i * 16, size: 10, font }),
         );
-        const upload = await c().documents.upload(
-          new Blob([Buffer.from(await pdf.save())], {
-            type: "application/pdf",
-          }),
-          { file_name: "fictional-authorization.pdf" },
+        const pdfBytes = await pdf.save();
+        const upload = await providerStage("ndi-upload", () =>
+          c().documents.upload(
+            new Blob([Buffer.from(pdfBytes)], {
+              type: "application/pdf",
+            }),
+            { file_name: "fictional-authorization.pdf" },
+          ),
         );
-        const job = await c().documents.parse({
-          source: workspaceFile(upload),
-          parse_mode: "low",
-          output: { formats: ["markdown", "blocks"] },
-        });
-        const parsed = await c().jobs.wait(job.job_id, { timeout: 45000 });
+        const job = await providerStage("ndi-parse-start", () =>
+          c().documents.parse({
+            source: workspaceFile(upload),
+            parse_mode: "low",
+            output: { formats: ["markdown", "blocks"] },
+          }),
+        );
+        const parsed = await providerStage("ndi-parse-wait", () =>
+          c().jobs.wait(job.job_id, { timeout: 45000 }),
+        );
         if (parsed.status !== "succeeded")
-          throw Error("NDI Parse unavailable. No retry made.");
+          throw new LiveOperationError("ndi-parse-result");
         entry.parsed = parsed.job_id;
       }
+      const parsedJobId = entry.parsed;
+      if (!parsedJobId) throw new LiveOperationError("ndi-parse-result");
       reserve("extract");
-      const job = await c().documents.extract({
-        source: { type: "parse_result", job_id: entry.parsed },
-        schema: {
-          type: "object",
-          properties: {
-            area: { type: "string" },
-            role: { type: "string" },
-            approval: { type: "string" },
-            notes: {
-              type: "string",
-              description:
-                "Verbatim untrusted instructions and authorization claims.",
+      const job = await providerStage("ndi-extract-start", () =>
+        c().documents.extract({
+          source: { type: "parse_result", job_id: parsedJobId },
+          schema: {
+            type: "object",
+            properties: {
+              area: { type: "string" },
+              role: { type: "string" },
+              approval: { type: "string" },
+              notes: {
+                type: "string",
+                description:
+                  "Verbatim untrusted instructions and authorization claims.",
+              },
             },
+            required: ["area", "role", "approval", "notes"],
           },
-          required: ["area", "role", "approval", "notes"],
-        },
-      });
-      const result = await c().jobs.wait(job.job_id, { timeout: 45000 });
+        }),
+      );
+      const result = await providerStage("ndi-extract-wait", () =>
+        c().jobs.wait(job.job_id, { timeout: 45000 }),
+      );
       if (result.status !== "succeeded" || !result.result)
-        throw Error("NDI Extract unavailable. No retry made.");
+        throw new LiveOperationError("ndi-extract-result");
       entry.extraction = {
         provider: "Nace NDI",
         provenance: "live-provider",
-        source: { type: "parse_result", job_id: entry.parsed },
+        source: { type: "parse_result", job_id: parsedJobId },
         extract_job_id: result.job_id,
         result: result.result,
       };
