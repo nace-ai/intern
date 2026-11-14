@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Parking Watch • SF</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0e16;--panel:#141b29;--panel2:#1d283b;--line:#2b3850;--text:#f5f7fc;--muted:#9eacc3;--cyan:#52dbc6;--red:#fc8080;--yellow:#f2c56e}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse 900px 400px at 75% -10%,#213049 0%,transparent 70%),var(--bg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}.wrap{max-width:1140px;margin:auto;padding:25px 20px 60px}.header{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:27px}.brand{display:flex;gap:13px;align-items:center}.logo{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#173a39;color:var(--cyan);font-size:26px}.brand h1{font-size:23px;margin:0;letter-spacing:-.6px}.sub{color:var(--muted);font-size:13px}.pill{border:1px solid var(--line);border-radius:100px;padding:8px 12px;color:var(--muted);font-size:12px;display:flex;gap:7px;align-items:center}.dot{width:8px;height:8px;border-radius:50%;background:var(--yellow)}.pill.ok .dot{background:var(--cyan)}.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:18px}.card{border:1px solid var(--line);border-radius:20px;background:var(--panel);padding:19px;min-width:0}.card h2{font-size:15px;letter-spacing:.1px;margin:0 0 16px}.feed{aspect-ratio:16/10;min-height:220px;background:linear-gradient(160deg,#08101a,#1a2735);border:1px solid #263549;border-radius:12px;position:relative;overflow:hidden;display:grid;place-items:center}.feed video{position:absolute;width:100%;height:100%;object-fit:cover}.feed .idle{text-align:center;color:var(--muted);padding:15px}.camera-live .idle{display:none}.corner{position:absolute;width:35px;height:35px;border:2px solid var(--cyan);opacity:.8;pointer-events:none}.tl{left:15px;top:15px;border-right:0;border-bottom:0}.tr{right:15px;top:15px;border-left:0;border-bottom:0}.bl{left:15px;bottom:15px;border-top:0;border-right:0}.br{right:15px;bottom:15px;border-top:0;border-left:0}.overlay{position:absolute;bottom:10px;left:12px;background:#071117d9;border:1px solid #295047;border-radius:7px;padding:5px 8px;color:#9bead7;font-size:11px;pointer-events:none}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:11px 14px;border-radius:10px;font-weight:600;transition:.15s}button:hover{border-color:#6d849e}button:disabled{opacity:.45;cursor:default}.primary{background:var(--cyan);border-color:var(--cyan);color:#06221b}.danger{border-color:#8c5355;color:#ffa2a4}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.tag{font-size:11px;border-radius:8px;padding:5px 8px;background:#223c3a;color:#9bead7;display:inline-block}.tag.warn{background:#3a2c1d;color:var(--yellow)}.tag.off{background:#272e3a;color:#acb9c9}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{padding:15px;border:1px solid var(--line);background:#101723;border-radius:13px}.metric small{color:var(--muted);display:block}.metric strong{display:block;font-size:24px;margin-top:3px;letter-spacing:-.5px}.bigtime{font-size:50px;letter-spacing:-2px;font-weight:750;font-variant-numeric:tabular-nums;margin:6px 0 10px}.muted{color:var(--muted)}.small{font-size:12px}.timerFields{display:flex;gap:10px;flex-wrap:wrap}.field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:112px}.field label{font-size:12px;color:var(--muted)}input,select{width:100%;background:#0e1521;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:11px;outline:0}input:focus,select:focus{border-color:var(--cyan)}.full{grid-column:1/-1}.events{display:flex;flex-direction:column;gap:8px;min-height:68px}.event{display:flex;align-items:flex-start;gap:11px;border:1px solid var(--line);background:#101824;padding:12px 14px;border-radius:11px}.evIcon{width:29px;height:29px;border-radius:8px;display:grid;place-items:center;background:#283448;flex:none}.event .name{font-size:13px;font-weight:600}.event .detail{font-size:12px;color:var(--muted)}.right{margin-left:auto;text-align:right;font-size:11px;color:var(--muted);min-width:85px}.message{margin-top:11px;font-size:13px;min-height:20px;color:var(--muted);overflow-wrap:anywhere}.warntext{color:var(--yellow)}.badtext{color:var(--red)}.notice{border:1px solid #65523b;border-radius:12px;background:#2a251c;padding:13px 16px;color:#e8d7b1;font-size:12px;margin-top:18px}.setup{margin-bottom:18px;display:flex;align-items:end;gap:10px;flex-wrap:wrap}.setup .field{max-width:310px}.hide{display:none!important}@media(max-width:760px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.wrap{padding:16px 12px 55px}.card{padding:15px}.bigtime{font-size:42px}}
+.reference-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-top:12px}.reference-card{border:1px solid var(--line);background:#101723;border-radius:11px;padding:9px}.reference-card img{display:block;width:100%;height:86px;object-fit:contain;background:#090d14;border-radius:7px}.reference-card .small{margin-top:6px}.reference-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:7px;margin-top:10px}.reference-result{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body><div class="wrap">
+<div class="header"><div class="brand"><div class="logo">◉</div><div><h1>Parking Watch <span style="color:var(--cyan)">SF</span></h1><div class="sub">Personal camera monitor • Drexathon desktop MVP v0.3</div></div></div><div class="pill" id="backendPill"><span class="dot"></span><span id="backendLabel">Connecting</span></div></div>
+<div class="setup"><div class="field"><label>Dashboard access key (stored only in this browser)</label><input id="key" type="password" placeholder="WATCH_KEY from your server" autocomplete="off"></div><button id="saveKey">Connect dashboard</button><span id="secureLabel" class="small muted"></span></div>
+<div class="grid">
+  <section class="card"><h2>Live vehicle monitor</h2><div class="feed" id="feed"><video id="video" autoplay muted playsinline></video><div class="idle">📷<p>Camera not running</p><span class="small">Run on your laptop. Show a three-wheeled vehicle photo on your phone to the webcam.</span></div><div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="overlay" id="feedLabel">CAMERA OFFLINE</div></div><div class="field" style="margin-top:12px"><label>Camera source</label><select id="cameraSelect"><option value="">Default computer camera</option></select></div><div class="actions"><button class="primary" id="startCamera">Start camera + analysis</button><button id="stopCamera" disabled>Stop camera</button><button id="analyzeOne" disabled>Analyze one frame</button></div><div class="message" id="cameraMessage"></div></section>
+  <section class="card"><h2>Detection summary</h2><div class="two"><div class="metric"><small>Vehicle in view</small><strong id="present">Unknown</strong></div><div class="metric"><small>Last sighting</small><strong id="lastSighting" style="font-size:17px;line-height:1.8">None</strong></div></div><div style="margin-top:14px"><span id="visionTag" class="tag off">Vision inactive</span> <span id="smsTag" class="tag off">SMS inactive</span> <span id="ndiTag" class="tag off">NDI inactive</span></div><div class="small muted" style="margin-top:12px">Show a target photo on your phone for 4–6 seconds, then remove it. The monitor tracks when a vehicle appears and leaves the frame. A vehicle no longer in view may still be nearby.</div><div class="actions"><button id="testSms">Test SMS</button><button id="demoSeen" class="hide">Demo: vehicle seen</button><button id="demoGone" class="hide">Demo: vehicle gone</button></div><div class="message" id="detectionMessage" role="status"></div>
+    <div id="threeWheelDemoStatus" class="small warntext hide">Demo SMS fires on the first plausible three-wheeler sighting, regardless of agency.</div>
+    <div id="smsSetup" class="small muted"></div>
+    <div style="margin-top:12px"><strong class="small" id="smsPreviewLabel">Personalized SMS preview</strong>
+    <div id="smsPreview" class="small muted" style="white-space:pre-line"></div></div></section>
+  <section class="card full"><h2>Reference-image matching</h2><div class="small muted">Drex compares each camera frame with labeled SFMTA front, side, and rear examples and three similar vehicles from other agencies. The evaluation below applies to SFMTA departure alerts.</div><div id="referenceGrid" class="reference-grid"><div class="small muted">Loading reference images…</div></div><div class="actions"><button id="evaluateReferences">Evaluate reference images</button><button id="toggleReferenceAlerts" disabled>Enable automatic alerts</button></div><div id="referenceStatus" class="message">Automatic alerts are disabled until reference evaluation passes.</div><div id="referenceResults" class="reference-results"></div></section>
+  <section class="card"><h2>Manual parking timer</h2><div class="bigtime" id="clock">--:--</div><div class="small muted" id="timerInfo">Timer not started</div><div class="small muted" style="margin-top:8px" id="observationInfo">2-hour observation clock: not started. This does not change parking restrictions.</div><div class="timerFields" style="margin-top:15px"><div class="field"><label>Parking limit (minutes)</label><input id="duration" type="number" min="1" max="1440" value="120"></div><div class="field"><label>Warn me before (minutes)</label><input id="warning" type="number" min="0" max="180" value="10"></div></div><div class="actions"><button class="primary" id="startTimer">Start parking timer</button><button id="stopTimer">Stop timer</button></div><div class="message" id="timerMessage"></div></section>
+  <section class="card"><h2>Hackathon integrations</h2>
+    <div class="events"><div class="event"><div class="evIcon">🧠</div><div><div class="name">Drex Max v1.1: live decisions</div><div class="detail">Camera JPEG → Nace Drex → probability → confirmed sighting/departure → SMS.</div></div></div>
+    <div class="event"><div class="evIcon">📄</div><div><div class="name">NDI: read real SFMTA rules</div><div class="detail">Extract parking restrictions from an official SFMTA PDF, with source citations. Rules are not inferred from a passing vehicle.</div></div></div></div>
+    <div class="actions"><button id="checkNace">Check Nace connection</button><button id="parseRules">Parse SFMTA PDF</button><button id="extractRules">Run NDI extraction</button><button id="refreshRules" class="hide">Refresh extraction</button><button id="refreshParse" class="hide">Refresh parse</button></div>
+    <div class="message" id="naceMessage">A fresh Nace API key is required. Do not paste it into this webpage.</div>
+    <div id="parseResults" class="small muted" style="white-space:pre-wrap;max-height:230px;overflow:auto"></div>
+    <div style="margin-top:18px"><h2>Optional workspace document Search</h2><div class="field"><label>Ask your uploaded parking-rule documents</label><input id="searchQuestion" value="What does the uploaded SFMTA guide say about posted parking time limits?"></div><div class="actions"><button id="searchNace">Search ready workspace documents</button><button id="refreshSearch" class="hide">Refresh search</button></div><div class="message" id="searchMessage">Requires NACE_WORKSPACE_ID and ready documents in that workspace.</div><div id="searchResults" class="small muted"></div></div>
+    <div class="message" id="ndiMessage">Uses your Nace API key and can incur usage charges.</div><div id="ndiResults" class="small muted"></div>
+  </section>
+  <section class="card full"><h2>Activity log and notification history <span style="font-weight:400;color:var(--muted);font-size:12px"> • latest 100 records</span></h2><div class="events" id="eventList"><div class="muted">Connect to load activity.</div></div></section>
+</div>
+<div class="notice"><strong>Parking compliance:</strong> Camera sightings do not reset street-cleaning, metered, or posted time limits. This prototype is not a ticket-avoidance guarantee. It deliberately does not save video frames or read license plates. Only use it where recording and device placement are lawful and safe.</div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const status = (id, msg, bad=false) => {const el=$(id); el.textContent=msg; el.className='message '+(bad?'badtext':'')};
+const readKey = () => localStorage.getItem('pw_key') || '';
+$('#key').value=readKey();
+$('#saveKey').onclick=()=>{localStorage.setItem('pw_key',$('#key').value.trim());refresh()};
+let stream=null,running=false,busy=false,lastState=null,refreshCycle=null,frameCycle=null,warnedLocally=false,ndiJobId=null;
+async function api(url, options={}) {const res=await fetch(url,{...options,headers:{'Content-Type':'application/json','X-Watch-Key':readKey(),...(options.headers||{})}});let body={};try{body=await res.json()}catch(e){} if(!res.ok)throw Error(body.detail||'Server error '+res.status);return body;}
+let referenceEvaluating=false;
+function renderReferenceStatus(state){
+  const evaluation=state.reference_evaluation;
+  const alerts=state.automatic_alerts_enabled;
+  const toggle=$('#toggleReferenceAlerts');
+  toggle.disabled=!alerts&&!evaluation?.passed;
+  toggle.textContent=alerts?'Disable automatic alerts':'Enable automatic alerts';
+  if(!evaluation){
+    status('#referenceStatus','Automatic alerts are disabled until reference evaluation passes.');
+    $('#referenceResults').replaceChildren();
+    return;
+  }
+  const message=evaluation.error
+    ? 'Evaluation incomplete after '+evaluation.tested+' images • '+evaluation.error+' • automatic alerts disabled'
+    : (evaluation.passed?'Evaluation passed':'Evaluation failed')+' • '+evaluation.tested+' held-out images • '+evaluation.false_positives.length+' false positives • '+evaluation.false_negatives.length+' missed positives • threshold '+Math.round(evaluation.threshold*100)+'% • automatic alerts '+(alerts?'enabled':'disabled');
+  status('#referenceStatus',message,!evaluation.passed);
+  const results=$('#referenceResults');
+  results.replaceChildren();
+  for(const item of evaluation.results){
+    const card=document.createElement('div');
+    card.className='reference-result';
+    card.textContent=item.title+' • expected '+(item.expected?'SFMTA':'lookalike')+' • score '+Math.round(item.confidence*100)+'% • '+(item.correct?'correct':'incorrect');
+    results.append(card);
+  }
+}
+async function loadReferenceImages(){
+  try{
+    const response=await api('/api/reference/examples');
+    const grid=$('#referenceGrid');
+    grid.replaceChildren();
+    for(const item of response.examples){
+      const card=document.createElement('div');
+      card.className='reference-card';
+      const image=document.createElement('img');
+      image.src=item.image_url;
+      image.alt=item.title;
+      image.loading='lazy';
+      const label=document.createElement('span');
+      label.className='tag '+(item.label==='positive'?'':'off');
+      label.textContent=item.label==='positive'?'SFMTA positive':'Lookalike negative';
+      const caption=document.createElement('div');
+      caption.className='small';
+      caption.textContent=item.view+' • '+item.title;
+      card.append(image,label,caption);
+      grid.append(card);
+    }
+  }catch(error){
+    $('#referenceGrid').textContent=error.message;
+  }
+}
+const clockFmt=ts=>ts?new Date(ts*1000).toLocaleTimeString('en-US',{
+  timeZone:'America/Los_Angeles',hour:'numeric',minute:'2-digit',timeZoneName:'short'
+}):'None';
+const remainingSeconds=endsAt=>Math.max(0,Math.ceil(endsAt-Date.now()/1000));
+const durationText=seconds=>Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+
+function smsDetail(status,sid,template,error){
+  const meanings={
+    accepted:'Accepted by Twilio', queued:'Queued by Twilio', sending:'Sending',
+    sent:'Sent to carrier · delivery awaiting confirmation', delivered:'Delivery confirmed by Twilio',
+    rejected:'Rejected by Twilio', undelivered:'Undelivered', failed:'Failed', canceled:'Canceled',
+    not_configured:'Setup needed', submission_unknown:'Submission unconfirmed'
+  };
+  return ['SMS · '+(meanings[status]||status),template?'Trial template '+template:'',sid?'Message SID '+sid:'',error]
+    .filter(Boolean).join(' · ');
+}
+
+function renderSms(capabilities,preview){
+  const trial=capabilities.sms_mode==='trial';
+  $('#smsTag').textContent=capabilities.sms?(trial?'Twilio trial configured':'Twilio standard configured'):'SMS setup needed';
+  $('#smsTag').className='tag '+(capabilities.sms?'':'off');
+  $('#smsSetup').textContent=capabilities.sms_setup_error||'';
+  $('#smsPreviewLabel').textContent=trial?'Personalized preview · trial sends a Twilio template':'Personalized SMS preview';
+  $('#smsPreview').textContent=preview||'A personalized preview will appear after a confirmed sighting.';
+}
+const eventFmt=ts=>new Date(ts*1000).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+function renderTimer(){
+  const ob=lastState?.observation_timer;
+  const endsAt=ob?ob.started_at+ob.minutes*60:null;
+  $('#observationInfo').textContent=endsAt
+    ? 'Observation timer · '+durationText(remainingSeconds(endsAt))+' remaining · ends '+clockFmt(endsAt)
+    : 'Observation timer inactive';
+  const timer=lastState?.timer;
+  if(!timer){
+    $('#clock').textContent='--:--';
+    $('#timerInfo').textContent='Manual timer not started';
+    warnedLocally=false;
+    return;
+  }
+  const manualEnd=timer.started_at+timer.minutes*60;
+  const seconds=remainingSeconds(manualEnd);
+  $('#clock').textContent=durationText(seconds);
+  $('#clock').style.color=seconds<=timer.warn_minutes*60?'var(--yellow)':'var(--text)';
+  $('#timerInfo').textContent='Manually set parking deadline · '+clockFmt(manualEnd);
+  if(seconds<=timer.warn_minutes*60&&!warnedLocally){
+    warnedLocally=true;
+    if('Notification' in window&&Notification.permission==='granted'){
+      new Notification('Parking Watch',{body:'Parking timer approaching its limit. Check posted signs.'});
+    }
+  }
+}
+async function refresh(){try{const result=await api('/api/overview');lastState=result.state;renderReferenceStatus(result.state);$('#backendPill').classList.add('ok');$('#backendLabel').textContent='Server connected';$('#secureLabel').textContent=result.capabilities.secured?'Protected dashboard':'Local / access key not configured';$('#present').textContent=result.state.present?'Detected':'Not visible';$('#present').style.color=result.state.present?'var(--yellow)':'var(--cyan)';$('#lastSighting').textContent=clockFmt(result.state.last_sighting);$('#visionTag').textContent=result.capabilities.vision?`${result.capabilities.vision_provider.toUpperCase()} ready`:`${result.capabilities.vision_provider.toUpperCase()} needs API key`;$('#visionTag').className='tag '+(result.capabilities.vision?'':'off');renderSms(result.capabilities,result.sms_preview);$('#threeWheelDemoStatus').classList.toggle('hide',!result.capabilities.three_wheel_demo_alerts);$('#ndiTag').textContent=result.capabilities.ndi?'NDI ready':'NDI needs NACE_API_KEY';$('#ndiTag').className='tag '+(result.capabilities.ndi?'':'off');$('#extractRules').disabled=!result.capabilities.ndi;$('#parseRules').disabled=!result.capabilities.ndi;$('#checkNace').disabled=!result.capabilities.ndi;$('#searchNace').disabled=!result.capabilities.nace_search;$('#demoSeen').classList.toggle('hide',!result.capabilities.demo);$('#demoGone').classList.toggle('hide',!result.capabilities.demo);$('#startCamera').textContent=result.capabilities.vision?'Start camera + analysis':'Start camera preview';let events=result.events;$('#eventList').replaceChildren();if(!events.length){$('#eventList').textContent='No events yet. Start a timer or run a test.';} for(const ev of events){const item=document.createElement('div');item.className='event';const icon=document.createElement('div');icon.className='evIcon';icon.textContent=ev.type==='sighting'?'👀':ev.type==='departure'?'🚙':ev.type.startsWith('timer')?'⏱':'✉';const body=document.createElement('div');const h=document.createElement('div');h.className='name';h.textContent=ev.type.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());const d=document.createElement('div');d.className='detail';d.textContent=ev.detail;
+    if(ev.sms_template&&ev.source==='vision')d.textContent='Personalized preview · '+ev.detail;
+    body.append(h,d);
+    if(ev.sms_status){
+      const delivery=document.createElement('div');
+      delivery.className='detail';
+      delivery.textContent=smsDetail(ev.sms_status,ev.sms_sid,ev.sms_template,ev.sms_error);
+      body.append(delivery);
+    }const time=document.createElement('div');time.className='right';time.textContent=eventFmt(ev.ts);item.append(icon,body,time);$('#eventList').append(item);}renderTimer();}catch(err){$('#backendPill').classList.remove('ok');$('#backendLabel').textContent='Disconnected';status('#cameraMessage',err.message,true);}}
+function stopCamera(){running=false; if(frameCycle){clearInterval(frameCycle);frameCycle=null}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}$('#video').srcObject=null;$('#feed').classList.remove('camera-live');$('#feedLabel').textContent='CAMERA OFFLINE';$('#startCamera').disabled=false;$('#stopCamera').disabled=true;$('#analyzeOne').disabled=true;}
+$('#stopCamera').onclick=()=>{stopCamera();status('#cameraMessage','Camera stopped.');};
+async function analyzeFrame(){if(busy||referenceEvaluating||!stream)return;busy=true;try{const v=$('#video');if(!v.videoWidth)throw Error('Camera still initializing');const canvas=document.createElement('canvas');const scale=Math.min(1,960/v.videoWidth);canvas.width=Math.round(v.videoWidth*scale);canvas.height=Math.round(v.videoHeight*scale);canvas.getContext('2d',{alpha:false}).drawImage(v,0,0,canvas.width,canvas.height);const image=canvas.toDataURL('image/jpeg',.72);$('#feedLabel').textContent='ANALYZING FRAME';const r=await api('/api/frame',{method:'POST',body:JSON.stringify({image})});status('#cameraMessage',`${r.confirmed_present?'Vehicle confirmed':r.detected?'Possible vehicle: hold photo steady':'No matching vehicle detected'} • Drex probability ${Math.round(r.confidence*100)}%${(r.sighting_alert||r.departure_alert)?' • '+smsDetail(r.sms_status):''}`);$('#feedLabel').textContent=r.confirmed_present?'VEHICLE DETECTED':r.detected?'POSSIBLE VEHICLE':'MONITORING';refresh();}catch(err){status('#cameraMessage',err.message,true);$('#feedLabel').textContent='ANALYSIS UNAVAILABLE';}finally{busy=false}}
+$('#startCamera').onclick=async()=>{try{if(!navigator.mediaDevices?.getUserMedia)throw Error('Camera requires HTTPS or localhost and browser permission.');const cameraId=$('#cameraSelect').value;
+stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{...(cameraId?{deviceId:{exact:cameraId}}:{facingMode:{ideal:'environment'}}),width:{ideal:1280},height:{ideal:720}}});
+try{await listCameras()}catch(e){console.warn("Camera enumeration unavailable",e)}$('#video').srcObject=stream;await $('#video').play();running=true;$('#feed').classList.add('camera-live');$('#feedLabel').textContent='CAMERA LIVE';$('#startCamera').disabled=true;$('#stopCamera').disabled=false;$('#analyzeOne').disabled=false;status('#cameraMessage','Camera preview running. Hold a three-wheeled vehicle photo on your phone in front of this webcam for at least 4–6 seconds. Vision calls may incur API charges.');let r=await api('/api/overview');if(r.capabilities.vision){await analyzeFrame();frameCycle=setInterval(analyzeFrame,r.capabilities.scan_interval_ms||1800);}else status('#cameraMessage','Camera preview works. Set NACE_API_KEY (for Drex) to enable automatic detection.');}catch(err){stopCamera();status('#cameraMessage',err.message,true);}};
+$('#analyzeOne').onclick=analyzeFrame;
+$('#startTimer').onclick=async()=>{try{const minutes=Number($('#duration').value), warn_minutes=Number($('#warning').value);await api('/api/timer/start',{method:'POST',body:JSON.stringify({minutes,warn_minutes})});warnedLocally=false;status('#timerMessage','Parking timer started. It is separate from enforcement sightings.');if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();refresh()}catch(err){status('#timerMessage',err.message,true)}};
+$('#stopTimer').onclick=async()=>{try{await api('/api/timer/stop',{method:'POST'});status('#timerMessage','Timer stopped.');refresh()}catch(err){status('#timerMessage',err.message,true)}};
+$('#testSms').onclick=async()=>{
+  const button=$('#testSms');
+  button.disabled=true;
+  status('#detectionMessage','Submitting test SMS…');
+  try{
+    const r=await api('/api/sms/test',{method:'POST'});
+    status('#detectionMessage',smsDetail(r.status,r.sid,r.template,r.error),Boolean(r.error));
+    await refresh();
+  }catch(error){
+    status('#detectionMessage',error.message,true);
+  }finally{
+    button.disabled=false;
+  }
+};
+$('#demoSeen').onclick=async()=>{try{await api('/api/simulate',{method:'POST',body:JSON.stringify({detected:true})});await api('/api/simulate',{method:'POST',body:JSON.stringify({detected:true})});status('#detectionMessage','Simulated sighting registered.');refresh()}catch(err){status('#detectionMessage',err.message,true)}};
+$('#demoGone').onclick=async()=>{try{await api('/api/simulate',{method:'POST',body:JSON.stringify({detected:false})});await api('/api/simulate',{method:'POST',body:JSON.stringify({detected:false})});status('#detectionMessage','Simulated vehicle departure logged. SMS preview is in the activity log.');refresh()}catch(err){status('#detectionMessage',err.message,true)}};
+
+async function listCameras(){
+  if(!navigator.mediaDevices?.enumerateDevices)return;
+  const current=$('#cameraSelect').value;
+  const devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');
+  $('#cameraSelect').replaceChildren(new Option('Default computer camera',''));
+  for(let i=0;i<devices.length;i++)$('#cameraSelect').add(new Option(devices[i].label||`Camera ${i+1}`,devices[i].deviceId));
+  if([...$('#cameraSelect').options].some(o=>o.value===current))$('#cameraSelect').value=current;
+}
+function showNdi(r){
+  ndiJobId=r.job_id||null;
+  $('#ndiMessage').textContent=`NDI status: ${r.status||'unknown'}${r.error?' • '+r.error:''}. Historical document; check posted signs.`;
+  $('#refreshRules').classList.toggle('hide',!ndiJobId||!['queued','running'].includes(r.status));
+  const el=$('#ndiResults');el.replaceChildren();
+  if(r.data){for(const [key,val] of Object.entries(r.data)){
+    const div=document.createElement('div');div.style.marginTop='8px';
+    div.textContent=key.replaceAll('_',' ')+': '+(val??'Not found');el.append(div);
+    const f=(r.fields||[]).find(x=>x.path==='/'+key);
+    if(f?.citations?.length){const cite=f.citations[0],quote=document.createElement('div');
+      quote.style.fontStyle='italic';quote.style.opacity='0.8';
+      quote.textContent=`Source: page ${cite.location?.page??'?'}${cite.source_text?' • '+cite.source_text:''}`.slice(0,360);
+      el.append(quote);
+    }
+  }
+  const a=document.createElement('a');a.href=r.source_url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Official SFMTA source';a.style.color='var(--cyan)';el.append(a);
+}
+}
+let parseJobId=null,searchJobId=null;
+$('#checkNace').onclick=async()=>{try{status('#naceMessage','Checking Nace model catalog...');const r=await api('/api/nace/check');status('#naceMessage',`Key authenticated: YES • Drex Max listed: ${r.drex_max_v1_1_listed?'YES':'NO / check model access'} • Workspace search configured: ${r.workspace_search_configured?'YES':'NO'}`)}catch(e){status('#naceMessage',e.message,true)}};
+function showParse(r){parseJobId=r.job_id||null;$('#refreshParse').classList.toggle('hide',!parseJobId||!['queued','running'].includes(r.status));status('#naceMessage',`NDI Parse: ${r.status||'unknown'}${r.error?' • '+r.error:''}`);$('#parseResults').textContent=r.markdown_preview||'Parsing is pending or the PDF returned no markdown.';}
+$('#parseRules').onclick=async()=>{try{$('#parseRules').disabled=true;status('#naceMessage','Parsing the official SFMTA guide with NDI...');showParse(await api('/api/ndi/parse',{method:'POST'}))}catch(e){status('#naceMessage',e.message,true)}finally{$('#parseRules').disabled=false}};
+$('#refreshParse').onclick=async()=>{if(!parseJobId)return;try{showParse(await api(`/api/ndi/parse/${encodeURIComponent(parseJobId)}`))}catch(e){status('#naceMessage',e.message,true)}};
+function showSearch(r){searchJobId=r.job_id||null;$('#refreshSearch').classList.toggle('hide',!searchJobId||!['queued','running'].includes(r.status));status('#searchMessage',`Workspace Search: ${r.status||'unknown'}${r.confidence?' • confidence: '+r.confidence:''}${r.error?' • '+r.error:''}`);let el=$('#searchResults');el.replaceChildren();if(r.answer){let p=document.createElement('p');p.textContent=r.answer;el.append(p)}for(const cite of r.evidences||[]){let p=document.createElement('p');p.textContent=`Source: ${cite.source_path||'file'}, page ${cite.page??'?'} • ${cite.quote||''}`;el.append(p)}}
+$('#searchNace').onclick=async()=>{try{$('#searchNace').disabled=true;status('#searchMessage','Searching files in the configured Nace workspace...');showSearch(await api('/api/nace/search',{method:'POST',body:JSON.stringify({query:$('#searchQuestion').value})}))}catch(e){status('#searchMessage',e.message,true)}finally{$('#searchNace').disabled=false}};
+$('#refreshSearch').onclick=async()=>{if(!searchJobId)return;try{showSearch(await api(`/api/nace/search/${encodeURIComponent(searchJobId)}`))}catch(e){status('#searchMessage',e.message,true)}};
+$('#extractRules').onclick=async()=>{try{$('#extractRules').disabled=true;status('#ndiMessage','NDI is processing the official SFMTA parking PDF…');showNdi(await api('/api/ndi/rules',{method:'POST'}));}catch(err){status('#ndiMessage',err.message,true)}finally{$('#extractRules').disabled=false}};
+$('#refreshRules').onclick=async()=>{if(!ndiJobId)return;try{showNdi(await api(`/api/ndi/rules/${encodeURIComponent(ndiJobId)}`))}catch(err){status('#ndiMessage',err.message,true)}};
+
+$('#evaluateReferences').onclick=async()=>{
+  if(busy){status('#referenceStatus','Wait for the current camera frame analysis to finish, then run the reference check.');return}
+  referenceEvaluating=true;
+  $('#evaluateReferences').disabled=true;
+  status('#referenceStatus','Testing each reference image against the other labeled examples. Automatic alerts are paused.');
+  try{
+    await api('/api/reference/evaluate',{method:'POST'});
+    await refresh();
+  }catch(error){
+    if(lastState){lastState.reference_evaluation=null;lastState.automatic_alerts_enabled=false;renderReferenceStatus(lastState);}
+    status('#referenceStatus',error.message,true);
+  }finally{
+    referenceEvaluating=false;
+    $('#evaluateReferences').disabled=false;
+  }
+};
+$('#toggleReferenceAlerts').onclick=async()=>{
+  const enabled=!lastState?.automatic_alerts_enabled;
+  try{
+    await api('/api/reference/alerts',{method:'POST',body:JSON.stringify({enabled})});
+    await refresh();
+  }catch(error){
+    status('#referenceStatus',error.message,true);
+  }
+};
+
+window.addEventListener('pagehide',stopCamera);
+setInterval(renderTimer,1000);
+loadReferenceImages();refresh();refreshCycle=setInterval(refresh,5000);
+</script>
+</body></html>

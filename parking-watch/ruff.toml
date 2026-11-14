@@ -1,0 +1,2 @@
+# Parking Watch is a standalone submission with its own dependencies and test commands.
+exclude = ["*.py"]

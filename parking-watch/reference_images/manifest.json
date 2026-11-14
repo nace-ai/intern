@@ -1,0 +1,50 @@
+[
+  {
+    "id": "sfmta-front",
+    "file": "sfmta_front.jpg",
+    "label": "positive",
+    "view": "Front",
+    "title": "SFMTA enforcement cart, front view",
+    "source": "snapshot-2024-04-25T190700.468.jpg.webp"
+  },
+  {
+    "id": "sfmta-side",
+    "file": "sfmta_side.jpg",
+    "label": "positive",
+    "view": "Side",
+    "title": "SFMTA GO-4 interceptor, side view",
+    "source": "sfmta-parking-and-traffic-enforcement-westward-go-4-patrol-vehicle-parked-in-the-street-san-francisco-california-usa-2RB1CDT.jpg"
+  },
+  {
+    "id": "sfmta-rear",
+    "file": "sfmta_rear.jpg",
+    "label": "positive",
+    "view": "Rear",
+    "title": "SFMTA enforcement cart, rear view",
+    "source": "14689040_041824-kgo-sfmta-tickets-2-img.jpg"
+  },
+  {
+    "id": "seattle-police-three-wheeler",
+    "file": "seattle_police.jpg",
+    "label": "negative",
+    "view": "Lookalike",
+    "title": "Seattle Police parking-enforcement three-wheeler",
+    "source": "seattle-usa-july-26-2024-seattle-police-three-wheeler-car-parking-enforcement-parked-outdoor-side-view-parking-enforcement-of-police-three-2Y6A2C6.jpg"
+  },
+  {
+    "id": "aspen-parking-go4",
+    "file": "aspen_go4.jpg",
+    "label": "negative",
+    "view": "Lookalike",
+    "title": "Aspen parking Go-4, different agency",
+    "source": "go4-alpr-in-aspen-co-1024x1024.webp"
+  },
+  {
+    "id": "st-petersburg-parking-go4",
+    "file": "st_petersburg_go4.jpg",
+    "label": "negative",
+    "view": "Lookalike",
+    "title": "St. Petersburg parking Go-4, different agency",
+    "source": "St-Petersburg-Parking-Enforcement-with-the-Westward-Go-4-Interceptor.webp"
+  }
+]
