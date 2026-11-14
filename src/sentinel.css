@@ -410,6 +410,51 @@ a {
   margin: 0;
   padding: 0 24px 20px;
 }
+.hint-heading {
+  color: var(--mission-color, #8af9cf);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+.hint-text ol {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0;
+}
+.hint-text li {
+  border-left: 2px solid var(--mission-color, #8af9cf);
+  background: #ffffff04;
+  padding: 10px 12px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+.hint-text li b {
+  color: #e1eee9;
+}
+.hint-text p {
+  margin: 6px 0;
+}
+.hint-reveal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--mission-color, #8af9cf);
+  color: var(--mission-color, #8af9cf);
+}
+.hint-reveal:focus-visible,
+.s-hint:focus-visible {
+  outline: 2px solid var(--mission-color, #8af9cf);
+  outline-offset: -3px;
+}
+.hint-text .hint-disclaimer {
+  margin-top: 14px;
+  color: #9aaea9;
+}
+.hint-complete {
+  color: var(--mission-color, #8af9cf);
+}
 .conversation-card {
   border: 1px solid #2d3a40;
   background: #0d141c;

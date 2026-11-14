@@ -10,6 +10,7 @@ The original MVP checklist is preserved below. Final-sprint provider usage and t
 - [x] Mission 03: ordered tool-poisoning Training; BYOK Live workflow tested with mocks
 - [x] Flags, server capture verification/deduplication, replay and score/rank
 - [x] Equipment with real resource effects, contextual hints, heat and limits
+- [x] Three free progressive hints per mission, with local reveal state preserved through turns and reset on a new session; Training and Live strategy guidance shares the existing visual system without changing authorization.
 - [x] Ephemeral BYOK, owner cookie, logout/expiry/cancellation, no developer Nace fallback
 - [x] Cloudflare Worker/static adapter and SQLite shared Groq quota; dry run and local runtime smoke pass
 - [x] Offline benchmark harness with eight labeled cases; no fabricated results

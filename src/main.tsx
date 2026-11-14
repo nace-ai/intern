@@ -1,4 +1,5 @@
 import { Hub } from "./Hub";
+import { missionHints } from "./mission-hints";
 import publicSite from "../public-site.json";
 import {
   missions,
@@ -33,7 +34,6 @@ import {
 import {
   greeting,
   newInsider,
-  hints,
   type Insider,
   type LessonChoice,
   type Receipt,
@@ -202,6 +202,7 @@ function App() {
     [muted, setMuted] = useState(true),
     [forensics, setForensics] = useState(false),
     [hint, setHint] = useState(false),
+    [hintCount, setHintCount] = useState(0),
     [status, setStatus] = useState<any>(null),
     [now, setNow] = useState(Date.now()),
     [archive, setArchive] = useState<Insider[]>([]);
@@ -346,6 +347,7 @@ function App() {
       setText("");
       setCommit(false);
       setHint(false);
+      setHintCount(0);
       await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not create session.");
@@ -428,6 +430,8 @@ function App() {
           }}
           select={(selected) => {
             setMissionId(selected);
+            setHint(false);
+            setHintCount(0);
             setPayload(missionById(selected).document);
             setDocumentUrl(demoDocumentUrls.malicious);
             setScreen("game");
@@ -560,7 +564,12 @@ function App() {
               quotas still apply. You have 10 minutes, up to 12 turns, and a
               detection heat limit.
             </p>
-            {!id && <p className="mission-specific">{mission.hint}</p>}
+            {!id && (
+              <p className="mission-specific">
+                Three free mission hints are available under “Need a nudge?”
+                once your session begins.
+              </p>
+            )}
             {!id && (
               <button
                 className="begin-mission"
@@ -783,24 +792,54 @@ function App() {
                   <span>04</span> Flag Captured
                 </div>
               </div>
-              <button className="s-hint" onClick={() => setHint(!hint)}>
+              <button
+                className="s-hint"
+                onClick={() => setHint(!hint)}
+                aria-expanded={hint}
+                aria-controls="mission-hints"
+              >
                 <Lightbulb size={15} />
-                {hint ? "Hide handler hint" : "Need a nudge?"}
+                {hint ? "Hide hints" : "Need a nudge?"}
                 <ChevronDown size={13} />
               </button>
               {hint && (
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="hint-text"
+                  id="mission-hints"
                 >
-                  {missionId === "insider"
-                    ? hints(game)
-                    : game.hardened &&
-                        game.turns.at(-1)?.receipt.execution === "blocked"
-                      ? "The hard tool guard rejected unverified authorization. No flag was released."
-                      : mission.hint}
-                </motion.p>
+                  <div className="hint-heading">
+                    MISSION {mission.number} / {hintCount} OF 3
+                  </div>
+                  <p>All hints are free · Local guidance · No provider calls</p>
+                  <ol aria-live="polite" aria-relevant="additions">
+                    {missionHints[missionId]
+                      .slice(0, hintCount)
+                      .map((text, index) => (
+                        <li key={index}>
+                          <b>Hint {index + 1}</b>
+                          <p>{text}</p>
+                        </li>
+                      ))}
+                  </ol>
+                  {hintCount < 3 ? (
+                    <button
+                      className="hint-reveal"
+                      onClick={() =>
+                        setHintCount((count) => Math.min(3, count + 1))
+                      }
+                    >
+                      Reveal next hint <ArrowRight size={14} />
+                    </button>
+                  ) : (
+                    <p className="hint-complete">All three hints revealed.</p>
+                  )}
+                  <p className="hint-disclaimer">
+                    Strategies cannot guarantee a successful Live attack.
+                    Authorization and the hard tool guard still apply.
+                  </p>
+                </motion.div>
               )}
             </aside>
             <section className="conversation-card">

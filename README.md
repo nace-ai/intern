@@ -27,7 +27,7 @@ All targets, assets, credentials in Training, and tool actions are fictional. **
 ## Features
 
 - Three playable **Training** missions with distinct objectives and editable attacks.
-- Sentinel conversations, contextual hints, strategies, and prompt-injection challenges.
+- Sentinel conversations, strategies, and prompt-injection challenges. “Need a nudge?” reveals three free, progressive hints specific to each mission. Hints persist through turns and hiding/reopening the panel, reset with a new session, and run locally without provider calls. Live strategies never guarantee success.
 - Server-only, per-session CTF flags released after verified simulated execution, then verified on capture.
 - Equipment, limited attempts, detection heat, scores, ranks, progression, and replay.
 - Vault-breach effects, sound/mute controls, responsive layouts, and reduced-motion support.
