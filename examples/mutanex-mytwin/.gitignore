@@ -1,0 +1,29 @@
+# Node
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.bak
+
+# Environment
+.env
+*.env
+
+# Operating System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & temp
+*.log
+scratch/
+
+# Reference source & test captures
+MyTwin_Portal_Source/
+.playwright-cli/
