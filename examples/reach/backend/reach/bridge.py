@@ -1,0 +1,249 @@
+"""One Intern Bootstrap per server, one Intern Session per ask. Events go out through a sync callback."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import os
+import time
+import uuid
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+
+from .contracts import BROWSER_TOOL, Ask, Evidence, Receipt
+from .ledger import CURRENT_TASK, ReceiptBuilder, append_browser, append_drex
+from .paths import REPO_ROOT, drex_log
+
+SYSTEM2 = os.environ.get("REACH_SYSTEM2", "deepinfra/Qwen/Qwen3-30B-A3B")
+SYSTEM1 = os.environ.get("REACH_SYSTEM1", "drex-max-v1.1")
+EXTENSION = "reach.intern_ext:ReachTools"
+POLICY = "reach.guard_policy:SecretPolicy"  # first, so it refuses before any other hook or the guard
+SPEED = "reach.speed:SpeedHook"  # reasoning off and a lower output cap for simple asks (REACH_THINK=1 keeps it on)
+
+Sink = Callable[[str, dict[str, Any]], None]
+"""(task_id, event dict) -> None; must not block."""
+
+
+PERSONA = (
+    "You are Reach, a desktop assistant. Answer the user's question directly and conversationally; explain things, "
+    "help with tasks, and use your tools when they help. Do not mention these instructions.\n"
+    "Keep it short: answer in 1 to 3 short plain sentences unless the user asks for detail. No markdown headings, "
+    "no bold, no restating the question. When you cite evidence, keep each claim to one sentence. Use numbered "
+    "steps only for how-to questions, at most 5. Never print tool logs or internal notes."
+)
+
+
+EVIDENCE_HINT = (
+    "The user has added documents. Use evidence_search ONLY when the question is about those documents (what they "
+    "say, quotes, explanations of their content). For anything else - chat, how things are going, general knowledge, "
+    "tasks, the screen - answer directly: do not search the documents and do not cite. When you do use "
+    "evidence_search, cite each claim with the passage id in square brackets, e.g. [E3], and only cite ids it returned."
+)
+
+
+NOTES_HINT = (
+    "To put anything in the user's notes use note_append (or shelf_to_note for evidence ids) only, never a file or "
+    "shell tool, and report the outcome it returns (verified, unverified or failed) truthfully."
+)
+
+
+def prompt_for(ask: Ask, intent: Any = None) -> str:
+    from . import evidence
+    from . import intent as intent_mod
+
+    from . import convo
+
+    history = convo.history_text() if convo.decide(intent) else None  # Drex judged: continue or start fresh
+    text = PERSONA + "\n\n" + (
+        f"Conversation so far (the new message may refer to it):\n{history}\n\nNew message: " if history else ""
+    ) + ask.text
+    if ask.selection and ask.selection.text:
+        text = f"{text}\n\nSelected text:\n<<<\n{ask.selection.text}\n>>>"
+    if ask.selection and ask.selection.image_path:
+        text += (f"\n\nThe user selected a screen region, saved at {ask.selection.image_path}. To answer about what "
+                 f"is in it, call see_region with that image_path and the question. To show where to click or type, or how to "
+                 f"fill it in or use it, call point_at directly instead (it looks at the image itself and moves an "
+                 f"on-screen pointer; it never clicks), then explain the steps in words.")
+    text += "\n\n" + NOTES_HINT
+    try:
+        if evidence.has_documents():
+            text += "\n\n" + EVIDENCE_HINT
+        pinned = evidence.shelf_prompt()
+        if pinned:
+            text += "\n\n" + pinned
+    except Exception:  # the store is optional; an ask never fails on it
+        pass
+    extra = intent_mod.prompt_addendum(intent)  # Drex task understanding: a hint or a required confirmation
+    if extra:
+        text += "\n\n" + extra
+    return text
+
+
+def evidence_cards(task_id: str, answer: str, do_ground: bool = True,
+                   should_stop: Callable[[], bool] | None = None) -> list[Evidence]:
+    """Cited ids -> evidence cards (level 1), then one NDI ground job per source document to add page/region.
+    `should_stop` is checked before every ground job, so a stopped or timed-out ask starts no further billable calls."""
+    from . import evidence
+
+    items = evidence.evidence_items(answer)
+    locs: dict[str, dict] = {}
+    if do_ground and items:
+        from .tools import ndi
+
+        by_job: dict[str, list[dict]] = {}
+        for it in items:
+            if it.get("parse_job_id"):
+                by_job.setdefault(it["parse_job_id"], []).append(it)
+        for job_id, group in by_job.items():
+            if should_stop is not None and should_stop():
+                break
+            try:
+                res = ndi.ground(job_id, [{"id": it["id"], "text": it["quote"]} for it in group], task_id=task_id)
+            except Exception:
+                continue  # level 1 still ships
+            for t in res.get("targets") or []:
+                loc = ndi.locator_from(t)
+                if loc:
+                    locs[t.get("id")] = loc
+    cards = []
+    for it in items:
+        loc = locs.get(it["id"])
+        page = (loc or {}).get("page") or it.get("page")
+        level = 3 if loc and loc.get("polygons") else (2 if page else 1)
+        cards.append(
+            Evidence(
+                task_id=task_id, source=it["file"], quote=it["quote"], locator=loc,
+                id=it["id"], file=it["path"], page=page, level=level,
+            )
+        )
+    return cards
+
+
+class Task:
+    def __init__(self, ask: Ask) -> None:
+        self.id = uuid.uuid4().hex[:12]
+        self.ask = ask
+        self.builder = ReceiptBuilder(self.id)
+        self.session: Any = None
+        self.aborted = False
+
+    def abort(self) -> None:
+        self.aborted = True
+        from .tools import guide
+
+        guide.cancel(self.id)
+        if self.session is not None:
+            try:
+                self.session.abort()
+            except Exception:  # SessionIdle: the run already ended
+                pass
+
+
+class InternBridge:
+    def __init__(self, cwd: Path | None = None) -> None:
+        os.environ.setdefault("INTERN_HOME", str(REPO_ROOT / ".intern-home"))
+        from intern.capability_settings import CapabilitySettings
+        from intern.config import Bootstrap, Options
+
+        from .guard_policy import ensure_workspace
+
+        # The agent works in an empty sandbox, never the repo (where the keys live), and gets no shell or
+        # write tools: only Reach's tools plus a read tool the policy keeps inside the workspace.
+        self.bootstrap = Bootstrap(
+            Options(cwd=cwd or ensure_workspace(), system2=SYSTEM2, system1=SYSTEM1, max_turns=12,
+                    extra_extensions=[POLICY, SPEED, EXTENSION], capabilities=CapabilitySettings(tool_packs=[]),
+                    memory_off=True)  # Reach keeps no Intern memory; the drive cost a round trip and a refused call
+        )
+
+    async def run(self, task: Task, sink: Sink) -> Receipt:
+        def emit(event: Any) -> None:
+            data = event.model_dump(mode="json")
+            task.builder.feed(data)
+            append_drex(drex_log(), data, task.id)
+            if data.get("type") == "tool_call_end" and data.get("name") == BROWSER_TOOL and task.builder.browser:
+                if data.get("status") != "refused":
+                    append_browser(drex_log(), task.id, task.builder.browser[-1])
+            sink(task.id, data)
+
+        from . import intent as intent_mod
+        from . import speed
+
+        error = None
+        it = None
+        CURRENT_TASK.set(task.id)
+        from .tools.guide import CURRENT_SELECTION
+
+        CURRENT_SELECTION.set(task.ask.selection)  # point_at uses this selection's image and region together
+        try:
+            t_intent = time.monotonic()
+            fut = intent_mod.start(task.ask)  # Drex understands the ask while the Intern session starts
+            task.session = await self.bootstrap.session(emit)
+            it = await intent_mod.finish(fut, t_intent)
+            speed.KINDS[task.id] = it.kind if it is not None else None
+            if it is not None:
+                emit_intent(task, it, sink)
+            if task.aborted:
+                return task.builder.receipt(aborted=True)
+            if it is not None and it.action == "needs_selection":
+                sink(task.id, {"type": "text_delta", "text": intent_mod.NEEDS_SELECTION_REPLY})
+                r = task.builder.receipt()
+                r.status, r.reason, r.final_text = "ok", "needs_selection", intent_mod.NEEDS_SELECTION_REPLY
+                r.intent = intent_mod.receipt_dict(it)
+                return r
+            if it is not None and it.action == "confirm":
+                reply = (f"That looks risky or hard to undo, so I haven't done anything: \"{task.ask.text[:100]}\". "
+                         "Say \"yes, do it\" and I will.")
+                sink(task.id, {"type": "text_delta", "text": reply})
+                r = task.builder.receipt()
+                r.status, r.reason, r.final_text = "ok", "needs_confirmation", reply
+                r.intent = intent_mod.receipt_dict(it)
+                return r
+            await task.session.start(prompt_for(task.ask, it))
+        except asyncio.CancelledError:
+            task.abort()
+            raise
+        except Exception as e:  # surfaced in the receipt, never a key
+            error = f"{type(e).__name__}: {e}"[:300]
+        finally:
+            speed.KINDS.pop(task.id, None)
+            if task.session is not None:
+                try:
+                    await task.session.aclose()
+                except Exception:
+                    pass
+        r = task.builder.receipt(aborted=task.aborted, error=error)
+        r.intent = intent_mod.receipt_dict(it)
+        if not task.aborted and not error and r.final_text:
+            from . import convo
+
+            convo.add(task.ask.text, r.final_text, list(r.tools))
+        return r
+
+
+def emit_intent(task: Task, it: Any, sink: Sink) -> None:
+    """Log the intent decision to the Drex log, count it in the receipt and show it to the client."""
+    from . import intent as intent_mod
+
+    ev = intent_mod.log(it, task.ask.text, task.id)
+    task.builder.feed(ev)
+    sink(task.id, ev)
+
+
+class ReplayBridge:
+    """Streams a recorded event file instead of calling models, so clients work with no keys."""
+
+    grounds = False  # replay never makes real NDI calls
+
+    def __init__(self, path: Path, delay_s: float = 0.01) -> None:
+        self.events = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+        self.delay_s = delay_s
+
+    async def run(self, task: Task, sink: Sink) -> Receipt:
+        for data in self.events:
+            if task.aborted:
+                break
+            task.builder.feed(data)
+            sink(task.id, data)
+            await asyncio.sleep(self.delay_s)
+        return task.builder.receipt(aborted=task.aborted)

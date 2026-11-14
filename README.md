@@ -245,6 +245,15 @@ Intern collects no telemetry. What leaves your machine:
 
 Sessions are journaled, and memory kept, on your machine in `~/.intern/`.
 
+## Built with Intern
+
+- [Reach](examples/reach) ([repo](https://github.com/rohankilaru-ai/Reach)): a Mac desktop assistant you type to, talk to, or circle things for.
+  Every ask is an Intern session (System 2 Qwen3-30B-A3B on DeepInfra, System 1 Drex Max `drex-max-v1.1`) with Reach's
+  tools added through an `Extension`: cited PDF answers grounded with NDI, screen vision and click-on-screen, Chrome and
+  Nace-extension browser tasks, verified notes, clipboard and Gmail drafts. A secret-path hook refuses tool calls that
+  touch key files before they run. Drex also classifies each task and its risk (about 260 ms), checks whether overheard
+  speech is meant for Reach, and routes voice commands. Real Drex logs and a receipt are in `docs/evidence/`.
+
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) first: one concern per PR, and evidence for any changed default.
