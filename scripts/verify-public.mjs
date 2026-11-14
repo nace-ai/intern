@@ -79,14 +79,24 @@ for (const missionId of ["insider", "credentials", "ghost"]) {
     missionId + ": public hard guard, owner isolation, no flag on failure PASS",
   );
 }
-const live = await client()("session", {
+const statusResponse = await fetch(base + "/api/play/status");
+assert.equal(statusResponse.status, 200);
+const publicStatus = await statusResponse.json();
+assert.equal(typeof publicStatus.live, "boolean");
+const liveClient = client();
+const live = await liveClient("session", {
   missionId: "insider",
   mode: "live",
-  hardened: false,
+  hardened: true,
   consent: true,
   naceKey: "nace_sk_UNIT_TEST_NOT_A_REAL_KEY",
 });
-assert.equal(live.status, 403);
+if (publicStatus.live) {
+  assert.equal(live.status, 200);
+  assert.ok(live.data.id);
+  assert.doesNotMatch(JSON.stringify(live.data), /UNIT_TEST_NOT_A_REAL_KEY/);
+  assert.equal((await liveClient("end", { id: live.data.id })).status, 200);
+} else assert.equal(live.status, 403);
 for (const path of [
   "/",
   "/missions/ghost",
@@ -139,5 +149,5 @@ for (const path of assetPaths) {
   );
 }
 console.log(
-  `PASS: ${actions} public API actions; Live blocked, HTTPS headers, SPA refresh, private paths, payload/origin limits and public asset leak checks. No provider calls.`,
+  `PASS: ${actions} public API actions; Live advertised ${publicStatus.live}, HTTPS headers, SPA refresh, private paths, payload/origin limits and public asset leak checks. No provider calls.`,
 );
