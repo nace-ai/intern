@@ -1,0 +1,19 @@
+{
+  "description": "Public FAA guidance PDFs processed once by Nace NDI (Parse -> Extract -> Ground). URLs verified to return application/pdf on 2026-11-14.",
+  "documents": [
+    {
+      "document_id": "faa-ac-120-74b",
+      "title": "FAA AC 120-74B: Parts 91, 121, 125, and 135 Flightcrew Procedures During Taxi Operations (2012-07-30)",
+      "url": "https://www.faa.gov/documentLibrary/media/Advisory_Circular/AC%20120-74B.pdf",
+      "file_name": "AC-120-74B.pdf",
+      "enabled": true
+    },
+    {
+      "document_id": "faa-ac-91-73b",
+      "title": "FAA AC 91-73B: Parts 91 and 135 Single Pilot, Flight School Procedures During Taxi Operations (2012-07-30)",
+      "url": "https://www.faa.gov/documentLibrary/media/Advisory_Circular/AC%2091-73B.pdf",
+      "file_name": "AC-91-73B.pdf",
+      "enabled": true
+    }
+  ]
+}

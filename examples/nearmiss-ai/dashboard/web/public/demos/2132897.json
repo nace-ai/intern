@@ -1,0 +1,551 @@
+{
+  "contract_version": "1.0",
+  "case_id": "2132897",
+  "run_id": "run-447a10b4487f",
+  "status": "complete",
+  "agent_trace": [
+    {
+      "agent": "pattern",
+      "round_number": 1,
+      "input_summary": "Incident 2132897 narrative (2240 chars) and 5 historical candidate(s).",
+      "decision_question": "Which precursor family best matches the evidence in the current incident narrative? Choose insufficient_evidence if the narrative does not support any family.",
+      "allowed_options": [
+        "communication_coordination",
+        "runway_surface",
+        "procedural_deviation",
+        "aircraft_systems",
+        "other",
+        "insufficient_evidence"
+      ],
+      "selected_option": "runway_surface",
+      "probabilities": {
+        "communication_coordination": 0.2889878230506116,
+        "runway_surface": 0.4751956588989834,
+        "procedural_deviation": 0.1757465498603663,
+        "aircraft_systems": 0.005285909074031197,
+        "other": 0.047364336764331536,
+        "insufficient_evidence": 0.007419722351675934
+      },
+      "supporting_incident_ids": [
+        "2134031"
+      ],
+      "evidence_refs": [],
+      "uncertainty_status": "unresolved",
+      "duration_seconds": 0.33341700001619756,
+      "action_summary": "Proposed pattern family 'runway_surface' (score 0.48); 1 of 5 candidate(s) judged similar; historical-pattern signal yes-probability 0.20. Claim sent to the Evidence Agent for review.",
+      "auxiliary_decisions": [
+        {
+          "question_id": "historical_signal",
+          "question": "Taken together, do the historical candidate incidents and the current incident share enough circumstances to suggest a recurring historical pattern worth reviewing as a cluster?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.19756250395998334
+        },
+        {
+          "question_id": "candidate_0_match",
+          "question": "Does historical candidate 2134031 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.738829948340954
+        },
+        {
+          "question_id": "candidate_1_match",
+          "question": "Does historical candidate 2133079 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.2278048626242619
+        },
+        {
+          "question_id": "candidate_2_match",
+          "question": "Does historical candidate 2133972 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.010520068634672036
+        },
+        {
+          "question_id": "candidate_3_match",
+          "question": "Does historical candidate 2133342 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.1302284391122264
+        },
+        {
+          "question_id": "candidate_4_match",
+          "question": "Does historical candidate 2127550 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.014063474761499488
+        }
+      ],
+      "drex_request_id": "req_a51b5bc7bc461f015186b51c27a02515",
+      "drex_model": "drex-max-v1.1"
+    },
+    {
+      "agent": "evidence",
+      "round_number": 1,
+      "input_summary": "Pattern claim 'runway_surface' and 4 NDI guidance passage(s) from 2 document(s).",
+      "decision_question": "Compare the incident narrative with the located guidance for the claimed and alternative topics. Does the evidence support the Pattern Agent's claim that 'runway_surface' is the leading precursor family, point more strongly to another family, or leave the comparison unresolved?",
+      "allowed_options": [
+        "supports",
+        "conflicts",
+        "unresolved"
+      ],
+      "selected_option": "unresolved",
+      "probabilities": {
+        "supports": 0.09136926314704669,
+        "conflicts": 0.14360089493095207,
+        "unresolved": 0.7650298419220012
+      },
+      "supporting_incident_ids": [
+        "2134031"
+      ],
+      "evidence_refs": [],
+      "uncertainty_status": "insufficient",
+      "duration_seconds": 0.3081562500447035,
+      "action_summary": "Leaves unresolved the 'runway_surface' claim (score 0.77); 0 of 4 NDI passage(s) judged relevant; crucial-source-missing yes-probability 0.76.",
+      "auxiliary_decisions": [
+        {
+          "question_id": "source_missing",
+          "question": "Is a crucial guidance source missing, meaning a fair assessment of this claim needs guidance on a topic that none of the supplied passages address?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.7558983080968009
+        },
+        {
+          "question_id": "passage_0_relevant",
+          "question": "Is guidance passage P1 relevant to evaluating the pattern claim for this incident?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.21229062025439946
+        },
+        {
+          "question_id": "passage_1_relevant",
+          "question": "Is guidance passage P2 relevant to evaluating the pattern claim for this incident?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.1463772781733084
+        },
+        {
+          "question_id": "passage_2_relevant",
+          "question": "Is guidance passage P3 relevant to evaluating the pattern claim for this incident?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.17693719795159096
+        },
+        {
+          "question_id": "passage_3_relevant",
+          "question": "Is guidance passage P4 relevant to evaluating the pattern claim for this incident?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.12032384335753438
+        }
+      ],
+      "drex_request_id": "req_c7d2aaabae933753a514de2b5992dc70",
+      "drex_model": "drex-max-v1.1"
+    },
+    {
+      "agent": "investigation",
+      "round_number": 1,
+      "input_summary": "Pattern claim 'runway_surface', evidence stance 'unresolved' (insufficient) with 0 cited passage(s).",
+      "decision_question": "Given the pattern claim, the evidence assessment and their uncertainty, which next step should a human safety analyst take for this report?",
+      "allowed_options": [
+        "investigate_cluster",
+        "request_context",
+        "specialist_review",
+        "no_pattern_identified"
+      ],
+      "selected_option": "specialist_review",
+      "probabilities": {
+        "investigate_cluster": 0.00776281360807882,
+        "request_context": 0.12520309746326647,
+        "specialist_review": 0.8362087249144899,
+        "no_pattern_identified": 0.03082536401416478
+      },
+      "supporting_incident_ids": [
+        "2134031"
+      ],
+      "evidence_refs": [],
+      "uncertainty_status": "insufficient",
+      "duration_seconds": 0.22136216703802347,
+      "action_summary": "Recommends 'specialist_review' (score 0.84) with 'elevated' human review priority. Basis: pattern 'runway_surface', evidence 'unresolved' (insufficient), 1 similar incident(s), no located citations.",
+      "auxiliary_decisions": [
+        {
+          "question_id": "review_priority",
+          "question": "What human review priority fits this report for analyst triage? This is review priority only, not a prediction of accident severity or likelihood.",
+          "type": "choice",
+          "selected_option": "elevated",
+          "probabilities": {
+            "routine": 0.12304000006437302,
+            "elevated": 0.6554922168481849,
+            "urgent": 0.22146778308744208
+          },
+          "yes_probability": null
+        }
+      ],
+      "drex_request_id": "req_183ad8b994ff92e66195677be32fca13",
+      "drex_model": "drex-max-v1.1"
+    },
+    {
+      "agent": "coordinator",
+      "round_number": 1,
+      "input_summary": "All 3 earlier trace message(s) and 0 cited passage(s).",
+      "decision_question": "Review the Pattern, Evidence and Investigation findings in the state. Should the investigation recommendation be accepted, amended, or returned for targeted re-evaluation?",
+      "allowed_options": [
+        "accept",
+        "amend",
+        "reevaluate"
+      ],
+      "selected_option": "reevaluate",
+      "probabilities": {
+        "accept": 0.3806579297584912,
+        "amend": 0.02107900318267932,
+        "reevaluate": 0.5982630670588295
+      },
+      "supporting_incident_ids": [
+        "2134031"
+      ],
+      "evidence_refs": [],
+      "uncertainty_status": "unresolved",
+      "duration_seconds": 0.4848477910272777,
+      "action_summary": "Returned the case for targeted re-evaluation (score 0.60); conflict needing most attention: 'guidance_support'.",
+      "auxiliary_decisions": [
+        {
+          "question_id": "amended_next_action",
+          "question": "If the recommendation were amended, which next step would best fit the combined findings?",
+          "type": "choice",
+          "selected_option": "specialist_review",
+          "probabilities": {
+            "investigate_cluster": 0.11296812979563829,
+            "request_context": 0.057335073923038805,
+            "specialist_review": 0.7544938781392969,
+            "no_pattern_identified": 0.07520291814202595
+          },
+          "yes_probability": null
+        },
+        {
+          "question_id": "conflict_focus",
+          "question": "Which evidence conflict most needs resolution?",
+          "type": "choice",
+          "selected_option": "guidance_support",
+          "probabilities": {
+            "pattern_family_claim": 0.2596529788089115,
+            "guidance_support": 0.5859165859893036,
+            "historical_match": 0.05840027555224816,
+            "no_material_conflict": 0.09603015964953664
+          },
+          "yes_probability": null
+        }
+      ],
+      "drex_request_id": "req_5dd922d295157b72e9c7b702b0ff1a1a",
+      "drex_model": "drex-max-v1.1"
+    },
+    {
+      "agent": "pattern",
+      "round_number": 2,
+      "input_summary": "Incident 2132897, 5 historical candidate(s), and the Evidence Agent's challenge to the earlier claim 'runway_surface'.",
+      "decision_question": "The Evidence Agent challenged the earlier claim 'runway_surface'. Re-examine the narrative, the historical candidates and the cited guidance passages in the state. Which precursor family best matches the evidence in the current incident narrative? Choose insufficient_evidence if the narrative does not support any family.",
+      "allowed_options": [
+        "communication_coordination",
+        "runway_surface",
+        "procedural_deviation",
+        "aircraft_systems",
+        "other",
+        "insufficient_evidence"
+      ],
+      "selected_option": "communication_coordination",
+      "probabilities": {
+        "communication_coordination": 0.31354121468755936,
+        "runway_surface": 0.20872438682910474,
+        "procedural_deviation": 0.1994975427921469,
+        "aircraft_systems": 0.00687191147142712,
+        "other": 0.042886787660657,
+        "insufficient_evidence": 0.22847815655910492
+      },
+      "supporting_incident_ids": [
+        "2134031"
+      ],
+      "evidence_refs": [],
+      "uncertainty_status": "unresolved",
+      "duration_seconds": 0.3450319170951843,
+      "action_summary": "Revised claim from 'runway_surface' to 'communication_coordination' (score 0.31); 1 of 5 candidate(s) judged similar; historical-pattern signal yes-probability 0.12. Claim sent to the Evidence Agent for review.",
+      "auxiliary_decisions": [
+        {
+          "question_id": "historical_signal",
+          "question": "Taken together, do the historical candidate incidents and the current incident share enough circumstances to suggest a recurring historical pattern worth reviewing as a cluster?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.12032390296217871
+        },
+        {
+          "question_id": "candidate_0_match",
+          "question": "Does historical candidate 2134031 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.6929255517445341
+        },
+        {
+          "question_id": "candidate_1_match",
+          "question": "Does historical candidate 2133079 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.1769371383469444
+        },
+        {
+          "question_id": "candidate_2_match",
+          "question": "Does historical candidate 2133972 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.008794928280829707
+        },
+        {
+          "question_id": "candidate_3_match",
+          "question": "Does historical candidate 2133342 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.12032390296217871
+        },
+        {
+          "question_id": "candidate_4_match",
+          "question": "Does historical candidate 2127550 describe the same kind of precursor circumstances as the current incident (not merely shared words)?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.011001278758993434
+        }
+      ],
+      "drex_request_id": "req_c54c693e1b841a52009cd5d7a2235995",
+      "drex_model": "drex-max-v1.1"
+    },
+    {
+      "agent": "evidence",
+      "round_number": 2,
+      "input_summary": "Pattern claim 'communication_coordination' and 4 NDI guidance passage(s) from 2 document(s).",
+      "decision_question": "Compare the incident narrative with the located guidance for the claimed and alternative topics. Does the evidence support the Pattern Agent's claim that 'communication_coordination' is the leading precursor family, point more strongly to another family, or leave the comparison unresolved?",
+      "allowed_options": [
+        "supports",
+        "conflicts",
+        "unresolved"
+      ],
+      "selected_option": "unresolved",
+      "probabilities": {
+        "supports": 0.19975972175598145,
+        "conflicts": 0.20899879932403564,
+        "unresolved": 0.5912414789199829
+      },
+      "supporting_incident_ids": [
+        "2134031"
+      ],
+      "evidence_refs": [
+        {
+          "document_id": "faa-ac-120-74b",
+          "title": "FAA AC 120-74B: Parts 91, 121, 125, and 135 Flightcrew Procedures During Taxi Operations (2012-07-30)",
+          "source": "https://www.faa.gov/documentLibrary/media/Advisory_Circular/AC%20120-74B.pdf",
+          "page_or_region": "p. 9",
+          "passage_text": "When ATC issues a clearance for an arrival or departure, the flightcrew should refer to the airport diagram and confirm and verbalize the assigned runway and taxi route, including any instructions to hold short of, or cross, a runway.",
+          "status": "grounded",
+          "relevant_claim": "Incident 2132897 fits the 'communication_coordination' precursor family"
+        }
+      ],
+      "uncertainty_status": "unresolved",
+      "duration_seconds": 0.26660162513144314,
+      "action_summary": "Leaves unresolved the 'communication_coordination' claim (score 0.59); 1 of 4 NDI passage(s) judged relevant; crucial-source-missing yes-probability 0.67.",
+      "auxiliary_decisions": [
+        {
+          "question_id": "source_missing",
+          "question": "Is a crucial guidance source missing, meaning a fair assessment of this claim needs guidance on a topic that none of the supplied passages address?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.6733566522598267
+        },
+        {
+          "question_id": "passage_0_relevant",
+          "question": "Is guidance passage P1 relevant to evaluating the pattern claim for this incident?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.07679522037506104
+        },
+        {
+          "question_id": "passage_1_relevant",
+          "question": "Is guidance passage P2 relevant to evaluating the pattern claim for this incident?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.7558983080968009
+        },
+        {
+          "question_id": "passage_2_relevant",
+          "question": "Is guidance passage P3 relevant to evaluating the pattern claim for this incident?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.10245699301105696
+        },
+        {
+          "question_id": "passage_3_relevant",
+          "question": "Is guidance passage P4 relevant to evaluating the pattern claim for this incident?",
+          "type": "noul",
+          "selected_option": null,
+          "probabilities": null,
+          "yes_probability": 0.03878686663777083
+        }
+      ],
+      "drex_request_id": "req_7566abb96d1c96e3c1222bb822fa87e4",
+      "drex_model": "drex-max-v1.1"
+    },
+    {
+      "agent": "investigation",
+      "round_number": 2,
+      "input_summary": "Pattern claim 'communication_coordination', evidence stance 'unresolved' (unresolved) with 1 cited passage(s).",
+      "decision_question": "Given the pattern claim, the evidence assessment and their uncertainty, which next step should a human safety analyst take for this report?",
+      "allowed_options": [
+        "investigate_cluster",
+        "request_context",
+        "specialist_review",
+        "no_pattern_identified"
+      ],
+      "selected_option": "specialist_review",
+      "probabilities": {
+        "investigate_cluster": 0.01459670358465084,
+        "request_context": 0.05416144103505925,
+        "specialist_review": 0.8935189918071692,
+        "no_pattern_identified": 0.03772286357312069
+      },
+      "supporting_incident_ids": [
+        "2134031"
+      ],
+      "evidence_refs": [],
+      "uncertainty_status": "unresolved",
+      "duration_seconds": 0.3762855420354754,
+      "action_summary": "Recommends 'specialist_review' (score 0.89) with 'elevated' human review priority. Basis: pattern 'communication_coordination', evidence 'unresolved' (unresolved), 1 similar incident(s), FAA AC 120-74B p. 9.",
+      "auxiliary_decisions": [
+        {
+          "question_id": "review_priority",
+          "question": "What human review priority fits this report for analyst triage? This is review priority only, not a prediction of accident severity or likelihood.",
+          "type": "choice",
+          "selected_option": "elevated",
+          "probabilities": {
+            "routine": 0.10587592230090094,
+            "elevated": 0.675866877519102,
+            "urgent": 0.21825720017999709
+          },
+          "yes_probability": null
+        }
+      ],
+      "drex_request_id": "req_8028701a8105bc6bd2aeec67d474af7e",
+      "drex_model": "drex-max-v1.1"
+    },
+    {
+      "agent": "coordinator",
+      "round_number": 2,
+      "input_summary": "All 7 earlier trace message(s) and 1 cited passage(s).",
+      "decision_question": "Review the Pattern, Evidence and Investigation findings in the state. Should the investigation recommendation be accepted, amended, or returned for targeted re-evaluation? A second pass has already been used; reevaluate now means the case is unresolved.",
+      "allowed_options": [
+        "accept",
+        "amend",
+        "reevaluate"
+      ],
+      "selected_option": "accept",
+      "probabilities": {
+        "accept": 0.6685204256877144,
+        "amend": 0.021517968866304724,
+        "reevaluate": 0.30996160544598084
+      },
+      "supporting_incident_ids": [
+        "2134031"
+      ],
+      "evidence_refs": [],
+      "uncertainty_status": "unresolved",
+      "duration_seconds": 0.2962677499745041,
+      "action_summary": "Accepted the recommendation 'specialist_review' (score 0.67); conflict needing most attention: 'pattern_family_claim'.",
+      "auxiliary_decisions": [
+        {
+          "question_id": "amended_next_action",
+          "question": "If the recommendation were amended, which next step would best fit the combined findings?",
+          "type": "choice",
+          "selected_option": "specialist_review",
+          "probabilities": {
+            "investigate_cluster": 0.1813343235253845,
+            "request_context": 0.18972120330983983,
+            "specialist_review": 0.3910993162796207,
+            "no_pattern_identified": 0.23784515688515498
+          },
+          "yes_probability": null
+        },
+        {
+          "question_id": "conflict_focus",
+          "question": "Which evidence conflict most needs resolution?",
+          "type": "choice",
+          "selected_option": "pattern_family_claim",
+          "probabilities": {
+            "pattern_family_claim": 0.5541778792549337,
+            "guidance_support": 0.368916242627583,
+            "historical_match": 0.048230413257646536,
+            "no_material_conflict": 0.0286754648598368
+          },
+          "yes_probability": null
+        }
+      ],
+      "drex_request_id": "req_c465bca0e1e571dfec8ac9bb41786af1",
+      "drex_model": "drex-max-v1.1"
+    }
+  ],
+  "initial_claim": {
+    "pattern_family": "runway_surface",
+    "supporting_incident_ids": [
+      "2134031"
+    ]
+  },
+  "revised_claim": {
+    "pattern_family": "communication_coordination",
+    "supporting_incident_ids": [
+      "2134031"
+    ]
+  },
+  "final_recommended_next_action": "specialist_review",
+  "review_priority": "elevated",
+  "references": [
+    {
+      "document_id": "faa-ac-120-74b",
+      "title": "FAA AC 120-74B: Parts 91, 121, 125, and 135 Flightcrew Procedures During Taxi Operations (2012-07-30)",
+      "source": "https://www.faa.gov/documentLibrary/media/Advisory_Circular/AC%20120-74B.pdf",
+      "page_or_region": "p. 9",
+      "passage_text": "When ATC issues a clearance for an arrival or departure, the flightcrew should refer to the airport diagram and confirm and verbalize the assigned runway and taxi route, including any instructions to hold short of, or cross, a runway.",
+      "status": "grounded",
+      "relevant_claim": "Incident 2132897 fits the 'communication_coordination' precursor family"
+    }
+  ],
+  "total_duration_seconds": 2.645,
+  "provider_model_details": {
+    "decision_provider": "Nace Drex",
+    "decision_model": "drex-max-v1.1",
+    "requested_model": "drex-latest",
+    "evidence_provider": "Nace NDI (Parse, Extract, Ground)",
+    "evidence_documents": [
+      "FAA AC 120-74B: Parts 91, 121, 125, and 135 Flightcrew Procedures During Taxi Operations (2012-07-30)",
+      "FAA AC 91-73B: Parts 91 and 135 Single Pilot, Flight School Procedures During Taxi Operations (2012-07-30)"
+    ],
+    "rounds_run": 2
+  },
+  "errors": [],
+  "policy_notes": [
+    "Second round triggered: Coordinator (Drex) selected reevaluate."
+  ]
+}

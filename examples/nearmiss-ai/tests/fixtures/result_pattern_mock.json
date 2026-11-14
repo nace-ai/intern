@@ -1,0 +1,92 @@
+{
+  "contract_version": "1.0",
+  "case_id": "SYN-001",
+  "run_id": "fixture-run-pattern",
+  "status": "complete",
+  "agent_trace": [
+    {
+      "agent": "pattern",
+      "round_number": 1,
+      "input_summary": "Synthetic taxi clearance report and one synthetic neighbor.",
+      "decision_question": "Which pattern family best fits the supplied text?",
+      "allowed_options": ["communication_coordination", "runway_surface", "insufficient_evidence"],
+      "selected_option": "communication_coordination",
+      "probabilities": {"communication_coordination": 0.76, "runway_surface": 0.16, "insufficient_evidence": 0.08},
+      "supporting_incident_ids": ["SYN-002"],
+      "evidence_refs": [],
+      "uncertainty_status": "unresolved",
+      "duration_seconds": 0.4,
+      "action_summary": "Proposed a communication pattern for evidence review."
+    },
+    {
+      "agent": "evidence",
+      "round_number": 1,
+      "input_summary": "Reviewed the pattern agent's communication claim against a synthetic guidance passage.",
+      "decision_question": "Does the supplied passage support the pattern claim?",
+      "allowed_options": ["supports", "conflicts", "unresolved"],
+      "selected_option": "supports",
+      "probabilities": {"supports": 0.69, "conflicts": 0.1, "unresolved": 0.21},
+      "supporting_incident_ids": ["SYN-002"],
+      "evidence_refs": [
+        {
+          "document_id": "SYN-GUIDE",
+          "title": "Synthetic guidance fixture (no real document)",
+          "source": "fixture://synthetic-guidance",
+          "page_or_region": "p. 1 (fabricated fixture location)",
+          "passage_text": "Synthetic example: clarify an ambiguous call sign before continuing.",
+          "status": "grounded",
+          "relevant_claim": "Communication ambiguity during taxi clearance"
+        }
+      ],
+      "uncertainty_status": "supported",
+      "duration_seconds": 0.5,
+      "action_summary": "Mock evidence stance supports reviewing the communication claim."
+    },
+    {
+      "agent": "investigation",
+      "round_number": 1,
+      "input_summary": "Considered the pattern proposal and evidence agent's mock support.",
+      "decision_question": "Which human investigation next step is warranted?",
+      "allowed_options": ["investigate_cluster", "request_context", "specialist_review", "no_pattern_identified"],
+      "selected_option": "investigate_cluster",
+      "probabilities": {"investigate_cluster": 0.63, "request_context": 0.18, "specialist_review": 0.12, "no_pattern_identified": 0.07},
+      "supporting_incident_ids": ["SYN-002"],
+      "evidence_refs": [],
+      "uncertainty_status": "supported",
+      "duration_seconds": 0.3,
+      "action_summary": "Suggested human review of the matched incident cluster."
+    },
+    {
+      "agent": "coordinator",
+      "round_number": 1,
+      "input_summary": "Considered the pattern, evidence, and investigation messages in order.",
+      "decision_question": "Accept, amend, or return the investigation recommendation?",
+      "allowed_options": ["accept", "amend", "reevaluate"],
+      "selected_option": "accept",
+      "probabilities": {"accept": 0.72, "amend": 0.18, "reevaluate": 0.1},
+      "supporting_incident_ids": ["SYN-002"],
+      "evidence_refs": [],
+      "uncertainty_status": "supported",
+      "duration_seconds": 0.2,
+      "action_summary": "Accepted the mock cluster review recommendation."
+    }
+  ],
+  "initial_claim": {"pattern_family": "communication_coordination", "supporting_incident_ids": ["SYN-002"]},
+  "revised_claim": null,
+  "final_recommended_next_action": "investigate_cluster",
+  "review_priority": "routine",
+  "references": [
+    {
+      "document_id": "SYN-GUIDE",
+      "title": "Synthetic guidance fixture (no real document)",
+      "source": "fixture://synthetic-guidance",
+      "page_or_region": "p. 1 (fabricated fixture location)",
+      "passage_text": "Synthetic example: clarify an ambiguous call sign before continuing.",
+      "status": "grounded",
+      "relevant_claim": "Communication ambiguity during taxi clearance"
+    }
+  ],
+  "total_duration_seconds": 1.4,
+  "provider_model_details": {"decision_provider": "synthetic fixture", "decision_model": "mock-only", "evidence_provider": "synthetic fixture"},
+  "errors": []
+}

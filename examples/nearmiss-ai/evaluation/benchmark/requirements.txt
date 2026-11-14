@@ -1,0 +1,2 @@
+# Benchmark extras (in addition to service/requirements.txt and requirements-a.txt)
+openai>=1.40

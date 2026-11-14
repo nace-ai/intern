@@ -1,0 +1,195 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+}
+
+:root {
+  --background: #fafaf8;
+  --foreground: #23272f;
+  --card: #ffffff;
+  --card-foreground: #23272f;
+  --popover: #ffffff;
+  --popover-foreground: #23272f;
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f2;
+  --secondary-foreground: #343a44;
+  --muted: #f3f4f4;
+  --muted-foreground: #5f6874;
+  --accent: #edf2ff;
+  --accent-foreground: #1d4ed8;
+  --destructive: #b42318;
+  --border: #e5e7eb;
+  --input: #d1d5db;
+  --ring: #1d4ed8;
+  --warning: #925a11;
+  --success: #237245;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #23272f;
+  --sidebar-primary: #1d4ed8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #edf2ff;
+  --sidebar-accent-foreground: #1d4ed8;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #1d4ed8;
+  --radius: 8px;
+}
+
+.dark {
+  --background: #171b21;
+  --foreground: #edf0f3;
+  --card: #20262e;
+  --card-foreground: #edf0f3;
+  --popover: #252b34;
+  --popover-foreground: #edf0f3;
+  --primary: #8eacff;
+  --primary-foreground: #101827;
+  --secondary: #2b323b;
+  --secondary-foreground: #e4e8ed;
+  --muted: #2b323b;
+  --muted-foreground: #b5bec9;
+  --accent: #283b65;
+  --accent-foreground: #dce5ff;
+  --destructive: #ff8b7e;
+  --border: #3b434e;
+  --input: #4a5360;
+  --ring: #8eacff;
+  --warning: #f0ba70;
+  --success: #8bd2aa;
+  --sidebar: #20262e;
+  --sidebar-foreground: #edf0f3;
+  --sidebar-primary: #8eacff;
+  --sidebar-primary-foreground: #101827;
+  --sidebar-accent: #283b65;
+  --sidebar-accent-foreground: #dce5ff;
+  --sidebar-border: #3b434e;
+  --sidebar-ring: #8eacff;
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  html { @apply font-sans; }
+  body { @apply bg-background text-foreground; }
+  button, select, summary, a { @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring; }
+}
+
+html, body { min-height: 100%; }
+body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.app-shell { display: grid; grid-template-rows: 48px minmax(0, 1fr) auto; min-height: 100vh; height: 100vh; background: var(--background); }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 18px; border-bottom: 1px solid var(--border); background: var(--card); }
+.wordmark { font-size: 16px; font-weight: 650; letter-spacing: -.025em; white-space: nowrap; }
+.wordmark span { color: var(--primary); }
+.status-pill { gap: 7px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+.status-pill.is-online { color: var(--success); border-color: color-mix(in srgb, var(--success) 30%, var(--border)); }
+.status-pill.is-offline { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 30%, var(--border)); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.workspace-grid { display: grid; grid-template-columns: 300px minmax(0, 1fr) 400px; min-height: 0; }
+.case-column, .case-main, .investigation-panel { min-height: 0; overflow-y: auto; }
+.case-column { border-right: 1px solid var(--border); background: var(--card); }
+.case-list { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+.case-controls { display: grid; gap: 12px; padding: 16px; }
+.search-field { display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid var(--input); border-radius: 6px; background: var(--card); }
+.search-field:focus-within { border-color: var(--ring); outline: 2px solid color-mix(in srgb, var(--ring) 20%, transparent); }
+.filter-select { display: block; width: 100%; height: 34px; appearance: none; padding: 0 32px 0 10px; border: 1px solid var(--input); border-radius: 6px; background: var(--card); color: var(--foreground); font-size: 13px; }
+.case-list-scroll { flex: 1 1 auto; min-height: 0; }
+.case-items { display: grid; gap: 4px; padding: 8px; }
+.case-item { position: relative; display: grid; gap: 5px; width: 100%; padding: 10px 11px 10px 13px; border-radius: 6px; text-align: left; transition: background-color 150ms; }
+.case-item:hover { background: var(--muted); }
+.case-item.is-selected { background: var(--accent); }
+.case-item.is-selected::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; border-radius: 2px; background: var(--primary); }
+.case-main { background: var(--background); }
+.case-main-inner { max-width: 840px; margin: 0 auto; padding: 24px 28px 48px; }
+.case-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.case-heading h1 { margin-top: 2px; font-size: 24px; font-weight: 650; letter-spacing: -.025em; }
+.field-label { display: block; color: var(--muted-foreground); font-size: 12px; line-height: 1.4; }
+.case-summary { display: grid; gap: 16px; padding: 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+.summary-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.summary-facts strong { display: block; margin-top: 3px; overflow-wrap: anywhere; font-size: 13px; font-weight: 600; }
+.summary-action p { margin-top: 3px; font-size: 14px; }
+.case-tabs { margin-top: 20px; }
+.case-tab { flex: none; gap: 7px; padding: 0 4px 10px; border-radius: 0; }
+.case-tab-content { padding-top: 22px; }
+.narrative-text { max-width: 68ch; color: var(--foreground); font-size: 16px; line-height: 1.7; }
+.detail-row { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr); gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.detail-row dt { color: var(--muted-foreground); }
+.detail-row dd { margin: 0; overflow-wrap: anywhere; }
+.investigation-panel { border-left: 1px solid var(--border); background: var(--card); }
+.investigation-top { position: sticky; top: 0; z-index: 3; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); background: var(--card); }
+.investigation-content { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 14px; min-width: 0; padding: 18px 20px 28px; }
+.investigation-content > * { min-width: 0; }
+.final-action { position: sticky; top: 84px; z-index: 2; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--card); }
+.step-dot { display: grid; flex: 0 0 22px; place-items: center; width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 50%; color: var(--muted-foreground); font-size: 11px; }
+.step-dot.is-active { border-color: var(--primary); }
+.timeline { min-width: 0; margin-left: 7px; border-left: 1px solid var(--border); }
+.agent-turn { position: relative; min-width: 0; padding: 0 0 22px 20px; }
+.agent-turn:last-child { padding-bottom: 0; }
+.turn-node { position: absolute; top: 5px; left: -5px; width: 9px; height: 9px; border: 2px solid var(--primary); border-radius: 50%; background: var(--card); }
+.agent-turn.has-warning .turn-node { border-color: var(--warning); }
+.score-row { display: grid; grid-template-columns: minmax(0, 1fr) 45px 98px; align-items: center; gap: 8px; }
+.app-footer { padding: 8px 18px; background: var(--background); color: var(--muted-foreground); font-size: 12px; line-height: 1.4; }
+.mobile-case-trigger { display: none; }
+
+@media (max-width: 1199px) and (min-width: 1024px) {
+  .workspace-grid { grid-template-columns: 270px minmax(0, 1fr) 360px; }
+  .case-main-inner { padding-right: 20px; padding-left: 20px; }
+}
+
+@media (max-width: 1023px) {
+  .app-shell { height: auto; min-height: 100vh; grid-template-rows: 48px auto auto; }
+  .workspace-grid { display: flex; flex-direction: column; }
+  .case-column { display: none; }
+  .case-main, .investigation-panel { overflow: visible; }
+  .case-main-inner { max-width: 800px; padding: 20px 20px 36px; }
+  .mobile-case-trigger { display: block; margin-bottom: 20px; }
+  .investigation-panel { border-top: 1px solid var(--border); border-left: 0; }
+  .investigation-top, .investigation-content { max-width: 800px; margin: 0 auto; }
+  .investigation-panel, .investigation-top, .final-action { position: static; }
+}
+
+@media (max-width: 600px) {
+  .topbar { padding: 0 12px; }
+  .case-main-inner { padding: 16px 16px 32px; }
+  .case-heading h1 { font-size: 21px; }
+  .case-summary { padding: 14px; }
+  .summary-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .investigation-top, .investigation-content { padding-right: 16px; padding-left: 16px; }
+  .app-footer { padding: 10px 16px; }
+}

@@ -1,0 +1,19 @@
+{
+  "contract_version": "1.0",
+  "case_id": "SYN-001",
+  "narrative": "Synthetic training example: the crew and ground controller used different call signs during a taxi clearance. The crew stopped and requested clarification.",
+  "metadata": {"report_date": null, "category": "synthetic communication example"},
+  "candidate_incidents": [
+    {
+      "case_id": "SYN-002",
+      "narrative": "Synthetic training example: a taxi instruction was repeated after a call sign mismatch.",
+      "retrieval_score": 0.72
+    }
+  ],
+  "retrieval_method": "Fixture-only lexical similarity; illustrative score in [0, 1], not a safety risk score",
+  "data_source": {
+    "name": "Synthetic fixture",
+    "url": null,
+    "sample": "Handwritten interface example; not NASA ASRS data"
+  }
+}

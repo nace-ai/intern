@@ -1,0 +1,21 @@
+{
+  "contract_version": "1.0",
+  "case_id": "SYN-003",
+  "run_id": "fixture-run-incomplete",
+  "status": "incomplete",
+  "agent_trace": [],
+  "initial_claim": null,
+  "revised_claim": null,
+  "final_recommended_next_action": null,
+  "review_priority": null,
+  "references": [],
+  "total_duration_seconds": 0.5,
+  "provider_model_details": {"decision_provider": "synthetic fixture", "decision_model": "mock-only", "evidence_provider": "synthetic fixture"},
+  "errors": [
+    {
+      "code": "provider_unavailable",
+      "message": "Synthetic example: decision provider did not return a result.",
+      "agent": "pattern"
+    }
+  ]
+}

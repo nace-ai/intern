@@ -1,0 +1,387 @@
+{
+  "name": "main",
+  "meta": {
+    "created_at": "2026-11-14T22:30:46+00:00",
+    "seed": 20261114,
+    "n_requested": 1000,
+    "workers": 4,
+    "providers": {
+      "drex": "drex-latest",
+      "openai": "gpt-6-luna"
+    },
+    "openai_mode": "json_schema",
+    "openai_temperature": null
+  },
+  "tasks": {
+    "communication_breakdown": {
+      "title": "Communication breakdown detection",
+      "ground_truth_field": "Person 1 / Communication Breakdown (NASA analyst-coded; non-blank = breakdown)",
+      "labels": [
+        "breakdown",
+        "no_breakdown"
+      ],
+      "n_cases": 1000,
+      "providers": {
+        "drex": {
+          "attempted": 1000,
+          "valid": 1000,
+          "errors": {},
+          "model": "drex-max-v1.1",
+          "accuracy": 0.727,
+          "accuracy_ci": [
+            0.6985580635351872,
+            0.7537045245065915
+          ],
+          "strict_accuracy": 0.727,
+          "macro_f1": 0.7195486891212628,
+          "per_class": {
+            "breakdown": {
+              "precision": 0.8367952522255193,
+              "recall": 0.564,
+              "f1": 0.6738351254480287,
+              "support": 500
+            },
+            "no_breakdown": {
+              "precision": 0.6711915535444947,
+              "recall": 0.89,
+              "f1": 0.765262252794497,
+              "support": 500
+            }
+          },
+          "confusion": {
+            "breakdown": {
+              "breakdown": 282,
+              "no_breakdown": 218
+            },
+            "no_breakdown": {
+              "breakdown": 55,
+              "no_breakdown": 445
+            }
+          },
+          "latency_seconds": {
+            "mean": 0.302077,
+            "median": 0.2998,
+            "p95": 0.4173
+          },
+          "mean_input_tokens": 474.452,
+          "cost_per_1000_usd": 0.05693424,
+          "calibration": {
+            "mean_confidence": 0.8421944097851735,
+            "ece": 0.11519440978517345,
+            "brier": 0.3804777068761692
+          }
+        },
+        "openai": {
+          "attempted": 1000,
+          "valid": 1000,
+          "errors": {},
+          "model": "gpt-6-luna",
+          "accuracy": 0.772,
+          "accuracy_ci": [
+            0.7449845019985327,
+            0.7969336651704709
+          ],
+          "strict_accuracy": 0.772,
+          "macro_f1": 0.7715970972796012,
+          "per_class": {
+            "breakdown": {
+              "precision": 0.7969432314410481,
+              "recall": 0.73,
+              "f1": 0.7620041753653445,
+              "support": 500
+            },
+            "no_breakdown": {
+              "precision": 0.7509225092250923,
+              "recall": 0.814,
+              "f1": 0.781190019193858,
+              "support": 500
+            }
+          },
+          "confusion": {
+            "breakdown": {
+              "breakdown": 365,
+              "no_breakdown": 135
+            },
+            "no_breakdown": {
+              "breakdown": 93,
+              "no_breakdown": 407
+            }
+          },
+          "latency_seconds": {
+            "mean": 1.6765351000000002,
+            "median": 1.4078,
+            "p95": 3.4366
+          },
+          "mean_input_tokens": 449.594,
+          "cost_per_1000_usd": 0.09004990000000002
+        }
+      },
+      "baselines": [
+        {
+          "name": "Always 'breakdown' (majority class)",
+          "accuracy": 0.5,
+          "accuracy_ci": [
+            0.4690690341793595,
+            0.5309309658206405
+          ],
+          "macro_f1": 0.3333333333333333
+        },
+        {
+          "name": "Keyword rule (19 fixed terms)",
+          "accuracy": 0.624,
+          "accuracy_ci": [
+            0.5935570238784045,
+            0.6534939052721707
+          ],
+          "macro_f1": 0.5939594996198769
+        }
+      ],
+      "head_to_head": {
+        "paired_cases": 1000,
+        "both_correct": 681,
+        "only_drex_correct": 46,
+        "only_openai_correct": 91,
+        "neither_correct": 182,
+        "agreement": 0.863,
+        "accuracy_diff_drex_minus_openai": -0.045,
+        "accuracy_diff_ci": [
+          -0.069,
+          -0.023
+        ],
+        "mcnemar_p": 0.00015041858615999766
+      },
+      "verdict": [
+        "Accuracy: OpenAI scored higher; the 95% interval of the paired difference excludes 0.",
+        "Latency: Drex was faster at the median (4.7x).",
+        "Cost: Drex was cheaper per 1,000 decisions (1.6x) at the supplied prices."
+      ]
+    },
+    "primary_problem": {
+      "title": "Primary problem category",
+      "ground_truth_field": "Assessments / Primary Problem (NASA analyst-coded; 13 minor values grouped as Other)",
+      "labels": [
+        "Human Factors",
+        "Aircraft",
+        "Procedure",
+        "Ambiguous",
+        "Other"
+      ],
+      "n_cases": 1000,
+      "providers": {
+        "drex": {
+          "attempted": 1000,
+          "valid": 1000,
+          "errors": {},
+          "model": "drex-max-v1.1",
+          "accuracy": 0.493,
+          "accuracy_ci": [
+            0.4620988422512973,
+            0.5239547343289122
+          ],
+          "strict_accuracy": 0.493,
+          "macro_f1": 0.4380490121828159,
+          "per_class": {
+            "Human Factors": {
+              "precision": 0.3932926829268293,
+              "recall": 0.645,
+              "f1": 0.4886363636363637,
+              "support": 200
+            },
+            "Aircraft": {
+              "precision": 0.7164750957854407,
+              "recall": 0.935,
+              "f1": 0.8112798264642084,
+              "support": 200
+            },
+            "Procedure": {
+              "precision": 0.3671875,
+              "recall": 0.235,
+              "f1": 0.2865853658536585,
+              "support": 200
+            },
+            "Ambiguous": {
+              "precision": 0.47368421052631576,
+              "recall": 0.045,
+              "f1": 0.0821917808219178,
+              "support": 200
+            },
+            "Other": {
+              "precision": 0.4583333333333333,
+              "recall": 0.605,
+              "f1": 0.521551724137931,
+              "support": 200
+            }
+          },
+          "confusion": {
+            "Human Factors": {
+              "Human Factors": 129,
+              "Aircraft": 5,
+              "Procedure": 40,
+              "Ambiguous": 2,
+              "Other": 24
+            },
+            "Aircraft": {
+              "Human Factors": 4,
+              "Aircraft": 187,
+              "Procedure": 4,
+              "Ambiguous": 3,
+              "Other": 2
+            },
+            "Procedure": {
+              "Human Factors": 104,
+              "Aircraft": 9,
+              "Procedure": 47,
+              "Ambiguous": 4,
+              "Other": 36
+            },
+            "Ambiguous": {
+              "Human Factors": 57,
+              "Aircraft": 34,
+              "Procedure": 19,
+              "Ambiguous": 9,
+              "Other": 81
+            },
+            "Other": {
+              "Human Factors": 34,
+              "Aircraft": 26,
+              "Procedure": 18,
+              "Ambiguous": 1,
+              "Other": 121
+            }
+          },
+          "latency_seconds": {
+            "mean": 0.31483069999999996,
+            "median": 0.3015,
+            "p95": 0.5035
+          },
+          "mean_input_tokens": 521.856,
+          "cost_per_1000_usd": 0.06262272,
+          "calibration": {
+            "mean_confidence": 0.625773770148212,
+            "ece": 0.14858206903239257,
+            "brier": 0.6386774961337445
+          }
+        },
+        "openai": {
+          "attempted": 1000,
+          "valid": 1000,
+          "errors": {},
+          "model": "gpt-6-luna",
+          "accuracy": 0.492,
+          "accuracy_ci": [
+            0.46110359363184095,
+            0.5229576367455414
+          ],
+          "strict_accuracy": 0.492,
+          "macro_f1": 0.4405176916116965,
+          "per_class": {
+            "Human Factors": {
+              "precision": 0.3672922252010724,
+              "recall": 0.685,
+              "f1": 0.4781849912739966,
+              "support": 200
+            },
+            "Aircraft": {
+              "precision": 0.8148148148148148,
+              "recall": 0.88,
+              "f1": 0.8461538461538461,
+              "support": 200
+            },
+            "Procedure": {
+              "precision": 0.39416058394160586,
+              "recall": 0.27,
+              "f1": 0.3204747774480713,
+              "support": 200
+            },
+            "Ambiguous": {
+              "precision": 0.5,
+              "recall": 0.02,
+              "f1": 0.038461538461538464,
+              "support": 200
+            },
+            "Other": {
+              "precision": 0.4548872180451128,
+              "recall": 0.605,
+              "f1": 0.51931330472103,
+              "support": 200
+            }
+          },
+          "confusion": {
+            "Human Factors": {
+              "Human Factors": 137,
+              "Aircraft": 1,
+              "Procedure": 32,
+              "Ambiguous": 1,
+              "Other": 29
+            },
+            "Aircraft": {
+              "Human Factors": 11,
+              "Aircraft": 176,
+              "Procedure": 7,
+              "Ambiguous": 1,
+              "Other": 5
+            },
+            "Procedure": {
+              "Human Factors": 109,
+              "Aircraft": 5,
+              "Procedure": 54,
+              "Ambiguous": 2,
+              "Other": 30
+            },
+            "Ambiguous": {
+              "Human Factors": 69,
+              "Aircraft": 23,
+              "Procedure": 23,
+              "Ambiguous": 4,
+              "Other": 81
+            },
+            "Other": {
+              "Human Factors": 47,
+              "Aircraft": 11,
+              "Procedure": 21,
+              "Ambiguous": 0,
+              "Other": 121
+            }
+          },
+          "latency_seconds": {
+            "mean": 1.8559217000000001,
+            "median": 1.5681,
+            "p95": 3.636
+          },
+          "mean_input_tokens": 497.219,
+          "cost_per_1000_usd": 0.10467590000000002
+        }
+      },
+      "baselines": [
+        {
+          "name": "Always 'Human Factors' (majority class)",
+          "accuracy": 0.2,
+          "accuracy_ci": [
+            0.17637667806123578,
+            0.2259194610905986
+          ],
+          "macro_f1": 0.06666666666666668
+        }
+      ],
+      "head_to_head": {
+        "paired_cases": 1000,
+        "both_correct": 430,
+        "only_drex_correct": 63,
+        "only_openai_correct": 62,
+        "neither_correct": 445,
+        "agreement": 0.802,
+        "accuracy_diff_drex_minus_openai": 0.001,
+        "accuracy_diff_ci": [
+          -0.021,
+          0.024
+        ],
+        "mcnemar_p": 1.0
+      },
+      "verdict": [
+        "Accuracy: no statistically clear difference (the 95% interval of the paired difference includes 0).",
+        "Latency: Drex was faster at the median (5.2x).",
+        "Cost: Drex was cheaper per 1,000 decisions (1.7x) at the supplied prices."
+      ]
+    }
+  }
+}

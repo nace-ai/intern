@@ -1,0 +1,50 @@
+{
+  "contract_version": "1.0",
+  "case_id": "2134849",
+  "narrative": "During pushback on delayed departure; wireless headset comm with tug driver was broken but readable. With aircraft on both adjacent gates; the pushback ramp space is tight. The tug driver attempted numerous times to turn the nose wheel enough to setup a straight pull to spot XX. However as soon as the tug moved past the marked ramp roadway; multiple vehicles began moving through the tight space with no regard to the aircraft movement in progress. This traffic forced the tug driver to immediately stop multiple times. The final stop was too violent for my comfort so I told him I was uncomfortable with any more forward movement. My Purser also called me to tell me the passengers on the right side were screaming that our right wingtip was about to hit a vehicle and that the wing walkers were signaling this. A ramp ops vehicle showed up right then and instructed all the vehicle traffic to move back and stop transiting. This gave me the confidence to continue so the tug driver and I agreed to continue in the tight space now with multiple wing walkers on both sides. The wireless headset comm between myself and the tug driver was difficult for each piece of information.",
+  "metadata": {
+    "report_month": "2024-06",
+    "anomaly": "Conflict Ground Conflict; Critical; Ground Event / Encounter Ground Equipment Issue",
+    "primary_problem": "Human Factors",
+    "communication_breakdown": "Party1 Flight Crew; Party2 Ground Personnel",
+    "human_factors": "Communication Breakdown",
+    "flight_phase": "Taxi",
+    "locale": "EWR.Airport",
+    "local_time": "1201-1800",
+    "synopsis": "Air carrier Captain reported multiple collision hazards during pushback at EWR; compounded by poor communications with ground personnel using wireless headset.",
+    "supplemental_narrative": null
+  },
+  "candidate_incidents": [
+    {
+      "case_id": "2134031",
+      "narrative": "After calling for clearance to pushback from Gate XX at ZZZ; Ramp Control instructed us to allow the aircraft pulling into Gate XY to our right to pull in first; and then we were cleared to push back to Spot X.  After relaying these instructions to the ground crew; and verifying that the aircraft to our right had parked at Gate XY; our push crew begin pushing us back.  At that time; I looked back to my left around the 8 o'clock position and I noticed another Company aircraft had been towed into Spot Y to begin engine start.  I mentioned at this time to the FO that I was wondering how they were going to push us back to Spot X with that aircraft in Spot Y; thinking maybe they were going to push us out straight or in a different direction since they (approximately 5 ground ops personnel watching and guiding our pushback) obviously had to see that aircraft there to my 8 o'clock position.  Shortly after that; I noticed the tug driver began pushing our tail towards the aircraft in position three; and it was at this time that I asked the tug driver to stop the push because of that aircraft in Spot Y. Simultaneously as I instructed the tow truck driver to stop; the pilots from the aircraft in Spot Y also came over the radio and said we were pushing towards them and that we needed to stop. After stopping the aircraft; I instructed to tow crew to move us back toward the parking gate; and we notified Ramp Control about the conflict; the aircraft in Spot Y said that we had gotten very close to each other on the push back.  After this; ramp instructed us to hold position until the aircraft in Spot Y had taxied.  While being pulled up to Spot X for engine start; I noticed a catering truck that looked like it could be close to our left wing as we were pulling up. I made 3 different attempts to try to get the tug driver to recognize what conflict I was telling her about and stop until we could ensure there was no conflict.  Ultimately; we never ended up stopping; and the driver informed me that the wing walker said we were clear.  However; even though we were clear in that situation and nothing happened; I believe the lack of understanding and response from the tug driver and my hesitancy to push on the brakes during the tow would have been too late if the truck actually was a conflict.",
+      "retrieval_score": 0.2222
+    },
+    {
+      "case_id": "2132276",
+      "narrative": "During pushback; the ground plan was to tow the aircraft in front of gate XXX from XX. There was an aircraft in the way of XXX and there was a delay. During that time; the Captain was working with Maintenance Control about a SEC reset that occurred during an ECAM that happened during the pushback delay. The reset was accomplished at that time of delay and the problem was fixed resulting in a new Maintenance Release being sent. Then; the ramp instructions changed and we were told to disconnect in front XX which was our current position. There was a distraction and miscommunication with the parking brake being set. And there was a miscommunication between the ground marshals trying to get each other's attention. The distraction of comms between the Captain and the ground marshaller resulted in me clearing 'disconnect headset' without the parking brake being set. The call 'parking brake set; pressure normal' call was never given. That step was missed. This resulted in a slight inadvertent movement of the aircraft. The error was immediately recognized and the parking brake was set. The aircraft momentarily moved forward and the parking brake was set immediately.",
+      "retrieval_score": 0.2145
+    },
+    {
+      "case_id": "2132902",
+      "narrative": "The language barrier caused a simple confusion about pushback clearance. The Captain cleared the ground crew to begin the push and immediately told them to stop pushing; the pushback crew coordinator continued pushing; and the Captain immediately commanded them to stop the push. The ground personnel questioned the Captain; and continued to push. The Captain again commanded they stop pushing and they continued to question why they should stop; while continuing to move aircraft. We had moved approximately 5 feet when they finally stopped. On the Captain's initial command; we move had moved approximately three inches. An aircraft was pushed and starting in the rear corner of our wing behind us. Again; it took 3 calls to the ground agent to stop the push. The aircraft passed behind us without issue. Cause: Language barrier; confusion on the clearance received; and the ground crew; not stopping immediately when commanded by the Captain. Suggestions: Prior to pushback stopping to discuss each parent to receiving the barrier feels confusing. Using your words and commanding the crew to stop",
+      "retrieval_score": 0.2084
+    },
+    {
+      "case_id": "2133549",
+      "narrative": "Started right engine in the blocks due to inop APU. Pushback started out ok; a little slow and several significant left/right corrections. We were stopped about 10 feet right of centerline at an angle with no wing walkers; and the push crew said something very non standard and unintelligible. I asked him to say that again; to which there was no reply. Approximately 15 seconds later; we began to roll forward. I thought we were still connected to the tug and he was putting us on centerline. I heard him yell; 'set brake set brake'. I immediately stopped the aircraft. We may have rolled 1 or 2 feet. I asked if everyone was OK. He said yes. I asked if we hit anything; he say no. I asked him to put us on centerline and facing forward. He got us there after a few more minutes. I asked him once again to verify we didn't hit anyone or anything during this apparent unannounced disconnect. He verified once again the aircraft didn't hit anything and no one was injured. He apologized and we taxied for takeoff. Insufficient training. Put safety first.",
+      "retrieval_score": 0.1994
+    },
+    {
+      "case_id": "2130603",
+      "narrative": "Pushback from gate XX was normal; except the crew dropped us off slightly closer to the north/south 'road' painted on the ramp than usual.  After engine start there was a high volume of vehicular traffic along the road that slightly delayed our ability to taxi.  Intending to make a left turn out; I instructed the FO to watch the right wing very carefully as I was not sure whether it would intrude across the road as we began our taxi.  I waited for a break in the traffic; turned on the taxi light; and began a deliberate left turn so that the vehicle I observed rounding the bend around gate XY would notice us and give way.  He did not give way or slow down; despite my flashing the taxi light on and off to get his attention.  As he approached our nose; he continued his high rate of speed and deviated to the left as he passed us.  I stopped the aircraft and called ramp for an incident review.  I set the brakes and instructed ops to send out wing-walkers.  When the wing-walkers arrived to stop traffic and ensure safe wingtip clearance; we taxied out uneventfully.Cause: COMPANY FLIGHTLINE DRIVING CULTURE AND SAFETY PRACTICES ARE BADLY DEFICIENT.  This is especially true at ZZZ and ZZZ1.  Unless this is addressed immediately; this deficiency will likely cause damage; injury; or death.  Suggestion: Management must make a concerted and continuing effort to assess the deficiencies in flight line driving; both procedural and from the perspective of safety culture.",
+      "retrieval_score": 0.1935
+    }
+  ],
+  "retrieval_method": "Jaccard overlap of unique non-stopword narrative/synopsis tokens, plus 0.05 for an exact Primary Problem match and 0.05 for an exact nonblank Communication Breakdown match; score capped at 1.0. Text retrieval only, not a safety risk score.",
+  "data_source": {
+    "name": "NASA ASRS",
+    "url": "https://asrs.arc.nasa.gov/search/database.html",
+    "sample": "NASA ASRS Database Online; June 2024 incident date; CSV exported 2026-11-14"
+  }
+}

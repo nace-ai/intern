@@ -1,0 +1,11 @@
+.env
+.venv*/
+node_modules/
+.next/
+data/*.csv
+data/*.duckdb
+evidence/cache/
+evidence/downloads/
+service/runs/
+__pycache__/
+.pytest_cache/

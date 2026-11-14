@@ -1,0 +1,20 @@
+{
+  "contract_version": "1.0",
+  "case_id": "SYN-B-001",
+  "narrative": "Synthetic test narrative (not an ASRS report): After landing, tower instructed us to exit left at taxiway Bravo and hold short of runway 22. The first officer was completing the after-landing checklist head-down while I taxied. I believed the instruction was to cross 22 and continued past the hold short line before tower told us to stop. Neither of us confirmed the clearance with each other before the turn. No other aircraft was on runway 22.",
+  "metadata": {"report_date": null, "category": null},
+  "candidate_incidents": [
+    {
+      "case_id": "SYN-B-002",
+      "narrative": "Synthetic test narrative: crew crossed a hold short line while the captain was reprogramming the FMS during taxi; tower issued a stop instruction.",
+      "retrieval_score": 0.61
+    },
+    {
+      "case_id": "SYN-B-003",
+      "narrative": "Synthetic test narrative: pilot read back 'hold short runway 9' but later said they expected a crossing clearance and stopped late.",
+      "retrieval_score": 0.55
+    }
+  ],
+  "retrieval_method": "Synthetic test fixture written by Builder B; scores are illustrative text-match values in [0, 1], not risk scores",
+  "data_source": {"name": "Synthetic fixture", "url": null, "sample": "Handwritten Builder B test case; not NASA ASRS data"}
+}

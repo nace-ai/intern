@@ -1,0 +1,13 @@
+{
+  "contract_version": "1.0",
+  "case_id": "SYN-003",
+  "narrative": "Synthetic training example: a reporter noticed an unclear instruction but gave no location, phase, or follow-up details.",
+  "metadata": {"report_date": null, "category": null},
+  "candidate_incidents": [],
+  "retrieval_method": "Fixture-only empty candidate set; no retrieval score generated",
+  "data_source": {
+    "name": "Synthetic fixture",
+    "url": null,
+    "sample": "Handwritten interface example; not NASA ASRS data"
+  }
+}
