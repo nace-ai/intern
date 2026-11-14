@@ -1,0 +1,3 @@
+# Local Worker defaults. No Nace developer key belongs here.
+ENABLE_LIVE=false
+# GROQ_API_KEY=  # Optional operator secret for a separately authorized Live test.
