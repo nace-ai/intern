@@ -1,3 +1,4 @@
+import publicSite from "../public-site.json";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { motion } from "motion/react";
@@ -14,14 +15,17 @@ export function Hub({
   select,
   selecting,
   play,
+  liveAvailable = false,
 }: {
   select: (id: MissionId) => void;
   selecting: boolean;
   play: () => void;
+  liveAvailable?: boolean;
 }) {
   const [qr, setQr] = useState("");
-  const publicUrl = (import.meta as unknown as { env: Record<string, string> })
-    .env.VITE_PUBLIC_URL;
+  const publicUrl =
+    (import.meta as unknown as { env: Record<string, string> }).env
+      .VITE_PUBLIC_URL || publicSite.url;
   useEffect(() => {
     if (publicUrl && /^https:\/\//.test(publicUrl))
       void QRCode.toDataURL(publicUrl, {
@@ -68,7 +72,11 @@ export function Hub({
           <div className="hero-tags">
             <span>3 missions</span>
             <span>Keyless Training</span>
-            <span>Bring your own Nace key for Live</span>
+            <span>
+              {liveAvailable
+                ? "Bring your own Nace key for Live"
+                : "Live temporarily unavailable"}
+            </span>
           </div>
         </motion.section>
         <section
@@ -85,7 +93,11 @@ export function Hub({
                   : "Three ways to breach trust."}
               </h2>
             </div>
-            <span>TRAINING PLAYABLE / LIVE REQUIRES KEYS</span>
+            <span>
+              {liveAvailable
+                ? "TRAINING PLAYABLE / LIVE REQUIRES KEYS"
+                : "TRAINING PLAYABLE / LIVE TEMPORARILY UNAVAILABLE"}
+            </span>
           </div>
           <div className="mission-cards">
             {missions.map((m) => (
@@ -176,6 +188,10 @@ export function Hub({
               />
               <p>
                 <a href={publicUrl}>{publicUrl}</a>
+                <br />
+                <a href={publicSite.qr} download="agent-heist-qr.png">
+                  Download 2048px judges’ QR code
+                </a>
               </p>
             </>
           ) : (

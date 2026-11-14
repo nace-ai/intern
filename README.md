@@ -2,6 +2,14 @@
 
 **Break the chain of trust. Capture the flag.**
 
+## Play online
+
+**[Play Agent Heist](https://agent-heist.agent-heist.workers.dev)** — three free, keyless Training missions served over HTTPS from Cloudflare Workers.
+
+<a href="https://agent-heist.agent-heist.workers.dev"><img src="public/agent-heist-qr.png" alt="Scan to play Agent Heist" width="220"></a>
+
+[Download the 2048×2048 judges’ QR PNG](public/agent-heist-qr.png). The QR was decoded and its destination verified. Public Live is temporarily unavailable; no API key is needed for the deployed game.
+
 Agent Heist is a human-versus-AI cybersecurity game: talk your way past **Sentinel**, forge a fictional authorization, or poison a simulated tool response. The AI makes decisions; a deterministic game engine decides whether an action actually executes. A convincing reply alone never opens the vault.
 
 We built it for the **November 14, 2026 Nace Drexathon**, targeting **Wildcard** with an interactive security game and preparing an **Apex Predator** comparison of security decisions. The benchmark harness is ready; real comparative results have not been collected.
@@ -10,7 +18,7 @@ We built it for the **November 14, 2026 Nace Drexathon**, targeting **Wildcard**
 - **Drex** makes consequential access and tool-use decisions. Its actual probabilities are available in the optional Forensics panel.
 - **NDI** parses player-created documents and extracts evidence for the document mission, reusing Parse results where possible.
 
-All targets, assets, credentials in Training, and tool actions are fictional. **There is no public deployment yet. The new Live integrations have been tested with mocks, not fully verified against real providers.**
+All targets, assets, credentials in Training, and tool actions are fictional. **Training is publicly deployed. Live integrations have mock coverage but have not completed real-provider security validation, so public Live is disabled.**
 
 ## Features
 
@@ -74,7 +82,7 @@ Live mode is optional. **It can consume Nace credits and Groq quota, including f
 
 Never put real keys in source, screenshots, issues, chat messages, URLs, or `VITE_` variables. `.env` is ignored. `.env.example` contains no credentials. **A Nace developer key is not required in `.env` and is never used as a fallback for public players.**
 
-The Nace key stays in temporary server-session memory and is cleared on exit, capture, expiry, or restart. The form clears after submission/cancellation. It is not stored in browser storage, databases, logs, or files. Keys travel over HTTP only on loopback during local development; public BYOK requires HTTPS.
+Public Live does not accept keys or construct provider runtimes. For explicitly enabled local Live, the Nace key stays in temporary server-session memory and is cleared on exit, capture, expiry, or restart. The form clears after submission/cancellation. It is not stored in browser storage, databases, logs, or files. Keys travel over HTTP only on loopback during local development; public BYOK requires HTTPS.
 
 Limits per Live session: **12 Groq requests, 3 Drex requests, 1 NDI Parse, and 1 Extract**. Failed requests consume reservations; paid calls are not automatically retried. These are request ceilings, not a guaranteed dollar billing cap. Existing persistent local Groq limits also apply. Live may refuse every attack; victories are never manufactured.
 
@@ -128,11 +136,26 @@ CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV=false npm run dev:worker
 node scripts/smoke-api.mjs http://127.0.0.1:8790
 ```
 
-The Worker defaults to **Live disabled**, uses only the production frontend assets and explicit game API, and keeps session keys out of durable storage. `.dev.vars.example` is a safe template for local Worker settings; never commit `.dev.vars`.
+The public Worker **hard-disables Live** until real provider/security testing is authorized and passes. It uses the production frontend and same-origin API. Private SQLite-backed Durable Object storage preserves Training game state, flags, owner tokens, capture records, rankings, and rate counters across eviction and redeployment. Requests serialize game transitions with their durable writes. BYOK keys and Live runtimes are excluded from checkpoints; raw rate-limit IPs are hashed. `.dev.vars.example` is a safe template for local Worker settings; never commit `.dev.vars`.
 
-This is a packaged deployment candidate, **not a deployed or production-validated service**. Account setup, HTTPS/public testing, traffic limits, and an authorized real-provider check remain necessary. Keep operator Groq credentials in Cloudflare secret management. Never add a shared developer Nace key as a fallback. Hosting setup must remain within the account's selected limits; see [Cloudflare's official pricing](https://developers.cloudflare.com/workers/platform/pricing/).
+Training is deployed at the verified workers.dev URL above. Public API and browser checks cover the three Training captures, guard blocks, request validation and secret isolation. This is a hackathon deployment, not a production load/security certification. No domain was purchased and no hosting plan was upgraded. See [Cloudflare's official limits](https://developers.cloudflare.com/durable-objects/platform/limits/) before planning higher traffic.
 
-The QR component stays visibly pending until `VITE_PUBLIC_URL` is set to a verified public HTTPS URL at build time. No deployment URL has been invented.
+To deploy a verified change from the repository:
+
+```sh
+npx wrangler login
+npm test
+npm run check:worker
+npm run audit:secrets
+npx wrangler deploy
+# Use only the actual URL returned by Cloudflare:
+npm run smoke:api -- https://agent-heist.agent-heist.workers.dev
+npm run verify:public -- https://agent-heist.agent-heist.workers.dev
+```
+
+Do not upload developer Nace/Groq secrets to the Training deployment. Future public Live activation requires separately authorized real-provider and security checks, strict request caps, and HTTPS. Keep any future operator Groq secret in Cloudflare secret management; never introduce a shared developer Nace fallback.
+
+The landing page uses `public-site.json` for the verified public URL, with an optional `VITE_PUBLIC_URL` build-time override. Regenerate the presentation QR only after verifying a changed public URL: `npm run qr:generate -- https://agent-heist.agent-heist.workers.dev`. The generator verifies HTTPS, decodes the PNG, and opens the decoded destination.
 
 ## Troubleshooting
 
@@ -145,11 +168,11 @@ The QR component stays visibly pending until `VITE_PUBLIC_URL` is set to a verif
 | Stale runtime state | `./stop.sh` safely removes stale state without signaling the recorded PID. A leftover startup lock reports its path; inspect it before removing it. |
 | Live is disabled | Stop and explicitly restart with `./start.sh --live`; configure server Groq, then supply your Nace key and consent in the UI. |
 | Provider limit reached | Training still works. Do not reset persistent counters or retry paid evaluations automatically. |
-| Progress disappears after restart | Sessions, keys, flags and rankings are intentionally temporary. Start a new mission. |
+| Progress disappears after restart | Local sessions are temporary. Public Training state survives Worker eviction/redeployment until its ten-minute expiry; a browser refresh reloads the interface. Live keys are never persisted. |
 
 ## Contributing with a teammate
 
-Create a branch, keep changes focused, and open a pull request:
+Every completed milestone follows **inspect/fetch → implement → test → security audit → commit → push → verify remote**. Deployment changes also require actual deployment and public verification. These rules are recorded in [AGENTS.md](AGENTS.md). Create a branch, keep changes focused, and open a pull request:
 
 ```sh
 git pull --ff-only origin main
@@ -172,4 +195,4 @@ Review staged changes before committing. Keep `.env`, `.private/`, `.runtime/`, 
 
 All three Training missions are playable. Browser checks completed their capture flows and inspected a 390×844 mobile viewport. Live BYOK/provider paths have automated mock coverage; full real-provider validation remains outstanding.
 
-Remaining work includes public deployment, real Drex-versus-LLM benchmark measurements, load/abuse testing, persistent competitive rankings if desired, and richer failure cinematics. See [PROGRESS.md](PROGRESS.md) for the detailed tested checklist and [docs/verification-notes.md](docs/verification-notes.md) for implementation/security details. Historical evaluation reports are reference material, not claims about the new Live pipeline.
+Remaining work includes real Live-provider security validation, real Drex-versus-LLM benchmark measurements, load/abuse testing, a production competitive-ranking design if desired, and richer failure cinematics. See [PROGRESS.md](PROGRESS.md) for the detailed tested checklist and [docs/verification-notes.md](docs/verification-notes.md) for implementation/security details. Historical evaluation reports are reference material, not claims about the new Live pipeline.

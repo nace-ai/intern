@@ -402,6 +402,7 @@ function App() {
   if (screen !== "game")
     return (
       <Hub
+        liveAvailable={status?.live === true}
         selecting={screen === "select"}
         play={() => {
           setScreen("select");
@@ -590,63 +591,75 @@ function App() {
               </p>
               {!status?.live && (
                 <p role="status">
-                  Live is disabled on this server. Training remains fully
-                  playable without keys.
+                  Live is temporarily unavailable on this server. Training
+                  remains fully playable without keys.
                 </p>
               )}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void reset("live");
-                }}
-              >
-                <label>
-                  Nace API key
-                  <input
-                    type="password"
-                    autoComplete="off"
-                    spellCheck={false}
-                    value={naceKey}
-                    onChange={(e) => setNaceKey(e.target.value)}
-                    placeholder="Paste your Nace API key"
-                  />
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={consent}
-                    onChange={(e) => setConsent(e.target.checked)}
-                  />{" "}
-                  I authorize up to 3 Drex requests and 12 Groq dialogue
-                  requests. Failed requests also consume limits. Nace charges my
-                  account; request limits are not a dollar billing cap.
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={allowDocuments}
-                    onChange={(e) => setAllowDocuments(e.target.checked)}
-                  />{" "}
-                  Allow document processing: at most 1 NDI Parse + 1 Extract.
-                  The document is sent to Nace; its retention policy applies.
-                  Required for Mission 02 Live.
-                </label>
-                <button
-                  className="begin-mission"
-                  disabled={!status?.live || !consent || !naceKey || busy}
+              {status?.live && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void reset("live");
+                  }}
                 >
-                  Start Live mission
-                </button>
+                  <label>
+                    Nace API key
+                    <input
+                      type="password"
+                      autoComplete="off"
+                      spellCheck={false}
+                      value={naceKey}
+                      onChange={(e) => setNaceKey(e.target.value)}
+                      placeholder="Paste your Nace API key"
+                    />
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                    />{" "}
+                    I authorize up to 3 Drex requests and 12 Groq dialogue
+                    requests. Failed requests also consume limits. Nace charges
+                    my account; request limits are not a dollar billing cap.
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={allowDocuments}
+                      onChange={(e) => setAllowDocuments(e.target.checked)}
+                    />{" "}
+                    Allow document processing: at most 1 NDI Parse + 1 Extract.
+                    The document is sent to Nace; its retention policy applies.
+                    Required for Mission 02 Live.
+                  </label>
+                  <button
+                    className="begin-mission"
+                    disabled={!status?.live || !consent || !naceKey || busy}
+                  >
+                    Start Live mission
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNaceKey("");
+                      setKeyDialog(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </form>
+              )}
+              {!status?.live && (
                 <button
-                  type="button"
                   onClick={() => {
                     setNaceKey("");
                     setKeyDialog(false);
                   }}
                 >
-                  Cancel
+                  Back to Training
                 </button>
-              </form>
+              )}
             </section>
           )}
           {id && !ended && (
