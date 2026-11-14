@@ -1,0 +1,12 @@
+httpx
+pydantic>=2
+python-dotenv
+pandas
+numpy
+streamlit
+altair
+reportlab
+fastapi
+uvicorn[standard]
+python-multipart
+matplotlib
