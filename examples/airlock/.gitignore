@@ -1,0 +1,16 @@
+.env
+data/raw/
+runs/*
+!runs/results_*.md
+!runs/results_*.json
+!runs/pareto_*.png
+!runs/thresholds_*.json
+!runs/eval_raw_*.jsonl
+__pycache__/
+.venv/
+*.pyc
+!runs/demo_*.jsonl
+!runs/archive_leaky/
+!runs/agent_bench*
+!runs/stats_*
+!runs/calibration_*

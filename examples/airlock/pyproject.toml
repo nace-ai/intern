@@ -1,0 +1,15 @@
+[project]
+name = "airlock"
+version = "0.1.0"
+description = "Inbound firewall for AI agents: screens tool results for indirect prompt injection with Drex"
+requires-python = ">=3.12"
+dependencies = ["httpx", "python-dotenv", "pydantic", "fastapi", "uvicorn", "pandas", "matplotlib", "openai", "pypdf", "keenable", "nace-sdk", "reportlab", "python-multipart"]
+
+# Lint scope for this example inside the Intern repo: correctness rules only (Intern's own rules cover src/ and tests/).
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+ignore = ["E741", "E402", "E731", "E501"]

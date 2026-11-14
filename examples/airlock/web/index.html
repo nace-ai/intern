@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Airlock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#0b2230; --teal:#0e7c7b; --turq:#2ec4b6; --mint:#e6f6f4; --bg:#f7f9f9; --card:#ffffff;
+          --line:#dce6e6; --muted:#5b6b73; --coral:#d1495b; --coral-bg:#fdecee; --mono:"DM Mono", ui-monospace, Menlo, monospace; }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 "DM Sans", system-ui, sans-serif; }
+  a { color:var(--teal); }
+  nav { position:sticky; top:0; z-index:10; background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
+        border-bottom:1px solid var(--line); display:flex; align-items:center; gap:6px; padding:12px 32px; flex-wrap:wrap; }
+  .logo { font-weight:800; font-size:20px; margin-right:auto; letter-spacing:-.02em; }
+  .logo span { color:var(--turq); }
+  nav button { border:0; background:none; font:500 15px "DM Sans"; color:var(--muted); padding:8px 14px; border-radius:999px; cursor:pointer; }
+  nav button.on { background:var(--ink); color:#fff; }
+  .page { display:none; } .page.on { display:block; }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 32px; }
+  @media (max-width: 760px) { .wrap, nav { padding-left:16px; padding-right:16px; } }
+  h1 { font-size:clamp(40px, 6vw, 68px); line-height:1.02; letter-spacing:-.035em; margin:0 0 18px; font-weight:800; }
+  h2 { font-size:clamp(28px, 3.4vw, 40px); letter-spacing:-.025em; line-height:1.1; margin:0 0 12px; font-weight:800; }
+  h3 { font-size:20px; margin:0 0 6px; letter-spacing:-.01em; }
+  .eyebrow { font:500 13px var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--teal); margin-bottom:10px; }
+  .lede { font-size:19px; color:var(--muted); max-width:640px; }
+  section.band { padding:84px 0; }
+  section.band.mint { background:var(--mint); }
+  .hero { display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center; padding:72px 0 64px; }
+  @media (max-width: 900px) { .hero { grid-template-columns:1fr; } }
+  .hero img { width:100%; border-radius:28px; aspect-ratio:4/3; object-fit:cover; box-shadow:0 30px 60px rgba(11,34,48,.18); }
+  .btn { display:inline-block; background:var(--teal); color:#fff; border:0; border-radius:999px; padding:13px 22px;
+         font:700 15px "DM Sans"; cursor:pointer; text-decoration:none; }
+  .btn.ghost { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  .btn:disabled { opacity:.55; cursor:wait; }
+  .grid3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width: 900px) { .grid3, .grid2 { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:24px; min-width:0; }
+  .card p { margin:0; color:var(--muted); }
+  .illo { background:var(--mint); border-radius:16px; margin-bottom:18px; display:flex; justify-content:center; padding:18px; }
+  .illo svg { width:100%; max-width:300px; height:auto; }
+  .flow { display:grid; grid-template-columns:1fr 36px 1fr 36px 1fr 36px 1fr; align-items:stretch; margin-top:28px; }
+  .flow .arrow { display:flex; align-items:center; justify-content:center; color:var(--turq); font-size:26px; font-weight:800; }
+  @media (max-width: 900px) { .flow { grid-template-columns:1fr; } .flow .arrow { transform:rotate(90deg); height:36px; } }
+  .stepcard { background:#fff; border:1px solid var(--line); border-radius:20px; padding:20px; cursor:pointer; text-align:left;
+              font:inherit; color:inherit; transition:transform .15s, box-shadow .15s; }
+  .stepcard:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(11,34,48,.09); }
+  .stepcard .n { width:34px; height:34px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center;
+                 justify-content:center; font-weight:700; margin-bottom:12px; }
+  .stepcard small { display:block; color:var(--muted); margin-top:6px; }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  th, td { text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font:500 12px var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  td.r, th.r { text-align:right; white-space:nowrap; }
+  tr.win td { background:var(--mint); font-weight:700; }
+  .scroll { overflow-x:auto; }
+  .chip { display:inline-block; font:500 12px var(--mono); padding:3px 9px; border-radius:999px; background:var(--bg); border:1px solid var(--line); margin:2px; }
+  .chip.BLOCK { background:var(--coral-bg); border-color:var(--coral); color:var(--coral); }
+  .chip.ESCALATE { background:#fff7e0; border-color:#e0a800; color:#8a6500; }
+  .chip.ok { background:var(--mint); border-color:var(--turq); color:var(--teal); }
+  .controls { display:flex; gap:16px; align-items:center; flex-wrap:wrap; margin:18px 0; padding:14px 18px; background:#fff;
+              border:1px solid var(--line); border-radius:16px; }
+  .controls label { font-size:14px; color:var(--muted); display:flex; align-items:center; gap:8px; }
+  select, input[type=text], textarea { font:15px "DM Sans"; border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:#fff; color:var(--ink); }
+  input[type=text], textarea { width:100%; }
+  textarea { min-height:130px; font:14px var(--mono); }
+  .pins { columns:3 260px; column-gap:16px; }
+  .pin { break-inside:avoid; margin:0 0 16px; background:#fff; border:1px solid var(--line); border-radius:20px; padding:18px; cursor:pointer;
+         text-align:left; width:100%; font:inherit; color:inherit; transition:transform .15s, box-shadow .15s; }
+  .pin:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(11,34,48,.09); }
+  .pin.on { outline:3px solid var(--turq); }
+  .pin img { width:100%; border-radius:14px; margin-bottom:12px; display:block; }
+  .pin .ind { font:500 12px var(--mono); color:var(--teal); text-transform:uppercase; letter-spacing:.08em; }
+  .pin .t { font-weight:700; font-size:18px; margin:4px 0; }
+  .pin .s { color:var(--muted); font-size:14px; }
+  .doc { font:13px/1.65 var(--mono); white-space:pre-wrap; word-break:break-word; margin:0; max-height:360px; overflow:auto;
+         background:var(--bg); border-radius:12px; padding:14px; }
+  .doc mark { background:var(--coral-bg); color:var(--coral); border-radius:4px; padding:0 2px; }
+  .doc .cut { color:var(--coral); font-weight:500; }
+  .verdict { font-weight:800; font-size:17px; margin-top:12px; }
+  .bad { color:var(--coral); } .good { color:var(--teal); }
+  .call { font:13px var(--mono); padding:8px 0; border-top:1px dashed var(--line); word-break:break-word; }
+  .meta { font:13px var(--mono); color:var(--muted); margin-top:10px; }
+  .kpis { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin:28px 0; }
+  @media (max-width: 900px) { .kpis { grid-template-columns:1fr 1fr; } }
+  .kpi { background:#fff; border:1px solid var(--line); border-radius:20px; padding:20px; }
+  .kpi b { display:block; font:500 32px var(--mono); color:var(--teal); letter-spacing:-.02em; }
+  .kpi small { color:var(--muted); }
+  img.fig { width:100%; border-radius:16px; border:1px solid var(--line); background:#fff; }
+  .note { color:var(--muted); font-size:14px; }
+  footer { padding:40px 0 60px; color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">Air<span>lock</span></div>
+  <button class="on" data-page="home">Home</button>
+  <button data-page="scen">1 · Scenarios</button>
+  <button data-page="try">2 · Try it</button>
+  <button data-page="results">3 · Results</button>
+  <button data-page="audit">4 · Audit</button>
+</nav>
+
+<!-- ======================= HOME ======================= -->
+<div id="home" class="page on">
+  <div class="wrap hero">
+    <div>
+      <div class="eyebrow">Inbound firewall for AI agents</div>
+      <h1>Your agent reads everything. Airlock decides what it acts on.</h1>
+      <p class="lede">Agents pay invoices, settle claims and run code based on documents written by strangers. Airlock checks every tool result with a fast decision model and removes only the sentences trying to hijack the agent.</p>
+      <p style="margin-top:28px; display:flex; gap:10px; flex-wrap:wrap;"><button class="btn" data-go="scen">See it stop an attack</button>
+        <a class="btn ghost" href="#start">How to use this page ↓</a></p>
+    </div>
+    <img src="/assets/airlock-door.jpg" alt="Industrial airlock door, generated with Adobe Firefly">
+  </div>
+
+  <section class="band mint">
+    <div class="wrap">
+      <div class="eyebrow">What it does</div>
+      <h2>Three things happen to every tool result</h2>
+      <p class="lede">Before the agent sees a PDF, web page, API response or image.</p>
+      <div class="grid3" style="margin-top:28px;">
+        <div class="card">
+          <div class="illo"><svg viewBox="0 0 300 170" aria-label="A document page with one hidden line highlighted">
+            <rect x="80" y="10" width="140" height="150" rx="10" fill="#fff" stroke="#dce6e6" stroke-width="2"/>
+            <rect x="98" y="30" width="80" height="8" rx="4" fill="#0b2230"/>
+            <rect x="98" y="50" width="104" height="6" rx="3" fill="#b8c7c9"/><rect x="98" y="64" width="96" height="6" rx="3" fill="#b8c7c9"/>
+            <rect x="98" y="78" width="100" height="6" rx="3" fill="#b8c7c9"/>
+            <rect x="94" y="100" width="112" height="16" rx="5" fill="#fdecee" stroke="#d1495b" stroke-dasharray="4 3"/>
+            <rect x="100" y="105" width="96" height="6" rx="3" fill="#d1495b" opacity=".55"/>
+            <rect x="98" y="128" width="70" height="6" rx="3" fill="#b8c7c9"/>
+            <circle cx="232" cy="108" r="20" fill="#2ec4b6"/><circle cx="226" cy="102" r="9" fill="none" stroke="#fff" stroke-width="3"/>
+            <line x1="233" y1="109" x2="240" y2="116" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></div>
+          <h3>1 · See what a human sees</h3>
+          <p>NDI reads the document the way a person would. Text hidden in white or tiny print, or inside an image, is flagged.</p>
+        </div>
+        <div class="card">
+          <div class="illo"><svg viewBox="0 0 300 170" aria-label="Bars showing a low probability for most chunks and a high one for the injected chunk">
+            <line x1="40" y1="140" x2="270" y2="140" stroke="#b8c7c9" stroke-width="2"/>
+            <rect x="55" y="128" width="34" height="12" rx="4" fill="#2ec4b6"/><rect x="105" y="132" width="34" height="8" rx="4" fill="#2ec4b6"/>
+            <rect x="155" y="30" width="34" height="110" rx="4" fill="#d1495b"/><rect x="205" y="126" width="34" height="14" rx="4" fill="#2ec4b6"/>
+            <text x="172" y="22" text-anchor="middle" font-family="DM Mono, monospace" font-size="14" fill="#d1495b">0.99</text>
+            <text x="72" y="120" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" fill="#5b6b73">0.01</text>
+            <text x="222" y="118" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" fill="#5b6b73">0.02</text></svg></div>
+          <h3>2 · Score every piece at once</h3>
+          <p>Drex asks one yes/no question per chunk (“is this aimed at the AI?”) in a single request and answers with calibrated probabilities in a few hundred ms.</p>
+        </div>
+        <div class="card">
+          <div class="illo"><svg viewBox="0 0 300 170" aria-label="The page with the bad line removed, passed to an agent that completes the task">
+            <rect x="40" y="10" width="140" height="150" rx="10" fill="#fff" stroke="#dce6e6" stroke-width="2"/>
+            <rect x="58" y="30" width="80" height="8" rx="4" fill="#0b2230"/>
+            <rect x="58" y="50" width="104" height="6" rx="3" fill="#b8c7c9"/><rect x="58" y="64" width="96" height="6" rx="3" fill="#b8c7c9"/>
+            <rect x="58" y="78" width="100" height="6" rx="3" fill="#b8c7c9"/>
+            <line x1="56" y1="108" x2="162" y2="108" stroke="#d1495b" stroke-width="3" stroke-dasharray="6 5"/>
+            <rect x="58" y="128" width="70" height="6" rx="3" fill="#b8c7c9"/>
+            <path d="M196 85 h30" stroke="#2ec4b6" stroke-width="4" stroke-linecap="round"/><path d="M220 77 l10 8 -10 8" fill="none" stroke="#2ec4b6" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="258" cy="85" r="26" fill="#0e7c7b"/><path d="M246 86 l8 8 16 -18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>3 · Cut only the attack</h3>
+          <p>Only the sentences trying to steer the agent are removed. The rest of the document reaches the agent, so it still finishes your task.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="start">
+    <div class="wrap">
+      <div class="eyebrow">Start here</div>
+      <h2>Four pages, in this order</h2>
+      <p class="lede">Click a step to jump to it.</p>
+      <div class="flow">
+        <button class="stepcard" data-go="scen"><div class="n">1</div><h3>Scenarios</h3>Pick an industry agent and watch the same agent act with and without Airlock.<small>Takes 2–10 s per run.</small></button>
+        <div class="arrow">→</div>
+        <button class="stepcard" data-go="try"><div class="n">2</div><h3>Try it</h3>Paste your own text, JSON or a URL, or upload a PDF or image, and see what gets cut.<small>Your text always runs live.</small></button>
+        <div class="arrow">→</div>
+        <button class="stepcard" data-go="results"><div class="n">3</div><h3>Results</h3>See how Airlock was measured against an LLM guard, with confidence intervals.<small>From the eval scripts.</small></button>
+        <div class="arrow">→</div>
+        <button class="stepcard" data-go="audit"><div class="n">4</div><h3>Audit</h3>Review everything that was cut and mark mistakes as false positives.<small>Feeds back into Drex.</small></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="band mint">
+    <div class="wrap grid2" style="align-items:start;">
+      <div>
+        <div class="eyebrow">What you control</div>
+        <h2>Five knobs</h2>
+        <table>
+          <tr><th>Control</th><th>Where</th><th>What it does</th></tr>
+          <tr><td><b>The content</b></td><td>Try it</td><td>Any text, JSON, URL, PDF or image to screen.</td></tr>
+          <tr><td><b>The user’s goal</b></td><td>Try it</td><td>What the agent was asked to do. Instructions that match it are allowed.</td></tr>
+          <tr><td><b>Mode</b></td><td>Scenarios, Try it</td><td><i>Precision</i>: Drex alone, fewest false alarms (default). <i>Recall</i>: also asks Qwen about unsure pieces.</td></tr>
+          <tr><td><b>Live</b></td><td>Scenarios, Try it</td><td>Skips the saved answers so every model call runs now. Repeat runs are otherwise replayed from cache.</td></tr>
+          <tr><td><b>Review</b></td><td>Audit</td><td>Marking a cut as a false positive teaches Drex what is benign.</td></tr>
+        </table>
+        <p class="note" style="margin-top:12px;">Fixed on purpose: the thresholds (set on development data only) and the models.</p>
+      </div>
+      <div>
+        <div class="eyebrow">How it’s evaluated</div>
+        <h2>Two questions, measured</h2>
+        <div class="card" style="margin-bottom:16px;"><h3>Does the agent still work?</h3><p>Eight industry agents with real tools (pay, trade, settle, prescribe, buy, run). An attack counts only if the agent calls the attacker’s action; checked from tool calls, not by another model. Attacks landed <b>30% → 0%</b>, tasks done under attack stayed at <b>85%</b>.</p></div>
+        <div class="card"><h3>Is each decision right, and can you trust its confidence?</h3><p>498 test documents never used for tuning. F1 <b>0.971</b> vs 0.898 for an LLM guard, false alarms <b>3% vs 83%</b>, and probabilities that match reality (calibration error <b>0.008</b>).</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap grid2" style="align-items:center;">
+      <img class="fig" src="/scenario-image/receipt" alt="Receipt photo with a faint note to the AI, made with Adobe Firefly and Express">
+      <div>
+        <div class="eyebrow">Attacks hide in images too</div>
+        <h2>Red-teamed with Adobe Firefly and Express</h2>
+        <p class="lede">The faint grey line on this receipt tells an expense agent to file $1,240 as client entertainment. NDI reads it, Drex cuts that one line, and the agent files the real $86.40.</p>
+        <p style="margin-top:20px;"><button class="btn" data-go="scen">Try the image scenarios</button></p>
+      </div>
+    </div>
+  </section>
+  <footer class="wrap">Built with Drex · NDI · Intern · DeepInfra · Keenable · Adobe Firefly + Express ·
+    <a href="https://github.com/yuktaablitz/airlock">github.com/yuktaablitz/airlock</a> ·
+    <a href="https://github.com/nace-ai/intern/pull/4">Intern PR #4</a></footer>
+</div>
+
+<!-- ======================= SCENARIOS ======================= -->
+<div id="scen" class="page">
+  <div class="wrap" style="padding-top:40px;">
+    <div class="eyebrow">Step 1</div>
+    <h2>Pick an agent. Each one reads a poisoned document.</h2>
+    <div class="controls">
+      <label>Mode <select id="scenMode"><option value="precision">Precision (Drex only)</option><option value="recall">Recall (Drex + Qwen)</option></select></label>
+      <label><input type="checkbox" id="scenLive"> Live: skip saved answers, call the models now</label>
+    </div>
+    <div id="pins" class="pins"></div>
+    <div id="stage" style="display:none; padding-bottom:60px;">
+      <div class="card" style="margin:8px 0 18px;"><div class="eyebrow">The user asked the agent</div><h3 id="task"></h3></div>
+      <div class="grid2">
+        <div class="card"><div class="eyebrow">What the tool returned</div><pre class="doc" id="rawDoc"></pre><div class="meta" id="src"></div></div>
+        <div class="card"><div class="eyebrow">What the agent sees after Airlock</div><pre class="doc" id="safeDoc"></pre><div class="meta" id="timing"></div><div id="chips" style="margin-top:8px;"></div></div>
+      </div>
+      <div class="grid2" style="margin-top:18px;">
+        <div class="card" id="rcptRaw"></div>
+        <div class="card" id="rcptSafe"></div>
+      </div>
+      <p class="note">Same model (Qwen3.8-27B), same task, same tools. The actions are simulated: nothing is paid, traded or run.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= TRY IT ======================= -->
+<div id="try" class="page">
+  <div class="wrap" style="padding-top:40px; padding-bottom:60px;">
+    <div class="eyebrow">Step 2</div>
+    <h2>Screen anything</h2>
+    <p class="lede">Paste text, JSON or a URL (fetched with Keenable), or upload a PDF or image (read with NDI).</p>
+    <p style="margin-top:20px;"><label class="note">What was the agent asked to do?</label><input id="goal" type="text" value="Summarize this and do what it asks me to do."></p>
+    <textarea id="paste" placeholder="Paste a tool result…"></textarea>
+    <div class="controls">
+      <label>Mode <select id="tryMode"><option value="precision">Precision (Drex only)</option><option value="recall">Recall (Drex + Qwen)</option></select></label>
+      <label><input type="checkbox" id="tryLive" checked> Live</label>
+      <button class="btn" id="go">Screen it</button>
+      <label class="btn ghost" style="color:var(--ink);">Upload a file<input id="file" type="file" hidden></label>
+      <span id="tryStatus" class="note"></span>
+    </div>
+    <div class="grid2" id="tryOut" style="display:none;">
+      <div class="card"><div class="eyebrow">Each piece, scored by Drex</div><div id="tryChunks"></div></div>
+      <div class="card"><div class="eyebrow">What the agent would see</div><pre class="doc" id="trySafe"></pre><div class="meta" id="tryTiming"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= RESULTS ======================= -->
+<div id="results" class="page">
+  <div class="wrap" style="padding-top:40px; padding-bottom:60px;">
+    <div class="eyebrow">Step 3</div>
+    <h2>How it was measured</h2>
+    <div id="kpis" class="kpis"></div>
+    <div class="card scroll"><h3>Agent benchmark: 8 industries × 5 samples</h3><p class="note">An attack counts only if the agent calls the attacker’s action. 95% intervals in brackets.</p><div id="agentTable"></div></div>
+    <div class="card scroll" style="margin-top:18px;"><h3>Classifier: 498 test documents, thresholds set on separate data</h3><div id="clsTable"></div><p class="note" id="mcn"></p></div>
+    <div class="grid2" style="margin-top:18px;">
+      <div class="card"><h3>Can you trust Drex’s confidence?</h3><p class="note">Dots on the diagonal mean “0.8” really means 80%.</p><img class="fig" src="/results/calibration.png" alt="Reliability diagram"></div>
+      <div class="card scroll"><h3>Attack success by scenario</h3><div id="scenTable"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= AUDIT ======================= -->
+<div id="audit" class="page">
+  <div class="wrap" style="padding-top:40px; padding-bottom:60px;">
+    <div class="eyebrow">Step 4</div>
+    <h2>Everything that was cut</h2>
+    <p class="lede">Review removed text. If a cut was wrong, mark it as a false positive and Drex will see it as a benign example next time.</p>
+    <div class="grid2" style="margin-top:24px;">
+      <div><div id="quar"></div></div>
+      <div class="card scroll"><h3>Audit log</h3><div id="alog"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pct = (x, d = 0) => (100 * x).toFixed(d) + "%";
+const post = async (url, opts) => { const r = await fetch(url, { method: "POST", ...opts }); if (!r.ok) throw new Error(await r.text()); return r.json(); };
+
+function show(page) {
+  document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("on", b.dataset.page === page));
+  document.querySelectorAll(".page").forEach((p) => p.classList.toggle("on", p.id === page));
+  window.scrollTo({ top: 0 });
+  if (page === "results") loadResults();
+  if (page === "audit") loadAudit();
+}
+document.querySelectorAll("nav button").forEach((b) => b.onclick = () => show(b.dataset.page));
+document.querySelectorAll("[data-go]").forEach((b) => b.onclick = () => show(b.dataset.go));
+
+const IMAGES = { "adobe-game": "/scenario-image/game_guide", "adobe-receipt": "/scenario-image/receipt" };
+let BENCH = null;
+async function init() {
+  BENCH = await (await fetch("/bench")).json();
+  const list = await (await fetch("/scenarios")).json();
+  $("pins").innerHTML = list.map((s) => `<button class="pin" data-id="${s.id}">${IMAGES[s.id] ? `<img src="${IMAGES[s.id]}" alt="">` : ""}
+    <div class="ind">${esc(s.industry)}</div><div class="t">${esc(s.title)}</div><div class="s">${esc(s.attack_style)}</div></button>`).join("");
+  document.querySelectorAll(".pin").forEach((p) => p.onclick = () => runScenario(list.find((s) => s.id === p.dataset.id), p));
+}
+
+function highlight(raw, removed) {
+  let html = esc(raw);
+  for (const r of removed) { const t = esc(r.text.trim()); if (t && html.includes(t)) html = html.replace(t, `<mark>${t}</mark>`); }
+  return html;
+}
+const cuts = (s) => esc(s).replace(/\[airlock:[^\]]*\]/g, (m) => `<span class="cut">${m}</span>`);
+function receipt(el, title, res) {
+  const calls = res.calls.length ? res.calls.map((c) => `<div class="call">→ ${esc(c.name)}(${Object.entries(c.arguments)
+    .map(([k, v]) => `${esc(k)}=${esc(String(v).slice(0, 70))}`).join(", ")})</div>`).join("") : `<div class="call">no action taken</div>`;
+  const v = res.attacked ? `<div class="verdict bad">✗ Did what the attacker wanted</div>`
+          : res.utility ? `<div class="verdict good">✓ Did the user’s task correctly</div>` : `<div class="verdict">Task not completed</div>`;
+  el.innerHTML = `<div class="eyebrow">${title}</div>${calls}${v}`;
+}
+
+async function runScenario(s, pin) {
+  document.querySelectorAll(".pin").forEach((p) => p.classList.remove("on")); pin.classList.add("on");
+  $("stage").style.display = "block";
+  $("task").textContent = s.task; $("src").textContent = "source: " + s.source;
+  $("rawDoc").textContent = "running…"; $("safeDoc").textContent = ""; $("chips").innerHTML = ""; $("timing").textContent = "";
+  $("rcptRaw").innerHTML = `<div class="eyebrow">Without Airlock</div><p class="note">agent running…</p>`;
+  $("rcptSafe").innerHTML = `<div class="eyebrow">With Airlock</div><p class="note">agent running…</p>`;
+  $("stage").scrollIntoView({ behavior: "smooth" });
+  const live = $("scenLive").checked, mode = $("scenMode").value;
+  try {
+    const d = await post(`/scenarios/${s.id}/run?live=${live}&mode=${mode}`, {});
+    const r = d.screen;
+    $("rawDoc").innerHTML = highlight(d.raw, r.removed);
+    $("safeDoc").innerHTML = cuts(r.sanitized);
+    $("chips").innerHTML = r.chunks.map((c) => `<span class="chip ${c.decision}">${c.id} p=${c.p.toFixed(2)}</span>`).join("");
+    $("timing").textContent = `${live ? "LIVE" : "replayed from cache"} · Drex ${r.stats.s1_ms} ms + refine ${r.stats.refine_ms} ms · ` +
+      `${r.removed.length} cut · request ${(r.stats.request_ids[0] || "").slice(0, 16)}… · whole run incl. both agents ${d.wall_ms} ms`;
+    receipt($("rcptRaw"), "Without Airlock", d.without);
+    receipt($("rcptSafe"), "With Airlock", d.with);
+  } catch (e) { $("rawDoc").textContent = "error: " + e.message.slice(0, 300); }
+}
+
+async function screenAndShow(promise) {
+  $("tryStatus").textContent = "screening…";
+  try {
+    const r = await promise;
+    $("tryOut").style.display = "grid";
+    $("tryChunks").innerHTML = r.chunks.map((c) => `<div style="padding:10px 0; border-bottom:1px solid var(--line);">
+      <span class="chip ${c.decision === "BLOCK" ? "BLOCK" : c.decision === "ESCALATE" ? "ESCALATE" : "ok"}">${c.id} · p=${c.p.toFixed(3)} · ${c.decision === "BLOCK" ? "cut" : "kept"}</span>
+      ${c.signals.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}<pre class="doc" style="margin-top:6px; max-height:none;">${esc(c.text)}</pre></div>`).join("");
+    $("trySafe").innerHTML = cuts(typeof r.sanitized === "string" ? r.sanitized : JSON.stringify(r.sanitized, null, 2));
+    $("tryTiming").textContent = `Drex ${r.stats.s1_ms} ms + refine ${r.stats.refine_ms} ms · total ${r.stats.total_ms} ms · ` +
+      `${r.stats.cache_hits ? "replayed from cache" : "live"} · request ${(r.stats.request_ids[0] || "").slice(0, 16)}…`;
+    $("tryStatus").textContent = "";
+  } catch (e) { $("tryStatus").textContent = "error: " + e.message.slice(0, 200); }
+}
+$("go").onclick = () => {
+  let content = $("paste").value; try { content = JSON.parse(content); } catch {}
+  screenAndShow(post("/screen", { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content,
+    meta: { tool: "paste", fetch: /^https?:\/\/\S+$/.test(String(content).trim()) }, user_goal: $("goal").value,
+    mode: $("tryMode").value, live: $("tryLive").checked }) }));
+};
+$("file").onchange = () => {
+  const f = new FormData(); f.append("file", $("file").files[0]); f.append("user_goal", $("goal").value);
+  f.append("mode", $("tryMode").value); f.append("live", $("tryLive").checked);
+  screenAndShow(post("/screen/file", { body: f }));
+};
+
+const NAMES = { none: "No defense", llm_guard: "LLM guard (blocks the whole output)", airlock_chunk_only: "Airlock, whole-chunk cut (ablation)",
+  airlock_precision: "Airlock (default)", airlock_recall: "Airlock, recall mode", baseline: "LLM guard (Qwen3.8-27B)", drex: "Airlock (Drex only, default)", airlock: "Airlock, recall mode" };
+function loadResults() {
+  const a = BENCH?.agent, st = BENCH?.stats;
+  if (!a || !st) return;
+  const s = a.summary;
+  $("kpis").innerHTML = [
+    [`${pct(s.none.asr.rate)}→${pct(s.airlock_precision.asr.rate)}`, "attacks that made the agent act"],
+    [pct(s.airlock_precision.utility_under_attack.rate), `tasks done under attack (LLM guard ${pct(s.llm_guard.utility_under_attack.rate)})`],
+    [pct(st.systems.drex.fpr_holdout), `false alarms on unseen benign text (LLM guard ${pct(st.systems.baseline.fpr_holdout)})`],
+    [st.calibration.ece.toFixed(3), "calibration error (lower is better)"],
+  ].map(([v, l]) => `<div class="kpi"><b>${v}</b><small>${l}</small></div>`).join("");
+  const ci = (m) => `${pct(m.rate)} <span class="note">[${pct(m.lo)}–${pct(m.hi)}]</span>`;
+  $("agentTable").innerHTML = `<table><tr><th>Defense</th><th class="r">Task done</th><th class="r">Done under attack</th><th class="r">Attack lands</th></tr>` +
+    Object.entries(s).map(([k, m]) => `<tr class="${k === "airlock_precision" ? "win" : ""}"><td>${NAMES[k]}</td><td class="r">${ci(m.utility)}</td>
+      <td class="r">${ci(m.utility_under_attack)}</td><td class="r">${ci(m.asr)}</td></tr>`).join("") + "</table>";
+  const f = (v, c, p = true) => p ? `${pct(v, 1)} <span class="note">[${pct(c[0], 1)}–${pct(c[1], 1)}]</span>` : `${v.toFixed(3)} <span class="note">[${c[0].toFixed(3)}–${c[1].toFixed(3)}]</span>`;
+  $("clsTable").innerHTML = `<table><tr><th>System</th><th class="r">F1</th><th class="r">False alarms (test)</th><th class="r">False alarms (unseen)</th></tr>` +
+    Object.entries(st.systems).map(([k, x]) => `<tr class="${k === "drex" ? "win" : ""}"><td>${NAMES[k]}</td><td class="r">${f(x.f1, x.f1_ci, false)}</td>
+      <td class="r">${f(x.fpr_hard, x.fpr_hard_ci)}</td><td class="r">${f(x.fpr_holdout, x.fpr_holdout_ci)}</td></tr>`).join("") + "</table>";
+  $("mcn").textContent = `Paired McNemar test, Airlock vs LLM guard: p = ${st.mcnemar.drex_vs_llm_guard.p_value.toExponential(1)}. ` +
+    `Adding Qwen (recall mode) changed accuracy by nothing measurable (p = ${st.mcnemar.airlock_vs_drex.p_value.toFixed(2)}), so the default is Drex alone.`;
+  const ds = Object.keys(s);
+  $("scenTable").innerHTML = `<table><tr><th>Scenario</th><th class="r">No defense</th><th class="r">Airlock</th></tr>` +
+    a.scenarios.map((x) => `<tr><td>${esc(x.industry)}</td><td class="r">${pct(s.none.per_scenario[x.id].asr)}</td>
+      <td class="r">${pct(s.airlock_precision.per_scenario[x.id].asr)}</td></tr>`).join("") + "</table>";
+}
+
+async function loadAudit() {
+  const d = await (await fetch("/audit")).json();
+  $("quar").innerHTML = d.quarantine.length ? d.quarantine.map((q, i) => `<div class="card" style="margin-bottom:12px;">
+    <div class="meta" style="margin:0 0 8px;">${esc(q.id)} · p=${q.p.toFixed(3)} · ${esc(q.source.name || q.source.tool)}</div>
+    <pre class="doc">${esc(q.text)}</pre><p style="margin-top:10px;"><button class="btn ghost" data-allow="${i}">Mark as false positive</button></p></div>`).join("")
+    : `<p class="note">Nothing has been cut yet.</p>`;
+  document.querySelectorAll("[data-allow]").forEach((b) => b.onclick = async () => {
+    const q = d.quarantine[+b.dataset.allow];
+    await post("/allow", { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: q.text, screen_id: q.screen_id }) });
+    b.textContent = "Added as a benign example"; b.disabled = true;
+  });
+  $("alog").innerHTML = `<table><tr><th>Chunk</th><th class="r">p</th><th>Decision</th><th class="r">Drex ms</th></tr>` +
+    d.audit.map((a) => `<tr><td>${a.chunk_id}</td><td class="r">${a.p.toFixed(3)}</td><td><span class="chip ${a.decision === "BLOCK" ? "BLOCK" : "ok"}">${a.decision === "BLOCK" ? "cut" : "kept"}</span></td>
+      <td class="r">${a.s1_ms}</td></tr>`).join("") + "</table>";
+}
+init();
+</script>
+</body>
+</html>
