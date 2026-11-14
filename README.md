@@ -1,3 +1,17 @@
+> ## Drexathon 2026 submission: Clio
+>
+> **This fork carries our project, Clio, in [`clio/`](clio/).** Track: Swarm Intelligence.
+>
+> Clio is a staff ride at software speed: Gettysburg, July 2, 1863, played by a swarm of about 28 Drex agents, from Lee and Meade down to every brigade, whose characters NDI extracted from the commanders' own 1860s writings with each trait cited to its page. Left alone they replay history; take a command and write your own orders, and the others react in character.
+>
+> **How Intern is used:** Intern runs headless inside Clio, with Drex as System 1 and Qwen 27B on DeepInfra as System 2. It writes the after-action report from the battle's decision log at dusk, and it chose each commander's historical portrait. We also wrote a small shim so Intern runs on Windows: [`clio/tools/intern-windows-shim/`](clio/tools/intern-windows-shim/).
+>
+> - Project README (architecture, workflow, measured results): [`clio/README.md`](clio/README.md)
+> - Main repo: https://github.com/shokhabbos-mukhammatov/Drexathon-Nace-AI-s-Decision-Model-Hackathon-x-Adobe-EDU
+> - Live demo (while the team laptop is online): https://howard-burke-tokyo-fees.trycloudflare.com
+>
+> Everything below this box is the upstream Intern README, unchanged.
+
 <p align="center">
   <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, its eyes on the top face, glancing around and blinking" width="160">
 </p>
