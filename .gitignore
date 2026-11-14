@@ -1,11 +1,7 @@
-__pycache__/
-*.py[cod]
-.venv/
-.pytest_cache/
-.ruff_cache/
-dist/
-build/
-*.egg-info/
 .env
+.venv/
+web/public/scores/local/
+__pycache__/
+.ruff_cache/
+.intern/
 .DS_Store
-task/

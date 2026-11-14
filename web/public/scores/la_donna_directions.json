@@ -1,0 +1,105 @@
+{
+  "source": "Wikipedia: La donna è mobile",
+  "attribution": {
+    "title": "La donna è mobile",
+    "url": "https://en.wikipedia.org/wiki/La_donna_%C3%A8_mobile",
+    "license": "CC BY-SA 4.0"
+  },
+  "sections": [
+    {
+      "name": "Aria Introduction",
+      "summary": "The text introduces 'La donna è mobile' as the Duke's famous, catchy tenor aria from Rigoletto, noting its secret rehearsal and immediate popularity.",
+      "mood": "triumphant",
+      "quote": "The canzone is famous as a showcase for tenors.",
+      "directions": {
+        "kick": "Land a steady, confident heartbeat on beats 1 and 3 to establish the triumphant foundation.",
+        "snare": "Answer the kick crisply on 2 and 4, keeping the rhythm bright and forward-moving.",
+        "hats": "Keep time in eighths with a bright, open sound to match the catchy, popular energy.",
+        "bass": "Anchor the B major root firmly, locking with the kick to support the tenor's showcase.",
+        "pad_low": "Hold long, warm chord tones in the lower register to create a rich, operatic bed.",
+        "pad_high": "Sustain high chord tones that shimmer above the low pad, avoiding the root note.",
+        "flute": "Play sparse, elegant phrases that answer the vocal line, adding a light, aristocratic touch.",
+        "violin": "Play romantic, long lines that swell with the aria's fame, holding notes for dramatic effect.",
+        "synth": "Use slow, soft arpeggios to introduce the theme gently before the full band enters.",
+        "kazoo": "Add a surprising, playful note on the off-beat to hint at the tune's catchy, street-level appeal.",
+        "bells": "Add a sparse sparkle on the first beat of the phrase to signal the start of the famous tune."
+      }
+    },
+    {
+      "name": "Plot Context",
+      "summary": "The reprise of the tune in later scenes causes Rigoletto's confusion as he realizes the Duke is alive and has killed his daughter instead.",
+      "mood": "dark",
+      "quote": "Rigoletto's confusion as he realizes from the sound of the Duke's lively voice",
+      "directions": {
+        "kick": "Keep the heartbeat steady but slightly heavier, reflecting the underlying tension and confusion.",
+        "snare": "Answer the kick with a muted, dry tone on 2 and 4 to emphasize the dark realization.",
+        "hats": "Keep time in eighths but play softer and more closed to match the somber mood.",
+        "bass": "Move stepwise in a minor key, locking with the kick to create a sense of unease.",
+        "pad_low": "Hold long, dark chord tones that shift to minor, changing with the tragic revelation.",
+        "pad_high": "Sustain high, dissonant tones that avoid the low pad's note, creating tension.",
+        "flute": "Play sparse, melancholic phrases that answer the dark theme, adding a sense of loss.",
+        "violin": "Play long, mournful lines that hold notes, expressing Rigoletto's grief and confusion.",
+        "synth": "Use slow, dark arpeggios that descend, reflecting the tragic turn of events.",
+        "kazoo": "Play a surprising, dissonant note on an odd rhythm to represent the chaotic deception.",
+        "bells": "Rest completely, as the sparkle is inappropriate for this dark, confusing moment."
+      }
+    },
+    {
+      "name": "Musical Structure",
+      "summary": "The aria is in B major, 3/8 time, with a comical theme that repeats without the final bar to drive the music forward until the final resolution.",
+      "mood": "funky",
+      "quote": "The almost comical-sounding theme of 'La donna è mobile' is introduced immediately.",
+      "directions": {
+        "kick": "Land on beats 1 and 3 with a bouncy, rhythmic feel to match the 3/8 time signature.",
+        "snare": "Answer the kick on 2 and 4 with a syncopated feel, filling the space before the next phrase.",
+        "hats": "Keep time in eighths with a tight, funky groove that follows the comical energy.",
+        "bass": "Anchor the root but move stepwise with a playful, syncopated rhythm to lock with the kick.",
+        "pad_low": "Hold long chord tones that change with the comical theme, keeping the harmony grounded.",
+        "pad_high": "Sustain high chord tones that avoid the low pad's note, adding a bright, playful layer.",
+        "flute": "Play sparse, playful phrases that answer the comical theme, adding a light, whimsical touch.",
+        "violin": "Play long, flowing lines that follow the comical theme, holding notes to emphasize the melody.",
+        "synth": "Use fast, busy runs that mirror the comical theme, adding energy and movement.",
+        "kazoo": "Play surprising, off-beat notes that match the comical, funky energy, but still listen to the band.",
+        "bells": "Add a sparse sparkle on the phrase starts to highlight the comical, catchy nature of the tune."
+      }
+    },
+    {
+      "name": "Libretto Origins",
+      "summary": "The lyrics are based on a phrase by King Francis I of France, used by Victor Hugo in 'Le roi s'amuse', which inspired Rigoletto.",
+      "mood": "calm",
+      "quote": "The lyrics are based on a phrase by King Francis I of France",
+      "directions": {
+        "kick": "Land a steady, gentle heartbeat on beats 1 and 3 to support the calm, historical narrative.",
+        "snare": "Answer the kick softly on 2 and 4, keeping the rhythm subtle and unobtrusive.",
+        "hats": "Keep time in eighths with a soft, closed sound to match the calm, reflective mood.",
+        "bass": "Anchor the chord root with long, sustained notes, moving stepwise slowly to maintain stability.",
+        "pad_low": "Hold long, warm chord tones that change slowly, creating a peaceful, historical atmosphere.",
+        "pad_high": "Sustain high chord tones that avoid the low pad's note, adding a gentle, airy quality.",
+        "flute": "Play sparse, gentle phrases that answer the calm theme, adding a sense of reflection.",
+        "violin": "Play long, romantic lines that hold notes, expressing the timeless nature of the phrase.",
+        "synth": "Use slow, soft arpeggios that flow gently, matching the calm, historical mood.",
+        "kazoo": "Rest completely, as the rebel nature is too disruptive for this calm, historical section.",
+        "bells": "Add a very sparse sparkle on the phrase starts to highlight the historical significance."
+      }
+    },
+    {
+      "name": "Popular Culture",
+      "summary": "The tune has been widely used in popular culture, from barrel organs and TV ads to football chants and a viral balcony performance during the pandemic.",
+      "mood": "chaos",
+      "quote": "people sang the tune the next day in the streets",
+      "directions": {
+        "kick": "Land on beats 1 and 3 with a driving, energetic feel to match the chaotic, widespread popularity.",
+        "snare": "Answer the kick with a loud, aggressive tone on 2 and 4, filling the space with energy.",
+        "hats": "Keep time in eighths with a loud, open sound to match the chaotic, street-level energy.",
+        "bass": "Anchor the root but move stepwise with a fast, energetic rhythm to lock with the kick.",
+        "pad_low": "Hold long chord tones that change quickly, reflecting the rapid spread of the tune.",
+        "pad_high": "Sustain high chord tones that avoid the low pad's note, adding a bright, chaotic layer.",
+        "flute": "Play sparse, energetic phrases that answer the chaotic theme, adding a sense of movement.",
+        "violin": "Play long, fast lines that hold notes, expressing the widespread, chaotic popularity.",
+        "synth": "Use fast, busy runs that mirror the chaotic energy, adding movement and excitement.",
+        "kazoo": "Play surprising, off-beat notes that match the chaotic, street-level energy, but still listen to the band.",
+        "bells": "Add a sparse sparkle on the phrase starts to highlight the chaotic, widespread nature of the tune."
+      }
+    }
+  ]
+}
