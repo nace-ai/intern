@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muda Lens — the pile is not the plan</title>
+<meta name="description" content="Muda Lens reads a semiconductor line, or a photo from the floor, and says which waste it is and whether the lots should ship.">
+<meta name="theme-color" content="#e7dccb">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%239c341f' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='1.6' fill='%239c341f'/%3E%3Cpath d='M16 3.5v4M16 24.5v4M3.5 16h4M24.5 16h4' stroke='%239c341f' stroke-width='1.6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,620;1,9..144,500;1,9..144,620&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<style>
+  :root {
+    --desk: #e6dccb;
+    --paper: #f6f0e6;
+    --paper-2: #fffaf3;
+    --ink: #1c1712;
+    --ink-soft: #4e473f;
+    --faint: #7a7268;
+    --rule: #d5c9b6;
+    --rust: #9c341f;
+    --rust-deep: #742616;
+    --green: #1e3f34;
+    --blush: #f3e3d8;
+    --warn: #8d5a16;
+    --serif: "Fraunces", "Iowan Old Style", Palatino, Georgia, serif;
+    --sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 500px at 10% -10%, rgba(255, 250, 243, 0.7), transparent 50%),
+      var(--desk);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.55;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before { content: ""; display: block; height: 7px; background: var(--rust); }
+  ::selection { background: #ead3c4; color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--rust); outline-offset: 3px; }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  p { margin: 0; }
+  h1, h2, h3 { font-weight: 560; text-wrap: balance; }
+  a { color: inherit; }
+  code { font-family: var(--mono); font-size: 0.86em; }
+
+  .skip { position: absolute; left: -999px; top: 0; }
+  .skip:focus { left: 16px; top: 16px; background: var(--paper); padding: 8px 12px; z-index: 5; }
+
+  .wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+
+  .mast {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    padding: 28px 0 18px;
+  }
+  .brand { display: flex; gap: 12px; align-items: center; color: inherit; text-decoration: none; }
+  .mark { width: 36px; height: 36px; color: var(--rust); flex: none; }
+  .brand strong {
+    display: block;
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 560;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .brand em { display: block; margin-top: 4px; font-style: italic; font-size: 0.92rem; color: var(--ink-soft); }
+  .nav { display: flex; gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
+  .nav a { color: var(--ink-soft); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  .nav a:hover { color: var(--ink); }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 28px;
+    padding-bottom: 8px;
+  }
+  .kicker {
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rust-deep);
+  }
+  h1 {
+    margin: 0;
+    max-width: 12ch;
+    font-family: var(--serif);
+    font-size: clamp(46px, 6.4vw, 78px);
+    font-weight: 560;
+    letter-spacing: -0.035em;
+    line-height: 0.94;
+  }
+  .h1b {
+    margin: 14px 0 0;
+    max-width: 16ch;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 520;
+    font-size: clamp(28px, 3.5vw, 42px);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: var(--rust);
+  }
+  .dek { max-width: 38rem; margin-top: 18px; font-size: 1.08rem; color: var(--ink-soft); }
+  .dek b { color: var(--ink); font-weight: 560; }
+
+  .stamp {
+    width: 128px;
+    height: 128px;
+    margin-top: 18px;
+    border: 1.5px solid var(--rust);
+    border-radius: 50%;
+    color: var(--rust);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transform: rotate(-8deg);
+    align-self: center;
+  }
+  .stamp span { font-family: var(--sans); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; }
+  .stamp strong { font-family: var(--serif); font-style: italic; font-weight: 560; font-size: 1.35rem; letter-spacing: -0.03em; line-height: 1; margin: 3px 0; }
+
+  .score { grid-column: 1 / -1; padding-top: 28px; }
+  .score-kicker { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rust-deep); }
+  .score-num {
+    margin: 6px 0 8px;
+    font-family: var(--mono);
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+  }
+  .score-sub { max-width: 40rem; font-size: 1.15rem; }
+  .figures {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 32px;
+    margin-top: 22px;
+    max-width: 44rem;
+  }
+  .figures div { border-top: 1px solid var(--ink); padding-top: 10px; }
+  .figures b { display: block; font-family: var(--mono); font-weight: 500; font-size: 1.7rem; letter-spacing: -0.04em; line-height: 1; }
+  .figures span { display: block; margin-top: 6px; color: var(--ink-soft); font-size: 0.92rem; }
+  .figures .hot b { color: var(--rust); }
+
+  .presets {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    align-items: baseline;
+    margin-top: 18px;
+    color: var(--ink-soft);
+  }
+  .presets a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 1px;
+  }
+  .presets a:hover { color: var(--rust); border-bottom-color: var(--rust); }
+
+  .instrument {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    gap: 22px;
+    align-items: start;
+    padding-top: 28px;
+  }
+  .room, .reading, .sheet, .books {
+    background: var(--paper);
+    border: 1px solid rgba(28, 23, 18, 0.16);
+    box-shadow: 0 18px 40px rgba(88, 62, 32, 0.06);
+  }
+  .room {
+    padding: 14px;
+    background-color: #f3ecdf;
+    background-image:
+      linear-gradient(to right, rgba(28, 23, 18, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(28, 23, 18, 0.045) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .room-head, .sheet-k {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 4px 12px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  .room-head strong, .sheet-k strong { font-family: var(--serif); font-weight: 560; color: var(--ink); }
+
+  .drop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 168px;
+    border: 1px dashed rgba(28, 23, 18, 0.4);
+    background: rgba(255, 250, 243, 0.92);
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-align: center;
+    padding: 22px;
+  }
+  .drop:hover, .drop.over { border-color: var(--rust); color: var(--ink); }
+  .drop-copy { display: flex; flex-direction: column; gap: 6px; }
+  .drop-copy strong { color: var(--ink); font-family: var(--serif); font-size: 1.7rem; font-weight: 560; letter-spacing: -0.03em; }
+  .drop-copy em { font-style: italic; font-size: 0.95rem; }
+
+  .cases-k { margin: 14px 4px 8px; color: var(--ink-soft); font-size: 0.92rem; }
+  .case-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .case.real { min-height: 0; }
+  .case[aria-pressed="true"] { border-color: var(--rust); box-shadow: inset 0 0 0 1px var(--rust); }
+  .drex-reading { font-family: var(--serif); font-style: italic; color: var(--rust); font-size: 1.15rem; animation: pulse 1.2s ease-in-out infinite alternate; }
+  @keyframes pulse { from { opacity: .45; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .drex-reading { animation: none; } }
+  .case.real img { width: 100%; height: 84px; object-fit: cover; display: block; margin-bottom: 6px; filter: sepia(0.15); }
+  .cases-k.credit { font-size: 0.8rem; margin-top: 8px; } .cases-k.credit a { color: inherit; }
+  .case {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    text-align: left;
+    min-height: 112px;
+    padding: 10px;
+    background: rgba(255, 250, 243, 0.94);
+    border: 1px solid rgba(28, 23, 18, 0.28);
+  }
+  .case span { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rust-deep); }
+  .case strong { font-size: 0.98rem; font-weight: 600; letter-spacing: -0.02em; }
+  .case em { font-style: normal; color: var(--ink-soft); font-size: 0.78rem; line-height: 1.35; }
+  .case[aria-pressed="true"] { border-color: var(--rust); box-shadow: inset 0 0 0 1px var(--rust); background: var(--paper-2); }
+
+  .photo-tools { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 12px; }
+  button, select, .file {
+    background: transparent;
+    border: 1px solid rgba(28, 23, 18, 0.35);
+    border-radius: 0;
+    padding: 8px 12px;
+  }
+  button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  button.primary:hover { background: var(--rust); border-color: var(--rust); color: var(--paper-2); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .file { display: inline-flex; align-items: center; color: var(--ink-soft); cursor: pointer; font-size: 0.92rem; }
+  select { background: var(--paper); }
+
+  .reading { padding: 16px 16px 18px; }
+  .photo-form { display: grid; gap: 14px; }
+  .photo-form label, .scen label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+  .photo-form select, .photo-form input[type="text"], input[type="number"] {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--ink);
+    border-radius: 0;
+    font-family: var(--mono);
+    font-size: 1rem;
+    padding: 6px 0;
+  }
+  .photo-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+  .sub, .hint, .bench-lead { color: var(--ink-soft); }
+  .sub { font-size: 0.86rem; }
+  .bench-empty { margin: 18px 0 0; font-family: var(--serif); font-style: italic; font-size: 1.35rem; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink); }
+  #photoCard:has(#photoResult:not(:empty)) .bench-empty { display: none; }
+
+  .thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .thumb { position: relative; width: 96px; height: 96px; overflow: hidden; border: 1px solid rgba(28, 23, 18, 0.28); background: var(--paper-2); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb .n { position: absolute; left: 4px; top: 4px; background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: 0.62rem; padding: 1px 5px; }
+  .thumb button { position: absolute; right: 4px; top: 4px; padding: 0 6px; line-height: 18px; background: var(--paper); border: 1px solid var(--ink); font-size: 12px; }
+
+  .cam { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .cam video { width: 100%; max-width: 560px; border: 1px solid rgba(28, 23, 18, 0.28); background: #1c1712; }
+  #phoneLink { margin-top: 8px; }
+  #phoneLink code { color: var(--rust-deep); user-select: all; }
+  [hidden] { display: none !important; }
+
+  /* Shift report */
+  .report-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 8px; }
+  .report-controls input { flex: 1 1 240px; min-width: 0; background: #FFFAF3; border: 1px solid var(--rule); padding: 8px 10px; font: inherit; color: var(--ink); }
+  .linkish { background: none; border: 0; padding: 0; font: inherit; color: var(--rust); text-decoration: underline; cursor: pointer; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .report-preview:not(:empty) { margin-top: 12px; padding: 22px 24px; background: #FFFDF8; border: 1px solid var(--rule); box-shadow: 0 10px 30px #1c171214; }
+  .rp-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-end; border-bottom: 2px solid var(--ink); padding-bottom: 10px; }
+  .rp-title { margin: 4px 0 0; font-family: var(--serif); font-size: 1.6rem; font-weight: 620; letter-spacing: -0.03em; }
+  .rp-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px 18px; margin: 14px 0 6px; }
+  .rp-kpis div { display: flex; flex-direction: column; gap: 2px; border-top: 1px solid var(--rule); padding-top: 6px; } .rp-kpis b { font-family: var(--mono); font-weight: 500; font-size: 1.05rem; }
+  .rp-h { margin: 18px 0 6px; font-family: var(--serif); font-weight: 600; font-size: 1.1rem; color: var(--rust); }
+  .rp-facts, .rp-drex { margin: 0; padding-left: 1.3em; color: var(--ink); line-height: 1.5; } .rp-facts li, .rp-drex li { margin: 3px 0; }
+  .rp-table td { vertical-align: top; } .rp-table td:first-child { color: var(--faint); }
+
+  /* Swarm board: one tile per station agent, plus the dispatcher's picks */
+  .swarm-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 14px; }
+  .swarm-board { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 1000px) { .swarm-board { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .swarm-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .st { position: relative; background: #FFFAF3; border: 1px solid var(--rule); padding: 10px 10px 12px; min-height: 128px; display: flex; flex-direction: column; gap: 4px; transition: border-color .3s, background .3s; }
+  .st .sid { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.12em; color: var(--faint); }
+  .st .sname { font-family: var(--serif); font-weight: 600; font-size: 0.98rem; line-height: 1.15; color: var(--ink); }
+  .st .sprob { font-size: 0.82rem; color: var(--ink-soft); }
+  .st .surg { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: auto; }
+  .st .shelp { height: 3px; background: var(--rule); } .st .shelp i { display: block; height: 100%; background: var(--ink-soft); }
+  .st.pending { opacity: .55; } .st.pending .sprob { font-style: italic; }
+  .st.thinking { animation: stpulse 1s ease-in-out infinite alternate; }
+  @keyframes stpulse { from { background: #FFFAF3; } to { background: #F3E3D8; } }
+  .st.calm .surg { color: var(--green); }
+  .st.watch { border-color: var(--warn); } .st.watch .surg { color: var(--warn); } .st.watch .shelp i { background: var(--warn); }
+  .st.hot { border-color: var(--rust); background: #F9EBE3; } .st.hot .surg { color: var(--rust); } .st.hot .shelp i { background: var(--rust); }
+  .st .eng { position: absolute; top: -9px; right: 8px; background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: 0.66rem; padding: 2px 7px; letter-spacing: 0.06em; }
+  @media (prefers-reduced-motion: reduce) { .st.thinking { animation: none; } }
+  .dispatch { margin-top: 14px; padding: 14px 16px; background: #FFFAF3; border: 1px solid var(--rule); border-left: 4px solid var(--ink); }
+  .dispatch .call-k { display: block; margin-bottom: 4px; }
+  .dispatch p { margin: 4px 0; } .dispatch b { font-family: var(--serif); font-size: 1.15rem; }
+
+  /* Drex's call: one headline verdict, then the six answers as a tidy ledger */
+  #photoResult, #photoResult * { font-style: normal; }
+  .call-card { margin-top: 10px; padding: 18px 20px 16px; background: #FFFAF3; border: 1px solid var(--rule); border-left: 4px solid var(--green); }
+  .call-card.bad { border-left-color: var(--rust); }
+  .call-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .call-k { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+  .sev { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border: 1px solid currentColor; }
+  .sev-low { color: var(--green); } .sev-medium { color: var(--warn); } .sev-high, .sev-critical { color: var(--rust); }
+  .call-h { margin: 8px 0 4px; font-family: var(--serif); font-size: 1.75rem; font-weight: 620; letter-spacing: -0.03em; line-height: 1.1; color: var(--ink); }
+  .call-card.bad .call-h { color: var(--rust-deep); } .call-card.good .call-h { color: var(--green); }
+  .call-s { margin: 0; color: var(--ink-soft); font-size: 0.98rem; line-height: 1.45; }
+  .facts { margin-top: 12px; border-top: 1px solid var(--rule); }
+  .fact { display: grid; grid-template-columns: 7.5em 1fr 64px 3em; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--rule); }
+  .fl { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+  .fv { font-weight: 600; color: var(--ink); font-size: 0.95rem; min-width: 0; }
+  .fc { height: 3px; background: var(--rule); } .fc i { display: block; height: 100%; background: var(--ink-soft); }
+  .fp { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); text-align: right; font-variant-numeric: tabular-nums; } .fp.low { color: var(--warn); font-weight: 600; }
+  .call-meta { margin: 10px 0 0; font-family: var(--mono); font-size: 0.72rem; color: var(--faint); }
+  .call-warn { margin: 8px 0 0; padding: 8px 10px; background: #F3E3D8; color: var(--rust-deep); font-size: 0.88rem; }
+  .verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; margin-top: 8px; }
+  .kpi { background: transparent; border: 0; border-top: 1px solid var(--rule); padding: 10px 0 12px; }
+  .kpi .l { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+  .kpi .v { margin-top: 4px; font-family: var(--serif); font-size: 1.35rem; font-weight: 560; letter-spacing: -0.03em; line-height: 1.1; text-transform: capitalize; }
+  .kpi .d { margin-top: 4px; color: var(--ink-soft); font-size: 0.86rem; }
+  .verdict .kpi:nth-child(5) .v { color: var(--rust); }
+  .conf { height: 2px; background: var(--rule); margin-top: 8px; }
+  .conf i { display: block; height: 100%; background: var(--rust); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 22px; margin-top: 8px; }
+  .kpis .kpi .v { font-family: var(--mono); font-size: 1.35rem; font-weight: 500; letter-spacing: -0.04em; text-transform: none; }
+
+  .pill { font-family: var(--mono); font-weight: 500; background: none; padding: 0; }
+  .good { color: var(--green); }
+  .warn { color: var(--warn); }
+  .bad { color: var(--rust); }
+  .amber { color: var(--warn); }
+
+  .recnote {
+    margin: 12px 0 0;
+    padding: 2px 0 2px 12px;
+    border-left: 2px solid var(--rust);
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+
+  .sheet, .books { margin-top: 22px; padding: 22px 22px 24px; }
+  .section-head h2, .creed h2, .sheet > h2, .card-title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .lede, .sheet > .hint, .bench-lead { max-width: 42rem; margin-top: 8px; color: var(--ink-soft); font-size: 1.02rem; }
+  .sheet h2, .books h2 { font-family: var(--serif); font-size: 1.55rem; letter-spacing: -0.03em; margin: 0 0 6px; font-weight: 560; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
+  .pair { margin-top: 22px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+  .demo-head { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: flex-end; justify-content: space-between; }
+
+  .vsm { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0 4px; }
+  .vsm .box { flex: 1 0 108px; background: #f3ecdf; border: 1px solid rgba(28, 23, 18, 0.22); padding: 10px; font-size: 0.78rem; color: var(--ink-soft); }
+  .vsm .box .n { font-family: var(--serif); font-weight: 560; font-size: 0.95rem; color: var(--ink); margin-bottom: 4px; }
+  .bar { height: 6px; background: var(--rule); margin-top: 6px; overflow: hidden; display: flex; }
+  .bar i { display: block; height: 100%; }
+
+  .rec { border-left: 2px solid var(--rust); padding: 4px 0 4px 12px; margin: 12px 0; }
+  .rec b { font-family: var(--serif); font-weight: 560; }
+  .tag { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rust-deep); margin-left: 8px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  th, td { text-align: right; vertical-align: top; padding: 9px 10px 9px 0; border-top: 1px solid var(--rule); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-family: var(--mono); font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+  .tbl { overflow-x: auto; margin-top: 12px; }
+
+  .creed { margin-top: 56px; padding: 8px 0 12px; }
+  .creed-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(200px, 0.7fr);
+    gap: 36px;
+    align-items: end;
+    margin-top: 18px;
+  }
+  .creed-prose p { margin-top: 14px; font-size: 1.08rem; }
+  .creed-prose p:first-child { margin-top: 0; }
+  blockquote { margin: 0; }
+  blockquote p {
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 520;
+    font-size: clamp(36px, 4.6vw, 60px);
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+    color: var(--rust);
+  }
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 28px; }
+  .step { border-top: 1px solid var(--ink); padding-top: 12px; }
+  .step .n { font-family: var(--serif); font-style: italic; font-size: 1.8rem; color: var(--rust); line-height: 1; }
+  .step h3 { margin: 8px 0 4px; font-family: var(--serif); font-size: 1.2rem; letter-spacing: -0.02em; }
+  .step p { color: var(--ink-soft); font-size: 0.95rem; }
+  .names { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 28px; margin-top: 22px; }
+  .names article { border-top: 1px solid var(--rule); padding-top: 10px; }
+  .names .k { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rust-deep); }
+  .names h3 { margin: 6px 0; font-family: var(--serif); font-size: 1.25rem; letter-spacing: -0.02em; }
+  .names p { color: var(--ink-soft); font-size: 0.95rem; }
+
+  details.books { padding: 18px 22px; }
+  details summary { cursor: pointer; font-family: var(--serif); font-size: 1.35rem; letter-spacing: -0.02em; }
+  .scen { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 22px; margin-top: 16px; }
+  .scen label { color: var(--ink-soft); font-size: 0.88rem; }
+  .footnote { max-width: 46rem; margin-top: 16px; color: var(--ink-soft); font-size: 0.95rem; }
+
+  .site-foot { display: flex; justify-content: space-between; gap: 24px; padding: 36px 0 56px; }
+  .site-foot strong { font-family: var(--serif); font-size: 1.4rem; font-weight: 560; letter-spacing: -0.03em; }
+  .site-foot p { margin-top: 4px; color: var(--ink-soft); }
+  .colophon { max-width: 32rem; font-size: 0.92rem; }
+  .colophon a { color: var(--rust-deep); }
+
+  @media (max-width: 980px) {
+    .instrument, .creed-grid, .two, .steps, .names { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 760px) {
+    .wrap { width: min(1120px, calc(100% - 28px)); }
+    .mast, .site-foot, .room-head, .demo-head { flex-direction: column; align-items: flex-start; }
+    .hero, .instrument, .creed-grid, .two, .steps, .names, .figures, .case-row, .verdict { grid-template-columns: 1fr; }
+    .stamp { display: none; }
+    h1 { max-width: none; }
+  }
+</style>
+</head>
+<body>
+  <a class="skip" href="#photoCard">Skip to the bench</a>
+  <header class="mast wrap">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="18" r="12" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="18" cy="18" r="1.7" fill="currentColor"/>
+        <path d="M18 2.5v5.2M18 28.3v5.2M2.5 18h5.2M28.3 18h5.2" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      <span>
+        <strong>Muda Lens</strong>
+        <em>For the person who speaks first at standup.</em>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Page">
+      <a href="#photoCard">The bench</a>
+      <a href="#why">Why now</a>
+      <a href="#demo">The line</a>
+      <a href="#swarm">The swarm</a>
+      <a href="#report">Report</a>
+      <a href="#proof">The proof</a>
+      <a href="https://github.com/manjeetsingh-satveer/muda-lens" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero wrap">
+      <div>
+        <p class="kicker">A reading glass for a wafer line</p>
+        <h1>Most of a chip’s life is spent waiting.</h1>
+        <p class="h1b">That is not the work.</p>
+        <p class="dek">Show it the line, or a photo from the floor. It names the waste, where it started, and whether the lots should ship. <b>Drex</b> does the reading. A person still makes the call.</p>
+      </div>
+      <div class="stamp" aria-hidden="true">
+        <span>Read</span>
+        <strong>the line</strong>
+        <span>out loud</span>
+      </div>
+      <div class="score">
+        <p class="score-kicker">All four decisions right</p>
+        <p class="score-num">94.3%</p>
+        <p class="score-sub">On 70 test cases. Claude Opus 5.5 lands at 92.9%. A rules baseline lands at 67.1%.</p>
+      </div>
+      <div class="figures">
+        <div>
+          <b>8×</b>
+          <span>Faster than a frontier model. 283 ms against 2,313 ms.</span>
+        </div>
+        <div class="hot">
+          <b>105×</b>
+          <span>Cheaper. $0.16 against $17.18 per thousand calls.</span>
+        </div>
+      </div>
+      <div class="presets">
+        <span>Start with what you can hold.</span>
+        <a href="#photoCard">Diagnose a photo</a>
+        <a href="#swarm" data-run-swarm>Watch the swarm</a>
+        <a href="#proof">See the benchmark</a>
+      </div>
+    </section>
+
+    <section class="instrument wrap" id="photoCard" aria-label="Photo bench">
+      <div class="room">
+        <div class="room-head">
+          <strong>Photo bench</strong>
+          <span>A die, a bond, a chart, a rack.</span>
+        </div>
+        <label class="drop" id="drop" for="photos">
+          <input type="file" id="photos" accept="image/png,image/jpeg,image/webp" multiple hidden>
+          <span class="drop-copy"><strong>Drop the photo here</strong><em>or click to choose. PNG, JPEG, or WebP.</em></span>
+        </label>
+        <p class="cases-k">No camera on you? Open a case Drex has already read.</p>
+        <div class="case-row">
+          <button type="button" class="case" data-sample="scratch" aria-pressed="false"><span>Dicing</span><strong>Scratched die</strong><em>A bright arc across the die after saw.</em></button>
+          <button type="button" class="case" data-sample="bond" aria-pressed="false"><span>Wire bond</span><strong>Lifted bond</strong><em>One wire never lands on the pad.</em></button>
+          <button type="button" class="case" data-sample="wip" aria-pressed="false"><span>Probe</span><strong>Rack on hold</strong><em>Thirty-six lots waiting. Testers are down.</em></button>
+        </div>
+        <p class="cases-k">Or a real photo. These parts are healthy; see if Drex agrees.</p>
+        <div class="case-row">
+          <button type="button" class="case real" data-photo="bonded" data-src="assets/samples/wire-bonded-chip-60x.jpg"><img src="assets/samples/wire-bonded-chip-60x.jpg" alt=""><span>Microscope · 60×</span><strong>Wire-bonded chip</strong></button>
+          <button type="button" class="case real" data-photo="die" data-src="assets/samples/die-sab1012f.jpg"><img src="assets/samples/die-sab1012f.jpg" alt=""><span>Package</span><strong>Die and bonds</strong></button>
+          <button type="button" class="case real" data-photo="wafers" data-src="assets/samples/silicon-wafers.jpg"><img src="assets/samples/silicon-wafers.jpg" alt=""><span>Front end</span><strong>Silicon wafers</strong></button>
+        </div>
+        <p class="cases-k credit"><a href="https://github.com/manjeetsingh-satveer/muda-lens/blob/main/assets/samples/CREDITS.md" target="_blank" rel="noopener">Photo credits</a> · Wikimedia Commons, CC BY / CC BY-SA. The three cases above are drawn illustrations.</p>
+        <div class="photo-tools">
+          <button id="takePhoto" type="button">Take a photo</button>
+          <input type="file" id="phoneCam" accept="image/*" capture="environment" hidden>
+        </div>
+        <div class="cam" id="cam" hidden>
+          <video id="camVideo" autoplay playsinline muted></video>
+          <div class="photo-tools">
+            <button class="primary" id="snap" type="button">Capture</button>
+            <button id="camClose" type="button">Close camera</button>
+            <span class="sub" id="camMsg"></span>
+          </div>
+        </div>
+        <p class="sub" id="phoneLink" hidden></p>
+        <div class="thumbs" id="thumbs"></div>
+      </div>
+      <aside class="reading">
+        <p class="kicker">The call</p>
+        <div class="photo-form">
+          <label for="photoStep">Where on the line
+            <select id="photoStep"><option value="">Not specified</option></select>
+          </label>
+          <label for="photoNote">What should Drex know
+            <input type="text" id="photoNote" maxlength="500" placeholder="Seen on 3 lots after the bonder PM">
+          </label>
+        </div>
+        <div class="photo-actions">
+          <button class="primary" id="diagnosePhotos" type="button" disabled>Read the photo</button>
+          <button id="clearPhotos" type="button" disabled>Clear</button>
+          <span class="sub" id="photoStatus"></span>
+        </div>
+        <div id="photoResult"></div>
+        <p class="bench-empty">The call lands here. What it shows. The defect. The waste. The fix. And whether the lots ship.</p>
+      </aside>
+    </section>
+
+    <section class="creed wrap" id="why">
+      <p class="kicker">Why a person would use this</p>
+      <h2>A chip spends most of its life in a fab waiting.</h2>
+      <div class="creed-grid">
+        <div class="creed-prose">
+          <p>In this model of a 12-step power-device line, only 12% of lead time is real work. The rest is muda: queues, holds, extra inspections, long moves. The data to catch it already exists. The judgment to act on it is scarce.</p>
+          <p>New lines have to ramp. The projected US shortfall of semiconductor workers is about 67,000 by 2030 (SIA &amp; Oxford Economics, 2023). There are not enough black belts to stand at every queue. A decision that costs $0.16 per thousand can run on every lot. An engineer still owns the call.</p>
+        </div>
+        <blockquote>
+          <p>Name the waste.<br>Then the lots can move.</p>
+        </blockquote>
+      </div>
+      <div class="names">
+        <article><span class="k">01 · More fabs</span><h3>New lines must ramp fast</h3><p>Governments are funding new fabs in the US, Europe and Asia. Every new line has to get its yield up quickly.</p></article>
+        <article><span class="k">02 · Fewer experts</span><h3>The shortfall is already counted</h3><p>About 67,000 semiconductor workers short in the US by 2030. The people who can read a line are the constraint.</p></article>
+        <article><span class="k">03 · Cheap decisions</span><h3>A cent buys about sixty calls</h3><p>Drex answers in about 0.3 seconds for $0.16 per 1,000. Expert judgment can now run on every lot.</p></article>
+      </div>
+      <div class="steps">
+        <div class="step"><span class="n">1</span><h3>Line data or photos in</h3><p>Lot data from 12 process steps, or up to 8 photos of dies, bonds, charts or racks.</p></div>
+        <div class="step"><span class="n">2</span><h3>Lean and Six Sigma do the math</h3><p>Value stream, eight wastes, DPMO, Cpk. Only real changes against normal go forward.</p></div>
+        <div class="step"><span class="n">3</span><h3>Drex makes the call</h3><p>Waste, culprit step, countermeasure, release, hold or rework, with confidence. Unsure, it asks an engineer.</p></div>
+      </div>
+    </section>
+
+    <section class="sheet wrap" id="demo">
+      <div class="demo-head">
+        <div>
+          <p class="kicker">The line</p>
+          <h2>Pick a week. Watch the waste show up.</h2>
+        </div>
+        <div class="controls">
+          <select id="scenario" aria-label="Scenario">
+            <option value="baseline">Baseline fab</option>
+            <option value="litho">Litho bottleneck and CD drift</option>
+            <option value="backend">Wire-bond defect spike</option>
+            <option value="improved">After kaizen</option>
+          </select>
+          <button class="primary" id="run" type="button">Run diagnosis</button>
+          <label class="file">Upload lot CSV <input type="file" id="csv" accept=".csv" hidden></label>
+          <button id="dl" type="button">Download sample CSV</button>
+        </div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <h2 style="margin-top:22px">Value stream</h2>
+      <p class="hint">Teal is time on the tool. Amber is waiting. The rest of the bar is the life of the lot.</p>
+      <div class="vsm" id="vsm"></div>
+    </section>
+
+    <section class="two pair wrap">
+      <div class="sheet" style="margin-top:0">
+        <h2>Where the money sits</h2>
+        <p class="hint">Fix the left bars first. The line is the running total.</p>
+        <canvas id="pareto" height="220"></canvas>
+      </div>
+      <div class="sheet" style="margin-top:0">
+        <h2>Waste by step</h2>
+        <p class="hint">Stacked dollars, one column per step.</p>
+        <canvas id="stack" height="220"></canvas>
+      </div>
+    </section>
+
+    <section class="two pair wrap">
+      <div class="sheet" style="margin-top:0">
+        <h2>Can the step hold a spec</h2>
+        <p class="hint">The dashed line is Cpk 1.33. Under 1.0, the step is not capable.</p>
+        <canvas id="cpk" height="220"></canvas>
+      </div>
+      <div class="sheet" style="margin-top:0">
+        <h2>What to say at the meeting</h2>
+        <p class="hint">Drawn from this week’s data. A starting point, not the kaizen.</p>
+        <div id="recs"></div>
+      </div>
+    </section>
+
+    <section class="sheet wrap" id="drexCard">
+      <p class="kicker">On this week’s data</p>
+      <h2>Drex decides.</h2>
+      <p class="hint">Which waste, which step, which countermeasure, and what to do with the lots. The frontier model and the rules can answer the same questions.</p>
+      <div class="controls">
+        <button class="primary" id="askDrex" type="button">Ask Drex</button>
+        <button id="askAll" type="button">Drex, Claude, and the rules</button>
+        <span class="sub" id="drexStatus"></span>
+      </div>
+      <div id="decideHead"></div>
+      <div class="tbl"><table id="decide"></table></div>
+      <div id="decideNote"></div>
+    </section>
+
+    <section class="sheet wrap" id="swarm">
+      <p class="kicker">Swarm · every agent’s call is Drex’s</p>
+      <h2>Twelve stations ask for help. Drex sends the engineers.</h2>
+      <p class="hint">Each station is its own agent. It sees only its own step, this week against normal, and asks Drex whether it needs help, what the waste is, and how urgent it is. Then a dispatcher agent asks Drex where the engineers on shift should go, one at a time.</p>
+      <div class="controls swarm-controls">
+        <label for="swarmEngineers" class="sub">Engineers on shift</label>
+        <select id="swarmEngineers"><option>1</option><option selected>2</option><option>3</option></select>
+        <button class="primary" id="runSwarm" type="button">Run the swarm</button>
+        <span class="sub" id="swarmStatus">Uses the week picked in “The line” above.</span>
+      </div>
+      <div class="swarm-board" id="swarmBoard" aria-live="polite"></div>
+      <div id="swarmDispatch"></div>
+    </section>
+
+    <section class="sheet wrap" id="report">
+      <p class="kicker">Shift report · for the engineers</p>
+      <h2>Write it up. Hand it over. Keep it.</h2>
+      <p class="hint">One page from this week’s line: the facts and stats, what Drex found on the line, the swarm and any photo, and the changes to make in production, ranked by what they save. Download it as a PDF, send it to the engineers, or save it to the team’s Nace cloud workspace.</p>
+      <div class="report-controls">
+        <button class="primary" id="buildReport" type="button">Write the report</button>
+        <button id="dlReport" type="button" disabled>Download PDF</button>
+        <label class="sr" for="reportTo">Engineers’ emails</label>
+        <input type="email" id="reportTo" multiple placeholder="engineers@yourfab.com, lead@yourfab.com">
+        <button id="sendReport" type="button" disabled>Send to engineers</button>
+        <button id="storeReport" type="button" disabled>Save to cloud</button>
+      </div>
+      <p class="sub" id="reportStatus" aria-live="polite"></p>
+      <div id="reportPreview" class="report-preview"></div>
+    </section>
+
+    <section class="sheet wrap" id="proof">
+      <p class="kicker">The proof</p>
+      <h2>Cases with a known answer.</h2>
+      <p class="hint">Each case has one known fault and a decoy. A contender scores only if all four decisions are right. Run <code>npm run bench</code> to regenerate.</p>
+      <div id="arena"><span class="sub">No results yet.</span></div>
+    </section>
+
+    <section class="sheet wrap">
+      <h2>The scorecard, step by step</h2>
+      <div class="tbl"><table id="tbl"></table></div>
+    </section>
+
+    <details class="books wrap">
+      <summary>The cost books. Change them if this is not your fab.</summary>
+      <div class="scen" id="costs"></div>
+      <p class="footnote">Dollars here are the cost of waste in the model, not scrap on a customer’s line. All of the lot data is synthetic, modelled on a power-MOSFET flow. Bring your own CSV with columns: <code id="cols"></code></p>
+    </details>
+  </main>
+
+  <footer class="wrap site-foot">
+    <div>
+      <strong>Muda Lens</strong>
+      <p>Name the waste. Then the lots can move.</p>
+    </div>
+    <p class="colophon">Set in Fraunces and IBM Plex, on paper, with one red. Built by Manjeet Singh &amp; Vani. <a href="presentation.html">For the judges</a> · <a href="https://github.com/manjeetsingh-satveer/muda-lens" target="_blank" rel="noopener">github.com/manjeetsingh-satveer/muda-lens</a></p>
+  </footer>
+
+<script src="src/engine.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>

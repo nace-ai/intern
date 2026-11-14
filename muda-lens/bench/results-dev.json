@@ -1,0 +1,78 @@
+{
+  "split": "dev",
+  "stateVersion": "v2",
+  "generatedAt": "2026-11-14T20:14:11.517Z",
+  "cases": 2,
+  "questions": [
+    "root_waste",
+    "culprit_step",
+    "countermeasure",
+    "disposition"
+  ],
+  "contenders": {
+    "claude": {
+      "label": "Claude (claude-opus-5-5)",
+      "errors": 0,
+      "exact": 1,
+      "perQuestion": {
+        "root_waste": 1,
+        "culprit_step": 1,
+        "countermeasure": 1,
+        "disposition": 1
+      },
+      "byKind": {
+        "bottleneck": {
+          "n": 1,
+          "exact": 1
+        },
+        "mean_shift": {
+          "n": 1,
+          "exact": 1
+        }
+      },
+      "latencyMsP50": 3551,
+      "latencyMsP90": 3551,
+      "costPer1kDecisionsUsd": 16.848000000000003,
+      "avgInputTokens": 3622,
+      "sampleErrors": [],
+      "runs": [
+        {
+          "id": "case-001",
+          "kind": "bottleneck",
+          "truth": {
+            "root_waste": "waiting",
+            "countermeasure": "conwip_dbr",
+            "disposition": "release",
+            "culprit_step": "WS"
+          },
+          "answers": {
+            "root_waste": "waiting",
+            "culprit_step": "WS",
+            "countermeasure": "conwip_dbr",
+            "disposition": "release"
+          },
+          "latencyMs": 3551,
+          "costUsd": 0.018272
+        },
+        {
+          "id": "case-002",
+          "kind": "mean_shift",
+          "truth": {
+            "root_waste": "defects",
+            "countermeasure": "recenter_spc",
+            "disposition": "hold",
+            "culprit_step": "DA"
+          },
+          "answers": {
+            "root_waste": "defects",
+            "culprit_step": "DA",
+            "countermeasure": "recenter_spc",
+            "disposition": "hold"
+          },
+          "latencyMs": 2328,
+          "costUsd": 0.015424
+        }
+      ]
+    }
+  }
+}
