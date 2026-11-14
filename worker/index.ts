@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import { makeRuntime } from "../server/byok";
 import { PlayService } from "../server/play-service";
 import { TrainingStore } from "./training-store";
 interface Env {
@@ -52,15 +53,39 @@ export default {
   },
 };
 // Training state survives eviction/redeployment in private SQLite storage.
-// Public Live is hard-disabled pending a separately authorized provider/security test.
+// Live is enabled only by an explicit flag plus a server-side Groq secret.
 export class Arena extends DurableObject<Env> {
   #service: PlayService;
   #store: TrainingStore;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
-    this.#service = new PlayService(() => {
-      throw Error("Public Live is temporarily unavailable.");
-    }, false);
+    const liveAvailable =
+      env.ENABLE_LIVE === "true" && Boolean(env.GROQ_API_KEY);
+    const quota = env.PROVIDER_QUOTA.get(
+      env.PROVIDER_QUOTA.idFromName("groq-final-sprint-v1"),
+    );
+    this.#service = new PlayService(
+      (key, allowDocuments) =>
+        makeRuntime(key, allowDocuments, {
+          groqKey: env.GROQ_API_KEY,
+          offline: !liveAvailable,
+          reserveGroq: async (units) => {
+            const response = await quota.fetch(
+              "https://quota.internal/reserve",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ units }),
+              },
+            );
+            if (!response.ok)
+              throw Error(
+                "Shared Groq request quota reached. No request sent.",
+              );
+          },
+        }),
+      liveAvailable,
+    );
     this.#store = new TrainingStore(ctx.storage);
     ctx.blockConcurrencyWhile(async () => {
       this.#service.restoreTraining(this.#store.load());

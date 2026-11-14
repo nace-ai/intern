@@ -163,9 +163,11 @@ export function makeRuntime(
             JSON.parse(data.choices?.[0]?.message?.content ?? ""),
           ),
           evidence: {
+            provider: "Groq",
+            provenance: "live-provider",
             model: data.model,
             usage: data.usage,
-            wall_ms: Date.now() - start,
+            latency_ms: Date.now() - start,
           },
         };
       },
@@ -218,13 +220,19 @@ export function makeRuntime(
       const action = data.answers.action.choice as ToolAction;
       if (!Object.hasOwn(actions, action))
         throw Error("Invalid authorization decision.");
+      const latency = Date.now() - start;
       return {
         action,
         evidence: {
+          provider: "Drex System One",
+          provenance: "live-provider",
+          model: "drex-max-v1.1",
+          decision: action,
+          probabilities: data.answers.action.probabilities ?? null,
           request_id: data.request_id,
           usage: data.usage,
           answer: data.answers.action,
-          wall_ms: Date.now() - start,
+          latency_ms: latency,
         },
       };
     },
@@ -292,8 +300,10 @@ export function makeRuntime(
       if (result.status !== "succeeded" || !result.result)
         throw Error("NDI Extract unavailable. No retry made.");
       entry.extraction = {
-        source: "NDI",
-        job_id: result.job_id,
+        provider: "Nace NDI",
+        provenance: "live-provider",
+        source: { type: "parse_result", job_id: entry.parsed },
+        extract_job_id: result.job_id,
         result: result.result,
       };
       return entry.extraction;

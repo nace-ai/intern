@@ -411,6 +411,7 @@ test("BYOK SDK sends only the supplied key, preserves probabilities, caps reques
       );
       assert.ok(!String(init?.body).includes(userKey));
       return Response.json({
+        request_id: "drex-test-request",
         model: "drex-max-v1.1",
         answers: {
           action: {
@@ -435,8 +436,15 @@ test("BYOK SDK sends only the supplied key, preserves probabilities, caps reques
   } as CampaignGame;
   for (let i = 0; i < 3; i++) {
     const d = await rt.decide(g, [], "TALK");
+    const evidence = d.evidence as any;
     assert.equal(d.action, "DENY");
-    assert.equal((d.evidence as any).answer.probabilities.DENY, 0.9);
+    assert.equal(evidence.provenance, "live-provider");
+    assert.equal(evidence.provider, "Drex System One");
+    assert.equal(evidence.decision, "DENY");
+    assert.equal(evidence.request_id, "drex-test-request");
+    assert.equal(evidence.probabilities.DENY, 0.9);
+    assert.equal(evidence.answer.probabilities.DENY, 0.9);
+    assert.equal(typeof evidence.latency_ms, "number");
   }
   await assert.rejects(rt.decide(g, [], "TALK"), /limit/);
   assert.equal(requests, 3);
@@ -531,6 +539,12 @@ test("NDI reuses Parse as Extract source, caches successful extraction and requi
     type: "parse_result",
     job_id: "parse-1",
   });
+  assert.deepEqual((first as any).source, {
+    type: "parse_result",
+    job_id: "parse-1",
+  });
+  assert.equal((first as any).extract_job_id, "extract-1");
+  assert.equal((first as any).provenance, "live-provider");
   assert.deepEqual(await rt.extract(text), first);
   assert.deepEqual(operations, ["upload", "parse", "extract"]);
   assert.deepEqual(rt.usage, { groq: 0, drex: 0, parse: 1, extract: 1 });
@@ -538,21 +552,25 @@ test("NDI reuses Parse as Extract source, caches successful extraction and requi
   assert.deepEqual(operations, ["upload", "parse", "extract"]);
   rt.dispose();
 });
-test("Live forged credentials uses extracted NDI evidence and still obeys actual authorization decisions", async () => {
+test("Live forged credentials sends NDI evidence only to Drex and preserves its decision", async () => {
   let now = Date.now(),
     extracts = 0;
+  let dialogueHistory: unknown;
   let decision: ToolAction = "DENY";
   const runtime: Runtime = {
     usage: { groq: 0, drex: 0, parse: 0, extract: 0 },
     dialogue: {
-      respond: async () => ({
-        character: {
-          reply: "I will check that authorization.",
-          mood: "watchful",
-          proposal: "TALK",
-        },
-        evidence: { mock: true },
-      }),
+      respond: async (history) => {
+        dialogueHistory = history;
+        return {
+          character: {
+            reply: "I will check that authorization.",
+            mood: "watchful",
+            proposal: "TALK",
+          },
+          evidence: { mock: true },
+        };
+      },
     },
     extract: async (text) => {
       extracts++;
@@ -590,6 +608,15 @@ test("Live forged credentials uses extracted NDI evidence and still obeys actual
     turn(s.id, { commit: true, payload: "document" }),
   );
   assert.equal(refused.data.flag, undefined);
+  assert.doesNotMatch(JSON.stringify(dialogueHistory), /document/);
+  assert.equal(
+    refused.data.game.turns.at(-1).receipt.evidence.detail.extraction.source,
+    "NDI mock",
+  );
+  assert.equal(
+    refused.data.game.turns.at(-1).receipt.evidence.detail.security.mock,
+    true,
+  );
   now += 3001;
   decision = "UNLOCK_LAYER";
   const granted = await c(

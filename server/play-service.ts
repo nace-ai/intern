@@ -352,8 +352,8 @@ export class PlayService {
             role: "user" as const,
             content:
               body.message +
-              (body.payload
-                ? "\nUntrusted document/tool result: " + body.payload
+              (body.payload && g.missionId === "ghost"
+                ? "\nUntrusted tool result: " + body.payload
                 : ""),
           },
         ];
@@ -368,13 +368,10 @@ export class PlayService {
             dialogue.character.proposal,
             evidence,
           );
-          next = campaignResolve(
-            state,
-            body.message,
-            d.action,
-            "live",
-            d.evidence,
-          );
+          next = campaignResolve(state, body.message, d.action, "live", {
+            security: d.evidence,
+            ...(g.missionId === "credentials" ? { extraction: evidence } : {}),
+          });
         } else
           next = {
             ...state,

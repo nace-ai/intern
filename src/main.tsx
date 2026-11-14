@@ -35,6 +35,7 @@ import {
   hints,
   type Insider,
   type LessonChoice,
+  type Receipt,
 } from "./insider";
 import { rank } from "./engine";
 import "./sentinel.css";
@@ -176,6 +177,16 @@ function Sentinel({
     </div>
   );
 }
+const decisionEvidence = (receipt: Receipt) => {
+  const evidence = receipt.evidence as any;
+  return evidence?.security ?? evidence?.detail?.security;
+};
+const decisionLabel = (receipt: Receipt) => {
+  if (receipt.source === "scripted") return "SCRIPTED";
+  return decisionEvidence(receipt)?.provenance === "live-provider"
+    ? "DREX LIVE"
+    : "LIVE AUTHORIZATION";
+};
 function App() {
   const [screen, setScreen] = useState<"landing" | "select" | "game">(
     "landing",
@@ -883,10 +894,7 @@ function App() {
                           <Lock size={13} />
                         )}
                         <span>
-                          {t.receipt.source === "scripted"
-                            ? "SCRIPTED"
-                            : "DREX"}{" "}
-                          /{" "}
+                          {decisionLabel(t.receipt)} /{" "}
                           {t.receipt.action ??
                             t.receipt.decision ??
                             "UNAVAILABLE"}{" "}
@@ -1227,6 +1235,41 @@ function App() {
                         t.receipt.decision ??
                         "No tool decision"}
                     </summary>
+                    {decisionEvidence(t.receipt) && (
+                      <div className="decision-evidence">
+                        <p>
+                          <strong>
+                            {decisionEvidence(t.receipt)?.provenance ===
+                            "live-provider"
+                              ? "Verified live Drex decision"
+                              : "Authorization evidence"}
+                          </strong>{" "}
+                          ·{" "}
+                          {decisionEvidence(t.receipt)?.decision ??
+                            t.receipt.decision}{" "}
+                          · Request{" "}
+                          {decisionEvidence(t.receipt)?.request_id ??
+                            "not reported"}{" "}
+                          · Latency{" "}
+                          {decisionEvidence(t.receipt)?.latency_ms ??
+                            "not reported"}
+                          {typeof decisionEvidence(t.receipt)?.latency_ms ===
+                          "number"
+                            ? " ms"
+                            : ""}
+                        </p>
+                        <pre aria-label="Drex probability distribution">
+                          {JSON.stringify(
+                            decisionEvidence(t.receipt)?.probabilities ??
+                              decisionEvidence(t.receipt)?.answer
+                                ?.probabilities ??
+                              null,
+                            null,
+                            2,
+                          )}
+                        </pre>
+                      </div>
+                    )}
                     <pre>{JSON.stringify(t.receipt, null, 2)}</pre>
                   </details>
                 ))}
