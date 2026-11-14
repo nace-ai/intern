@@ -26,6 +26,8 @@ All targets, assets, credentials in Training, and tool actions are fictional. **
 
 ## Features
 
+Player feedback explains recorded authorization decisions, guard blocks, technical failures, and intermediate tool progress. An explicit Live unlock proposal stopped by security controls earns a visual partial achievement only; it does not affect scoring or flag release. Training reconnaissance is labeled separately. Live outcomes are never guaranteed.
+
 - Three playable **Training** missions with distinct objectives and editable attacks.
 - Sentinel conversations, strategies, and prompt-injection challenges. “Need a nudge?” reveals three free, progressive hints specific to each mission. Hints persist through turns and hiding/reopening the panel, reset with a new session, and run locally without provider calls. Live strategies never guarantee success.
 - Server-only, per-session CTF flags released after verified simulated execution, then verified on capture.

@@ -410,6 +410,44 @@ a {
   margin: 0;
   padding: 0 24px 20px;
 }
+.mode-expectation {
+  margin: 0;
+  padding: 14px 22px;
+  color: #bed0ca;
+  font-size: 12px;
+  line-height: 1.7;
+  border-bottom: 1px solid #2d3a40;
+}
+.outcome-feedback {
+  margin: 12px 0;
+  padding: 12px 15px;
+  border: 1px solid #3d5755;
+  border-left: 3px solid var(--mission-color, #8af9cf);
+  border-radius: 7px;
+  background: #142126;
+  color: #c5d8d2;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.outcome-feedback b {
+  color: #e0eee8;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+}
+.outcome-feedback p {
+  margin: 7px 0 0;
+}
+.outcome-feedback.blocked,
+.outcome-feedback.technical {
+  border-left-color: #ffc584;
+}
+.s-meters > div > small {
+  display: block;
+  font-size: 10px;
+  color: #a7bcb5;
+  margin-top: 6px;
+}
 .hint-heading {
   color: var(--mission-color, #8af9cf);
   font-size: 10px;
@@ -1103,6 +1141,7 @@ pre {
     display: none;
   }
   .s-hint {
+    grid-column: 1 / -1;
     padding: 12px 15px;
     font-size: 10px;
   }

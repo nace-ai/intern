@@ -1,5 +1,6 @@
 import { Hub } from "./Hub";
 import { missionHints } from "./mission-hints";
+import { outcomeFeedback } from "./outcome-feedback";
 import publicSite from "../public-site.json";
 import {
   missions,
@@ -799,7 +800,7 @@ function App() {
                 aria-controls="mission-hints"
               >
                 <Lightbulb size={15} />
-                {hint ? "Hide hints" : "Need a nudge?"}
+                {hint ? "Hide hints" : "Need a nudge? · 3 free hints"}
                 <ChevronDown size={13} />
               </button>
               {hint && (
@@ -870,12 +871,18 @@ function App() {
                   </button>
                 </div>
               </div>
+              <p className="mode-expectation">
+                {game.mode === "tutorial"
+                  ? "Training: scripted, learnable scenarios with repeatable victory paths. Use the choices and free hints to learn each sequence."
+                  : "Live AI: Groq proposes, Drex evaluates security decisions, and the engine controls execution. Attacks may fail; conversation alone cannot establish a breach."}
+              </p>
               <div className="s-meters">
                 <div>
                   <span>ATTEMPTS REMAINING</span>
                   <b>
                     {3 - game.attempts} <small>/ 3</small>
                   </b>
+                  <small>{game.attempts} used · decisions spend attempts</small>
                 </div>
                 <div className="heat-stat">
                   <span>
@@ -913,6 +920,18 @@ function App() {
                       : `I am Sentinel, custodian of ${mission.target}. ${mission.description} Tell me what you need.`}
                   </p>
                 </div>
+                {game.mode === "tutorial" &&
+                  (game.clue ||
+                    game.turns.some((t) => t.reply === mission.intel)) && (
+                    <div className="outcome-feedback neutral">
+                      <b>RECONNAISSANCE COMPLETE</b>
+                      <p>
+                        You uncovered a Training procedure or attack surface.
+                        This is useful information, not authorization or a
+                        breach.
+                      </p>
+                    </div>
+                  )}
                 {game.turns.map((t, i) => (
                   <React.Fragment key={i}>
                     <motion.div
@@ -938,6 +957,20 @@ function App() {
                       </div>
                       <p>{t.reply}</p>
                     </motion.div>
+                    {(() => {
+                      const feedback = outcomeFeedback(
+                        t.receipt,
+                        game.hardened,
+                      );
+                      return (
+                        feedback && (
+                          <div className={"outcome-feedback " + feedback.kind}>
+                            <b>{feedback.title}</b>
+                            <p>{feedback.detail}</p>
+                          </div>
+                        )
+                      );
+                    })()}
                     <div className="turn-cost">
                       {t.receipt.decision
                         ? "ACCESS ATTEMPT · 25 fictional CR"
@@ -1265,6 +1298,13 @@ function App() {
                         <small>{text.length}/1200 · ↵ send</small>
                       </div>
                       <p className="composer-help">
+                        Check Commit to submit an authorization request with
+                        your message. A resolved decision uses 1 attempt and 25
+                        fictional CR. Leave it unchecked to investigate; in
+                        Mission 01, Sentinel’s unlock or alert proposal can also
+                        trigger a decision.
+                      </p>
+                      <p className="composer-help">
                         {game.mode === "tutorial"
                           ? missionId === "insider"
                             ? "Simulation: use the choices to learn the sequence. “Exploit the procedure” commits an attempt. Free text gets a scripted reply."
@@ -1277,6 +1317,15 @@ function App() {
                 {error && (
                   <p role="alert" className="s-error">
                     {error}
+                    {failedOperation && (
+                      <span>
+                        {" "}
+                        Technical provider failure: this result does not
+                        establish attack success or a defender refusal. Review
+                        Forensics for the failed stage and retained provider
+                        usage.
+                      </span>
+                    )}
                   </p>
                 )}
               </div>
@@ -1307,8 +1356,8 @@ function App() {
               </label>
               <span>
                 {game.hardened
-                  ? "Unauthorized unlocks are denied at execution."
-                  : "Permissive simulation: model mistakes can open the layer."}
+                  ? "ON: Unverified unlocks and protected tool actions are blocked even if the AI selects them. Choose the guard before your first turn."
+                  : "OFF: Training permits its vulnerable paths; Live still requires an authorization decision and the engine’s workflow checks. Choose the guard before your first turn."}
               </span>
             </div>
             <button
