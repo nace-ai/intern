@@ -1,0 +1,31 @@
+# Dependencies and generated builds
+node_modules/
+dist/
+worker-dist/
+coverage/
+*.tsbuildinfo
+
+# Credentials and Cloudflare local bindings (safe templates are tracked)
+.env*
+!.env.example
+.dev.vars*
+!.dev.vars.example
+*.pem
+*.key
+
+# Private evidence, ledgers, sessions, caches, and launch state
+.private/
+.runtime/
+.wrangler/
+.cache/
+benchmark-results*.json
+*.log
+*.pid
+*.pid.lock
+
+# Machine/editor configuration
+.DS_Store
+._*
+Thumbs.db
+.idea/
+.vscode/
