@@ -1,0 +1,6 @@
+mode,valid,matches,tainted,draws,blue_brain,blue_win_rate,blue_mean_latency_ms,blue_p95_latency_ms,blue_cycles_per_match,blue_decisions_per_sim_sec,blue_cost_per_match_usd,blue_invalid,blue_errors,blue_mean_units_alive,red_brain,red_win_rate,red_mean_latency_ms,red_p95_latency_ms,red_cycles_per_match,red_decisions_per_sim_sec,red_cost_per_match_usd,red_invalid,red_errors,red_mean_units_alive
+0.25x,5,5,0,0,drex,1,428.7,642.6,129,57.17,0.009798,0,0,6.2,llm:DeepSeek-V3,0,2314.7,5050.4,31,7.42,0.01145,0,0,0
+0.5x,5,5,0,0,drex,1,457,806.1,102,27.58,0.006545,0,0,4.8,llm:DeepSeek-V3,0,1648.2,5025.7,32.4,3.37,0.009545,0,0,0.4
+paused,5,5,0,0,drex,1,432.5,675.6,39.4,17.77,0.003049,0,0,6.4,llm:DeepSeek-V3,0,2834,4881,39.4,13.73,0.017009,0,0,0
+1x,5,5,0,0,drex,0.6,388.3,563.3,46.2,17.02,0.003187,0,0,3.4,llm:DeepSeek-V3,0.4,2804.7,5419.8,7,1.79,0.002822,0,0,2
+2x,5,5,0,0,drex,0.8,509.9,1204.1,16.6,7.81,0.001343,0,0,4.6,llm:DeepSeek-V3,0.2,4107,5748.2,1.8,0.6,0.000878,0,0,0.2
