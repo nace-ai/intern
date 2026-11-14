@@ -1,6 +1,6 @@
 # Verification and security notes
 
-The game is a local hackathon MVP, not a claim of production validation or live attack efficacy.
+The game is a deployed hackathon demonstration with a verified real Drex path, not a production load/security certification or a claim that attacks will succeed.
 
 ## Boundaries
 
@@ -13,12 +13,12 @@ The game is a local hackathon MVP, not a claim of production validation or live 
 
 ## Recorded development verification
 
-The MVP sprint passed 45 offline tests, frontend/Worker typechecks, production build, Cloudflare packaging dry run, and Express/Worker-local mission smoke tests. Brave checks completed all three Training captures and inspected a 390x844 viewport. Provider adapters used mocks; no new provider calls or benchmark measurements were made. See PROGRESS.md for the onboarding verification added afterward.
+The final sprint passed 48 automated tests, frontend/Worker typechecks, production and Wrangler dry-run builds, repository/bundle credential audits, public Training/security verification, and a headless Brave render. The public Insider completed one real Groq-to-Drex-to-engine attempt; Drex selected `FLAG`, the layer stayed locked, and no flag was released. A separate authoritative legitimate-control Drex request selected `UNLOCK_LAYER`. See `FINAL-SPRINT-REPORT.md` for request IDs, probabilities, latency, and usage.
 
 ## Preserved spending evidence
 
-At the MVP checkpoint the local ledgers recorded Parse 1, Extract 1, legacy Drex 6; Phase 2 Drex 2/2; Groq 16/60 with 43,195 reserved units. These private files are not repository inputs or shared teammate allowances. Preserve existing ledgers rather than deleting them. A fresh Training checkout requires none of them.
+At the MVP checkpoint the local ledgers recorded Parse 1, Extract 1, legacy Drex 6; Phase 2 Drex 2/2; Groq 16/60 with 43,195 reserved units. These files were not changed. The separately authorized final-sprint ledger is `.private/final-sprint-ledger.json`; it conservatively reserves `$0.21` of a `$0.25` ceiling and counts failures without reset. These private files are not repository inputs or shared teammate allowances.
 
 ## Known limits
 
-The local service uses ephemeral sessions and caps concurrent sessions. The public Training adapter now stores game state, private flags, captures, owner tokens, rankings and rate counters in private SQLite-backed Durable Object storage for the ten-minute session lifetime. Live runtimes/keys are excluded. Public platform/traffic behavior remains unmeasured. Real provider validation, production abuse testing and real benchmark measurements are outstanding. Request-count caps are not guaranteed dollar billing caps. Uploaded document retention is governed by Nace's service policy.
+The public Worker persists Training state but excludes Live runtimes and keys. Public platform load behavior remains unmeasured. The Insider has real provider evidence; public Forged Credentials still fails at the Nace SDK `ndi-upload` boundary before a Parse/Extract job is created. Earlier private real NDI receipts verify Parse, Extract, and parsed-result reuse outside the Worker. Request-count caps are not guaranteed dollar billing caps. Uploaded document retention is governed by Nace's service policy.

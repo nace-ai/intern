@@ -1,6 +1,6 @@
 # Agent Heist MVP sprint — 2026-11-14
 
-Completed items below have automated or browser evidence. No paid calls were made.
+The original MVP checklist is preserved below. Final-sprint provider usage and the current deployment are recorded separately; see [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md).
 
 - [x] Resume inspection: no Git metadata/listeners in checkout; 33 baseline tests passed; existing receipts/ledgers preserved
 - [x] Landing page, How to Play, mission selection and two-minute demo entry
@@ -76,7 +76,6 @@ The launcher was runtime-tested on macOS. Its Bash/Node implementation targets m
 - [x] Public deployment and public gameplay/browser verification
 - [x] Verified public URL, judge QR and deployment documentation
 
-
 ## Verified public deployment — 2026-11-14
 
 - Public URL: **https://agent-heist.agent-heist.workers.dev**
@@ -99,3 +98,22 @@ The launcher was runtime-tested on macOS. Its Bash/Node implementation targets m
 - [x] README and permanent AGENTS workflow updated; completed implementation milestones committed, pushed and remote-verified
 
 No Nace, NDI, Drex or Groq calls were made in deployment work. Existing local ledgers remain unchanged. This is a verified hackathon Training deployment, not a production load-test certification. Physical-phone QR scanning/mobile-device testing was not performed; the PNG was programmatically decoded and its real HTTPS destination verified. Browser page reloads serve the SPA; automatic restoration of the active browser UI is not implemented, while server-side Training state remains durable until expiry. Remaining priorities are authorized Live/provider security checks, load/abuse testing, real benchmark measurements, and optional browser-UI resume.
+
+## Final Live sprint — 2026-11-14
+
+- [x] Fetched and inspected `origin/main` before edits; no teammate divergence or local tracked changes.
+- [x] Wired the Cloudflare Worker to the existing BYOK runtime only when `ENABLE_LIVE=true` and the server Groq secret exists.
+- [x] Connected every Groq dispatch to the atomic `ProviderQuota` Durable Object; kept per-session caps, rate limits, zero provider retries, and fail-closed state transitions.
+- [x] Kept the player's Nace key ephemeral and out of checkpoints, logs, URLs, responses, browser storage, bundles, and Git. No developer Nace fallback exists.
+- [x] Removed raw Forged Credentials document text from Groq context; NDI extraction remains untrusted evidence for Drex.
+- [x] Added explicit real-provider provenance and structured Drex action, probabilities, latency, request ID, model, and usage to Forensics.
+- [x] Pinned `nace-sdk` to the tested lockfile version `0.7.0`.
+- [x] Real legitimate Drex control selected `UNLOCK_LAYER` with 0.9999895737 probability.
+- [x] Real public unauthorized Insider attempt selected `FLAG`; deterministic state stayed locked and no flag was returned.
+- [x] Public Training and security verifiers passed after Live activation; no provider calls occur in those verifiers.
+- [x] 48 automated tests, production frontend build, Worker typecheck/dry run, repository audit, configured-secret audit, and public-bundle audit passed.
+- [x] Server-only `GROQ_API_KEY` is present as a Cloudflare `secret_text`; `ENABLE_LIVE=true`; browser-rendered deployment verified.
+- [x] Deployed Worker version `c490c728-824b-47bb-8074-026ddab0fde6` at https://agent-heist.agent-heist.workers.dev.
+- [ ] Public Live NDI: blocked at `ndi-upload` before any new Parse/Extract job. Safe stage reporting confirms Drex and Extract were not called, and further attempts stopped.
+
+Final-sprint accounting is kept in the separate ignored `.private/final-sprint-ledger.json`; Phase 2 remains unchanged and exhausted. The final ledger conservatively reserves `$0.21` of the authorized `$0.25` ceiling, including failed and pre-provider reservations. Actual observed calls were two Drex decisions and four Groq calls; no new NDI job was created. Nace did not return a Drex dollar amount, so no exact Drex charge is claimed. Exact decisions, request IDs, prior NDI costs, and blockers are in [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md).
