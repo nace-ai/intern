@@ -1,0 +1,5 @@
+# Example project (Drexathon entry): inherit the repo's lint rules, minus a few style-only rules.
+extend = "../../pyproject.toml"
+
+[lint]
+ignore = ["B905", "RUF005", "ASYNC240", "SIM110"]
