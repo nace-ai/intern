@@ -1,0 +1,115 @@
+{
+  "dataset": {
+    "name": "RAGTruth",
+    "split": "test",
+    "seed": 2026,
+    "examples": 450,
+    "sentences": 3041,
+    "wrong": {
+      "total": 266,
+      "contradicted": 123,
+      "notInSource": 143
+    },
+    "writerModels": 6,
+    "byTask": {
+      "QA": {
+        "examples": 150,
+        "sentences": 926,
+        "wrong": 44
+      },
+      "Summary": {
+        "examples": 150,
+        "sentences": 812,
+        "wrong": 46
+      },
+      "Data2txt": {
+        "examples": 150,
+        "sentences": 1303,
+        "wrong": 176
+      }
+    }
+  },
+  "runs": [
+    {
+      "run": "drex",
+      "label": "Drex Max v1.1",
+      "decider": "drex",
+      "model": "drex-latest",
+      "createdAt": "2026-11-14T18:58:17.052Z",
+      "dataset": {
+        "name": "RAGTruth",
+        "split": "test",
+        "examples": 450,
+        "sentences": 3041
+      },
+      "headline": {
+        "sentenceF1": 0.5615,
+        "sentencePrecision": 0.406,
+        "sentenceRecall": 0.9098,
+        "responseF1": 0.7657,
+        "threeWayAccuracy": 0.8671,
+        "p50LatencyMs": 317,
+        "meanLatencyMs": 328,
+        "costPerThousandSentencesUsd": 0.014571,
+        "totalCostUsd": 0.044311
+      }
+    },
+    {
+      "run": "llm-gpt-6.1-sol",
+      "label": "GPT-6.1 Sol",
+      "decider": "llm",
+      "model": "gpt-6.1-sol",
+      "createdAt": "2026-11-14T19:38:26.590Z",
+      "dataset": {
+        "name": "RAGTruth",
+        "split": "test",
+        "examples": 450,
+        "sentences": 3041
+      },
+      "headline": {
+        "sentenceF1": 0.5098,
+        "sentencePrecision": 0.3514,
+        "sentenceRecall": 0.9286,
+        "responseF1": 0.7119,
+        "threeWayAccuracy": 0.8392,
+        "p50LatencyMs": 4075,
+        "meanLatencyMs": 4146,
+        "costPerThousandSentencesUsd": 0.654222,
+        "totalCostUsd": 1.989488
+      }
+    },
+    {
+      "run": "local",
+      "label": "Simple rules (offline)",
+      "decider": "local",
+      "model": "rules-v1",
+      "createdAt": "2026-11-14T08:52:15.750Z",
+      "dataset": {
+        "name": "RAGTruth",
+        "split": "test",
+        "examples": 450,
+        "sentences": 3041
+      },
+      "headline": {
+        "sentenceF1": 0.2544,
+        "sentencePrecision": 0.1497,
+        "sentenceRecall": 0.8459,
+        "responseF1": 0.609,
+        "threeWayAccuracy": 0.5367,
+        "p50LatencyMs": 2,
+        "meanLatencyMs": 2,
+        "costPerThousandSentencesUsd": 0,
+        "totalCostUsd": 0
+      }
+    }
+  ],
+  "improvement": {
+    "drex": "drex",
+    "baseline": "llm-gpt-6.1-sol",
+    "speedup": 12.8549,
+    "costRatio": 0.0223,
+    "f1Delta": 0.0517,
+    "precisionDelta": 0.0546,
+    "recallDelta": -0.0188
+  }
+}

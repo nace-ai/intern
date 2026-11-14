@@ -1,0 +1,1073 @@
+{
+  "id": "d680a1ba-604c-4ab3-b2ec-b89027e2ebd9",
+  "createdAt": "2026-11-14T20:00:08.543Z",
+  "engines": {
+    "decider": "local",
+    "deciderModel": "rules-v1",
+    "perceiver": "local"
+  },
+  "source": {
+    "name": "msa.pdf",
+    "format": "text",
+    "pages": 1,
+    "characters": 2681
+  },
+  "claims": [
+    {
+      "id": "s1",
+      "index": 0,
+      "text": "This Master Services Agreement between Harbor Analytics LLC and Juniper Freight Co. took effect on March 1, 2026.",
+      "start": 0,
+      "end": 113,
+      "verdict": "supported",
+      "probabilities": {
+        "supported": 0.987046,
+        "contradicted": 0.007379,
+        "not_in_source": 0.005575
+      },
+      "confidence": 0.987046,
+      "needsReview": false,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "MASTER SERVICES AGREEMENT\n\nThis Master Services Agreement (the \"Agreement\") is entered into as of March 1, 2026 (the \"Effective Date\") by and between Harbor Analytics LLC, a Delaware limited liability company (\"Provider\"), and Juniper Freight Co., an Oregon corporation (\"Customer\").",
+        "charStart": 0,
+        "charEnd": 283,
+        "method": "lexical",
+        "score": 0.923,
+        "section": null,
+        "highlight": {
+          "page": 1,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            721.09,
+            527.04,
+            721.09,
+            56,
+            709.33,
+            527.04,
+            709.33,
+            56,
+            705.87,
+            553.85,
+            705.87,
+            56,
+            694.11,
+            553.85,
+            694.11,
+            56,
+            690.64,
+            284.62,
+            690.64,
+            56,
+            678.88,
+            284.62,
+            678.88
+          ],
+          "boundingBox": [
+            56,
+            678.88,
+            553.85,
+            721.09
+          ]
+        }
+      }
+    },
+    {
+      "id": "s2",
+      "index": 1,
+      "text": "Harbor Analytics provides route-optimization analytics, a hosted reporting dashboard and quarterly planning workshops.",
+      "start": 114,
+      "end": 232,
+      "verdict": "supported",
+      "probabilities": {
+        "supported": 0.980336,
+        "contradicted": 0.010852,
+        "not_in_source": 0.008813
+      },
+      "confidence": 0.980336,
+      "needsReview": false,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "SERVICES\n1.1 Scope. Provider will deliver route-optimization analytics, a hosted reporting dashboard and quarterly planning workshops as described in Statement of Work No. 1.",
+        "charStart": 288,
+        "charEnd": 462,
+        "method": "lexical",
+        "score": 0.818,
+        "section": "1.1",
+        "highlight": {
+          "page": 1,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            651.05,
+            536.87,
+            651.05,
+            56,
+            639.29,
+            536.87,
+            639.29,
+            56,
+            635.83,
+            343.12,
+            635.83,
+            56,
+            624.07,
+            343.12,
+            624.07
+          ],
+          "boundingBox": [
+            56,
+            624.07,
+            536.87,
+            651.05
+          ]
+        }
+      }
+    },
+    {
+      "id": "s3",
+      "index": 2,
+      "text": "The dashboard must be available at least 99.5% of each month, excluding announced maintenance.",
+      "start": 233,
+      "end": 327,
+      "verdict": "supported",
+      "probabilities": {
+        "supported": 0.993307,
+        "contradicted": 0.004016,
+        "not_in_source": 0.002677
+      },
+      "confidence": 0.993307,
+      "needsReview": false,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "1.2 Service Levels. Provider will keep the dashboard available at least 99.5% of each calendar month, excluding scheduled maintenance announced 48 hours in advance.",
+        "charStart": 463,
+        "charEnd": 627,
+        "method": "lexical",
+        "score": 1,
+        "section": "1.2",
+        "highlight": {
+          "page": 1,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            620.6,
+            529.31,
+            620.6,
+            56,
+            608.84,
+            529.31,
+            608.84,
+            56,
+            605.38,
+            369.42,
+            605.38,
+            56,
+            593.62,
+            369.42,
+            593.62
+          ],
+          "boundingBox": [
+            56,
+            593.62,
+            529.31,
+            620.6
+          ]
+        }
+      }
+    },
+    {
+      "id": "s4",
+      "index": 3,
+      "text": "The agreement runs for five years.",
+      "start": 328,
+      "end": 362,
+      "verdict": "contradicted",
+      "probabilities": {
+        "supported": 0.219318,
+        "contradicted": 0.588185,
+        "not_in_source": 0.192497
+      },
+      "confidence": 0.588185,
+      "needsReview": true,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "4.2 These obligations survive for three (3) years after this Agreement ends.",
+        "charStart": 1576,
+        "charEnd": 1652,
+        "method": "lexical",
+        "score": 0.667,
+        "section": "4.2",
+        "highlight": {
+          "page": 2,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            584.06,
+            404.4,
+            584.06,
+            56,
+            572.3,
+            404.4,
+            572.3
+          ],
+          "boundingBox": [
+            56,
+            572.3,
+            404.4,
+            584.06
+          ]
+        }
+      }
+    },
+    {
+      "id": "s5",
+      "index": 4,
+      "text": "After that, it renews automatically for one-year periods unless either party gives 90 days' notice.",
+      "start": 363,
+      "end": 462,
+      "verdict": "supported",
+      "probabilities": {
+        "supported": 0.993307,
+        "contradicted": 0.004016,
+        "not_in_source": 0.002677
+      },
+      "confidence": 0.993307,
+      "needsReview": false,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "2.2 Renewal. After the initial term, this Agreement renews automatically for successive one (1) year periods unless either party gives written notice of non-renewal at least ninety (90) days before the end of the then-current term.",
+        "charStart": 734,
+        "charEnd": 965,
+        "method": "lexical",
+        "score": 1,
+        "section": "2.2",
+        "highlight": {
+          "page": 1,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            550.57,
+            554.35,
+            550.57,
+            56,
+            538.81,
+            554.35,
+            538.81,
+            56,
+            535.34,
+            520.56,
+            535.34,
+            56,
+            523.58,
+            520.56,
+            523.58,
+            56,
+            520.12,
+            139.44,
+            520.12,
+            56,
+            508.36,
+            139.44,
+            508.36
+          ],
+          "boundingBox": [
+            56,
+            508.36,
+            554.35,
+            550.57
+          ]
+        }
+      }
+    },
+    {
+      "id": "s6",
+      "index": 5,
+      "text": "Juniper Freight pays a monthly service fee of $18,500.",
+      "start": 463,
+      "end": 517,
+      "verdict": "contradicted",
+      "probabilities": {
+        "supported": 0.108558,
+        "contradicted": 0.695451,
+        "not_in_source": 0.195991
+      },
+      "confidence": 0.695451,
+      "needsReview": false,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "FEES AND PAYMENT\n3.1 Fees. Customer shall pay Provider a monthly service fee of $12,500.",
+        "charStart": 970,
+        "charEnd": 1058,
+        "method": "lexical",
+        "score": 0.667,
+        "section": "3.1",
+        "highlight": {
+          "page": 2,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            730.23,
+            392.15,
+            730.23,
+            56,
+            718.47,
+            392.15,
+            718.47
+          ],
+          "boundingBox": [
+            56,
+            718.47,
+            392.15,
+            730.23
+          ]
+        }
+      }
+    },
+    {
+      "id": "s7",
+      "index": 6,
+      "text": "Invoices are payable within 30 days, and late amounts accrue interest at 1% per month.",
+      "start": 518,
+      "end": 604,
+      "verdict": "supported",
+      "probabilities": {
+        "supported": 0.930862,
+        "contradicted": 0.034801,
+        "not_in_source": 0.034337
+      },
+      "confidence": 0.930862,
+      "needsReview": false,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "3.3 Late Payment. Undisputed amounts not paid when due accrue interest at 1% per month.",
+        "charStart": 1181,
+        "charEnd": 1268,
+        "method": "lexical",
+        "score": 0.625,
+        "section": "3.3",
+        "highlight": {
+          "page": 2,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            684.55,
+            483.81,
+            684.55,
+            56,
+            672.79,
+            483.81,
+            672.79
+          ],
+          "boundingBox": [
+            56,
+            672.79,
+            483.81,
+            684.55
+          ]
+        }
+      }
+    },
+    {
+      "id": "s8",
+      "index": 7,
+      "text": "Either party may terminate for convenience on 30 days' notice.",
+      "start": 605,
+      "end": 667,
+      "verdict": "contradicted",
+      "probabilities": {
+        "supported": 0.291796,
+        "contradicted": 0.550825,
+        "not_in_source": 0.157379
+      },
+      "confidence": 0.550825,
+      "needsReview": true,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "TERMINATION\n6.1 Termination for Cause. Either party may terminate this Agreement if the other party materially breaches it and does not cure the breach within thirty (30) days after written notice.",
+        "charStart": 1790,
+        "charEnd": 1987,
+        "method": "lexical",
+        "score": 0.833,
+        "section": "6.1",
+        "highlight": {
+          "page": 3,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            730.23,
+            552.61,
+            730.23,
+            56,
+            718.47,
+            552.61,
+            718.47,
+            56,
+            715,
+            394.49,
+            715,
+            56,
+            703.24,
+            394.49,
+            703.24
+          ],
+          "boundingBox": [
+            56,
+            703.24,
+            552.61,
+            730.23
+          ]
+        }
+      }
+    },
+    {
+      "id": "s9",
+      "index": 8,
+      "text": "Each party's liability is capped at the fees paid in the twelve months before the claim.",
+      "start": 668,
+      "end": 756,
+      "verdict": "supported",
+      "probabilities": {
+        "supported": 0.977023,
+        "contradicted": 0.012533,
+        "not_in_source": 0.010444
+      },
+      "confidence": 0.977023,
+      "needsReview": false,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "LIABILITY\n7.1 Cap. Except for breaches of Section 4, each party's total liability under this Agreement is limited to the fees paid by Customer in the twelve (12) months before the claim.",
+        "charStart": 2174,
+        "charEnd": 2360,
+        "method": "lexical",
+        "score": 0.857,
+        "section": "7.1",
+        "highlight": {
+          "page": 3,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            644.96,
+            545.9,
+            644.96,
+            56,
+            633.2,
+            545.9,
+            633.2,
+            56,
+            629.74,
+            361.79,
+            629.74,
+            56,
+            617.98,
+            361.79,
+            617.98
+          ],
+          "boundingBox": [
+            56,
+            617.98,
+            545.9,
+            644.96
+          ]
+        }
+      }
+    },
+    {
+      "id": "s10",
+      "index": 9,
+      "text": "The agreement is governed by Delaware law.",
+      "start": 757,
+      "end": 799,
+      "verdict": "supported",
+      "probabilities": {
+        "supported": 0.993307,
+        "contradicted": 0.004016,
+        "not_in_source": 0.002677
+      },
+      "confidence": 0.993307,
+      "needsReview": false,
+      "receipt": {
+        "status": "found",
+        "page": 1,
+        "quote": "GENERAL\n8.1 Governing Law. This Agreement is governed by the laws of the State of Delaware.",
+        "charStart": 2365,
+        "charEnd": 2456,
+        "method": "lexical",
+        "score": 1,
+        "section": "8.1",
+        "highlight": {
+          "page": 3,
+          "pageWidth": 612,
+          "pageHeight": 792,
+          "quadPoints": [
+            56,
+            590.15,
+            455.19,
+            590.15,
+            56,
+            578.39,
+            455.19,
+            578.39
+          ],
+          "boundingBox": [
+            56,
+            578.39,
+            455.19,
+            590.15
+          ]
+        }
+      }
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "supported": 7,
+    "contradicted": 3,
+    "not_in_source": 0,
+    "needsReview": 2,
+    "trustScore": 70
+  },
+  "timings": {
+    "parseMs": 0,
+    "decideMs": 13,
+    "groundMs": 2,
+    "totalMs": 151
+  },
+  "usage": {
+    "decide": {
+      "requests": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "costUsd": 0
+    }
+  },
+  "warnings": [],
+  "adobeDocId": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+  "adobeAnnotations": [
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "c688c72b-47e3-5868-afd1-240073a5c1e3",
+      "bodyValue": "Correct (99%): This Master Services Agreement between Harbor Analytics LLC and Juniper Freight Co. took effect on March 1, 2026.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 0
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            678.88,
+            553.85,
+            721.09
+          ],
+          "quadPoints": [
+            56,
+            721.09,
+            527.04,
+            721.09,
+            56,
+            709.33,
+            527.04,
+            709.33,
+            56,
+            705.87,
+            553.85,
+            705.87,
+            56,
+            694.11,
+            553.85,
+            694.11,
+            56,
+            690.64,
+            284.62,
+            690.64,
+            56,
+            678.88,
+            284.62,
+            678.88
+          ],
+          "strokeColor": "#22C55E",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "fd9aa648-b23c-59d6-ac0b-95dbaf472bc1",
+      "bodyValue": "Correct (98%): Harbor Analytics provides route-optimization analytics, a hosted reporting dashboard and quarterly planning workshops.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 0
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            624.07,
+            536.87,
+            651.05
+          ],
+          "quadPoints": [
+            56,
+            651.05,
+            536.87,
+            651.05,
+            56,
+            639.29,
+            536.87,
+            639.29,
+            56,
+            635.83,
+            343.12,
+            635.83,
+            56,
+            624.07,
+            343.12,
+            624.07
+          ],
+          "strokeColor": "#22C55E",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "c2bc990c-0880-53f3-b38c-4342a6f66eca",
+      "bodyValue": "Correct (99%): The dashboard must be available at least 99.5% of each month, excluding announced maintenance.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 0
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            593.62,
+            529.31,
+            620.6
+          ],
+          "quadPoints": [
+            56,
+            620.6,
+            529.31,
+            620.6,
+            56,
+            608.84,
+            529.31,
+            608.84,
+            56,
+            605.38,
+            369.42,
+            605.38,
+            56,
+            593.62,
+            369.42,
+            593.62
+          ],
+          "strokeColor": "#22C55E",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "7239c03b-5a13-5bf4-9a58-dec1a0bd16c4",
+      "bodyValue": "Wrong (59%): The agreement runs for five years.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 1
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            572.3,
+            404.4,
+            584.06
+          ],
+          "quadPoints": [
+            56,
+            584.06,
+            404.4,
+            584.06,
+            56,
+            572.3,
+            404.4,
+            572.3
+          ],
+          "strokeColor": "#EF4444",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "6b02d8af-451b-5b8c-bf3e-bb23ec06e4d1",
+      "bodyValue": "Correct (99%): After that, it renews automatically for one-year periods unless either party gives 90 days' notice.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 0
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            508.36,
+            554.35,
+            550.57
+          ],
+          "quadPoints": [
+            56,
+            550.57,
+            554.35,
+            550.57,
+            56,
+            538.81,
+            554.35,
+            538.81,
+            56,
+            535.34,
+            520.56,
+            535.34,
+            56,
+            523.58,
+            520.56,
+            523.58,
+            56,
+            520.12,
+            139.44,
+            520.12,
+            56,
+            508.36,
+            139.44,
+            508.36
+          ],
+          "strokeColor": "#22C55E",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "92513c36-2a62-5b35-ba15-9140cb8153be",
+      "bodyValue": "Wrong (70%): Juniper Freight pays a monthly service fee of $18,500.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 1
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            718.47,
+            392.15,
+            730.23
+          ],
+          "quadPoints": [
+            56,
+            730.23,
+            392.15,
+            730.23,
+            56,
+            718.47,
+            392.15,
+            718.47
+          ],
+          "strokeColor": "#EF4444",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "15c81190-51d2-51b7-b5aa-2f1935d6ac55",
+      "bodyValue": "Correct (93%): Invoices are payable within 30 days, and late amounts accrue interest at 1% per month.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 1
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            672.79,
+            483.81,
+            684.55
+          ],
+          "quadPoints": [
+            56,
+            684.55,
+            483.81,
+            684.55,
+            56,
+            672.79,
+            483.81,
+            672.79
+          ],
+          "strokeColor": "#22C55E",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "22abad46-b4a9-5388-9e38-87fe90edbf5b",
+      "bodyValue": "Wrong (55%): Either party may terminate for convenience on 30 days' notice.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 2
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            703.24,
+            552.61,
+            730.23
+          ],
+          "quadPoints": [
+            56,
+            730.23,
+            552.61,
+            730.23,
+            56,
+            718.47,
+            552.61,
+            718.47,
+            56,
+            715,
+            394.49,
+            715,
+            56,
+            703.24,
+            394.49,
+            703.24
+          ],
+          "strokeColor": "#EF4444",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "a0a93b83-9646-5f7b-a2f0-5b6ef782bfec",
+      "bodyValue": "Correct (98%): Each party's liability is capped at the fees paid in the twelve months before the claim.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 2
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            617.98,
+            545.9,
+            644.96
+          ],
+          "quadPoints": [
+            56,
+            644.96,
+            545.9,
+            644.96,
+            56,
+            633.2,
+            545.9,
+            633.2,
+            56,
+            629.74,
+            361.79,
+            629.74,
+            56,
+            617.98,
+            361.79,
+            617.98
+          ],
+          "strokeColor": "#22C55E",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/anno.jsonld",
+        "https://comments.acrobat.com/ns/anno.jsonld"
+      ],
+      "type": "Annotation",
+      "id": "6cf752fd-3c0e-55e4-b55d-f785663094a0",
+      "bodyValue": "Correct (99%): The agreement is governed by Delaware law.",
+      "motivation": "commenting",
+      "target": {
+        "source": "c0a2d346-063e-5968-b51c-4b804cf4d113",
+        "selector": {
+          "node": {
+            "index": 2
+          },
+          "opacity": 0.35,
+          "subtype": "highlight",
+          "boundingBox": [
+            56,
+            578.39,
+            455.19,
+            590.15
+          ],
+          "quadPoints": [
+            56,
+            590.15,
+            455.19,
+            590.15,
+            56,
+            578.39,
+            455.19,
+            578.39
+          ],
+          "strokeColor": "#22C55E",
+          "type": "AdobeAnnoSelector"
+        }
+      },
+      "creator": {
+        "type": "Person",
+        "name": "boneify"
+      },
+      "created": "2026-11-14T20:00:08.542Z",
+      "modified": "2026-11-14T20:00:08.542Z"
+    }
+  ],
+  "documentType": null,
+  "keyFacts": []
+}
