@@ -247,7 +247,7 @@ Sessions are journaled, and memory kept, on your machine in `~/.intern/`.
 
 ## Community examples
 
-- [Regret Simulator — A Parliament of Future Selves](docs/examples/regret-simulator.md): a Next.js decision-support app using Intern with local Qwen3 and Drex supervision, plus direct Drex decision calls. Independent community project; includes setup, limitations and verification evidence.
+- [Regret Simulator — A Parliament of Future Selves](docs/examples/regret-simulator.md): a complete Next.js decision-support example under [examples/regret-simulator/](examples/regret-simulator/), using Intern with local Qwen3 and Drex supervision, plus direct Drex decision calls. Independent community project; includes source, tests, setup and limitations.
 
 ## Contributing
 
