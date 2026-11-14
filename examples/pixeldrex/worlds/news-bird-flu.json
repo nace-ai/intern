@@ -1,0 +1,27 @@
+{
+  "title": "Bird flu outbreak",
+  "states": [
+    {
+      "name": "healthy",
+      "color": "lightgray",
+      "meaning": "healthy poultry or wild bird"
+    },
+    {
+      "name": "infected",
+      "color": "red",
+      "meaning": "bird infected with avian flu"
+    },
+    {
+      "name": "culled",
+      "color": "black",
+      "meaning": "culled or dead bird"
+    },
+    {
+      "name": "protected",
+      "color": "green",
+      "meaning": "poultry housed indoors under prevention zone"
+    }
+  ],
+  "rules": "healthy with infected neighbour becomes infected [1, 2, 3]\ninfected becomes culled [2, 3]\nprotected with infected neighbour stays protected [1, 4]\nhealthy with protected neighbour becomes protected [1, 4]\nculled with healthy neighbour becomes healthy [5]",
+  "start": "mostly healthy, with a small cluster of infected in the center, and a band of protected along the top edge"
+}

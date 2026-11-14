@@ -1,0 +1,27 @@
+{
+  "title": "Coral Reef Dynamics",
+  "states": [
+    {
+      "name": "water",
+      "color": "skyblue",
+      "meaning": "empty ocean water"
+    },
+    {
+      "name": "coral",
+      "color": "pink",
+      "meaning": "healthy coral"
+    },
+    {
+      "name": "bleached",
+      "color": "white",
+      "meaning": "bleached coral"
+    },
+    {
+      "name": "fish",
+      "color": "orange",
+      "meaning": "fish that help recovery"
+    }
+  ],
+  "rules": "water with exactly 2 coral neighbours becomes coral\ncoral with 3 or more bleached neighbours becomes bleached\ncoral with 6 or more coral neighbours becomes bleached\nbleached with 3 or more fish neighbours becomes coral\nbleached with 2 coral neighbours becomes coral\nbleached with 0 neighbours that are coral or fish becomes water\nfish with 5 or more coral neighbours becomes water\nwater with exactly 3 fish neighbours becomes fish\nfish with exactly 0 neighbours that are coral or bleached becomes water\ncoral with exactly 4 fish neighbours becomes water\nwater with 1 coral and 2 fish neighbours becomes fish\nbleached with 4 water neighbours becomes water\ncoral with 1 or fewer non-water neighbours becomes bleached",
+  "start": "mostly water, with a large patch of coral covering most of the center, bleached coral on its right edge, and fish scattered around"
+}

@@ -1,0 +1,27 @@
+{
+  "title": "Forest Fire Cycle",
+  "states": [
+    {
+      "name": "tree",
+      "color": "darkgreen",
+      "meaning": "healthy tree"
+    },
+    {
+      "name": "fire",
+      "color": "red",
+      "meaning": "burning tree"
+    },
+    {
+      "name": "ash",
+      "color": "gray",
+      "meaning": "burnt ground"
+    },
+    {
+      "name": "grass",
+      "color": "green",
+      "meaning": "regrown grass"
+    }
+  ],
+  "rules": "a tree with a fire neighbour often catches fire\na fire becomes ash after one step\nash sometimes becomes grass\ngrass with a tree neighbour sometimes becomes a tree\na tree with lightning (rare random event) catches fire",
+  "start": "mostly trees, with a small fire in the center and a patch of ash nearby"
+}

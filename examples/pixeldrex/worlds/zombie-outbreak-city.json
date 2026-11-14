@@ -1,0 +1,27 @@
+{
+  "title": "Zombie Outbreak City",
+  "states": [
+    {
+      "name": "empty",
+      "color": "lightgray",
+      "meaning": "empty street or building"
+    },
+    {
+      "name": "human",
+      "color": "green",
+      "meaning": "healthy human"
+    },
+    {
+      "name": "zombie",
+      "color": "red",
+      "meaning": "zombie"
+    },
+    {
+      "name": "dead",
+      "color": "brown",
+      "meaning": "dead body"
+    }
+  ],
+  "rules": "empty with a zombie neighbour often becomes zombie\nhuman with a zombie neighbour rarely becomes zombie\nzombie with no human neighbour slowly becomes dead\ndead with no zombie neighbour rarely becomes empty\nhuman with no zombie neighbour sometimes becomes empty",
+  "start": "mostly empty, with a small cluster of zombies in the center and a few humans scattered around"
+}

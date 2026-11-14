@@ -1,0 +1,13 @@
+The `run_life` function already accepts `world: World | None = None` and only calls `design_world` when it's `None` — exactly what we need.
+
+Everything is in order. Both files compile cleanly and `--help` shows the new flags.
+
+---
+
+**Summary of changes:**
+
+- **`pixeldrex/life.py`**: Added `census_history` and `changed_history` fields to `Life` dataclass, initialized in `__post_init__` with step-0 census. `Life.step` now counts how many cells changed state each step and appends census + changed count to the history lists.
+
+- **`pixeldrex/cli.py`**: 
+  - `run_life_saved` accepts `world_path`, loads it via `World.from_dict` when given, passes `world=` to `run_life`, writes `world.json` to the run directory, and builds a `report` dict (title, steps, census_first, census_last, extinct, changed_cells_last_5_steps, gif) stored in returned stats.
+  - `life_main` makes `idea` optional (`nargs="?"`), adds `--world PATH` and `--report` flags, validates that at least one of idea/world is given, and when `--report` is set prints the report JSON and exits.

@@ -1,0 +1,32 @@
+{
+  "title": "Coral Reef (from field notes, NDI)",
+  "states": [
+    {
+      "name": "coral",
+      "color": "pink",
+      "meaning": "healthy living coral"
+    },
+    {
+      "name": "bleached",
+      "color": "white",
+      "meaning": "stressed coral that has lost its algae"
+    },
+    {
+      "name": "seaweed",
+      "color": "green",
+      "meaning": "macroalgae that overgrows dead coral"
+    },
+    {
+      "name": "rock",
+      "color": "gray",
+      "meaning": "bare substrate for settlement"
+    },
+    {
+      "name": "warm",
+      "color": "orange",
+      "meaning": "warm water patch that spreads and causes bleaching"
+    }
+  ],
+  "rules": "coral with warm neighbour becomes bleached (p. 1)\nbleached becomes rock (god)\nrock with coral neighbour becomes coral (p. 1)\nrock with seaweed neighbour becomes seaweed (p. 2)\nseaweed with at least two seaweed neighbours stays seaweed (god)\nseaweed with no neighbours becomes rock (god)\ncoral with more seaweed neighbours than coral neighbours becomes seaweed (god)\nrock with warm neighbour and no coral neighbour becomes seaweed (god)\nwarm with more coral neighbours than warm neighbours becomes coral (god)\nwarm spreads to coral neighbour (p. 1)",
+  "start": "checkerboard of coral and rock, with a warm patch of 5x5 in the center"
+}

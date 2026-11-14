@@ -1,0 +1,27 @@
+{
+  "title": "Wildfire Spread and Containment",
+  "states": [
+    {
+      "name": "forest",
+      "color": "darkgreen",
+      "meaning": "healthy forest"
+    },
+    {
+      "name": "fire",
+      "color": "red",
+      "meaning": "active wildfire"
+    },
+    {
+      "name": "ash",
+      "color": "gray",
+      "meaning": "burned area"
+    },
+    {
+      "name": "rain",
+      "color": "skyblue",
+      "meaning": "rainfall that helps containment"
+    }
+  ],
+  "rules": "forest with a fire neighbour often becomes fire [2, 3]\nfire with a rain neighbour rarely becomes ash [1, 4]\nfire without a rain neighbour slowly becomes ash [2]\nash with a forest neighbour rarely becomes forest [1]\nrain with no fire neighbour slowly becomes forest [4]\nforest with a rain neighbour rarely becomes fire [5]",
+  "start": "mostly forest, with a small fire in the center and a band of rain along the top edge"
+}

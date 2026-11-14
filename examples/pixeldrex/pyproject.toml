@@ -1,0 +1,47 @@
+[project]
+name = "pixeldrex"
+version = "0.1.0"
+description = "Every pixel is a decision: Drex paints and animates pixel-art GIFs."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["pixel-art", "gif", "animation", "drex", "decision-model", "cellular-automata", "generative-art"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["httpx>=0.27", "python-dotenv>=1.0", "pillow>=10.0", "fastapi>=0.110", "uvicorn>=0.29"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[project.urls]
+Repository = "https://github.com/mauryantitans/PixelDrex"
+Documentation = "https://github.com/mauryantitans/PixelDrex/blob/main/docs/ARCHITECTURE.md"
+
+[project.scripts]
+pixeldrex = "pixeldrex.cli:main"
+pixeldrex-web = "pixeldrex.web:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["pixeldrex"]
+
+[tool.setuptools.package-data]
+pixeldrex = ["web/*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E9", "F"]
