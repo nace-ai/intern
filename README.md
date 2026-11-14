@@ -18,7 +18,7 @@ We built it for the **November 14, 2026 Nace Drexathon**, targeting **Wildcard**
 - **Drex** makes consequential access and tool-use decisions. Its actual probabilities are available in the optional Forensics panel.
 - **NDI** parses player-created documents and extracts evidence for the document mission, reusing Parse results where possible.
 
-All targets, assets, credentials in Training, and tool actions are fictional. **Training and BYOK Live are publicly deployed. The Insider completed real Groq → Drex → deterministic-engine verification. Public NDI remains blocked at the Cloudflare upload boundary; see [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md).**
+All targets, assets, credentials in Training, and tool actions are fictional. **Training and BYOK Live are publicly deployed. The Insider completed real Groq → Drex → deterministic-engine verification. Mission 02 now uses NDI's documented public-HTTPS URL source to bypass the Cloudflare upload boundary; offline tests pass, but the changed path still needs one explicitly authorized live-provider validation. See [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md).**
 
 ## Features
 
@@ -78,7 +78,7 @@ Live mode is optional. **It can consume Nace credits and Groq quota, including f
    ```
 
 2. Start a mission, choose **Live AI**, enter **your own Nace API key** in the password field, and accept the displayed request limits.
-3. For Mission 02, also explicitly allow document processing. NDI sends the fictional document to Nace; Nace's retention policy applies.
+3. For Mission 02, also explicitly allow document processing and choose a public HTTPS PDF. The included legitimate and malicious fixtures are available under `public/demo/`. NDI fetches the selected PDF from its URL; Nace's retention policy applies.
 
 Never put real keys in source, screenshots, issues, chat messages, URLs, or `VITE_` variables. `.env` is ignored. `.env.example` contains no credentials. **A Nace developer key is not required in `.env` and is never used as a fallback for public players.**
 
@@ -153,7 +153,7 @@ npm run smoke:api -- https://agent-heist.agent-heist.workers.dev
 npm run verify:public -- https://agent-heist.agent-heist.workers.dev
 ```
 
-Keep the operator Groq key in Cloudflare secret management; it must never appear in `wrangler.jsonc`. Never upload or add a shared developer Nace key: each Live player supplies their own key. Public Live has completed real Insider validation, while public NDI is still reported as blocked at `ndi-upload`. See [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md) for exact decisions, usage, limits, and remaining risk.
+Keep the operator Groq key in Cloudflare secret management; it must never appear in `wrangler.jsonc`. Never upload or add a shared developer Nace key: each Live player supplies their own key. Public Live has completed real Insider validation. Mission 02's public-URL NDI workaround has passed offline tests but has not received a paid live-provider call. See [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md) for exact decisions, usage, limits, and remaining risk.
 
 The landing page uses `public-site.json` for the verified public URL, with an optional `VITE_PUBLIC_URL` build-time override. Regenerate the presentation QR only after verifying a changed public URL: `npm run qr:generate -- https://agent-heist.agent-heist.workers.dev`. The generator verifies HTTPS, decodes the PNG, and opens the decoded destination.
 
@@ -195,4 +195,4 @@ Review staged changes before committing. Keep `.env`, `.private/`, `.runtime/`, 
 
 All three Training missions and BYOK Live are publicly available. A real public Insider attempt completed the Groq → Drex → deterministic-engine path: Drex selected `FLAG`, the layer stayed locked, and no flag was released. A separate authoritative legitimate-control request selected `UNLOCK_LAYER`. The deployed Forensics panel shows real decision provenance, probabilities, request ID, latency, usage, and execution.
 
-Public Forged Credentials NDI remains blocked before job creation at the Cloudflare SDK upload boundary (`ndi-upload`). The repository preserves its Training mission, parsed-result reuse implementation, automated coverage, and earlier real local Parse/Extract evidence. Remaining work includes NDI upload compatibility, public load/abuse testing, real Drex-versus-LLM benchmark measurements, and a production competitive-ranking design. See [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md), [PROGRESS.md](PROGRESS.md), and [docs/verification-notes.md](docs/verification-notes.md) for exact evidence and limits. The current deployment passed 48 automated tests plus public API, browser, security, and real Drex checks.
+Mission 02 no longer uses the failing Cloudflare SDK upload boundary. It now passes a public HTTPS PDF URL directly to NDI Parse, reuses that Parse result for Extract, and renders the extraction beside Drex evidence in Forensics. Offline coverage and both text-extractable PDF fixtures pass; the changed route still needs one newly authorized public provider run because the recorded allowance is exhausted. Remaining work includes that validation, public load/abuse testing, real Drex-versus-LLM benchmark measurements, and a production competitive-ranking design. See [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md), [PROGRESS.md](PROGRESS.md), and [docs/verification-notes.md](docs/verification-notes.md) for exact evidence and limits. The current code passes 48 automated tests; deployment verification is recorded separately.

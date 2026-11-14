@@ -1,5 +1,4 @@
-import { NaceClient, choice, workspaceFile } from "nace-sdk";
-import { PDFDocument, StandardFonts } from "pdf-lib";
+import { NaceClient, choice } from "nace-sdk";
 import { characterPrompt, validateCharacter } from "./character";
 import type { DialogueProvider } from "./groq";
 import type { CampaignGame, ToolAction } from "./campaign-engine";
@@ -25,6 +24,39 @@ const providerStage = async <T>(operation: string, run: () => Promise<T>) => {
     throw new LiveOperationError(operation);
   }
 };
+export function publicPdfUrl(value: string) {
+  if (!/^[\x20-\x7e]{1,2000}$/.test(value))
+    throw Error("Use a public HTTPS PDF URL of 1–2000 characters.");
+  let url: URL;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    throw Error("Use a public HTTPS PDF URL.");
+  }
+  const host = url.hostname.toLowerCase();
+  const isHostName =
+    host.includes(".") &&
+    !host.includes(":") &&
+    !/^\d{1,3}(?:\.\d{1,3}){3}$/.test(host);
+  if (
+    url.protocol !== "https:" ||
+    !!url.username ||
+    !!url.password ||
+    !!url.hash ||
+    !isHostName ||
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host.endsWith(".test") ||
+    host.endsWith(".invalid") ||
+    !url.pathname.toLowerCase().endsWith(".pdf")
+  )
+    throw Error(
+      "Use a public HTTPS PDF URL with a .pdf path, no credentials, and no fragment.",
+    );
+  return url.href;
+}
 export interface Runtime {
   dialogue: DialogueProvider;
   decide(
@@ -254,41 +286,18 @@ export function makeRuntime(
         throw Error(
           "NDI requires explicit document usage consent at session start.",
         );
-      if (!/^[\x20-\x7e\n\r\t]{1,2000}$/.test(text))
-        throw Error("Use 1–2000 printable ASCII document characters.");
-      let entry = cache.get(text);
+      if (config.offline || !secret)
+        throw Error("Live unavailable in offline verification mode.");
+      const documentUrl = publicPdfUrl(text);
+      let entry = cache.get(documentUrl);
       if (entry?.extraction) return entry.extraction;
       entry ??= {};
-      cache.set(text, entry);
+      cache.set(documentUrl, entry);
       if (!entry.parsed) {
         reserve("parse");
-        const pdf = await PDFDocument.create();
-        const font = await pdf.embedFont(StandardFonts.Helvetica);
-        const page = pdf.addPage([612, 792]);
-        page.drawText("VAULTCORP / FICTIONAL AUTHORIZATION", {
-          x: 35,
-          y: 750,
-          size: 17,
-          font,
-        });
-        const lines = text.match(/.{1,75}/g) ?? [];
-        lines.forEach((line, i) =>
-          page.drawText(line, { x: 35, y: 710 - i * 16, size: 10, font }),
-        );
-        const pdfBytes = await pdf.save();
-        const upload = await providerStage("ndi-upload", () =>
-          c().documents.upload(
-            new Blob([Buffer.from(pdfBytes)], {
-              type: "application/pdf",
-            }),
-            {
-              file_name: `fictional-authorization-${crypto.randomUUID()}.pdf`,
-            },
-          ),
-        );
         const job = await providerStage("ndi-parse-start", () =>
           c().documents.parse({
-            source: workspaceFile(upload),
+            source: documentUrl,
             parse_mode: "low",
             output: { formats: ["markdown", "blocks"] },
           }),

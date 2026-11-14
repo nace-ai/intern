@@ -25,7 +25,7 @@ The original MVP checklist is preserved below. Final-sprint provider usage and t
 ## Partial / not claimed complete
 
 - [ ] Real provider validation of the new Live BYOK flow (all new provider tests used mocks)
-- [ ] Actual NDI upload/Parse/Extract against the live service (no paid NDI calls authorized in sprint)
+- [ ] Actual public-URL NDI Parse/Extract against the live service (recorded paid-operation caps are exhausted)
 - [x] Cloudflare account setup, public Training deployment, verified public URL and QR activation (see deployment record below)
 - [ ] Public traffic/abuse/load and actual free-plan CPU/resource validation
 - [ ] Real Drex vs conventional-LLM benchmark measurements
@@ -114,6 +114,9 @@ No Nace, NDI, Drex or Groq calls were made in deployment work. Existing local le
 - [x] 48 automated tests, production frontend build, Worker typecheck/dry run, repository audit, configured-secret audit, and public-bundle audit passed.
 - [x] Server-only `GROQ_API_KEY` is present as a Cloudflare `secret_text`; `ENABLE_LIVE=true`; browser-rendered deployment verified.
 - [x] Deployed Worker version `c490c728-824b-47bb-8074-026ddab0fde6` at https://agent-heist.agent-heist.workers.dev.
-- [ ] Public Live NDI: blocked at `ndi-upload` before any new Parse/Extract job. Safe stage reporting confirms Drex and Extract were not called, and further attempts stopped.
+- [x] Replaced the Cloudflare-incompatible NDI upload with the SDK's documented public HTTPS URL source; Parse-result reuse, extraction-to-Drex handoff, caching, caps, and zero retries remain intact.
+- [x] Added legitimate and malicious text-extractable Mission 02 PDFs, direct selection in Live, explicit NDI extraction rendering in Forensics, and retained safe failure-stage reporting.
+- [x] Added two-minute/five-minute judge scripts, exact attack payloads, and Adobe Firefly/Express production briefs under `demo/`.
+- [ ] Public Live NDI URL-source validation: not attempted because every recorded final-sprint NDI and Drex operation cap is consumed. Requires a new explicit allowance.
 
 Final-sprint accounting is kept in the separate ignored `.private/final-sprint-ledger.json`; Phase 2 remains unchanged and exhausted. The final ledger conservatively reserves `$0.21` of the authorized `$0.25` ceiling, including failed and pre-provider reservations. Actual observed calls were two Drex decisions and four Groq calls; no new NDI job was created. Nace did not return a Drex dollar amount, so no exact Drex charge is claimed. Exact decisions, request IDs, prior NDI costs, and blockers are in [FINAL-SPRINT-REPORT.md](FINAL-SPRINT-REPORT.md).

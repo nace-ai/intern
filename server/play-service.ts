@@ -20,6 +20,7 @@ import {
 } from "../src/missions";
 import {
   LiveOperationError,
+  publicPdfUrl,
   usageCaps,
   type Runtime,
   type RuntimeFactory,
@@ -187,6 +188,15 @@ export class PlayService {
           },
           403,
         );
+      if (
+        body.mode === "live" &&
+        body.missionId === "credentials" &&
+        body.allowDocuments !== true
+      )
+        return respond(
+          { error: "Mission 02 Live requires explicit NDI document consent." },
+          403,
+        );
       const id = randomUUID();
       const token = owner ?? randomBytes(32).toString("hex");
       const mission = new Mission(body.mode, body.hardened);
@@ -316,6 +326,19 @@ export class PlayService {
         { error: "Invalid turn. Check message, payload and strategy." },
         400,
       );
+    if (g.mode === "live" && g.missionId === "credentials" && body.commit) {
+      try {
+        body.payload = publicPdfUrl(body.payload ?? "");
+      } catch {
+        return respond(
+          {
+            error:
+              "Mission 02 Live requires a public HTTPS PDF URL with no embedded credentials or fragment.",
+          },
+          400,
+        );
+      }
+    }
     if (g.mode === "live" && this.now() - s.last < 3000)
       return respond({ error: "Wait three seconds between Live turns." }, 429);
     s.busy = true;

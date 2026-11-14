@@ -18,7 +18,8 @@
     "audit:repo": "node scripts/audit-repository.mjs",
     "verify:clean": "node scripts/verify-clean-checkout.mjs",
     "verify:public": "node scripts/verify-public.mjs",
-    "qr:generate": "node scripts/generate-qr.mjs"
+    "qr:generate": "node scripts/generate-qr.mjs",
+    "demo:pdfs": "node scripts/generate-demo-pdfs.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0",

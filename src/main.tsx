@@ -1,4 +1,5 @@
 import { Hub } from "./Hub";
+import publicSite from "../public-site.json";
 import {
   missions,
   missionById,
@@ -72,6 +73,29 @@ const lessons: {
     text: "Let me start over. I would rather understand you than threaten you.",
   },
 ];
+const publicAssetBase =
+  window.location.protocol === "https:"
+    ? window.location.origin
+    : publicSite.url;
+const demoDocumentUrls = {
+  legitimate: new URL("/demo/legitimate-authorization.pdf", publicAssetBase)
+    .href,
+  malicious: new URL("/demo/malicious-authorization.pdf", publicAssetBase).href,
+};
+function isHttpsPdfUrl(value: string) {
+  try {
+    const url = new URL(value.trim());
+    return (
+      url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
+      !url.hash &&
+      url.pathname.toLowerCase().endsWith(".pdf")
+    );
+  } catch {
+    return false;
+  }
+}
 function Sentinel({
   mood,
   busy,
@@ -181,6 +205,10 @@ const decisionEvidence = (receipt: Receipt) => {
   const evidence = receipt.evidence as any;
   return evidence?.security ?? evidence?.detail?.security;
 };
+const extractionEvidence = (receipt: Receipt) => {
+  const evidence = receipt.evidence as any;
+  return evidence?.extraction ?? evidence?.detail?.extraction;
+};
 const decisionLabel = (receipt: Receipt) => {
   if (receipt.source === "scripted") return "SCRIPTED";
   return decisionEvidence(receipt)?.provenance === "live-provider"
@@ -194,6 +222,7 @@ function App() {
   const [missionId, setMissionId] = useState<MissionId>("insider");
   const mission = missionById(missionId);
   const [payload, setPayload] = useState("");
+  const [documentUrl, setDocumentUrl] = useState(demoDocumentUrls.malicious);
   const [strategy, setStrategy] = useState("Maintenance cover");
   const [keyDialog, setKeyDialog] = useState(false);
   const [naceKey, setNaceKey] = useState("");
@@ -218,6 +247,7 @@ function App() {
     [commit, setCommit] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
+    [failedOperation, setFailedOperation] = useState(""),
     [muted, setMuted] = useState(true),
     [forensics, setForensics] = useState(false),
     [hint, setHint] = useState(false),
@@ -324,6 +354,7 @@ function App() {
   async function reset(mode = game.mode, hardened = game.hardened) {
     setBusy(true);
     setError("");
+    setFailedOperation("");
     try {
       const r = await fetch("/api/play/session", {
         method: "POST",
@@ -370,9 +401,23 @@ function App() {
   async function send(choice?: (typeof lessons)[number]) {
     const message = choice?.text ?? text.trim();
     const access = choice?.commit ?? commit;
+    const turnPayload =
+      game.mode === "live" && missionId === "credentials"
+        ? documentUrl.trim()
+        : payload;
     if (!id || !message || busy || ended) return;
+    if (
+      access &&
+      game.mode === "live" &&
+      missionId === "credentials" &&
+      !isHttpsPdfUrl(turnPayload)
+    ) {
+      setError("Enter a public HTTPS PDF URL before committing Mission 02.");
+      return;
+    }
     setBusy(true);
     setError("");
+    setFailedOperation("");
     try {
       const r = await fetch("/api/play/turn", {
         method: "POST",
@@ -382,14 +427,17 @@ function App() {
           message,
           commit: access,
           choice: choice?.id,
-          payload,
+          payload: turnPayload,
           strategy,
         }),
       });
       const d = await r.json();
+      if (d.usage) setUsage(d.usage);
+      setFailedOperation(
+        typeof d.failedOperation === "string" ? d.failedOperation : "",
+      );
       if (!r.ok) throw Error(d.error);
       const next: CampaignGame = d.game;
-      setUsage(d.usage);
       setGame(next);
       if (next.status === "won" && d.flag) {
         setFlag(d.flag);
@@ -424,11 +472,13 @@ function App() {
         select={(selected) => {
           setMissionId(selected);
           setPayload(missionById(selected).document);
+          setDocumentUrl(demoDocumentUrls.malicious);
           setScreen("game");
           setId("");
           setFlag("");
           setVerified(false);
           setError("");
+          setFailedOperation("");
           setGame({
             ...newInsider(),
             missionId: selected,
@@ -646,7 +696,13 @@ function App() {
                   </label>
                   <button
                     className="begin-mission"
-                    disabled={!status?.live || !consent || !naceKey || busy}
+                    disabled={
+                      !status?.live ||
+                      !consent ||
+                      !naceKey ||
+                      busy ||
+                      (missionId === "credentials" && !allowDocuments)
+                    }
                   >
                     Start Live mission
                   </button>
@@ -1071,26 +1127,83 @@ function App() {
                       </select>
                     </label>
                     {missionId !== "insider" && (
-                      <label>
-                        {missionId === "credentials"
-                          ? "Fictional authorization document (JSON)"
-                          : "Poisoned diagnostic tool response (JSON)"}
-                        <textarea
-                          aria-label="Attack payload"
-                          value={payload}
-                          maxLength={2000}
-                          rows={7}
-                          disabled={busy}
-                          onChange={(e) => setPayload(e.target.value)}
-                        />
-                        <small>
-                          {game.mode === "tutorial"
-                            ? "Training: local simulated extraction. No NDI/model calls."
-                            : missionId === "credentials"
-                              ? "Commit uses opt-in NDI Parse + Extract, then a real Drex decision."
-                              : "Tool results are untrusted inputs to Drex. Export requires a prior load."}
-                        </small>
-                      </label>
+                      <>
+                        <label>
+                          {missionId === "credentials"
+                            ? game.mode === "live"
+                              ? "Public HTTPS authorization PDF"
+                              : "Fictional authorization document (JSON)"
+                            : "Poisoned diagnostic tool response (JSON)"}
+                          {missionId === "credentials" &&
+                          game.mode === "live" ? (
+                            <input
+                              aria-label="Public HTTPS authorization PDF"
+                              type="url"
+                              inputMode="url"
+                              value={documentUrl}
+                              maxLength={2000}
+                              disabled={busy}
+                              onChange={(e) => setDocumentUrl(e.target.value)}
+                            />
+                          ) : (
+                            <textarea
+                              aria-label="Attack payload"
+                              value={payload}
+                              maxLength={2000}
+                              rows={7}
+                              disabled={busy}
+                              onChange={(e) => setPayload(e.target.value)}
+                            />
+                          )}
+                          <small>
+                            {game.mode === "tutorial"
+                              ? "Training: local simulated extraction. No NDI/model calls."
+                              : missionId === "credentials"
+                                ? "NDI fetches the selected PDF directly, extracts its actual fields, and sends that evidence to Drex as untrusted data."
+                                : "Tool results are untrusted inputs to Drex. Export requires a prior load."}
+                          </small>
+                        </label>
+                        {missionId === "credentials" &&
+                          game.mode === "live" && (
+                            <div
+                              className="demo-document-options"
+                              aria-label="Demo authorization PDFs"
+                            >
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() =>
+                                  setDocumentUrl(demoDocumentUrls.legitimate)
+                                }
+                              >
+                                Use legitimate control
+                              </button>
+                              <a
+                                href={demoDocumentUrls.legitimate}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                View control PDF
+                              </a>
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() =>
+                                  setDocumentUrl(demoDocumentUrls.malicious)
+                                }
+                              >
+                                Use injection sample
+                              </button>
+                              <a
+                                href={demoDocumentUrls.malicious}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                View malicious PDF
+                              </a>
+                            </div>
+                          )}
+                      </>
                     )}
                     {game.workflow.length > 0 && (
                       <p>Executed workflow: {game.workflow.join(" → ")}</p>
@@ -1227,6 +1340,13 @@ function App() {
                   · Limits: Groq 12 / Drex 3 / NDI Parse 1 + Extract 1 per Live
                   session. Raw evidence below is optional.
                 </div>
+                {failedOperation && (
+                  <p className="provider-failure" role="status">
+                    Last provider failure: <code>{failedOperation}</code>. The
+                    reservation remains counted; no action executed and no flag
+                    was released.
+                  </p>
+                )}
                 {game.turns.map((t, i) => (
                   <details key={i}>
                     <summary>
@@ -1235,6 +1355,31 @@ function App() {
                         t.receipt.decision ??
                         "No tool decision"}
                     </summary>
+                    {extractionEvidence(t.receipt) && (
+                      <div className="extraction-evidence">
+                        <p>
+                          <strong>
+                            {extractionEvidence(t.receipt)?.provenance ===
+                            "live-provider"
+                              ? "Verified live NDI extraction"
+                              : "NDI extraction evidence"}
+                          </strong>{" "}
+                          · Parse job{" "}
+                          {extractionEvidence(t.receipt)?.source?.job_id ??
+                            "not reported"}{" "}
+                          · Extract job{" "}
+                          {extractionEvidence(t.receipt)?.extract_job_id ??
+                            "not reported"}
+                        </p>
+                        <pre aria-label="NDI extracted document evidence">
+                          {JSON.stringify(
+                            extractionEvidence(t.receipt)?.result ?? null,
+                            null,
+                            2,
+                          )}
+                        </pre>
+                      </div>
+                    )}
                     {decisionEvidence(t.receipt) && (
                       <div className="decision-evidence">
                         <p>

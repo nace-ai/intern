@@ -486,27 +486,20 @@ test("offline guard blocks every provider before reserving or fetching", async (
   await assert.rejects(rt.extract("{}"), /offline/);
   assert.equal(externalCalls, 0);
 });
-test("NDI reuses Parse as Extract source, caches successful extraction and requires consent for new jobs", async () => {
+test("NDI parses a public PDF URL, reuses Parse for Extract, caches success and requires consent", async () => {
   const operations: string[] = [];
-  let parsedSource: unknown;
-  let uploadedName = "";
+  let parseArgs: unknown;
+  let extractArgs: unknown;
   const sdk = {
     documents: {
-      upload: async (_content: unknown, params: { file_name: string }) => {
-        uploadedName = params.file_name;
-        operations.push("upload");
-        return {
-          workspace_id: "11111111-1111-4111-8111-111111111111",
-          file_id: "22222222-2222-4222-8222-222222222222",
-        };
-      },
-      parse: async () => {
+      parse: async (args: unknown) => {
         operations.push("parse");
+        parseArgs = args;
         return { job_id: "parse-1" };
       },
       extract: async (args: unknown) => {
         operations.push("extract");
-        parsedSource = args;
+        extractArgs = args;
         return { job_id: "extract-1" };
       },
     },
@@ -531,14 +524,11 @@ test("NDI reuses Parse as Extract source, caches successful extraction and requi
       return sdk as any;
     },
   });
-  const text = JSON.stringify({
-    area: "B2",
-    role: "maintenance",
-    approval: "approved",
-  });
-  const first = await rt.extract(text);
-  assert.match(uploadedName, /^fictional-authorization-[0-9a-f-]{36}\.pdf$/);
-  assert.deepEqual((parsedSource as any).source, {
+  const documentUrl =
+    "https://agent-heist.agent-heist.workers.dev/demo/malicious-authorization.pdf";
+  const first = await rt.extract(documentUrl);
+  assert.equal((parseArgs as any).source, documentUrl);
+  assert.deepEqual((extractArgs as any).source, {
     type: "parse_result",
     job_id: "parse-1",
   });
@@ -548,11 +538,21 @@ test("NDI reuses Parse as Extract source, caches successful extraction and requi
   });
   assert.equal((first as any).extract_job_id, "extract-1");
   assert.equal((first as any).provenance, "live-provider");
-  assert.deepEqual(await rt.extract(text), first);
-  assert.deepEqual(operations, ["upload", "parse", "extract"]);
+  assert.deepEqual(await rt.extract(documentUrl), first);
+  assert.deepEqual(operations, ["parse", "extract"]);
   assert.deepEqual(rt.usage, { groq: 0, drex: 0, parse: 1, extract: 1 });
-  await assert.rejects(rt.extract(text + " "), /limit/);
-  assert.deepEqual(operations, ["upload", "parse", "extract"]);
+  await assert.rejects(
+    rt.extract("http://127.0.0.1/private.pdf"),
+    /public HTTPS PDF URL/,
+  );
+  assert.deepEqual(operations, ["parse", "extract"]);
+  await assert.rejects(
+    rt.extract(
+      "https://agent-heist.agent-heist.workers.dev/demo/legitimate-authorization.pdf",
+    ),
+    /limit/,
+  );
+  assert.deepEqual(operations, ["parse", "extract"]);
   rt.dispose();
 });
 test("Live forged credentials sends NDI evidence only to Drex and preserves its decision", async () => {
@@ -560,6 +560,8 @@ test("Live forged credentials sends NDI evidence only to Drex and preserves its 
     extracts = 0;
   let dialogueHistory: unknown;
   let decision: ToolAction = "DENY";
+  const documentUrl =
+    "https://agent-heist.agent-heist.workers.dev/demo/malicious-authorization.pdf";
   const runtime: Runtime = {
     usage: { groq: 0, drex: 0, parse: 0, extract: 0 },
     dialogue: {
@@ -577,7 +579,7 @@ test("Live forged credentials sends NDI evidence only to Drex and preserves its 
     },
     extract: async (text) => {
       extracts++;
-      assert.equal(text, "document");
+      assert.equal(text, documentUrl);
       return {
         source: "NDI mock",
         result: { data: { approval: "approved" }, fields: [] },
@@ -606,12 +608,24 @@ test("Live forged credentials sends NDI evidence only to Drex and preserves its 
     consent: true,
     allowDocuments: true,
   });
+  const invalid = await c(
+    "turn",
+    turn(s.id, {
+      commit: true,
+      payload: "http://127.0.0.1/private.pdf",
+    }),
+  );
+  assert.equal(invalid.status, 400);
+  assert.equal(dialogueHistory, undefined);
   const refused = await c(
     "turn",
-    turn(s.id, { commit: true, payload: "document" }),
+    turn(s.id, { commit: true, payload: documentUrl }),
   );
   assert.equal(refused.data.flag, undefined);
-  assert.doesNotMatch(JSON.stringify(dialogueHistory), /document/);
+  assert.doesNotMatch(
+    JSON.stringify(dialogueHistory),
+    /malicious-authorization/,
+  );
   assert.equal(
     refused.data.game.turns.at(-1).receipt.evidence.detail.extraction.source,
     "NDI mock",
@@ -624,7 +638,7 @@ test("Live forged credentials sends NDI evidence only to Drex and preserves its 
   decision = "UNLOCK_LAYER";
   const granted = await c(
     "turn",
-    turn(s.id, { commit: true, payload: "document" }),
+    turn(s.id, { commit: true, payload: documentUrl }),
   );
   assert.equal(granted.data.game.status, "won");
   assert.equal(extracts, 2);
@@ -730,7 +744,7 @@ test("Live NDI failures expose only a safe operation code and never a flag", asy
       }),
     },
     extract: async () => {
-      throw new LiveOperationError("ndi-upload");
+      throw new LiveOperationError("ndi-parse-start");
     },
     decide: async () => {
       throw Error("Drex must not run after NDI failure");
@@ -749,10 +763,14 @@ test("Live NDI failures expose only a safe operation code and never a flag", asy
   });
   const result = await c(
     "turn",
-    turn(session.id, { commit: true, payload: "document" }),
+    turn(session.id, {
+      commit: true,
+      payload:
+        "https://agent-heist.agent-heist.workers.dev/demo/malicious-authorization.pdf",
+    }),
   );
   assert.equal(result.status, 400);
-  assert.equal(result.data.failedOperation, "ndi-upload");
+  assert.equal(result.data.failedOperation, "ndi-parse-start");
   assert.equal(result.data.flag, undefined);
   assert.deepEqual(result.data.usage, runtime.usage);
 });

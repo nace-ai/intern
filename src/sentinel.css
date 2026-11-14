@@ -1537,7 +1537,8 @@ pre {
   border: 1px solid #344453;
   border-radius: 4px;
 }
-.attack-workbench > label > textarea {
+.attack-workbench > label > textarea,
+.attack-workbench > label > input[type="url"] {
   display: block;
   margin: 10px 0;
   width: 100%;
@@ -1547,7 +1548,38 @@ pre {
   padding: 12px;
   border-radius: 5px;
   color: #d0e9e5;
+}
+.attack-workbench > label > textarea {
   resize: vertical;
+}
+.demo-document-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: -3px 0 16px;
+}
+.demo-document-options button,
+.demo-document-options a {
+  font: 10px monospace;
+}
+.demo-document-options a {
+  color: #8af9cf;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.extraction-evidence,
+.decision-evidence {
+  border-left: 2px solid #5dbda7;
+  padding-left: 12px;
+  margin: 8px 0 14px;
+}
+.forensics .provider-failure {
+  color: #ffb6a4;
+  border: 1px solid #68413d;
+  background: #2b1919;
+  border-radius: 5px;
+  padding: 10px 12px;
 }
 .attack-workbench small {
   display: block;
