@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "TX",
+ "code": "TN",
+ "code_name": "Transportation Code",
+ "section": "545.062",
+ "citation": "Tex. Transp. Code § 545.062",
+ "title": "Following Distance",
+ "status": "active",
+ "text": "(a) An operator shall, if following another vehicle, maintain an assured clear distance between the two vehicles so that, considering the speed of the vehicles, traffic, and the conditions of the highway, the operator can safely stop without colliding with the preceding vehicle or veering into another vehicle, object, or person on or near the highway.\n(b) An operator of a truck or of a motor vehicle drawing another vehicle who is on a roadway outside a business or residential district and who is following another truck or motor vehicle drawing another vehicle shall, if conditions permit, leave sufficient space between the vehicles so that a vehicle passing the operator can safely enter and occupy the space. This subsection does not prohibit a truck or a motor vehicle drawing another vehicle from passing another vehicle.\n(c) An operator on a roadway outside a business or residential district driving in a caravan of other vehicles or a motorcade shall allow sufficient space between the operator and the vehicle preceding the operator so that another vehicle can safely enter and occupy the space. This subsection does not apply to a funeral procession.\n(d) An operator of a vehicle equipped with a connected braking system that is following another vehicle equipped with that system may be assisted by the system to maintain an assured clear distance or sufficient space as required by this section. In this subsection, \"connected braking system\" means a system by which the braking of one vehicle is electronically coordinated with the braking system of a following vehicle.",
+ "history": "Acts 1995, 74th Leg., ch. 165, Sec. 1, eff. Sept. 1, 1995.\nAmended by:\nActs 2017, 85th Leg., R.S., Ch. 19 (H.B. 1791), Sec. 1, eff. May 18, 2017.",
+ "source_url": "https://statutes.capitol.texas.gov/Docs/TN/htm/TN.545.htm#545.062",
+ "lawwiki_url": "https://www.lawwiki.ai/tx/tn/545.062",
+ "source_version": "TLC through 2026-10-16",
+ "content_hash": "813f5ded2895031a2cc79bb0fea56bda08f0c2eb0930ec6d453f1238e7942d80",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

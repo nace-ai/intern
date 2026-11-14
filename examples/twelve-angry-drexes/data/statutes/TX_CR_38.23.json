@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "TX",
+ "code": "CR",
+ "code_name": "Code of Criminal Procedure",
+ "section": "38.23",
+ "citation": "Tex. Code Crim. Proc. art. 38.23",
+ "title": "Evidence Not to Be Used",
+ "status": "active",
+ "text": "(a) No evidence obtained by an officer or other person in violation of any provisions of the Constitution or laws of the State of Texas, or of the Constitution or laws of the United States of America, shall be admitted in evidence against the accused on the trial of any criminal case.\nIn any case where the legal evidence raises an issue hereunder, the jury shall be instructed that if it believes, or has a reasonable doubt, that the evidence was obtained in violation of the provisions of this Article, then and in such event, the jury shall disregard any such evidence so obtained.\n(b) It is an exception to the provisions of Subsection (a) of this Article that the evidence was obtained by a law enforcement officer acting in objective good faith reliance upon a warrant issued by a neutral magistrate based on probable cause.",
+ "history": "Acts 1965, 59th Leg., vol. 2, p. 317, ch. 722.\nAmended by Acts 1987, 70th Leg., ch. 546, Sec. 1, eff. Sept. 1, 1987.",
+ "source_url": "https://statutes.capitol.texas.gov/Docs/CR/htm/CR.38.htm#38.23",
+ "lawwiki_url": "https://www.lawwiki.ai/tx/cr/38.23",
+ "source_version": "TLC through 2026-10-16",
+ "content_hash": "a0711a46c5bf3e93ddc1b37ec155cef578a1f12a3e19de2a085c98dcb785a8a8",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

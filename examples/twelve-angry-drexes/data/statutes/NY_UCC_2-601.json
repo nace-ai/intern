@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "UCC",
+ "code_name": "Uniform Commercial Code",
+ "section": "2-601",
+ "citation": "N.Y. U.C.C. Law § 2-601",
+ "title": "Buyer's Rights on Improper Delivery",
+ "status": "active",
+ "text": "Subject to the provisions of this Article on breach in installment contracts (Section 2--612) and unless otherwise agreed under the sections on contractual limitations of remedy (Sections 2--718 and 2--719), if the goods or the tender of delivery fail in any respect to conform to the contract, the buyer may\n(a) reject the whole; or (b) accept the whole; or (c) accept any commercial unit or units and reject the rest.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/UCC/2-601",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-601",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "5e444df60f9f9960ae52d7f20c0031c92236d7a48737741d2ff19646494bc123",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

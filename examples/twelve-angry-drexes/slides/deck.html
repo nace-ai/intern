@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twelve Angry Drexes slides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+/* The deck is set in Direction A (the figure plate). ?design=base or ?design=b give the other two looks of the mocks. */
+(function () {
+  var m = /[?&]design=(a|b|base)(?:&|$)/.exec(location.search);
+  document.documentElement.setAttribute("data-design", m ? m[1] : "a");
+})();
+</script>
+<style>
+/* Tokens copied from mocks/tad.css and mocks/design.css so this file can be moved on its own. */
+:root {
+  --bg: #0c0a09; --surface: #1d1816; --raised: #2b2422; --line: #3b322e; --edge: #3b322e;
+  --text: #fbfaf9; --text-2: #e8e4e3; --muted: #aba09c; --dim: #7c6d67;
+  --o1: #ffb96d; --o2: #fe6e00; --o3: #f05100; --o4: #c53c00; --o5: #9f2d00;
+  --ln: #aba09c;
+  --radius: 6px;
+  --grid: none;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+:root[data-design="a"] {
+  color-scheme: dark;
+  --bg: #0A0A0A; --surface: #111111; --raised: #1A1A1A; --line: #2A2A2A; --edge: #3A3A3A;
+  --text: #EDEDED; --text-2: #C7C7C7; --muted: #8F8F8F; --dim: #8F8F8F;
+  --o1: #FF8A3D; --o2: #FF8A3D; --o3: #FF8A3D; --o4: #C7C7C7; --o5: #8F8F8F;
+  --ln: #8F8F8F; --radius: 0;
+  --grid: linear-gradient(to right, #151515 1px, transparent 1px), linear-gradient(to bottom, #151515 1px, transparent 1px);
+  --sans: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+:root[data-design="b"] {
+  color-scheme: light;
+  --bg: #F5F5F2; --surface: #FFFFFF; --raised: #ECEAE4; --line: #E6E4DE; --edge: #D8D6D0;
+  --text: #171614; --text-2: #3B3935; --muted: #5F5C57; --dim: #5F5C57;
+  --o1: #B8420A; --o2: #FF7A1A; --o3: #FF7A1A; --o4: #B8420A; --o5: #8A3008;
+  --ln: #1F4E8C; --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font: 20px/1.35 var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* stage: one 1280x720 slide at a time, scaled to the window */
+#deck { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; }
+.slide { display: none; position: relative; width: 1280px; height: 720px; overflow: hidden; padding: 44px 64px 0;
+  background-color: var(--bg); background-image: var(--grid); background-size: 40px 40px; }
+.slide.on { display: block; }
+.foot { position: absolute; left: 64px; right: 64px; bottom: 22px; display: flex; justify-content: space-between;
+  font: 14px/1 var(--mono); color: var(--muted); letter-spacing: 0.04em; }
+
+/* type */
+.kick { font: 500 14px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--o1); margin: 0 0 12px; }
+h1, h2 { margin: 0; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
+h1 { font-size: 56px; } h2 { font-size: 48px; }
+h3 { margin: 0 0 8px; font: 500 14px/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+p { margin: 0; }
+.lead { font-size: 26px; line-height: 1.3; color: var(--text-2); margin-top: 14px; max-width: 1020px; }
+.sub { font-size: 20px; color: var(--muted); margin-top: 10px; }
+.org { color: var(--o1); }
+
+/* panels */
+.panel { background: var(--surface); border: 1px solid var(--edge); border-radius: var(--radius); min-width: 0; }
+.inv { background: var(--raised); }
+:root[data-design="b"] .inv { background: #171614; border-color: #171614; color: #F5F5F2;
+  --text: #F5F5F2; --text-2: #E6E2DB; --muted: #C9C5BE; --o1: #FF9A4D; --edge: #171614; --line: #3B3935; }
+
+/* state marker: live = filled dot, built = hollow ring */
+.st { display: inline-flex; align-items: center; gap: 7px; font: 14px/1.2 var(--mono); color: var(--muted); }
+.st i, .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.st.live i, .dot.live { background: var(--o2); }
+.st.built i, .dot.built { border: 2px solid var(--muted); background: transparent; }
+:root[data-design="a"] .st i, :root[data-design="a"] .dot { border-radius: 0; }
+.st.live { color: var(--text-2); }
+
+/* slide 1 */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
+.two .panel { padding: 20px 24px; height: 178px; }
+.two .big { font-size: 30px; line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; }
+.two .txt { font-size: 24px; line-height: 1.3; color: var(--text-2); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 24px; padding: 18px 24px 16px; }
+.stats > div { display: flex; flex-direction: column; gap: 4px; }
+.stats > div + div { border-left: 1px solid var(--line); padding-left: 28px; }
+.stats b { font: 500 52px/1 var(--mono); color: var(--o1); letter-spacing: -0.02em; }
+.stats span { font-size: 20px; color: var(--muted); }
+.cap { font-size: 20px; color: var(--muted); margin-top: 12px; }
+
+/* slide 2 */
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 230px 40px 230px; column-gap: 40px; margin-top: 24px; }
+.flow svg { grid-column: 1 / -1; width: 1152px; height: 40px; display: block; }
+.step { position: relative; padding: 12px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+.step .n { font: 500 14px/1 var(--mono); color: var(--muted); letter-spacing: 0.08em; }
+.step h3.t { margin: 0; font: 600 22px/1.12 var(--sans); letter-spacing: -0.01em; color: var(--text); text-transform: none; }
+.step .d { font-size: 20px; line-height: 1.22; color: var(--text-2); }
+.step .d b { font: 500 20px/1.22 var(--mono); color: var(--o1); font-variant-numeric: tabular-nums; }
+.step .st { margin-top: auto; }
+.step:not(.last)::after { content: ""; position: absolute; left: 100%; top: 50%; width: 30px; height: 2px; margin-top: -1px; background: var(--ln); }
+.step:not(.last)::before { content: ""; position: absolute; left: calc(100% + 30px); top: 50%; margin-top: -6px; border-left: 10px solid var(--ln); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+.ah { fill: var(--ln); }
+.ln { stroke: var(--ln); stroke-width: 2; fill: none; }
+
+/* slide 3 */
+.dg { position: relative; width: 1152px; height: 476px; margin-top: 14px; }
+.dg svg { position: absolute; left: 0; top: 0; width: 1152px; height: 476px; }
+.bx { position: absolute; width: 192px; padding: 9px 14px; background: var(--surface); border: 1px solid var(--edge); border-radius: var(--radius); overflow: hidden; }
+.bx b { display: block; font: 600 17px/1.2 var(--sans); }
+:root[data-design="a"] .bx b { font-size: 16px; }
+.bx .s { display: block; font: 14px/1.25 var(--mono); color: var(--muted); margin-top: 3px; }
+.bx .dot { position: absolute; right: 11px; bottom: 11px; }
+.bx.inv { color: var(--text); }
+.in { margin-top: 8px; padding: 7px 10px; border: 1px solid var(--line); border-radius: calc(var(--radius) * 0.6); background: var(--bg); }
+:root[data-design="b"] .in { background: #F5F5F2; border-color: #D8D6D0; }
+.in b { font: 600 16px/1.2 var(--sans); padding: 0; }
+.legend { position: absolute; left: 0; top: 300px; display: flex; flex-direction: column; gap: 10px; }
+.olab { position: absolute; left: 240px; top: 436px; font: 14px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+/* slide 4 */
+.tools { width: 1152px; border-collapse: collapse; margin-top: 14px; table-layout: fixed; }
+.tools th { text-align: left; font: 500 14px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--edge); }
+.tools td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: 20px; line-height: 1.2; color: var(--text-2); }
+.tools td.tn { font-weight: 600; color: var(--text); }
+.tools td.tn small { display: block; font: 400 14px/1.25 var(--mono); color: var(--muted); margin-top: 2px; }
+.tools td.nm { font: 500 20px/1.2 var(--mono); color: var(--o1); font-variant-numeric: tabular-nums; }
+.tools tr.sect td { color: var(--muted); }
+:root[data-design="b"] .tools thead.inv th { background: #171614; color: #C9C5BE; border-bottom-color: #171614; }
+.tools-wrap { border: 1px solid var(--edge); border-radius: var(--radius); background: var(--surface); width: 1152px; overflow: hidden; margin-top: 14px; }
+.tools-wrap .tools { margin: 0; }
+.tools tbody tr:last-child td { border-bottom: 0; }
+.keyline { display: flex; gap: 28px; align-items: center; margin-top: 10px; }
+
+/* slide 5 */
+.strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 14px; margin-top: 22px; }
+.tile { padding: 10px 12px 10px; }
+.tile .id { font: 14px/1 var(--mono); color: var(--muted); }
+.tile .v { font: 500 34px/1.1 var(--mono); color: var(--o1); margin: 8px 0 6px; letter-spacing: -0.02em; }
+.tile .m { font: 14px/1.2 var(--mono); color: var(--text-2); }
+.tile.split { border-color: var(--o2); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 22px; }
+.row2 .panel { padding: 18px 22px; height: 252px; }
+.bar { height: 22px; margin: 6px 0 4px; }
+.bar.d { background: var(--o2); width: 8px; }
+.bar.f { background: var(--text-2); opacity: 0.55; width: 100%; }
+.bl { font-size: 20px; color: var(--text-2); }
+.bl b { font: 500 20px/1.2 var(--mono); color: var(--o1); }
+ul.lim { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+ul.lim li { font-size: 22px; line-height: 1.25; padding-left: 22px; position: relative; color: var(--text); }
+ul.lim li::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 10px; height: 2px; background: var(--o2); }
+.next { margin-top: 20px; padding: 14px 22px; display: flex; gap: 18px; align-items: baseline; }
+.next h3 { margin: 0; flex: none; }
+.next p { font-size: 24px; line-height: 1.25; font-weight: 600; }
+
+/* Direction A, the figure plate: black ground, 40 px grid, monospace only, hairlines, one accent,
+   uppercase letter-spaced captions, dashed lines for what is lower or not live. */
+:root[data-design="a"] body { font-size: 18px; }
+:root[data-design="a"] .kick { color: #8F8F8F; letter-spacing: 2px; font-weight: 400; font-size: 13px; margin-bottom: 14px; }
+:root[data-design="a"] h1, :root[data-design="a"] h2 { font-weight: 500; letter-spacing: -0.01em; }
+:root[data-design="a"] h1 { font-size: 52px; }
+:root[data-design="a"] h2 { font-size: 42px; }
+:root[data-design="a"] h3 { letter-spacing: 2px; font-size: 12px; font-weight: 400; color: #8F8F8F; }
+:root[data-design="a"] .lead { font-size: 22px; }
+:root[data-design="a"] .cap, :root[data-design="a"] .sub { font-size: 15px; }
+:root[data-design="a"] .panel { background: #0E0E0E; border-color: #3A3A3A; }
+:root[data-design="a"] .panel.inv { background: #1A1410; border: 1.5px solid #FF8A3D; }
+:root[data-design="a"] .foot { border-top: 1px solid #2A2A2A; padding-top: 10px; bottom: 16px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #8F8F8F; }
+:root[data-design="a"] .st { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+:root[data-design="a"] .st.built i, :root[data-design="a"] .dot.built { border: 1.5px dashed #8F8F8F; }
+:root[data-design="a"] .two .big { font-size: 26px; font-weight: 500; }
+:root[data-design="a"] .two .txt { font-size: 19px; }
+:root[data-design="a"] .stats b { font-size: 48px; font-weight: 400; }
+:root[data-design="a"] .stats span { font-size: 15px; }
+:root[data-design="a"] .step h3.t { font: 500 19px/1.15 var(--mono); letter-spacing: 0; color: #EDEDED; text-transform: none; }
+:root[data-design="a"] .step .d, :root[data-design="a"] .step .d b { font-size: 16px; }
+:root[data-design="a"] .bx { background: #0E0E0E; }
+:root[data-design="a"] .bx:has(> .dot.built) { border-style: dashed; }
+:root[data-design="a"] .in { background: #0A0A0A; border-color: #2A2A2A; }
+:root[data-design="a"] .tools-wrap { background: transparent; border-color: #3A3A3A; }
+:root[data-design="a"] .tools td, :root[data-design="a"] .tools td.nm { font-size: 17px; }
+:root[data-design="a"] .tools th { letter-spacing: 2px; font-size: 12px; font-weight: 400; }
+:root[data-design="a"] .tools tr:has(.st.built) td { color: #8F8F8F; border-top: 1px dashed #3A3A3A; border-bottom: 1px dashed #3A3A3A; }
+:root[data-design="a"] .tile .v { font-weight: 400; }
+:root[data-design="a"] .bl, :root[data-design="a"] .bl b { font-size: 17px; }
+:root[data-design="a"] .bar { height: 14px; }
+:root[data-design="a"] .bar.f { background: transparent; border: 1px dashed #8F8F8F; opacity: 1; }
+:root[data-design="a"] ul.lim li { font-size: 18px; }
+:root[data-design="a"] ul.lim li::before { height: 1px; background: #8F8F8F; }
+:root[data-design="a"] .next p { font-size: 20px; font-weight: 500; }
+
+/* The figure plate itself (the Direction A board, rebuilt at slide size). Its colours are fixed: it is the reference. */
+.plate { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #EDEDED; font-size: 15px; line-height: 1.4;
+  background-color: #0A0A0A; background-size: 40px 40px;
+  background-image: linear-gradient(to right, #151515 1px, transparent 1px), linear-gradient(to bottom, #151515 1px, transparent 1px); }
+.plate .ph { display: flex; justify-content: space-between; font-size: 13px; letter-spacing: 2px; color: #8F8F8F; text-transform: uppercase; }
+.slide.plate h1.pt { font: 500 40px/44px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: -0.01em; color: #EDEDED; margin: 12px 0 0; }
+.slide.plate p.ps { font: 16px/22px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #C7C7C7; margin: 6px 0 0; max-width: none; }
+.plate .pr { display: flex; gap: 48px; align-items: flex-start; margin-top: 18px; }
+#s1 .two { margin-top: 34px; }
+#s1 .two .panel { height: 232px; }
+#s1 .stats { margin-top: 34px; padding-top: 30px; padding-bottom: 30px; }
+#s1 .cap { margin-top: 18px; }
+.plate .pl { flex: 0 0 596px; }
+.plate .prt { flex: 1; min-width: 0; }
+.plate .cap2 { font-size: 12px; letter-spacing: 2px; color: #8F8F8F; text-transform: uppercase; }
+.plate .cap2.hi { color: #C7C7C7; }
+.plate .fig { display: flex; align-items: flex-start; margin: 4px 0 0; }
+.plate .labs { flex: 1; padding: 33px 0 0 10px; }
+.plate .labs div { height: 28.85px; display: flex; align-items: center; white-space: nowrap; }
+.plate .big { display: flex; align-items: flex-end; gap: 20px; margin-top: 12px; }
+.plate .big b { font-weight: 400; font-size: 64px; line-height: 64px; color: #FF8A3D; white-space: nowrap; }
+.plate .big span { padding-bottom: 6px; font-size: 17px; }
+.plate .big small { display: block; font-size: 13px; color: #8F8F8F; }
+.plate .tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-top: 16px; }
+.plate .jt { padding: 7px 8px; background: #0E0E0E; border: 1px solid #3A3A3A; }
+.plate .jt i { display: block; font-style: normal; font-size: 11px; color: #8F8F8F; }
+.plate .jt b { display: block; font-weight: 400; font-size: 17px; line-height: 24px; }
+.plate .jt u { display: block; height: 2px; background: #2A2A2A; margin-top: 4px; text-decoration: none; }
+.plate .jt s { display: block; height: 2px; background: #EDEDED; text-decoration: none; }
+.plate .note { font-size: 11px; letter-spacing: 1px; color: #8F8F8F; margin-top: 12px; text-transform: uppercase; }
+.plate .mv { display: flex; gap: 14px; padding: 7px 0; border-top: 1px solid #2A2A2A; font-size: 14px; }
+.plate .mv.first { border-top-color: #3A3A3A; margin-top: 8px; }
+.plate .mv.low { border-top-style: dashed; }
+.plate .mv span:nth-child(1) { flex: 0 0 22px; color: #8F8F8F; }
+.plate .mv span:nth-child(2) { flex: 1; }
+.plate .mv span:nth-child(3) { flex: 0 0 56px; text-align: right; }
+.plate .mv span:nth-child(4) { flex: 0 0 52px; text-align: right; }
+.plate .nx { margin-top: 8px; padding: 14px 16px; background: #111111; border: 1.5px solid #EDEDED; }
+.plate .nx b { display: block; font-weight: 400; font-size: 20px; line-height: 26px; }
+.plate .nx p { margin-top: 4px; color: #C7C7C7; font-size: 14px; }
+.plate .nx em { display: block; font-style: normal; margin-top: 10px; padding-top: 8px; border-top: 1px dashed #3A3A3A; font-size: 12px; color: #8F8F8F; }
+.plate .dis { font-size: 12px; color: #8F8F8F; margin-top: 8px; }
+.plate .foot { border-top: 1px solid #2A2A2A; padding-top: 10px; bottom: 16px; font: 12px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 1px; color: #C7C7C7; text-transform: none; }
+.plate .foot span:first-child, .plate .foot span:last-child { letter-spacing: 2px; color: #8F8F8F; text-transform: uppercase; }
+
+/* print: six pages, every slide on its own page */
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  html, body { height: auto; overflow: visible; background: var(--bg); }
+  #deck { position: static !important; transform: none !important; width: 1280px; height: auto; }
+  .slide { display: block !important; break-after: page; page-break-after: always; }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+}
+</style>
+</head>
+<body>
+<div id="deck">
+
+<!-- 1 -->
+<section class="slide plate" id="s2p">
+  <div class="ph"><span>Fig. 01 — The trial stack</span><span>State v. Dalton · live run 2026-11-14 · invented case</span></div>
+  <h1 class="pt">Twelve Angry Drexes</h1>
+  <p class="ps">A mock jury of 12. Every decision is made by Drex, Nace's fast decision model, on real statutes.</p>
+  <div class="pr">
+    <div class="pl">
+      <div class="cap2 hi">What the lawyer sees</div>
+      <div class="fig"><svg role="img" aria-label="Seven stacked plates. The top plate, in orange, is the answer. Below it: jurors, trial, statutes, legal team, case file and agent harness, each fainter than the one above." width="300" height="265" viewBox="0 0 520 460" style="flex: 0 0 300px">
+<polygon points="20,375 240,430 240,444 20,389" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.11" stroke-dasharray="5 6"/><polygon points="460,375 240,430 240,444 460,389" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.11" stroke-dasharray="5 6"/><polygon points="240,320 460,375 240,430 20,375" fill="#111111" stroke="#EDEDED" stroke-opacity="0.22" stroke-width="1.5" stroke-dasharray="5 6"/>
+<polygon points="20,325 240,380 240,394 20,339" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.18" stroke-dasharray="5 6"/><polygon points="460,325 240,380 240,394 460,339" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.18" stroke-dasharray="5 6"/><polygon points="240,270 460,325 240,380 20,325" fill="#111111" stroke="#EDEDED" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="5 6"/>
+<polygon points="20,275 240,330 240,344 20,289" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.24" stroke-dasharray="5 6"/><polygon points="460,275 240,330 240,344 460,289" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.24" stroke-dasharray="5 6"/><polygon points="240,220 460,275 240,330 20,275" fill="#111111" stroke="#EDEDED" stroke-opacity="0.48" stroke-width="1.5" stroke-dasharray="5 6"/>
+<polygon points="20,225 240,280 240,294 20,239" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.31"/><polygon points="460,225 240,280 240,294 460,239" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.31"/><polygon points="240,170 460,225 240,280 20,225" fill="#111111" stroke="#EDEDED" stroke-opacity="0.61" stroke-width="1.5"/>
+<polygon points="20,175 240,230 240,244 20,189" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.37"/><polygon points="460,175 240,230 240,244 460,189" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.37"/><polygon points="240,120 460,175 240,230 20,175" fill="#111111" stroke="#EDEDED" stroke-opacity="0.74" stroke-width="1.5"/>
+<polygon points="20,125 240,180 240,194 20,139" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.44"/><polygon points="460,125 240,180 240,194 460,139" fill="#0E0E0E" stroke="#EDEDED" stroke-opacity="0.44"/><polygon points="240,70 460,125 240,180 20,125" fill="#111111" stroke="#EDEDED" stroke-opacity="0.87" stroke-width="1.5"/>
+<polygon points="20,75 240,130 240,144 20,89" fill="#0E0E0E" stroke="#FF8A3D" stroke-opacity="0.5"/><polygon points="460,75 240,130 240,144 460,89" fill="#0E0E0E" stroke="#FF8A3D" stroke-opacity="0.5"/><polygon points="240,20 460,75 240,130 20,75" fill="#1A1410" stroke="#FF8A3D" stroke-width="1.5"/>
+<line x1="466" y1="82" x2="520" y2="82" stroke="#3A3A3A"/><line x1="466" y1="132" x2="520" y2="132" stroke="#3A3A3A"/><line x1="466" y1="182" x2="520" y2="182" stroke="#3A3A3A"/><line x1="466" y1="232" x2="520" y2="232" stroke="#3A3A3A"/><line x1="466" y1="282" x2="520" y2="282" stroke="#3A3A3A"/><line x1="466" y1="332" x2="520" y2="332" stroke="#3A3A3A"/><line x1="466" y1="382" x2="520" y2="382" stroke="#3A3A3A"/>
+</svg>
+        <div class="labs"><div style="color:#FF8A3D">The answer in Slack</div><div style="color:#C7C7C7">12 jurors, each a Drex vote</div><div style="color:#BDBDBD">Trial in 4 phases</div><div style="color:#B0B0B0">Statutes from LawWiki</div><div style="color:#A3A3A3">Legal team, picked by Drex</div><div style="color:#999999">Case file, read by NDI</div><div style="color:#8F8F8F">Agent harness, Intern</div></div>
+      </div>
+      <div class="cap2">What holds it up</div>
+    </div>
+    <div class="prt">
+      <div class="cap2">The vote</div>
+      <div class="big"><b>12 — 0</b><span>Defendant guilty<small>mean 0.80 · spread 0.04</small></span></div>
+      <div class="tiles"><div class="jt"><i>J01</i><b>0.76</b><u><s style="width:76%"></s></u></div><div class="jt"><i>J02</i><b>0.80</b><u><s style="width:80%"></s></u></div><div class="jt"><i>J03</i><b>0.82</b><u><s style="width:82%"></s></u></div><div class="jt"><i>J04</i><b>0.84</b><u><s style="width:84%"></s></u></div><div class="jt"><i>J05</i><b>0.77</b><u><s style="width:77%"></s></u></div><div class="jt"><i>J06</i><b>0.77</b><u><s style="width:77%"></s></u></div><div class="jt"><i>J07</i><b>0.82</b><u><s style="width:82%"></s></u></div><div class="jt"><i>J08</i><b>0.83</b><u><s style="width:83%"></s></u></div><div class="jt"><i>J09</i><b>0.83</b><u><s style="width:83%"></s></u></div><div class="jt"><i>J10</i><b>0.74</b><u><s style="width:74%"></s></u></div><div class="jt"><i>J11</i><b>0.76</b><u><s style="width:76%"></s></u></div><div class="jt"><i>J12</i><b>0.85</b><u><s style="width:85%"></s></u></div></div>
+      <div class="note">Probability each juror finds guilt beyond a reasonable doubt · drex-v2.0 · final vote</div>
+    </div>
+  </div>
+  <div class="pr">
+    <div class="pl">
+      <div class="cap2">What moves the vote, one fact flipped at a time</div>
+      <div class="mv first"><span>01</span><span>He reasonably believed his employer had prepaid</span><span>0/12</span><span>−0.66</span></div>
+      <div class="mv" style="color:#C7C7C7"><span>02</span><span>Fair market value was under $2,500</span><span>4/12</span><span>−0.34</span></div>
+      <div class="mv" style="color:#BDBDBD"><span>03</span><span>Store records show a prepaid order</span><span>6/12</span><span>−0.32</span></div>
+      <div class="mv low" style="color:#A3A3A3"><span>04</span><span>No exit video of him leaving without paying</span><span>7/12</span><span>−0.29</span></div>
+    </div>
+    <div class="prt">
+      <div class="cap2">Next step for the State</div>
+      <div class="nx"><b>File the charge as drafted</b><p>Drex 0.97 · four other options at 0.01 or less</p><em>Document the claim depends on missing? 0.29</em></div>
+      <div class="dis">Legal information, not legal advice. A simulation, not a prediction.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Cost</span><span>182 decisions</span><span>28 requests</span><span>71,403 input tokens</span><span>$0.0086 Drex</span><span>12.6 s</span><span>1 / 6</span></div>
+</section>
+
+<!-- 2 -->
+<section class="slide" id="s1">
+  <div class="kick">Fig. 02 — The challenge</div>
+  <h2>How might this case land?</h2>
+  <div class="two">
+    <div class="panel"><h3>What a legal team cannot get today</h3><p class="big">A fast, cheap, auditable read on how a case might land.</p></div>
+    <div class="panel"><h3>Our answer</h3><p class="txt">Post the question and the file in Slack. Twelve jurors vote. The thread gets the verdict, what would move it, and a next step.</p></div>
+  </div>
+  <div class="panel inv stats">
+    <div><b>182</b><span>Drex decisions</span></div>
+    <div><b>12.6 s</b><span>start to verdict</span></div>
+    <div><b>$0.0086</b><span>under one cent</span></div>
+  </div>
+  <p class="cap">Reference run: State v. Dalton (invented), Texas tool theft, live on 2026-11-14.</p>
+  <div class="foot"><span>Nace.ai Drexathon · Swarm Intelligence track</span><span>2 / 6</span></div>
+</section>
+
+<!-- 3 -->
+<section class="slide" id="s2">
+  <div class="kick">Fig. 03 — The workflow</div>
+  <h2>One request, start to finish</h2>
+  <div class="flow">
+    <div class="panel step"><span class="n">01</span><h3 class="t">Question + file to Intern</h3><p class="d">2-page offense report. The answer comes back as one Slack thread</p><span class="st live"><i></i>live</span></div>
+    <div class="panel step"><span class="n">02</span><h3 class="t">NDI reads the file</h3><p class="d"><b>7 of 7</b> fields, each with its page</p><span class="st live"><i></i>live</span></div>
+    <div class="panel step"><span class="n">03</span><h3 class="t">Drex picks the legal team</h3><p class="d">Prosecution, <b>0.98</b></p><span class="st live"><i></i>live</span></div>
+    <div class="panel step last"><span class="n">04</span><h3 class="t">LawWiki statutes</h3><p class="d">§ 31.03 Theft, <b>0.89</b></p><span class="st live"><i></i>live</span></div>
+    <svg viewBox="0 0 1152 40" aria-hidden="true"><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs><path class="ln" marker-end="url(#ah2)" d="M1023 0V20H129V32"/></svg>
+    <div class="panel step"><span class="n">05</span><h3 class="t">Public guide check</h3><p class="d">Keenable + Drex: <b>0.07</b> on point, left out</p><span class="st live"><i></i>live</span></div>
+    <div class="panel step"><span class="n">06</span><h3 class="t">4 phases x 12 jurors</h3><p class="d"><b>182</b> decisions in <b>28</b> requests</p><span class="st live"><i></i>live</span></div>
+    <div class="panel step"><span class="n">07</span><h3 class="t">Verdict, what moves it, next step</h3><p class="d"><b>12 to 0</b> guilty; what-if <b>0 of 12</b>; file, <b>0.97</b></p><span class="st live"><i></i>live</span></div>
+    <div class="panel step inv last"><span class="n">08</span><h3 class="t">Trace ledger</h3><p class="d"><b>71,403</b> tokens, <b>$0.0086</b>, <b>12.6 s</b></p><span class="st live"><i></i>live</span></div>
+  </div>
+  <div class="foot"><span>State v. Dalton, live run, 2026-11-14</span><span>3 / 6</span></div>
+</section>
+
+<!-- 4 -->
+<section class="slide" id="s3">
+  <div class="kick">Fig. 04 — System architecture</div>
+  <h2>How the pieces connect</h2>
+  <div class="dg">
+    <svg viewBox="0 0 1152 476" aria-hidden="true">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path class="ah" d="M0 0L10 5L0 10z"/></marker></defs>
+      <path class="ln" marker-start="url(#ah)" marker-end="url(#ah)" d="M96 138V178"/>
+      <path class="ln" marker-end="url(#ah)" d="M192 215H238"/>
+      <path class="ln" d="M432 215H456M456 35V305"/>
+      <path class="ln" marker-end="url(#ah)" d="M456 35H478"/>
+      <path class="ln" marker-end="url(#ah)" d="M456 170H478"/>
+      <path class="ln" marker-end="url(#ah)" d="M456 305H478"/>
+      <path class="ln" marker-end="url(#ah)" d="M672 35H958"/>
+      <path class="ln" marker-end="url(#ah)" d="M672 125H958"/>
+      <path class="ln" marker-end="url(#ah)" d="M672 215H958"/>
+      <path class="ln" marker-end="url(#ah)" d="M672 305H718"/>
+      <path class="ln" marker-end="url(#ah)" d="M912 305H958"/>
+      <path class="ln" d="M936 305V55"/>
+      <path class="ln" marker-end="url(#ah)" d="M936 55H958"/>
+      <path class="ln" marker-end="url(#ah)" d="M936 145H958"/>
+      <path class="ln" marker-end="url(#ah)" d="M936 235H958"/>
+      <path class="ln" d="M816 340V384M576 384H1056"/>
+      <path class="ln" marker-end="url(#ah)" d="M576 384V412"/>
+      <path class="ln" marker-end="url(#ah)" d="M816 384V412"/>
+      <path class="ln" marker-end="url(#ah)" d="M1056 384V412"/>
+    </svg>
+    <div class="bx" style="left:0;top:76px;height:60px"><b>Slack</b><span class="s">legal team</span></div>
+    <div class="bx" style="left:0;top:180px;height:70px"><b>Slack bridge</b><span class="s">Socket Mode</span><i class="dot built"></i></div>
+    <div class="bx" style="left:240px;top:90px;height:250px"><b>Intern</b><span class="s">agent harness</span><i class="dot live"></i>
+      <div class="in"><b>System 2</b><span class="s">Qwen 3.8 27B</span></div>
+      <div class="in"><b>System 1</b><span class="s">Drex</span></div></div>
+    <div class="bx" style="left:480px;top:0;height:70px"><b>Keenable MCP</b><span class="s">search, fetch</span><i class="dot live"></i></div>
+    <div class="bx" style="left:480px;top:90px;height:160px"><b>Nace MCP</b><span class="s">uvx nace-mcp<br>decide<br>parse_document<br>extract_data</span><i class="dot live"></i></div>
+    <div class="bx" style="left:480px;top:270px;height:70px"><b>Jury engine MCP</b><span class="s">6 tools</span><i class="dot live"></i></div>
+    <div class="bx inv" style="left:720px;top:270px;height:70px"><b>Trial engine</b><span class="s">12 jurors, 4 phases</span><i class="dot live"></i></div>
+    <div class="bx" style="left:960px;top:0;height:70px"><b>Keenable</b><span class="s">web, court + gov</span><i class="dot live"></i></div>
+    <div class="bx" style="left:960px;top:90px;height:70px"><b>Drex API</b><span class="s">text + photo</span><i class="dot live"></i></div>
+    <div class="bx" style="left:960px;top:180px;height:70px"><b>NDI</b><span class="s">parse + extract</span><i class="dot live"></i></div>
+    <div class="bx" style="left:960px;top:270px;height:70px"><b>LawWiki (local)</b><span class="s">400,952 sections</span><i class="dot live"></i></div>
+    <span class="olab">Outputs</span>
+    <div class="bx" style="left:480px;top:414px;height:60px"><b>Live courtroom</b><span class="s">SSE stream</span></div>
+    <div class="bx" style="left:720px;top:414px;height:60px"><b>Trace ledger</b><span class="s">events.jsonl</span></div>
+    <div class="bx" style="left:960px;top:414px;height:60px"><b>Slack thread</b><span class="s">via the bridge</span></div>
+    <div class="legend"><span class="st live"><i></i>live</span><span class="st built"><i></i>built, not yet run live</span></div>
+  </div>
+  <div class="foot"><span>Intern calls three MCP servers; the trial engine makes the calls</span><span>4 / 6</span></div>
+</section>
+
+<!-- 5 -->
+<section class="slide" id="s4">
+  <div class="kick">Fig. 05 — Tool use</div>
+  <h2>What each tool does here</h2>
+  <div class="tools-wrap">
+  <table class="tools">
+    <colgroup><col style="width:240px"><col style="width:440px"><col style="width:300px"><col style="width:172px"></colgroup>
+    <thead class="inv"><tr><th>Tool</th><th>Job in this product</th><th>Number</th><th>State</th></tr></thead>
+    <tbody>
+      <tr><td class="tn">Drex<small>drex-v2.0, drex-max-v1.1</small></td><td>Every vote, ruling, pick, next step</td><td class="nm">182 decisions, $0.0086</td><td><span class="st live"><i></i>live</span></td></tr>
+      <tr><td class="tn">NDI</td><td>Reads 6 PDFs and 1 photo, cites pages</td><td class="nm">7 of 7 fields</td><td><span class="st live"><i></i>live</span></td></tr>
+      <tr><td class="tn">Nace MCP<small>uvx nace-mcp</small></td><td>Drex as one tool call</td><td class="nm">299 ms per decide</td><td><span class="st live"><i></i>live</span></td></tr>
+      <tr><td class="tn">Keenable</td><td>Court and government pages only</td><td class="nm">6 found, 4 court or gov</td><td><span class="st live"><i></i>live</span></td></tr>
+      <tr><td class="tn">LawWiki</td><td>Local statute search: CA FL NY TX US</td><td class="nm">400,952 sections</td><td><span class="st live"><i></i>live</span></td></tr>
+      <tr><td class="tn">Jury engine MCP</td><td>Runs a whole trial as a tool call</td><td class="nm">6 tools</td><td><span class="st live"><i></i>live</span></td></tr>
+      <tr><td class="tn">Intern</td><td>Nace's harness; Drex guards and supervises it</td><td class="nm">39.6 s, 1 trial, 5 Drex asks</td><td><span class="st live"><i></i>live</span></td></tr>
+      <tr><td class="tn">Slack bridge</td><td>Thread out: live. Socket Mode listener: built</td><td class="nm">1 live thread, 46.6 s</td><td><span class="st live"><i></i>live</span></td></tr>
+      <tr><td class="tn">DeepInfra<small>Qwen 3.8 27B</small></td><td>Intern's System 2; speeches Drex chose</td><td class="nm">4 speeches, 1.0 s each</td><td><span class="st live"><i></i>live</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="foot"><span>9 live; the Slack listener (Socket Mode) is built, not yet run live</span><span>5 / 6</span></div>
+</section>
+
+<!-- 6 -->
+<section class="slide" id="s5">
+  <div class="kick">Fig. 06 — Results and limits</div>
+  <h2>Every live run finished</h2>
+  <div class="strip">
+    <div class="panel tile"><div class="id">tx-theft</div><div class="v">12–0</div><div class="m">TX · guilty</div></div>
+    <div class="panel tile"><div class="id">ca-injury</div><div class="v">12–0</div><div class="m">CA · liable</div></div>
+    <div class="panel tile"><div class="id">ny-goods</div><div class="v">12–0</div><div class="m">NY · liable</div></div>
+    <div class="panel tile"><div class="id">us-photo</div><div class="v">12–0</div><div class="m">US · liable</div></div>
+    <div class="panel tile split"><div class="id">ca-deposit</div><div class="v">11–1</div><div class="m">CA · liable</div></div>
+    <div class="panel tile"><div class="id">ca-wages</div><div class="v">12–0</div><div class="m">CA · liable</div></div>
+    <div class="panel tile"><div class="id">fl-notice</div><div class="v">12–0</div><div class="m">FL · liable</div></div>
+  </div>
+  <div class="row2">
+    <div class="panel">
+      <h3>Same 182 decisions, two prices</h3>
+      <div class="bl"><b>$0.0086</b> Drex, 12.6 s for all 182</div>
+      <div class="bar d"></div>
+      <div class="bl" style="margin-top:14px">about <b>$0.61</b> frontier chat model, 2.0 s each</div>
+      <div class="bar f"></div>
+      <p class="bl" style="margin-top:12px;color:var(--muted)">$3.33 per 1,000 frontier decisions. All 7 live runs: about $0.07 of Drex.</p>
+    </div>
+    <div class="panel">
+      <h3>Limits</h3>
+      <ul class="lim">
+        <li>The cases are invented.</li>
+        <li>No accuracy against real outcomes is measured.</li>
+        <li>A simulation, not a prediction.</li>
+        <li>Legal information, not legal advice.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="panel inv next"><h3>Next</h3><p>Calibrate the votes on real published rulings.</p></div>
+  <div class="foot"><span>6 unanimous, one 11 to 1; 5 jurisdictions, 7 cases</span><span>6 / 6</span></div>
+</section>
+
+</div>
+<script>
+(function () {
+  var deck = document.getElementById("deck");
+  var slides = [].slice.call(deck.querySelectorAll(".slide")), n = slides.length, cur = 0;
+  function show(i) {
+    cur = Math.max(0, Math.min(n - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle("on", k === cur); });
+    try { history.replaceState(null, "", "#" + (cur + 1)); } catch (e) {}
+  }
+  function fit() {
+    var s = Math.min(innerWidth / 1280, innerHeight / 720);
+    deck.style.transform = "scale(" + s + ")";
+    deck.style.left = (innerWidth - 1280 * s) / 2 + "px";
+    deck.style.top = (innerHeight - 720 * s) / 2 + "px";
+  }
+  function fromHash() { var k = parseInt(location.hash.slice(1), 10); show(isNaN(k) ? 0 : k - 1); }
+  addEventListener("resize", fit);
+  addEventListener("hashchange", fromHash);
+  addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (k === "ArrowRight" || k === "ArrowDown" || k === " " || k === "PageDown" || k === "Enter") { e.preventDefault(); show(cur + 1); }
+    else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp" || k === "Backspace") { e.preventDefault(); show(cur - 1); }
+    else if (k === "Home") show(0); else if (k === "End") show(n - 1);
+  });
+  document.addEventListener("click", function (e) { show(cur + (e.clientX < innerWidth * 0.25 ? -1 : 1)); });
+  fit(); fromHash();
+})();
+</script>
+</body>
+</html>

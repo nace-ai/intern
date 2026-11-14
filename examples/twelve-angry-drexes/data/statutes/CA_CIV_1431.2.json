@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "CIV",
+ "code_name": "Civil Code",
+ "section": "1431.2",
+ "citation": "Cal. Civ. Code § 1431.2",
+ "title": "Several Liability For Damages",
+ "status": "active",
+ "text": "Several Liability for Non-economic Damages\n(a) In any action for personal injury, property damage, or wrongful death, based upon principles of comparative fault, the liability of each defendant for non-economic damages shall be several only and shall not be joint. Each defendant shall be liable only for the amount of non-economic damages allocated to that defendant in direct proportion to that defendant’s\npercentage of fault, and a separate judgment shall be rendered against that defendant for that amount.\n(b) (1) For purposes of this section, the term “economic damages” means objectively verifiable monetary losses including medical expenses, loss of earnings, burial costs, loss of use of property, costs of repair or replacement, costs of obtaining substitute domestic services, loss of employment and loss of business or employment opportunities.\n(2) For the purposes of this section, the term “non-economic damages” means subjective, non-monetary losses including, but not limited to, pain, suffering, inconvenience, mental suffering, emotional distress, loss of society and companionship, loss of consortium, injury to reputation and humiliation.\n(Added June 3, 1986, by initiative Proposition 51, Sec. 4. Note: Prop. 51 (the Fair Responsibility Act of 1986) includes Sections 1431.1 to 1431.5 and part of Section 1431.)",
+ "history": "Added June 3, 1986, by initiative Proposition 51, Sec. 4. Note: Prop. 51 (the Fair Responsibility Act of 1986) includes Sections 1431.1 to 1431.5 and part of Section 1431.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CIV&division=3.&title=2.&part=1.&chapter=2.&article=",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1431.2",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "292674952bb754803a0fef56e66d15d38a495aef28dddca19910685baed84e4e",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

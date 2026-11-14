@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "CVP",
+ "code_name": "Civil Practice Law and Rules",
+ "section": "1601",
+ "citation": "N.Y. C.P.L.R. 1601",
+ "title": "Limited liability of persons jointly liable",
+ "status": "active",
+ "text": "1. Notwithstanding any other provision of law, when a verdict or decision in an action or claim for personal injury is determined in favor of a claimant in an action involving two or more tortfeasors jointly liable or in a claim against the state and the liability of a defendant is found to be fifty percent or less of the total liability assigned to all persons liable, the liability of such defendant to the claimant for non-economic loss shall not exceed that defendant's equitable share determined in accordance with the relative culpability of each person causing or contributing to the total liability for non-economic loss; provided, however that the culpable conduct of any person not a party to the action shall not be considered in determining any equitable share herein if the claimant proves that with due diligence he or she was unable to obtain jurisdiction over such person in said action (or in a claim against the state, in a court of this state); and further provided that the culpable conduct of any person shall not be considered in determining any equitable share herein to the extent that action against such person is barred because the claimant has not sustained a \"grave injury\" as defined in section eleven of the workers' compensation law.\n2. Nothing in this section shall be construed to affect or impair any right of a tortfeasor under section 15-108 of the general obligations law.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/CVP/1601",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/cvp/1601",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "fd53e31eb4c513079795e898c6ded15c743dcc7bf27e43610af5d70b724a018e",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

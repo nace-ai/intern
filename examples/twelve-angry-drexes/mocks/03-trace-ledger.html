@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trace ledger · Twelve Angry Drexes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tad.css">
+<link rel="stylesheet" href="design.css">
+<script src="design.js" defer></script>
+<style>
+  .ledger { grid-template-columns: minmax(0, 1fr) 400px; grid-template-areas: "report route" "filters filters" "table detail"; align-items: start; }
+  #preport { grid-area: report; } #proute { grid-area: route; } #filters { grid-area: filters; } #ptable { grid-area: table; } #pdetail { grid-area: detail; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; }
+  .rep { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  .rep .kv dd { white-space: nowrap; text-align: right; }
+  .big { font: 500 34px/1 var(--mono); letter-spacing: -0.03em; margin-bottom: 8px; }
+  .cite { padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; } .cite:last-child { border-bottom: 0; }
+  .cite a { text-decoration: none; border-bottom: 1px solid var(--line); } .cite a:hover { border-color: var(--text); }
+  .cite small { display: block; color: var(--dim); font-family: var(--mono); font-size: 11px; }
+  input[type="range"] { width: 100%; accent-color: var(--o2); margin: 10px 0 4px; }
+  .hist { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; align-items: end; height: 64px; margin-top: 8px; }
+  .hist i { background: var(--no); border-radius: 2px 2px 0 0; min-height: 1px; opacity: 0.85; } .hist i.low { background: var(--o1); }
+  .axis { display: flex; justify-content: space-between; font: 10px var(--mono); color: var(--dim); margin-top: 3px; }
+  #filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .seg { display: flex; gap: 4px; flex-wrap: wrap; }
+  .seg button { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font: 12px var(--mono); color: var(--muted); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  #filters select, #filters input[type="search"] { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 5px 8px; }
+  #filters input[type="search"] { min-width: 140px; width: 170px; }
+  .chk { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+  .grow { flex: 1; }
+  .trace tbody tr { cursor: pointer; } .trace tbody tr:hover td { background: var(--raised); }
+  .trace tbody tr.sel td { background: var(--raised); box-shadow: inset 0 1px 0 var(--dim), inset 0 -1px 0 var(--dim); }
+  .opt { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: center; padding: 3px 0; font-size: 13px; }
+  pre { margin: 0; padding: 10px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); font: 11.5px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; color: var(--text-2); }
+  .dh { font-size: 15px; font-weight: 600; margin: 0 0 2px; } .dq { color: var(--text-2); margin: 0 0 12px; }
+  .sec { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); margin: 16px 0 6px; }
+  .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; } .out { margin-top: 10px; font-size: 13px; }
+  .out .quote { margin-top: 6px; }
+  @media (max-width: 1200px) { .ledger { grid-template-columns: minmax(0, 1fr); grid-template-areas: "report" "route" "filters" "detail" "table"; } #pdetail { position: static; max-height: none; } .rep { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="lawwiki-data.js"></script>
+<script src="tad-sim.js"></script>
+<script>
+(function () {
+  const { el, esc, fmt } = TAD;
+  const ui = TAD.shell("03-trace-ledger.html");
+  ui.content.classList.add("ledger");
+  ui.content.innerHTML = `
+    <section class="panel" id="preport"><div class="panel-h"><h2>Verdict report</h2><span class="chip" id="factchip"></span></div>
+      <div class="panel-b rep"><div><div class="big" id="vote"></div><div id="vlabel"></div><div class="muted" id="vaward" style="font-size:13px;margin-top:4px"></div><div class="muted" id="vrole" style="font-size:13px;margin-top:4px"></div><div class="muted" id="vnext" style="font-size:13px;margin-top:4px"></div></div><dl class="kv" id="kv"></dl><div><div class="label" style="padding:0">Law the jury relied on</div><div id="cited"></div></div></div></section>
+    <section class="panel" id="proute"><div class="panel-h"><h2>Which decisions need a person</h2><span class="chip warn">threshold not fitted yet</span></div><div class="panel-b">
+      <label for="thr">Send a decision to a person when its confidence is below <b class="mono" id="thrv"></b></label>
+      <input type="range" id="thr" min="0" max="0.9" step="0.01" value="0.2">
+      <div class="hist" id="hist" role="img" aria-label="Decisions by confidence, ten bins from 0 to 1"></div><div class="axis"><span>0 coin flip</span><span>confidence</span><span>1 certain</span></div>
+      <p id="routetext" style="margin:10px 0 0;font-size:13px"></p></div></section>
+    <div id="filters"><div class="seg" id="srcs" role="group" aria-label="Source"></div>
+      <select id="dec" aria-label="Decision"></select><label class="chk"><input type="checkbox" id="person"> Needs a person</label>
+      <input type="search" id="q" placeholder="Search questions" aria-label="Search questions"><span class="grow"></span><span class="muted mono" id="count"></span><button class="btn" id="export" type="button">Export JSONL</button></div>
+    <section class="panel" id="ptable"><div class="scroll"><table class="trace"><thead><tr>${TAD.TRACE_HEAD.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody id="tbody"></tbody></table></div></section>
+    <section class="panel" id="pdetail"><div class="panel-h"><h2>Audit record</h2><span class="chip model" id="dreq"></span></div><div class="panel-b" id="detail"></div></section>`;
+  const $ = (id) => document.getElementById(id);
+  let run, c, src = "all", sel = null;
+  const thr = () => +$("thr").value;
+  const person = (e) => e.src === "drex" && (e.conf < thr() || !e.stable);
+  const drex = () => run.events.filter((e) => e.src === "drex");
+
+  function report() {
+    const v = run.verdict, t = run.totals, changed = run.facts.filter((f) => f.on !== c.facts.find((x) => x.id === f.id).on).length;
+    $("factchip").textContent = changed ? `${changed} fact${changed > 1 ? "s" : ""} changed in the courtroom` : "Facts as filed";
+    $("vote").textContent = `${v.liable} to ${v.notLiable}`; $("vlabel").innerHTML = `<b>${esc(v.label)}</b>`; const rl = run.role, ns = run.next_steps, wm = run.what_if[0];
+    $("vaward").textContent = `${v.finding === "guilty" ? "Verdict level" : "Award level"}: ${v.tier}. Mean probability ${fmt.p(v.mean)}, spread ${fmt.p(v.sd)}.`;
+    $("vrole").textContent = rl ? `Legal team: ${rl.label}. Jurors decide ${rl.finding}, ${rl.burden}.` : "";
+    $("vnext").textContent = ns ? `Moves the vote most: ${wm.label.toLowerCase()} (${fmt.d(wm.delta)}). Next step: ${ns.step.toLowerCase()} (${fmt.p(ns.p_step)}).` : "";
+    $("kv").innerHTML = [["Drex decisions", t.decisions], ["Requests", t.requests], ["Input tokens", fmt.int(t.tokens)], ["Price per 1M tokens", "$" + TAD.USD_PER_M_INPUT.toFixed(2)], ["Cost", fmt.usd(t.usd)], ["Median latency", fmt.ms(t.p50)], ["Time inside Drex", fmt.ms(t.drexMs)], ["Whole run", fmt.ms(t.wallMs)],
+      ["Frontier chat model, estimate", `$${run.frontier.usd.toFixed(2)} · ${Math.round(run.frontier.sec)} s`]].map(([k, val]) => `<dt>${k}</dt><dd>${val}</dd>`).join("");
+    const hits = run.events.filter((e) => e.id === "statute_applies" && e.p >= 0.5);
+    $("cited").innerHTML = hits.map((h) => { const s = window.TAD_STATUTES[h.cite] || {}; return `<div class="cite"><a href="${s.url || "#"}" target="_blank" rel="noopener">${esc(s.citation || h.cite)}</a> <span class="mono muted">${fmt.p(h.p)}</span><small>${esc(s.source_version || "")}</small></div>`; }).join("");
+  }
+  function routing() {
+    const d = drex(), t = thr(), bins = Array(10).fill(0); d.forEach((e) => bins[Math.min(9, Math.floor(e.conf * 10))]++);
+    const max = Math.max(...bins); $("thrv").textContent = t.toFixed(2);
+    $("hist").innerHTML = bins.map((b, i) => `<i class="${(i + 1) / 10 <= t + 1e-9 ? "low" : ""}" style="height:${(b / max) * 100}%" title="${b} decisions with confidence ${(i / 10).toFixed(1)} to ${((i + 1) / 10).toFixed(1)}"></i>`).join("");
+    const p = d.filter(person).length, unstable = d.filter((e) => !e.stable).length;
+    $("routetext").innerHTML = `<b>${d.length - p}</b> decided by Drex alone, <b>${p}</b> sent to a person (${fmt.pct(p / d.length)}). ${unstable} of those changed answer when the options were reordered. <span class="muted">Confidence is the distance from a coin flip. The 0.20 line is a placeholder until it is fitted on labeled cases.</span>`;
+  }
+  function table() {
+    const q = $("q").value.trim().toLowerCase(), dec = $("dec").value, only = $("person").checked, tb = $("tbody"); tb.innerHTML = "";
+    const rows = run.events.filter((e) => (src === "all" || e.src === src) && (!dec || e.id === dec) && (!only || person(e)) && (!q || (e.q || e.text || "").toLowerCase().includes(q)));
+    rows.forEach((e) => { const tr = TAD.traceRow({ ...e, route: person(e) ? "person" : "auto" }); tr.classList.remove("new"); tr.tabIndex = 0; if (sel === e.i) tr.classList.add("sel");
+      tr.onclick = () => pick(e.i); tr.onkeydown = (ev) => { if (ev.key === "Enter") pick(e.i); }; tb.appendChild(tr); });
+    $("count").textContent = `${rows.length} of ${run.events.length} rows`;
+  }
+  function pick(i) { sel = i; document.querySelectorAll("#tbody tr").forEach((tr) => tr.classList.toggle("sel", +tr.dataset.i === i)); detail(run.events[i]); }
+
+  /* The request the engine would send for this decision, with the long state shortened to a description. */
+  function body(e) {
+    const j = TAD.JURORS.find((x) => x.id === e.agent), parts = [];
+    const post = e.fact || e.id === "next_step" || e.id === "proof_gap", wf = e.fact && run.facts.find((f) => f.id === e.fact);
+    if (e.phase == null && e.id !== "statute_applies" && !post) parts.push("Slack message", `text and fields of ${c.upload.name} from NDI`);
+    else { parts.push(`case file: ${c.fields.length} fields with page numbers`, e.id === "statute_applies" ? `full text of ${c.statutes.length} LawWiki sections` : "full text of the statutes that apply"); if (e.phase != null || post) parts.push(`transcript through '${TAD.PHASES[e.phase != null ? e.phase : 3]}'`);
+      if (wf) parts.push(`what-if: treat '${wf.label}' as ${wf.on ? "FALSE" : "TRUE"}`); else if (post) parts.push("jury result and one what-if result per fact"); }
+    if (j) parts.push(`juror persona: ${j.name}. ${j.note}.`);
+    const q = { type: e.type, instructions: e.q };
+    if (e.type === "choice") q.criteria = Object.fromEntries(e.options.map((o) => [o, "when to pick it"]));
+    if (e.type === "score") q.criteria = e.levels;
+    return JSON.stringify({ model: e.model, state: `<${parts.join(" + ")}>`, questions: { [e.id]: q } }, null, 2);
+  }
+  function detail(e) {
+    const d = $("detail"); $("dreq").textContent = e.req || e.src;
+    if (e.src !== "drex") {
+      const what = { ndi: "Nace Document Intelligence read the file. No decision is made here.", lawwiki: "Statute text from the local LawWiki store (LawWiki's own snapshots).", keenable: "Public web page fetched through Keenable.", s2: "Speech written by Qwen3.8-27B on DeepInfra, through Intern. The language model writes; it does not decide.", intern: "Step of the Intern harness: System 2 (Qwen) plans and calls tools, System 1 (Drex) judges each call." }[e.src];
+      d.innerHTML = `<p class="dh">${esc(e.id)}</p><p class="dq">${esc(e.text)}</p><p class="muted">${what}</p><dl class="kv"><dt>Row</dt><dd>${e.i + 1}</dd><dt>Time</dt><dd>${fmt.t(e.t)}</dd><dt>Took</dt><dd>${fmt.ms(e.ms)}</dd></dl>${e.result ? `<div class="sec">Result</div><pre>${esc(JSON.stringify(e.result, null, 1))}</pre>` : ""}`; return;
+    }
+    const opts = e.options || e.levels, needs = person(e);
+    d.innerHTML = `<p class="dh">${esc(e.id)} <span class="chip">${esc(e.agent)}</span> ${needs ? '<span class="chip warn">needs a person</span>' : '<span class="chip">auto</span>'}</p><p class="dq">${esc(e.q)}</p>
+      <div class="sec" style="margin-top:0">Answer</div><div id="ans"></div>
+      <dl class="kv" style="margin-top:12px"><dt>Request id</dt><dd>${e.req}</dd><dt>Model version</dt><dd>${e.model}</dd><dt>Input tokens</dt><dd>${fmt.int(e.tok)}${e.tok < 200 ? " (state already encoded)" : ""}</dd><dt>Latency</dt><dd>${fmt.ms(e.ms)}</dd><dt>Cost</dt><dd>${fmt.usd(e.usd)}</dd><dt>Confidence</dt><dd>${fmt.p(e.conf)}</dd><dt>Option order</dt><dd>${e.type === "choice" ? (e.stable ? "answer held" : "answer changed") : "not applicable"}</dd></dl>
+      <div class="sec">Request, state shortened</div><pre>${esc("POST /v1/systemone\n" + body(e))}</pre>
+      <div class="acts"><button class="btn" id="replay" type="button">Replay this question alone</button>${e.type === "choice" ? '<button class="btn" id="order" type="button">Check option order</button>' : ""}</div><div class="out" id="out" aria-live="polite"></div>`;
+    const a = $("ans");
+    if (e.type === "noul") { a.appendChild(TAD.pbar(e.p)); a.appendChild(el("div", "mono muted", `p(yes) ${fmt.p(e.p)} · p(no) ${fmt.p(1 - e.p)}`)); }
+    else { const top = e.dist.indexOf(Math.max(...e.dist)); opts.forEach((o, i) => { const r = el("div", "opt", `<span>${esc(o)}</span>`); const b = TAD.pbar(e.dist[i], true); b.classList.toggle("yes", i === top); r.appendChild(b); a.appendChild(r); }); }
+    $("replay").onclick = () => { $("out").innerHTML = `<div class="quote">Sent again on its own, without the other questions in ${e.req}. Same answer: ${esc(TAD.answer(e))}. Each question is answered independently, so any row can be checked alone.</div>`; };
+    if (e.type === "choice") $("order").onclick = () => {
+      const top = e.dist.indexOf(Math.max(...e.dist)), second = e.dist.map((v, i) => [v, i]).sort((x, y) => y[0] - x[0])[1][1];
+      const orders = [0, 1, 2].map((k) => opts.map((_, i) => (i + k) % opts.length)), wins = orders.map((_, k) => (!e.stable && k === 2 ? second : top));
+      $("out").innerHTML = orders.map((o, k) => `<div class="mono" style="font-size:12px;padding:2px 0">order ${o.map((i) => "ABCDE"[i]).join(" ")} · top: ${esc(opts[wins[k]])}</div>`).join("") +
+        `<div class="quote">${e.stable ? "The top answer held in 3 of 3 orders." : "The top answer changed in 1 of 3 orders. Decisions that change with option order are far less accurate, so this one goes to a person."}</div>`;
+    };
+  }
+
+  function load() {
+    c = TAD.CASES.find((x) => x.id === ui.caseId()); let state = {};
+    try { state = JSON.parse(localStorage.getItem("tad.facts." + c.id)) || {}; } catch (e) { /* storage blocked */ }
+    run = TAD.run(c.id, state); show("recorded run"); engineRun();
+  }
+  /* Served by engine/server.py with ?engine=1 in the address: the case's last real run, Intern's steps included. */
+  function engineRun() {
+    if (!location.protocol.startsWith("http")) return;
+    const badge = document.querySelector(".sim-badge"), id = c.id;
+    if (!new URLSearchParams(location.search).has("engine")) {
+      return fetch("/api/health").then((r) => (r.ok ? r.json() : null)).then((h) => { if (h && h.ok) badge.innerHTML = 'Simulated run. <a href="?engine=1' + location.hash + '">Show the engine\'s last run of this case</a>'; }).catch(() => {});
+    }
+    fetch("/api/run?case=" + id).then((r) => (r.ok ? r.json() : null)).then((d) => {
+      if (!d || !d.events || !d.events.length || id !== ui.caseId()) { badge.textContent = "No engine run of this case yet. Showing the simulated one."; return; }
+      const sm = d.summary;
+      run = { case: c, facts: sm.facts, events: d.events, phases: run.phases, verdict: sm.verdict, role: sm.role, what_if: sm.what_if, next_steps: sm.next_steps, totals: { ...sm.totals, events: d.events.length }, frontier: sm.frontier };
+      badge.textContent = `Engine run ${d.run_id}` + (d.harness === "intern" ? ", started by Intern" : "") + (sm.simulated ? ". Simulated decisions." : ". Decisions by Drex.");
+      src = "all"; show("engine run" + (d.harness === "intern" ? " through Intern" : ""));
+    }).catch(() => {});
+  }
+  function show(label) {
+    sel = null; ui.title(c.title, `Every step of the run, in order. ${c.claim}`); ui.live(false, label);
+    ui.stats([["Rows", run.events.length], ["Drex decisions", run.totals.decisions], ["Cost", fmt.usd(run.totals.usd)]]);
+    const srcs = ["all", ...new Set(run.events.map((e) => e.src))];
+    $("srcs").innerHTML = ""; srcs.forEach((s) => { const b = el("button", "", s); b.type = "button"; b.setAttribute("aria-pressed", String(s === src)); b.onclick = () => { src = s; $("srcs").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); table(); }; $("srcs").appendChild(b); });
+    $("dec").innerHTML = '<option value="">Every decision</option>' + [...new Set(drex().map((e) => e.id))].map((id) => `<option>${id}</option>`).join("");
+    report(); routing(); table(); pick(Math.max(0, run.events.findIndex((e) => e.id === "liable" && e.phase === 3)));
+  }
+  $("thr").oninput = () => { routing(); table(); if (sel != null) detail(run.events[sel]); };
+  $("dec").onchange = table; $("person").onchange = table; $("q").oninput = table;
+  $("export").onclick = () => {
+    const blob = new Blob([run.events.map((e) => JSON.stringify(e)).join("\n") + "\n"], { type: "application/x-ndjson" });
+    const a = el("a"); a.href = URL.createObjectURL(blob); a.download = `trace-${c.id}.jsonl`; a.click(); URL.revokeObjectURL(a.href);
+  };
+  ui.onCase(() => { src = "all"; load(); }); load();
+})();
+</script>
+</body>
+</html>

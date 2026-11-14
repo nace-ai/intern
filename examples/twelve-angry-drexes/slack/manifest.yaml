@@ -1,0 +1,30 @@
+# Slack app manifest for the Twelve Angry Drexes bridge (Socket Mode: no public URL needed).
+# api.slack.com/apps -> Create New App -> From a manifest -> pick the workspace -> paste this file.
+# Then: Install to Workspace (bot token xoxb-...), and Basic Information -> App-Level Tokens ->
+# Generate a token with scope connections:write (xapp-...).
+display_information:
+  name: Twelve Angry Drexes
+  description: A 12-juror mock trial for a legal question, with live probabilities
+  background_color: "#1f2430"
+features:
+  bot_user:
+    display_name: twelve-angry-drexes
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - chat:write
+      - files:read
+      - channels:history
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+      - message.channels
+  # Interactivity is on for the what-if buttons; in Socket Mode it needs no request URL.
+  interactivity:
+    is_enabled: true
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false

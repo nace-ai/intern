@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "CIV",
+ "code_name": "Civil Code",
+ "section": "3333.4",
+ "citation": "Cal. Civ. Code § 3333.4",
+ "title": "Drunk Driving Damage Limits",
+ "status": "active",
+ "text": "(a) Except as provided in subdivision (c), in any action to recover damages arising out of the operation or use of a motor vehicle, a person shall not recover non-economic losses to compensate for pain, suffering, inconvenience, physical impairment, disfigurement, and other nonpecuniary damages if any of the following applies:\n(1) The injured person was at the time of the accident operating the vehicle in violation of Section 23152 or 23153 of the Vehicle Code, and was convicted of that offense.\n(2) The injured person was the owner of a vehicle involved in the accident and the vehicle was not insured as required by the financial responsibility laws of this state.\n(3) The injured person was the operator of a vehicle involved in the accident and the operator can not establish his or her financial responsibility as required by the financial responsibility laws of this state.\n(b) Except as provided in subdivision (c), an insurer shall not be liable, directly or indirectly, under a policy of liability or uninsured motorist insurance to indemnify for non-economic losses of a person\ninjured as described in subdivision (a).\n(c) In the event a person described in paragraph (2) of subdivision (a) was injured by a motorist who at the time of the accident was operating his or her vehicle in violation of Section 23152 or 23153 of the Vehicle Code, and was convicted of that offense, the injured person shall not be barred from recovering non-economic losses to compensate for pain, suffering, inconvenience, physical impairment, disfigurement, and other nonpecuniary damages.\n(Added November 5, 1996, by initiative Proposition 213, Sec. 3. Applicable, by Sec. 4 of Prop. 213, to actions in which the initial trial has not commenced prior to January 1, 1997. Note: Prop. 213 (The Personal Responsibility Act of 1996) also includes Section 3333.3.)",
+ "history": "Added November 5, 1996, by initiative Proposition 213, Sec. 3. Applicable, by Sec. 4 of Prop. 213, to actions in which the initial trial has not commenced prior to January 1, 1997. Note: Prop. 213 (The Personal Responsibility Act of 1996) also includes Section 3333.3.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CIV&division=4.&title=2.&part=1.&chapter=2.&article=2.",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/civ/3333.4",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "74f4ae8ec6a02898085fe3f16d993470368170d1339c41615de6347565d21cd7",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

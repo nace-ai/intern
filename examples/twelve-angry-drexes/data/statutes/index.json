@@ -1,0 +1,1591 @@
+[
+ {
+  "file": "CA_BPC_14245.json",
+  "citation": "Cal. Bus. & Prof. Code § 14245",
+  "title": "Trademark Infringement Penalties",
+  "chars": 5214,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/bpc/14245"
+ },
+ {
+  "file": "CA_BPC_16600.json",
+  "citation": "Cal. Bus. & Prof. Code § 16600",
+  "title": "Noncompete Agreement Prohibition",
+  "chars": 850,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/bpc/16600"
+ },
+ {
+  "file": "CA_BPC_17200.json",
+  "citation": "Cal. Bus. & Prof. Code § 17200",
+  "title": "Unfair Business Practices Law",
+  "chars": 382,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/bpc/17200"
+ },
+ {
+  "file": "CA_BPC_17500.json",
+  "citation": "Cal. Bus. & Prof. Code § 17500",
+  "title": "False Advertising Prohibition",
+  "chars": 1686,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/bpc/17500"
+ },
+ {
+  "file": "CA_CCP_116.220.json",
+  "citation": "Cal. Code Civ. Proc. § 116.220",
+  "title": "Small Claims Court Jurisdiction",
+  "chars": 4260,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/ccp/116.220"
+ },
+ {
+  "file": "CA_CCP_116.221.json",
+  "citation": "Cal. Code Civ. Proc. § 116.221",
+  "title": "Small Claims Jurisdiction Limits",
+  "chars": 421,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/ccp/116.221"
+ },
+ {
+  "file": "CA_CCP_116.540.json",
+  "citation": "Cal. Code Civ. Proc. § 116.540",
+  "title": "Small Claims Court Representation",
+  "chars": 5681,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/ccp/116.540"
+ },
+ {
+  "file": "CA_CCP_1161.json",
+  "citation": "Cal. Code Civ. Proc. § 1161",
+  "title": "Holdover Tenant Eviction",
+  "chars": 7112,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/ccp/1161"
+ },
+ {
+  "file": "CA_CCP_335.1.json",
+  "citation": "Cal. Code Civ. Proc. § 335.1",
+  "title": "Personal Injury Lawsuit Deadline",
+  "chars": 216,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/ccp/335.1"
+ },
+ {
+  "file": "CA_CIV_1431.2.json",
+  "citation": "Cal. Civ. Code § 1431.2",
+  "title": "Several Liability For Damages",
+  "chars": 1333,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1431.2"
+ },
+ {
+  "file": "CA_CIV_1550.json",
+  "citation": "Cal. Civ. Code § 1550",
+  "title": "Contract Essential Elements",
+  "chars": 202,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1550"
+ },
+ {
+  "file": "CA_CIV_1714.json",
+  "citation": "Cal. Civ. Code § 1714",
+  "title": "Liability For Negligent Acts",
+  "chars": 2216,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1714"
+ },
+ {
+  "file": "CA_CIV_1770.json",
+  "citation": "Cal. Civ. Code § 1770",
+  "title": "Consumer Deception Prohibitions",
+  "chars": 18847,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1770"
+ },
+ {
+  "file": "CA_CIV_1793.2.json",
+  "citation": "Cal. Civ. Code § 1793.2",
+  "title": "Warranty Repair Facility Requirements",
+  "chars": 9358,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1793.2"
+ },
+ {
+  "file": "CA_CIV_1941.1.json",
+  "citation": "Cal. Civ. Code § 1941.1",
+  "title": "Habitable Dwelling Requirements",
+  "chars": 5454,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1941.1"
+ },
+ {
+  "file": "CA_CIV_1942.json",
+  "citation": "Cal. Civ. Code § 1942",
+  "title": "Tenant Repair And Rent Deduction",
+  "chars": 1524,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1942"
+ },
+ {
+  "file": "CA_CIV_1946.2.json",
+  "citation": "Cal. Civ. Code § 1946.2",
+  "title": "Tenant Eviction Just Cause",
+  "chars": 23739,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1946.2"
+ },
+ {
+  "file": "CA_CIV_1950.5.json",
+  "citation": "Cal. Civ. Code § 1950.5",
+  "title": "Tenant Security Deposit Rules",
+  "chars": 26186,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1950.5"
+ },
+ {
+  "file": "CA_CIV_1950.7.json",
+  "citation": "Cal. Civ. Code § 1950.7",
+  "title": "Commercial Rental Security Deposits",
+  "chars": 4341,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1950.7"
+ },
+ {
+  "file": "CA_CIV_3301.json",
+  "citation": "Cal. Civ. Code § 3301",
+  "title": "Contract Damage Limitations",
+  "chars": 137,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/3301"
+ },
+ {
+  "file": "CA_CIV_3333.4.json",
+  "citation": "Cal. Civ. Code § 3333.4",
+  "title": "Drunk Driving Damage Limits",
+  "chars": 1855,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/3333.4"
+ },
+ {
+  "file": "CA_CIV_3344.json",
+  "citation": "Cal. Civ. Code § 3344",
+  "title": "Unauthorized Use Of Likeness",
+  "chars": 5262,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/3344"
+ },
+ {
+  "file": "CA_CIV_3426.1.json",
+  "citation": "Cal. Civ. Code § 3426.1",
+  "title": "Trade Secret Misappropriation Definitions",
+  "chars": 2014,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/3426.1"
+ },
+ {
+  "file": "CA_CIV_3426.3.json",
+  "citation": "Cal. Civ. Code § 3426.3",
+  "title": "Trade Secret Damages",
+  "chars": 662,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/civ/3426.3"
+ },
+ {
+  "file": "CA_COM_2601.json",
+  "citation": "Cal. Com. Code § 2601",
+  "title": "Buyer Remedies For Nonconforming Goods",
+  "chars": 449,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/com/2601"
+ },
+ {
+  "file": "CA_COM_2607.json",
+  "citation": "Cal. Com. Code § 2607",
+  "title": "Buyer Payment And Acceptance",
+  "chars": 2272,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/com/2607"
+ },
+ {
+  "file": "CA_CORP_309.json",
+  "citation": "Cal. Corp. Code § 309",
+  "title": "Director Standard Of Care",
+  "chars": 1814,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/corp/309"
+ },
+ {
+  "file": "CA_EVID_669.json",
+  "citation": "Cal. Evid. Code § 669",
+  "title": "Negligence Presumption For Violations",
+  "chars": 1218,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/evid/669"
+ },
+ {
+  "file": "CA_FAM_2310.json",
+  "citation": "Cal. Fam. Code § 2310",
+  "title": "Marriage Dissolution Grounds",
+  "chars": 369,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/fam/2310"
+ },
+ {
+  "file": "CA_FAM_3011.json",
+  "citation": "Cal. Fam. Code § 3011",
+  "title": "Child Custody Best Interests",
+  "chars": 3575,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/fam/3011"
+ },
+ {
+  "file": "CA_FAM_4055.json",
+  "citation": "Cal. Fam. Code § 4055",
+  "title": "Child Support Calculation Formula",
+  "chars": 5382,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/fam/4055"
+ },
+ {
+  "file": "CA_FAM_4320.json",
+  "citation": "Cal. Fam. Code § 4320",
+  "title": "Spousal Support Earning Capacity",
+  "chars": 3310,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/fam/4320"
+ },
+ {
+  "file": "CA_FAM_6203.json",
+  "citation": "Cal. Fam. Code § 6203",
+  "title": "Domestic Abuse Definition",
+  "chars": 527,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/fam/6203"
+ },
+ {
+  "file": "CA_FAM_760.json",
+  "citation": "Cal. Fam. Code § 760",
+  "title": "Marital Property Ownership Rules",
+  "chars": 264,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/fam/760"
+ },
+ {
+  "file": "CA_GOV_12940.json",
+  "citation": "Cal. Gov't Code § 12940",
+  "title": "Employment Discrimination Protections",
+  "chars": 18474,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/gov/12940"
+ },
+ {
+  "file": "CA_LAB_1102.5.json",
+  "citation": "Cal. Lab. Code § 1102.5",
+  "title": "Employer Gag Rule Prohibition",
+  "chars": 4261,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/1102.5"
+ },
+ {
+  "file": "CA_LAB_1194.json",
+  "citation": "Cal. Lab. Code § 1194",
+  "title": "Minimum Wage Recovery Rights",
+  "chars": 603,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/1194"
+ },
+ {
+  "file": "CA_LAB_201.json",
+  "citation": "Cal. Lab. Code § 201",
+  "title": "Immediate Wage Payment Upon Discharge",
+  "chars": 4555,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/201"
+ },
+ {
+  "file": "CA_LAB_202.json",
+  "citation": "Cal. Lab. Code § 202",
+  "title": "Employee Final Wage Payment",
+  "chars": 4743,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/202"
+ },
+ {
+  "file": "CA_LAB_203.json",
+  "citation": "Cal. Lab. Code § 203",
+  "title": "Wage Payment Penalties",
+  "chars": 970,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/203"
+ },
+ {
+  "file": "CA_LAB_204.json",
+  "citation": "Cal. Lab. Code § 204",
+  "title": "Employee Wage Payment Schedule",
+  "chars": 3098,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/204"
+ },
+ {
+  "file": "CA_LAB_208.json",
+  "citation": "Cal. Lab. Code § 208",
+  "title": "Final Wage Payment Location",
+  "chars": 308,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/208"
+ },
+ {
+  "file": "CA_LAB_218.5.json",
+  "citation": "Cal. Lab. Code § 218.5",
+  "title": "Wage Claim Attorney Fees",
+  "chars": 1158,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/218.5"
+ },
+ {
+  "file": "CA_LAB_218.6.json",
+  "citation": "Cal. Lab. Code § 218.6",
+  "title": "Wage Nonpayment Interest Award",
+  "chars": 401,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/218.6"
+ },
+ {
+  "file": "CA_LAB_226.json",
+  "citation": "Cal. Lab. Code § 226",
+  "title": "Employee Wage Statement Requirements",
+  "chars": 9456,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/226"
+ },
+ {
+  "file": "CA_LAB_2802.json",
+  "citation": "Cal. Lab. Code § 2802",
+  "title": "Employee Expense Reimbursement",
+  "chars": 1574,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/lab/2802"
+ },
+ {
+  "file": "CA_PEN_1096.json",
+  "citation": "Cal. Penal Code § 1096",
+  "title": "Presumption Of Innocence Standard",
+  "chars": 807,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/pen/1096"
+ },
+ {
+  "file": "CA_PEN_1385.json",
+  "citation": "Cal. Penal Code § 1385",
+  "title": "Court Dismissal Authority",
+  "chars": 5856,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/pen/1385"
+ },
+ {
+  "file": "CA_PEN_1538.5.json",
+  "citation": "Cal. Penal Code § 1538.5",
+  "title": "Search And Seizure Challenges",
+  "chars": 17482,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/pen/1538.5"
+ },
+ {
+  "file": "CA_PEN_211.json",
+  "citation": "Cal. Penal Code § 211",
+  "title": "Felonious Taking By Force",
+  "chars": 199,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/pen/211"
+ },
+ {
+  "file": "CA_PEN_459.json",
+  "citation": "Cal. Penal Code § 459",
+  "title": "Burglary Entry Intent",
+  "chars": 1443,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/pen/459"
+ },
+ {
+  "file": "CA_PEN_484.json",
+  "citation": "Cal. Penal Code § 484",
+  "title": "Theft And Fraud Laws",
+  "chars": 3915,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/pen/484"
+ },
+ {
+  "file": "CA_PEN_487.json",
+  "citation": "Cal. Penal Code § 487",
+  "title": "Farm Theft Value Limits",
+  "chars": 2546,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/pen/487"
+ },
+ {
+  "file": "CA_VEH_21703.json",
+  "citation": "Cal. Veh. Code § 21703",
+  "title": "Following Too Closely",
+  "chars": 245,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/veh/21703"
+ },
+ {
+  "file": "CA_VEH_23152.json",
+  "citation": "Cal. Veh. Code § 23152",
+  "title": "Driving Under Alcohol Influence",
+  "chars": 2843,
+  "lawwiki_url": "https://www.lawwiki.ai/ca/veh/23152"
+ },
+ {
+  "file": "FL_FS_34.01.json",
+  "citation": "Fla. Stat. § 34.01",
+  "title": "Jurisdiction of county court",
+  "chars": 2945,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/34.01"
+ },
+ {
+  "file": "FL_FS_440.205.json",
+  "citation": "Fla. Stat. § 440.205",
+  "title": "Coercion of employees",
+  "chars": 214,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/440.205"
+ },
+ {
+  "file": "FL_FS_448.08.json",
+  "citation": "Fla. Stat. § 448.08",
+  "title": "Attorney’s fees for successful litigants in actions for unpaid wages",
+  "chars": 126,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/448.08"
+ },
+ {
+  "file": "FL_FS_448.102.json",
+  "citation": "Fla. Stat. § 448.102",
+  "title": "Prohibitions",
+  "chars": 956,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/448.102"
+ },
+ {
+  "file": "FL_FS_448.110.json",
+  "citation": "Fla. Stat. § 448.110",
+  "title": "State minimum wage; annual wage adjustment; enforcement",
+  "chars": 7497,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/448.110"
+ },
+ {
+  "file": "FL_FS_495.131.json",
+  "citation": "Fla. Stat. § 495.131",
+  "title": "Infringement",
+  "chars": 1234,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/495.131"
+ },
+ {
+  "file": "FL_FS_495.151.json",
+  "citation": "Fla. Stat. § 495.151",
+  "title": "Dilution",
+  "chars": 2368,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/495.151"
+ },
+ {
+  "file": "FL_FS_501.204.json",
+  "citation": "Fla. Stat. § 501.204",
+  "title": "Unlawful acts and practices",
+  "chars": 486,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/501.204"
+ },
+ {
+  "file": "FL_FS_501.211.json",
+  "citation": "Fla. Stat. § 501.211",
+  "title": "Other individual remedies",
+  "chars": 1331,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/501.211"
+ },
+ {
+  "file": "FL_FS_540.08.json",
+  "citation": "Fla. Stat. § 540.08",
+  "title": "Unauthorized publication of name or likeness",
+  "chars": 4094,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/540.08"
+ },
+ {
+  "file": "FL_FS_542.335.json",
+  "citation": "Fla. Stat. § 542.335",
+  "title": "Valid restraints of trade or commerce",
+  "chars": 7982,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/542.335"
+ },
+ {
+  "file": "FL_FS_559.72.json",
+  "citation": "Fla. Stat. § 559.72",
+  "title": "Prohibited practices generally",
+  "chars": 5510,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/559.72"
+ },
+ {
+  "file": "FL_FS_605.04091.json",
+  "citation": "Fla. Stat. § 605.04091",
+  "title": "Standards of conduct for members and managers",
+  "chars": 3750,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/605.04091"
+ },
+ {
+  "file": "FL_FS_607.0830.json",
+  "citation": "Fla. Stat. § 607.0830",
+  "title": "General standards for directors",
+  "chars": 2671,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/607.0830"
+ },
+ {
+  "file": "FL_FS_61.075.json",
+  "citation": "Fla. Stat. § 61.075",
+  "title": "Equitable distribution of marital assets and liabilities",
+  "chars": 16146,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/61.075"
+ },
+ {
+  "file": "FL_FS_61.08.json",
+  "citation": "Fla. Stat. § 61.08",
+  "title": "Alimony",
+  "chars": 11161,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/61.08"
+ },
+ {
+  "file": "FL_FS_61.13.json",
+  "citation": "Fla. Stat. § 61.13",
+  "title": "Support of children; parenting and time-sharing; powers of court",
+  "chars": 33573,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/61.13"
+ },
+ {
+  "file": "FL_FS_61.30.json",
+  "citation": "Fla. Stat. § 61.30",
+  "title": "Child support guidelines; retroactive child support",
+  "chars": 29760,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/61.30"
+ },
+ {
+  "file": "FL_FS_627.737.json",
+  "citation": "Fla. Stat. § 627.737",
+  "title": "Tort exemption; limitation on right to damages; punitive damages",
+  "chars": 2636,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/627.737"
+ },
+ {
+  "file": "FL_FS_672.601.json",
+  "citation": "Fla. Stat. § 672.601",
+  "title": "Buyer’s rights on improper delivery",
+  "chars": 413,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/672.601"
+ },
+ {
+  "file": "FL_FS_672.607.json",
+  "citation": "Fla. Stat. § 672.607",
+  "title": "Effect of acceptance; notice of breach; burden of establishing breach after acceptance; notice of claim or litigation to person answerable over",
+  "chars": 2179,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/672.607"
+ },
+ {
+  "file": "FL_FS_688.002.json",
+  "citation": "Fla. Stat. § 688.002",
+  "title": "Definitions",
+  "chars": 1862,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/688.002"
+ },
+ {
+  "file": "FL_FS_688.004.json",
+  "citation": "Fla. Stat. § 688.004",
+  "title": "Damages",
+  "chars": 821,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/688.004"
+ },
+ {
+  "file": "FL_FS_741.30.json",
+  "citation": "Fla. Stat. § 741.30",
+  "title": "Domestic violence; injunction; powers and duties of court and clerk; petition; notice and hearing; temporary injunction; issuance of injunction; statewide verification system; enforcement; public records exemption",
+  "chars": 33177,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/741.30"
+ },
+ {
+  "file": "FL_FS_760.10.json",
+  "citation": "Fla. Stat. § 760.10",
+  "title": "Unlawful employment practices",
+  "chars": 9713,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/760.10"
+ },
+ {
+  "file": "FL_FS_768.0755.json",
+  "citation": "Fla. Stat. § 768.0755",
+  "title": "Premises liability for transitory foreign substances in a business establishment",
+  "chars": 720,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/768.0755"
+ },
+ {
+  "file": "FL_FS_768.28.json",
+  "citation": "Fla. Stat. § 768.28",
+  "title": "Waiver of sovereign immunity in tort actions; recovery limits; civil liability for damages caused during a riot; limitation on attorney fees; statute of limitations; exclusions; indemnification; risk management programs",
+  "chars": 32863,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/768.28"
+ },
+ {
+  "file": "FL_FS_768.81.json",
+  "citation": "Fla. Stat. § 768.81",
+  "title": "Comparative fault",
+  "chars": 4697,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/768.81"
+ },
+ {
+  "file": "FL_FS_775.082.json",
+  "citation": "Fla. Stat. § 775.082",
+  "title": "Penalties; applicability of sentencing structures; mandatory minimum sentences for certain reoffenders previously released from prison",
+  "chars": 15416,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/775.082"
+ },
+ {
+  "file": "FL_FS_776.012.json",
+  "citation": "Fla. Stat. § 776.012",
+  "title": "Use or threatened use of force in defense of person",
+  "chars": 1053,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/776.012"
+ },
+ {
+  "file": "FL_FS_784.03.json",
+  "citation": "Fla. Stat. § 784.03",
+  "title": "Battery; felony battery",
+  "chars": 1109,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/784.03"
+ },
+ {
+  "file": "FL_FS_810.02.json",
+  "citation": "Fla. Stat. § 810.02",
+  "title": "Burglary",
+  "chars": 6184,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/810.02"
+ },
+ {
+  "file": "FL_FS_812.014.json",
+  "citation": "Fla. Stat. § 812.014",
+  "title": "Theft",
+  "chars": 13586,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/812.014"
+ },
+ {
+  "file": "FL_FS_812.13.json",
+  "citation": "Fla. Stat. § 812.13",
+  "title": "Robbery",
+  "chars": 1454,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/812.13"
+ },
+ {
+  "file": "FL_FS_83.43.json",
+  "citation": "Fla. Stat. § 83.43",
+  "title": "Definitions",
+  "chars": 3874,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/83.43"
+ },
+ {
+  "file": "FL_FS_83.48.json",
+  "citation": "Fla. Stat. § 83.48",
+  "title": "Attorney fees",
+  "chars": 463,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/83.48"
+ },
+ {
+  "file": "FL_FS_83.49.json",
+  "citation": "Fla. Stat. § 83.49",
+  "title": "Deposit money or advance rent; duty of landlord and tenant",
+  "chars": 12158,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/83.49"
+ },
+ {
+  "file": "FL_FS_83.491.json",
+  "citation": "Fla. Stat. § 83.491",
+  "title": "Fee in lieu of security deposit",
+  "chars": 8458,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/83.491"
+ },
+ {
+  "file": "FL_FS_83.51.json",
+  "citation": "Fla. Stat. § 83.51",
+  "title": "Landlord’s obligation to maintain premises",
+  "chars": 3282,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/83.51"
+ },
+ {
+  "file": "FL_FS_83.56.json",
+  "citation": "Fla. Stat. § 83.56",
+  "title": "Termination of rental agreement",
+  "chars": 7315,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/83.56"
+ },
+ {
+  "file": "FL_FS_83.60.json",
+  "citation": "Fla. Stat. § 83.60",
+  "title": "Defenses to action for rent or possession; procedure",
+  "chars": 2869,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/83.60"
+ },
+ {
+  "file": "FL_FS_90.404.json",
+  "citation": "Fla. Stat. § 90.404",
+  "title": "Character evidence; when admissible",
+  "chars": 3393,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/90.404"
+ },
+ {
+  "file": "FL_FS_95.11.json",
+  "citation": "Fla. Stat. § 95.11",
+  "title": "Limitations other than for the recovery of real property",
+  "chars": 13134,
+  "lawwiki_url": "https://www.lawwiki.ai/fl/fs/95.11"
+ },
+ {
+  "file": "NY_BSC_717.json",
+  "citation": "N.Y. Bus. Corp. Law § 717",
+  "title": "Duty of directors",
+  "chars": 3232,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/bsc/717"
+ },
+ {
+  "file": "NY_CPL_170.30.json",
+  "citation": "N.Y. Crim. Proc. Law § 170.30",
+  "title": "Motion to dismiss information, simplified information, prosecutor's information or misdemeanor complaint",
+  "chars": 1994,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/cpl/170.30"
+ },
+ {
+  "file": "NY_CPL_30.30.json",
+  "citation": "N.Y. Crim. Proc. Law § 30.30",
+  "title": "Speedy trial; time limitations",
+  "chars": 16846,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/cpl/30.30"
+ },
+ {
+  "file": "NY_CPL_710.20.json",
+  "citation": "N.Y. Crim. Proc. Law § 710.20",
+  "title": "Motion to suppress evidence; in general; grounds for",
+  "chars": 3118,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/cpl/710.20"
+ },
+ {
+  "file": "NY_CVP_1411.json",
+  "citation": "N.Y. C.P.L.R. 1411",
+  "title": "Damages recoverable when contributory negligence or assumption of risk is established",
+  "chars": 917,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/cvp/1411"
+ },
+ {
+  "file": "NY_CVP_1601.json",
+  "citation": "N.Y. C.P.L.R. 1601",
+  "title": "Limited liability of persons jointly liable",
+  "chars": 1412,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/cvp/1601"
+ },
+ {
+  "file": "NY_CVP_214.json",
+  "citation": "N.Y. C.P.L.R. 214",
+  "title": "Actions to be commenced within three years: for non-payment of money collected on execution; for penalty created by statute; to recover chattel; for injury to property; for personal injury; for malpractice other than medical, dental or podiatric malpractice; to annul a marriage on the ground of fraud",
+  "chars": 1239,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/cvp/214"
+ },
+ {
+  "file": "NY_CVR_50.json",
+  "citation": "N.Y. Civ. Rights Law § 50",
+  "title": "Right of privacy",
+  "chars": 308,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/cvr/50"
+ },
+ {
+  "file": "NY_CVR_51.json",
+  "citation": "N.Y. Civ. Rights Law § 51",
+  "title": "Action for injunction and for damages",
+  "chars": 2817,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/cvr/51"
+ },
+ {
+  "file": "NY_DOM_170.json",
+  "citation": "N.Y. Dom. Rel. Law § 170",
+  "title": "Action for divorce",
+  "chars": 3212,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/dom/170"
+ },
+ {
+  "file": "NY_DOM_236.json",
+  "citation": "N.Y. Dom. Rel. Law § 236",
+  "title": "Special controlling provisions; prior actions or proceedings; new actions or proceedings",
+  "chars": 66398,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/dom/236"
+ },
+ {
+  "file": "NY_DOM_240.json",
+  "citation": "N.Y. Dom. Rel. Law § 240",
+  "title": "Custody and child support; orders of protection",
+  "chars": 97363,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/dom/240"
+ },
+ {
+  "file": "NY_EXC_296.json",
+  "citation": "N.Y. Exec. Law § 296",
+  "title": "Unlawful discriminatory practices",
+  "chars": 78363,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/exc/296"
+ },
+ {
+  "file": "NY_FCT_413.json",
+  "citation": "N.Y. Fam. Ct. Act § 413",
+  "title": "Parents' duty to support child",
+  "chars": 35086,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/fct/413"
+ },
+ {
+  "file": "NY_FCT_812.json",
+  "citation": "N.Y. Fam. Ct. Act § 812",
+  "title": "Procedures for family offense proceedings",
+  "chars": 11213,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/fct/812"
+ },
+ {
+  "file": "NY_GBS_198-a.json",
+  "citation": "N.Y. Gen. Bus. Law § 198-a",
+  "title": "Warranties",
+  "chars": 30605,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/gbs/198-a"
+ },
+ {
+  "file": "NY_GBS_349.json",
+  "citation": "N.Y. Gen. Bus. Law § 349",
+  "title": "Unfair, deceptive, or abusive acts and practices unlawful",
+  "chars": 5294,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/gbs/349"
+ },
+ {
+  "file": "NY_GBS_350.json",
+  "citation": "N.Y. Gen. Bus. Law § 350",
+  "title": "False advertising unlawful",
+  "chars": 146,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/gbs/350"
+ },
+ {
+  "file": "NY_GBS_360-k.json",
+  "citation": "N.Y. Gen. Bus. Law § 360-k",
+  "title": "Infringement",
+  "chars": 1141,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/gbs/360-k"
+ },
+ {
+  "file": "NY_GBS_360-l.json",
+  "citation": "N.Y. Gen. Bus. Law § 360-l",
+  "title": "Injury to business reputation; dilution",
+  "chars": 378,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/gbs/360-l"
+ },
+ {
+  "file": "NY_GOB_5-701.json",
+  "citation": "N.Y. Gen. Oblig. Law § 5-701",
+  "title": "Agreements required to be in writing",
+  "chars": 8495,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/gob/5-701"
+ },
+ {
+  "file": "NY_GOB_7-103.json",
+  "citation": "N.Y. Gen. Oblig. Law § 7-103",
+  "title": "Money deposited or advanced for use or rental of real property; waiver void; administration expenses",
+  "chars": 2896,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/gob/7-103"
+ },
+ {
+  "file": "NY_GOB_7-108.json",
+  "citation": "N.Y. Gen. Oblig. Law § 7-108",
+  "title": "Deposits made by tenants of non-rent stabilized dwelling units",
+  "chars": 10700,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/gob/7-108"
+ },
+ {
+  "file": "NY_ISC_5102.json",
+  "citation": "N.Y. Ins. Law § 5102",
+  "title": "Definitions",
+  "chars": 6716,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/isc/5102"
+ },
+ {
+  "file": "NY_ISC_5104.json",
+  "citation": "N.Y. Ins. Law § 5104",
+  "title": "Causes of action for personal injury",
+  "chars": 3337,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/isc/5104"
+ },
+ {
+  "file": "NY_LAB_191.json",
+  "citation": "N.Y. Lab. Law § 191",
+  "title": "Frequency of payments",
+  "chars": 5582,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/lab/191"
+ },
+ {
+  "file": "NY_LAB_193.json",
+  "citation": "N.Y. Lab. Law § 193",
+  "title": "Deductions from wages",
+  "chars": 9290,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/lab/193"
+ },
+ {
+  "file": "NY_LAB_198.json",
+  "citation": "N.Y. Lab. Law § 198",
+  "title": "Costs, remedies",
+  "chars": 9105,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/lab/198"
+ },
+ {
+  "file": "NY_LAB_215.json",
+  "citation": "N.Y. Lab. Law § 215",
+  "title": "Penalties and civil action; prohibited retaliation",
+  "chars": 6070,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/lab/215"
+ },
+ {
+  "file": "NY_LAB_740.json",
+  "citation": "N.Y. Lab. Law § 740",
+  "title": "Retaliatory action by employers; prohibition",
+  "chars": 7300,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/lab/740"
+ },
+ {
+  "file": "NY_PEN_120.00.json",
+  "citation": "N.Y. Penal Law § 120.00",
+  "title": "Assault in the third degree",
+  "chars": 420,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/pen/120.00"
+ },
+ {
+  "file": "NY_PEN_140.20.json",
+  "citation": "N.Y. Penal Law § 140.20",
+  "title": "Burglary in the third degree",
+  "chars": 200,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/pen/140.20"
+ },
+ {
+  "file": "NY_PEN_155.25.json",
+  "citation": "N.Y. Penal Law § 155.25",
+  "title": "Petit larceny",
+  "chars": 100,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/pen/155.25"
+ },
+ {
+  "file": "NY_PEN_155.30.json",
+  "citation": "N.Y. Penal Law § 155.30",
+  "title": "Grand Larceny in the fourth degree",
+  "chars": 2639,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/pen/155.30"
+ },
+ {
+  "file": "NY_PEN_35.15.json",
+  "citation": "N.Y. Penal Law § 35.15",
+  "title": "Justification; use of physical force in defense of a person",
+  "chars": 2115,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/pen/35.15"
+ },
+ {
+  "file": "NY_RPA_711.json",
+  "citation": "N.Y. Real Prop. Acts. Law § 711",
+  "title": "Grounds where landlord-tenant relationship exists",
+  "chars": 6749,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/rpa/711"
+ },
+ {
+  "file": "NY_RPP_235-b.json",
+  "citation": "N.Y. Real Prop. Law § 235-b",
+  "title": "Warranty of habitability",
+  "chars": 2170,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/rpp/235-b"
+ },
+ {
+  "file": "NY_UCC_2-314.json",
+  "citation": "N.Y. U.C.C. Law § 2-314",
+  "title": "Implied Warranty: Merchantability; Usage of Trade",
+  "chars": 1063,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-314"
+ },
+ {
+  "file": "NY_UCC_2-508.json",
+  "citation": "N.Y. U.C.C. Law § 2-508",
+  "title": "Cure by Seller of Improper Tender or Delivery; Replacement",
+  "chars": 537,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-508"
+ },
+ {
+  "file": "NY_UCC_2-601.json",
+  "citation": "N.Y. U.C.C. Law § 2-601",
+  "title": "Buyer's Rights on Improper Delivery",
+  "chars": 419,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-601"
+ },
+ {
+  "file": "NY_UCC_2-602.json",
+  "citation": "N.Y. U.C.C. Law § 2-602",
+  "title": "Manner and Effect of Rightful Rejection",
+  "chars": 994,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-602"
+ },
+ {
+  "file": "NY_UCC_2-607.json",
+  "citation": "N.Y. U.C.C. Law § 2-607",
+  "title": "Effect of Acceptance; Notice of Breach; Burden of Establishing Breach After Acceptance; Notice of Claim or Litigation to Person Answerable Over",
+  "chars": 2146,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-607"
+ },
+ {
+  "file": "NY_UCC_2-714.json",
+  "citation": "N.Y. U.C.C. Law § 2-714",
+  "title": "Buyer's Damages for Breach in Regard to Accepted Goods",
+  "chars": 673,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-714"
+ },
+ {
+  "file": "NY_UCC_2-725.json",
+  "citation": "N.Y. U.C.C. Law § 2-725",
+  "title": "Statute of Limitations in Contracts for Sale",
+  "chars": 1249,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-725"
+ },
+ {
+  "file": "NY_VAT_1129.json",
+  "citation": "N.Y. Veh. & Traf. Law § 1129",
+  "title": "Following too closely",
+  "chars": 1132,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/vat/1129"
+ },
+ {
+  "file": "NY_VAT_1192.json",
+  "citation": "N.Y. Veh. & Traf. Law § 1192",
+  "title": "Operating a motor vehicle while under the influence of alcohol or drugs",
+  "chars": 15730,
+  "lawwiki_url": "https://www.lawwiki.ai/ny/vat/1192"
+ },
+ {
+  "file": "TX_BC_16.102.json",
+  "citation": "Tex. Bus. & Com. Code § 16.102",
+  "title": "Infringement of Registered Mark",
+  "chars": 2056,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/bc/16.102"
+ },
+ {
+  "file": "TX_BC_16.103.json",
+  "citation": "Tex. Bus. & Com. Code § 16.103",
+  "title": "Injury to Business Reputation; Dilution",
+  "chars": 2284,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/bc/16.103"
+ },
+ {
+  "file": "TX_BC_17.46.json",
+  "citation": "Tex. Bus. & Com. Code § 17.46",
+  "title": "Deceptive Trade Practices Unlawful",
+  "chars": 10933,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/bc/17.46"
+ },
+ {
+  "file": "TX_BC_17.50.json",
+  "citation": "Tex. Bus. & Com. Code § 17.50",
+  "title": "Relief for Consumers",
+  "chars": 3761,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/bc/17.50"
+ },
+ {
+  "file": "TX_BC_2.314.json",
+  "citation": "Tex. Bus. & Com. Code § 2.314",
+  "title": "Implied Warranty: Merchantability; Usage of Trade",
+  "chars": 1061,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/bc/2.314"
+ },
+ {
+  "file": "TX_BC_2.601.json",
+  "citation": "Tex. Bus. & Com. Code § 2.601",
+  "title": "Buyer's Rights on Improper Delivery",
+  "chars": 416,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/bc/2.601"
+ },
+ {
+  "file": "TX_BC_2.607.json",
+  "citation": "Tex. Bus. & Com. Code § 2.607",
+  "title": "Effect of Acceptance; Notice of Breach; Burden of Establishing Breach After Acceptance; Notice of Claim or Litigation to Person Answerable over",
+  "chars": 2143,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/bc/2.607"
+ },
+ {
+  "file": "TX_BO_21.223.json",
+  "citation": "Tex. Bus. Orgs. Code § 21.223",
+  "title": "Limitation of Liability for Obligations",
+  "chars": 1665,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/bo/21.223"
+ },
+ {
+  "file": "TX_CP_134A.002.json",
+  "citation": "Tex. Civ. Prac. & Rem. Code § 134A.002",
+  "title": "Definitions",
+  "chars": 3543,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cp/134A.002"
+ },
+ {
+  "file": "TX_CP_134A.004.json",
+  "citation": "Tex. Civ. Prac. & Rem. Code § 134A.004",
+  "title": "Damages",
+  "chars": 728,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cp/134A.004"
+ },
+ {
+  "file": "TX_CP_16.003.json",
+  "citation": "Tex. Civ. Prac. & Rem. Code § 16.003",
+  "title": "Two-Year Limitations Period",
+  "chars": 585,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cp/16.003"
+ },
+ {
+  "file": "TX_CP_33.001.json",
+  "citation": "Tex. Civ. Prac. & Rem. Code § 33.001",
+  "title": "Proportionate Responsibility",
+  "chars": 142,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cp/33.001"
+ },
+ {
+  "file": "TX_CP_33.003.json",
+  "citation": "Tex. Civ. Prac. & Rem. Code § 33.003",
+  "title": "Determination of Percentage of Responsibility",
+  "chars": 785,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cp/33.003"
+ },
+ {
+  "file": "TX_CP_38.001.json",
+  "citation": "Tex. Civ. Prac. & Rem. Code § 38.001",
+  "title": "Recovery of Attorney's Fees",
+  "chars": 661,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cp/38.001"
+ },
+ {
+  "file": "TX_CP_41.003.json",
+  "citation": "Tex. Civ. Prac. & Rem. Code § 41.003",
+  "title": "Standards for Recovery of Exemplary Damages",
+  "chars": 1368,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cp/41.003"
+ },
+ {
+  "file": "TX_CP_41.008.json",
+  "citation": "Tex. Civ. Prac. & Rem. Code § 41.008",
+  "title": "Limitation on Amount of Recovery",
+  "chars": 2238,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cp/41.008"
+ },
+ {
+  "file": "TX_CR_38.04.json",
+  "citation": "Tex. Code Crim. Proc. art. 38.04",
+  "title": "Jury Are Judges of Facts",
+  "chars": 384,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cr/38.04"
+ },
+ {
+  "file": "TX_CR_38.23.json",
+  "citation": "Tex. Code Crim. Proc. art. 38.23",
+  "title": "Evidence Not to Be Used",
+  "chars": 831,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/cr/38.23"
+ },
+ {
+  "file": "TX_FA_153.002.json",
+  "citation": "Tex. Fam. Code § 153.002",
+  "title": "Best Interest of Child; Rebuttable Presumption in Suit Between Parent and Nonparent",
+  "chars": 1106,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/fa/153.002"
+ },
+ {
+  "file": "TX_FA_154.125.json",
+  "citation": "Tex. Fam. Code § 154.125",
+  "title": "Application of Guidelines to Net Resources",
+  "chars": 2159,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/fa/154.125"
+ },
+ {
+  "file": "TX_FA_6.001.json",
+  "citation": "Tex. Fam. Code § 6.001",
+  "title": "Insupportability",
+  "chars": 310,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/fa/6.001"
+ },
+ {
+  "file": "TX_FA_7.001.json",
+  "citation": "Tex. Fam. Code § 7.001",
+  "title": "General Rule of Property Division",
+  "chars": 228,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/fa/7.001"
+ },
+ {
+  "file": "TX_FA_85.001.json",
+  "citation": "Tex. Fam. Code § 85.001",
+  "title": "Required Findings and Orders",
+  "chars": 942,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/fa/85.001"
+ },
+ {
+  "file": "TX_FI_392.301.json",
+  "citation": "Tex. Fin. Code § 392.301",
+  "title": "Threats or Coercion",
+  "chars": 1788,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/fi/392.301"
+ },
+ {
+  "file": "TX_LA_21.051.json",
+  "citation": "Tex. Lab. Code § 21.051",
+  "title": "Discrimination by Employer",
+  "chars": 601,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/la/21.051"
+ },
+ {
+  "file": "TX_LA_21.055.json",
+  "citation": "Tex. Lab. Code § 21.055",
+  "title": "Retaliation",
+  "chars": 400,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/la/21.055"
+ },
+ {
+  "file": "TX_LA_451.001.json",
+  "citation": "Tex. Lab. Code § 451.001",
+  "title": "Discrimination Against Employees Prohibited",
+  "chars": 381,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/la/451.001"
+ },
+ {
+  "file": "TX_LA_61.014.json",
+  "citation": "Tex. Lab. Code § 61.014",
+  "title": "Payment After Termination of Employment",
+  "chars": 295,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/la/61.014"
+ },
+ {
+  "file": "TX_LA_62.051.json",
+  "citation": "Tex. Lab. Code § 62.051",
+  "title": "Minimum Wage",
+  "chars": 176,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/la/62.051"
+ },
+ {
+  "file": "TX_PE_12.35.json",
+  "citation": "Tex. Penal Code § 12.35",
+  "title": "State Jail Felony Punishment",
+  "chars": 1104,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/12.35"
+ },
+ {
+  "file": "TX_PE_2.01.json",
+  "citation": "Tex. Penal Code § 2.01",
+  "title": "Proof Beyond a Reasonable Doubt",
+  "chars": 308,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/2.01"
+ },
+ {
+  "file": "TX_PE_22.01.json",
+  "citation": "Tex. Penal Code § 22.01",
+  "title": "Assault",
+  "chars": 10584,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/22.01"
+ },
+ {
+  "file": "TX_PE_31.03.json",
+  "citation": "Tex. Penal Code § 31.03",
+  "title": "Theft",
+  "chars": 16134,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/31.03"
+ },
+ {
+  "file": "TX_PE_31.04.json",
+  "citation": "Tex. Penal Code § 31.04",
+  "title": "Theft of Service",
+  "chars": 7481,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/31.04"
+ },
+ {
+  "file": "TX_PE_31.08.json",
+  "citation": "Tex. Penal Code § 31.08",
+  "title": "Value",
+  "chars": 1922,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/31.08"
+ },
+ {
+  "file": "TX_PE_49.04.json",
+  "citation": "Tex. Penal Code § 49.04",
+  "title": "Driving While Intoxicated",
+  "chars": 1223,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/49.04"
+ },
+ {
+  "file": "TX_PE_6.03.json",
+  "citation": "Tex. Penal Code § 6.03",
+  "title": "Definitions of Culpable Mental States",
+  "chars": 1594,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/6.03"
+ },
+ {
+  "file": "TX_PE_8.02.json",
+  "citation": "Tex. Penal Code § 8.02",
+  "title": "Mistake of Fact",
+  "chars": 424,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/8.02"
+ },
+ {
+  "file": "TX_PE_9.31.json",
+  "citation": "Tex. Penal Code § 9.31",
+  "title": "Self-Defense",
+  "chars": 3405,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pe/9.31"
+ },
+ {
+  "file": "TX_PR_24.005.json",
+  "citation": "Tex. Prop. Code § 24.005",
+  "title": "Notice Required Before Filing Certain Eviction Suits",
+  "chars": 5604,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pr/24.005"
+ },
+ {
+  "file": "TX_PR_92.0081.json",
+  "citation": "Tex. Prop. Code § 92.0081",
+  "title": "Removal of Property and Exclusion of Residential Tenant",
+  "chars": 5197,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pr/92.0081"
+ },
+ {
+  "file": "TX_PR_92.052.json",
+  "citation": "Tex. Prop. Code § 92.052",
+  "title": "Landlord's Duty to Repair or Remedy",
+  "chars": 1240,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pr/92.052"
+ },
+ {
+  "file": "TX_PR_92.103.json",
+  "citation": "Tex. Prop. Code § 92.103",
+  "title": "Obligation to Refund",
+  "chars": 542,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pr/92.103"
+ },
+ {
+  "file": "TX_PR_92.109.json",
+  "citation": "Tex. Prop. Code § 92.109",
+  "title": "Liability of Landlord",
+  "chars": 1069,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/pr/92.109"
+ },
+ {
+  "file": "TX_TN_545.062.json",
+  "citation": "Tex. Transp. Code § 545.062",
+  "title": "Following Distance",
+  "chars": 1588,
+  "lawwiki_url": "https://www.lawwiki.ai/tx/tn/545.062"
+ },
+ {
+  "file": "US_USC-11_362.json",
+  "citation": "11 U.S.C. § 362",
+  "title": "Automatic stay",
+  "chars": 38618,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-11/362"
+ },
+ {
+  "file": "US_USC-12_2605.json",
+  "citation": "12 U.S.C. § 2605",
+  "title": "Servicing of mortgage loans and administration of escrow accounts",
+  "chars": 19676,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-12/2605"
+ },
+ {
+  "file": "US_USC-15_1.json",
+  "citation": "15 U.S.C. § 1",
+  "title": "Trusts, etc., in restraint of trade illegal; penalty",
+  "chars": 579,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-15/1"
+ },
+ {
+  "file": "US_USC-15_1114.json",
+  "citation": "15 U.S.C. § 1114",
+  "title": "Remedies; infringement; innocent infringement by printers and publishers",
+  "chars": 9651,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-15/1114"
+ },
+ {
+  "file": "US_USC-15_1125.json",
+  "citation": "15 U.S.C. § 1125",
+  "title": "False designations of origin, false descriptions, and dilution forbidden",
+  "chars": 14307,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-15/1125"
+ },
+ {
+  "file": "US_USC-15_1681i.json",
+  "citation": "15 U.S.C. § 1681i",
+  "title": "Procedure in case of disputed accuracy",
+  "chars": 16433,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-15/1681i"
+ },
+ {
+  "file": "US_USC-15_1692e.json",
+  "citation": "15 U.S.C. § 1692e",
+  "title": "False or misleading representations",
+  "chars": 3416,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-15/1692e"
+ },
+ {
+  "file": "US_USC-15_2310.json",
+  "citation": "15 U.S.C. § 2310",
+  "title": "Remedies in consumer disputes",
+  "chars": 9025,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-15/2310"
+ },
+ {
+  "file": "US_USC-15_45.json",
+  "citation": "15 U.S.C. § 45",
+  "title": "Unfair methods of competition unlawful; prevention by Commission",
+  "chars": 20024,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-15/45"
+ },
+ {
+  "file": "US_USC-17_106.json",
+  "citation": "17 U.S.C. § 106",
+  "title": "Exclusive rights in copyrighted works",
+  "chars": 979,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-17/106"
+ },
+ {
+  "file": "US_USC-17_107.json",
+  "citation": "17 U.S.C. § 107",
+  "title": "Limitations on exclusive rights: Fair use",
+  "chars": 1026,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-17/107"
+ },
+ {
+  "file": "US_USC-17_412.json",
+  "citation": "17 U.S.C. § 412",
+  "title": "Registration as prerequisite to certain remedies for infringement",
+  "chars": 967,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-17/412"
+ },
+ {
+  "file": "US_USC-17_501.json",
+  "citation": "17 U.S.C. § 501",
+  "title": "Infringement of copyright",
+  "chars": 3788,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-17/501"
+ },
+ {
+  "file": "US_USC-17_504.json",
+  "citation": "17 U.S.C. § 504",
+  "title": "Remedies for infringement: Damages and profits",
+  "chars": 4439,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-17/504"
+ },
+ {
+  "file": "US_USC-17_512.json",
+  "citation": "17 U.S.C. § 512",
+  "title": "Limitations on liability relating to material online",
+  "chars": 26207,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-17/512"
+ },
+ {
+  "file": "US_USC-18_1001.json",
+  "citation": "18 U.S.C. § 1001",
+  "title": "Statements or entries generally",
+  "chars": 1779,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-18/1001"
+ },
+ {
+  "file": "US_USC-18_1343.json",
+  "citation": "18 U.S.C. § 1343",
+  "title": "Fraud by wire, radio, or television",
+  "chars": 975,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-18/1343"
+ },
+ {
+  "file": "US_USC-18_3161.json",
+  "citation": "18 U.S.C. § 3161",
+  "title": "Time limits and exclusions",
+  "chars": 14040,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-18/3161"
+ },
+ {
+  "file": "US_USC-18_3553.json",
+  "citation": "18 U.S.C. § 3553",
+  "title": "Imposition of a sentence",
+  "chars": 11886,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-18/3553"
+ },
+ {
+  "file": "US_USC-18_371.json",
+  "citation": "18 U.S.C. § 371",
+  "title": "Conspiracy to commit offense or to defraud United States",
+  "chars": 557,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-18/371"
+ },
+ {
+  "file": "US_USC-18_922.json",
+  "citation": "18 U.S.C. § 922",
+  "title": "Unlawful acts",
+  "chars": 54073,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-18/922"
+ },
+ {
+  "file": "US_USC-21_841.json",
+  "citation": "21 U.S.C. § 841",
+  "title": "Prohibited acts A",
+  "chars": 25964,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-21/841"
+ },
+ {
+  "file": "US_USC-28_1346.json",
+  "citation": "28 U.S.C. § 1346",
+  "title": "United States as defendant",
+  "chars": 3658,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-28/1346"
+ },
+ {
+  "file": "US_USC-28_1738A.json",
+  "citation": "28 U.S.C. § 1738A",
+  "title": "Full faith and credit given to child custody determinations",
+  "chars": 5449,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-28/1738A"
+ },
+ {
+  "file": "US_USC-28_1738B.json",
+  "citation": "28 U.S.C. § 1738B",
+  "title": "Full faith and credit for child support orders",
+  "chars": 7193,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-28/1738B"
+ },
+ {
+  "file": "US_USC-28_2401.json",
+  "citation": "28 U.S.C. § 2401",
+  "title": "Time for commencing action against United States",
+  "chars": 731,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-28/2401"
+ },
+ {
+  "file": "US_USC-28_2674.json",
+  "citation": "28 U.S.C. § 2674",
+  "title": "Liability of United States",
+  "chars": 1505,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-28/2674"
+ },
+ {
+  "file": "US_USC-29_206.json",
+  "citation": "29 U.S.C. § 206",
+  "title": "Minimum wage",
+  "chars": 9266,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-29/206"
+ },
+ {
+  "file": "US_USC-29_207.json",
+  "citation": "29 U.S.C. § 207",
+  "title": "Maximum hours",
+  "chars": 26650,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-29/207"
+ },
+ {
+  "file": "US_USC-29_216.json",
+  "citation": "29 U.S.C. § 216",
+  "title": "Penalties",
+  "chars": 9951,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-29/216"
+ },
+ {
+  "file": "US_USC-29_2612.json",
+  "citation": "29 U.S.C. § 2612",
+  "title": "Leave requirement",
+  "chars": 11264,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-29/2612"
+ },
+ {
+  "file": "US_USC-29_623.json",
+  "citation": "29 U.S.C. § 623",
+  "title": "Prohibition of age discrimination",
+  "chars": 28718,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-29/623"
+ },
+ {
+  "file": "US_USC-35_271.json",
+  "citation": "35 U.S.C. § 271",
+  "title": "Infringement of patent",
+  "chars": 11060,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-35/271"
+ },
+ {
+  "file": "US_USC-42_12112.json",
+  "citation": "42 U.S.C. § 12112",
+  "title": "Discrimination",
+  "chars": 6975,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-42/12112"
+ },
+ {
+  "file": "US_USC-42_2000e-2.json",
+  "citation": "42 U.S.C. § 2000e-2",
+  "title": "Unlawful employment practices",
+  "chars": 14322,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-42/2000e-2"
+ },
+ {
+  "file": "US_USC-42_3604.json",
+  "citation": "42 U.S.C. § 3604",
+  "title": "Discrimination in the sale or rental of housing and other prohibited practices",
+  "chars": 7062,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-42/3604"
+ },
+ {
+  "file": "US_USC-42_3613.json",
+  "citation": "42 U.S.C. § 3613",
+  "title": "Enforcement by private persons",
+  "chars": 3704,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-42/3613"
+ },
+ {
+  "file": "US_USC-45_51.json",
+  "citation": "45 U.S.C. § 51",
+  "title": "Liability of common carriers by railroad, in interstate or foreign commerce, for injuries to employees from negligence; employee defined",
+  "chars": 1440,
+  "lawwiki_url": "https://www.lawwiki.ai/us/usc-45/51"
+ }
+]

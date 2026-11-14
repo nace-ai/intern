@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "UCC",
+ "code_name": "Uniform Commercial Code",
+ "section": "2-714",
+ "citation": "N.Y. U.C.C. Law § 2-714",
+ "title": "Buyer's Damages for Breach in Regard to Accepted Goods",
+ "status": "active",
+ "text": "(1) Where the buyer has accepted goods and given notification (subsection (3) of Section 2--607) he may recover as damages for any non-conformity of tender the loss resulting in the ordinary course of events from the seller's breach as determined in any manner which is reasonable.\n(2) The measure of damages for breach of warranty is the difference at the time and place of acceptance between the value of the goods accepted and the value they would have had if they had been as warranted, unless special circumstances show proximate damages of a different amount.\n(3) In a proper case any incidental and consequential damages under the next section may also be recovered.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/UCC/2-714",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-714",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "96b2434dfa52cc85eadc6ee4205c7cbde05e55b7a3c3bc9672569688acf0d434",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

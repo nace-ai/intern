@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intake · Twelve Angry Drexes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tad.css">
+<link rel="stylesheet" href="design.css">
+<script src="design.js" defer></script>
+<style>
+  .intake { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); align-items: start; }
+  .side { display: grid; gap: 16px; min-width: 0; }
+  .msgs { padding: 6px 14px 14px; height: calc(100vh - 210px); min-height: 460px; overflow: auto; }
+  .msg { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .msg:last-child { border-bottom: 0; }
+  .av { width: 32px; height: 32px; border-radius: var(--radius); background: var(--raised); display: grid; place-items: center; font: 500 11px var(--mono); color: var(--muted); }
+  .msg.bot .av { background: var(--text); color: var(--bg); }
+  .mh { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .mt { color: var(--text-2); }
+  .mt p { margin: 0 0 6px; } .mt p:last-child { margin: 0; }
+  .file { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 10px; margin-top: 8px; font: 12px var(--mono); }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); margin-top: 8px; background: var(--bg); overflow: hidden; }
+  .card h3 { margin: 0; padding: 8px 12px; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .card .cb { padding: 10px 12px; }
+  .ftab { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .ftab td { padding: 5px 12px; border-bottom: 1px solid var(--line); }
+  .ftab tr:last-child td { border-bottom: 0; }
+  .ftab tr { cursor: pointer; } .ftab tr:hover td, .ftab tr.on td { background: var(--raised); }
+  .ftab td:nth-child(2) { font-family: var(--mono); } .ftab td:nth-child(n+3) { font: 12px var(--mono); color: var(--muted); text-align: right; white-space: nowrap; }
+  .lawrow { display: grid; grid-template-columns: minmax(0, 1fr) 130px; gap: 12px; align-items: center; padding: 6px 0; }
+  .lawrow a { text-decoration: none; border-bottom: 1px solid var(--line); } .lawrow a:hover { border-color: var(--text); }
+  .lawrow small { display: block; color: var(--muted); }
+  .lawrow.out { opacity: 0.55; }
+  .mini { display: flex; gap: 4px; align-items: flex-end; margin: 8px 0 6px; }
+  .mini b { position: relative; width: 16px; height: 44px; background: var(--raised); border-radius: 2px; overflow: hidden; }
+  .mini b i { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: var(--no); transition: height 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), background-color 0.3s; }
+  .mini b.yes i { background: var(--yes); }
+  .mini b::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--dim); }
+  .big { font: 500 22px var(--mono); letter-spacing: -0.02em; }
+  .quick { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 14px; border-top: 1px solid var(--line); }
+  .quick .btn { text-align: left; font-size: 13px; }
+  .quick .btn[disabled] { opacity: 0.4; cursor: default; }
+  .paper { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; font-size: 13px; }
+  .paper.photo { transform: rotate(-0.6deg); }
+  .pl { display: grid; grid-template-columns: minmax(0, 1fr) auto 36px; gap: 10px; padding: 5px 0; border-bottom: 1px dotted var(--line); align-items: baseline; }
+  .pl span:first-child { color: var(--muted); } .pl span:first-child::first-letter, .ftab td:first-child::first-letter { text-transform: uppercase; }
+  .pl mark { background: none; color: var(--text); font-family: var(--mono); padding: 0 3px; border-radius: 2px; transition: background-color 0.3s, box-shadow 0.3s; }
+  .pl.hit mark { box-shadow: inset 0 -2px 0 var(--o2); }
+  .pl.focus mark { background: var(--o2); color: #0c0a09; }
+  .pl .pg { font: 11px var(--mono); color: var(--dim); text-align: right; }
+  .steps { list-style: none; margin: 0; padding: 0; font-size: 12px; max-height: 44vh; overflow: auto; }
+  .steps li { display: grid; grid-template-columns: 62px minmax(0, 1fr) 150px 52px; gap: 8px; align-items: center; padding: 6px 14px; border-bottom: 1px solid var(--line); }
+  .steps li:last-child { border-bottom: 0; }
+  .steps .src { font-family: var(--mono); } .steps .lat { font: 11px var(--mono); color: var(--dim); text-align: right; }
+  @media (max-width: 1100px) { .intake { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 560px) { .steps li { grid-template-columns: 54px minmax(0, 1fr) 52px; } .steps li .res { display: none; } .lawrow { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="lawwiki-data.js"></script>
+<script src="tad-sim.js"></script>
+<script>
+(function () {
+  const { el, esc, fmt } = TAD;
+  const ui = TAD.shell("01-slack-intake.html");
+  ui.content.classList.add("intake");
+  ui.content.innerHTML = `
+    <section class="panel">
+      <div class="panel-h"><h2># ask-the-jury</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="engine" type="button" hidden>Run on the engine</button><button class="btn" id="intern" type="button" hidden>Run through Intern</button><button class="btn" id="replay" type="button">Replay</button></span></div>
+      <div class="msgs" id="msgs" aria-live="polite"></div>
+      <div class="quick" id="quick"></div>
+    </section>
+    <div class="side">
+      <section class="panel"><div class="panel-h"><h2>Uploaded file</h2><span class="chip model" id="via"></span></div><div class="panel-b" id="doc"></div></section>
+      <section class="panel"><div class="panel-h"><h2>What Intern did</h2><a class="chip" id="toledger" href="03-trace-ledger.html">Open every decision</a></div><ol class="steps" id="steps"></ol></section>
+    </div>`;
+  const $ = (id) => document.getElementById(id);
+  let player = null, run = null, lat = [], cost = 0, mini = null, miniNote = null, trialRow = null, wfRow = null, wfN = 0, state = {};
+
+  function msg(name, initials, tag, html, bot) {
+    const m = el("div", "msg" + (bot ? " bot" : ""), `<div class="av">${esc(initials)}</div><div><div class="mh"><b>${esc(name)}</b>${tag ? `<span class="chip">${esc(tag)}</span>` : ""}<span class="role"></span></div><div class="mt">${html}</div></div>`);
+    $("msgs").appendChild(m); $("msgs").scrollTop = $("msgs").scrollHeight; return m;
+  }
+  const say = (html) => msg("Intern", "IN", "app", html, true).querySelector(".mt");
+  function stats() {
+    const s = lat.slice().sort((a, b) => a - b);
+    ui.stats([["Drex decisions", lat.length], ["Median latency", lat.length ? fmt.ms(s[Math.floor(s.length / 2)]) : "–"], ["Cost so far", fmt.usd(cost)]]);
+  }
+  function step(e) {
+    const li = el("li", "", `<span class="src ${e.src}">${e.src}</span><span>${esc(e.q || e.text)}</span><span class="res"></span><span class="lat">${fmt.ms(e.ms)}</span>`);
+    if (e.src === "drex" && e.type) { const r = li.querySelector(".res"); if (e.type === "noul") r.appendChild(TAD.pbar(e.p, true)); else { r.appendChild(TAD.distBar(e.dist, e.options || e.levels)); r.title = TAD.answer(e); } }
+    $("steps").appendChild(li); $("steps").scrollTop = $("steps").scrollHeight; return li;
+  }
+  function makeMini() {
+    const m = el("div", "mini"); TAD.JURORS.forEach((j) => { const b = el("b", "", "<i></i>"); b.dataset.id = j.id; b.title = `${j.id} ${j.name}`; m.appendChild(b); }); return m;
+  }
+  function setMini(m, id, p) { const b = m.querySelector(`[data-id="${id}"]`); b.classList.toggle("yes", p >= 0.5); b.firstChild.style.height = p * 100 + "%"; }
+
+  function renderDoc(c) {
+    $("via").textContent = c.upload.via;
+    const lines = c.fields.map(([k, v, page]) => `<div class="pl" data-k="${k}"><span>${esc(k.replace(/_/g, " "))}</span><mark>${esc(v)}</mark><span class="pg">p. ${page}</span></div>`).join("");
+    $("doc").innerHTML = `<div class="paper ${c.upload.kind === "image" ? "photo" : ""}"><div class="mono dim" style="margin-bottom:8px">${esc(c.upload.name)} · ${c.upload.pages} page${c.upload.pages > 1 ? "s" : ""} · ${c.upload.kind === "image" ? "photo taken on a phone" : "PDF"}</div>${lines}</div>
+      <p class="dim" style="font-size:12px;margin:10px 0 0">${c.ruling && c.ruling.real ? "A real published opinion: " + esc(c.ruling.cite) + "." : "An invented document."} Select a field in the thread to see where it was found.</p>`;
+  }
+  function focusField(k) {
+    document.querySelectorAll(".pl").forEach((n) => n.classList.toggle("focus", n.dataset.k === k));
+    document.querySelectorAll(".ftab tr").forEach((n) => n.classList.toggle("on", n.dataset.k === k));
+  }
+
+  function onEvent(e) {
+    if (e.id.startsWith("intern.") || e.id === "mcp.call") { step(e); return; } // steps of the Intern harness: trace only
+    const c = run.case;
+    if (e.src === "drex") { lat.push(e.ms); cost += e.usd; stats(); }
+    const inTrial = e.phase != null;
+    if (e.id === "whatif_liable") { // 60 re-votes: one summary row, not 60
+      wfN++; if (!wfRow) { wfRow = step({ src: "drex", text: "", ms: 0 }); wfRow.querySelector(".lat").textContent = ""; }
+      wfRow.children[1].textContent = `What moves the vote: ${wfN} re-votes so far (${run.facts.length} facts x 12 jurors)`;
+      if (miniNote) miniNote.textContent = "Vote counted. Testing which fact moves it";
+    } else if (!inTrial && e.id !== "verdict" && e.id !== "slack.reply") step(e);
+    if (e.id === "slack.message") say(`<p>Reading <span class="mono">${esc(c.upload.name)}</span>.</p>`);
+    else if (e.id === "image_has_instructions") say(`<p>The photo is legible. It contains no text addressed to me, so I treat it as a document only.</p>`);
+    else if (e.id === "ground") {
+      document.querySelectorAll(".pl").forEach((n) => n.classList.add("hit"));
+      const rows = c.fields.map(([k, v, page, conf]) => `<tr data-k="${k}" tabindex="0"><td>${esc(k.replace(/_/g, " "))}</td><td>${esc(v)}</td><td>p. ${page}</td><td>${fmt.p(conf)}</td></tr>`).join("");
+      const t = say(`<p>Here is what the file says. Each value links to the place it was found.</p><div class="card"><h3>Read from the file by NDI</h3><table class="ftab">${rows}</table></div>`);
+      t.querySelectorAll("tr").forEach((tr) => { tr.onclick = () => focusField(tr.dataset.k); tr.onkeydown = (ev) => { if (ev.key === "Enter") focusField(tr.dataset.k); }; });
+    } else if (e.id === "asker_role") {
+      const top = e.options[e.dist.indexOf(Math.max(...e.dist))];
+      const r = $("msgs").querySelector(".msg .role"); r.innerHTML = `<span class="chip model" title="Drex choice: asker_role">${esc(top)} ${fmt.p(Math.max(...e.dist))}</span>`;
+    } else if (e.id === "role") {
+      const r = e.result, flag = r.detected && r.detected.needs_person ? ' <span class="chip warn" style="white-space:normal">needs a person</span>' : "";
+      say(`<p><span class="chip model" style="white-space:normal" title="Drex choices: practice_group, practice_area">Legal team: ${esc(r.label)} · group ${esc(r.group)} · ${esc(TAD.roleSource(r))}</span>${flag}</p>
+        <p class="dim" style="font-size:12px">The jurors decide ${esc(r.finding)}, ${esc(r.burden)}. I advise the ${esc(r.side.toLowerCase())}. LawWiki is searched in ${esc(r.scope.join(", "))} (${esc(c.jurisdiction)}).</p>`);
+    } else if (e.id === "ruling_on_point") {
+      const d = run.events.find((x) => x.id === "ruling_disposition"), top = d.dist.indexOf(Math.max(...d.dist));
+      say(`<p>The ruling you attached: ${esc(d.options[top].toLowerCase())} (${fmt.p(d.dist[top])}). It bears on your question (${fmt.p(e.p)}), so the jury reads this passage from it.</p><div class="quote">${esc(c.ruling.excerpt)} <span class="dim">${esc(c.ruling.cite)}${c.ruling.real ? ". Real published opinion; text from " + esc(c.ruling.source) + "." : ""}</span></div>`);
+    } else if (e.id === "fetch") {
+      const hits = run.events.filter((x) => x.id === "statute_applies");
+      const rows = hits.map((h) => { const s = c.statutes.find((x) => x.key === h.cite); const n = el("div", "lawrow" + (h.p < 0.5 ? " out" : ""), `<div><a href="${s.url}" target="_blank" rel="noopener">${esc(s.citation)}</a><small>${esc(s.title)}</small></div>`); n.appendChild(TAD.pbar(h.p, true)); return n; });
+      const top = c.statutes[0];
+      const t = say(`<p>LawWiki returned ${hits.length} sections for ${c.jurisdiction}. Drex judged each one against your facts.</p><div class="card"><h3>Law that applies</h3><div class="cb"></div></div>`);
+      const cb = t.querySelector(".cb"); rows.forEach((n) => cb.appendChild(n));
+      if (top.excerpt) cb.appendChild(el("div", "quote", esc(top.excerpt) + ` <span class="dim">${esc(top.citation)}</span>`));
+    } else if (e.id === "next_argument" && e.phase === 0) {
+      const t = say(`<p>Seating 12 jurors. Each one reads the same file and law, then votes after every phase.</p>`);
+      mini = makeMini(); miniNote = el("div", "mono dim", "Opening"); t.append(mini, miniNote);
+      trialRow = step({ src: "drex", text: "Trial: 4 phases, 12 jurors", ms: 0 }); trialRow.querySelector(".lat").textContent = "";
+      ui.live(true, "trial running");
+    } else if (e.id === "liable") {
+      setMini(mini, e.agent, e.p); miniNote.textContent = `${TAD.PHASES[e.phase]} · vote in progress`;
+      trialRow.children[1].textContent = `Trial: phase ${e.phase + 1} of 4, ${lat.length} decisions so far`;
+    } else if (e.id === "verdict") {
+      miniNote.textContent = "Vote counted. Testing which fact moves it";
+    } else if (e.id === "next_steps") { // the final bot reply: result, the fact that moves the vote most, the suggested next step, then the disclaimer
+      const v = run.verdict, n = e.result, m = n.moves_most, fd = v.finding || "liable", crime = fd === "guilty"; miniNote.textContent = "All four phases done";
+      say(`<div class="card"><h3>Result of the simulated trial</h3><div class="cb">
+        <div class="big">${v.liable} to ${v.notLiable}</div><p><b>${esc(v.label)}.</b> ${crime ? "Verdict level" : "Award level"} the jurors chose most: ${esc(v.tier)}.</p>
+        <dl class="kv"><dt>Mean probability of ${esc(fd)}</dt><dd>${fmt.p(v.mean)}</dd><dt>Spread across jurors</dt><dd>${fmt.p(v.sd)}</dd><dt>Jurors near 50/50</dt><dd>${v.undecided}</dd><dt>Decisions sent to a person</dt><dd>${run.totals.flagged} of ${run.totals.decisions}</dd></dl>
+        ${m ? `<p style="margin-top:10px"><b>What moves the vote most:</b> ${esc(m.label)}. If it were ${m.on_now ? "not true" : "true"}, ${m.liable_if} of 12 jurors would find the ${esc(c.sides[1].toLowerCase())} ${esc(fd)} (${fmt.d(m.delta)} in the mean).</p>` : ""}
+        <p><b>Suggested next step:</b> ${esc(n.step)} <span class="mono">(${fmt.p(n.p_step)})</span>, for the ${esc(n.for_side.toLowerCase())}.${n.needs_person ? ' <span class="chip warn" style="white-space:normal">send to a person</span>' : ""}${n.proof_gap >= 0.5 ? ` A document the claim depends on may be missing (${fmt.p(n.proof_gap)}).` : ""}</p>
+        <p style="margin-top:10px"><a class="btn primary" style="text-decoration:none;display:inline-block" href="02-live-courtroom.html#case=${c.id}">Open the courtroom</a></p>
+        <p class="dim" style="font-size:12px">Legal information, not legal advice. This shows how 12 model jurors vote on the facts you gave. It does not predict a real court.</p></div></div>`);
+    } else if (e.id === "slack.reply") { ui.live(false, "done"); quick(true); }
+    $("msgs").scrollTop = $("msgs").scrollHeight;
+  }
+
+  function quick(enabled) {
+    const q = $("quick"); q.innerHTML = "";
+    run.facts.slice(0, 3).forEach((f) => {
+      const b = el("button", "btn", `What if ${f.on ? "this were not true" : "this were true"}: ${esc(f.label.toLowerCase())}?`); b.type = "button"; b.disabled = !enabled;
+      b.onclick = () => whatIf(f, b.textContent); q.appendChild(b);
+    });
+  }
+  function whatIf(f, text) {
+    const c = run.case, before = run.verdict; state = { ...state, [f.id]: !f.on };
+    msg(c.asker.name, c.asker.initials, "", `<p>${esc(text)}</p>`);
+    const next = TAD.run(c.id, state); const votes = next.phases[3].votes;
+    const rv = next.events.filter((x) => x.phase === 3 && x.src === "drex" && /^J\d/.test(x.agent)); // the 24 decisions of the re-vote, one request
+    const t = say(`<p>Running the vote again with that one fact changed. Nothing else in the file moves.</p>`);
+    const m = makeMini(); t.appendChild(m); run.phases[3].votes.forEach((v) => setMini(m, v.id, v.p));
+    quick(false); ui.live(true, "re-voting");
+    let k = 0; (function tick() {
+      if (k < votes.length) { setMini(m, votes[k].id, votes[k].p); lat.push(rv[2 * k].ms, rv[2 * k + 1].ms); cost += rv[2 * k].usd + rv[2 * k + 1].usd; stats(); k++; return setTimeout(tick, 110); }
+      const v = next.verdict;
+      t.appendChild(el("p", "", `The vote moves from <b>${before.liable} to ${before.notLiable}</b> to <b>${v.liable} to ${v.notLiable}</b>. Mean probability goes from ${fmt.p(before.mean)} to ${fmt.p(v.mean)}. ${esc(v.label)}.`));
+      run = next; ui.live(false, "done"); quick(true);
+    })();
+  }
+
+  let es = null;
+  function begin(live, ledger) {
+    if (player) player.stop(); if (es) { es.close(); es = null; }
+    const c = TAD.CASES.find((x) => x.id === ui.caseId()); state = {}; run = TAD.run(c.id); lat = []; cost = 0; wfRow = null; wfN = 0;
+    ui.title(c.title, `${c.asker.who} · ${c.jurisdiction} · ${c.claim}`); ui.live(true, live); stats();
+    $("msgs").innerHTML = ""; $("steps").innerHTML = ""; $("toledger").href = ledger + "#case=" + c.id; renderDoc(c); quick(false);
+    msg(c.asker.name, c.asker.initials, "", `<p>${esc(c.ask)}</p><div class="file">${esc(c.upload.name)} <span class="dim">${c.upload.pages} page${c.upload.pages > 1 ? "s" : ""}</span></div>`);
+    return c;
+  }
+  function start() { begin("reading the message", "03-trace-ledger.html"); player = TAD.play(run, { onEvent }); }
+  /* Served by engine/server.py, the same thread shows a real request: through Intern, or the jury engine directly. */
+  function startEngine(viaIntern) {
+    const c = begin(viaIntern ? "Intern is running the request" : "engine running", "03-trace-ledger.html?engine=1");
+    const badge = document.querySelector(".sim-badge"); let labelled = false;
+    es = new EventSource(`/api/stream?case=${c.id}` + (viaIntern ? "&harness=intern" : ""));
+    es.onmessage = (m) => { const e = JSON.parse(m.data);
+      if (!labelled && e.src !== "intern") { labelled = true; badge.textContent = (viaIntern ? "Request run by Intern (Drex is System 1, Qwen is System 2). " : "Engine run. ") + (e.simulated === false ? "Decisions by Drex." : "Simulated decisions: no API key is set."); }
+      onEvent(e); };
+    es.addEventListener("done", (m) => { es.close(); es = null; const d = JSON.parse(m.data || "{}"); if (d.intern && d.intern.reply) say(`<p><b>Intern's answer</b></p><p>${esc(d.intern.reply)}</p>`); ui.live(false, "done"); });
+    es.onerror = (m) => { if (es) { es.close(); es = null; } let why = ""; try { why = JSON.parse(m.data).error; } catch (x) { /* a dropped connection has no message */ } if (why) badge.textContent = "Stopped: " + why; ui.live(false, "engine stopped"); };
+  }
+  if (location.protocol.startsWith("http")) fetch("/api/health").then((r) => (r.ok ? r.json() : null)).then((h) => {
+    if (!h || !h.ok) return; $("engine").hidden = false; $("intern").hidden = false; $("intern").disabled = !h.intern;
+    $("intern").title = h.intern ? "Intern plans the run and calls the jury engine as its tool" : "Not ready: " + (h.intern_missing || []).join("; ");
+    const want = new URLSearchParams(location.search).get("engine"); if (want !== null) startEngine(want === "intern" && h.intern);
+  }).catch(() => {});
+  $("engine").onclick = () => startEngine(false); $("intern").onclick = () => startEngine(true);
+  $("replay").onclick = start; ui.onCase(start); start();
+})();
+</script>
+</body>
+</html>

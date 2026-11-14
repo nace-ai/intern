@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "PEN",
+ "code_name": "Penal Law",
+ "section": "140.20",
+ "citation": "N.Y. Penal Law § 140.20",
+ "title": "Burglary in the third degree",
+ "status": "active",
+ "text": "A person is guilty of burglary in the third degree when he knowingly enters or remains unlawfully in a building with intent to commit a crime therein.\nBurglary in the third degree is a class D felony.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/PEN/140.20",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/pen/140.20",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "711d6367936729675ed8fbff7b936e4ffd20cafcf05de14be062ff6126693395",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "PEN",
+ "code_name": "Penal Law",
+ "section": "120.00",
+ "citation": "N.Y. Penal Law § 120.00",
+ "title": "Assault in the third degree",
+ "status": "active",
+ "text": "A person is guilty of assault in the third degree when:\n1. With intent to cause physical injury to another person, he causes such injury to such person or to a third person; or\n2. He recklessly causes physical injury to another person; or\n3. With criminal negligence, he causes physical injury to another person by means of a deadly weapon or a dangerous instrument.\nAssault in the third degree is a class A misdemeanor.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/PEN/120.00",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/pen/120.00",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "982c54341bc906ef68a09403372fb0c5578b21a47d4c7ad24d0f346508deb07b",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

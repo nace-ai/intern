@@ -1,0 +1,301 @@
+{
+ "source": "LawWiki database (Postgres), table public.statutes: 411,398 rows, 222 codes, 5 jurisdictions",
+ "queried_at": "2026-11-14",
+ "how": "read-only SQL by the database owner; sections chosen with the table's full-text index (fts) per case, then checked by hand",
+ "sql": "select ref_key, md5(raw_text), length(raw_text), left(content_hash,16), coalesce(title, generated_title), word_count, last_amended_year, amendment_count, xrefs, defined_terms[1:6], summary_verified from statutes where status='active' and ref_key in (...)",
+ "sections": {
+  "CA:CCP:116.220": {
+   "md5": "51d54e92bad8c7070cb254456194994e",
+   "chars": 4260,
+   "content_hash_prefix": "39e94605ca49ce64",
+   "title": "Small Claims Court Jurisdiction",
+   "words": 693,
+   "last_amended_year": 2023,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [
+    "department"
+   ],
+   "summary_verified": true
+  },
+  "CA:CCP:116.221": {
+   "md5": "7fffe08382796e97a6a546ac12a8d909",
+   "chars": 421,
+   "content_hash_prefix": "6ad17b84b074531e",
+   "title": "Small Claims Jurisdiction Limits",
+   "words": 68,
+   "last_amended_year": 2023,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:CCP:116.540": {
+   "md5": "72cd1adef81b215c7777aa62ae60e20c",
+   "chars": 5681,
+   "content_hash_prefix": "a7c13b4b4abddee0",
+   "title": "Small Claims Court Representation",
+   "words": 950,
+   "last_amended_year": 2022,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:CIV:1941.1": {
+   "md5": "c6c150a98fe94766f1ca87b96c3ba6c5",
+   "chars": 5454,
+   "content_hash_prefix": "e87a6f2d0a5ebec8",
+   "title": "Habitable Dwelling Requirements",
+   "words": 887,
+   "last_amended_year": 2025,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": false
+  },
+  "CA:CIV:1942": {
+   "md5": "e83baa8a59acd97c9ac79c3315c32b99",
+   "chars": 1524,
+   "content_hash_prefix": "5ae688d1848b157c",
+   "title": "Tenant Repair And Rent Deduction",
+   "words": 259,
+   "last_amended_year": 1979,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": false
+  },
+  "CA:CIV:1950.5": {
+   "md5": "92e447b3ac2c20efa58c427535c21071",
+   "chars": 26186,
+   "content_hash_prefix": "a1f1ff8600def830",
+   "title": "Tenant Security Deposit Rules",
+   "words": 4349,
+   "last_amended_year": 2025,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [
+    "security",
+    "Natural person",
+    "Family trust"
+   ],
+   "summary_verified": false
+  },
+  "CA:CIV:1950.7": {
+   "md5": "d9a14ea9de9c87157fca9d24de7395b7",
+   "chars": 4341,
+   "content_hash_prefix": "5e9e98990096b254",
+   "title": "Commercial Rental Security Deposits",
+   "words": 757,
+   "last_amended_year": 2003,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:LAB:201": {
+   "md5": "6b9bc920baf65a7342b800aa541d5d47",
+   "chars": 4555,
+   "content_hash_prefix": "b0b0a442fbbd4b31",
+   "title": "Immediate Wage Payment Upon Discharge",
+   "words": 761,
+   "last_amended_year": 2018,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:LAB:202": {
+   "md5": "aabe189de90eafb0ccd715f2a4e796aa",
+   "chars": 4743,
+   "content_hash_prefix": "d886c5336abc7455",
+   "title": "Employee Final Wage Payment",
+   "words": 805,
+   "last_amended_year": 2018,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:LAB:203": {
+   "md5": "92b02e33959ae19402aa5d5f649d2f13",
+   "chars": 970,
+   "content_hash_prefix": "afd1d0b8a67f7483",
+   "title": "Wage Payment Penalties",
+   "words": 170,
+   "last_amended_year": 2019,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:LAB:204": {
+   "md5": "6021e6922bc6ef25f631c29c6395b785",
+   "chars": 3098,
+   "content_hash_prefix": "eb3eb0cc3985fed4",
+   "title": "Employee Wage Payment Schedule",
+   "words": 527,
+   "last_amended_year": 2019,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": false
+  },
+  "CA:LAB:208": {
+   "md5": "fa50fd15121a5e316631a955439f3a14",
+   "chars": 308,
+   "content_hash_prefix": "747b2f6dc0d5d18a",
+   "title": "Final Wage Payment Location",
+   "words": 56,
+   "last_amended_year": null,
+   "amendments": 0,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:LAB:218.5": {
+   "md5": "d022bbfe9c35017f5d58a234d9f42257",
+   "chars": 1158,
+   "content_hash_prefix": "0caa744440bdeefd",
+   "title": "Wage Claim Attorney Fees",
+   "words": 203,
+   "last_amended_year": 2010,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:LAB:218.6": {
+   "md5": "bd530faa81b804f17cc84e4b09e44f8c",
+   "chars": 401,
+   "content_hash_prefix": "a571413db2e0d3f8",
+   "title": "Wage Nonpayment Interest Award",
+   "words": 73,
+   "last_amended_year": null,
+   "amendments": 0,
+   "cross_references": [],
+   "defined_terms": [],
+   "summary_verified": true
+  },
+  "CA:LAB:226": {
+   "md5": "f74ac64a7b2b9017c1df290f1822567e",
+   "chars": 9456,
+   "content_hash_prefix": "24c64862a3046bf9",
+   "title": "Employee Wage Statement Requirements",
+   "words": 1580,
+   "last_amended_year": 2023,
+   "amendments": 1,
+   "cross_references": [],
+   "defined_terms": [
+    "copy",
+    "promptly and easily determine"
+   ],
+   "summary_verified": true
+  },
+  "FL:FS:83.43": {
+   "md5": "4016bb4d4f87b4e7f2f092463cf519db",
+   "chars": 3874,
+   "content_hash_prefix": "445235eab66d1a77",
+   "title": "Definitions",
+   "words": 639,
+   "last_amended_year": 2024,
+   "amendments": 8,
+   "cross_references": [
+    "FL:FS:250.01"
+   ],
+   "defined_terms": [
+    "Advance rent",
+    "Building, housing, and health codes",
+    "Deposit money",
+    "Dwelling unit",
+    "Early termination fee",
+    "Florida financial institution"
+   ],
+   "summary_verified": false
+  },
+  "FL:FS:83.48": {
+   "md5": "cad1e615b851d3ec31527d85ba20dc54",
+   "chars": 463,
+   "content_hash_prefix": "4a45465b4df30b73",
+   "title": "Attorney fees",
+   "words": 82,
+   "last_amended_year": 2013,
+   "amendments": 2,
+   "cross_references": [
+    "FL:FS:83.51"
+   ],
+   "defined_terms": [],
+   "summary_verified": false
+  },
+  "FL:FS:83.49": {
+   "md5": "b63ddd5061a432fae032d57d52335ae0",
+   "chars": 12158,
+   "content_hash_prefix": "f6383872e47b1a08",
+   "title": "Deposit money or advance rent; duty of landlord and tenant",
+   "words": 2091,
+   "last_amended_year": 2025,
+   "amendments": 25,
+   "cross_references": [
+    "FL:FS:475.25",
+    "FL:FS:509.241",
+    "FL:FS:509.261",
+    "FL:FS:83.505"
+   ],
+   "defined_terms": [],
+   "summary_verified": false
+  },
+  "FL:FS:83.491": {
+   "md5": "3ffaf4ce8be8c8036dcd48d7b73f7724",
+   "chars": 8458,
+   "content_hash_prefix": "004186086de0d245",
+   "title": "Fee in lieu of security deposit",
+   "words": 1495,
+   "last_amended_year": 2024,
+   "amendments": 1,
+   "cross_references": [
+    "FL:FS:83.43",
+    "FL:FS:83.45",
+    "FL:FS:83.47"
+   ],
+   "defined_terms": [],
+   "summary_verified": false
+  },
+  "FL:FS:83.51": {
+   "md5": "1d65771266478da9d5d3d6d834691a0b",
+   "chars": 3282,
+   "content_hash_prefix": "118b4b0e141d3951",
+   "title": "Landlord’s obligation to maintain premises",
+   "words": 522,
+   "last_amended_year": 2025,
+   "amendments": 8,
+   "cross_references": [
+    "FL:FS:83.505",
+    "FL:FS:83.59"
+   ],
+   "defined_terms": [
+    "smoke detection device"
+   ],
+   "summary_verified": false
+  },
+  "FL:FS:83.56": {
+   "md5": "c0d6ae9a0c5bec04b5a24cd85e0bd1c5",
+   "chars": 7315,
+   "content_hash_prefix": "1eef63ce18b8dc5c",
+   "title": "Termination of rental agreement",
+   "words": 1215,
+   "last_amended_year": 2026,
+   "amendments": 11,
+   "cross_references": [
+    "FL:FS:817.537",
+    "FL:FS:83.49",
+    "FL:FS:83.505",
+    "FL:FS:83.51",
+    "FL:FS:83.52",
+    "FL:FS:83.60"
+   ],
+   "defined_terms": [],
+   "summary_verified": false
+  }
+ }
+}

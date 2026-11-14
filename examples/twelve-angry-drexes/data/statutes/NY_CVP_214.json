@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "CVP",
+ "code_name": "Civil Practice Law and Rules",
+ "section": "214",
+ "citation": "N.Y. C.P.L.R. 214",
+ "title": "Actions to be commenced within three years: for non-payment of money collected on execution; for penalty created by statute; to recover chattel; for injury to property; for personal injury; for malpractice other than medical, dental or podiatric malpractice; to annul a marriage on the ground of fraud",
+ "status": "active",
+ "text": "The following actions must be commenced within three years:\n1. an action against a sheriff, constable or other officer for the non-payment of money collected upon an execution;\n2. an action to recover upon a liability, penalty or forfeiture created or imposed by statute except as provided in sections 213 and 215;\n3. an action to recover a chattel or damages for the taking or detaining of a chattel;\n4. an action to recover damages for an injury to property except as provided in section 214-c;\n5. an action to recover damages for a personal injury except as provided in sections 214-b, 214-c, 214-i and 215;\n6. an action to recover damages for malpractice, other than medical, dental or podiatric malpractice, regardless of whether the underlying theory is based in contract or tort; and\n7. an action to annul a marriage on the ground of fraud; the time within which the action must be commenced shall be computed from the time the plaintiff discovered the facts constituting the fraud, but if the plaintiff is a person other than the spouse whose consent was obtained by fraud, the time within which the action must be commenced shall be computed from the time, if earlier, that that spouse discovered the facts constituting the fraud.",
+ "history": "Current version published 2022-02-25 (NY Senate Open Legislation).\nPublished versions: 2014-09-22, 2022-02-25 (2 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/CVP/214",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/cvp/214",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "40771ad22b5f73117bd9ff40e4ee7db8d1e956fcf271b8fbf3864bce310e8b49",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

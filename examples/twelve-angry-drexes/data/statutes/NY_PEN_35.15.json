@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "PEN",
+ "code_name": "Penal Law",
+ "section": "35.15",
+ "citation": "N.Y. Penal Law § 35.15",
+ "title": "Justification; use of physical force in defense of a person",
+ "status": "active",
+ "text": "1. A person may, subject to the provisions of subdivision two, use physical force upon another person when and to the extent he or she reasonably believes such to be necessary to defend himself, herself or a third person from what he or she reasonably believes to be the use or imminent use of unlawful physical force by such other person, unless:\n(a) The latter's conduct was provoked by the actor with intent to cause physical injury to another person; or\n(b) The actor was the initial aggressor; except that in such case the use of physical force is nevertheless justifiable if the actor has withdrawn from the encounter and effectively communicated such withdrawal to such other person but the latter persists in continuing the incident by the use or threatened imminent use of unlawful physical force; or\n(c) The physical force involved is the product of a combat by agreement not specifically authorized by law.\n2. A person may not use deadly physical force upon another person under circumstances specified in subdivision one unless:\n(a) The actor reasonably believes that such other person is using or about to use deadly physical force. Even in such case, however, the actor may not use deadly physical force if he or she knows that with complete personal safety, to oneself and others he or she may avoid the necessity of so doing by retreating; except that the actor is under no duty to retreat if he or she is:\n(i) in his or her dwelling and not the initial aggressor; or\n(ii) a police officer or peace officer or a person assisting a police officer or a peace officer at the latter's direction, acting pursuant to section 35.30; or\n(b) He or she reasonably believes that such other person is committing or attempting to commit a kidnapping, forcible rape, forcible aggravated sexual abuse, a crime formerly defined in section 130.50 of this chapter by force, or robbery; or\n(c) He or she reasonably believes that such other person is committing or attempting to commit a burglary, and the circumstances are such that the use of deadly physical force is authorized by subdivision three of section 35.20.",
+ "history": "Current version published 2024-09-06 (NY Senate Open Legislation).\nPublished versions: 2014-09-22, 2024-02-02, 2024-09-06 (3 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/PEN/35.15",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/pen/35.15",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "d5e9a17c2040024295865cc6564994348c327667749ec28163108fabceb6b478",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

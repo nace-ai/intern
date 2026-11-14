@@ -1,0 +1,79 @@
+{
+ "id": "vaquill/open-us-law",
+ "license_card": "cc-by-nc-4.0",
+ "license_tags": [
+  "license:cc-by-nc-4.0"
+ ],
+ "gated": "auto",
+ "private": false,
+ "downloads": 982,
+ "likes": 31,
+ "lastModified": "2026-10-07T12:06:02.000Z",
+ "createdAt": "2026-07-21T16:20:22.000Z",
+ "tags": [
+  "legal",
+  "statutes",
+  "regulations",
+  "court-rules",
+  "us-law",
+  "rag"
+ ],
+ "language_tags": [
+  "language:en"
+ ],
+ "hub_total_bytes_siblings": 6906288410,
+ "hub_usedStorage": 6906204841,
+ "n_files": 313,
+ "sha": "eed1dd8c60b2d6bb73b6ba40f6ccc77a5a391ed0",
+ "configs": [
+  "adjudication",
+  "administrative_guidance",
+  "ag_opinion",
+  "bia_precedent_decision",
+  "board_decision",
+  "cfpb_enforcement_action",
+  "cfr_annual",
+  "constitutions",
+  "court_rules",
+  "enforcement_action",
+  "executive_order",
+  "faq",
+  "ftc_administrative_decision",
+  "guidance",
+  "guideline",
+  "irs_announcement",
+  "irs_notice",
+  "irs_rev_proc",
+  "irs_rev_rul",
+  "irs_written_determination",
+  "memorandum",
+  "mspb_decision",
+  "notice",
+  "presidential_document",
+  "private_law",
+  "proclamation",
+  "proposed_regulation",
+  "regulations",
+  "resolution",
+  "ruling",
+  "sec_adjudication",
+  "session_law",
+  "statute_compilation",
+  "statutes",
+  "treaty"
+ ],
+ "n_configs": 35,
+ "splits": "not available (datasets-server returned HTTP 401: gated)",
+ "row_counts": "not available via API; API description field says 5,081,709 sections in v2026.09.1",
+ "readme": "not fetchable (HTTP 401, gated=auto)",
+ "sample": "none: gated dataset, rows endpoint returns 401; no sample.jsonl rows written",
+ "description_api": "Open US Law New in v2026.09.1 Updated September 30, 2026. 5,081,709 sections, down from 5,276,632 in v2026.09 (-194,923). 308 files, down from 317. Three new columns: official_status, currency_note and adopting_citations. The first 24 columns are unchanged. See Columns added in v2026.09.1. Regulations for 40 jurisdictions, alongside the current Code of Federal Regulations, and 104,540 state attorney general opinions from 42 jurisdictions. Every section appears… See the full description on the dataset page: https://huggingface.co/datasets/vaquill/open-us-law.",
+ "size_categories": [
+  "1M<n<10M"
+ ],
+ "task_categories": [
+  "text-retrieval",
+  "question-answering",
+  "text-classification"
+ ]
+}

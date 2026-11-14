@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "US",
+ "code": "USC-17",
+ "code_name": "Title 17 — Copyrights",
+ "section": "107",
+ "citation": "17 U.S.C. § 107",
+ "title": "Limitations on exclusive rights: Fair use",
+ "status": "active",
+ "text": "Notwithstanding the provisions of sections 106 and 106A, the fair use of a copyrighted work, including such use by reproduction in copies or phonorecords or by any other means specified by that section, for purposes such as criticism, comment, news reporting, teaching (including multiple copies for classroom use), scholarship, or research, is not an infringement of copyright. In determining whether the use made of a work in any particular case is a fair use the factors to be considered shall include—\n(1) the purpose and character of the use, including whether such use is of a commercial nature or is for nonprofit educational purposes;\n(2) the nature of the copyrighted work;\n(3) the amount and substantiality of the portion used in relation to the copyrighted work as a whole; and\n(4) the effect of the use upon the potential market for or value of the copyrighted work.\nThe fact that a work is unpublished shall not itself bar a finding of fair use if such finding is made upon consideration of all the above factors.",
+ "history": "(Pub. L. 94–553, title I, § 101, Oct. 19, 1976, 90 Stat. 2546; Pub. L. 101–650, title VI, § 607, Dec. 1, 1990, 104 Stat. 5132; Pub. L. 102–492, Oct. 24, 1992, 106 Stat. 3145.)",
+ "source_url": "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section107&num=0&edition=prelim",
+ "lawwiki_url": "https://www.lawwiki.ai/us/usc-17/107",
+ "source_version": "PL 119-124",
+ "content_hash": "8de1fbb3b716c30ab15f31498da2269e080c9d4febb96c7130a5aad23ad29b28",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "CIV",
+ "code_name": "Civil Code",
+ "section": "3426.3",
+ "citation": "Cal. Civ. Code § 3426.3",
+ "title": "Trade Secret Damages",
+ "status": "active",
+ "text": "(a) A complainant may recover damages for the actual loss caused by misappropriation. A complainant also may recover for the unjust enrichment caused by misappropriation that is not taken into account in computing damages for actual loss.\n(b) If neither damages nor unjust enrichment caused by misappropriation are provable, the court may order payment of a reasonable royalty for no longer than the period of time the use could have been prohibited.\n(c) If willful and malicious misappropriation exists, the\ncourt may award exemplary damages in an amount not exceeding twice any award made under subdivision (a) or (b).\n(Added by Stats. 1984, Ch. 1724, Sec. 1.)",
+ "history": "Added by Stats. 1984, Ch. 1724, Sec. 1.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CIV&division=4.&title=5.&part=1.&chapter=&article=",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/civ/3426.3",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "8ace8889ccd74c45fbb8b061082dddeed96cf70cc42ab563e530c6005bd9bca9",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

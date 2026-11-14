@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "CIV",
+ "code_name": "Civil Code",
+ "section": "3301",
+ "citation": "Cal. Civ. Code § 3301",
+ "title": "Contract Damage Limitations",
+ "status": "active",
+ "text": "No damages can be recovered for a breach of contract which are not clearly ascertainable in both their nature and origin.\n(Enacted 1872.)",
+ "history": "Enacted 1872.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CIV&division=4.&title=2.&part=1.&chapter=2.&article=1.",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/civ/3301",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "a02cc128d65d2274e48bc1333f23a56163d92491e832e991f197e3d20308bb61",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "FL",
+ "code": "FS",
+ "code_name": "Florida Statutes",
+ "section": "688.002",
+ "citation": "Fla. Stat. § 688.002",
+ "title": "Definitions",
+ "status": "active",
+ "text": "As used in ss. 688.001-688.009, unless the context requires otherwise:\n(1) “Improper means” includes theft, bribery, misrepresentation, breach or inducement of a breach of a duty to maintain secrecy, or espionage through electronic or other means.\n(2) “Misappropriation” means:\n(a) Acquisition of a trade secret of another by a person who knows or has reason to know that the trade secret was acquired by improper means; or\n(b) Disclosure or use of a trade secret of another without express or implied consent by a person who:\n1. Used improper means to acquire knowledge of the trade secret; or\n2. At the time of disclosure or use, knew or had reason to know that her or his knowledge of the trade secret was:\na. Derived from or through a person who had utilized improper means to acquire it;\nb. Acquired under circumstances giving rise to a duty to maintain its secrecy or limit its use; or\nc. Derived from or through a person who owed a duty to the person seeking relief to maintain its secrecy or limit its use; or\n3. Before a material change of her or his position, knew or had reason to know that it was a trade secret and that knowledge of it had been acquired by accident or mistake.\n(3) “Person” means a natural person, corporation, business trust, estate, trust, partnership, association, joint venture, government, governmental subdivision or agency, or any other legal or commercial entity.\n(4) “Trade secret” means information, including a formula, pattern, compilation, program, device, method, technique, or process that:\n(a) Derives independent economic value, actual or potential, from not being generally known to, and not being readily ascertainable by proper means by, other persons who can obtain economic value from its disclosure or use; and\n(b) Is the subject of efforts that are reasonable under the circumstances to maintain its secrecy.",
+ "history": "History.—s. 2, ch. 88-254; s. 750, ch. 97-102.",
+ "source_url": "https://www.flsenate.gov/Laws/Statutes/2026/688.002",
+ "lawwiki_url": "https://www.lawwiki.ai/fl/fs/688.002",
+ "source_version": "2026 Fla. Stat.",
+ "content_hash": "d068c4547a4cc348c67d5fc3a7cda9cfb9e224070e8ef7b4a997851ef98db657",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

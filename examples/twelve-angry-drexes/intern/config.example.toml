@@ -1,0 +1,51 @@
+# Intern configuration for the Twelve Angry Drexes demo.
+# engine/intern_runner.py copies this file to intern/home/config.toml and fills in the absolute paths
+# (__REPO__, __PYTHON__, __UVX__): Intern wants literal absolute commands, not shell strings.
+# Keys never appear here. Intern reads them from the environment that the runner loads from .env.
+#
+# System 2 (reasons, calls tools): Qwen on DeepInfra. System 1 (fast typed decisions): Drex.
+system2 = "deepinfra/Qwen/Qwen3.8-27B"
+
+[system1]
+backend = "console"      # Drex from the Nace console, key in $NACE_API_KEY
+model = "drex-latest"
+
+# 1. The jury engine of this repository: statutes from the local LawWiki store and the 12-juror trial.
+[[capabilities.mcp]]
+namespace = "jury"
+transport = "stdio"
+command = "__PYTHON__"
+args = ["-m", "engine.mcp_server"]
+cwd = "__REPO__"
+timeout_s = 300          # one trial takes 15 to 40 s; Intern's default of 30 s cut the first real run short
+env_refs = { NACE_API_KEY = "NACE_API_KEY", NACE_API_BASE = "NACE_BASE_URL", KEENABLE_API_KEY = "KEENABLE_API_KEY", DEEPINFRA_API_KEY = "DEEPINFRA_API_KEY", TAD_SESSION_DIR = "TAD_SESSION_DIR" }
+remote_tools = { list_cases = ["read"], list_roles = ["read"], find_statutes = ["read"], get_statute = ["read"], estimate_trial = ["read"], run_trial = ["read", "write", "network"] }
+
+# 2. Nace's local MCP server: Drex decisions and NDI document reading (parse, extract with citations).
+[[capabilities.mcp]]
+namespace = "nace"
+transport = "stdio"
+command = "__UVX__"
+args = ["nace-mcp"]
+cwd = "__REPO__"
+timeout_s = 180          # document parsing is a job that can take a minute
+env_refs = { NACE_API_KEY = "NACE_API_KEY", NACE_BASE_URL = "NACE_BASE_URL" }
+remote_tools = { decide = ["network"], list_models = ["network"], upload_document = ["read", "network"], parse_document = ["read", "network"], extract_data = ["read", "network"], get_job = ["network"] }
+
+# 3. Nace's hosted MCP server: `decide` and `list_models`, nothing to install.
+#    NACE_AUTHORIZATION holds the whole header value: "Bearer <key>".
+[[capabilities.mcp]]
+namespace = "nace_hosted"
+transport = "http"
+url = "https://console.nace.ai/mcp"
+timeout_s = 30
+header_env = { Authorization = "NACE_AUTHORIZATION" }
+remote_tools = { decide = ["network"], list_models = ["network"] }
+
+# 4. Keenable web search and page fetch (keyless public endpoint; 1,000 requests an hour).
+[[capabilities.mcp]]
+namespace = "keenable"
+transport = "http"
+url = "https://api.keenable.ai/mcp-public"
+timeout_s = 30
+remote_tools = { search_web_pages = ["network"], fetch_page_content = ["network"] }

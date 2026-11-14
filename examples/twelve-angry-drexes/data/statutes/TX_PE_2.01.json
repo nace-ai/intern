@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "TX",
+ "code": "PE",
+ "code_name": "Penal Code",
+ "section": "2.01",
+ "citation": "Tex. Penal Code § 2.01",
+ "title": "Proof Beyond a Reasonable Doubt",
+ "status": "active",
+ "text": "All persons are presumed to be innocent and no person may be convicted of an offense unless each element of the offense is proved beyond a reasonable doubt. The fact that he has been arrested, confined, or indicted for, or otherwise charged with, the offense gives rise to no inference of guilt at his trial.",
+ "history": "Acts 1973, 63rd Leg., p. 883, ch. 399, Sec. 1, eff. Jan. 1, 1974. Amended by Acts 1993, 73rd Leg., ch. 900, Sec. 1.01, eff. Sept. 1, 1994.",
+ "source_url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.2.htm#2.01",
+ "lawwiki_url": "https://www.lawwiki.ai/tx/pe/2.01",
+ "source_version": "TLC through 2026-10-16",
+ "content_hash": "b6540f1e48538ee478c35d6aeb377ed87ee6653db5d47aa4f1192d8d7c29fb33",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

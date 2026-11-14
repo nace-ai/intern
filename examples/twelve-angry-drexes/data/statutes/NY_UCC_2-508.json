@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "UCC",
+ "code_name": "Uniform Commercial Code",
+ "section": "2-508",
+ "citation": "N.Y. U.C.C. Law § 2-508",
+ "title": "Cure by Seller of Improper Tender or Delivery; Replacement",
+ "status": "active",
+ "text": "(1) Where any tender or delivery by the seller is rejected because non-conforming and the time for performance has not yet expired, the seller may seasonably notify the buyer of his intention to cure and may then within the contract time make a conforming delivery.\n(2) Where the buyer rejects a non-conforming tender which the seller had reasonable grounds to believe would be acceptable with or without money allowance the seller may if he seasonably notifies the buyer have a further reasonable time to substitute a conforming tender.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/UCC/2-508",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-508",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "a8f4008a9a10bd325abae92217559a10f6934437915d6da91291b2f44c1ec384",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

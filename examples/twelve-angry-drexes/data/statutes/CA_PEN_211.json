@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "PEN",
+ "code_name": "Penal Code",
+ "section": "211",
+ "citation": "Cal. Penal Code § 211",
+ "title": "Felonious Taking By Force",
+ "status": "active",
+ "text": "Robbery is the felonious taking of personal property in the possession of another, from his person or immediate presence, and against his will, accomplished by means of force or fear.\n(Enacted 1872.)",
+ "history": "Enacted 1872.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=PEN&division=&title=8.&part=1.&chapter=4.&article=",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/pen/211",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "4c927fcb570476f70fd7dd80487430517b1b0f7024ffd27ac26b9e054e7c665a",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

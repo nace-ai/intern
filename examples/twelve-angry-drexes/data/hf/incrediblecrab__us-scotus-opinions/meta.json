@@ -1,0 +1,137 @@
+{
+ "id": "incrediblecrab/us-scotus-opinions",
+ "license_card": "unknown",
+ "license_tags": [
+  "license:unknown"
+ ],
+ "gated": false,
+ "private": false,
+ "downloads": 2895,
+ "likes": 1,
+ "lastModified": "2026-11-14T18:55:05.000Z",
+ "createdAt": "2026-09-27T03:46:09.000Z",
+ "tags": [
+  "legal",
+  "law",
+  "supreme-court",
+  "united-states",
+  "government",
+  "court-documents"
+ ],
+ "language_tags": [
+  "language:en"
+ ],
+ "hub_total_bytes_siblings": 49039899560,
+ "hub_usedStorage": 55958211827,
+ "n_files": 133,
+ "sha": "3a0b2e8c2301d806d3829f25ce6676e3ac592f10",
+ "configs": [
+  "in-chambers-opinions",
+  "media-files-cited-in-opinions",
+  "online-sources-cited-in-opinions",
+  "opinions-of-the-court",
+  "opinions-relating-to-orders",
+  "us-reports"
+ ],
+ "splits": [
+  "train (per config)"
+ ],
+ "row_counts": {
+  "in-chambers-opinions": {
+   "num_rows": 1,
+   "parquet_bytes": 59313,
+   "num_columns": 31
+  },
+  "media-files-cited-in-opinions": {
+   "num_rows": 10,
+   "parquet_bytes": 1383194468,
+   "num_columns": 31
+  },
+  "online-sources-cited-in-opinions": {
+   "num_rows": 1223,
+   "parquet_bytes": 1460264804,
+   "num_columns": 31
+  },
+  "opinions-of-the-court": {
+   "num_rows": 837,
+   "parquet_bytes": 289913154,
+   "num_columns": 31
+  },
+  "opinions-relating-to-orders": {
+   "num_rows": 206,
+   "parquet_bytes": 65872658,
+   "num_columns": 31
+  },
+  "us-reports": {
+   "num_rows": 621,
+   "parquet_bytes": 45840191541,
+   "num_columns": 31
+  }
+ },
+ "total_size": {
+  "parquet_bytes": 49039495938,
+  "num_rows": 2898
+ },
+ "partitions": {
+  "in-chambers-opinions": [
+   "OT2023",
+   "OT2023",
+   1
+  ],
+  "media-files-cited-in-opinions": [
+   "OT2006",
+   "OT2020",
+   7
+  ],
+  "online-sources-cited-in-opinions": [
+   "OT2005",
+   "OT2024",
+   20
+  ],
+  "opinions-of-the-court": [
+   "OT2017",
+   "OT2026",
+   10
+  ],
+  "opinions-relating-to-orders": [
+   "OT2005",
+   "OT2026",
+   19
+  ]
+ },
+ "features_opinions_of_the_court": {
+  "id": "string",
+  "partition": "string",
+  "url": "string",
+  "term": "int32",
+  "date": "string",
+  "docket": "string",
+  "title": "string",
+  "entries": "large_string",
+  "listed": "bool",
+  "media_type": "string",
+  "file": "large_binary",
+  "file_sha256": "string",
+  "file_size": "int64",
+  "etag": "string",
+  "last_modified": "string",
+  "pages": "int32",
+  "image_pages": "int32",
+  "ocr_pages": "int32",
+  "text_source": "string",
+  "text": "large_string",
+  "ocr_text": "large_string",
+  "extractor": "string",
+  "xcheck_extractor": "string",
+  "xcheck_equal": "bool",
+  "xcheck_equal_nfkd": "bool",
+  "xcheck_delta": "int64",
+  "metadata": "large_string",
+  "first_seen_at": "string",
+  "fetched_at": "string",
+  "checked_at": "string",
+  "delisted_at": "string"
+ },
+ "license_card_per_config": "root card: license unknown; opinions-of-the-court card: license other, license_name us-government-works, license_link https://www.copyright.gov/title17/92chap1.html#105",
+ "sample_config": "opinions-of-the-court (837 rows); `file` (raw PDF bytes) column omitted from sample.jsonl"
+}

@@ -1,0 +1,272 @@
+{
+ "queried_at": "2026-11-14",
+ "source": "LawWiki database (statutes table, active rows), read-only SQL through the Supabase MCP server",
+ "note": "title = title or generated_title; md5 and chars are of raw_text",
+ "sections": {
+  "CA:BPC:14245": {
+   "title": "Trademark Infringement Penalties",
+   "md5": "3cba96402110c9f72a590a6558366f6a",
+   "chars": 5214
+  },
+  "CA:BPC:16600": {
+   "title": "Noncompete Agreement Prohibition",
+   "md5": "e8555267c2c56d494ab112b5d90c9bf7",
+   "chars": 850
+  },
+  "CA:BPC:17200": {
+   "title": "Unfair Business Practices Law",
+   "md5": "e864cf4222beffa875dbc31c2ee945ea",
+   "chars": 382
+  },
+  "CA:BPC:17500": {
+   "title": "False Advertising Prohibition",
+   "md5": "60cb17f6ec716958572a3db60596ea0a",
+   "chars": 1686
+  },
+  "CA:CCP:1161": {
+   "title": "Holdover Tenant Eviction",
+   "md5": "df65e5e0e879883ba2b979594642f5a6",
+   "chars": 7112
+  },
+  "CA:CCP:335.1": {
+   "title": "Personal Injury Lawsuit Deadline",
+   "md5": "220a36129e3c100c131f15e109823aaa",
+   "chars": 216
+  },
+  "CA:CIV:1431.2": {
+   "title": "Several Liability For Damages",
+   "md5": "37713fd137a33d96a95aa4df84f11a9d",
+   "chars": 1333
+  },
+  "CA:CIV:1550": {
+   "title": "Contract Essential Elements",
+   "md5": "519cabd4a1b3d769a1d88982de4c3851",
+   "chars": 202
+  },
+  "CA:CIV:1714": {
+   "title": "Liability For Negligent Acts",
+   "md5": "1349846cb0ce3f88538a49872db29d1b",
+   "chars": 2216
+  },
+  "CA:CIV:1770": {
+   "title": "Consumer Deception Prohibitions",
+   "md5": "844ab06c399e5608cc587b6c2c4d5e5d",
+   "chars": 18847
+  },
+  "CA:CIV:1793.2": {
+   "title": "Warranty Repair Facility Requirements",
+   "md5": "7945b831eae903a918a93f864c5a016b",
+   "chars": 9358
+  },
+  "CA:CIV:1946.2": {
+   "title": "Tenant Eviction Just Cause",
+   "md5": "82761b8a5a4ec16773328e235263c499",
+   "chars": 23739
+  },
+  "CA:CIV:3301": {
+   "title": "Contract Damage Limitations",
+   "md5": "8d356d258afdad7a90b50619755b3a3e",
+   "chars": 137
+  },
+  "CA:CIV:3333.4": {
+   "title": "Drunk Driving Damage Limits",
+   "md5": "9377b181b962a818b5c07a2e1a9318f0",
+   "chars": 1855
+  },
+  "CA:CIV:3344": {
+   "title": "Unauthorized Use Of Likeness",
+   "md5": "bd10b3c07af9e377d4723632f1ce04f7",
+   "chars": 5262
+  },
+  "CA:CIV:3426.1": {
+   "title": "Trade Secret Misappropriation Definitions",
+   "md5": "2e8c22e8b73f9fa8edde344ab2c4e03d",
+   "chars": 2014
+  },
+  "CA:CIV:3426.3": {
+   "title": "Trade Secret Damages",
+   "md5": "4618aafacaec6de3af45c9ab7338da8b",
+   "chars": 662
+  },
+  "CA:COM:2601": {
+   "title": "Buyer Remedies For Nonconforming Goods",
+   "md5": "26567baec507fc24502ed78c6a9c6bbb",
+   "chars": 449
+  },
+  "CA:COM:2607": {
+   "title": "Buyer Payment And Acceptance",
+   "md5": "38f97d2eeefd40e37b222f86c445bd94",
+   "chars": 2272
+  },
+  "CA:CORP:309": {
+   "title": "Director Standard Of Care",
+   "md5": "a753bb3cdcdcf5bae71f12a3b070fa52",
+   "chars": 1814
+  },
+  "CA:EVID:669": {
+   "title": "Negligence Presumption For Violations",
+   "md5": "9f624be9da4500014e90ba58d3342503",
+   "chars": 1218
+  },
+  "CA:FAM:2310": {
+   "title": "Marriage Dissolution Grounds",
+   "md5": "7abb284a0335c99931a2cce2dddc55bd",
+   "chars": 369
+  },
+  "CA:FAM:3011": {
+   "title": "Child Custody Best Interests",
+   "md5": "59a4ae1618014e94a663d09ed379d08c",
+   "chars": 3575
+  },
+  "CA:FAM:4055": {
+   "title": "Child Support Calculation Formula",
+   "md5": "0864285b4b17dd4ea5cf1991806aab96",
+   "chars": 5382
+  },
+  "CA:FAM:4320": {
+   "title": "Spousal Support Earning Capacity",
+   "md5": "a809708aedad8bbdebcc22b7c619a5cb",
+   "chars": 3310
+  },
+  "CA:FAM:6203": {
+   "title": "Domestic Abuse Definition",
+   "md5": "02591c2d5ef7778df861e3a9d4da9297",
+   "chars": 527
+  },
+  "CA:FAM:760": {
+   "title": "Marital Property Ownership Rules",
+   "md5": "94195440b0a883807832d7eb2cd1f92b",
+   "chars": 264
+  },
+  "CA:GOV:12940": {
+   "title": "Employment Discrimination Protections",
+   "md5": "68c2ce2e04a3a6fa72bff3b5f904daab",
+   "chars": 18474
+  },
+  "CA:LAB:1102.5": {
+   "title": "Employer Gag Rule Prohibition",
+   "md5": "0375463c47e4bbee5b89fec4ff9746ba",
+   "chars": 4261
+  },
+  "CA:LAB:1194": {
+   "title": "Minimum Wage Recovery Rights",
+   "md5": "9479a8fcf3fdf7927b1ba0e3266d8021",
+   "chars": 603
+  },
+  "CA:LAB:2802": {
+   "title": "Employee Expense Reimbursement",
+   "md5": "d28fefd04fc29ad5b11ee9e9189bc335",
+   "chars": 1574
+  },
+  "CA:PEN:1096": {
+   "title": "Presumption Of Innocence Standard",
+   "md5": "40173118cc3d347d53a9b866198ddeec",
+   "chars": 807
+  },
+  "CA:PEN:1385": {
+   "title": "Court Dismissal Authority",
+   "md5": "5ab2d6f5cd9a4436f91f2eb41565323c",
+   "chars": 5856
+  },
+  "CA:PEN:1538.5": {
+   "title": "Search And Seizure Challenges",
+   "md5": "eb002f05feb98f23d61f45e0f416b4ae",
+   "chars": 17482
+  },
+  "CA:PEN:211": {
+   "title": "Felonious Taking By Force",
+   "md5": "13f3a3e6f6b0940001fa95fcc03500a2",
+   "chars": 199
+  },
+  "CA:PEN:459": {
+   "title": "Burglary Entry Intent",
+   "md5": "aa6144dc30fd74bccbfdb674631dcc38",
+   "chars": 1443
+  },
+  "CA:PEN:484": {
+   "title": "Theft And Fraud Laws",
+   "md5": "60e57be2f69f92be45b75fb863735fa4",
+   "chars": 3915
+  },
+  "CA:PEN:487": {
+   "title": "Farm Theft Value Limits",
+   "md5": "614c2dbad6e6b1e77e2dcc732a5dea7a",
+   "chars": 2546
+  },
+  "CA:VEH:21703": {
+   "title": "Following Too Closely",
+   "md5": "f59e272d642fc73a647f52654bad70ba",
+   "chars": 245
+  },
+  "CA:VEH:23152": {
+   "title": "Driving Under Alcohol Influence",
+   "md5": "2212d8cfab2d6e54955b5f45bc01f80d",
+   "chars": 2843
+  },
+  "NY:UCC:2-508": {
+   "title": "Cure by Seller of Improper Tender or Delivery; Replacement",
+   "md5": "4f54cdbdd34086c34e6f96f5ce34c532",
+   "chars": 537
+  },
+  "NY:UCC:2-601": {
+   "title": "Buyer's Rights on Improper Delivery",
+   "md5": "4284e85b816922693e53aa3e802b47cb",
+   "chars": 419
+  },
+  "NY:UCC:2-602": {
+   "title": "Manner and Effect of Rightful Rejection",
+   "md5": "2fe02224adca114685ce8f719075a7f3",
+   "chars": 994
+  },
+  "NY:UCC:2-725": {
+   "title": "Statute of Limitations in Contracts for Sale",
+   "md5": "ac84e3ae7d9855a86e7e777c4cf7a6c2",
+   "chars": 1249
+  },
+  "TX:PE:31.03": {
+   "title": "Theft",
+   "md5": "13be88bce0e085df3484133512a2a2c1",
+   "chars": 16134
+  },
+  "TX:PE:31.04": {
+   "title": "Theft of Service",
+   "md5": "2ce4700e5b04a9ea792ad467be1c80fa",
+   "chars": 7481
+  },
+  "TX:PE:31.08": {
+   "title": "Value",
+   "md5": "b67603a3026710a85ce6d964d1074050",
+   "chars": 1922
+  },
+  "TX:PE:8.02": {
+   "title": "Mistake of Fact",
+   "md5": "9b9fb68393298fcbdf0e6ac3f7b71418",
+   "chars": 424
+  },
+  "US:USC-17:106": {
+   "title": "Exclusive rights in copyrighted works",
+   "md5": "b4d465f267be5d01f7c2b81b1f96420e",
+   "chars": 979
+  },
+  "US:USC-17:107": {
+   "title": "Limitations on exclusive rights: Fair use",
+   "md5": "a99082c3622c89273f4ea3ff095b1170",
+   "chars": 1026
+  },
+  "US:USC-17:412": {
+   "title": "Registration as prerequisite to certain remedies for infringement",
+   "md5": "c9037a8a016e0a2030ea7f598dcb971b",
+   "chars": 967
+  },
+  "US:USC-17:501": {
+   "title": "Infringement of copyright",
+   "md5": "2cbe3c52e1a6c3e031c2e7d53c38224b",
+   "chars": 3788
+  },
+  "US:USC-17:512": {
+   "title": "Limitations on liability relating to material online",
+   "md5": "696b19e1046ae522d119fc798ca693c9",
+   "chars": 26207
+  }
+ }
+}

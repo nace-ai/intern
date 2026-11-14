@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "FAM",
+ "code_name": "Family Code",
+ "section": "2310",
+ "citation": "Cal. Fam. Code § 2310",
+ "title": "Marriage Dissolution Grounds",
+ "status": "active",
+ "text": "Dissolution of the marriage or legal separation of the parties may be based on either of the following grounds, which shall be pleaded generally:\n(a) Irreconcilable differences, which have caused the irremediable breakdown of the marriage.\n(b) Permanent legal incapacity to make decisions.\n(Amended by Stats. 2014, Ch. 144, Sec. 9. (AB 1847) Effective January 1, 2015.)",
+ "history": "Amended by Stats. 2014, Ch. 144, Sec. 9. (AB 1847) Effective January 1, 2015.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=FAM&division=6.&title=&part=3.&chapter=2.&article=",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/fam/2310",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "fc0a5ff527e65cfd36aa2bd913f36f2ce6772f22a2836691505acbd4e2ba7a78",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

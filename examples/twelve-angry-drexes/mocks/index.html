@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twelve Angry Drexes walkthrough</title>
+<meta name="description" content="A guided walkthrough of Twelve Angry Drexes: a mock jury of 12. Every decision is made by Drex.">
+<style>
+:root {
+  --bg: #0A0A0A; --grid: #151515; --line: #3A3A3A; --line2: #2A2A2A;
+  --t1: #EDEDED; --t2: #C7C7C7; --t3: #8F8F8F; --ac: #FF8A3D;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; border-radius: 0; }
+html, body { margin: 0; height: 100%; }
+body {
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto auto; height: 100vh; height: 100dvh; overflow: hidden;
+  background-color: var(--bg); color: var(--t1); font-family: var(--mono); font-size: 14px; line-height: 1.5;
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+a { color: var(--t1); text-decoration-color: var(--line); text-underline-offset: 4px; }
+a:hover { color: var(--ac); text-decoration-color: var(--ac); }
+.lab { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--t3); }
+:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--line); min-height: 38px; }
+#open { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+#open[hidden] { display: none; }
+
+#stage { position: relative; overflow: hidden; min-height: 0; border-bottom: 1px solid var(--line2); }
+#frame { position: absolute; left: 0; top: 0; border: 0; background: var(--bg); transform-origin: 0 0; }
+#frame[hidden] { display: none; }
+.card { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.card[hidden] { display: none; }
+.plate { width: min(720px, 100%); background: var(--bg); border: 1px solid var(--line); padding: clamp(20px, 5vw, 44px); }
+.plate .lab { color: var(--ac); }
+.plate h1 { margin: 12px 0 10px; font-weight: 500; font-size: clamp(28px, 6.4vw, 56px); line-height: 1.1; letter-spacing: -1px; }
+.plate p { margin: 0; font-size: clamp(16px, 2.4vw, 20px); color: var(--t2); }
+.plate p.fine { margin-top: 18px; color: var(--t1); }
+.links { list-style: none; margin: 22px 0 0; padding: 0; border-top: 1px solid var(--line2); }
+.links li { border-bottom: 1px solid var(--line2); }
+.links a { display: block; padding: 10px 0; font-size: 16px; text-decoration: none; }
+.links a::after { content: " \2192"; color: var(--t3); }
+.links a:hover::after { color: var(--ac); }
+
+#prog { display: flex; gap: 4px; padding: 0 16px; background: var(--bg); }
+.seg { flex: 1 1 0; min-width: 0; height: 14px; padding: 5px 0; border: 0; background: none; cursor: pointer; }
+.seg i { display: block; position: relative; height: 3px; background: var(--line2); }
+.seg i b { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--ac); }
+.seg[aria-current="step"] i { background: var(--line); }
+
+#subs { height: 104px; padding: 12px 16px; background: var(--bg); border-top: 1px solid var(--line); overflow: auto; display: flex; align-items: center; justify-content: center; }
+#subs[hidden] { display: none; }
+#cap { margin: 0; max-width: 1000px; font-size: 20px; line-height: 1.45; color: var(--t1); text-align: center; text-wrap: balance; }
+
+#ctl { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 10px 16px 12px; background: var(--bg); border-top: 1px solid var(--line2); }
+button.b { min-height: 40px; padding: 8px 14px; background: var(--bg); color: var(--t1); border: 1px solid var(--line); font: inherit; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+button.b:hover { border-color: var(--ac); color: var(--ac); }
+button.b[aria-pressed="true"] { border-color: var(--ac); }
+button.b.cta { background: var(--ac); border-color: var(--ac); color: var(--bg); }
+
+@media (max-width: 700px) {
+  #subs { height: 150px; }
+  #cap { font-size: 18px; }
+  #ctl { gap: 6px; padding: 8px 12px 10px; }
+  button.b { padding: 8px 10px; letter-spacing: 1px; flex: 1 1 auto; }
+  header, #prog { padding-left: 12px; padding-right: 12px; }
+  header { flex-wrap: wrap; }
+  .lab, #open { letter-spacing: 1px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="lab" id="fig" aria-live="polite"></div>
+  <a id="open" href="01-slack-intake.html?design=a#case=tx-theft" target="_blank" rel="noopener">Open the screens</a>
+</header>
+
+<main id="stage">
+  <iframe id="frame" title="Mock screen" hidden></iframe>
+  <section class="card" id="card-title" hidden>
+    <div class="plate">
+      <div class="lab">FIG. 00 — Title</div>
+      <h1>Twelve Angry Drexes</h1>
+      <p>A mock jury of 12. Every decision is made by Drex.</p>
+    </div>
+  </section>
+  <section class="card" id="card-end" hidden>
+    <div class="plate">
+      <div class="lab">FIG. 04 — End</div>
+      <p class="fine">The cases are invented. A simulation, not a prediction. Legal information, not legal advice.</p>
+      <ul class="links">
+        <li><a href="01-slack-intake.html?design=a#case=tx-theft" target="_blank" rel="noopener">Slack intake</a></li>
+        <li><a href="02-live-courtroom.html?design=a#case=tx-theft" target="_blank" rel="noopener">Live courtroom</a></li>
+        <li><a href="03-trace-ledger.html?design=a#case=tx-theft" target="_blank" rel="noopener">Trace ledger</a></li>
+        <li><a href="https://twelve-angry-drexes.vercel.app/deck.html" target="_blank" rel="noopener">Slides</a></li>
+        <li><a id="repo" href="https://github.com/Vent3st/twelve-angry-drexes">Source code</a> <a href="https://twelve-angry-drexes.vercel.app/walkthrough.mp4">Video (MP4)</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<nav id="prog" aria-label="Chapters"></nav>
+<div id="subs" role="status" aria-live="polite"><p id="cap"></p></div>
+
+<div id="ctl">
+  <button class="b" id="prev" type="button" title="Previous chapter (left arrow)">Prev</button>
+  <button class="b" id="play" type="button" title="Play or pause (space bar)">Pause</button>
+  <button class="b" id="next" type="button" title="Next chapter (right arrow)">Next</button>
+  <button class="b" id="restart" type="button" title="Start again from the title">Restart</button>
+  <button class="b" id="cc" type="button" aria-pressed="true" title="Show or hide captions">Captions on</button>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var S1 = "01-slack-intake.html", S2 = "02-live-courtroom.html", S3 = "03-trace-ledger.html", Q = "?design=a", H = "#case=tx-theft";
+  var $ = function (id) { return document.getElementById(id); };
+  var frame = $("frame"), stage = $("stage");
+  var mq = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+
+  /* Captions are timed (ms after the screen has loaded) to the mock's own replay.
+     Screen 01 replays on load: about 9 s of events at 1x (tad-sim.js play(): each event waits clamp(ms*0.3, 30, 380) ms).
+     Screen 02 waits for a click on #run; at its fastest speed (4x) the run takes about 2.3 s, so every panel is filled by 4 s.
+     Screen 03 is static. A caption with a selector scrolls the mock to that part once the caption starts. */
+  var CH = [
+    { fig: "FIG. 01 — Slack intake", dur: 29950, page: S1, caps: [
+      [0, "A legal team posts a question and the case file in Slack."],
+      [10000, "Intern, Nace’s agent harness, takes the request. Drex guards and supervises it (System 1). Qwen 3.8 27B writes (System 2).", ".msg.bot"],
+      [22670, "NDI reads the 2-page file and cites the page of each field: 7 of 7 fields.", ".ftab"] ] },
+    { fig: "FIG. 02 — Live courtroom", dur: 45880, page: S2, acts: [[900, runCourt]], caps: [
+      [0, "This screen replays a simulated trial. Drex picks the legal team’s side: here, the prosecution.", "#role"],
+      [7830, "Statutes come from a local LawWiki store of 400,952 sections. Drex scores each one: § 31.03 Theft ranks first.", "#plaw"],
+      [20440, "A public guide is checked by Drex too, and left out when it is not on point.", "#plaw"],
+      [25470, "12 jurors vote through 4 phases. Every vote is one Drex decision.", "#pjury"],
+      [31180, "The verdict: 12 to 0, guilty.", "#pjury"],
+      [35680, "Then the key facts are flipped, one at a time, to see which one moves the vote.", "#pwhat"],
+      [40560, "Drex ranks the next steps. First: File the charge as drafted.", "#pnext"] ] },
+    { fig: "FIG. 03 — Trace ledger", dur: 35690, page: S3, caps: [
+      [0, "Every decision is one row: question, answer, probability, tokens, time.", "#ptable"],
+      [8000, "On screen: the simulated replay. The live run on 2026-11-14 took 182 decisions in 28 requests, 71,403 input tokens, $0.0086 and 12.6 s.", ".topbar"],
+      [28910, "Those 182 decisions on a frontier chat model cost about $0.61.", ".foot"] ] },
+    { fig: "FIG. 04 — End", dur: 8000, card: "card-end", caps: [
+      [0, "End of the walkthrough. Open any screen from the links."] ] }
+  ];
+
+  var ch = 0, t = 0, capI = -1, fired = {}, playing = true, loading = false, auto = !mq.matches, nonce = 0, loadTimer = 0, last = performance.now();
+
+  function runCourt() {
+    try {
+      var w = frame.contentWindow, d = w.document, sel = d.getElementById("speed"), run = d.getElementById("run");
+      if (sel) {
+        var best = sel.selectedIndex, bv = -1;
+        for (var i = 0; i < sel.options.length; i++) { var v = parseFloat(sel.options[i].value); if (v > bv) { bv = v; best = i; } }
+        sel.selectedIndex = best; sel.dispatchEvent(new w.Event("change", { bubbles: true }));
+      }
+      if (run) run.click();
+    } catch (e) { /* the screen is not reachable: the captions still play */ }
+  }
+  function focusOn(sel) {
+    if (!sel) return;
+    try { var e = frame.contentDocument.querySelector(sel); if (e) e.scrollIntoView({ block: "start", behavior: mq.matches ? "auto" : "smooth" }); } catch (x) { /* ignore */ }
+  }
+  function fit() {
+    var w = stage.clientWidth, h = stage.clientHeight, lw = Math.max(w, 760), s = w / lw;
+    frame.style.width = lw + "px"; frame.style.height = Math.ceil(h / s) + "px"; frame.style.transform = "scale(" + s + ")";
+  }
+  function screenUrl(c) { return c.page + Q + H; }
+
+  function go(i) {
+    ch = Math.max(0, Math.min(CH.length - 1, i)); t = 0; capI = -1; fired = {}; last = performance.now(); clearTimeout(loadTimer);
+    var c = CH[ch];
+    $("card-title").hidden = c.card !== "card-title"; $("card-end").hidden = c.card !== "card-end";
+    if (c.page) {
+      loading = true; frame.hidden = false; frame.src = screenUrl(c) + "&r=" + (++nonce);
+      loadTimer = setTimeout(function () { loading = false; }, 5000);
+      $("open").hidden = false;
+    } else {
+      loading = false; frame.hidden = true; frame.src = "about:blank"; $("open").hidden = false;
+    }
+    $("fig").textContent = c.fig;
+    render();
+  }
+  function render() {
+    var c = CH[ch], k = 0;
+    for (var i = 0; i < c.caps.length; i++) if (t >= c.caps[i][0]) k = i;
+    if (k !== capI) { capI = k; $("cap").textContent = c.caps[k][1]; focusOn(c.caps[k][2]); }
+    var segs = $("prog").children;
+    for (var j = 0; j < segs.length; j++) {
+      segs[j].firstChild.firstChild.style.width = (j < ch ? 100 : j === ch ? Math.min(100, t / c.dur * 100) : 0) + "%";
+      if (j === ch) segs[j].setAttribute("aria-current", "step"); else segs[j].removeAttribute("aria-current");
+    }
+    $("play").textContent = playing ? "Pause" : "Play";
+    $("next").className = "b" + (t >= c.dur && !auto && ch < CH.length - 1 ? " cta" : "");
+  }
+  function tick() {
+    var now = performance.now(), dt = Math.min(now - last, 500); last = now;
+    if (!playing || loading) return;
+    var c = CH[ch];
+    if (t >= c.dur) return;
+    t += dt;
+    (c.acts || []).forEach(function (a, n) { if (t >= a[0] && !fired[n]) { fired[n] = 1; a[1](); } });
+    if (t >= c.dur) {
+      t = c.dur;
+      if (ch === CH.length - 1) playing = false;
+      else if (auto) { go(ch + 1); return; }
+    }
+    render();
+  }
+  function toggle() {
+    if (!playing && ch === CH.length - 1 && t >= CH[ch].dur) { playing = true; go(0); return; }
+    playing = !playing; last = performance.now(); render();
+  }
+  function key(e) {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+    var tn = e.target && e.target.tagName;
+    if (tn === "INPUT" || tn === "SELECT" || tn === "TEXTAREA") return;
+    if (e.key === " " || e.key === "Spacebar") { if (tn === "BUTTON" || tn === "A") return; e.preventDefault(); toggle(); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); go(ch + 1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); go(ch - 1); }
+  }
+
+  /* Progress line: one segment per chapter, as wide as the chapter is long. */
+  CH.forEach(function (c, i) {
+    var b = document.createElement("button"); b.type = "button"; b.className = "seg"; b.style.flexGrow = c.dur;
+    b.setAttribute("aria-label", "Chapter " + (i + 1) + " of " + CH.length + ": " + c.fig.replace(/^FIG\. \d+ — /, ""));
+    b.innerHTML = "<i><b></b></i>"; b.onclick = function () { go(i); }; $("prog").appendChild(b);
+  });
+
+  frame.addEventListener("load", function () {
+    var w; try { w = frame.contentWindow; if (!w || w.location.href === "about:blank") return; } catch (e) { return; }
+    loading = false; clearTimeout(loadTimer); last = performance.now();
+    try { w.addEventListener("keydown", key); } catch (e) { /* ignore */ }
+  });
+  $("prev").onclick = function () { go(ch - 1); };
+  $("next").onclick = function () { go(ch + 1); };
+  $("play").onclick = toggle;
+  $("restart").onclick = function () { playing = true; go(0); };
+  $("cc").onclick = function () { var on = $("cc").getAttribute("aria-pressed") !== "true"; $("cc").setAttribute("aria-pressed", String(on)); $("cc").textContent = on ? "Captions on" : "Captions off"; $("subs").hidden = !on; fit(); };
+  document.addEventListener("keydown", key);
+  window.addEventListener("resize", fit);
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
+  if (mq.addEventListener) mq.addEventListener("change", function () { auto = !mq.matches; render(); });
+
+  fit();
+  var m0 = /[#&]ch=(\d+)/.exec(location.hash); /* #ch=2 opens at a chapter, for checking */
+  go(m0 ? +m0[1] : 0);
+  setInterval(tick, 100);
+})();
+</script>
+</body>
+</html>

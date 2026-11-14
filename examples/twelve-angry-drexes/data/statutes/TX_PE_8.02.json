@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "TX",
+ "code": "PE",
+ "code_name": "Penal Code",
+ "section": "8.02",
+ "citation": "Tex. Penal Code § 8.02",
+ "title": "Mistake of Fact",
+ "status": "active",
+ "text": "(a) It is a defense to prosecution that the actor through mistake formed a reasonable belief about a matter of fact if his mistaken belief negated the kind of culpability required for commission of the offense.\n(b) Although an actor's mistake of fact may constitute a defense to the offense charged, he may nevertheless be convicted of any lesser included offense of which he would be guilty if the fact were as he believed.",
+ "history": "Acts 1973, 63rd Leg., p. 883, ch. 399, Sec. 1, eff. Jan. 1, 1974. Amended by Acts 1993, 73rd Leg., ch. 900, Sec. 1.01, eff. Sept. 1, 1994.",
+ "source_url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.8.htm#8.02",
+ "lawwiki_url": "https://www.lawwiki.ai/tx/pe/8.02",
+ "source_version": "TLC through 2026-10-16",
+ "content_hash": "ce67395cf978d69efdb0bd964bf7b72092aaaf00851b2abb2fddd385c555467d",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "LAB",
+ "code_name": "Labor Code",
+ "section": "208",
+ "citation": "Cal. Lab. Code § 208",
+ "title": "Final Wage Payment Location",
+ "status": "active",
+ "text": "Every employee who is discharged shall be paid at the place of discharge, and every employee who quits shall be paid at the office or agency of the employer in the county where the employee has been performing labor. All payments shall be made in the manner provided by law.\n(Enacted by Stats. 1937, Ch. 90.)",
+ "history": "Enacted by Stats. 1937, Ch. 90.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=LAB&division=2.&title=&part=1.&chapter=1.&article=1.",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/lab/208",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "747b2f6dc0d5d18a92f10e638773493035eb65204fcc0d1c2e5f3c55741fb7a2",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

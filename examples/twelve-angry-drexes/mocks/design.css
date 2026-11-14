@@ -1,0 +1,229 @@
+/* Twelve Angry Drexes: two switchable designs, loaded after tad.css and before each page's own <style>.
+   No data-design attribute (or data-design="base") = the original look; only the switcher below is always styled.
+   A = "figure plate": technical drawing on a faint grid, monospace, one orange accent.
+   B = "calibrated light": warm light ground, white cards, dark ink, orange only as fill. */
+
+/* ---------- design switcher (all designs) ---------- */
+.dsw { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; --dsw-r: 6px; }
+.dsw-l { color: var(--muted); }
+.dsw-b { display: inline-flex; }
+.dsw button { background: none; border: 1px solid var(--edge, var(--line)); color: var(--muted); padding: 3px 10px; margin-left: -1px; min-width: 36px; cursor: pointer; font: 12px var(--mono); border-radius: 0; position: relative; }
+.dsw button:first-child { margin-left: 0; border-radius: var(--dsw-r) 0 0 var(--dsw-r); }
+.dsw button:last-child { border-radius: 0 var(--dsw-r) var(--dsw-r) 0; }
+.dsw button:hover { color: var(--text); }
+.dsw button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); z-index: 1; }
+.dsw button:focus-visible { outline: 2px solid var(--o1); outline-offset: 2px; z-index: 2; }
+.dsw-float { position: fixed; top: 8px; right: 8px; z-index: 6; background: var(--bg); padding: 4px 6px; }
+
+/* =====================================================================
+   DESIGN A: figure plate
+   ===================================================================== */
+:root[data-design="a"] {
+  color-scheme: dark;
+  --bg: #0A0A0A; --surface: #111111; --raised: #1A1A1A; --inset: #0E0E0E;
+  --line: #2A2A2A; --edge: #3A3A3A;
+  --text: #EDEDED; --text-2: #C7C7C7; --muted: #8F8F8F; --dim: #8F8F8F;
+  --accent: #FF8A3D; --accent-tint: #1A1410;
+  --o1: #FF8A3D; --o2: #FF8A3D; --o3: #FF8A3D; --o4: #C7C7C7; --o5: #8F8F8F;
+  --yes: #FF8A3D; --no: #A8A8A8;
+  --radius: 0;
+  --sans: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+:root[data-design="a"] .dsw { --dsw-r: 0; }
+:root[data-design="a"] .dsw button[aria-pressed="true"] { background: var(--accent-tint); color: var(--accent); border-color: var(--accent); }
+:root[data-design="a"] body {
+  font-size: 13px;
+  background-color: #0A0A0A;
+  background-image: linear-gradient(to right, #151515 1px, transparent 1px), linear-gradient(to bottom, #151515 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+/* hide the Light/Dark button: each design fixes its own ground */
+:root[data-design="a"] .topbar > .btn, :root[data-design="b"] .topbar > .btn { display: none; }
+
+/* structure: hairlines, no radius, no shadow */
+:root[data-design="a"] .rail, :root[data-design="a"] .topbar { border-color: var(--edge); }
+:root[data-design="a"] .panel { background: var(--surface); border: 1px solid var(--edge); }
+:root[data-design="a"] .panel-h { border-bottom: 1px solid var(--line); }
+:root[data-design="a"] .panel-h .chip, :root[data-design="b"] .panel-h .chip { white-space: normal; text-align: right; min-width: 0; }   /* long panel notes wrap instead of widening the page at 390px */
+:root[data-design="a"] .brand { letter-spacing: 0.04em; text-transform: uppercase; font-size: 13px; }
+:root[data-design="a"] .brand small { text-transform: none; letter-spacing: 0; }
+:root[data-design="a"] .topbar h1 { font-size: 14px; letter-spacing: 0; }
+:root[data-design="a"] .nav a[aria-current="page"] { background: var(--raised); color: var(--text); box-shadow: inset 2px 0 0 var(--text); }
+:root[data-design="a"] .caselist button[aria-pressed="true"] { box-shadow: inset 2px 0 0 var(--text); }
+/* left rail: screen names in the text colour, case names and tags one step down (all of it was #8F8F8F) */
+:root[data-design="a"] .nav a { color: var(--text); }
+:root[data-design="a"] .nav a[aria-current="page"] { font-weight: 600; }
+:root[data-design="a"] .nav a span { font-weight: 400; }
+:root[data-design="a"] .nav a span, :root[data-design="a"] .brand small, :root[data-design="a"] .caselist button { color: var(--text-2); }
+:root[data-design="a"] .caselist button:hover, :root[data-design="a"] .caselist button[aria-pressed="true"] { color: var(--text); }
+:root[data-design="a"] .caselist button small { color: #A8A8A8; }
+
+/* headings: uppercase, 12px, wide tracking, grey; panel titles get a figure number */
+:root[data-design="a"] .panel-h h2, :root[data-design="a"] .trace th, :root[data-design="a"] .card h3, :root[data-design="a"] .script h3,
+:root[data-design="a"] .label, :root[data-design="a"] .sec, :root[data-design="a"] .rolebar .k, :root[data-design="a"] .wi.head {
+  font-family: var(--mono); font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8F8F8F;
+}
+:root[data-design="a"] .content { counter-reset: fig; }
+:root[data-design="a"] .panel-h h2::before { counter-increment: fig; content: "FIG. " counter(fig, decimal-leading-zero) " \2014  "; color: #C7C7C7; white-space: pre; }
+/* page 02 reads left-to-right, top-to-bottom: script, jury / facts, law / what, next / trace, but the markup order differs */
+/* counter-set runs after counter-increment, so each value below is the final number */
+:root[data-design="a"] #plaw .panel-h h2::before { counter-set: fig 4; }
+:root[data-design="a"] #pwhat .panel-h h2::before { counter-set: fig 5; }
+:root[data-design="a"] #ptrace .panel-h h2::before { counter-set: fig 7; }
+:root[data-design="a"] .stat span { text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; }
+
+/* controls */
+:root[data-design="a"] .btn { background: transparent; border: 1px solid var(--edge); color: var(--text); }
+:root[data-design="a"] .btn:hover { border-color: #8F8F8F; background: var(--raised); }
+:root[data-design="a"] .btn.primary { background: transparent; color: var(--accent); border-color: var(--accent); font-weight: 400; }
+:root[data-design="a"] .btn.primary:hover { background: var(--accent-tint); }
+:root[data-design="a"] .quick .btn[disabled] { border-style: dashed; opacity: 0.6; }
+:root[data-design="a"] .chip { border-color: var(--edge); border-radius: 0; }
+:root[data-design="a"] .chip.warn { border-style: dashed; border-color: #8F8F8F; color: var(--text-2); }
+:root[data-design="a"] .live i { border-radius: 0; background: var(--text); }
+:root[data-design="a"] .sim-badge { background: var(--inset); border: 1px dashed #8F8F8F; color: var(--text-2); }
+:root[data-design="a"] .bar select, :root[data-design="a"] #filters select, :root[data-design="a"] #filters input[type="search"] { background: var(--inset); border: 1px solid var(--edge); border-radius: 0; }
+:root[data-design="a"] input[type="range"] { accent-color: var(--accent); }
+:root[data-design="a"] .seg button { border-radius: 0; border-color: var(--edge); }
+:root[data-design="a"] .seg button[aria-pressed="true"] { background: var(--accent-tint); color: var(--accent); border-color: var(--accent); }
+:root[data-design="a"] .toggle input { border-radius: 0; border-color: var(--edge); }
+:root[data-design="a"] .toggle input::after { border-radius: 0; }
+:root[data-design="a"] .toggle input:checked { background: var(--accent); border-color: var(--accent); }
+:root[data-design="a"] .toggle input:checked::after { background: #0A0A0A; }
+
+/* phases: done = solid grey, active = the one orange outline, pending = dashed (lower layers of the drawing) */
+:root[data-design="a"] .phases li { border-color: var(--edge); }
+:root[data-design="a"] .phases li:not(.done):not(.on) { border-style: dashed; }
+:root[data-design="a"] .phases li.done { color: var(--text-2); }
+:root[data-design="a"] .phases li.on { border-color: var(--accent); background: var(--accent-tint); color: var(--accent); }
+
+/* bars, seats, plots: square, hairline-framed */
+:root[data-design="a"] .pbar .track, :root[data-design="a"] .seat .col, :root[data-design="a"] .dbar, :root[data-design="a"] .mini b { border-radius: 0; border: 1px solid var(--line); background: var(--raised); }
+:root[data-design="a"] .pbar .track { height: 10px; } :root[data-design="a"] .pbar.sm .track { height: 8px; }
+:root[data-design="a"] .dbar { height: 10px; }
+:root[data-design="a"] .seat { background: var(--inset); border-color: var(--edge); }
+:root[data-design="a"] .seat.undecided { border-style: dashed; border-color: #8F8F8F; }
+:root[data-design="a"] .hist i { border-radius: 0; }
+:root[data-design="a"] .hist i.low { background: var(--accent-tint); border: 1px dashed var(--accent); border-bottom: 0; }
+:root[data-design="a"] .big { color: var(--accent); }
+
+/* surfaces and text blocks */
+:root[data-design="a"] .card, :root[data-design="a"] .paper, :root[data-design="a"] pre { background: var(--inset); border-color: var(--edge); }
+:root[data-design="a"] .paper.photo { transform: none; }
+:root[data-design="a"] .file { border-color: var(--edge); }
+:root[data-design="a"] .av { border: 1px solid var(--edge); }
+:root[data-design="a"] .rolebar { background: var(--surface); border-color: var(--edge); }
+:root[data-design="a"] .quote { border-left: 2px solid #8F8F8F; }
+:root[data-design="a"] .delta { border-color: var(--accent); background: var(--accent-tint); }
+:root[data-design="a"] .law a, :root[data-design="a"] .lawrow a, :root[data-design="a"] .cite a { border-bottom-color: #8F8F8F; }
+:root[data-design="a"] .law a:hover, :root[data-design="a"] .lawrow a:hover, :root[data-design="a"] .cite a:hover { border-color: var(--accent); }
+:root[data-design="a"] .law.out, :root[data-design="a"] .lawrow.out { border-bottom: 1px dashed var(--edge); opacity: 1; }   /* not applicable: dashed, not faded (fading breaks contrast) */
+:root[data-design="a"] .law.out a, :root[data-design="a"] .lawrow.out a { color: var(--muted); }
+/* monospace is wider: give the report table room (page 03), one row for the figures, the law list below */
+@media (min-width: 1201px) {
+  :root[data-design="a"] .rep { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+  :root[data-design="a"] .rep > :nth-child(3) { grid-column: 1 / -1; }
+}
+:root[data-design="a"] .trace th { background: var(--surface); border-bottom-color: var(--edge); }
+:root[data-design="a"] .trace tbody tr:hover td { background: var(--raised); }
+:root[data-design="a"] .trace td.q { color: var(--text-2); }
+:root[data-design="a"] .ftab tr:hover td, :root[data-design="a"] .ftab tr.on td { background: var(--raised); }
+
+/* =====================================================================
+   DESIGN B: calibrated light
+   ===================================================================== */
+:root[data-design="b"] {
+  color-scheme: light;
+  --bg: #F5F5F2; --surface: #FFFFFF; --raised: #ECEAE4;
+  --line: #E6E4DE; --edge: #D8D6D0;
+  --text: #171614; --text-2: #3B3935; --muted: #5F5C57; --dim: #5F5C57;
+  --o1: #B8420A; --o2: #FF7A1A; --o3: #FF7A1A; --o4: #B8420A; --o5: #8A3008;   /* o1 = orange as text, o2 = orange as fill */
+  --yes: #FF7A1A; --no: #171614;
+  --link: #1F4E8C; --link-tint: #EAF0F8;
+  --radius: 14px; --r-sm: 10px;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+:root[data-design="b"] .dsw { --dsw-r: 999px; }
+:root[data-design="b"] .dsw button { background: #FFFFFF; }
+:root[data-design="b"] .dsw button[aria-pressed="true"] { background: #171614; color: #F5F5F2; border-color: #171614; }
+
+/* structure */
+:root[data-design="b"] .rail, :root[data-design="b"] .topbar { border-color: var(--edge); }
+:root[data-design="b"] .brand { font-weight: 600; letter-spacing: -0.02em; }
+:root[data-design="b"] .topbar h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+:root[data-design="b"] .nav a, :root[data-design="b"] .caselist button { border-radius: var(--r-sm); }
+:root[data-design="b"] .nav a:hover, :root[data-design="b"] .caselist button:hover { background: var(--raised); }
+:root[data-design="b"] .nav a[aria-current="page"], :root[data-design="b"] .caselist button[aria-pressed="true"] { background: #FFFFFF; box-shadow: inset 0 0 0 1px var(--edge); font-weight: 500; }
+:root[data-design="b"] .panel { background: var(--surface); border: 1px solid var(--edge); }
+:root[data-design="b"] .panel-h { border-bottom: 1px solid var(--line); padding: 12px 16px; }
+:root[data-design="b"] .panel-b { padding: 16px; }
+:root[data-design="b"] .panel-h h2 { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; color: var(--text); }
+:root[data-design="b"] .card h3, :root[data-design="b"] .script h3, :root[data-design="b"] .sec, :root[data-design="b"] .label, :root[data-design="b"] .trace th { font-weight: 600; }
+:root[data-design="b"] .trace th { border-bottom-color: var(--edge); }
+
+/* controls */
+:root[data-design="b"] .btn { background: #FFFFFF; border: 1px solid var(--edge); border-radius: var(--r-sm); font-weight: 500; }
+:root[data-design="b"] .btn:hover { border-color: var(--muted); }
+:root[data-design="b"] .btn.primary { background: #171614; color: #F5F5F2; border-color: #171614; }
+:root[data-design="b"] .btn.primary:hover { background: #2C2A26; }
+:root[data-design="b"] .quick .btn:not(.primary) { color: var(--link); border-color: color-mix(in srgb, var(--link) 35%, #FFFFFF); }
+:root[data-design="b"] .quick .btn:not(.primary):not([disabled]):hover { background: var(--link-tint); border-color: var(--link); }
+:root[data-design="b"] .quick .btn[disabled] { opacity: 0.5; }
+:root[data-design="b"] .chip { border-color: var(--edge); }
+:root[data-design="b"] a.chip { color: var(--link); border-color: color-mix(in srgb, var(--link) 35%, #FFFFFF); }
+:root[data-design="b"] a.chip:hover { background: var(--link-tint); }
+:root[data-design="b"] .sim-badge { background: #FFFFFF; border: 1px solid var(--edge); color: var(--o1); }
+:root[data-design="b"] .bar select, :root[data-design="b"] #filters select, :root[data-design="b"] #filters input[type="search"] { background: #FFFFFF; border: 1px solid var(--edge); border-radius: var(--r-sm); }
+:root[data-design="b"] .seg button { border-color: var(--edge); background: #FFFFFF; }
+:root[data-design="b"] .seg button[aria-pressed="true"] { background: #171614; color: #F5F5F2; border-color: #171614; }
+:root[data-design="b"] .toggle input { border-color: var(--edge); background: var(--raised); }
+:root[data-design="b"] .toggle input:checked { background: #171614; border-color: #171614; }
+
+/* phases */
+:root[data-design="b"] .phases li { border-radius: var(--r-sm); border-color: var(--edge); background: #FFFFFF; }
+:root[data-design="b"] .phases li.done { color: var(--text-2); }
+:root[data-design="b"] .phases li.on { background: #171614; border-color: #171614; color: #F5F5F2; }
+
+/* bars and seats: orange fill = yes, ink fill = no */
+:root[data-design="b"] .pbar .track, :root[data-design="b"] .dbar { border-radius: 999px; }
+:root[data-design="b"] .seat { border-radius: 12px; border-color: var(--edge); }
+:root[data-design="b"] .seat .col { border-radius: 8px; }
+:root[data-design="b"] .seat.undecided { border-style: dashed; border-color: var(--o1); }
+:root[data-design="b"] .mini b { border-radius: 5px; }
+:root[data-design="b"] .hist i { border-radius: 4px 4px 0 0; }
+:root[data-design="b"] .hist i.low { background: #FF7A1A; }
+:root[data-design="b"] .pbar .track::after, :root[data-design="b"] .seat .col::after, :root[data-design="b"] .dbar::after, :root[data-design="b"] .mini b::after { background: #8F8B84; }
+:root[data-design="b"] .big { letter-spacing: -0.04em; }
+
+/* surfaces */
+:root[data-design="b"] .card, :root[data-design="b"] .paper, :root[data-design="b"] pre, :root[data-design="b"] .file { border-color: var(--edge); }
+:root[data-design="b"] .card { overflow: hidden; }
+:root[data-design="b"] .av { border-radius: 10px; }
+:root[data-design="b"] .rolebar { border-color: var(--edge); }
+:root[data-design="b"] input[type="range"] { accent-color: #FF7A1A; }
+
+/* links and what-if use the second colour */
+:root[data-design="b"] .law.out, :root[data-design="b"] .lawrow.out { opacity: 1; }   /* fading would drop the text below 4.5:1 */
+:root[data-design="b"] .law a, :root[data-design="b"] .lawrow a, :root[data-design="b"] .cite a { color: var(--link); border-bottom-color: color-mix(in srgb, var(--link) 35%, transparent); }
+:root[data-design="b"] .law.out a, :root[data-design="b"] .lawrow.out a { color: var(--muted); border-bottom-color: var(--edge); }
+:root[data-design="b"] .law a:hover, :root[data-design="b"] .lawrow a:hover, :root[data-design="b"] .cite a:hover { border-color: var(--link); }
+:root[data-design="b"] .delta { border-color: var(--link); background: var(--link-tint); border-radius: var(--r-sm); }
+:root[data-design="b"] .wi.top { box-shadow: inset 3px 0 0 var(--link); }
+
+/* the one inverted panel per page: tokens are re-pointed, so everything inside follows */
+:root[data-design="b"] #pjury, :root[data-design="b"] #preport, :root[data-design="b"] .card:has(.cb > .big) {
+  --bg: #171614; --surface: #171614; --raised: #2C2A26; --line: #38362F; --edge: #46433C;
+  --text: #F5F5F2; --text-2: #E6E4DE; --muted: #C2BFB7; --dim: #B0ADA5;
+  --o1: #FFA05C; --no: #F5F5F2; --yes: #FF7A1A; --link: #F5F5F2; --link-tint: #2C2A26;
+  background: #171614; border-color: #171614; color: #F5F5F2;
+}
+:root[data-design="b"] #pjury .panel-h h2, :root[data-design="b"] #preport .panel-h h2, :root[data-design="b"] .card:has(.cb > .big) h3 {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #FFA05C;
+}
+:root[data-design="b"] .card:has(.cb > .big) h3 { padding: 12px 14px 10px; border-bottom-color: #38362F; }
+:root[data-design="b"] #pjury .pbar .track::after, :root[data-design="b"] #pjury .seat .col::after { background: #8F8B84; }
+:root[data-design="b"] #pjury .seat { background: #1F1E1B; }
+:root[data-design="b"] .card:has(.cb > .big) .btn.primary { background: #F5F5F2; color: #171614; border-color: #F5F5F2; }
+:root[data-design="b"] .card:has(.cb > .big) .btn.primary:hover { background: #FFFFFF; }

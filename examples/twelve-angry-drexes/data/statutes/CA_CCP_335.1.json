@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "CCP",
+ "code_name": "Code of Civil Procedure",
+ "section": "335.1",
+ "citation": "Cal. Code Civ. Proc. § 335.1",
+ "title": "Personal Injury Lawsuit Deadline",
+ "status": "active",
+ "text": "Within two years: An action for assault, battery, or injury to, or for the death of, an individual caused by the wrongful act or neglect of another.\n(Added by Stats. 2002, Ch. 448, Sec. 2. Effective January 1, 2003.)",
+ "history": "Added by Stats. 2002, Ch. 448, Sec. 2. Effective January 1, 2003.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CCP&division=&title=2.&part=2.&chapter=3.&article=",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/ccp/335.1",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "e66fcd323c85bb4008532a62a054a4f5221ac1c1c23923059503266c8b98688b",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

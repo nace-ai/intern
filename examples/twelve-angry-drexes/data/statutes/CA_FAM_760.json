@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "FAM",
+ "code_name": "Family Code",
+ "section": "760",
+ "citation": "Cal. Fam. Code § 760",
+ "title": "Marital Property Ownership Rules",
+ "status": "active",
+ "text": "Except as otherwise provided by statute, all property, real or personal, wherever situated, acquired by a married person during the marriage while domiciled in this state is community property.\n(Enacted by Stats. 1992, Ch. 162, Sec. 10. Operative January 1, 1994.)",
+ "history": "Enacted by Stats. 1992, Ch. 162, Sec. 10. Operative January 1, 1994.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=FAM&division=4.&title=&part=2.&chapter=1.&article=",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/fam/760",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "0821bd4c1b301e3f7092273e96853b3b70f9114a4fde271b31331fea814d9c04",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

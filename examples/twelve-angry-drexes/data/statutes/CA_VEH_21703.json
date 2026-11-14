@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "VEH",
+ "code_name": "Vehicle Code",
+ "section": "21703",
+ "citation": "Cal. Veh. Code § 21703",
+ "title": "Following Too Closely",
+ "status": "active",
+ "text": "The driver of a motor vehicle shall not follow another vehicle more closely than is reasonable and prudent, having due regard for the speed of such vehicle and the traffic upon, and the condition of, the roadway.\n(Enacted by Stats. 1959, Ch. 3.)",
+ "history": "Enacted by Stats. 1959, Ch. 3.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=VEH&division=11.&title=&part=&chapter=3.&article=2.",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/veh/21703",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "7ed855369b5fee6b82dcf1e12be4aaf47486fb12d7bfa6a421d3b82e0dd10eca",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

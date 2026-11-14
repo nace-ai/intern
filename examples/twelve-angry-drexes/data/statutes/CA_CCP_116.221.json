@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "CCP",
+ "code_name": "Code of Civil Procedure",
+ "section": "116.221",
+ "citation": "Cal. Code Civ. Proc. § 116.221",
+ "title": "Small Claims Jurisdiction Limits",
+ "status": "active",
+ "text": "In addition to the jurisdiction conferred by Section 116.220, the small claims court has jurisdiction in an action brought by a natural person, if the amount of the demand does not exceed twelve thousand five hundred dollars ($12,500), except as otherwise prohibited by subdivision (c) of Section 116.220 or subdivision (a) of Section 116.231.\n(Amended by Stats. 2023, Ch. 861, Sec. 6. (SB 71) Effective January 1, 2024.)",
+ "history": "Amended by Stats. 2023, Ch. 861, Sec. 6. (SB 71) Effective January 1, 2024.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CCP&division=&title=1.&part=1.&chapter=5.5.&article=2.",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/ccp/116.221",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "last_synced_at": "2026-11-04T23:14:20.733473+00:00",
+ "content_hash": "6ad17b84b074531e1299e5136b3243533449e345db0cb554fcecac8356de6034",
+ "fetched_at": "2026-11-14T19:30:06Z"
+}

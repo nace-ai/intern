@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "UCC",
+ "code_name": "Uniform Commercial Code",
+ "section": "2-314",
+ "citation": "N.Y. U.C.C. Law § 2-314",
+ "title": "Implied Warranty: Merchantability; Usage of Trade",
+ "status": "active",
+ "text": "(1) Unless excluded or modified (Section 2--316), a warranty that the goods shall be merchantable is implied in a contract for their sale if the seller is a merchant with respect to goods of that kind. Under this section the serving for value of food or drink to be consumed either on the premises or elsewhere is a sale.\n(2) Goods to be merchantable must be at least such as\n(a) pass without objection in the trade under the contract\ndescription; and\n(b) in the case of fungible goods, are of fair average quality\nwithin the description; and\n(c) are fit for the ordinary purposes for which such goods are\nused; and\n(d) run, within the variations permitted by the agreement, of\neven kind, quality and quantity within each unit and among all units involved; and\n(e) are adequately contained, packaged, and labeled as the\nagreement may require; and\n(f) conform to the promises or affirmations of fact made on the\ncontainer or label if any.\n(3) Unless excluded or modified (Section 2--316) other implied warranties may arise from course of dealing or usage of trade.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/UCC/2-314",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/ucc/2-314",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "38af0433142984f8bc2cb2160a15507ed6222d226bb0f95fc5e87d833bf8ad80",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

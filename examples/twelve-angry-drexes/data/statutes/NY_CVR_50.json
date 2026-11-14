@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "CVR",
+ "code_name": "Civil Rights Law",
+ "section": "50",
+ "citation": "N.Y. Civ. Rights Law § 50",
+ "title": "Right of privacy",
+ "status": "active",
+ "text": "A person, firm or corporation that uses for advertising purposes, or for the purposes of trade, the name, portrait, picture, likeness, or voice of any living person without having first obtained the written consent of such person, or if a minor of such minor's parent or guardian, is guilty of a misdemeanor.",
+ "history": "Current version published 2024-05-03 (NY Senate Open Legislation).\nPublished versions: 2014-09-22, 2024-05-03 (2 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/CVR/50",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/cvr/50",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "4469d5e986caf046bee0abbb5a9aa403d492eae0231d0bbee1f8a26c0a15b9bd",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

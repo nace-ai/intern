@@ -1,0 +1,59 @@
+{
+ "id": "HFforLegal/case-law",
+ "license_card": "cc-by-4.0",
+ "license_tags": [
+  "license:cc-by-4.0"
+ ],
+ "gated": false,
+ "private": false,
+ "downloads": 711,
+ "likes": 32,
+ "lastModified": "2024-09-29T16:20:01.000Z",
+ "createdAt": "2024-07-21T18:52:48.000Z",
+ "tags": [
+  "legal",
+  "droit",
+  "fiscalité",
+  "taxation",
+  "δεξιά",
+  "recht",
+  "derecho"
+ ],
+ "language_tags": [
+  "language:fr",
+  "language:en"
+ ],
+ "hub_total_bytes_siblings": 9525388503,
+ "hub_usedStorage": 28278337363,
+ "n_files": 24,
+ "sha": "dc0151fad300088cc7c21773bd3d680e0a514311",
+ "configs": [
+  "default"
+ ],
+ "splits": [
+  "us"
+ ],
+ "row_counts": {
+  "datasets_server_num_rows": 282390,
+  "datasets_server_estimated_num_rows": 534289,
+  "card_num_examples": 541371,
+  "datasets_server_partial": true
+ },
+ "total_size": {
+  "parquet_bytes": 2565740274,
+  "memory_bytes": 5011157328,
+  "card_dataset_size": 9138869838,
+  "card_download_size": 4597435136
+ },
+ "features": {
+  "id": "string",
+  "title": "string",
+  "citation": "string",
+  "docket_number": "string",
+  "state": "string",
+  "issuer": "string",
+  "document": "string",
+  "hash": "string",
+  "timestamp": "string"
+ }
+}

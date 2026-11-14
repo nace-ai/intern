@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "PEN",
+ "code_name": "Penal Law",
+ "section": "155.25",
+ "citation": "N.Y. Penal Law § 155.25",
+ "title": "Petit larceny",
+ "status": "active",
+ "text": "A person is guilty of petit larceny when he steals property.\nPetit larceny is a class A misdemeanor.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/PEN/155.25",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/pen/155.25",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "be26af664ee093aea753c40f259bc9d038a4fada40803bf6d3edfab7c81f6e31",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

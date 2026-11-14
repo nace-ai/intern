@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "EVID",
+ "code_name": "Evidence Code",
+ "section": "669",
+ "citation": "Cal. Evid. Code § 669",
+ "title": "Negligence Presumption For Violations",
+ "status": "active",
+ "text": "(a) The failure of a person to exercise due care is presumed if:\n(1) He violated a statute, ordinance, or regulation of a public entity;\n(2) The violation proximately caused death or injury to person or property;\n(3) The death or injury resulted from an occurrence of the nature which the statute, ordinance, or regulation was designed to prevent; and\n(4) The person suffering the death or the injury to his person or property was one of the class of persons for whose protection the statute, ordinance, or regulation was adopted.\n(b) This presumption may be rebutted by proof that:\n(1) The person violating the statute, ordinance, or regulation did what might reasonably be expected of a person of ordinary prudence, acting under similar circumstances, who desired to comply with the law; or\n(2) The person violating the statute, ordinance, or regulation was a child and exercised the degree of care ordinarily exercised by persons of his maturity, intelligence, and capacity under similar circumstances, but the presumption may not be rebutted by such proof if the violation occurred in the course of an activity normally engaged in only by adults and requiring adult qualifications.\n(Added by Stats. 1967, Ch. 650.)",
+ "history": "Added by Stats. 1967, Ch. 650.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=EVID&division=5.&title=&part=&chapter=3.&article=4.",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/evid/669",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "39854258171f95338cd8c5f607cafcc3af2341e03f1a3151f822317eda875415",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

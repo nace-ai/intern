@@ -1,0 +1,75 @@
+{
+ "id": "HarshitKZ/corporate-lawsuits-2019-2026",
+ "license_card": "cc-by-nc-4.0",
+ "license_tags": [
+  "license:cc-by-nc-4.0"
+ ],
+ "gated": false,
+ "private": false,
+ "downloads": 290,
+ "likes": 0,
+ "lastModified": "2026-10-17T13:12:13.000Z",
+ "createdAt": "2026-10-17T11:43:48.000Z",
+ "tags": [
+  "lawsuits",
+  "litigation",
+  "corporate-lawsuits",
+  "class-action",
+  "regulatory-fines",
+  "settlements",
+  "antitrust",
+  "securities-fraud",
+  "legal-data",
+  "company-data",
+  "business-news",
+  "india",
+  "united-states",
+  "united-kingdom"
+ ],
+ "language_tags": [
+  "language:en"
+ ],
+ "hub_total_bytes_siblings": 7290218,
+ "hub_usedStorage": 4252792,
+ "n_files": 10,
+ "sha": "63293f9eec0217a8ba5e455a626ef7936a7ffe6f",
+ "configs": [
+  "default"
+ ],
+ "splits": [
+  "train"
+ ],
+ "row_counts": {
+  "train": 5517
+ },
+ "total_size": {
+  "parquet_bytes": 1258839,
+  "memory_bytes": 2175516
+ },
+ "features": {
+  "case_id": "string",
+  "date": "string",
+  "year": "int32",
+  "company_name": "string",
+  "company_domain": "string",
+  "company_role": "string",
+  "company_country": "string",
+  "company_state": "string",
+  "sector": "string",
+  "opponent_name": "string",
+  "opponent_domain": "string",
+  "opponent_type": "string",
+  "case_type": "string",
+  "case_status": "string",
+  "country": "string",
+  "court": "string",
+  "claim_usd": "int64",
+  "settlement_usd": "int64",
+  "news_mentions": "int64",
+  "news_source": "string",
+  "news_url": "string",
+  "news_excerpt": "string",
+  "fliar_profile_url": "string"
+ },
+ "card_note": "card says this file is a 25% sample (5,517 of 22,071 cases)"
+}

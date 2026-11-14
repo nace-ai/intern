@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "GBS",
+ "code_name": "General Business Law",
+ "section": "350",
+ "citation": "N.Y. Gen. Bus. Law § 350",
+ "title": "False advertising unlawful",
+ "status": "active",
+ "text": "False advertising in the conduct of any business, trade or commerce or in the furnishing of any service in this state is hereby declared unlawful.",
+ "history": "Current version published 2014-09-22 (NY Senate Open Legislation).\nPublished versions: 2014-09-22 (1 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/GBS/350",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/gbs/350",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "00e04f989bbf95e39047b3972817b41d15f20d4e8248657f1935211ef8c41e89",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

@@ -1,0 +1,1828 @@
+{
+ "note": "Invented disputes and people. Statute citations come from the LawWiki public API; a ruling marked real is a published opinion (data/rulings). 'base' and facts[].w are weights for the simulated fallback only.",
+ "phases": [
+  "Opening",
+  "Claimant's evidence",
+  "Defense",
+  "Instructions and vote"
+ ],
+ "jurors": [
+  {
+   "id": "J01",
+   "name": "Retired bookkeeper",
+   "note": "Wants a receipt for every dollar",
+   "lean": 0.1,
+   "rule": 1,
+   "doc": 1.4,
+   "equity": 0.6
+  },
+  {
+   "id": "J02",
+   "name": "Small landlord",
+   "note": "Has dealt with damaged units",
+   "lean": -0.7,
+   "rule": 0.9,
+   "doc": 1,
+   "equity": 0.5
+  },
+  {
+   "id": "J03",
+   "name": "Night-shift nurse",
+   "note": "Trusts deadlines",
+   "lean": 0.2,
+   "rule": 1.3,
+   "doc": 0.8,
+   "equity": 1
+  },
+  {
+   "id": "J04",
+   "name": "Paralegal student",
+   "note": "Reads the statute literally",
+   "lean": 0.1,
+   "rule": 1.6,
+   "doc": 1,
+   "equity": 0.4
+  },
+  {
+   "id": "J05",
+   "name": "Restaurant owner",
+   "note": "Sides with whoever kept records",
+   "lean": -0.4,
+   "rule": 0.8,
+   "doc": 1.3,
+   "equity": 0.6
+  },
+  {
+   "id": "J06",
+   "name": "Union electrician",
+   "note": "Suspicious of companies",
+   "lean": 0.5,
+   "rule": 1,
+   "doc": 0.7,
+   "equity": 1.2
+  },
+  {
+   "id": "J07",
+   "name": "Software tester",
+   "note": "Looks for the missing step",
+   "lean": 0,
+   "rule": 1.2,
+   "doc": 1.2,
+   "equity": 0.5
+  },
+  {
+   "id": "J08",
+   "name": "Property manager",
+   "note": "Knows how notices go wrong",
+   "lean": -0.5,
+   "rule": 1.2,
+   "doc": 0.9,
+   "equity": 0.4
+  },
+  {
+   "id": "J09",
+   "name": "Graduate student",
+   "note": "Has lost a deposit before",
+   "lean": 0.7,
+   "rule": 0.8,
+   "doc": 0.7,
+   "equity": 1.3
+  },
+  {
+   "id": "J10",
+   "name": "Insurance adjuster",
+   "note": "Discounts every claim a little",
+   "lean": -0.3,
+   "rule": 1,
+   "doc": 1.3,
+   "equity": 0.5
+  },
+  {
+   "id": "J11",
+   "name": "School bus driver",
+   "note": "Goes with what seems fair",
+   "lean": 0.1,
+   "rule": 0.6,
+   "doc": 0.6,
+   "equity": 1.5
+  },
+  {
+   "id": "J12",
+   "name": "Accountant",
+   "note": "Follows the numbers, not the story",
+   "lean": -0.1,
+   "rule": 1.1,
+   "doc": 1.4,
+   "equity": 0.3
+  }
+ ],
+ "cases": [
+  {
+   "id": "ca-deposit",
+   "short": "Deposit returned late",
+   "jurisdiction": "CA",
+   "forum": "Small claims (simulated jury)",
+   "practice": "real_estate",
+   "asker_side": 0,
+   "title": "Whitfield v. Harlow Property Group",
+   "claim": "Return of $2,400 withheld from a $3,000 deposit",
+   "asker": {
+    "kind": "Pro se",
+    "who": "Tenant, representing herself",
+    "initials": "DW",
+    "name": "Dana W."
+   },
+   "ask": "My landlord kept $2,400 of my $3,000 deposit for \"cleaning and repainting\" and sent the itemized list 34 days after I moved out. No receipts. Do I have a case in small claims?",
+   "upload": {
+    "name": "lease_and_statement.pdf",
+    "kind": "pdf",
+    "pages": 6,
+    "via": "NDI parse, extract, ground"
+   },
+   "fields": [
+    [
+     "deposit_amount",
+     "$3,000",
+     2,
+     0.99
+    ],
+    [
+     "move_out_date",
+     "2026-08-31",
+     5,
+     0.98
+    ],
+    [
+     "statement_date",
+     "2026-10-04",
+     5,
+     0.97
+    ],
+    [
+     "days_to_statement",
+     "34",
+     5,
+     0.97
+    ],
+    [
+     "amount_withheld",
+     "$2,400",
+     5,
+     0.99
+    ],
+    [
+     "receipts_attached",
+     "none",
+     6,
+     0.91
+    ],
+    [
+     "tenancy_months",
+     "26",
+     1,
+     0.96
+    ]
+   ],
+   "statutes": [
+    {
+     "key": "CA/CIV/1950.5",
+     "applies": 0.97,
+     "excerpt": "No later than 21 calendar days after the tenant has vacated the premises … statutory damages of up to twice the amount of the security, in addition to actual damages.",
+     "citation": "Cal. Civ. Code § 1950.5",
+     "title": "Tenant Security Deposit Rules",
+     "url": "https://www.lawwiki.ai/ca/civ/1950.5",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 26186
+    },
+    {
+     "key": "CA/CCP/116.221",
+     "applies": 0.88,
+     "excerpt": "… the small claims court has jurisdiction in an action brought by a natural person, if the amount of the demand does not exceed twelve thousand five hundred dollars ($12,500) …",
+     "citation": "Cal. Code Civ. Proc. § 116.221",
+     "title": "Small Claims Jurisdiction Limits",
+     "url": "https://www.lawwiki.ai/ca/ccp/116.221",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 421
+    },
+    {
+     "key": "CA/CIV/1941.1",
+     "applies": 0.09,
+     "excerpt": null,
+     "citation": "Cal. Civ. Code § 1941.1",
+     "title": "Habitable Dwelling Requirements",
+     "url": "https://www.lawwiki.ai/ca/civ/1941.1",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 5454
+    },
+    {
+     "key": "CA/CIV/1942",
+     "applies": 0.07,
+     "excerpt": null,
+     "citation": "Cal. Civ. Code § 1942",
+     "title": "Tenant Repair And Rent Deduction",
+     "url": "https://www.lawwiki.ai/ca/civ/1942",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 1524
+    },
+    {
+     "key": "CA/CIV/1950.7",
+     "applies": 0.04,
+     "excerpt": null,
+     "citation": "Cal. Civ. Code § 1950.7",
+     "title": "Commercial Rental Security Deposits",
+     "url": "https://www.lawwiki.ai/ca/civ/1950.7",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 4341
+    }
+   ],
+   "base": -0.2,
+   "facts": [
+    {
+     "id": "f1",
+     "tag": "rule",
+     "on": false,
+     "label": "Itemized statement sent within 21 days",
+     "w": [
+      1.3,
+      -0.9
+     ]
+    },
+    {
+     "id": "f2",
+     "tag": "doc",
+     "on": false,
+     "label": "Receipts attached for deductions over $125",
+     "w": [
+      0.7,
+      -0.8
+     ]
+    },
+    {
+     "id": "f3",
+     "tag": "doc",
+     "on": true,
+     "label": "Move-out photos show a clean unit",
+     "w": [
+      -0.7,
+      0.6
+     ]
+    },
+    {
+     "id": "f4",
+     "tag": "equity",
+     "on": true,
+     "label": "Tenant lived there over two years",
+     "w": [
+      -0.3,
+      0.4
+     ]
+    },
+    {
+     "id": "f5",
+     "tag": "rule",
+     "on": false,
+     "label": "Landlord offered a pre-move-out inspection",
+     "w": [
+      0.3,
+      -0.4
+     ]
+    }
+   ],
+   "tiers": [
+    "Nothing",
+    "Part of the $2,400",
+    "Full $2,400",
+    "$2,400 plus bad-faith damages"
+   ],
+   "sides": [
+    "Tenant",
+    "Landlord"
+   ],
+   "speeches": [
+    [
+     [
+      "Clerk",
+      "Case called. Claim: $2,400 withheld from a $3,000 residential deposit. Statement dated 34 days after move-out."
+     ],
+     [
+      "Tenant",
+      "The statute gives 21 days. The list arrived on day 34 and carries no receipts."
+     ]
+    ],
+    [
+     [
+      "Tenant",
+      "Exhibit 2, page 5: move-out August 31, statement October 4. Exhibit 3: photos taken at move-out."
+     ],
+     [
+      "Judge",
+      "Objection overruled. The photos are dated and relevant."
+     ]
+    ],
+    [
+     [
+      "Landlord",
+      "Repainting after 26 months was needed, and the contractor was booked out. The delay was not bad faith."
+     ],
+     [
+      "Landlord",
+      "The lease allows cleaning charges."
+     ]
+    ],
+    [
+     [
+      "Judge",
+      "Decide two things: is the landlord liable for the withheld amount, and what should be awarded."
+     ],
+     [
+      "Foreperson",
+      "The jury has voted."
+     ]
+    ]
+   ],
+   "args": [
+    [
+     "Lead with the 21-day deadline",
+     "Lead with the missing receipts",
+     "Lead with the photos"
+    ],
+    [
+     "Show the dated statement",
+     "Show the photos",
+     "Read the lease clause"
+    ],
+    [
+     "Argue ordinary wear",
+     "Argue contractor delay",
+     "Argue lease terms"
+    ],
+    [
+     "Ask for bad-faith damages",
+     "Ask for the $2,400 only",
+     "Offer to split"
+    ]
+   ]
+  },
+  {
+   "id": "fl-notice",
+   "short": "Claim notice by regular mail",
+   "jurisdiction": "FL",
+   "forum": "County court (simulated jury)",
+   "practice": "real_estate",
+   "asker_side": 1,
+   "title": "Okafor v. Bayline Residential",
+   "claim": "Return of a $1,850 deposit after a late claim notice",
+   "asker": {
+    "kind": "Paralegal",
+    "who": "Paralegal, property manager's legal department",
+    "initials": "PL",
+    "name": "Paralegal"
+   },
+   "ask": "One of our Florida properties sent the deposit claim notice on day 35 by regular mail. The tenant wants the full $1,850 back plus fees. What is our exposure if this goes to county court? Photo of the notice attached.",
+   "upload": {
+    "name": "notice_letter.jpg",
+    "kind": "image",
+    "pages": 1,
+    "via": "Drex Max reads the photo, NDI parse and extract"
+   },
+   "fields": [
+    [
+     "lease_end_date",
+     "2026-08-01",
+     1,
+     0.97
+    ],
+    [
+     "notice_date",
+     "2026-09-05",
+     1,
+     0.95
+    ],
+    [
+     "days_to_notice",
+     "35",
+     1,
+     0.95
+    ],
+    [
+     "delivery_method",
+     "USPS first class",
+     1,
+     0.88
+    ],
+    [
+     "claim_amount",
+     "$1,850",
+     1,
+     0.98
+    ],
+    [
+     "claim_reason",
+     "carpet replacement",
+     1,
+     0.93
+    ],
+    [
+     "tenant_objection",
+     "2026-09-12",
+     1,
+     0.84
+    ]
+   ],
+   "statutes": [
+    {
+     "key": "FL/FS/83.49",
+     "applies": 0.98,
+     "excerpt": "… the landlord must, within 30 days after the termination of the rental agreement, provide the tenant written notice by certified mail … If the landlord fails to give the required written notice within the 30-day period, he or she forfeits the right to impose a claim upon the security deposit …",
+     "citation": "Fla. Stat. § 83.49",
+     "title": "Deposit money or advance rent; duty of landlord and tenant",
+     "url": "https://www.lawwiki.ai/fl/fs/83.49",
+     "source_version": "2026 Fla. Stat.",
+     "chars": 12158
+    },
+    {
+     "key": "FL/FS/83.48",
+     "applies": 0.86,
+     "excerpt": "… the party in whose favor a judgment or decree has been rendered may recover reasonable attorney fees and court costs from the nonprevailing party.",
+     "citation": "Fla. Stat. § 83.48",
+     "title": "Attorney fees",
+     "url": "https://www.lawwiki.ai/fl/fs/83.48",
+     "source_version": "2026 Fla. Stat.",
+     "chars": 463
+    },
+    {
+     "key": "FL/FS/83.51",
+     "applies": 0.12,
+     "excerpt": null,
+     "citation": "Fla. Stat. § 83.51",
+     "title": "Landlord’s obligation to maintain premises",
+     "url": "https://www.lawwiki.ai/fl/fs/83.51",
+     "source_version": "2026 Fla. Stat.",
+     "chars": 3282
+    },
+    {
+     "key": "FL/FS/83.56",
+     "applies": 0.06,
+     "excerpt": null,
+     "citation": "Fla. Stat. § 83.56",
+     "title": "Termination of rental agreement",
+     "url": "https://www.lawwiki.ai/fl/fs/83.56",
+     "source_version": "2026 Fla. Stat.",
+     "chars": 7315
+    }
+   ],
+   "base": -0.1,
+   "facts": [
+    {
+     "id": "f1",
+     "tag": "rule",
+     "on": false,
+     "label": "Claim notice sent within 30 days",
+     "w": [
+      1.5,
+      -1
+     ]
+    },
+    {
+     "id": "f2",
+     "tag": "rule",
+     "on": false,
+     "label": "Notice sent by certified mail or agreed e-mail",
+     "w": [
+      0.8,
+      -0.6
+     ]
+    },
+    {
+     "id": "f3",
+     "tag": "rule",
+     "on": true,
+     "label": "Tenant objected within 15 days",
+     "w": [
+      -0.6,
+      0.5
+     ]
+    },
+    {
+     "id": "f4",
+     "tag": "doc",
+     "on": true,
+     "label": "Carpet damage documented with dated photos",
+     "w": [
+      0.2,
+      -0.3
+     ]
+    },
+    {
+     "id": "f5",
+     "tag": "doc",
+     "on": true,
+     "label": "Lease carries the deposit disclosure",
+     "w": [
+      0.4,
+      -0.2
+     ]
+    }
+   ],
+   "tiers": [
+    "Nothing",
+    "Part of the deposit",
+    "Full $1,850",
+    "$1,850 plus attorney fees"
+   ],
+   "sides": [
+    "Tenant",
+    "Landlord"
+   ],
+   "speeches": [
+    [
+     [
+      "Clerk",
+      "Case called. Claim: return of a $1,850 deposit. Notice of claim dated 35 days after the lease ended, sent by first-class mail."
+     ],
+     [
+      "Tenant",
+      "The notice was late and was not sent by certified mail. The right to claim the deposit is forfeited."
+     ]
+    ],
+    [
+     [
+      "Tenant",
+      "Exhibit 1: the notice letter, dated September 5. The lease ended August 1."
+     ],
+     [
+      "Judge",
+      "Objection sustained. Counsel will not characterize the landlord's motives."
+     ]
+    ],
+    [
+     [
+      "Landlord",
+      "The carpet was destroyed and we have dated photos. The tenant received the notice and objected, so no harm followed."
+     ],
+     [
+      "Landlord",
+      "We may still bring a separate action for the damage."
+     ]
+    ],
+    [
+     [
+      "Judge",
+      "Decide whether the landlord must return the deposit, and what should be awarded."
+     ],
+     [
+      "Foreperson",
+      "The jury has voted."
+     ]
+    ]
+   ],
+   "args": [
+    [
+     "Lead with the 30-day deadline",
+     "Lead with the mailing method",
+     "Lead with the objection"
+    ],
+    [
+     "Show the notice date",
+     "Show the envelope",
+     "Read the statute notice text"
+    ],
+    [
+     "Argue actual receipt",
+     "Argue the carpet damage",
+     "Argue substantial compliance"
+    ],
+    [
+     "Ask for deposit and fees",
+     "Ask for the deposit only",
+     "Offer to split"
+    ]
+   ]
+  },
+  {
+   "id": "ca-wages",
+   "short": "Final paycheck nine days late",
+   "jurisdiction": "CA",
+   "forum": "Superior court (simulated jury)",
+   "practice": "employment",
+   "asker_side": 0,
+   "title": "Reyes v. Northgate Fabrication",
+   "claim": "Waiting-time penalty for final wages paid 9 days after discharge",
+   "asker": {
+    "kind": "Attorney",
+    "who": "Employment attorney, plaintiff side",
+    "initials": "AT",
+    "name": "A. Tran, Esq."
+   },
+   "ask": "Client was discharged September 3; final wages of $3,150 arrived by mail 9 days later. Employer says payroll runs biweekly. Attaching Naranjo v. Spectrum Security (Cal. 2024) on good-faith disputes. How would a jury see willfulness?",
+   "upload": {
+    "name": "naranjo_v_spectrum_s279397.pdf",
+    "kind": "pdf",
+    "pages": 29,
+    "via": "NDI parse, split, extract, ground"
+   },
+   "fields": [
+    [
+     "court",
+     "Supreme Court of California",
+     1,
+     0.98
+    ],
+    [
+     "docket_number",
+     "S279397",
+     1,
+     0.99
+    ],
+    [
+     "decision_date",
+     "May 6, 2024",
+     1,
+     0.98
+    ],
+    [
+     "opinion_by",
+     "Kruger, J.",
+     1,
+     0.96
+    ],
+    [
+     "statute_at_issue",
+     "Lab. Code, § 226",
+     1,
+     0.93
+    ],
+    [
+     "also_addresses",
+     "willful nonpayment of wages",
+     1,
+     0.88
+    ],
+    [
+     "disposition",
+     "Court of Appeal affirmed",
+     29,
+     0.97
+    ]
+   ],
+   "ruling": {
+    "name": "naranjo_v_spectrum_s279397",
+    "won": 1,
+    "cite": "Naranjo v. Spectrum Security Services, Inc. (Cal. May 6, 2024, S279397)",
+    "excerpt": "Under long established law, an employer cannot incur civil or criminal penalties for the willful nonpayment of wages when the employer reasonably and in good faith disputes that wages are due.",
+    "holding": "We hold that an employer’s objectively reasonable, good faith belief that it has provided employees with adequate wage statements precludes an award of penalties under section 226, subdivision (e)(1).",
+    "disposition": "The judgment of the Court of Appeal is affirmed.",
+    "source": "HFforLegal/case-law, CC BY 4.0",
+    "real": true,
+    "court": "California Supreme Court",
+    "date": "2024-05-06",
+    "docket": "S279397"
+   },
+   "statutes": [
+    {
+     "key": "CA/LAB/201",
+     "applies": 0.97,
+     "excerpt": "If an employer discharges an employee, the wages earned and unpaid at the time of discharge are due and payable immediately.",
+     "citation": "Cal. Lab. Code § 201",
+     "title": "Immediate Wage Payment Upon Discharge",
+     "url": "https://www.lawwiki.ai/ca/lab/201",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 4555
+    },
+    {
+     "key": "CA/LAB/203",
+     "applies": 0.95,
+     "excerpt": "If an employer willfully fails to pay … the wages of the employee shall continue as a penalty … but the wages shall not continue for more than 30 days.",
+     "citation": "Cal. Lab. Code § 203",
+     "title": "Wage Payment Penalties",
+     "url": "https://www.lawwiki.ai/ca/lab/203",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 970
+    },
+    {
+     "key": "CA/LAB/218.5",
+     "applies": 0.55,
+     "excerpt": null,
+     "citation": "Cal. Lab. Code § 218.5",
+     "title": "Wage Claim Attorney Fees",
+     "url": "https://www.lawwiki.ai/ca/lab/218.5",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 1158
+    },
+    {
+     "key": "CA/LAB/202",
+     "applies": 0.08,
+     "excerpt": "If an employee … quits his or her employment, his or her wages shall become due and payable not later than 72 hours thereafter …",
+     "citation": "Cal. Lab. Code § 202",
+     "title": "Employee Final Wage Payment",
+     "url": "https://www.lawwiki.ai/ca/lab/202",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 4743
+    }
+   ],
+   "base": 0,
+   "facts": [
+    {
+     "id": "f1",
+     "tag": "rule",
+     "on": true,
+     "label": "Employee was discharged, not a resignation",
+     "w": [
+      -0.8,
+      0.9
+     ]
+    },
+    {
+     "id": "f2",
+     "tag": "rule",
+     "on": false,
+     "label": "Wages paid on the day of discharge",
+     "w": [
+      1.4,
+      -2
+     ]
+    },
+    {
+     "id": "f3",
+     "tag": "equity",
+     "on": false,
+     "label": "Employer had a good-faith dispute over wages owed",
+     "w": [
+      0.6,
+      -1.1
+     ]
+    },
+    {
+     "id": "f4",
+     "tag": "doc",
+     "on": true,
+     "label": "Employer knew the termination date in advance",
+     "w": [
+      -0.3,
+      0.5
+     ]
+    },
+    {
+     "id": "f5",
+     "tag": "equity",
+     "on": false,
+     "label": "Employee avoided or refused payment",
+     "w": [
+      0.2,
+      -1.2
+     ]
+    }
+   ],
+   "tiers": [
+    "Nothing",
+    "Interest only",
+    "Penalty for 9 days ($2,520)",
+    "Penalty plus attorney fees"
+   ],
+   "sides": [
+    "Employee",
+    "Employer"
+   ],
+   "speeches": [
+    [
+     [
+      "Clerk",
+      "Case called. Claim: waiting-time penalty. Discharge September 3, final wages mailed September 12."
+     ],
+     [
+      "Employee",
+      "Wages are due immediately on discharge. They came nine days later. Nine days at $280 is $2,520."
+     ]
+    ],
+    [
+     [
+      "Employee",
+      "Exhibit 1: the termination letter, prepared two days before the discharge. The employer knew the date."
+     ],
+     [
+      "Judge",
+      "Objection overruled. The letter goes to knowledge."
+     ]
+    ],
+    [
+     [
+      "Employer",
+      "Payroll runs every two weeks through an outside processor. Nobody intended to withhold anything."
+     ],
+     [
+      "Employer",
+      "The full amount was paid without demand."
+     ]
+    ],
+    [
+     [
+      "Judge",
+      "Decide whether the failure to pay on time was willful, and what should be awarded."
+     ],
+     [
+      "Foreperson",
+      "The jury has voted."
+     ]
+    ]
+   ],
+   "args": [
+    [
+     "Lead with 'due immediately'",
+     "Lead with the nine days",
+     "Lead with the advance letter"
+    ],
+    [
+     "Show the termination letter",
+     "Show the pay stub",
+     "Read the penalty section"
+    ],
+    [
+     "Argue no intent",
+     "Argue the payroll cycle",
+     "Argue prompt full payment"
+    ],
+    [
+     "Ask for penalty and fees",
+     "Ask for the penalty only",
+     "Offer to settle"
+    ]
+   ]
+  },
+  {
+   "id": "tx-theft",
+   "short": "Charge the tool theft?",
+   "jurisdiction": "TX",
+   "forum": "District court (simulated jury)",
+   "practice": "prosecutor",
+   "asker_side": 0,
+   "title": "State v. Dalton",
+   "claim": "Theft of two tool kits with a shelf price of $2,740, charged as a state jail felony",
+   "asker": {
+    "kind": "Attorney",
+    "who": "Assistant district attorney, intake unit",
+    "initials": "DA",
+    "name": "ADA R. Okafor"
+   },
+   "ask": "Offense report attached. The suspect left a hardware store with two boxed tool kits, shelf price $2,740 in total, and paid nothing. He says a clerk told him his employer had prepaid the order. Can we prove intent and a value of $2,500 or more, or should this be filed as a misdemeanor?",
+   "upload": {
+    "name": "offense_report.pdf",
+    "kind": "pdf",
+    "pages": 2,
+    "via": "NDI parse, extract, ground"
+   },
+   "fields": [
+    [
+     "offense_date",
+     "2026-09-19",
+     1,
+     0.98
+    ],
+    [
+     "store",
+     "Brazos Hardware, Store 14",
+     1,
+     0.97
+    ],
+    [
+     "items_taken",
+     "2 boxed tool kits",
+     1,
+     0.95
+    ],
+    [
+     "shelf_price_total",
+     "$2,740",
+     1,
+     0.96
+    ],
+    [
+     "video_available",
+     "yes, exit camera",
+     2,
+     0.93
+    ],
+    [
+     "receipt_found",
+     "none",
+     2,
+     0.9
+    ],
+    [
+     "suspect_statement",
+     "said his employer had prepaid the order",
+     2,
+     0.88
+    ]
+   ],
+   "statutes": [
+    {
+     "key": "TX/PE/31.03",
+     "applies": 0.96,
+     "excerpt": null,
+     "citation": "Tex. Penal Code § 31.03",
+     "title": "Theft",
+     "url": "https://www.lawwiki.ai/tx/pe/31.03",
+     "source_version": "TLC through 2026-10-16",
+     "chars": 16134
+    },
+    {
+     "key": "TX/PE/31.08",
+     "applies": 0.9,
+     "excerpt": null,
+     "citation": "Tex. Penal Code § 31.08",
+     "title": "Value",
+     "url": "https://www.lawwiki.ai/tx/pe/31.08",
+     "source_version": "TLC through 2026-10-16",
+     "chars": 1922
+    },
+    {
+     "key": "TX/PE/8.02",
+     "applies": 0.62,
+     "excerpt": null,
+     "citation": "Tex. Penal Code § 8.02",
+     "title": "Mistake of Fact",
+     "url": "https://www.lawwiki.ai/tx/pe/8.02",
+     "source_version": "TLC through 2026-10-16",
+     "chars": 424
+    },
+    {
+     "key": "TX/PE/31.04",
+     "applies": 0.05,
+     "excerpt": null,
+     "citation": "Tex. Penal Code § 31.04",
+     "title": "Theft of Service",
+     "url": "https://www.lawwiki.ai/tx/pe/31.04",
+     "source_version": "TLC through 2026-10-16",
+     "chars": 7481
+    }
+   ],
+   "base": 0.1,
+   "facts": [
+    {
+     "id": "f1",
+     "tag": "doc",
+     "on": true,
+     "label": "Exit video shows the defendant leaving without paying",
+     "w": [
+      -1.3,
+      0.9
+     ]
+    },
+    {
+     "id": "f2",
+     "tag": "rule",
+     "on": true,
+     "label": "Fair market value of the items was $2,500 or more",
+     "w": [
+      -0.9,
+      0.5
+     ]
+    },
+    {
+     "id": "f3",
+     "tag": "equity",
+     "on": false,
+     "label": "Defendant reasonably believed his employer had prepaid the order",
+     "w": [
+      0.5,
+      -1.6
+     ]
+    },
+    {
+     "id": "f4",
+     "tag": "doc",
+     "on": false,
+     "label": "Store records show a prepaid order on the employer's account",
+     "w": [
+      0.3,
+      -1.2
+     ]
+    },
+    {
+     "id": "f5",
+     "tag": "equity",
+     "on": true,
+     "label": "Defendant removed the security tags before leaving",
+     "w": [
+      -0.6,
+      0.8
+     ]
+    }
+   ],
+   "tiers": [
+    "Not guilty",
+    "Guilty of a Class B misdemeanor (under $750)",
+    "Guilty of a Class A misdemeanor ($750 to $2,500)",
+    "Guilty of a state jail felony ($2,500 to $30,000)"
+   ],
+   "sides": [
+    "State",
+    "Defendant"
+   ],
+   "speeches": [
+    [
+     [
+      "Clerk",
+      "Cause called. The State charges theft of property valued at $2,500 or more but less than $30,000."
+     ],
+     [
+      "State",
+      "He walked out with two tool kits priced at $2,740 and paid nothing. The exit camera shows it."
+     ]
+    ],
+    [
+     [
+      "State",
+      "Exhibit 1: the exit recording and the shelf tags. The security tags were found in aisle nine."
+     ],
+     [
+      "Judge",
+      "Objection overruled. The tags go to intent."
+     ]
+    ],
+    [
+     [
+      "Defendant",
+      "A clerk told him the order was prepaid by his employer. He believed he was collecting a paid order."
+     ],
+     [
+      "Defendant",
+      "Shelf price is not fair market value. One kit was an open-box return."
+     ]
+    ],
+    [
+     [
+      "Judge",
+      "The State must prove each element beyond a reasonable doubt, including intent to deprive and value."
+     ],
+     [
+      "Foreperson",
+      "The jury has voted."
+     ]
+    ]
+   ],
+   "args": [
+    [
+     "Lead with the video",
+     "Lead with the value",
+     "Lead with the removed tags"
+    ],
+    [
+     "Show the exit recording",
+     "Show the shelf tags",
+     "Call the loss-prevention officer"
+    ],
+    [
+     "Argue mistake of fact",
+     "Argue value under $2,500",
+     "Argue no intent to deprive"
+    ],
+    [
+     "Ask for the felony verdict",
+     "Ask for the lesser offense",
+     "Offer a plea"
+    ]
+   ]
+  },
+  {
+   "id": "ca-injury",
+   "short": "Rear-ended at a red light",
+   "jurisdiction": "CA",
+   "forum": "Superior court (simulated jury)",
+   "practice": "personal_injury",
+   "asker_side": 0,
+   "title": "Marquez v. Linden Courier Co.",
+   "claim": "Negligence in a rear-end collision: $18,400 in medical bills, lost wages, pain and suffering",
+   "asker": {
+    "kind": "Paralegal",
+    "who": "Paralegal, personal injury firm, plaintiff side",
+    "initials": "PI",
+    "name": "Paralegal"
+   },
+   "ask": "Our client was stopped at a red light and was hit from behind by a delivery van. Collision report attached. Her auto insurance had lapsed 11 days earlier. How would a jury see fault, and can she still recover pain and suffering?",
+   "upload": {
+    "name": "collision_report.pdf",
+    "kind": "pdf",
+    "pages": 2,
+    "via": "NDI parse, extract, ground"
+   },
+   "fields": [
+    [
+     "collision_date",
+     "2026-03-14",
+     1,
+     0.98
+    ],
+    [
+     "location",
+     "Fulton Avenue at 9th Street",
+     1,
+     0.96
+    ],
+    [
+     "party_1",
+     "delivery van, Linden Courier Co.",
+     1,
+     0.95
+    ],
+    [
+     "party_2",
+     "sedan, stopped at a red signal",
+     1,
+     0.95
+    ],
+    [
+     "primary_collision_factor",
+     "following too closely",
+     1,
+     0.92
+    ],
+    [
+     "injuries",
+     "neck and shoulder strain, transported",
+     2,
+     0.9
+    ],
+    [
+     "party_2_insurance",
+     "policy lapsed 2026-03-03",
+     2,
+     0.89
+    ],
+    [
+     "medical_bills",
+     "$18,400",
+     2,
+     0.94
+    ]
+   ],
+   "statutes": [
+    {
+     "key": "CA/CIV/1714",
+     "applies": 0.96,
+     "excerpt": null,
+     "citation": "Cal. Civ. Code § 1714",
+     "title": "Liability For Negligent Acts",
+     "url": "https://www.lawwiki.ai/ca/civ/1714",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 2216
+    },
+    {
+     "key": "CA/VEH/21703",
+     "applies": 0.93,
+     "excerpt": null,
+     "citation": "Cal. Veh. Code § 21703",
+     "title": "Following Too Closely",
+     "url": "https://www.lawwiki.ai/ca/veh/21703",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 245
+    },
+    {
+     "key": "CA/EVID/669",
+     "applies": 0.8,
+     "excerpt": null,
+     "citation": "Cal. Evid. Code § 669",
+     "title": "Negligence Presumption For Violations",
+     "url": "https://www.lawwiki.ai/ca/evid/669",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 1218
+    },
+    {
+     "key": "CA/CIV/3333.4",
+     "applies": 0.72,
+     "excerpt": null,
+     "citation": "Cal. Civ. Code § 3333.4",
+     "title": "Drunk Driving Damage Limits",
+     "url": "https://www.lawwiki.ai/ca/civ/3333.4",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 1855
+    },
+    {
+     "key": "CA/CCP/335.1",
+     "applies": 0.3,
+     "excerpt": null,
+     "citation": "Cal. Code Civ. Proc. § 335.1",
+     "title": "Personal Injury Lawsuit Deadline",
+     "url": "https://www.lawwiki.ai/ca/ccp/335.1",
+     "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+     "chars": 216
+    }
+   ],
+   "base": 0.3,
+   "facts": [
+    {
+     "id": "f1",
+     "tag": "rule",
+     "on": true,
+     "label": "Plaintiff was stopped at a red light when struck from behind",
+     "w": [
+      -1.2,
+      0.9
+     ]
+    },
+    {
+     "id": "f2",
+     "tag": "doc",
+     "on": true,
+     "label": "Collision report lists following too closely as the primary factor",
+     "w": [
+      -0.7,
+      0.8
+     ]
+    },
+    {
+     "id": "f3",
+     "tag": "equity",
+     "on": false,
+     "label": "Plaintiff braked suddenly without reason",
+     "w": [
+      0.3,
+      -1.3
+     ]
+    },
+    {
+     "id": "f4",
+     "tag": "rule",
+     "on": false,
+     "label": "Plaintiff's car was insured on the day of the collision",
+     "w": [
+      -0.3,
+      0.3
+     ]
+    },
+    {
+     "id": "f5",
+     "tag": "doc",
+     "on": true,
+     "label": "Medical records tie the neck injury to the collision",
+     "w": [
+      -0.9,
+      0.5
+     ]
+    }
+   ],
+   "tiers": [
+    "Nothing",
+    "Medical bills only ($18,400)",
+    "Medical bills plus lost wages",
+    "Medical bills, lost wages, pain and suffering"
+   ],
+   "sides": [
+    "Plaintiff",
+    "Courier company"
+   ],
+   "speeches": [
+    [
+     [
+      "Clerk",
+      "Case called. Claim: negligence in a rear-end collision on March 14."
+     ],
+     [
+      "Plaintiff",
+      "She was stopped at a red light. The van hit her from behind. Her medical bills are $18,400."
+     ]
+    ],
+    [
+     [
+      "Plaintiff",
+      "Exhibit 1: the collision report. The officer listed following too closely as the primary factor."
+     ],
+     [
+      "Judge",
+      "Objection sustained as to the officer's opinion on fault. The observations stay in."
+     ]
+    ],
+    [
+     [
+      "Courier company",
+      "Traffic was stop and go. She braked hard with no warning."
+     ],
+     [
+      "Courier company",
+      "She had no insurance that day. The law bars pain and suffering for an uninsured owner."
+     ]
+    ],
+    [
+     [
+      "Judge",
+      "Decide whether the van driver failed to use ordinary care, and what damages the law allows."
+     ],
+     [
+      "Foreperson",
+      "The jury has voted."
+     ]
+    ]
+   ],
+   "args": [
+    [
+     "Lead with the red light",
+     "Lead with the report",
+     "Lead with the medical bills"
+    ],
+    [
+     "Show the collision report",
+     "Show the medical records",
+     "Call the treating doctor"
+    ],
+    [
+     "Argue a sudden stop",
+     "Argue the insurance lapse",
+     "Argue a prior injury"
+    ],
+    [
+     "Ask for all damages",
+     "Ask for bills and wages",
+     "Offer to settle"
+    ]
+   ]
+  },
+  {
+   "id": "ny-goods",
+   "short": "Rejected shipment of valves",
+   "jurisdiction": "NY",
+   "forum": "Supreme Court, Commercial Division (simulated jury)",
+   "practice": "corporate",
+   "asker_side": 0,
+   "title": "Hartwell Brewing Co. v. Castellan Valve Corp.",
+   "claim": "Refund of $86,000 paid for 400 valves rejected as nonconforming",
+   "asker": {
+    "kind": "Attorney",
+    "who": "In-house counsel, buyer's legal department",
+    "initials": "GC",
+    "name": "In-house counsel"
+   },
+   "ask": "We paid $86,000 for 400 stainless valves rated 150 psi. 112 failed our pressure test at 120 psi. We emailed a rejection 9 days after delivery. The seller offers replacements in 6 weeks, after our line start date. Purchase order and inspection report attached. Refund, or must we accept the cure?",
+   "upload": {
+    "name": "purchase_order_and_inspection.pdf",
+    "kind": "pdf",
+    "pages": 3,
+    "via": "NDI parse, extract, ground"
+   },
+   "fields": [
+    [
+     "po_number",
+     "HB-2291",
+     1,
+     0.99
+    ],
+    [
+     "quantity",
+     "400 valves",
+     1,
+     0.98
+    ],
+    [
+     "price_paid",
+     "$86,000",
+     1,
+     0.99
+    ],
+    [
+     "pressure_rating_required",
+     "150 psi",
+     1,
+     0.95
+    ],
+    [
+     "contract_delivery_deadline",
+     "2026-08-15",
+     1,
+     0.93
+    ],
+    [
+     "delivery_date",
+     "2026-08-03",
+     2,
+     0.97
+    ],
+    [
+     "units_failed",
+     "112 of 400",
+     2,
+     0.94
+    ],
+    [
+     "rejection_notice_date",
+     "2026-08-12",
+     3,
+     0.96
+    ]
+   ],
+   "statutes": [
+    {
+     "key": "NY/UCC/2-601",
+     "applies": 0.95,
+     "excerpt": null,
+     "citation": "N.Y. U.C.C. Law § 2-601",
+     "title": "Buyer's Rights on Improper Delivery",
+     "url": "https://www.lawwiki.ai/ny/ucc/2-601",
+     "source_version": "OpenLeg 2026-10-22",
+     "chars": 419
+    },
+    {
+     "key": "NY/UCC/2-602",
+     "applies": 0.93,
+     "excerpt": null,
+     "citation": "N.Y. U.C.C. Law § 2-602",
+     "title": "Manner and Effect of Rightful Rejection",
+     "url": "https://www.lawwiki.ai/ny/ucc/2-602",
+     "source_version": "OpenLeg 2026-10-22",
+     "chars": 994
+    },
+    {
+     "key": "NY/UCC/2-508",
+     "applies": 0.7,
+     "excerpt": null,
+     "citation": "N.Y. U.C.C. Law § 2-508",
+     "title": "Cure by Seller of Improper Tender or Delivery; Replacement",
+     "url": "https://www.lawwiki.ai/ny/ucc/2-508",
+     "source_version": "OpenLeg 2026-10-22",
+     "chars": 537
+    },
+    {
+     "key": "NY/UCC/2-725",
+     "applies": 0.08,
+     "excerpt": null,
+     "citation": "N.Y. U.C.C. Law § 2-725",
+     "title": "Statute of Limitations in Contracts for Sale",
+     "url": "https://www.lawwiki.ai/ny/ucc/2-725",
+     "source_version": "OpenLeg 2026-10-22",
+     "chars": 1249
+    }
+   ],
+   "base": 0.2,
+   "facts": [
+    {
+     "id": "f1",
+     "tag": "doc",
+     "on": true,
+     "label": "Inspection report shows 112 of 400 valves failed below the rated pressure",
+     "w": [
+      -1.4,
+      0.9
+     ]
+    },
+    {
+     "id": "f2",
+     "tag": "rule",
+     "on": true,
+     "label": "Buyer notified the seller of rejection within 9 days of delivery",
+     "w": [
+      -1.1,
+      0.7
+     ]
+    },
+    {
+     "id": "f3",
+     "tag": "rule",
+     "on": false,
+     "label": "Seller offered conforming replacements before the contract delivery deadline",
+     "w": [
+      0.4,
+      -1.3
+     ]
+    },
+    {
+     "id": "f4",
+     "tag": "equity",
+     "on": false,
+     "label": "Buyer installed and used some of the valves after rejecting them",
+     "w": [
+      0.3,
+      -1.2
+     ]
+    },
+    {
+     "id": "f5",
+     "tag": "doc",
+     "on": true,
+     "label": "Purchase order states the 150 psi rating as a requirement",
+     "w": [
+      -0.8,
+      0.5
+     ]
+    }
+   ],
+   "tiers": [
+    "Nothing",
+    "Price of the 112 failed valves ($24,080)",
+    "Full refund ($86,000)",
+    "Full refund plus incidental damages"
+   ],
+   "sides": [
+    "Buyer",
+    "Seller"
+   ],
+   "speeches": [
+    [
+     [
+      "Clerk",
+      "Case called. Claim: refund of the price paid for goods rejected as nonconforming."
+     ],
+     [
+      "Buyer",
+      "The order required valves rated 150 psi. 112 of 400 failed at 120. We rejected the shipment in nine days."
+     ]
+    ],
+    [
+     [
+      "Buyer",
+      "Exhibit 1: the purchase order and the inspection report, unit by unit."
+     ],
+     [
+      "Judge",
+      "Objection overruled. The report is a business record."
+     ]
+    ],
+    [
+     [
+      "Seller",
+      "We offered replacement valves at once. A buyer cannot refuse a cure and demand a refund."
+     ],
+     [
+      "Seller",
+      "Seventy-two percent of the shipment passed. They can keep those."
+     ]
+    ],
+    [
+     [
+      "Judge",
+      "Decide whether the goods failed to conform, whether the rejection was timely, and whether the seller had a right to cure."
+     ],
+     [
+      "Foreperson",
+      "The jury has voted."
+     ]
+    ]
+   ],
+   "args": [
+    [
+     "Lead with the failed test",
+     "Lead with the timely notice",
+     "Lead with the written rating"
+    ],
+    [
+     "Show the inspection report",
+     "Show the purchase order",
+     "Show the rejection email"
+    ],
+    [
+     "Argue the right to cure",
+     "Argue partial acceptance",
+     "Argue the test was flawed"
+    ],
+    [
+     "Ask for a full refund",
+     "Ask for the failed units only",
+     "Offer to settle"
+    ]
+   ]
+  },
+  {
+   "id": "us-photo",
+   "short": "Photo used without a license",
+   "jurisdiction": "US",
+   "forum": "U.S. District Court (simulated jury)",
+   "practice": "ip",
+   "asker_side": 0,
+   "title": "Adeyemi v. Brightwater Realty LLC",
+   "claim": "Copyright infringement: a skyline photograph used in 14 paid listings without a license",
+   "asker": {
+    "kind": "Pro se",
+    "who": "Freelance photographer, representing herself",
+    "initials": "TA",
+    "name": "Tolu A."
+   },
+   "ask": "A realty company used my skyline photo in 14 paid listings. I registered the copyright, but only after I found the listings. Registration certificate attached. They say it was fair use and that they took it down. Can I get statutory damages?",
+   "upload": {
+    "name": "registration_certificate.pdf",
+    "kind": "pdf",
+    "pages": 2,
+    "via": "NDI parse, extract, ground"
+   },
+   "fields": [
+    [
+     "registration_number",
+     "VA 2-418-553",
+     1,
+     0.98
+    ],
+    [
+     "title_of_work",
+     "Harbor Skyline at Dusk",
+     1,
+     0.97
+    ],
+    [
+     "author",
+     "Tolu Adeyemi",
+     1,
+     0.98
+    ],
+    [
+     "date_of_first_publication",
+     "2025-05-20",
+     1,
+     0.95
+    ],
+    [
+     "effective_date_of_registration",
+     "2026-07-08",
+     1,
+     0.97
+    ],
+    [
+     "infringement_first_seen",
+     "2026-06-02",
+     2,
+     0.86
+    ],
+    [
+     "listings_using_photo",
+     "14",
+     2,
+     0.9
+    ]
+   ],
+   "statutes": [
+    {
+     "key": "US/USC-17/501",
+     "applies": 0.96,
+     "excerpt": null,
+     "citation": "17 U.S.C. § 501",
+     "title": "Infringement of copyright",
+     "url": "https://www.lawwiki.ai/us/usc-17/501",
+     "source_version": "PL 119-124",
+     "chars": 3788
+    },
+    {
+     "key": "US/USC-17/106",
+     "applies": 0.94,
+     "excerpt": null,
+     "citation": "17 U.S.C. § 106",
+     "title": "Exclusive rights in copyrighted works",
+     "url": "https://www.lawwiki.ai/us/usc-17/106",
+     "source_version": "PL 119-124",
+     "chars": 979
+    },
+    {
+     "key": "US/USC-17/412",
+     "applies": 0.9,
+     "excerpt": null,
+     "citation": "17 U.S.C. § 412",
+     "title": "Registration as prerequisite to certain remedies for infringement",
+     "url": "https://www.lawwiki.ai/us/usc-17/412",
+     "source_version": "PL 119-124",
+     "chars": 967
+    },
+    {
+     "key": "US/USC-17/107",
+     "applies": 0.55,
+     "excerpt": null,
+     "citation": "17 U.S.C. § 107",
+     "title": "Limitations on exclusive rights: Fair use",
+     "url": "https://www.lawwiki.ai/us/usc-17/107",
+     "source_version": "PL 119-124",
+     "chars": 1026
+    },
+    {
+     "key": "US/USC-17/512",
+     "applies": 0.1,
+     "excerpt": null,
+     "citation": "17 U.S.C. § 512",
+     "title": "Limitations on liability relating to material online",
+     "url": "https://www.lawwiki.ai/us/usc-17/512",
+     "source_version": "PL 119-124",
+     "chars": 26207
+    }
+   ],
+   "base": 0.4,
+   "facts": [
+    {
+     "id": "f1",
+     "tag": "doc",
+     "on": true,
+     "label": "Photographer holds a registration certificate for the photograph",
+     "w": [
+      -1.2,
+      0.6
+     ]
+    },
+    {
+     "id": "f2",
+     "tag": "doc",
+     "on": true,
+     "label": "Listings show the same photograph with her watermark cropped out",
+     "w": [
+      -1.2,
+      1
+     ]
+    },
+    {
+     "id": "f3",
+     "tag": "rule",
+     "on": false,
+     "label": "Registration took effect before the infringement began",
+     "w": [
+      -0.2,
+      0.4
+     ]
+    },
+    {
+     "id": "f4",
+     "tag": "equity",
+     "on": false,
+     "label": "Company had a license or permission to use the photograph",
+     "w": [
+      0.4,
+      -2
+     ]
+    },
+    {
+     "id": "f5",
+     "tag": "equity",
+     "on": true,
+     "label": "Use was commercial advertising, not comment or news",
+     "w": [
+      -0.9,
+      0.6
+     ]
+    }
+   ],
+   "tiers": [
+    "Nothing",
+    "Actual damages: a license fee ($1,200)",
+    "Actual damages plus the company's profits",
+    "Statutory damages and attorney fees"
+   ],
+   "sides": [
+    "Photographer",
+    "Realty company"
+   ],
+   "speeches": [
+    [
+     [
+      "Clerk",
+      "Case called. Claim: infringement of copyright in one photograph."
+     ],
+     [
+      "Photographer",
+      "They used my photograph in fourteen paid listings. Nobody asked and nobody paid."
+     ]
+    ],
+    [
+     [
+      "Photographer",
+      "Exhibit 1: the registration certificate and screenshots of the listings. My watermark was cropped out."
+     ],
+     [
+      "Judge",
+      "Objection overruled. The screenshots are authenticated."
+     ]
+    ],
+    [
+     [
+      "Realty company",
+      "The photo was online for anyone to see. We removed it the day we were told."
+     ],
+     [
+      "Realty company",
+      "She registered after the listings ran. The statute limits what she can recover."
+     ]
+    ],
+    [
+     [
+      "Judge",
+      "Decide whether the company copied the photograph without permission, and what remedy the statute allows."
+     ],
+     [
+      "Foreperson",
+      "The jury has voted."
+     ]
+    ]
+   ],
+   "args": [
+    [
+     "Lead with the cropped watermark",
+     "Lead with the fourteen listings",
+     "Lead with the registration"
+    ],
+    [
+     "Show the certificate",
+     "Show the listing screenshots",
+     "Show her license price list"
+    ],
+    [
+     "Argue fair use",
+     "Argue late registration",
+     "Argue prompt removal"
+    ],
+    [
+     "Ask for statutory damages",
+     "Ask for the license fee and profits",
+     "Offer to settle"
+    ]
+   ]
+  }
+ ]
+}

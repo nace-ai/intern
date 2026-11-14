@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "US",
+ "code": "USC-18",
+ "code_name": "Title 18 — Crimes and Criminal Procedure",
+ "section": "1001",
+ "citation": "18 U.S.C. § 1001",
+ "title": "Statements or entries generally",
+ "status": "active",
+ "text": "(a) Except as otherwise provided in this section, whoever, in any matter within the jurisdiction of the executive, legislative, or judicial branch of the Government of the United States, knowingly and willfully—\n(1) falsifies, conceals, or covers up by any trick, scheme, or device a material fact;\n(2) makes any materially false, fictitious, or fraudulent statement or representation; or\n(3) makes or uses any false writing or document knowing the same to contain any materially false, fictitious, or fraudulent statement or entry;\nshall be fined under this title, imprisoned not more than 5 years or, if the offense involves international or domestic terrorism (as defined in section 2331), imprisoned not more than 8 years, or both. If the matter relates to an offense under chapter 109A, 109B, 110, or 117, or section 1591, then the term of imprisonment imposed under this section shall be not more than 8 years.\n(b) Subsection (a) does not apply to a party to a judicial proceeding, or that party’s counsel, for statements, representations, writings or documents submitted by such party or counsel to a judge or magistrate in that proceeding.\n(c) With respect to any matter within the jurisdiction of the legislative branch, subsection (a) shall apply only to—\n(1) administrative matters, including a claim for payment, a matter related to the procurement of property or services, personnel or employment practices, or support services, or a document required by law, rule, or regulation to be submitted to the Congress or any office or officer within the legislative branch; or\n(2) any investigation or review, conducted pursuant to the authority of any committee, subcommittee, commission or office of the Congress, consistent with applicable rules of the House or Senate.",
+ "history": "(June 25, 1948, ch. 645, 62 Stat. 749; Pub. L. 103–322, title XXXIII, § 330016(1)(L), Sept. 13, 1994, 108 Stat. 2147; Pub. L. 104–292, § 2, Oct. 11, 1996, 110 Stat. 3459; Pub. L. 108–458, title VI, § 6703(a), Dec. 17, 2004, 118 Stat. 3766; Pub. L. 109–248, title I, § 141(c), July 27, 2006, 120 Stat. 603.)",
+ "source_url": "https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title18-section1001&num=0&edition=prelim",
+ "lawwiki_url": "https://www.lawwiki.ai/us/usc-18/1001",
+ "source_version": "PL 119-124",
+ "content_hash": "48d636dd1f287209f41edde5c423333b49c1f3978c4c25a22d7a909a43a53c5a",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

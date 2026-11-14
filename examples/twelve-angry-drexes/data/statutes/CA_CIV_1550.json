@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "CA",
+ "code": "CIV",
+ "code_name": "Civil Code",
+ "section": "1550",
+ "citation": "Cal. Civ. Code § 1550",
+ "title": "Contract Essential Elements",
+ "status": "active",
+ "text": "It is essential to the existence of a contract that there should be:\n1. Parties capable of contracting;\n2. Their consent;\n3. A lawful object; and,\n4. A sufficient cause or consideration.\n(Enacted 1872.)",
+ "history": "Enacted 1872.",
+ "source_url": "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CIV&division=3.&title=1.&part=2.&chapter=1.&article=",
+ "lawwiki_url": "https://www.lawwiki.ai/ca/civ/1550",
+ "source_version": "PUBINFO 2025-26 as of 2026-11-02",
+ "content_hash": "592ec5feeda06a3df737dea3294ee0c1142fd2554a89afc1dacf1c33ada5cfae",
+ "fetched_at": "2026-11-14T20:47:12Z",
+ "fetched_from": "local LawWiki snapshot"
+}

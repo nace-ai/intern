@@ -1,0 +1,17 @@
+{
+ "jurisdiction": "NY",
+ "code": "CVP",
+ "code_name": "Civil Practice Law and Rules",
+ "section": "1411",
+ "citation": "N.Y. C.P.L.R. 1411",
+ "title": "Damages recoverable when contributory negligence or assumption of risk is established",
+ "status": "active",
+ "text": "(a) Except as provided in subsection (b) of this section, in any action to recover damages for personal injury, injury to property, or wrongful death, the culpable conduct attributable to the claimant or to the decedent, including contributory negligence or assumption of risk, shall not bar recovery. The amount of damages otherwise recoverable shall be diminished in the proportion which the culpable conduct attributable to the claimant or decedent bears to the culpable conduct which caused the damages.\n(b) In any action to recover damages for personal injury subject to article fifty-one of the insurance law, the culpable conduct attributable to the claimant shall bar recovery if the culpable conduct attributable to the claimant is greater than the culpable conduct of the person against whom recovery is sought or is greater than the combined culpable conduct of the persons against whom recovery is sought.",
+ "history": "Current version published 2026-05-29 (NY Senate Open Legislation).\nPublished versions: 2014-09-22, 2026-05-29 (2 in all).",
+ "source_url": "https://www.nysenate.gov/legislation/laws/CVP/1411",
+ "lawwiki_url": "https://www.lawwiki.ai/ny/cvp/1411",
+ "source_version": "OpenLeg 2026-10-22",
+ "content_hash": "7635e4b059107b7f0cacfb67827ce054565da5980a4c456477060f499f3d2fc3",
+ "fetched_at": "2026-11-14T20:47:13Z",
+ "fetched_from": "local LawWiki snapshot"
+}

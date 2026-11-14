@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.DS_Store
+runs/
+.venv/
+data/hf/*/sample.jsonl
+data/lawwiki/*.sqlite
+data/lawwiki/*.building
+intern/home/
