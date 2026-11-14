@@ -26,10 +26,10 @@ Completed items below have automated or browser evidence. No paid calls were mad
 
 - [ ] Real provider validation of the new Live BYOK flow (all new provider tests used mocks)
 - [ ] Actual NDI upload/Parse/Extract against the live service (no paid NDI calls authorized in sprint)
-- [ ] Cloudflare account setup, public deployment, verified public URL and QR activation
+- [x] Cloudflare account setup, public Training deployment, verified public URL and QR activation (see deployment record below)
 - [ ] Public traffic/abuse/load and actual free-plan CPU/resource validation
 - [ ] Real Drex vs conventional-LLM benchmark measurements
-- [ ] Persistent global leaderboard/accounts (current rankings are anonymous and ephemeral)
+- [ ] Production competitive leaderboard/accounts (public Training now preserves an anonymous top-20 ranking list in Durable Object storage)
 - [ ] Extended bespoke failure cinematics (current loss screen/alerts animate, no separate cinematic)
 
 ## Verification record
@@ -73,5 +73,29 @@ The launcher was runtime-tested on macOS. Its Bash/Node implementation targets m
 - [x] Local Worker smoke flows passed for all three missions
 - [x] Actual local Worker-process restart preserved a partially played session through breach and capture
 - [x] Added mandatory inspect/fetch → implement → test → audit → commit → push → verify instructions in AGENTS.md
-- [ ] Public deployment and public gameplay/browser verification
-- [ ] Verified public URL, judge QR and deployment documentation
+- [x] Public deployment and public gameplay/browser verification
+- [x] Verified public URL, judge QR and deployment documentation
+
+
+## Verified public deployment — 2026-11-14
+
+- Public URL: **https://agent-heist.agent-heist.workers.dev**
+- Cloudflare Worker version: `58195c72-6554-4c62-ab90-f08a299361ae`
+- Deployed code/QR milestone: `c051cd93221b43f04c1e40a183c38cb269004b3e` on `main`; remote push verified
+- [x] Wrangler official OAuth completed; Training deployed on the actual workers.dev URL returned by Cloudflare
+- [x] No domain purchase, billing changes or plan upgrade; configuration uses Free-compatible SQLite Durable Objects
+- [x] Production build and both TypeScript configurations pass; 47 automated tests pass (including persistence and credential exclusion)
+- [x] All three public Training missions passed HTTP breach/capture tests and browser server-verified capture playthroughs
+- [x] Public invalid-document denial, ordered Ghost load/export, equipment costs, heat reduction, replay and hardened-guard denial verified
+- [x] Public API checks passed for owner isolation, guard blocks, no pre-breach flag, origin/body limits, private/source paths, security headers and public asset leak checks
+- [x] A partial public mission survived a real Cloudflare redeployment, then completed a breach and server capture
+- [x] Local frontend/backend stopped; all three HTTPS mission smoke tests still passed independently
+- [x] Final public landing/QR/Live-status build inspected; 390x844 responsive landing page visually checked
+- [x] Clean private-window DevTools showed zero console messages and no issues. The extension-enabled profile reported a blocked-eval CSP diagnostic; the app source/bundle contains no eval/new Function, and the clean-window check did not reproduce it. CSP was kept intact.
+- [x] QR PNG saved at `public/agent-heist-qr.png` (2048x2048), decoded to the exact public URL, and decoded destination fetched successfully
+- [x] Publicly downloaded QR matches the repository PNG byte-for-byte and decodes correctly
+- [x] Public Cloudflare bindings inspected: assets, Durable Objects and ENABLE_LIVE=false; no provider-secret bindings, logpush disabled
+- [x] Public Live hard-disabled, credential entry hidden while unavailable; local BYOK implementation preserved
+- [x] README and permanent AGENTS workflow updated; completed implementation milestones committed, pushed and remote-verified
+
+No Nace, NDI, Drex or Groq calls were made in deployment work. Existing local ledgers remain unchanged. This is a verified hackathon Training deployment, not a production load-test certification. Physical-phone QR scanning/mobile-device testing was not performed; the PNG was programmatically decoded and its real HTTPS destination verified. Browser page reloads serve the SPA; automatic restoration of the active browser UI is not implemented, while server-side Training state remains durable until expiry. Remaining priorities are authorized Live/provider security checks, load/abuse testing, real benchmark measurements, and optional browser-UI resume.

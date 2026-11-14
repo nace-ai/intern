@@ -168,7 +168,7 @@ The landing page uses `public-site.json` for the verified public URL, with an op
 | Stale runtime state | `./stop.sh` safely removes stale state without signaling the recorded PID. A leftover startup lock reports its path; inspect it before removing it. |
 | Live is disabled | Stop and explicitly restart with `./start.sh --live`; configure server Groq, then supply your Nace key and consent in the UI. |
 | Provider limit reached | Training still works. Do not reset persistent counters or retry paid evaluations automatically. |
-| Progress disappears after restart | Local sessions are temporary. Public Training state survives Worker eviction/redeployment until its ten-minute expiry; a browser refresh reloads the interface. Live keys are never persisted. |
+| Progress disappears after restart | Local sessions are temporary. Public Training state survives Worker eviction/redeployment until its ten-minute expiry; a browser refresh starts a fresh interface (automatic UI resume is not implemented). Live keys are never persisted. |
 
 ## Contributing with a teammate
 
@@ -193,6 +193,6 @@ Review staged changes before committing. Keep `.env`, `.private/`, `.runtime/`, 
 
 ## Current status
 
-All three Training missions are playable. Browser checks completed their capture flows and inspected a 390×844 mobile viewport. Live BYOK/provider paths have automated mock coverage; full real-provider validation remains outstanding.
+All three Training missions are publicly playable. Public browser checks completed their capture flows and visually inspected the final 390×844 landing page. A clean private-window console showed no messages or issues. Live BYOK/provider paths have automated mock coverage; full real-provider validation remains outstanding.
 
-Remaining work includes real Live-provider security validation, real Drex-versus-LLM benchmark measurements, load/abuse testing, a production competitive-ranking design if desired, and richer failure cinematics. See [PROGRESS.md](PROGRESS.md) for the detailed tested checklist and [docs/verification-notes.md](docs/verification-notes.md) for implementation/security details. Historical evaluation reports are reference material, not claims about the new Live pipeline.
+Remaining work includes real Live-provider security validation, real Drex-versus-LLM benchmark measurements, load/abuse testing, a production competitive-ranking design if desired, and richer failure cinematics. See [PROGRESS.md](PROGRESS.md) for the detailed tested checklist and [docs/verification-notes.md](docs/verification-notes.md) for implementation/security details. Historical evaluation reports are reference material, not claims about the new Live pipeline. The current deployment passed 47 automated tests plus public API, browser and redeployment-persistence checks. The QR was decoded programmatically; physical-phone scanning was not separately tested.
