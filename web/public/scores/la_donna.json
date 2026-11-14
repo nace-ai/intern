@@ -1,0 +1,3701 @@
+{
+  "title": "La donna è mobile",
+  "composer": "Giuseppe Verdi",
+  "beats_per_bar": 3,
+  "eighth_bpm": 150,
+  "sections": [
+    {
+      "name": "Introduction (ritornello)",
+      "start_bar": 0,
+      "end_bar": 0
+    },
+    {
+      "name": "Refrain",
+      "start_bar": 1,
+      "end_bar": 8
+    },
+    {
+      "name": "Refrain, repeated",
+      "start_bar": 9,
+      "end_bar": 16
+    },
+    {
+      "name": "Verse (variation)",
+      "start_bar": 17,
+      "end_bar": 24
+    },
+    {
+      "name": "Cadenza (tremolo flourish)",
+      "start_bar": 25,
+      "end_bar": 32
+    },
+    {
+      "name": "Coda",
+      "start_bar": 33,
+      "end_bar": 34
+    }
+  ],
+  "bars": [
+    {
+      "index": 0,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "bass": [
+          {
+            "note": "A#2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "D6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A#2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "chord": "F dominant 7th (F A C D#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "F6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "chord": "F dominant 7th (F A C D#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "C6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "F2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "chord": "D# major (D# G A#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A#4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A#4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "D#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "D#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A#5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 5,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A#4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A#5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A#4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "D6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "F2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 6,
+      "chord": "D major (D F# A)",
+      "parts": {
+        "violin": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "A#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "F#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 7,
+      "chord": "F dominant 7th (F A C D#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "C6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "F2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 8,
+      "chord": "G dominant 7th (G B D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "G5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "G6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "B4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "G5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "B5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 9,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "D6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A#2",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "A#3",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "A#3",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 2.5,
+            "dur": 0.5
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 10,
+      "chord": "F dominant 7th (F A C D#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "F6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 11,
+      "chord": "F dominant 7th (F A C D#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "C6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "F2",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "A3",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "A3",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 2.5,
+            "dur": 0.5
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 12,
+      "chord": "D# major (D# G A#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A#4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A#4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "D#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "D#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A#5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 13,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A#4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A#5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A#4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "D6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A#2",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "A#3",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "A#3",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 2.5,
+            "dur": 0.5
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 14,
+      "chord": "D major (D F# A)",
+      "parts": {
+        "violin": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "A#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "F#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 15,
+      "chord": "F dominant 7th (F A C D#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "C6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "F2",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "A3",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "A3",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 2.5,
+            "dur": 0.5
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 16,
+      "chord": "G dominant 7th (G B D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "G5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "G6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "B4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "G5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "B5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 17,
+      "chord": "C dominant 7th (C E G A#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "C6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "D#2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G2",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G2",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "E4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "E5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 18,
+      "chord": "F major (F A C)",
+      "parts": {
+        "violin": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "C5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "F6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 19,
+      "chord": "D dominant 7th (D F# A C)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "D6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "F#2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A2",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A2",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "F#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 20,
+      "chord": "G minor (G A# D)",
+      "parts": {
+        "violin": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "flute": [
+          {
+            "note": "G5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 2
+          }
+        ],
+        "bells": [
+          {
+            "note": "G6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "G5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 21,
+      "chord": "F dominant 7th (F A C D#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "F6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "C3",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C3",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 22,
+      "chord": "G minor (G A# D)",
+      "parts": {
+        "violin": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "G5",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "G6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A#2",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "G4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "G5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 23,
+      "chord": "C minor (C D# G)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D#4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 0.5
+          }
+        ],
+        "flute": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 0.5
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D#4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 0.5
+          }
+        ],
+        "bells": [
+          {
+            "note": "D#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "D#2",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F2",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F2",
+            "offset": 2,
+            "dur": 0.5
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 24,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "A#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A#2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A#2",
+            "offset": 1,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 25,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 26,
+      "chord": "C# major (C# F G#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "F6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "C#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "C#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G#5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 27,
+      "chord": "C minor (C D# G)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D#4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 0.5
+          }
+        ],
+        "flute": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 0.5
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D#4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "C4",
+            "offset": 2,
+            "dur": 0.5
+          }
+        ],
+        "bells": [
+          {
+            "note": "D#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "D#2",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F2",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F2",
+            "offset": 2,
+            "dur": 0.5
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D#5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 28,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 2
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "A#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A#2",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F3",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 29,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 30,
+      "chord": "D minor (D F A)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "D6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 31,
+      "chord": "F dominant 7th (F A C D#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#5",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 2.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 2.5,
+            "dur": 0.5
+          }
+        ],
+        "flute": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "A5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A5",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#5",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "A5",
+            "offset": 2.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 2.5,
+            "dur": 0.5
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "D#5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 0.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 1.5,
+            "dur": 0.5
+          },
+          {
+            "note": "D#5",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "A4",
+            "offset": 2.5,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 2.5,
+            "dur": 0.5
+          }
+        ],
+        "bells": [
+          {
+            "note": "D#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "F2",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F3",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "F5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "C5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 32,
+      "chord": "C dominant 7th (C E G A#)",
+      "parts": {
+        "violin": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F#4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F#5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F#4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "A#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A#2",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "C4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "E4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "C5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "E5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 33,
+      "chord": "D minor (D F A)",
+      "parts": {
+        "violin": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D#4",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "A5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G5",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D#5",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "D5",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "A4",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "G4",
+            "offset": 1,
+            "dur": 0.5
+          },
+          {
+            "note": "F4",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "D#4",
+            "offset": 2,
+            "dur": 0.5
+          },
+          {
+            "note": "D4",
+            "offset": 2,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "A6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "F4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "D5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "A5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    },
+    {
+      "index": 34,
+      "chord": "A# major (A# D F)",
+      "parts": {
+        "violin": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 1
+          }
+        ],
+        "flute": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 1
+          }
+        ],
+        "kazoo": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "A#5",
+            "offset": 1,
+            "dur": 1
+          }
+        ],
+        "bells": [
+          {
+            "note": "A#6",
+            "offset": 0,
+            "dur": 1
+          }
+        ],
+        "bass": [
+          {
+            "note": "A#3",
+            "offset": 0,
+            "dur": 0.5
+          },
+          {
+            "note": "A#2",
+            "offset": 1,
+            "dur": 1
+          }
+        ],
+        "pad_low": [
+          {
+            "note": "A#4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "pad_high": [
+          {
+            "note": "D4",
+            "offset": 0,
+            "dur": 3
+          }
+        ],
+        "synth": [
+          {
+            "note": "A#5",
+            "offset": 0,
+            "dur": 1
+          },
+          {
+            "note": "D5",
+            "offset": 1,
+            "dur": 1
+          },
+          {
+            "note": "F5",
+            "offset": 2,
+            "dur": 1
+          }
+        ]
+      }
+    }
+  ]
+}

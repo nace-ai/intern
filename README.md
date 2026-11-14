@@ -1,255 +1,192 @@
-<p align="center">
-  <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, its eyes on the top face, glancing around and blinking" width="160">
-</p>
+# Swarm Orchestra
 
-<h1 align="center">Intern</h1>
+An orchestra of AI musicians, as many as you like from 4 to 40, that improvise together live or perform a
+score, where every note every musician plays is a Drex decision.
 
-<p align="center">Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast and watches every turn.</p>
+Built by Team Darth Vader for the Swarm Intelligence track at Nace AI's Drexathon. (It would also fit the
+Wildcard track: an orchestra of musicians who are all the same decision model, plus a kazoo.)
 
-<p align="center">
-  <a href="https://github.com/nace-ai/intern/actions/workflows/ci.yml"><img src="https://github.com/nace-ai/intern/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0"></a>
-  <img src="https://img.shields.io/badge/python-3.12%2B-blue" alt="Python 3.12+">
-</p>
+## Screenshots
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
-  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test, re-reads files three turns in a row, System 1 marks each turn stuck and nudges it, the guard refuses a sudo call, and System 2 fixes the bug and the test passes.">
-</picture>
+**Build your orchestra.** Pick 4 to 40 musicians; every one is its own Drex agent.
 
-Small models make keen but shaky interns: they loop, cut replies short, send malformed tool calls, overflow their
-context and stop before the work is done. Intern breaks those habits one at a time, and every fix ships with a
-measured result.
+![The setup card: 16 musicians drawn like a real orchestra](docs/screenshots/01-setup-card.png)
 
-Your intern's brain has two parts. Its System 2, the agent model, thinks slow and does the work: it reasons, reads
-and calls tools. Its System 1, a second and faster model, thinks fast and watches each turn: it nudges your intern
-when it goes in circles, checks risky tool calls before they run, and decides what your intern keeps in mind when
-its context fills up.
+**The orchestra playing in the imperial mood.** Faces sit where their section sits on a real stage, each with the
+note it just played; the board at the top left names the most repetitive musicians and the wildcards; the lanes
+on the right show every decision arriving before it sounds.
 
-## Install
+![Sixteen musicians playing, with per-instrument lanes](docs/screenshots/02-stage-playing.png)
 
-```bash
-# Python 3.12+; installs the `intern` command
-uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
-```
+**A musician's card.** Its trait, its NDI direction, its last 8 notes and how deterministic it is.
 
-Your intern runs on two models:
+![The popover for Violin 1](docs/screenshots/03-face-popover.png)
 
-- **System 2** does the work. It can be any chat model: OpenRouter, Fireworks, Together, DeepInfra, Groq, OpenAI,
-  Anthropic, or a local model.
-- **System 1** watches every turn. It can be any decision model: Drex, Jev, Kev and 40+ others, from the
-  [Nace console](https://console.nace.ai) or OpenRouter's decisions API. `intern models` lists them all.
+**After a document upload.** NDI split the document into sections; the banner shows the current section and its
+quote. The mood box shows the mood Drex picked from "a funeral for a goldfish".
 
-**Option 1: one OpenRouter key for both**
+![The stage with NDI's section banner](docs/screenshots/04-ndi-directions.png)
 
-```bash
-export OPENROUTER_API_KEY=...
-intern --system2 openrouter/qwen/qwen3.8-27b \
-  --system1 decisions:nace-ai/drex-max \
-  "Find why tests/test_parser.py fails and fix it"
-```
+**The stats strip** during "La donna è mobile".
 
-**Option 2: Nace console for System 1, any provider for System 2**
-
-Sign up at [console.nace.ai](https://console.nace.ai) and create an API key. Drex from the console is the default
-System 1, so no `--system1` is needed:
-
-```bash
-export NACE_API_KEY=...        # System 1: Drex from the Nace console
-export FIREWORKS_API_KEY=...   # System 2: any provider, here Fireworks
-intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
-  "Find why tests/test_parser.py fails and fix it"
-```
-
-Either way the terminal UI opens with the task as its first prompt; `-p` runs it headlessly and prints the reply.
-Every provider, flag and setting is in [docs/usage.md](docs/usage.md).
+![Decisions, decisions per second, Drex latency, cost, timeouts, tempo and bar:beat](docs/screenshots/05-stats-strip.png)
 
 ## How it works
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/loop-dark.svg">
-  <img src="docs/assets/loop-light.svg" alt="One run over four turns. System 2 calls tools through a guard, which refuses a dangerous call; every turn goes into a journal; System 1 reads a cut of the session built by code, calls three turns in a row stuck and nudges System 2; when System 2's context passes the threshold, the turns fold into the State.">
-</picture>
+Everything runs in the browser, in TypeScript (Vite + React + Tailwind + Tone.js).
+There is no app server and no WebSocket. The page keeps the beat clock, builds Drex's
+state and questions, calls Drex once per beat (or once per bar in score mode), and
+plays the result with Tone.js. The only server is Vite's dev server, whose proxy
+forwards `/nace/*` to `console.nace.ai` and adds the API key, so the key never
+reaches the browser.
 
-1. Your intern's System 2 reasons and calls tools. Each call passes the guard first.
-2. Every turn is appended to the session's journal.
-3. Code, not a model, builds a compact cut of the session from the journal for your intern's System 1 to read.
-4. After every turn, System 1 judges whether your intern is advancing, re-reading or retrying. Three stuck turns
-   in a row get a nudge.
-5. When the context fills, System 2 writes its State as edits, and the turns the State covers are cut.
+### The orchestra
 
-The [architecture](docs/architecture.md) has the details and the measurements behind each step.
+Before playing, the setup card asks how many musicians you want (4 to 40, 16 by default). "Assemble the
+orchestra" draws a roster weighted like a real orchestra: lots of violins, some cellos and double basses, a few
+woodwinds, keyboards and percussion, and always at least one violin, one double bass, one flute and one drum.
+Shuffle draws a different one.
 
-## Instructions
+There are 11 instruments, each with a personality:
 
-Three optional files tell your intern's System 2 and System 1 how to work. None ships with Intern: create the ones
-you want in `~/.intern/` (or `$INTERN_HOME`, if you set it). Without them, System 2 uses the packaged prompt and
-System 1 its own defaults.
-
-| File | Read by | Where from | What it is |
+| instrument | id | section | personality |
 |---|---|---|---|
-| `SYSTEM2.md` | System 2 | `~/.intern/` | Intern's system prompt, in place of the packaged one (pi's `SYSTEM.md`, still read under that name) |
-| `AGENTS.md` | System 2 | `~/.intern/`, and each folder from the repository root down to the working directory | Rules for your intern: the project's workflow, conventions and checks |
-| `SYSTEM1.md` | System 1 | `~/.intern/` only | Your guidance for System 1: how to judge, what work is normal for you, what you still want to be asked |
+| Violin | `violin` | strings | romantic, long lines, holds notes |
+| Cello | `pad_low` | strings | long held chord tones, changes with the chord |
+| Double bass | `bass` | strings | anchors the root, moves stepwise, locks with the bass drum |
+| Flute | `flute` | woodwinds | sparse, plays at least one phrase every bar, answers phrases others start |
+| Kazoo | `kazoo` | woodwinds | the rebel, loves surprises and odd rhythms, but still listens |
+| Harmonium | `pad_high` | keyboards | long held chord tones, avoids the cello's note |
+| Synth | `synth` | keyboards | slow soft arpeggios when calm, fast busy runs when the energy is high |
+| Bass drum | `kick` | percussion | steady heartbeat, lands on beats 1 and 3, rarely fancy |
+| Snare drum | `snare` | percussion | answers the bass drum on beats 2 and 4, fills before a new phrase |
+| Cymbals | `hats` | percussion | keep time in eighths, follow the mood's energy |
+| Xylophone | `bells` | percussion | sparse sparkle on phrase starts |
 
-System 1 reads `SYSTEM1.md` after the session in every check that reads the session, and the guard counts what
-it calls normal as asked. It never reads `AGENTS.md`, which a repository you cloned can write. When a step in
-an `AGENTS.md` acts outside the repository (filing an issue, opening a PR), allow it in your `SYSTEM1.md` too.
-A `SYSTEM1.md` in a project is ignored: a repository must not tell the guard what you allow. Yours might read:
+Every member of the orchestra is its own Drex agent. Each one also gets a trait (steady, shy, bold, dreamy,
+rebellious, show-off, lazy or precise), so two violins are two different musicians. Everyone sits where their
+section sits on a real stage: strings on the front arcs (violins on the left, cellos on the right, double basses
+at the back right), woodwinds in the middle, keyboards at the back left and percussion in the back row. Each
+musician has a face (a DiceBear Toon Head).
 
-```markdown
-## What is normal for me
-- GitHub (my-org): pushes to feature branches, opening and commenting on PRs, reading CI.
-- Linear: creating, updating and commenting on issues.
+The UI shows how deterministic each musician is. A ring around each face fills up the more often that musician
+repeats its last note. Click a face for its card: name, instrument, trait, current NDI direction, its last 8
+notes, and its stats (repeat rate, Drex's mean top-choice probability, distinct notes played).
 
-Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared, changing production.
-```
+### Every beat
 
-`--no-context-files` skips all three. [Configuration](docs/usage.md#configuration)
+Every beat is a quarter note. On each beat, every member gets one Drex question about what to play next; the
+questions go out in chunks of 16, all chunks at once. Each question is built from a shared state: the current
+mood, the position in the phrase, the current chord, and a compact table of what every musician played on the last
+8 beats (4 beats when there are more than 16 musicians). That is how they listen to each other: what the
+orchestra just played is in the state Drex reads before every decision. On top of that, each question carries
+that member's name, trait, instrument personality and register, and its current NDI direction.
 
-## What Intern has currently
+The options for a melodic musician are the notes of the current mood's scale in its instrument's register, plus
+`rest` (silent) and `hold` (keep sounding the previous note). Because the options come from the mood's scale, the
+orchestra stays in key. Percussion chooses 2-character patterns over the beat's two eighth notes (`x.`, `xx`,
+`.x`, `..`, and `xX` with an accent for the cymbals).
 
-- **Supervision.** After every turn, your intern's System 1 checks whether it is advancing, retrying or re-reading
-  what it already found. Three stuck turns in a row get a nudge. [How it is judged](docs/architecture.md#system-2-and-system-1)
-- **Tool-call guard.** Fixed rules refuse `rm -rf ~`, force-pushes, piping a download into a shell, reading your
-  credentials or your intern's keys file (`~/.intern/.env`) and sending `.env` files; System 1 judges the rest
-  against what you asked for. A refused call does not end the run.
-  [Rules](docs/architecture.md#system-2-and-system-1)
-- **Compaction that keeps the State honest.** State writes are edits, not rewrites, and a number the run never
-  showed is sent back to the writer or blanked. [Below](#compaction)
-- **Capabilities.** Two searches your intern can be given beyond its tools: `decision_code` over a code base and
-  `decision_files` over professional files. [Below](#capabilities)
-- **Memory.** On by default: your intern remembers what earlier sessions learned (where things are, what failed,
-  what people said), in a folder on your machine. [Memory](docs/memory.md)
-- **Optional tools.** Web search and reading, a browser, MCP servers, background processes, a Docker workspace,
-  secrets from your keychain or password manager. [Capability settings](docs/capability-settings.md)
+Drex returns a probability for each option. The note actually played is sampled from those probabilities using
+the mood's temperature (temperature 0 would take Drex's top choice; higher temperatures play the long tail). The
+probabilities are kept and shown in the UI.
 
-## Compaction
+### Ways to play
 
-When the context fills up, both parts of your intern's brain pitch in. Its System 2 writes a summary of the work so
-far, then carries on from it. Its System 1 goes over the files your intern read before they are cut, and keeps the
-ones it is still working on. System 1 never reads the summary, only the session itself, so a summary that misses
-something cannot hide it.
+- **Improv**: 13 moods, each with its own tempo, scale, sampling temperature and chord loop. The default is
+  `imperial`, an original dark march. Or type any sentence into the box ("a funeral for a goldfish") and Drex
+  picks the mood itself.
+- **Score**: the orchestra performs a piece. The dropdown offers "Imperial March (original)", a march we composed
+  for this project (generated by `web/scripts/compose-imperial.ts`), Verdi's "La donna è mobile", Beethoven's
+  "Für Elise" and Mozart's "Eine kleine Nachtmusik". "La donna è mobile" comes from the music21 corpus;
+  `scripts/export_score.py` exports it once to `web/public/scores/la_donna.json` (35 bars in 3/8, a written part
+  in its register for every melodic instrument). In score mode Drex decides per musician, per bar, how to render
+  the written part: as written, up or down an octave, ornamented, thinned to a single held note, the melody line,
+  or rest, while the percussion chooses a rhythm pattern for the bar.
+- **Your own MIDI**: drop any `.mid` file in the upload box, then ▶ Play it. `midiToScore`
+  (`web/src/orchestra/midi.ts`) converts it in the browser: `@tonejs/midi` reads the file, bars come from its
+  time signature and tempo, and `tonal` names each bar's chord. The highest line goes to the violins, flutes and
+  kazoos, the first melody note of each bar to the xylophone, chord tones held to the cellos and harmonium and
+  arpeggiated by the synth, and the lowest line to the double basses, each moved into its instrument's register.
+  Drum tracks are ignored: the percussion improvises. The piece is split into sections of 8 bars.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
-  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its summary into the compaction's card, System 1 judges the file reads being cut and keeps the three your intern is still working on, and a click opens the summary.">
-</picture>
+### NDI: the document
 
-## Capabilities
+Upload a document (PDF, Word, HTML, Markdown or text) and Nace's document intelligence (NDI) reads it. NDI returns
+the document's sections in order, each with a summary, a mood and a quote, plus a one-sentence direction for every
+instrument, which goes into each musician's question for that section. A short document takes about 17 seconds,
+and the orchestra keeps playing while NDI reads. "La donna è mobile" ships with cached directions
+(`web/public/scores/la_donna_directions.json`, made by NDI from the Wikipedia article), so the demo never waits on
+NDI.
 
-Two capabilities Intern has on top of its tools. Each is off by default; switch it on with `/caps` in the
-terminal UI or in `~/.intern/config.toml`. Your intern's System 1 does the reading.
+### The stage
 
-### decision_code: scan a code base
+The main stage is the seating view: every musician's face at its seat, its name below, the note it just played on
+a badge, a pulse when it plays, dimmed while it rests, and its determinism ring.
 
-The `decision_code` capability lets your intern scan a code base with fast thinking. It answers "where"
-questions about a repository without matching words: System 1 walks an index of it, folders first, then files, then
-the definitions in them, scores each against the question, and opens only the branches worth opening.
+Beside it, the lanes: one horizontal lane per instrument in the orchestra, Guitar Hero style. Time flows right to
+left: a segment enters at the right edge the moment Drex decides it, scrolls left, and lights up as it crosses a
+fixed playhead. A note sits at a height matching its pitch, colored by pitch class, brighter when Drex was more
+confident, with a small hue shift per musician so two violins stay distinguishable; an outline marks the moments
+a musician went against Drex's top pick. A stats strip tracks decisions, decisions per second, average Drex
+latency, cost, timeouts, tempo and bar:beat.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
-  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first with class Supervisor, then loop.py. 62 asks, $0.0035.">
-</picture>
+## Why Drex
 
-_Asked where this repository's own source decides that a run is going in circles. The word "circles" is nowhere in
-it, so grep finds nothing; code search puts `supervise.py` first, at the class that does it._
+A live band has to keep tempo: each beat needs all 11 decisions before it sounds, and the band decides at most
+2 beats ahead. One Drex round of 11 decisions took 267 ms at p50, under one beat at every tempo we run (a beat is
+455 ms at 132 BPM). Not every round is that fast: the slowest of our 16 took 1.25 s, longer than the 2-beat window
+at 132 BPM (909 ms), so in the chaos mood an occasional round arrives late; a round over 2 s times out and the band
+falls back to holding. The same 11 questions to an open LLM (Qwen3.8-27B) took 1.9 s at p50, too slow for a live beat.
 
-[Turn it on](docs/usage.md#code-search).
+Measured numbers: 16 sequential beats of the real band's questions (8 calm + 8
+chaos, one call per beat with all 11 questions), run from this laptop over the
+internet on 2026-11-14 12:45 local. Latencies are rounded up to ms; for 16 samples
+the max is the honest p95.
 
-### decision_files: scan professional files
+- Drex (drex-latest): one round of 11 decisions takes 267 ms at p50 and 1252 ms at
+  p95 (max 1252 ms).
+- Drex throughput: 41.3 decisions/second at p50 (11 decisions / 0.266 s).
+- Drex cost, computed from the published price ($0.03 per 1M input tokens; output tokens are not billed; the API
+  itself reports no cost): 2,740 input tokens per round on average (plus 3,536 unbilled output tokens), so
+  $0.0000822 per round, about $0.0066 per minute of music at 80 BPM (calm) and $0.0109 at 132 BPM (chaos). That is
+  about 7× less per round than the LLM baseline below ($0.0005947 per round, as reported by DeepInfra).
+- LLM baseline (Qwen/Qwen3.8-27B on DeepInfra, temperature 0, json_object,
+  thinking off, same state and same 11 questions): 1914 ms at p50 and 6320 ms at
+  p95; 0 invalid JSON rounds and 0 invalid decisions out of 176; DeepInfra reported $0.0005947 per round (about
+  $0.0476 per minute of music at 80 BPM); max tempo with 2-beat lookahead at p95 is 18 BPM, versus 95 BPM for Drex.
 
-The `decision_files` capability lets your intern scan professional files (PDFs, Excel workbooks, CSV, Parquet,
-Word documents and images) quickly, for tasks like audit. Your intern indexes the folder once (scanned pages are
-OCRed; an image is indexed by its name and size, and `read` shows it to a model that can see). Then System 1 walks
-the folders, files and their pages, sections and tabs while BM25 ranks every passage, judges the best of both
-together, and follows the strongest passages' terms to what the first pass missed. `sql` queries the tables and
-`read` shows the documents as text.
+## How we built it
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
-  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 16 asks, $0.0026.">
-</picture>
+The code was written by Intern, Nace AI's agent harness, with Qwen3.8-27B on
+DeepInfra as System 2 doing the work and Drex as System 1 supervising every turn,
+directed by Claude Code sessions. So Drex both plays the music and supervised the
+agents that wrote it.
 
-_Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder: the
-engagement letter, the notes to the financial statements, the income statement and balance sheet as workbooks,
-three management questionnaires and a revenue workpaper. "Victim", "scam" and "theft" are in none of them;
-`decision_files` puts first the page of the fraud-risk questionnaire where management reports a 2021 cyber attack,
-its loss split 50/50 (about $45k)._
+## How to run
 
-[Turn it on](docs/usage.md#workspace).
+- Put a `NACE_API_KEY` in a `.env` file at the repo root (the proxy reads it; it
+  never reaches the browser).
+- `cd web`, then `pnpm install` and `pnpm dev`.
+- Open http://localhost:5173, assemble the orchestra, pick what to play in the dropdown (Imperial by default) and
+  click ▶ Play (that loads the samples and unlocks audio). The Space bar pauses and resumes; ■ Stop resets.
 
-## How well System 1 does
+Hot reload works: the app runs through Vite with HMR, so edits under `web/src` show
+up live in the page.
 
-On its own, a small model does not notice it is going in circles, cannot tell a routine command from a risky one,
-and searches only for the words it was given. Your intern's System 1 does those jobs. Each row is one of them, with
-System 1 and without it.
+The git tag `classic-11` marks the last version with the fixed band of 11 musicians.
 
-| System 1 | With System 1 | Without it | Measured on |
-|---|---|---|---|
-| Notices your intern going in circles | 19 nudges, 16 of them on turns an independent judge also called stuck; 0.6 s a check | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
-| Stops risky tool calls you did not ask for | All 34 stopped, and none of the 57 routine calls; it reads each script a call runs before judging it; 0.4 s a check | The fixed rules stop 9 of the 34 | 122 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
+## Credits
 
-System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.
-Asked about the session, it answers 95% of questions from that view, as many as from a transcript cut to the same
-length (94%) ([method](docs/architecture.md#system-2-and-system-1)).
-
-## Models
-
-A model is `provider/model`; everything after the first slash goes to the provider as is.
-
-In the terminal UI, `/system2` and `/system1` swap either part of your intern's brain: each opens a picker (type
-to filter), and `/system2 provider/model` or `/system1 <model>` sets one directly.
-
-| Provider | Key |
-|---|---|
-| `openrouter`, `fireworks`, `together`, `deepinfra`, `groq` | `<NAME>_API_KEY` |
-| `openai` (Responses API), `anthropic` (Messages API) | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` |
-| `ollama`, `llamacpp`, `lmstudio`, `vllm` | none, on localhost |
-
-Model profiles tune the window, sampling and thresholds for Qwen3.8 27B, Nemotron 3.5 Lightning 30B-A3B,
-DeepSeek V4 Flash, GPT and Claude. On a Mac with Apple silicon, [Kapitsa](https://github.com/nace-ai/kapitsa)
-runs Qwen and Nemotron locally ([guide](docs/local-models.md)). Providers, profiles and the working window:
-[docs/usage.md](docs/usage.md#models).
-
-## Use it from your editor
-
-| Client | Command |
-|---|---|
-| Terminal UI, with the State and System 1's decisions on screen ([docs](docs/tui.md)) | `intern` |
-| Agent Client Protocol: T3 Code, Zed ([docs](docs/acp.md)) | `intern acp` |
-| JSON-RPC over stdio | `intern rpc --system2 M` |
-| One task, one JSON event per line | `intern -p --json --system2 M -- "task"` |
-
-`M` is a model such as `openrouter/qwen/qwen3.8-27b`. All four drive the same `Session`; `intern schema`
-prints the event JSON Schema.
-
-## What Intern does not do
-
-- **It is not a sandbox.** Commands run with your user's permissions. The guard refuses the clearly dangerous
-  and System 1 judges the rest, but run untrusted work in the [Docker workspace](docs/capabilities/docker-workspace.md)
-  or another container.
-- **It does not work without its System 1.** Your intern's System 1 is a hosted decision model. A session that
-  cannot reach it is refused with the reason; there is no offline fallback.
-- **It does not start sub-agents.** Your intern works on one task at a time, alone.
-- **It has no editor plugin of its own.** Editors reach it over the Agent Client Protocol.
-
-## Data
-
-Intern collects no telemetry. What leaves your machine:
-
-- Your intern's System 2 requests, to the provider you chose.
-- Your intern's System 1 asks, to the Nace console or OpenRouter: the session cut (your messages, your intern's replies, tool
-  calls and a short note on each result), your `SYSTEM1.md` if you keep one, and, for the guard, your requests and the call being judged.
-- Calls made by tools you turn on, such as web search.
-
-Sessions are journaled, and memory kept, on your machine in `~/.intern/`.
-
-## Contributing
-
-Read [CONTRIBUTING.md](CONTRIBUTING.md) first: one concern per PR, and evidence for any changed default.
-Report security issues privately, as [SECURITY.md](SECURITY.md) describes.
-
-## License
-
-[Apache-2.0](LICENSE)
+- [Drex](https://console.nace.ai) and NDI by Nace AI
+- [Tone.js](https://tonejs.github.io) (MIT)
+- Instrument samples from [tonejs-instruments](https://github.com/nbrosowsky/tonejs-instruments)
+  by Nicholaus Brosowsky, CC-BY 3.0
+- Faces: Toon Head by Johan Melin (CC BY 4.0, https://www.johanmelin.com) via [DiceBear](https://www.dicebear.com)
+- "Imperial March (original)" composed by Team Darth Vader (CC BY 4.0)
+- "La donna è mobile" from the [music21](https://github.com/cuthbertLab/music21) corpus
+- "Für Elise" and "Eine kleine Nachtmusik" MIDI from the [Mutopia Project](https://www.mutopiaproject.org)
+  (Public Domain; see `demo/midi/README.md`)
+- The cached directions for "La donna è mobile" were made by NDI from the Wikipedia article
+  ["La donna è mobile"](https://en.wikipedia.org/wiki/La_donna_%C3%A8_mobile) (CC BY-SA 4.0)
+- Team: Team Darth Vader

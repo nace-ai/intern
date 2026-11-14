@@ -1,0 +1,29 @@
+[
+  {
+    "id": "la_donna",
+    "title": "La donna è mobile",
+    "composer": "Giuseppe Verdi",
+    "license": "Public Domain",
+    "source_url": "https://github.com/cuthbertLab/music21 (corpus: verdi/laDonnaEMobile)",
+    "file": "la_donna.json",
+    "kind": "json"
+  },
+  {
+    "id": "fur_elise",
+    "title": "Für Elise",
+    "composer": "Ludwig van Beethoven",
+    "license": "Public Domain",
+    "source_url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931",
+    "file": "fur_elise.mid",
+    "kind": "midi"
+  },
+  {
+    "id": "eine_kleine_nachtmusik",
+    "title": "Eine kleine Nachtmusik (1st movement)",
+    "composer": "Wolfgang Amadeus Mozart",
+    "license": "Public Domain",
+    "source_url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=900",
+    "file": "eine_kleine_nachtmusik.mid",
+    "kind": "midi"
+  }
+]
