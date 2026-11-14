@@ -36,7 +36,7 @@ Useful flags: `--window N` caps the working window, `--max-turns N` sets the tur
 `--no-session` keeps the journal in memory, `--session FILE` resumes one, `--no-context-files`
 ignores `AGENTS.md`, `SYSTEM2.md` and `SYSTEM1.md` (instruction files are followed literally, with whatever credentials the shell environment
 holds: an `AGENTS.md` that says "file an issue" and a tracker key in `env` get a filed issue), `--extension NAME` loads an extension (a `module:Class`;
-no extensions are packaged yet), and `--no-extensions` drops the profile's extensions (each `--extension` still loads;
+or a packaged name: `tool-result-guard`, see docs/tool-result-guard.md), and `--no-extensions` drops the profile's extensions (each `--extension` still loads;
 capabilities such as code search and memory are switched in `[capabilities]`, not by these flags).
 
 Stopping it: Ctrl-C (SIGINT) aborts the run in `-p`. SIGTERM or SIGHUP, in `-p` and `rpc` as in the terminal UI and
