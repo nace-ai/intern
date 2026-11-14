@@ -1,0 +1,387 @@
+/* DecisionSpotlight — "watch the swarm think".
+   Every size is a multiple of one layout unit (--dspot-u) so the whole stack scales from 1280 px to 4K.
+   The root font-size IS the unit (the fit logic reads it); never set font-size on .dspot-card / .dspot-plate. */
+
+.dspot-root {
+  /* --dspot-scale: integrator override (default 1). --dspot-fit: set by the component so three cards fit the city view. */
+  --dspot-u: calc(clamp(11px, min(0.94vw, 2vh), 30px) * var(--dspot-scale, 1) * var(--dspot-fit, 1));
+  --dspot-card-h: calc(var(--dspot-u) * 11.3);
+  --dspot-gap: calc(var(--dspot-u) * 0.55);
+  --dspot-c: calc(var(--dspot-u) * 1.05);
+  --dspot-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: var(--dspot-u);
+  line-height: 1.2;
+  width: calc(var(--dspot-u) * 26);
+  display: flex;
+  flex-direction: column;
+  color: #eef0ff;
+  pointer-events: none;
+  text-align: left;
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+}
+/* Docked: above the city, its HUD chips and the 3D name tags (those go up to z-index 3000), below the crash cinematic (9000). */
+.dspot-root.is-dock-top-right { position: absolute; top: calc(var(--dspot-u) * 0.7); right: calc(var(--dspot-u) * 0.8); z-index: var(--dspot-z, 3100); }
+.dspot-root.is-dock-top-left { position: absolute; top: calc(var(--dspot-u) * 0.7); left: calc(var(--dspot-u) * 0.8); z-index: var(--dspot-z, 3100); }
+.dspot-root *, .dspot-root *::before, .dspot-root *::after { box-sizing: border-box; }
+
+/* ---------- title strip (space is always reserved: no layout shift) ---------- */
+.dspot-title {
+  height: calc(var(--dspot-u) * 1.3);
+  margin-bottom: calc(var(--dspot-u) * 0.45);
+  display: flex; align-items: center; gap: calc(var(--dspot-u) * 0.5);
+  font-size: calc(var(--dspot-u) * 0.72); font-weight: 900; letter-spacing: 0.1em; white-space: nowrap;
+  color: #fff; text-shadow: 0 0 calc(var(--dspot-u) * 0.6) rgba(255, 79, 163, 0.9), 0 1px 2px rgba(0, 0, 0, 0.9);
+  padding: 0 calc(var(--dspot-u) * 0.3) 0 calc(var(--dspot-u) * 0.5); border-radius: calc(var(--dspot-u) * 0.3);
+  background: linear-gradient(90deg, rgba(9, 10, 26, 0.9), rgba(9, 10, 26, 0.72));
+  box-shadow: 0 0 0 1px rgba(150, 160, 230, 0.22), 0 calc(var(--dspot-u) * 0.2) calc(var(--dspot-u) * 0.8) rgba(0, 0, 0, 0.45);
+  opacity: 0; transform: translateY(calc(var(--dspot-u) * -0.3));
+  transition: opacity 320ms ease, transform 320ms ease;
+}
+.dspot-root.is-live .dspot-title { opacity: 1; transform: none; }
+.dspot-title-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.dspot-title-mark { display: inline-flex; gap: calc(var(--dspot-u) * 0.16); align-items: flex-end; height: calc(var(--dspot-u) * 0.9); }
+.dspot-title-mark i { display: block; width: calc(var(--dspot-u) * 0.2); border-radius: 1px; background: #ff4fa3; box-shadow: 0 0 calc(var(--dspot-u) * 0.5) #ff4fa3; height: 40%; animation: dspot-eq 900ms ease-in-out infinite; }
+.dspot-title-mark i:nth-child(2) { background: #a56bff; box-shadow: 0 0 calc(var(--dspot-u) * 0.5) #a56bff; height: 90%; animation-delay: -300ms; }
+.dspot-title-mark i:nth-child(3) { background: #e6eaff; box-shadow: 0 0 calc(var(--dspot-u) * 0.5) #e6eaff; height: 65%; animation-delay: -600ms; }
+.dspot-title-count { display: inline-flex; gap: calc(var(--dspot-u) * 0.35); align-items: center; letter-spacing: 0.06em; font-size: calc(var(--dspot-u) * 0.68); }
+.dspot-title-count b, .dspot-title-count em {
+  font-style: normal; font-weight: 800; padding: calc(var(--dspot-u) * 0.1) calc(var(--dspot-u) * 0.42); border-radius: 999px;
+  background: rgba(9, 10, 26, 0.86); border: 1px solid rgba(230, 234, 255, 0.55); color: #fff; text-shadow: none;
+}
+.dspot-title-count b.quiet { border-color: rgba(160, 168, 220, 0.4); color: #b6bbe2; }
+.dspot-title-count em { border-style: dashed; border-color: rgba(255, 79, 163, 0.7); color: #ff9cc8; }
+
+/* ---------- slots: the stack reflows smoothly when a card enters or leaves ---------- */
+.dspot-slot {
+  position: relative; flex: none; height: var(--dspot-card-h); margin-bottom: var(--dspot-gap);
+  overflow: clip; overflow-clip-margin: calc(var(--dspot-u) * 1.6);
+  animation: dspot-slot-in 440ms cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+/* same curve and duration as the entrance: when a queued card replaces a leaving one, the stack height stays constant */
+.dspot-slot.is-leaving { animation: dspot-slot-out 440ms cubic-bezier(0.2, 0.85, 0.25, 1) forwards; }
+@keyframes dspot-slot-in { from { height: 0; margin-bottom: 0; } }
+@keyframes dspot-slot-out { to { height: 0; margin-bottom: 0; } }
+
+/* ---------- card ---------- */
+.dspot-card {
+  position: absolute; left: 0; right: 0; top: 0; height: var(--dspot-card-h);
+  pointer-events: auto; cursor: pointer; outline: none; user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  animation: dspot-card-in 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.dspot-slot.is-leaving .dspot-card { pointer-events: none; animation: dspot-card-out 230ms cubic-bezier(0.5, 0, 0.9, 0.5) forwards; }
+@keyframes dspot-card-in {
+  0% { opacity: 0; transform: translateX(34%) scale(0.94); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes dspot-card-out { to { opacity: 0; transform: translateX(26%) scale(0.96); } }
+
+.dspot-aura {
+  position: absolute; inset: calc(var(--dspot-u) * -0.9); border-radius: calc(var(--dspot-u) * 2.4); pointer-events: none;
+  background:
+    radial-gradient(55% 75% at 22% 35%, color-mix(in srgb, var(--dspot-role) 55%, transparent), transparent 72%),
+    radial-gradient(60% 80% at 78% 65%, color-mix(in srgb, var(--dspot-tone) 60%, transparent), transparent 72%);
+  filter: blur(calc(var(--dspot-u) * 1.1));
+  opacity: 0.3;
+}
+.dspot-card.is-thinking .dspot-aura { animation: dspot-breathe 1500ms ease-in-out infinite; }
+.dspot-card.is-revealed .dspot-aura { animation: dspot-aura-pop 1100ms ease-out both; }
+.dspot-card:hover .dspot-aura, .dspot-card.is-selected .dspot-aura { opacity: 0.55; }
+
+.dspot-plate {
+  position: absolute; inset: 0;
+  clip-path: polygon(var(--dspot-c) 0, 100% 0, 100% calc(100% - var(--dspot-c)), calc(100% - var(--dspot-c)) 100%, 0 100%, 0 var(--dspot-c));
+  background:
+    radial-gradient(46% 95% at 6% 0%, color-mix(in srgb, var(--dspot-role) 26%, transparent), transparent 70%),
+    radial-gradient(60% 120% at 104% 108%, color-mix(in srgb, var(--dspot-tone) 16%, transparent), transparent 70%),
+    linear-gradient(158deg, rgba(27, 28, 64, 0.94) 0%, rgba(11, 12, 30, 0.96) 55%, rgba(17, 11, 38, 0.96) 100%);
+  -webkit-backdrop-filter: blur(calc(var(--dspot-u) * 0.7)) saturate(1.5);
+  backdrop-filter: blur(calc(var(--dspot-u) * 0.7)) saturate(1.5);
+  padding: calc(var(--dspot-u) * 0.62) calc(var(--dspot-u) * 0.95) calc(var(--dspot-u) * 0.46);
+  display: flex; flex-direction: column;
+}
+/* scanline texture */
+.dspot-plate::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.032) 0 1px, transparent 1px 3px);
+  mix-blend-mode: screen;
+}
+.dspot-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.dspot-head, .dspot-opts, .dspot-line, .dspot-foot { position: relative; z-index: 2; }
+
+/* one bright sweep when the verdict lands (never a full-screen flash) */
+.dspot-sweep {
+  position: absolute; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transform: translateX(-120%);
+  background: linear-gradient(102deg, transparent 30%, color-mix(in srgb, var(--dspot-tone) 34%, transparent) 46%, rgba(255, 255, 255, 0.55) 50%, color-mix(in srgb, var(--dspot-tone) 34%, transparent) 54%, transparent 70%);
+  mix-blend-mode: screen;
+}
+.dspot-card.is-revealed .dspot-sweep { animation: dspot-sweep 640ms cubic-bezier(0.3, 0.1, 0.2, 1) both; }
+@keyframes dspot-sweep { 0% { opacity: 1; transform: translateX(-120%); } 100% { opacity: 1; transform: translateX(120%); } }
+
+/* ---------- frame (SVG, drawn at the card's real pixel size) ---------- */
+.dspot-frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 4; }
+.dspot-frame-base {
+  fill: none; stroke: color-mix(in srgb, var(--dspot-tone) 62%, rgba(110, 120, 200, 0.6)); stroke-width: calc(var(--dspot-u) * 0.1);
+  transition: stroke 420ms ease; filter: drop-shadow(0 0 calc(var(--dspot-u) * 0.35) color-mix(in srgb, var(--dspot-tone) 70%, transparent));
+}
+.dspot-card.t-guard .dspot-frame-base, .dspot-card.t-pending .dspot-frame-base { stroke-dasharray: calc(var(--dspot-u) * 0.6) calc(var(--dspot-u) * 0.34); }
+.dspot-card.t-pending .dspot-frame-base { stroke: rgba(170, 178, 235, 0.55); filter: none; }
+.dspot-card.t-scripted .dspot-frame-base, .dspot-card.t-lost .dspot-frame-base, .dspot-card.t-replay .dspot-frame-base { filter: none; }
+.dspot-card.is-stale .dspot-frame-base { stroke: color-mix(in srgb, var(--dspot-ink) 70%, var(--dspot-tone)); }
+.dspot-card.is-selected .dspot-frame-base, .dspot-card:focus-visible .dspot-frame-base { stroke: #fff; stroke-width: calc(var(--dspot-u) * 0.16); stroke-dasharray: none; }
+.dspot-frame-beam {
+  fill: none; stroke: #ff7dbb; stroke-width: calc(var(--dspot-u) * 0.15); stroke-linecap: round; stroke-dasharray: 9 91; opacity: 0;
+  filter: drop-shadow(0 0 calc(var(--dspot-u) * 0.25) #ff4fa3) drop-shadow(0 0 calc(var(--dspot-u) * 0.7) #ff4fa3);
+}
+.dspot-frame-beam.b2 { stroke: #c3a1ff; filter: drop-shadow(0 0 calc(var(--dspot-u) * 0.25) #a56bff) drop-shadow(0 0 calc(var(--dspot-u) * 0.7) #a56bff); }
+.dspot-card.is-thinking .dspot-frame-beam { opacity: 1; animation: dspot-orbit 1400ms linear infinite; }
+.dspot-card.is-thinking .dspot-frame-beam.b2 { animation-delay: -700ms; }
+.dspot-card.is-revealed .dspot-frame-beam { stroke: var(--dspot-tone); filter: drop-shadow(0 0 calc(var(--dspot-u) * 0.5) var(--dspot-tone)); animation: dspot-lock 760ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.dspot-card.is-revealed .dspot-frame-beam.b2 { animation-direction: reverse; display: none; }
+@keyframes dspot-orbit { to { stroke-dashoffset: -100; } }
+@keyframes dspot-lock {
+  0% { opacity: 1; stroke-dasharray: 20 80; stroke-dashoffset: 0; }
+  70% { opacity: 1; stroke-dasharray: 100 0; stroke-dashoffset: -100; }
+  100% { opacity: 0; stroke-dasharray: 100 0; stroke-dashoffset: -100; }
+}
+.dspot-corner { stroke: none; }
+.dspot-corner.a { fill: var(--dspot-role); filter: drop-shadow(0 0 calc(var(--dspot-u) * 0.4) var(--dspot-role)); }
+.dspot-corner.b { fill: var(--dspot-tone); filter: drop-shadow(0 0 calc(var(--dspot-u) * 0.4) var(--dspot-tone)); transition: fill 420ms ease; }
+
+/* ---------- header ---------- */
+.dspot-head {
+  height: calc(var(--dspot-u) * 2.6); flex: none;
+  display: grid; grid-template-columns: calc(var(--dspot-u) * 2.6) minmax(0, 1fr) auto; column-gap: calc(var(--dspot-u) * 0.7); align-items: center;
+}
+.dspot-sigil { width: calc(var(--dspot-u) * 2.6); height: calc(var(--dspot-u) * 2.6); }
+.dspot-sigil svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.dspot-ring-track { fill: none; stroke: rgba(150, 160, 230, 0.22); stroke-width: 1.4; }
+.dspot-ring-prog {
+  fill: none; stroke: var(--dspot-tone); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100;
+  transform: rotate(-90deg); transform-origin: 24px 24px; filter: drop-shadow(0 0 2.5px var(--dspot-tone));
+}
+.dspot-card.is-resolved .dspot-ring-prog { stroke-dashoffset: 0; transition: stroke-dashoffset 520ms ease-out, stroke 300ms ease; }
+.dspot-ring-spin { transform-origin: 24px 24px; }
+.dspot-card.is-thinking .dspot-ring-spin { animation: dspot-spin 2600ms linear infinite; }
+.dspot-ring-dash { fill: none; stroke: var(--dspot-role); stroke-width: 1.1; stroke-dasharray: 2.5 6; opacity: 0.75; }
+.dspot-shape { fill: color-mix(in srgb, var(--dspot-role) 20%, rgba(8, 9, 24, 0.7)); stroke: var(--dspot-role); stroke-width: 1.7; stroke-linejoin: round; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--dspot-role) 85%, transparent)); }
+.dspot-card.is-thinking .dspot-shape { animation: dspot-core 1100ms ease-in-out infinite; transform-origin: 24px 24px; }
+.dspot-glyph { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.dspot-glyph.thin { stroke-width: 1.1; opacity: 0.85; }
+.dspot-glyph.thick { stroke-width: 3.4; stroke-linecap: butt; }
+.dspot-glyph-fill { fill: #fff; stroke: none; }
+
+.dspot-id { min-width: 0; }
+/* The name always wins: when the role tag does not fit beside it, the tag wraps to a second line that is clipped away
+   (the sigil's shape and colour still say the role). */
+.dspot-who { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: calc(var(--dspot-u) * 0.5); min-width: 0; height: calc(var(--dspot-u) * 1.42); overflow: hidden; }
+.dspot-name {
+  flex: 0 1 auto; min-width: 0; max-width: 100%;
+  font-size: calc(var(--dspot-u) * 1.24); font-weight: 800; letter-spacing: 0.005em; line-height: 1.12; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 0 calc(var(--dspot-u) * 0.9) color-mix(in srgb, var(--dspot-role) 65%, transparent);
+}
+.dspot-role { flex: none; font-size: calc(var(--dspot-u) * 0.68); font-weight: 900; letter-spacing: 0.12em; color: var(--dspot-role); white-space: nowrap; }
+.dspot-sub { margin-top: calc(var(--dspot-u) * 0.14); font-size: calc(var(--dspot-u) * 0.8); color: #c8cdf3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dspot-sub::before { content: "▸"; margin-right: 0.42em; color: var(--dspot-role); }
+
+.dspot-clock { text-align: right; min-width: calc(var(--dspot-u) * 5.2); }
+.dspot-clock-big {
+  font: 800 calc(var(--dspot-u) * 1.6) / 1 var(--dspot-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; white-space: nowrap;
+  color: var(--dspot-tone); text-shadow: 0 0 calc(var(--dspot-u) * 0.8) color-mix(in srgb, var(--dspot-tone) 75%, transparent);
+}
+.dspot-clock-big i { font-style: normal; font-size: 0.5em; margin-left: 0.22em; letter-spacing: 0.04em; opacity: 0.85; }
+.dspot-clock-none { opacity: 0.55; }
+.dspot-clock-cap { margin-top: calc(var(--dspot-u) * 0.24); font-size: calc(var(--dspot-u) * 0.66); font-weight: 800; letter-spacing: 0.16em; color: #a3a9d6; white-space: nowrap; }
+.dspot-dots { display: inline-flex; gap: 0.18em; margin-left: 0.3em; }
+.dspot-dots i { width: 0.26em; height: 0.26em; border-radius: 50%; background: currentColor; animation: dspot-dot 900ms ease-in-out infinite; }
+.dspot-dots i:nth-child(2) { animation-delay: 150ms; } .dspot-dots i:nth-child(3) { animation-delay: 300ms; }
+
+/* ---------- offered actions ---------- */
+.dspot-opts { position: relative; flex: none; height: calc(var(--dspot-u) * 3.78); margin-top: calc(var(--dspot-u) * 0.34); }
+.dspot-rows { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-around; transition: opacity 220ms ease; }
+.dspot-row {
+  display: grid; grid-template-columns: calc(var(--dspot-u) * 6.1) minmax(0, 1fr) calc(var(--dspot-u) * 3.9); column-gap: calc(var(--dspot-u) * 0.55);
+  align-items: center; height: calc(var(--dspot-u) * 1.16);
+}
+.dspot-rows[data-n="4"] .dspot-row { height: calc(var(--dspot-u) * 0.95); }
+.dspot-label {
+  font-size: calc(var(--dspot-u) * 0.92); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #cdd1f4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 300ms ease, text-shadow 300ms ease;
+}
+.dspot-label.is-long { font-size: calc(var(--dspot-u) * 0.8); letter-spacing: 0.05em; }
+.dspot-rows[data-n="4"] .dspot-label { font-size: calc(var(--dspot-u) * 0.8); }
+.dspot-track {
+  position: relative; display: block; height: calc(var(--dspot-u) * 0.66); border-radius: calc(var(--dspot-u) * 0.14);
+  background:
+    linear-gradient(90deg, transparent calc(25% - 0.5px), rgba(170, 178, 240, 0.3) calc(25% - 0.5px) calc(25% + 0.5px), transparent calc(25% + 0.5px),
+      transparent calc(50% - 0.5px), rgba(170, 178, 240, 0.42) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px),
+      transparent calc(75% - 0.5px), rgba(170, 178, 240, 0.3) calc(75% - 0.5px) calc(75% + 0.5px), transparent calc(75% + 0.5px)),
+    rgba(5, 6, 18, 0.82);
+  box-shadow: inset 0 0 0 1px rgba(150, 160, 230, 0.26);
+}
+/* pending: a probing light runs over the EMPTY track. It never fills anything. */
+.dspot-card.is-thinking .dspot-track::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent) no-repeat;
+  background-size: 34% 100%; background-position: -60% 0;
+  animation: dspot-probe 1150ms linear infinite; animation-delay: calc(var(--dspot-i, 0) * -380ms);
+}
+.dspot-fill {
+  position: absolute; left: 0; top: 0; bottom: 0; display: block; border-radius: inherit;
+  width: calc(var(--dspot-p, 0) * 100%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--dspot-tone) 30%, #3d2f9c), color-mix(in srgb, var(--dspot-tone) 80%, #6c5ce0));
+  opacity: 0.62;
+  transition: width 900ms cubic-bezier(0.16, 1, 0.3, 1); transition-delay: calc(120ms + var(--dspot-i, 0) * 70ms);
+}
+/* a real but tiny probability still leaves a visible hairline */
+.dspot-card.is-revealed .dspot-fill { min-width: min(calc(var(--dspot-u) * 0.16), calc(var(--dspot-p, 0) * 100000px)); max-width: 100%; }
+.dspot-row.is-chosen .dspot-fill {
+  opacity: 1; background: linear-gradient(90deg, #ff4fa3 0%, #a56bff 46%, var(--dspot-tone) 100%);
+  box-shadow: 0 0 calc(var(--dspot-u) * 0.8) color-mix(in srgb, var(--dspot-tone) 80%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.dspot-row.is-chosen .dspot-fill::after {
+  content: ""; position: absolute; right: 0; top: -30%; bottom: -30%; width: calc(var(--dspot-u) * 0.22); border-radius: 2px;
+  background: #fff; box-shadow: 0 0 calc(var(--dspot-u) * 0.7) #fff, 0 0 calc(var(--dspot-u) * 1.4) var(--dspot-tone);
+}
+.dspot-row.is-chosen .dspot-label { color: var(--dspot-tone); text-shadow: 0 0 calc(var(--dspot-u) * 0.7) color-mix(in srgb, var(--dspot-tone) 70%, transparent); }
+.dspot-card.is-stale .dspot-row.is-chosen .dspot-label { color: var(--dspot-ink); text-decoration: line-through; text-shadow: none; }
+.dspot-pct { font: 700 calc(var(--dspot-u) * 0.98) / 1 var(--dspot-mono); font-variant-numeric: tabular-nums; text-align: right; color: #dfe3ff; white-space: nowrap; min-height: 1em; }
+.dspot-card.is-revealed .dspot-pct { animation: dspot-num-in 360ms ease-out both; animation-delay: calc(430ms + var(--dspot-i, 0) * 70ms); }
+.dspot-row.is-chosen .dspot-pct { color: #fff; text-shadow: 0 0 calc(var(--dspot-u) * 0.6) color-mix(in srgb, var(--dspot-tone) 80%, transparent); }
+.dspot-pick {
+  position: absolute; left: calc(var(--dspot-u) * 0.4); top: 50%; transform: translateY(-50%); z-index: 2; font-style: normal;
+  font-size: calc(var(--dspot-u) * 0.56); font-weight: 900; letter-spacing: 0.14em; color: #0b0c1c; background: #fff; border-radius: 2px;
+  padding: calc(var(--dspot-u) * 0.04) calc(var(--dspot-u) * 0.3); white-space: nowrap;
+}
+
+/* the stamp: lands on the action that was actually applied */
+.dspot-stamp {
+  position: absolute; right: calc(var(--dspot-u) * -0.3); top: 50%; z-index: 4;
+  display: inline-flex; align-items: center; gap: calc(var(--dspot-u) * 0.28);
+  padding: calc(var(--dspot-u) * 0.2) calc(var(--dspot-u) * 0.5) calc(var(--dspot-u) * 0.2) calc(var(--dspot-u) * 0.38);
+  border: calc(var(--dspot-u) * 0.15) solid var(--dspot-ink); border-radius: calc(var(--dspot-u) * 0.24);
+  font-size: calc(var(--dspot-u) * 0.8); font-weight: 900; letter-spacing: 0.14em; line-height: 1; white-space: nowrap; color: var(--dspot-ink);
+  background: rgba(7, 8, 22, 0.86);
+  box-shadow: 0 0 0 calc(var(--dspot-u) * 0.1) rgba(7, 8, 22, 0.86), 0 0 calc(var(--dspot-u) * 1.2) color-mix(in srgb, var(--dspot-ink) 65%, transparent),
+    inset 0 0 calc(var(--dspot-u) * 0.6) color-mix(in srgb, var(--dspot-ink) 32%, transparent);
+  text-shadow: 0 0 calc(var(--dspot-u) * 0.5) color-mix(in srgb, var(--dspot-ink) 80%, transparent);
+  transform: translateY(-50%) rotate(-7deg);
+  animation: dspot-slam 460ms cubic-bezier(0.2, 1.5, 0.4, 1) 380ms both;
+}
+.dspot-stamp.at-left { right: auto; left: 5%; }
+.dspot-stamp-ico { width: calc(var(--dspot-u) * 0.86); height: calc(var(--dspot-u) * 0.86); flex: none; }
+.dspot-stamp-ico path { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes dspot-slam {
+  0% { opacity: 0; transform: translateY(-50%) rotate(-24deg) scale(3.2); }
+  45% { opacity: 1; transform: translateY(-50%) rotate(-5deg) scale(0.88); }
+  70% { transform: translateY(-50%) rotate(-8deg) scale(1.06); }
+  100% { opacity: 1; transform: translateY(-50%) rotate(-7deg) scale(1); }
+}
+/* the plate takes the hit (tiny, once) */
+.dspot-card.is-revealed .dspot-plate { animation: dspot-impact 300ms ease-out 560ms both; }
+@keyframes dspot-impact { 0% { transform: translate(0, 0); } 25% { transform: translate(-0.5%, 1.2%); } 55% { transform: translate(0.35%, -0.6%); } 100% { transform: none; } }
+
+/* no probabilities reported: the applied label stands alone */
+.dspot-solo { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 300ms ease 140ms; }
+.dspot-card.is-solo .dspot-solo { opacity: 1; }
+.dspot-card.is-solo .dspot-rows { opacity: 0; }
+.dspot-solo-main { position: relative; display: flex; align-items: center; height: calc(var(--dspot-u) * 1.86); flex: none; }
+.dspot-solo-label {
+  font-size: calc(var(--dspot-u) * 1.72); font-weight: 900; letter-spacing: 0.07em; text-transform: uppercase; line-height: 1.05; color: var(--dspot-tone);
+  text-shadow: 0 0 calc(var(--dspot-u) * 1) color-mix(in srgb, var(--dspot-tone) 60%, transparent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 62%;
+}
+.dspot-card.is-stale .dspot-solo-label { color: var(--dspot-ink); text-decoration: line-through; }
+.dspot-solo .dspot-stamp { right: calc(var(--dspot-u) * 0.3); top: 44%; font-size: calc(var(--dspot-u) * 0.84); }
+.dspot-solo-cap { flex: none; height: calc(var(--dspot-u) * 1.02); line-height: calc(var(--dspot-u) * 1.02); font-size: calc(var(--dspot-u) * 0.8); font-weight: 600; color: #c9cdf2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dspot-solo-off { flex: none; height: calc(var(--dspot-u) * 0.9); line-height: calc(var(--dspot-u) * 0.9); font-size: calc(var(--dspot-u) * 0.72); letter-spacing: 0.04em; color: #959bca; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- knows / action line ---------- */
+.dspot-line {
+  flex: none; height: calc(var(--dspot-u) * 1.1); margin-top: calc(var(--dspot-u) * 0.26);
+  display: flex; align-items: center; gap: calc(var(--dspot-u) * 0.5); white-space: nowrap; overflow: hidden;
+  font-size: calc(var(--dspot-u) * 0.86); color: #e3e6ff; --dspot-lc: var(--dspot-role);
+}
+.dspot-line.k-ok { --dspot-lc: var(--dspot-tone); font-weight: 700; color: #fff; }
+.dspot-line.k-bad { --dspot-lc: #ff5468; font-weight: 700; color: #ffd3d9; }
+.dspot-line.k-idle { --dspot-lc: #9aa0cf; color: #b9bee6; }
+.dspot-line.k-knows .dspot-line-text { font-style: italic; }
+.dspot-line-tag {
+  flex: none; font-size: calc(var(--dspot-u) * 0.62); font-weight: 900; letter-spacing: 0.14em; line-height: 1; color: var(--dspot-lc);
+  padding: calc(var(--dspot-u) * 0.2) calc(var(--dspot-u) * 0.38); border-radius: calc(var(--dspot-u) * 0.16);
+  background: color-mix(in srgb, var(--dspot-lc) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dspot-lc) 55%, transparent);
+}
+.dspot-line-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.dspot-line-text > span { display: inline-block; white-space: nowrap; }
+/* text that does not fit glides to its end and back instead of being cut off */
+.dspot-line-text.is-ticker { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - var(--dspot-u) * 1.4), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - var(--dspot-u) * 1.4), transparent); }
+.dspot-line-text.is-ticker > span { animation: dspot-ticker var(--dspot-ticker-ms, 4200ms) ease-in-out 1100ms infinite alternate; }
+@keyframes dspot-ticker { 0%, 14% { transform: translateX(0); } 86%, 100% { transform: translateX(var(--dspot-shift, 0px)); } }
+
+/* ---------- footer: who actually decided ---------- */
+.dspot-foot {
+  flex: none; height: calc(var(--dspot-u) * 1.8); margin-top: calc(var(--dspot-u) * 0.26); padding-top: calc(var(--dspot-u) * 0.22);
+  display: flex; align-items: center; gap: calc(var(--dspot-u) * 0.6);
+  border-top: 1px solid rgba(150, 160, 230, 0.2);
+}
+.dspot-badge {
+  flex: none; height: calc(var(--dspot-u) * 1.54); padding: 0 calc(var(--dspot-u) * 0.55); display: inline-flex; flex-direction: column; justify-content: center;
+  border: calc(var(--dspot-u) * 0.1) solid var(--dspot-tone); border-radius: calc(var(--dspot-u) * 0.24); color: var(--dspot-tone);
+  background: color-mix(in srgb, var(--dspot-tone) 14%, rgba(7, 8, 22, 0.7));
+  font-size: calc(var(--dspot-u) * 0.8); font-weight: 900; letter-spacing: 0.09em; line-height: 1; white-space: nowrap;
+}
+.dspot-badge-main { display: inline-flex; align-items: center; gap: calc(var(--dspot-u) * 0.36); }
+.dspot-badge small { display: block; font-size: calc(var(--dspot-u) * 0.58); font-weight: 800; letter-spacing: 0.1em; line-height: 1; margin-top: calc(var(--dspot-u) * 0.1); }
+.dspot-live-dot { width: calc(var(--dspot-u) * 0.5); height: calc(var(--dspot-u) * 0.5); border-radius: 50%; background: currentColor; box-shadow: 0 0 calc(var(--dspot-u) * 0.6) currentColor; animation: dspot-dot 1100ms ease-in-out infinite; }
+/* each source looks different, not just a different colour */
+.dspot-card.t-drex .dspot-badge { box-shadow: 0 0 calc(var(--dspot-u) * 0.9) color-mix(in srgb, var(--dspot-tone) 50%, transparent), inset 0 0 calc(var(--dspot-u) * 0.5) color-mix(in srgb, var(--dspot-tone) 25%, transparent); }
+.dspot-card.t-meta .dspot-badge { border-radius: 999px; box-shadow: 0 0 calc(var(--dspot-u) * 0.7) color-mix(in srgb, var(--dspot-tone) 40%, transparent); }
+.dspot-card.t-guard .dspot-badge {
+  border-style: dashed; font-size: calc(var(--dspot-u) * 0.66); letter-spacing: 0.07em; background: rgba(7, 8, 22, 0.88);
+  padding-left: calc(var(--dspot-u) * 0.9); padding-right: calc(var(--dspot-u) * 0.4);
+  background-image: repeating-linear-gradient(135deg, var(--dspot-tone) 0 calc(var(--dspot-u) * 0.22), rgba(7, 8, 22, 0.9) calc(var(--dspot-u) * 0.22) calc(var(--dspot-u) * 0.44));
+  background-size: calc(var(--dspot-u) * 0.62) 100%; background-repeat: no-repeat;
+}
+.dspot-card.t-fallback .dspot-badge { font-size: calc(var(--dspot-u) * 0.68); border-left-width: calc(var(--dspot-u) * 0.42); }
+.dspot-card.t-scripted .dspot-badge, .dspot-card.t-replay .dspot-badge, .dspot-card.t-lost .dspot-badge { background: rgba(7, 8, 22, 0.7); border-radius: 2px; }
+.dspot-card.t-replay .dspot-badge { font-size: calc(var(--dspot-u) * 0.68); }
+.dspot-card.t-pending .dspot-badge { border-style: dashed; background: rgba(7, 8, 22, 0.6); animation: dspot-pulse 1000ms ease-in-out infinite; }
+
+.dspot-cells { flex: 1; min-width: 0; display: flex; justify-content: flex-end; gap: calc(var(--dspot-u) * 0.72); }
+.dspot-cell { flex: none; text-align: right; display: flex; flex-direction: column; }
+.dspot-cell:last-child { flex: 0 1 auto; min-width: 0; }
+.dspot-k { font-size: calc(var(--dspot-u) * 0.6); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #9aa0cf; white-space: nowrap; }
+.dspot-v { margin-top: calc(var(--dspot-u) * 0.06); font: 700 calc(var(--dspot-u) * 0.84) / 1.1 var(--dspot-mono); font-variant-numeric: tabular-nums; color: #f1f3ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dspot-note { flex: 1; min-width: 0; text-align: right; font-size: calc(var(--dspot-u) * 0.78); font-weight: 600; color: #b3b8e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* dismissal countdown: drains while the card is resolved, pauses on hover / focus */
+.dspot-drain {
+  position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--dspot-u) * 0.16); z-index: 3; pointer-events: none;
+  background: linear-gradient(90deg, var(--dspot-tone), color-mix(in srgb, var(--dspot-tone) 20%, transparent));
+  transform-origin: left center; transform: scaleX(0); opacity: 0.85;
+}
+.dspot-card.is-resolved .dspot-drain { animation: dspot-drain var(--dspot-dwell, 6000ms) linear both; }
+.dspot-card:hover .dspot-drain, .dspot-card:focus-visible .dspot-drain { animation-play-state: paused; }
+@keyframes dspot-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@keyframes dspot-num-in { from { opacity: 0; transform: translateX(calc(var(--dspot-u) * 0.5)); } to { opacity: 1; transform: none; } }
+@keyframes dspot-breathe { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.46; } }
+@keyframes dspot-aura-pop { 0% { opacity: 0.95; transform: scale(1.06); } 100% { opacity: 0.3; transform: none; } }
+@keyframes dspot-spin { to { transform: rotate(360deg); } }
+@keyframes dspot-core { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.9); } }
+@keyframes dspot-probe { from { background-position: -60% 0; } to { background-position: 160% 0; } }
+@keyframes dspot-dot { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes dspot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@keyframes dspot-eq { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1.15); } }
+.dspot-title-mark i { transform-origin: bottom; }
+
+/* Calm variant: no motion at all. Every state above is fully readable without its animation. */
+@media (prefers-reduced-motion: reduce) {
+  .dspot-root, .dspot-root *, .dspot-root *::before, .dspot-root *::after { animation: none !important; transition: none !important; }
+  .dspot-sweep, .dspot-frame-beam, .dspot-drain, .dspot-card.is-thinking .dspot-track::after { display: none; }
+  .dspot-line-text > span { display: inline; }
+  .dspot-line-text.is-ticker { -webkit-mask-image: none; mask-image: none; }
+  .dspot-aura { opacity: 0.22; }
+}

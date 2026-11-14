@@ -1,0 +1,145 @@
+/* Crash cinematic. Every moving property is written by JavaScript from one timeline clock, so nothing here
+   uses CSS animations or transitions (the app disables those under prefers-reduced-motion anyway).
+   Sizes hang off --cc-u, 1% of the width of the largest 16:9 frame that fits the viewport, so the layout
+   holds from 1280 px to 4K and on ultra-wide or 4:3 screens without reflow. */
+.cc-root {
+  --cc-bad: var(--bad, #ff5468); --cc-pink: var(--pink, #ff4fa3); --cc-aqua: var(--aqua, #2ff3e0);
+  --cc-purple: var(--purple, #a56bff); --cc-warn: var(--warn, #ffb347);
+  --cc-u: min(1vw, 1.778vh);
+  --cc-tape: clamp(30px, 5.2vh, 112px);
+  position: fixed; inset: 0; z-index: 9000; overflow: hidden; contain: strict; isolation: isolate;
+  opacity: 0; color: #fff; cursor: pointer; user-select: none; -webkit-user-select: none;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+.cc-root * { box-sizing: border-box; }
+.cc-bg {
+  position: absolute; inset: -8vmax;
+  background:
+    radial-gradient(62% 44% at 50% 27%, rgba(255, 52, 104, .34), rgba(255, 52, 104, 0) 72%),
+    radial-gradient(80% 60% at 50% 104%, rgba(165, 107, 255, .2), rgba(165, 107, 255, 0) 70%),
+    radial-gradient(120% 100% at 50% 46%, rgba(60, 4, 24, .985) 0%, rgba(24, 3, 15, .99) 55%, rgba(6, 3, 10, .995) 100%);
+}
+/* red throb behind everything, driven by impact energy */
+.cc-pulse { position: absolute; inset: -8vmax; opacity: 0; will-change: opacity; background: radial-gradient(70% 62% at 50% 50%, rgba(255, 60, 96, .6), rgba(255, 60, 96, 0) 76%); }
+.cc-shake { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform; }
+.cc-fx { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* ---- hazard tape, top and bottom ---- */
+.cc-tape {
+  position: absolute; left: -4%; width: 108%; height: var(--cc-tape); overflow: hidden; display: flex; align-items: center;
+  background: linear-gradient(180deg, #ff6276, #e02c58); color: #1b020a;
+  box-shadow: 0 0 calc(var(--cc-tape) * .9) rgba(255, 84, 104, .5);
+}
+.cc-tape.top { top: 0; }
+.cc-tape.bot { bottom: 0; }
+.cc-tape::after {
+  content: ""; position: absolute; left: 0; right: 0; height: calc(var(--cc-tape) * .14);
+  background: repeating-linear-gradient(-45deg, #1b020a 0 calc(var(--cc-tape) * .2), #ffd23f calc(var(--cc-tape) * .2) calc(var(--cc-tape) * .4));
+}
+.cc-tape.top::after { bottom: 0; }
+.cc-tape.bot::after { top: 0; }
+.cc-tape-run { display: inline-flex; white-space: nowrap; will-change: transform; font-weight: 900; font-style: italic; font-size: calc(var(--cc-tape) * .5); letter-spacing: .12em; }
+.cc-tape-unit { flex: none; padding-right: 1.1em; }
+.cc-tape-unit i { font-style: normal; opacity: .55; padding: 0 .55em; }
+
+/* ---- kicker ---- */
+.cc-kicker {
+  position: absolute; left: 0; right: 0; top: 8.3%; display: flex; justify-content: center; align-items: center; gap: 1.1em;
+  font-size: clamp(16px, calc(var(--cc-u) * 1.7), 62px); font-weight: 900; letter-spacing: .32em; text-transform: uppercase; white-space: nowrap;
+}
+.cc-kicker b { background: var(--cc-bad); color: #19020a; padding: .2em .55em .2em .85em; box-shadow: 0 0 1.4em rgba(255, 84, 104, .7); }
+.cc-kicker span { color: #fff; text-shadow: 0 0 .7em rgba(255, 79, 163, .9); }
+.cc-kicker i { font-style: normal; color: #ffc2cd; opacity: .9; }
+
+/* ---- ticker symbol ---- */
+.cc-ticker { position: absolute; left: 0; right: 0; top: 25.6%; height: 0; display: flex; align-items: center; justify-content: center; }
+.cc-ticker-fx {
+  display: grid; line-height: 1; white-space: nowrap; will-change: transform, opacity; transform-origin: 50% 50%;
+  font-size: min(19vw, 27vh, calc(88vw / (var(--cc-len) * .66))); font-weight: 900; font-style: italic; letter-spacing: -.012em;
+}
+.cc-tk { grid-area: 1 / 1; padding: 0 .06em; }
+.cc-tk-a { color: var(--cc-aqua); mix-blend-mode: screen; will-change: transform; }
+.cc-tk-p { color: var(--cc-pink); mix-blend-mode: screen; will-change: transform; }
+.cc-tk-main { color: #fff; text-shadow: 0 0 .05em #fff, 0 0 .22em rgba(255, 79, 163, .95), 0 0 .7em rgba(255, 84, 104, .75), 0 .04em .5em rgba(10, 0, 6, .9); }
+.cc-tk-s { color: #fff; opacity: 0; text-shadow: .03em 0 0 var(--cc-aqua), -.03em 0 0 var(--cc-pink); will-change: transform, clip-path; }
+.cc-ticker-fx.is-dead .cc-tk-main {
+  color: rgba(255, 84, 104, .13); -webkit-text-stroke: max(2px, .017em) var(--cc-bad);
+  text-shadow: 0 0 .35em rgba(255, 84, 104, .55), 0 .04em .5em rgba(10, 0, 6, .9);
+}
+.cc-ticker-fx.is-dead .cc-tk-s { color: var(--cc-bad); }
+
+/* ---- price readout: a pane of dark glass over the chart ---- */
+.cc-readout { position: absolute; left: 50%; top: 53%; transform: translate(-50%, -50%); }
+.cc-readout-fx {
+  --cc-c: 0;
+  position: relative; display: block; white-space: nowrap; text-align: center; line-height: 1; will-change: transform, opacity;
+  font-weight: 900; font-variant-numeric: tabular-nums lining-nums;
+  /* the last term keeps very long prices from growing over the cliff on the right */
+  font-size: min(10.5vw, 16vh, calc(64vw / (var(--cc-chars) * .66 + .8))); padding: .25em .3em .08em; min-width: calc(var(--cc-chars) * .66em + .8em);
+  background: linear-gradient(180deg, rgba(9, 2, 8, .76), rgba(26, 3, 13, .68));
+  -webkit-backdrop-filter: blur(.045em) saturate(1.25); backdrop-filter: blur(.045em) saturate(1.25);
+  border: max(2px, .02em) solid rgba(255, 84, 104, .6); border-radius: .07em;
+  box-shadow: 0 0 0 max(1px, .01em) rgba(0, 0, 0, .7), 0 0 1em rgba(255, 84, 104, .38), inset 0 0 .8em rgba(255, 84, 104, .2);
+  text-shadow: calc(var(--cc-c) * 1em) 0 0 rgba(255, 79, 163, .9), calc(var(--cc-c) * -1em) 0 0 rgba(47, 243, 224, .9), 0 0 .3em rgba(255, 84, 104, .6);
+}
+.cc-readout-k { position: absolute; left: .7em; top: .55em; font-size: .105em; font-weight: 800; letter-spacing: .3em; color: #ffb9c6; text-shadow: none; }
+.cc-readout-pct {
+  position: absolute; right: .55em; top: .3em; font-size: .15em; font-weight: 900; letter-spacing: .04em; color: #ff5468;
+  text-shadow: 0 0 .7em rgba(255, 84, 104, .85);
+}
+/* Fixed-width digit cells: the number never reflows while it falls. "V$" and separators keep their own width. */
+.cc-cell { display: inline-block; width: .66em; text-align: center; will-change: transform; }
+.cc-cell.pre { width: auto; color: #ff9db0; }
+.cc-cell.sep { width: .3em; }
+.cc-readout-fx.is-zero { color: #ff5468; border-color: #ff5468; box-shadow: 0 0 0 max(1px, .01em) rgba(0, 0, 0, .7), 0 0 1.6em rgba(255, 84, 104, .8), inset 0 0 1em rgba(255, 84, 104, .4); }
+.cc-readout-fx.is-zero .cc-cell { color: #ff5468; text-shadow: 0 0 .12em #fff, 0 0 .5em rgba(255, 84, 104, .95); }
+
+/* ---- caption row ---- */
+.cc-caption { position: absolute; left: 5%; right: 5%; top: 80.4%; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: calc(var(--cc-u) * 1.3); }
+.cc-caption.has-captor { grid-template-columns: minmax(0, 1.7fr); }
+.cc-stat {
+  min-width: 0; padding: .4vh calc(var(--cc-u) * .6) .4vh calc(var(--cc-u) * 1); border-left: max(3px, calc(var(--cc-u) * .24)) solid var(--cc-bad); will-change: transform, opacity;
+  background: linear-gradient(90deg, rgba(255, 84, 104, .22), rgba(255, 84, 104, 0) 85%), rgba(20, 3, 12, .92);
+}
+.cc-stat-k { font-size: clamp(14px, calc(var(--cc-u) * 1.06), 40px); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: #ffb9c6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-stat-v { font-size: clamp(26px, calc(var(--cc-u) * 2.55), 96px); font-weight: 900; line-height: 1.14; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; text-shadow: 0 0 .5em rgba(255, 84, 104, .45); }
+.cc-stat-v.long { font-size: clamp(21px, calc(var(--cc-u) * 2.02), 78px); line-height: 1.44; }
+.cc-stat-s { font-size: clamp(13px, calc(var(--cc-u) * .98), 36px); font-weight: 700; letter-spacing: .1em; color: #e9c6d0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-chip { display: inline-block; padding: .08em .6em; border: max(1px, .1em) solid; border-radius: 999px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+.cc-chip.npc { color: var(--cc-aqua); border-color: var(--cc-aqua); background: rgba(47, 243, 224, .1); }
+.cc-chip.human { color: var(--cc-pink); border-color: var(--cc-pink); background: rgba(255, 79, 163, .12); }
+
+/* ---- the stamped plate ---- */
+.cc-plate-slot { position: absolute; left: 50%; top: 55.2%; transform: translate(-50%, -50%); }
+.cc-plate {
+  opacity: 0; transform-origin: 50% 50%; will-change: transform, opacity; text-align: center; white-space: nowrap; color: #ff6a7c;
+  padding: calc(var(--cc-u) * 1.5) calc(var(--cc-u) * 3.2) calc(var(--cc-u) * 1.3);
+  border: calc(var(--cc-u) * .62) solid var(--cc-bad); border-radius: calc(var(--cc-u) * .7);
+  outline: calc(var(--cc-u) * .18) solid var(--cc-bad); outline-offset: calc(var(--cc-u) * .5);
+  background:
+    repeating-linear-gradient(-28deg, rgba(255, 84, 104, 0) 0 1.1vh, rgba(255, 84, 104, .06) 1.1vh 1.3vh),
+    linear-gradient(180deg, rgba(30, 3, 12, .95), rgba(16, 2, 8, .95));
+  box-shadow: 0 0 calc(var(--cc-u) * 6) rgba(255, 84, 104, .5), 0 1.2vh 4vh rgba(0, 0, 0, .7), inset 0 0 calc(var(--cc-u) * 3) rgba(255, 84, 104, .22);
+}
+.cc-plate-top, .cc-plate-bot { font-size: clamp(14px, calc(var(--cc-u) * 1.3), 50px); font-weight: 800; letter-spacing: .44em; padding-left: .44em; color: #ffa3b1; text-transform: uppercase; }
+.cc-plate-main {
+  font-size: calc(var(--cc-u) * 8.4); font-weight: 900; font-style: italic; line-height: 1.08; letter-spacing: .01em; color: #ff6679;
+  text-shadow: 0 0 .22em rgba(255, 84, 104, .75), 0 0 .7em rgba(255, 84, 104, .45);
+}
+.cc-plate-main em { font-style: normal; opacity: .75; padding: 0 .1em; }
+
+/* ---- footer, queue chip, overlays ---- */
+.cc-foot {
+  position: absolute; left: 5%; right: 5%; bottom: calc(var(--cc-tape) + .3vh); display: flex; justify-content: space-between; gap: 2vw;
+  font-size: clamp(12px, calc(var(--cc-u) * .82), 30px); letter-spacing: .08em; color: rgba(255, 214, 224, .72); white-space: nowrap;
+}
+.cc-more {
+  position: absolute; right: 5%; top: calc(var(--cc-tape) + 2.2vh); padding: .3em .8em; border: max(1px, .1em) solid var(--cc-warn); border-radius: 999px;
+  color: var(--cc-warn); background: rgba(255, 179, 71, .1); font-size: clamp(13px, calc(var(--cc-u) * 1), 36px); font-weight: 900; letter-spacing: .18em;
+}
+/* translucent black lines: same look as a multiply blend, without the extra full-screen blend pass */
+.cc-scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 .2vh, rgba(0, 0, 0, .12) .2vh .4vh); }
+.cc-vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(125% 105% at 50% 50%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, .62) 100%); }
+.cc-flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; will-change: opacity; }
+.cc-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }

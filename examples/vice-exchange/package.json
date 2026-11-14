@@ -1,0 +1,31 @@
+{
+  "name": "vice-exchange",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "VICE EXCHANGE - a multiplayer, AI-agent-driven fictional in-game economy (virtual credits only).",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,web -c magenta,cyan \"npm run dev:server\" \"npm run dev:web\"",
+    "dev:server": "npm run dev -w @vice/server",
+    "dev:web": "npm run dev -w @vice/web",
+    "start:server": "npm run start -w @vice/server",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test -w @vice/server",
+    "build": "npm run build -w @vice/web",
+    "replay": "npm run replay -w @vice/server --",
+    "ndi:ingest": "npm run ndi:ingest -w @vice/server --",
+    "e2e": "tsx e2e/run.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7",
+    "playwright-core": "^1.65.1",
+    "typescript": "^7.0.2"
+  }
+}

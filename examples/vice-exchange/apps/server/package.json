@@ -1,0 +1,32 @@
+{
+  "name": "@vice/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Authoritative VICE EXCHANGE game server (Express + Socket.IO, node:sqlite persistence).",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run",
+    "replay": "tsx src/replay/cli.ts",
+    "ndi:ingest": "tsx src/policy/cli.ts"
+  },
+  "dependencies": {
+    "@types/ws": "^8.18.2",
+    "@vice/contracts": "*",
+    "express": "^5.3.0",
+    "nace-sdk": "^0.8.0",
+    "socket.io": "^4.8.4",
+    "ws": "^8.21.3",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "socket.io-client": "^4.8.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}
