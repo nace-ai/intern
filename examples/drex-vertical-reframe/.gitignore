@@ -1,0 +1,10 @@
+.cache/
+samples/football-keyframes/videos/
+.env
+runs/
+__pycache__/
+*.pyc
+.DS_Store
+.env.*
+!.env.example
+sites-replay/
