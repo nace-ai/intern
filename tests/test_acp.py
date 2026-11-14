@@ -896,6 +896,7 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
         ("cap.code-search", False),
         ("cap.workspace", False),
         ("cap.memory", True),
+        ("cap.engagement", False),
     ]
     assert all(c["name"] and c["description"] for c in listed["capabilities"])
     # Where commands run is one choice, listed apart: the built-ins and OpenSandbox, the configured one the default.
@@ -1132,6 +1133,7 @@ async def test_capability_toggles_apply_at_the_next_prompt_with_one_reopen_and_s
         "cap.code-search": False,
         "cap.workspace": False,
         "cap.memory": True,
+        "cap.engagement": False,
         "cap.mcp.docs": True,
     }
     browser = next(o for o in session.config_options if o.id == "cap.browser")

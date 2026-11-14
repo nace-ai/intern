@@ -121,6 +121,10 @@ Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared,
   `decision_files` over professional files. [Below](#capabilities)
 - **Memory.** On by default: your intern remembers what earlier sessions learned (where things are, what failed,
   what people said), in a folder on your machine. [Memory](docs/memory.md)
+- **Engagement.** Off by default: `/engage <host>` turns on the pentest harness — one record under `out/`, decision
+  gates on findings over System 1, evidence and report pipelines, playbooks and research tooling, specialist agents,
+  and `intern engage` for unattended runs. [Below](#engagement-the-pentest-harness) ·
+  [Engagement](docs/engagement.md)
 - **Optional tools.** Web search and reading, a browser, MCP servers, background processes, a Docker workspace,
   secrets from your keychain or password manager. [Capability settings](docs/capability-settings.md)
 
@@ -179,6 +183,47 @@ its loss split 50/50 (about $45k)._
 
 [Turn it on](docs/usage.md#workspace).
 
+## Engagement: the pentest harness
+
+This build carries the engagement harness: a capability that turns the same two-part brain
+loose on an authorized penetration test, with a record that makes the work provable. Off by default —
+`/caps`, `/engage`, or `[capabilities.engagement] enabled` in config.toml turns it on.
+
+```bash
+export NACE_API_KEY=...          # System 1: the decision gates run on it
+export DEEPINFRA_API_KEY=...     # System 2: any chat provider works
+
+intern                            # terminal UI, then:
+# /engage 35.172.33.96 external assessment: recon, enumerate, test what is exposed, record everything
+# /dash                             ← findings, hosts, endpoints, coverage, specialists
+
+intern engage 35.172.33.96 --objective "…" --max-minutes 60 --fail-on high   # unattended
+```
+
+What it adds to a session:
+
+- **One engagement record** under `out/<target>/` — hosts, services, credentials, tested
+  endpoints, footholds, pivots, coverage — reused across runs, earlier runs archived, the report
+  folder the only thing made to hand over.
+- **Decision gates on findings** (`drex_triage`): p(real) ≥ 0.85 confirms, ≤ 0.30 drops as noise,
+  and a HIGH/CRITICAL additionally needs p(impact demonstrated at that severity) ≥ 0.60 or it is
+  held — overclaimed severities are downgraded, not reported.
+- **A drill-down ladder**: every finding climbs `detected → confirmed → impact → chained`, and
+  one that stops early says why; OWASP 2025 + API 2023 + LLM 2025 coverage accounting shows every
+  category as a finding, tested, or n/a with a reason.
+- **Evidence and reports**: page screenshots as named browser identities (TOTP logins, imported
+  tokens), terminal captures the harness itself runs, HARs sanitized, CVSS v4.0 scored — and a
+  markdown + self-contained HTML/PDF client report that lists its own gaps.
+- **Research tooling**: 28 playbooks and the bundled PayloadsAllTheThings, exploit research
+  (NVD/OSV/KEV/Exploit-DB/Sploitus/PoCs), an interactsh OAST client, JS and API surface
+  inventory, host-tool installs with consent.
+- **Specialists**: `dispatch` runs up to 8 concurrent agents on the same record — recon, webapp,
+  api, cloud, a verifier that re-tests every gate's call — and `intern engage` drives the whole
+  loop unattended with a budget, live re-checks and exit codes.
+
+Only test targets you are authorized to test. The full tour — tools, folder layout, retests, the
+operator surface — is [docs/engagement.md](docs/engagement.md).
+
 ## How well System 1 does
 
 On its own, a small model does not notice it is going in circles, cannot tell a routine command from a risky one,
@@ -220,8 +265,9 @@ runs Qwen and Nemotron locally ([guide](docs/local-models.md)). Providers, profi
 | Agent Client Protocol: T3 Code, Zed ([docs](docs/acp.md)) | `intern acp` |
 | JSON-RPC over stdio | `intern rpc --system2 M` |
 | One task, one JSON event per line | `intern -p --json --system2 M -- "task"` |
+| Unattended engagement run, budgeted, with exit codes ([the harness](#engagement-the-pentest-harness)) | `intern engage <target>` |
 
-`M` is a model such as `openrouter/qwen/qwen3.8-27b`. All four drive the same `Session`; `intern schema`
+`M` is a model such as `openrouter/qwen/qwen3.8-27b`. All of these drive the same `Session`; `intern schema`
 prints the event JSON Schema.
 
 ## What Intern does not do
@@ -231,7 +277,8 @@ prints the event JSON Schema.
   or another container.
 - **It does not work without its System 1.** Your intern's System 1 is a hosted decision model. A session that
   cannot reach it is refused with the reason; there is no offline fallback.
-- **It does not start sub-agents.** Your intern works on one task at a time, alone.
+- **It does not start sub-agents** — except the engagement harness's specialists (`dispatch`), which the
+  [engagement](docs/engagement.md) capability adds to a session that asked for them.
 - **It has no editor plugin of its own.** Editors reach it over the Agent Client Protocol.
 
 ## Data

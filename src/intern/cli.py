@@ -290,6 +290,105 @@ def _tui(options: Options, prompt: str | None) -> int:
     return EXIT_OK
 
 
+def _engage(argv: list[str]) -> int:
+    """`intern engage <target>`: an unattended engagement run — the supervisor loop drives the
+    agent until the harness's gates pass, the budget is spent or progress stalls."""
+    parser = argparse.ArgumentParser(
+        prog=f"{names.NAME} engage",
+        description="Run an authorized engagement headlessly: recon to report, budgeted, with exit codes.",
+    )
+    parser.add_argument("--system2", "-m", "--model", help="Agent model as provider/model.")
+    parser.add_argument("--system1", "--decider", help=f"System 1: {SYSTEM1_HELP}.")
+    parser.add_argument("--window", type=int, help="Cap the working window, in tokens.")
+    parser.add_argument("--max-turns", type=int, help="Stop a round after this many turns.")
+    parser.add_argument("--profile", type=Path, help="Profile TOML applied over the matched one.")
+    parser.add_argument("--cwd", type=Path, default=Path.cwd(), help="Working directory for tools.")
+    parser.add_argument("--no-session", action="store_true", help="Keep the journal in memory only.")
+    parser.add_argument("--session", type=Path, help="Journal file to create or resume.")
+    parser.add_argument("target", help="The target host or app this engagement tests.")
+    parser.add_argument("--scope", help="Comma-separated in-scope hosts (default: the target).")
+    parser.add_argument("--objective", default="", help="What this engagement is out to establish.")
+    parser.add_argument("--max-minutes", type=float, default=60.0, help="Budget in minutes (default 60).")
+    parser.add_argument("--max-cost", type=float, help="Optional cost budget in USD.")
+    parser.add_argument("--max-rounds", type=int, default=12, help="Supervisor rounds before stopping.")
+    parser.add_argument(
+        "--fail-on", choices=["info", "low", "medium", "high", "critical"], help="Exit 3 at this severity."
+    )
+    parser.add_argument("--retest", action="store_true", help="Verify the client's fixes for the prior findings.")
+    parser.add_argument("--resume", action="store_true", help="Load the prior run's findings onto the board.")
+    parser.add_argument("--json", action="store_true", help="Events as JSON lines on stdout.")
+    args = parser.parse_args(argv)
+    return asyncio.run(_engage_run(args))
+
+
+async def _engage_run(args: argparse.Namespace) -> int:
+    import json as _json
+
+    from intern.capability_settings import CapabilitySettings, EngagementConfig
+    from intern.engagement.extension import EngagementExtension
+    from intern.engagement.notify import Notifier
+    from intern.engagement.runner import run_engagement
+
+    options = Options(
+        cwd=args.cwd.resolve(),
+        system2=args.system2,
+        system1=args.system1,
+        window_cap=args.window,
+        max_turns=args.max_turns,
+        profile=args.profile,
+        session_file=args.session,
+        persist=not args.no_session,
+        capabilities=CapabilitySettings().model_copy(update={"engagement": EngagementConfig(enabled=True)}),
+    )
+    sink = _json_sink if args.json else _quiet_sink
+    bootstrap = Bootstrap(options)
+    session = await bootstrap.session(sink)
+    extension = next((e for e in session.deps.hooks.extensions if isinstance(e, EngagementExtension)), None)
+    if extension is None:
+        print(f"{names.NAME}: the engagement extension did not load", file=sys.stderr)
+        return EXIT_FAILED
+    notifier = Notifier()
+    result = extension.engage(
+        args.target,
+        scope=args.scope.split(",") if args.scope else None,
+        objective=args.objective or None,
+        resume=args.resume,
+        quiet=args.json,
+    )
+    print(result, file=sys.stderr)
+    store = extension.store
+    log_file = store.logs_dir / "events.jsonl"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    def emit_log(record: dict[str, object]) -> None:
+        with contextlib.suppress(OSError), log_file.open("a", encoding="utf-8") as fh:
+            fh.write(_json.dumps(record) + "\n")
+        if record.get("type") == "summary":
+            print(_json.dumps(record["detail"]), file=sys.stderr)
+
+    exit_code = await run_engagement(
+        options,
+        store,
+        lambda: session,
+        target=args.target,
+        scope=args.scope.split(",") if args.scope else [args.target],
+        objective=args.objective,
+        max_minutes=args.max_minutes,
+        max_cost=args.max_cost,
+        max_rounds=args.max_rounds,
+        fail_on=args.fail_on,
+        retest=args.retest,
+        emit_log=emit_log,
+    )
+    extension.close()
+    notifier.run_ended(store.state.target, 0.0)
+    return exit_code
+
+
+def _quiet_sink(event: Event) -> None:
+    return None
+
+
 def interactive(args: argparse.Namespace) -> bool:
     """Whether a plain `intern [task]` opens the terminal UI: no -p or --json, and a terminal on both ends."""
     return not args.print and not args.json and sys.stdin.isatty() and sys.stdout.isatty()
@@ -316,6 +415,8 @@ def main(argv: list[str] | None = None) -> int:
         return secrets_main(argv[1:])
     if argv[:1] == ["steward"]:
         return steward_main(argv[1:])
+    if argv[:1] == ["engage"]:
+        return _engage(argv[1:])
     serving = argv[:1] == ["rpc"]
     serving_acp = argv[:1] == ["acp"]
     serving_tui = argv[:1] == ["tui"]

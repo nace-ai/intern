@@ -18,6 +18,14 @@ Screen {
     height: 1fr;
 }
 
+#board {
+    dock: bottom;
+    height: auto;
+    padding: 0 2;
+    background: $surface;
+    border-top: solid $rule;
+    display: none;  # initial state only; the strip's inline styles.display wins over this
+}
 #transcript {
     width: 1fr;
     height: 1fr;

@@ -13,10 +13,13 @@ import re
 import sys
 import time
 import traceback
-from collections.abc import Callable, Coroutine
+from collections.abc import Awaitable, Callable, Coroutine
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Literal, NamedTuple
+from typing import TYPE_CHECKING, Literal, NamedTuple
+
+if TYPE_CHECKING:
+    from intern.session import Session
 
 from intern import hooks as h
 from intern.async_tasks import join_tasks
@@ -178,9 +181,10 @@ class EngineDeps:
     """Replaces every stored secret's value with `[REDACTED]`; applied to each tool's output before the model,
     the journal, clients or a spill file see it, and to a run's end detail. None when no secret is stored."""
     system_writes: bool = False
+    spawn_session: Callable[[EventSink], Awaitable[Session]] | None = None
+    """Opens a child session with this run's models and config (the engagement's specialists);
+    None in a session built without the bootstrap."""
     processes: ProcessManager | None = None
-    """The session's job manager (`processes.py`): the `process` tool's jobs, and a record of every command running in
-    the session. None when the executor runs no background jobs, or for a session built without setup."""
 
 
 CompactOutcome = Literal["compacted", "fits", "stopped"]
@@ -277,6 +281,7 @@ class Run:
             journal=self.deps.journal,
             decisions=self.deps.decisions,
             emit=self.deps.emit,
+            spawn_session=self.deps.spawn_session,
             state=self._system1_state,
         )
 

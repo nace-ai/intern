@@ -192,6 +192,7 @@ switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#extensio
 | `cap.code-search` | `[capabilities.code_search] enabled` | always |
 | `cap.workspace` | `[capabilities.workspace] enabled` | always |
 | `cap.memory` | `[capabilities.memory] enabled` | always |
+| `cap.engagement` | `[capabilities.engagement] enabled` | always |
 | `cap.mcp.<namespace>` | that `[[capabilities.mcp]]` connection | for each connection config.toml names |
 
 A toggle that cannot switch on in this install and environment, even after the install below, is left out unless
@@ -963,3 +964,28 @@ Fixes for background jobs; 0.30.0 clients keep working, and nothing a client sen
   to and answer from that. Before, it could answer "I can't tell" about a build whose output went to a log.
 - The terminal UI keeps one line per command for System 1's routine looks, updated at each look, where it added a
   line per look. A finding the agent is told still gets its own line.
+
+### 0.31.0
+
+The engagement harness: a pentest layer behind one new capability. Older clients keep working;
+nothing they send or read changed shape.
+
+- New toggle `cap.engagement` (`[capabilities.engagement] enabled`, default off, in `/caps` like the
+  others). On, it adds the engagement tools to the session and opens a record under `out/` in the
+  working directory: `state_update`/`state_query`/`set_engagement`, `drex_triage`/`drex_decide`
+  (the decision gates over the session's System 1), `evidence`, `screenshot`, `browser_session`,
+  `report_content`/`report`/`report_diagram`, `load_playbook`, `payloads`, `exploit_research`,
+  `oast`, `js_analyze`, `api_discover`/`api_probe`, `host_tools`/`install_tools`, and `dispatch`
+  (specialist agents). See [docs/engagement.md](engagement.md).
+- The capability declares one install, shown to `/caps` and to a client setting `cap.engagement`:
+  the browser extra (`playwright`) and its Chromium build, which the evidence pipeline drives for
+  page screenshots, browser logins and the report PDF. `cryptography` (the OAST client's interactsh
+  protocol) and `pyyaml` (OpenAPI YAML) are now declared dependencies rather than lazy optional
+  ones, so `oast` and `api_discover` work on any install.
+- New CLI subcommand `intern engage <target>`: the unattended engagement run, with its own exit
+  codes (`0` done · `1` error · `2` stopped with work open · `3` a confirmed finding at or above
+  `--fail-on`). Not part of the ACP surface.
+- The engagement banner now plays one of the eight bundled tracker tunes (a ProTracker player in
+  Python renders a whole-bar cut and hands it to the system player): `INTERN_NO_INTRO=1` skips the
+  banner and music, `INTERN_NO_MUSIC=1` silences the music only, `INTERN_INTRO_TUNE=<id|id@pos>`
+  pins a tune, `INTERN_INTRO_VOLUME=0..1` sets the level. Not part of the ACP surface.

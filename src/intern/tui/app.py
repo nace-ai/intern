@@ -24,7 +24,7 @@ from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from multiprocessing import resource_tracker
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from pydantic import TypeAdapter
 from textual import events, on
@@ -33,6 +33,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Horizontal, Vertical
 from textual.content import Content
+from textual.css.query import NoMatches
 from textual.driver import Driver
 from textual.message import Message
 from textual.screen import ModalScreen
@@ -86,8 +87,12 @@ from intern.models.registry import ConfigError, Role
 from intern.needs import InstallFailed, Needs, Say, install
 from intern.processes import ENDED_LINES, duration_text
 from intern.session import Session, SessionBusy
-from intern.session_cut import STATE_SHARE, CutView, cut_view
 from intern.session_setup import capability_needs, runner_choices, runner_config, runner_problem
+
+if TYPE_CHECKING:
+    from intern.engagement.extension import EngagementExtension
+
+from intern.session_cut import STATE_SHARE, CutView, cut_view
 from intern.tui.ledger import (
     CompactionJudgement,
     GuardJudgement,
@@ -171,9 +176,11 @@ COMMANDS: dict[str, str] = {
     "/reload": "restart on the code and config as they are now and resume this session: the models, capabilities "
     "and thinking level stay",
     "/panels": "show or hide the State and System 1 panels (also F2)",
-    "/dark": "the dark look: paper and ink swapped; kept on /reload",
-    "/light": "the light look, paper and ink (the default)",
-    "/help": "this list",
+    "/engage": "name the engagement's target: /engage <host> [objective…] sets (or switches) it, turns the "
+    "engagement capability on, and opens its record under out/; the board line above the prompt follows it",
+    "/dash": "the engagement dashboard: findings, hosts, endpoints, specialists, activity, coverage, "
+    "credentials, footholds; ←→ or 1-8 picks a section, q closes",
+    "/retest": "retest mode: verify the client's fixes for the original findings and record each verdict",
     "/quit": "close the session and exit (also Ctrl+Q)",
 }
 KEYS: dict[str, str] = {
@@ -362,6 +369,8 @@ class HarnessApp(App[None]):
         """What `/caps` installs a capability's missing extra with before switching it on; None installs nothing, and
         the session that cannot open on the pick says what is missing."""
         self._installing = False
+        self._engage_after: tuple[str, str] | None = None
+        """Set by /engage when the capability was off: the (target, objective) to name once the session reopens."""
         self._resuming = False
         self._replaying = False
         self.pending = picks or Models()
@@ -396,6 +405,7 @@ class HarnessApp(App[None]):
             with Vertical(id="side"):  # System 1 above the State
                 yield LedgerPanel()
                 yield StatePanel(id="state")
+        yield Static("", id="board")  # the engagement's board line; the strip shows/hides it inline
         yield Prompt(
             placeholder="Describe the task… (/help for commands; Shift+Enter or Ctrl+J for a new line)",
             id="prompt",
@@ -457,6 +467,7 @@ class HarnessApp(App[None]):
                 loop.add_signal_handler(sig, lambda: self.run_worker(self.action_quit(), exit_on_error=False))
         self.run_worker(self._start(), name="open-session", exit_on_error=False)
         self.set_interval(1.0, self._jobs_strip)
+        self.set_interval(1.0, self._engage_strip)
 
     def _jobs_strip(self) -> None:
         """System 1's row of the status bar: the background jobs it watches, each with its run time, its verdict at
@@ -535,6 +546,11 @@ class HarnessApp(App[None]):
         self.state_panel.cwd = self._cwd
         self._cut_now()
         await self.views.load(session.deps.hooks.extensions)
+        if self._engage_after is not None and (engagement := self._engagement()) is not None:
+            target, objective = self._engage_after
+            self._engage_after = None
+            await self._engaged(engagement, target, objective)
+        self._engage_strip()
         self._refresh_status()
 
     def _cut_soon(self) -> None:
@@ -995,6 +1011,12 @@ class HarnessApp(App[None]):
                 await self._reload()
             case "/panels":
                 self.action_toggle_panels()
+            case "/engage":
+                await self._engage(rest)
+            case "/dash":
+                await self._dash()
+            case "/retest":
+                await self._retest()
             case ("/dark" | "/light") as look:
                 self.pending.dark = look == "/dark"
                 self.theme = (DARK_THEME if self.pending.dark else LIGHT_THEME).name
@@ -1005,6 +1027,106 @@ class HarnessApp(App[None]):
                 await self.action_quit()
             case _:
                 await self.transcript.notice(f"Unknown command {name}; /help lists them.", "warn")
+
+    # -- engagement -------------------------------------------------------------------------------------------
+
+    def _engagement(self) -> EngagementExtension | None:
+        """The session's engagement extension, when the capability is on."""
+        if self.session is None:
+            return None
+        from intern.engagement.extension import EngagementExtension
+
+        return next((e for e in self.session.deps.hooks.extensions if isinstance(e, EngagementExtension)), None)
+
+    async def _engage(self, rest: str) -> None:
+        """`/engage <host> [objective…]`: set or switch the engagement's target, on the capability.
+        An objective given with the command becomes the first prompt: the run starts at once."""
+        target, _, objective = rest.partition(" ")
+        target = target.strip()
+        objective = objective.strip()
+        engagement = self._engagement()
+        if not target:
+            if engagement is not None:
+                store = engagement.store
+                await self.transcript.notice(
+                    f"engage {store.state.target} · scope {', '.join(store.state.scope)} · {store.dir}"
+                )
+            else:
+                await self.transcript.notice("/engage <host> [objective…] names the target.", "warn")
+            return
+        if not self._capabilities_now().engagement.enabled or engagement is None:
+            self._engage_after = (target, objective)
+            await self._toggle("cap.engagement", "")
+            return
+        await self._engaged(engagement, target, objective)
+
+    async def _engaged(self, engagement: object, target: str, objective: str) -> None:
+        """The engagement is open (this session or freshly reopened): record it, then start work."""
+        from intern.engagement.banner import show as show_banner
+        from intern.engagement.extension import EngagementExtension
+
+        assert isinstance(engagement, EngagementExtension)
+        result = engagement.engage(target, objective=objective or None, quiet=True)
+        text = show_banner(
+            engagement.store.state.target,
+            str(engagement.store.dir),
+            objective=engagement.store.state.objective,
+            print_text=False,
+        )
+        if text:
+            await self.transcript.notice(text)
+        await self.transcript.notice(result)
+        self._engage_strip()
+        if objective:
+            await self._submit(objective)
+        else:
+            await self.transcript.notice(
+                "Engagement ready — now describe the work, e.g. "
+                "\"Recon and enumerate this host: full port scan, service versions, what is exposed. "
+                'Record everything with state_update." The agent runs in engagement mode.'
+            )
+
+    async def _dash(self) -> None:
+        from intern.tui.engage import EngagementScreen
+
+        engagement = self._engagement()
+        if engagement is None:
+            await self.transcript.notice("No engagement is set; /engage <host> first.", "warn")
+            return
+        from intern.engagement.dispatch import TRACKER
+
+        agents = [
+            {"id": run.id, "role": run.role, "status": run.status, "tool": run.tool.name if run.tool else ""}
+            for run in TRACKER.snapshot()
+        ]
+        self.push_screen(EngagementScreen(engagement.store, agents))
+
+    async def _retest(self) -> None:
+        engagement = self._engagement()
+        if engagement is None:
+            await self.transcript.notice("No engagement is set; /engage <host> first.", "warn")
+            return
+        await self.transcript.notice(engagement.retest())
+
+    def _engage_strip(self) -> None:
+        """The board line above the prompt: what is running, the surface, findings, coverage."""
+        from intern.engagement import dash
+        from intern.engagement.dispatch import TRACKER
+
+        try:
+            board = self.query_one("#board", Static)
+        except NoMatches:
+            return
+        engagement = self._engagement()
+        store = engagement.store if engagement is not None else None
+        agents = [
+            {"role": run.role, "status": run.status, "tool": run.tool.name if run.tool else ""}
+            for run in TRACKER.snapshot()
+        ]
+        text = dash.board_line(store.state, agents) if store is not None else ""
+        board.update(text)
+        # Inline styles (not the widget property, which a stylesheet `display: none` would beat).
+        board.styles.display = "block" if text else "none"
 
     # -- secrets ---------------------------------------------------------------------------------------------
 
@@ -1106,7 +1228,7 @@ class HarnessApp(App[None]):
             return f"cap.{word}"
         if word == "code-search":
             return "cap.code-search"
-        if word in ("browser", "workspace", "memory"):
+        if word in ("browser", "workspace", "memory", "engagement"):
             return f"cap.{word}"
         if any(entry.namespace == word.removeprefix("mcp:") for entry in self._capabilities_at_start.mcp):
             return f"{capability_toggles.MCP_PREFIX}{word.removeprefix('mcp:')}"
@@ -1609,6 +1731,10 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
     # with sys.stderr's descriptor, which is -1 while the app runs (Textual's capture), and fails ("bad value(s) in
     # fds_to_keep"); started now, it gets the terminal's.
     resource_tracker.ensure_running()
+    if bootstrap.capability_settings().engagement.enabled and not reloaded:
+        from intern.engagement.banner import startup
+
+        startup()
     app.run()
     if app.reload is not None:
         # The same interpreter and command line, so an editable install or a reinstall runs its new code.

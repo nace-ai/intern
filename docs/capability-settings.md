@@ -59,6 +59,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `code_search` | switch setting | `cap.code-search`: the code-search extension | off |
 | `workspace` | switch setting | `cap.workspace`: the workspace extension | off |
 | `memory` | switch setting | `cap.memory`: the memory extension, its drive and steward | on |
+| `engagement` | switch setting | `cap.engagement`: the pentest harness ([engagement](engagement.md)) | off |
 | `mcp` | switch setting | one `cap.mcp.<namespace>` switch per listed connection | none listed |
 | `search` | capability option | options of the `web-search` pack | no backend |
 | `reader` | capability option | options of the `web-read` pack | built-in limits |
