@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Secrets — never commit keys
+.env
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
