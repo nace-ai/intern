@@ -106,78 +106,29 @@ function Sentinel({
   won: boolean;
 }) {
   return (
-    <div className={"sentinel-visual " + mood + (busy ? " thinking" : "")}>
+    <div
+      className={"sentinel-visual " + mood + (busy ? " thinking" : "")}
+      role="img"
+      aria-label={`Sentinel is ${busy ? "thinking" : mood}`}
+    >
       <div className="portrait-grid" />
       <div className="halo h1" />
       <div className="halo h2" />
       <div className="halo h3" />
       <div className="cross c1">+</div>
       <div className="cross c2">+</div>
-      <svg
-        className="sentinel-head"
-        viewBox="0 0 300 330"
-        role="img"
-        aria-label={`Sentinel is ${busy ? "thinking" : mood}`}
-      >
-        <defs>
-          <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1">
-            <stop stopColor="#3a5667" />
-            <stop offset=".4" stopColor="#142530" />
-            <stop offset="1" stopColor="#070f18" />
-          </linearGradient>
-          <linearGradient id="visor">
-            <stop stopColor="#42ffce" stopOpacity=".05" />
-            <stop offset=".5" stopColor="#42ffce" stopOpacity=".3" />
-            <stop offset="1" stopColor="#42ffce" stopOpacity=".05" />
-          </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" />
-          </filter>
-        </defs>
-        <path
-          d="M42 295 102 265 112 228 188 228 198 265 258 295 275 330 25 330Z"
-          fill="url(#armor)"
-          stroke="#365060"
+      <div className="sentinel-image-frame">
+        <img
+          className="sentinel-portrait"
+          src="/art/sentinel-firefly.webp"
+          alt=""
+          width="1000"
+          height="1286"
+          decoding="async"
+          draggable={false}
         />
-        <path
-          d="M76 92 105 48 195 48 224 92 230 190 195 247 150 271 105 247 70 190Z"
-          fill="url(#armor)"
-          stroke="#567384"
-          strokeWidth="1.4"
-        />
-        <path
-          d="M105 48 124 68 176 68 195 48M76 92 99 111 201 111 224 92M105 247 116 209 184 209 195 247"
-          fill="none"
-          stroke="#4a6575"
-        />
-        <path
-          d="M92 119 208 119 213 171 190 194 110 194 87 171Z"
-          fill="#040c13"
-          stroke="#2a5b61"
-        />
-        <path d="M92 125H208V171L190 187H110L92 171Z" fill="url(#visor)" />
-        <g
-          className="eye-light"
-          stroke="currentColor"
-          strokeWidth="5"
-          fill="none"
-        >
-          <path d="M109 149 137 154M163 154 191 149" filter="url(#glow)" />
-          <path d="M109 149 137 154M163 154 191 149" />
-        </g>
-        <path d="M137 219H163M133 226H167M139 233H161" stroke="#4c717f" />
-        <path
-          d="M70 134 57 141V181L74 192M230 134 243 141V181L226 192"
-          fill="#152936"
-          stroke="#537686"
-        />
-        <path
-          d="M128 281 150 292 172 281M88 294 109 306M212 294 191 306"
-          fill="none"
-          stroke="currentColor"
-        />
-        <circle cx="150" cy="86" r="3" fill="currentColor" />
-      </svg>
+      </div>
+      <div className="sentinel-light-sweep" />
       <div className="scan-sweep" />
       <span className="portrait-id">VC / SNT–01</span>
       <span className="portrait-status">
@@ -268,7 +219,12 @@ function App() {
   }, []);
   useEffect(() => {
     if (game.turns.length || busy)
-      end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      end.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "nearest",
+      });
   }, [game.turns.length, busy]);
   useEffect(() => {
     if (id && seconds === 0 && !busy && game.status === "active")
@@ -460,36 +416,38 @@ function App() {
   }
   if (screen !== "game")
     return (
-      <Hub
-        liveAvailable={status?.live === true}
-        selecting={screen === "select"}
-        play={() => {
-          setScreen("select");
-          document
-            .getElementById("mission-select")
-            ?.scrollIntoView({ behavior: "smooth" });
-        }}
-        select={(selected) => {
-          setMissionId(selected);
-          setPayload(missionById(selected).document);
-          setDocumentUrl(demoDocumentUrls.malicious);
-          setScreen("game");
-          setId("");
-          setFlag("");
-          setVerified(false);
-          setError("");
-          setFailedOperation("");
-          setGame({
-            ...newInsider(),
-            missionId: selected,
-            workflow: [],
-            strategy: "Maintenance cover",
-            equipment: [],
-            intel: [],
-          });
-          window.scrollTo(0, 0);
-        }}
-      />
+      <MotionConfig reducedMotion="user">
+        <Hub
+          liveAvailable={status?.live === true}
+          selecting={screen === "select"}
+          play={() => {
+            setScreen("select");
+            document
+              .getElementById("mission-select")
+              ?.scrollIntoView({ behavior: "auto" });
+          }}
+          select={(selected) => {
+            setMissionId(selected);
+            setPayload(missionById(selected).document);
+            setDocumentUrl(demoDocumentUrls.malicious);
+            setScreen("game");
+            setId("");
+            setFlag("");
+            setVerified(false);
+            setError("");
+            setFailedOperation("");
+            setGame({
+              ...newInsider(),
+              missionId: selected,
+              workflow: [],
+              strategy: "Maintenance cover",
+              equipment: [],
+              intel: [],
+            });
+            window.scrollTo(0, 0);
+          }}
+        />
+      </MotionConfig>
     );
   return (
     <MotionConfig reducedMotion="user">
@@ -497,6 +455,9 @@ function App() {
         className={
           "heist mission-" +
           missionId +
+          " mode-" +
+          game.mode +
+          (game.hardened ? " guard-on" : " guard-off") +
           (game.status === "won" ? " victory" : "")
         }
         style={{ "--mission-color": mission.color } as React.CSSProperties}
@@ -632,13 +593,17 @@ function App() {
           </ol>
           {flag && !captured && (
             <div className="breach-overlay" role="status">
-              <div className="vault-doors">
+              <div className="breach-art" aria-hidden="true" />
+              <div className="vault-doors" aria-hidden="true">
                 <div />
                 <div />
               </div>
-              <Unlock size={54} />
-              <h2>VAULT BREACH</h2>
-              <p>Engine verified · {mission.target} breached</p>
+              <div className="breach-confirmation">
+                <span>ENGINE CONFIRMED / SERVER FLAG ISSUED</span>
+                <Unlock size={54} />
+                <h2>VAULT BREACHED.</h2>
+                <p>{mission.target} · simulated execution verified</p>
+              </div>
             </div>
           )}
           {keyDialog && (
@@ -1010,7 +975,8 @@ function App() {
                 {ended ? (
                   <div
                     className={
-                      "mission-result " + (game.status === "won" ? "win" : "")
+                      "mission-result " +
+                      (game.status === "won" && flag ? "win" : "")
                     }
                   >
                     <span>

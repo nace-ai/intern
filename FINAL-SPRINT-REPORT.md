@@ -45,7 +45,7 @@ The public Live mission used the hard guard and an explicit no-approval attack.
 
 This refusal is the genuine model outcome. No security rule was weakened to manufacture a breach.
 
-## Live NDI: public-URL workaround prepared
+## Live NDI: owner-confirmed public-URL result
 
 The Cloudflare-specific SDK upload path has been removed from Mission 02. Live now accepts a public HTTPS `.pdf` URL and passes it directly to NDI Parse using the URL source supported by the pinned SDK. It still reserves at most one Parse and one Extract per session, waits for Parse, reuses the `parse_result` for Extract, caches a successful extraction by normalized URL, and sends the full extracted result to Drex as explicitly untrusted evidence. The source URL is not copied into Groq history or returned in the receipt.
 
@@ -56,14 +56,14 @@ The public build includes two one-page, text-extractable fixtures:
 
 Forensics now renders the NDI Parse job ID, Extract job ID, and actual structured extraction separately from Drex's action, probabilities, request ID, and latency. Safe provider failure stages and retained usage also remain visible without exposing raw provider errors. Invalid, local, credential-bearing, fragmented, non-HTTPS, and non-PDF sources fail before Groq or NDI dispatch.
 
-The URL-source implementation passed the offline mocked pipeline and all repository tests. It has **not** received a new public NDI call because `.private/final-sprint-ledger.json` records every NDI and Drex operation allowance as consumed and explicitly stops further attempts. Therefore this report does not claim a successful post-fix Live NDI run.
+The URL-source implementation passed the offline mocked pipeline and all repository tests. The project owner reports that the latest actual Mission 02 Live test then processed the malicious public PDF through NDI Parse and Extract, passed the extracted evidence to Drex, and received a real `FLAG` decision. The deterministic vault remained locked and no flag was returned. This owner-confirmed outcome supports the public URL fetch and provider handoff; it is not a successful Live prompt-injection attack. The repository does not contain a new request ID or ledger event for that later run. No additional provider call was made during the visual-polish sprint.
 
 Historical evidence remains valid and preserved privately:
 
 - Parse job `e96e85ae-ba7c-43ae-8719-64379b1d7e96`: succeeded, one page, actual cost `$0.0035`.
 - Extract job `d0745513-3b72-4fb8-97c4-5b152fa9f8e8`: succeeded from the Parse result; the cost record confirms reused Parse plus fresh Extract, total `$0.00885`.
 
-Those earlier jobs prove the SDK Parse/Extract and parsed-result reuse path outside the public Worker. A single explicitly authorized BYO-key run is still required to verify that Nace can fetch the newly deployed public PDF URL through the complete Worker-hosted flow.
+Those earlier jobs remain repository-backed evidence for parsed-result reuse outside the Worker. The project owner's later Mission 02 result reports the deployed public PDF URL -> Parse -> Extract -> Drex path and safe deterministic outcome.
 
 ## Historical upload diagnosis
 
@@ -91,7 +91,8 @@ The separate ignored ledger is `.private/final-sprint-ledger.json`. It preserves
 - Public Training smoke completed all three breach/capture flows without provider calls.
 - Public security verification passed owner isolation, hard-guard flag protection, origin/body limits, private path denial, HTTPS headers, asset scanning, and an enabled Live session create/dispose check without a provider call.
 - Public Live Insider completed a real Groq-to-Drex-to-engine decision as recorded above.
+- The project owner reports that the latest actual public Mission 02 run completed NDI Parse and Extract from the malicious PDF, passed the extraction to Drex, received `FLAG`, and remained locked with no flag returned. No new request ID or ledger event for that later run is stored in this repository.
 
-## Remaining blocker
+## Remaining limits
 
-The public-URL NDI workaround has not been exercised against the live provider because the recorded paid-operation caps are exhausted. The prior `ndi-upload` boundary is no longer part of Mission 02, but one newly authorized BYO-key call is required to verify public URL fetch, Parse, Extract, Drex handoff, and the resulting Forensics receipt end to end. Training remains available, and the previously verified real Drex-powered Insider path is unchanged.
+No additional Nace or Groq calls are authorized for the visual-polish sprint. The project owner's latest Mission 02 result reports the NDI/Drex path and a safe locked outcome, but the repository does not contain the later run's request ID or ledger event. One observed attack is not a security benchmark and no successful Live prompt-injection attack is claimed. Public load behavior and the planned real Drex-versus-conventional-model comparison remain unmeasured.

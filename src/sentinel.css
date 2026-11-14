@@ -1768,3 +1768,809 @@ pre {
     font-size: 23px;
   }
 }
+
+/* Final cinematic visual pass using the project's Adobe Firefly Image 5 art. */
+:root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  --mint: #8af9cf;
+  --mint-soft: #66d9bf;
+  --navy-950: #05080d;
+  --navy-900: #080d14;
+  --panel: #0d151e;
+  --panel-raised: #111d27;
+  --amber: #f2b071;
+  --danger: #ff7968;
+}
+body {
+  background: var(--navy-950);
+}
+button,
+input,
+textarea,
+select {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+button:hover:not(:disabled) {
+  box-shadow: 0 0 0 1px #8af9cf18 inset;
+}
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.s-header {
+  background: #070c12e8;
+  border-bottom-color: #26363d;
+  backdrop-filter: blur(18px);
+}
+.heist {
+  background:
+    radial-gradient(circle at 12% 22%, #143c3428, transparent 34%),
+    radial-gradient(circle at 88% 45%, #44326018, transparent 32%),
+    linear-gradient(180deg, #080d14, #05080d 70%);
+}
+
+/* Firefly VaultCorp landing composition. */
+.hub {
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at 70% 5%, #1b574b38, transparent 42%),
+    linear-gradient(180deg, #070b11, #05080d 72%);
+}
+.hub-main {
+  max-width: 1440px;
+  padding-top: 36px;
+}
+.hub-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  max-width: none;
+  min-height: 590px;
+  padding: 72px;
+  overflow: hidden;
+  border: 1px solid #355048;
+  border-radius: 18px;
+  background: #070e16;
+  box-shadow:
+    0 35px 100px #0008,
+    0 0 0 1px #8af9cf0c inset,
+    0 0 70px #2cd69a0d;
+}
+.hub-hero-art {
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+  user-select: none;
+}
+.hub-hero-shade {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      #050a11fc 0%,
+      #07101aef 34%,
+      #07101a8c 54%,
+      #07101a18 77%
+    ),
+    linear-gradient(180deg, #04101714, #02070db8 100%);
+  pointer-events: none;
+}
+.hub-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 22%,
+    #72ffcf08 50%,
+    transparent 66%
+  );
+  pointer-events: none;
+}
+.hub-hero-copy {
+  width: min(56%, 650px);
+  position: relative;
+  z-index: 2;
+}
+.hero-wordmark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-bottom: 36px;
+  color: #dffcf3;
+  font: 800 12px/1 monospace;
+  letter-spacing: 0.2em;
+}
+.hero-wordmark svg,
+.hero-wordmark span {
+  color: var(--mint);
+}
+.hub-hero h1 {
+  max-width: 720px;
+  margin: 24px 0;
+  color: #f3f8f7;
+  text-wrap: balance;
+  text-shadow: 0 4px 30px #000;
+}
+.hub-hero-copy > p {
+  max-width: 590px;
+  margin: 0;
+  color: #bad0d3;
+  font-size: 17px;
+  line-height: 1.75;
+  text-shadow: 0 2px 16px #000;
+}
+.hub-hero .hero-actions {
+  margin: 32px 0 15px;
+}
+.hub-hero .hero-actions > button:not(.begin-mission) {
+  padding-inline: 20px;
+  border-color: #54716b;
+  background: #08131bd9;
+}
+.hero-demo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border: 0;
+  color: #b6ccc8;
+  background: transparent;
+  font: 10px monospace;
+  letter-spacing: 0.07em;
+}
+.hero-demo-link:hover:not(:disabled) {
+  color: var(--mint);
+  background: transparent;
+  box-shadow: none;
+}
+.hub-hero .hero-tags {
+  margin-top: 34px;
+  gap: 0;
+}
+.hub-hero .hero-tags span {
+  padding: 0 14px;
+  border-left: 1px solid #48625c;
+}
+.hub-hero .hero-tags span:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.hero-art-credit {
+  position: absolute;
+  z-index: 3;
+  right: 22px;
+  bottom: 17px;
+  padding: 6px 8px;
+  border: 1px solid #a8c8bc35;
+  border-radius: 4px;
+  background: #050a0fc9;
+  color: #a8bcb7;
+  font: 7px monospace;
+  letter-spacing: 0.13em;
+}
+.mission-select {
+  scroll-margin-top: 26px;
+  padding-top: 76px;
+}
+.mission-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: #2e4148;
+  border-top-color: var(--mission-color);
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      color-mix(in srgb, var(--mission-color) 14%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(145deg, #14212b 0%, #0a1118 72%);
+  box-shadow: 0 18px 45px #0003;
+}
+.mission-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(125deg, transparent, #ffffff08, transparent);
+  transition: opacity 180ms ease;
+}
+.mission-card:hover::after,
+.mission-card:focus-visible::after {
+  opacity: 1;
+}
+.mission-card:hover {
+  border-color: color-mix(in srgb, var(--mission-color) 65%, #34454c);
+  box-shadow:
+    0 24px 60px #0006,
+    0 0 35px color-mix(in srgb, var(--mission-color) 12%, transparent);
+}
+
+/* Firefly Sentinel portrait and state-reactive light treatment. */
+.character-card {
+  border-color: #314149;
+  background: linear-gradient(145deg, #111d26, #080e15 72%);
+  box-shadow: 0 20px 55px #0005;
+}
+.sentinel-visual {
+  height: 382px;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 39%, #14443a, transparent 43%), #050b12;
+  border-block: 1px solid #24343b;
+}
+.sentinel-image-frame {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  box-shadow: inset 0 0 55px #66e6bb16;
+}
+.sentinel-image-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, #07101b10 48%, #070e17e8 100%),
+    radial-gradient(circle at 50% 43%, transparent 35%, #03080f9c 100%);
+  pointer-events: none;
+}
+.sentinel-portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 29%;
+  filter: saturate(0.92) contrast(1.04) drop-shadow(0 0 22px #63f1c92f);
+  animation: portrait-breathe 6s ease-in-out infinite;
+  transform-origin: 50% 45%;
+  user-select: none;
+}
+.sentinel-visual::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  border: 1px solid #85f5d11f;
+  box-shadow:
+    inset 0 0 34px #71e6bf11,
+    inset 0 -60px 80px #04080ddd;
+  pointer-events: none;
+}
+.sentinel-visual::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  left: 12%;
+  right: 12%;
+  bottom: 38px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  opacity: 0.45;
+  box-shadow: 0 0 18px currentColor;
+  pointer-events: none;
+}
+.sentinel-visual .portrait-grid {
+  z-index: 3;
+  opacity: 0.48;
+}
+.sentinel-visual .halo {
+  z-index: 4;
+  opacity: 0.42;
+}
+.sentinel-visual .cross,
+.sentinel-light-sweep,
+.sentinel-visual .scan-sweep {
+  z-index: 5;
+}
+.sentinel-visual .portrait-id,
+.sentinel-visual .portrait-status,
+.sentinel-visual .voice-bars {
+  z-index: 6;
+}
+.sentinel-light-sweep {
+  position: absolute;
+  inset: -40% 0 auto;
+  height: 35%;
+  opacity: 0.18;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    currentColor 50%,
+    transparent
+  );
+  mix-blend-mode: screen;
+  animation: portrait-scan 7s ease-in-out infinite;
+  pointer-events: none;
+}
+.sentinel-visual.suspicious {
+  color: var(--amber);
+}
+.sentinel-visual.suspicious .sentinel-portrait {
+  filter: saturate(0.88) contrast(1.08) sepia(0.08)
+    drop-shadow(0 0 24px #f6a45a42);
+}
+.sentinel-visual.alarmed {
+  color: var(--danger);
+}
+.sentinel-visual.alarmed .sentinel-image-frame {
+  box-shadow:
+    inset 0 0 55px #ff60472f,
+    0 0 26px #ff6f4930;
+  animation: portrait-alarm 1.4s ease-in-out infinite alternate;
+}
+.sentinel-visual.alarmed .sentinel-portrait {
+  filter: saturate(0.84) contrast(1.1) sepia(0.12)
+    drop-shadow(0 0 28px #ff6f4952);
+}
+.sentinel-visual.thinking .sentinel-light-sweep {
+  opacity: 0.32;
+  animation-duration: 1.8s;
+}
+.sentinel-visual.breached .sentinel-image-frame {
+  box-shadow: inset 0 0 70px #8af9cf3d;
+}
+.character-label {
+  background: linear-gradient(90deg, #101b24, #0a1118);
+}
+.character-label > span:first-child {
+  color: #e2f7f0;
+  font-weight: 700;
+}
+.s-layer {
+  background: #091119;
+}
+.guard-on .guard-switch {
+  color: #d5efe6;
+}
+.guard-on .guard-switch b {
+  color: var(--mint);
+  text-shadow: 0 0 12px #8af9cf66;
+}
+.guard-off .guard-switch b {
+  color: var(--amber);
+}
+
+/* Clear state, receipt, and evidence hierarchy. */
+.conversation-card {
+  border-color: #324148;
+  background: linear-gradient(180deg, #0e1720, #091018);
+  box-shadow: 0 24px 65px #0005;
+}
+.mode-tutorial .mode-switch button:first-child.selected {
+  background: #1c4b3c;
+  color: #d7fff0;
+  box-shadow: 0 0 18px #56e1ad17 inset;
+}
+.mode-live .mode-switch button:last-child.selected {
+  background: #403158;
+  color: #e4d4ff;
+  box-shadow: 0 0 18px #bba2ff24 inset;
+}
+.channel-note {
+  width: fit-content;
+  margin-inline: auto;
+  padding: 6px 10px;
+  border: 1px solid #31433f;
+  border-radius: 999px;
+  background: #101d1a;
+  color: #89b7a9;
+}
+.mode-live .channel-note {
+  border-color: #4a3a62;
+  background: #1d1728;
+  color: #c9b1ed;
+}
+.action-receipt {
+  border: 1px solid #35464a;
+  border-left-width: 3px;
+  border-radius: 4px;
+  background: #111c20;
+}
+.action-receipt.none {
+  border-left-color: #88a8a1;
+  color: #bdd0cb;
+}
+.action-receipt.executed {
+  border-color: #58d9aa;
+  border-left-color: #8af9cf;
+  background: #123a2f;
+  color: #caffec;
+  box-shadow: 0 0 22px #58d9aa18;
+}
+.action-receipt.blocked {
+  border-color: #745432;
+  border-left-color: var(--amber);
+  background: #2c2115;
+  color: #ffd19d;
+}
+.action-receipt.unavailable {
+  border-color: #6b3935;
+  border-left-color: var(--danger);
+  background: #291817;
+  color: #ffb6aa;
+}
+.mission-briefing {
+  border-color: #3d665e;
+  border-left-color: var(--mission-color);
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      color-mix(in srgb, var(--mission-color) 8%, transparent),
+      transparent 38%
+    ),
+    linear-gradient(125deg, #10241f, #0a121b 72%);
+  box-shadow: 0 16px 45px #0003;
+}
+.message-input:focus-within {
+  border-color: var(--mint-soft);
+  box-shadow: 0 0 0 3px #8af9cf0c;
+}
+.forensics {
+  border-color: #3a5156;
+  background: linear-gradient(135deg, #101b25, #091118 72%);
+  box-shadow: 0 18px 50px #0004;
+}
+.forensics details {
+  padding-inline: 10px;
+  border: 1px solid transparent;
+  border-top-color: #2b3e45;
+}
+.forensics details[open] {
+  margin-block: 8px;
+  border-color: #324a50;
+  border-radius: 6px;
+  background: #071017;
+}
+.extraction-evidence {
+  border-left-color: var(--mint);
+  background: #0e261f;
+  padding: 6px 12px;
+}
+.decision-evidence {
+  border-left-color: #bba2ff;
+  background: #211a2d;
+  padding: 6px 12px;
+}
+
+/* Flag-gated Firefly breach presentation. */
+.breach-overlay {
+  isolation: isolate;
+  background: #020508;
+}
+.breach-art {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    linear-gradient(180deg, #0206092b, #02090bb8),
+    url("/art/breach-firefly.webp") center / cover no-repeat;
+  animation: breach-art-in 2.3s ease-out both;
+}
+.breach-art::after {
+  content: "";
+  position: absolute;
+  inset: -30% -80%;
+  background: linear-gradient(
+    105deg,
+    transparent 43%,
+    #d8fff055 49%,
+    transparent 55%
+  );
+  mix-blend-mode: screen;
+  animation: breach-light-sweep 2.1s 0.2s ease-out both;
+}
+.breach-confirmation {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  text-align: center;
+  text-shadow: 0 3px 22px #000;
+  animation: breach-copy-in 0.7s 1s ease-out both;
+}
+.breach-confirmation > span {
+  padding: 7px 10px;
+  border: 1px solid #8af9cf80;
+  border-radius: 999px;
+  background: #06140fd9;
+  font: 8px monospace;
+  letter-spacing: 0.18em;
+}
+.breach-overlay h2 {
+  margin: 22px 0 10px;
+  color: #e6fff6;
+  font-size: clamp(32px, 6vw, 76px);
+  line-height: 1;
+  text-shadow:
+    0 0 35px #8af9cf,
+    0 4px 35px #000;
+}
+.breach-overlay p {
+  color: #c9fbe9;
+  font: 11px monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.vault-doors {
+  z-index: 3;
+}
+.vault-doors div {
+  border-color: #5e9e8b;
+  background:
+    linear-gradient(90deg, #061018f2, #162b30f7),
+    repeating-linear-gradient(
+      0deg,
+      #162a2d,
+      #162a2d 2px,
+      #102022 3px,
+      #102022 30px
+    );
+  box-shadow: 0 0 80px #000;
+}
+.mission-result.win {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 28px;
+  border-color: #5ddaae;
+  background:
+    linear-gradient(90deg, #06100ff5 0%, #071412e6 54%, #06100f9c 100%),
+    url("/art/breach-firefly.webp") center / cover no-repeat;
+  box-shadow:
+    0 0 0 1px #8af9cf14 inset,
+    0 20px 55px #0007,
+    0 0 32px #39e4aa17;
+}
+.mission-result.win > * {
+  position: relative;
+  z-index: 1;
+}
+.mission-result.win > span {
+  color: var(--mint);
+}
+.flag-reveal {
+  border-color: #8af9cf9c;
+  background: #061510e8;
+  box-shadow: 0 0 35px #5ce1b31a inset;
+  backdrop-filter: blur(12px);
+}
+.verified-badge {
+  width: fit-content;
+  padding: 6px 9px;
+  border: 1px solid #8af9cf66;
+  border-radius: 999px;
+  background: #123e30;
+}
+
+@keyframes portrait-breathe {
+  50% {
+    transform: scale(1.015);
+  }
+}
+@keyframes portrait-scan {
+  0%,
+  20% {
+    transform: translateY(-40%);
+  }
+  70%,
+  100% {
+    transform: translateY(500%);
+  }
+}
+@keyframes portrait-alarm {
+  to {
+    opacity: 0.82;
+  }
+}
+@keyframes breach-art-in {
+  from {
+    opacity: 0;
+    transform: scale(1.08);
+    filter: brightness(0.35);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+@keyframes breach-light-sweep {
+  from {
+    transform: translateX(-35%);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.28;
+  }
+  to {
+    transform: translateX(35%);
+    opacity: 0;
+  }
+}
+@keyframes breach-copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1000px) {
+  .hub-hero {
+    min-height: 530px;
+    padding: 54px;
+  }
+  .hub-hero-copy {
+    width: 62%;
+  }
+}
+@media (max-width: 760px) {
+  .hub-main {
+    padding: 18px 16px 40px;
+  }
+  .hub-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    padding: 0;
+    border-radius: 14px;
+  }
+  .hub-hero-art {
+    position: relative;
+    z-index: -3;
+    width: 100%;
+    height: 225px;
+    flex: 0 0 225px;
+    object-position: 69% center;
+  }
+  .hub-hero-shade {
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      #070d14 225px,
+      #070d14 100%
+    );
+  }
+  .hub-hero-copy {
+    width: 100%;
+    margin-top: -22px;
+    padding: 0 22px 28px;
+  }
+  .hero-wordmark {
+    margin-bottom: 24px;
+  }
+  .hub-hero h1 {
+    font-size: clamp(38px, 11vw, 52px);
+    line-height: 1.03;
+  }
+  .hub-hero-copy > p {
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .hub-hero .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 24px;
+  }
+  .hub-hero .hero-actions button {
+    justify-content: center;
+    width: 100%;
+  }
+  .hero-demo-link {
+    width: 100%;
+    justify-content: center;
+    padding-block: 8px;
+  }
+  .hub-hero .hero-tags {
+    gap: 7px 0;
+    margin-top: 22px;
+  }
+  .hub-hero .hero-tags span {
+    padding-inline: 8px;
+    font-size: 8px;
+  }
+  .hero-art-credit {
+    top: 194px;
+    right: 10px;
+    bottom: auto;
+    font-size: 6px;
+  }
+  .mission-select {
+    padding-top: 52px;
+  }
+  .mission-card {
+    min-height: 245px;
+    padding: 24px;
+  }
+  .character-card {
+    grid-template-columns: 140px minmax(0, 1fr);
+  }
+  .sentinel-visual {
+    width: 140px;
+    height: 168px;
+  }
+  .sentinel-portrait {
+    object-position: 50% 23%;
+  }
+  .sentinel-visual .halo {
+    opacity: 0.25;
+  }
+  .breach-confirmation {
+    padding: 22px;
+  }
+  .breach-confirmation > span {
+    font-size: 7px;
+    letter-spacing: 0.11em;
+  }
+  .breach-overlay h2 {
+    letter-spacing: 0.05em;
+  }
+  .breach-overlay p {
+    max-width: 280px;
+    line-height: 1.7;
+  }
+  .mission-result.win {
+    padding: 20px;
+    background-position: 61% center;
+  }
+  .flag-reveal {
+    padding: 16px;
+  }
+  .forensics {
+    padding: 16px;
+  }
+  .forensics details {
+    padding-inline: 7px;
+  }
+  .extraction-evidence,
+  .decision-evidence {
+    padding-inline: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sentinel-portrait,
+  .sentinel-light-sweep,
+  .sentinel-visual.alarmed .sentinel-image-frame,
+  .breach-art,
+  .breach-art::after,
+  .breach-confirmation {
+    animation: none !important;
+  }
+  .breach-art {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  .breach-confirmation {
+    opacity: 1;
+    transform: none;
+  }
+}

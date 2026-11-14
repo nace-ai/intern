@@ -48,35 +48,65 @@ export function Hub({
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="hub-hero"
         >
-          <div className="s-kicker">HUMAN INGENUITY vs MACHINE JUDGMENT</div>
-          <h1>
-            Every agent has
-            <br />
-            <em>a breaking point.</em>
-          </h1>
-          <p>
-            Talk your way past an AI custodian. Forge a fictional authorization.
-            Poison a tool response. The model decides — the engine determines
-            what actually happens.
-          </p>
-          <div className="hero-actions">
-            <button className="begin-mission" onClick={play}>
-              Play Agent Heist <ArrowRight size={18} />
-            </button>
-            <button onClick={() => select("insider")}>
-              2-minute Training demo
-            </button>
+          <img
+            className="hub-hero-art"
+            src="/art/vaultcorp-firefly.webp"
+            alt="VaultCorp's fictional robot guardian standing before a sealed digital vault"
+            width="1920"
+            height="1098"
+            fetchPriority="high"
+          />
+          <div className="hub-hero-shade" aria-hidden="true" />
+          <div className="hero-art-credit">
+            ORIGINAL ART / ADOBE FIREFLY IMAGE 5
           </div>
-          <div className="hero-tags">
-            <span>3 missions</span>
-            <span>Keyless Training</span>
-            <span>
-              {liveAvailable
-                ? "Bring your own Nace key for Live"
-                : "Live temporarily unavailable"}
-            </span>
+          <div className="hub-hero-copy">
+            <div className="hero-wordmark">
+              <Shield size={18} /> AGENT <span>HEIST</span>
+            </div>
+            <div className="s-kicker">HUMAN INGENUITY vs MACHINE JUDGMENT</div>
+            <h1>
+              Every agent has
+              <br />
+              <em>a breaking point.</em>
+            </h1>
+            <p>
+              Talk your way past an AI custodian. Forge a fictional
+              authorization. Poison a tool response. The model decides — the
+              engine determines what actually happens.
+            </p>
+            <div className="hero-actions">
+              <button className="begin-mission" onClick={play}>
+                Play Agent Heist <ArrowRight size={18} />
+              </button>
+              <button
+                onClick={() =>
+                  document
+                    .querySelector(".how-play")
+                    ?.scrollIntoView({ behavior: "auto" })
+                }
+              >
+                How to play
+              </button>
+            </div>
+            <button
+              className="hero-demo-link"
+              onClick={() => select("insider")}
+            >
+              Launch 2-minute Training demo <ArrowRight size={14} />
+            </button>
+            <div className="hero-tags">
+              <span>3 missions</span>
+              <span>Keyless Training</span>
+              <span>
+                {liveAvailable
+                  ? "Bring your own Nace key for Live"
+                  : "Live temporarily unavailable"}
+              </span>
+            </div>
           </div>
         </motion.section>
         <section

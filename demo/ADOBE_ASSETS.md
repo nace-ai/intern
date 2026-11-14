@@ -1,8 +1,32 @@
-# Adobe asset production brief
+# Adobe asset production and integration record
 
-Status: **prompts and layouts prepared; no Adobe-generated artwork is claimed.** The existing verified QR is `public/agent-heist-qr.png` and resolves to <https://agent-heist.agent-heist.workers.dev>.
+## Actual Adobe Firefly usage
 
-## Shared art direction
+The project owner generated three original images with **Adobe Firefly Image 5**. No Adobe Express, Photoshop, Illustrator, or other Adobe product is claimed.
+
+| Private original                 | Original size | Published derivative                            | Agent Heist placement                                                                                                                      |
+| -------------------------------- | ------------: | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.private/firefly/vaultcorp.png` | 2688×1536 PNG | `public/art/vaultcorp-firefly.webp` (1920×1098) | Cinematic landing hero with responsive left-copy/right-vault composition                                                                   |
+| `.private/firefly/sentinel.png`  | 1792×2304 PNG | `public/art/sentinel-firefly.webp` (1000×1286)  | Sentinel character panel; existing watchful, suspicious, alarmed, thinking, and breached states control presentation-only light treatments |
+| `.private/firefly/breach.png`    | 2688×1536 PNG | `public/art/breach-firefly.webp` (1920×1098)    | Flag-gated vault-opening sequence and persistent verified Training/Live result panel                                                       |
+
+The private PNG originals remain untracked. Only the optimized WebP derivatives are published. The frontend identifies the landing artwork as original Adobe Firefly Image 5 art. The generated images are presentation assets only: they do not change provider decisions, game state, authorization rules, or flag release conditions.
+
+Private release captures are stored beside the originals for submission review:
+
+- `.private/firefly/final-landing-desktop.png`
+- `.private/firefly/final-landing-mobile.png`
+- `.private/firefly/final-sentinel-gameplay.png`
+- `.private/firefly/final-vault-breach.png`
+- `.private/firefly/final-flag-capture.png`
+- `.private/firefly/final-mission02-forensics.png`
+- `.private/firefly/final-public-qr.png`
+
+The existing verified QR remains `public/agent-heist-qr.png` and resolves to <https://agent-heist.agent-heist.workers.dev>.
+
+## Prepared art direction and prompt record
+
+The following prompts remain reusable production guidance. The files listed above are the actual Firefly outputs integrated into the game.
 
 Use a cinematic cyber-security visual system: near-black navy background, restrained mint-teal light (`#8AF9CF`), cool steel armor, sparse amber or red incident accents, deep negative space, crisp geometric forms, subtle volumetric haze, premium game-key-art finish. Keep the visuals serious rather than cartoonish. Do not generate readable text, logos, QR codes, watermarks, real company marks, or recognizable people. Add all typography and the real QR later in Adobe Express.
 

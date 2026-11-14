@@ -25,7 +25,7 @@ The original MVP checklist is preserved below. Final-sprint provider usage and t
 ## Partial / not claimed complete
 
 - [ ] Real provider validation of the new Live BYOK flow (all new provider tests used mocks)
-- [ ] Actual public-URL NDI Parse/Extract against the live service (recorded paid-operation caps are exhausted)
+- [x] Project owner reports an actual public-URL NDI Parse/Extract Live result: malicious PDF evidence reached Drex, which returned `FLAG`, while deterministic state remained locked; no later request ID or ledger event is stored in this repository
 - [x] Cloudflare account setup, public Training deployment, verified public URL and QR activation (see deployment record below)
 - [ ] Public traffic/abuse/load and actual free-plan CPU/resource validation
 - [ ] Real Drex vs conventional-LLM benchmark measurements
