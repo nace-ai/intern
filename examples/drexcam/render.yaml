@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: drexcam
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: NACE_API_KEY
+        sync: false
+      - key: NDI_API_KEY
+        sync: false
+      - key: NACE_CONSOLE_URL
+        value: https://console.nace.ai/v1
+      - key: NDI_BASE_URL
+        value: https://ndi-api.nace.ai
+      - key: DEEPINFRA_API_KEY
+        sync: false
+

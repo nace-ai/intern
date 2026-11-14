@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="100%" height="100%" style="background:#0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <!-- PDF Page Header Sim -->
+  <rect x="0" y="0" width="800" height="320" fill="#090d16"/>
+  <rect x="20" y="20" width="760" height="280" rx="8" fill="#131b2e" stroke="#1e293b" stroke-width="1.5"/>
+  
+  <text x="40" y="52" fill="#64748b" font-size="12" font-weight="600" letter-spacing="1">COMMERCIAL FLEET MASTER POLICY • SECTION 4: EXCLUSIONS (PAGE 7 OF 15)</text>
+  <line x1="40" y1="64" x2="760" y2="64" stroke="#334155" stroke-width="1"/>
+
+  <!-- Unviolated Clause Context -->
+  <text x="40" y="92" fill="#94a3b8" font-size="13" font-weight="500">4.1 Unauthorized Off-Road Operation: Vehicles operating beyond paved roadways...</text>
+
+  <!-- NDI Grounding Highlight Box -->
+  <rect x="36" y="112" width="728" height="138" rx="6" fill="#7f1d1d" fill-opacity="0.35" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,2"/>
+  
+  <!-- Grounding Badge -->
+  <rect x="620" y="118" width="134" height="24" rx="4" fill="#ef4444"/>
+  <text x="628" y="134" fill="#ffffff" font-size="11" font-weight="700">NDI GROUND: 98.4%</text>
+
+  <!-- Clause Heading -->
+  <text x="50" y="138" fill="#f87171" font-size="14" font-weight="700">SECTION 4.2 — RECKLESS LANE DEPARTURE &amp; SOLID DIVIDER TRESPASS</text>
+  
+  <!-- Clause Legal Body -->
+  <text x="50" y="166" fill="#f1f5f9" font-size="13" font-weight="500">DIRECT EXCLUSION OF LIABILITY: No indemnity or defense shall be afforded under this policy</text>
+  <text x="50" y="188" fill="#f1f5f9" font-size="13" font-weight="500">for any loss, third-party claim, near-miss investigation, or collision resulting directly from</text>
+  <text x="50" y="210" fill="#fca5a5" font-size="13" font-weight="600">willful, unprovoked, or reckless vehicular trespass across painted solid double yellow dividing</text>
+  <text x="50" y="232" fill="#fca5a5" font-size="13" font-weight="600">lines or physical barriers into oncoming lanes of traffic, absent documented proof of sudden</text>
+
+  <!-- Grounding Coordinates Footer -->
+  <text x="40" y="280" fill="#64748b" font-size="11">NDI Ground Coordinates: [Page: 7, x0: 72px, y0: 315px, x1: 540px, y1: 445px] • Hash: 0x9f1a...c7b2</text>
+</svg>
+

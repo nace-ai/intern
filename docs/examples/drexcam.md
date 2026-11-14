@@ -59,8 +59,24 @@ DrexCam demonstrates Intern's two-part brain pattern applied to real-time multim
 
 ---
 
+## Running the Example
+
+The complete runnable implementation is included directly in this repository at [`examples/drexcam/`](../../examples/drexcam/):
+
+```bash
+cd examples/drexcam
+pip install -r requirements.txt
+cp .env.example .env  # Add your NACE_API_KEY and DEEPINFRA_API_KEY
+./scripts/verify_deployment.sh
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+```
+Open `http://localhost:8000` to test the collision analysis web UI.
+
+---
+
 ## Key Takeaways
 
 1. **Zero-Token Triage:** Rather than streaming megabytes of frames into an LLM context, System 1 localizes the critical collision timestamp with calibrated probabilities.
 2. **Deterministic Governance:** The Intern supervisor logs every audit step (`system1_verification`, `policy_clause_binding`, `telematics_integrity`) for regulatory compliance.
 3. **Open-Source Repository:** Full source code and deployment instructions are available at [https://github.com/Spartacam/DrexCam](https://github.com/Spartacam/DrexCam).
+

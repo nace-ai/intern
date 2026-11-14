@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="100%" height="100%" style="background:#0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <!-- PDF Page Header Sim -->
+  <rect x="0" y="0" width="800" height="320" fill="#090d16"/>
+  <rect x="20" y="20" width="760" height="280" rx="8" fill="#131b2e" stroke="#1e293b" stroke-width="1.5"/>
+  
+  <text x="40" y="52" fill="#64748b" font-size="12" font-weight="600" letter-spacing="1">TEXAS PERSONAL AUTO POLICY TX 01-PAP-003 • PART A: LIABILITY COVERAGE (PAGE 2 OF 51)</text>
+  <line x1="40" y1="64" x2="760" y2="64" stroke="#334155" stroke-width="1"/>
+
+  <!-- Policy Context -->
+  <text x="40" y="92" fill="#94a3b8" font-size="13" font-weight="500">INSURING AGREEMENT: We will pay damages for bodily injury or property damage for which any covered person becomes legally responsible...</text>
+
+  <!-- NDI Grounding Highlight Box (Emerald for COMPLIANT) -->
+  <rect x="36" y="112" width="728" height="138" rx="6" fill="#064e3b" fill-opacity="0.35" stroke="#10b981" stroke-width="2" stroke-dasharray="4,2"/>
+  
+  <!-- Grounding Badge -->
+  <rect x="580" y="118" width="174" height="24" rx="4" fill="#059669"/>
+  <text x="590" y="134" fill="#ffffff" font-size="11" font-weight="700">NDI GROUND: 99.1% COMPLIANT</text>
+
+  <!-- Clause Heading -->
+  <text x="50" y="138" fill="#34d399" font-size="14" font-weight="700">SECTION 1.1 — PERMISSIVE USE &amp; STATUTORY RIGHT-OF-WAY COMPLIANCE</text>
+  
+  <!-- Clause Legal Body -->
+  <text x="50" y="166" fill="#f1f5f9" font-size="13" font-weight="500">Coverage applies to any person using your covered auto with reasonable belief of entitlement</text>
+  <text x="50" y="188" fill="#f1f5f9" font-size="13" font-weight="500">to do so. Telematics and video verification demonstrate driver proceeded lawfully across intersection</text>
+  <text x="50" y="210" fill="#a7f3d0" font-size="13" font-weight="600">under illuminated circular green signal pursuant to Tex. Transp. Code § 544.007, maintaining</text>
+  <text x="50" y="232" fill="#a7f3d0" font-size="13" font-weight="600">adequate defensive braking margins and reasonable speed under wet roadway conditions.</text>
+
+  <!-- Grounding Coordinates Footer -->
+  <text x="40" y="280" fill="#64748b" font-size="11">NDI Ground Coordinates: [Page: 2, x0: 72px, y0: 180px, x1: 540px, y1: 310px] • TDI Form: TX 01-PAP-003</text>
+</svg>

@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DrexCam</title>
+<style>
+:root{
+  --bg:#09090b; --bg2:#121215; --ink:#f4f4f5; --ink2:#a1a1aa; --line:#27272a;
+  --blue:#0071e3; --blue-h:#0077ed; --green:#10b981; --red:#ef4444; --orange:#f59e0b;
+  --drex:#0071e3; --base:#71717a; --card:#141418; --radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+a{color:var(--blue);text-decoration:none}
+/* nav */
+nav{position:sticky;top:0;z-index:10;height:48px;display:flex;align-items:center;justify-content:center;gap:36px;
+  background:rgba(9,9,11,.85);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.08);font-size:13px}
+nav .brand{font-weight:600;font-size:15px;margin-right:24px;color:#fff}
+nav button{background:none;border:0;font:inherit;color:var(--ink);opacity:.8;cursor:pointer;padding:6px 2px}
+nav button.on{opacity:1;font-weight:600;color:#fff}
+nav button:disabled{opacity:.3;cursor:default}
+/* layout */
+.page{display:none}.page.on{display:block;animation:fade .5s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{text-align:center;padding:72px 22px 36px}
+.eyebrow{color:var(--orange);font-size:17px;font-weight:600;margin:0 0 6px}
+h1{font-size:clamp(40px,6vw,72px);line-height:1.05;font-weight:700;letter-spacing:-.025em;margin:0;color:#fff}
+h2{font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-.02em;margin:0 0 8px;color:#fff}
+h3{font-size:21px;font-weight:600;margin:0 0 6px;color:#fff}
+.sub{font-size:clamp(19px,2.2vw,24px);color:var(--ink2);max-width:760px;margin:14px auto 0;line-height:1.35}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.band{background:var(--bg2);padding:56px 0;margin-top:40px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.card{background:var(--card);border-radius:var(--radius);padding:28px;box-shadow:0 4px 20px rgba(0,0,0,.3);border:1px solid var(--line)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:980px;padding:12px 22px;font:inherit;font-size:17px;
+  cursor:pointer;background:var(--blue);color:#fff;transition:background .2s}
+.btn:hover{background:var(--blue-h)}
+.btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--blue)}
+.btn.small{padding:8px 16px;font-size:14px}
+.btn:disabled{opacity:.4;cursor:default}
+/* upload */
+.drop{border:2px dashed var(--line);border-radius:var(--radius);padding:48px 22px;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s;background:var(--card)}
+.drop.over{border-color:var(--blue);background:rgba(0,113,227,.1)}
+.drop .big{font-size:24px;font-weight:600;color:#fff}
+.drop .hint{color:var(--ink2);margin-top:6px}
+textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:14px;font:inherit;font-size:16px;resize:vertical;min-height:70px;background:var(--bg2);color:var(--ink)}
+.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.toggle{display:flex;align-items:center;gap:8px;color:var(--ink2);font-size:15px}
+/* progress */
+.progress{display:none;margin-top:22px;text-align:center;color:var(--ink2)}
+.spinner{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* result */
+video{width:100%;border-radius:18px;background:#000;display:block}
+.chart{width:100%;height:170px;cursor:pointer}
+.legend{display:flex;gap:18px;font-size:13px;color:var(--ink2)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.jump{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.jump input{width:90px;border:1px solid var(--line);border-radius:980px;padding:9px 14px;font:inherit;font-size:15px;background:var(--bg2);color:var(--ink)}
+.thumbs{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:14px}
+.thumbs img{width:100%;border-radius:8px;cursor:pointer}
+.verdict{font-size:40px;font-weight:700;letter-spacing:-.02em;margin:4px 0}
+.pill{display:inline-block;border-radius:980px;padding:4px 12px;font-size:13px;font-weight:600;background:var(--bg2)}
+.pill.deny,.pill.flag-fraud{background:rgba(239,68,68,.15);color:#f87171}
+.pill.pay,.pill.auto-approve,.pill.auto-close{background:rgba(16,185,129,.15);color:#34d399}
+.pill.send-to-adjuster{background:rgba(245,158,11,.15);color:#fbbf24}
+.bar{height:8px;background:var(--bg2);border-radius:8px;overflow:hidden;margin:6px 0 14px}
+.bar>i{display:block;height:100%;background:var(--blue);border-radius:8px}
+.kv{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.kv span:first-child{color:var(--ink2)}
+.muted{color:var(--ink2);font-size:14px}
+/* compare */
+table{width:100%;border-collapse:collapse;font-size:16px}
+th,td{text-align:left;padding:14px 10px;border-bottom:1px solid var(--line)}
+th{font-size:13px;color:var(--ink2);font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+td.win{color:var(--green);font-weight:600}
+.stat{font-size:56px;font-weight:700;letter-spacing:-.03em;line-height:1;color:#fff}
+.stat small{font-size:20px;font-weight:600;color:var(--ink2);margin-left:4px}
+.hbar{display:flex;align-items:center;gap:10px;margin:8px 0}
+.hbar b{width:110px;font-weight:500;font-size:14px}
+.hbar .t{flex:1;height:22px;background:var(--bg2);border-radius:6px;overflow:hidden}
+.hbar .t i{display:block;height:100%}
+.hbar em{width:110px;text-align:right;font-style:normal;font-size:14px;color:var(--ink2)}
+/* policy */
+.excl{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.excl.hit{background:rgba(239,68,68,.1);border-radius:12px;padding:14px;border:1px solid rgba(239,68,68,.3)}
+details{border-top:1px solid var(--line);padding:14px 0}
+summary{cursor:pointer;font-weight:600;font-size:17px;color:#fff}
+pre{white-space:pre-wrap;font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#d4d4d8;max-height:420px;overflow:auto;background:var(--bg2);padding:16px;border-radius:12px;border:1px solid var(--line)}
+.empty{color:var(--ink2);text-align:center;padding:40px}
+footer{text-align:center;color:var(--ink2);font-size:12px;padding:40px 22px}
+.empty{color:var(--ink2);text-align:center;padding:40px}
+footer{text-align:center;color:var(--ink2);font-size:12px;padding:40px 22px}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">DrexCam</span>
+  <button data-p="analyze" class="on">Analyze</button>
+  <button data-p="compare" id="navCompare">Compare</button>
+  <button data-p="policy">Policy</button>
+</nav>
+
+<!-- PAGE 1: ANALYZE -->
+<section class="page on" id="analyze">
+  <div class="hero">
+    <p class="eyebrow">Dashcam claims, decided.</p>
+    <h1>Every second.<br>Every claim.</h1>
+    <p class="sub">Upload any dashcam video. Drex checks the whole clip, finds the moment of impact, and decides the claim in about two seconds.</p>
+  </div>
+  <div class="wrap">
+    <div class="card">
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="video/*" hidden>
+        <div class="big" id="dropTitle">Drop a dashcam video here</div>
+        <div class="hint" id="dropHint">or click to choose a file · MP4 or MOV</div>
+      </label>
+      <div style="margin-top:18px">
+        <textarea id="claim" placeholder="Driver's claim (optional) — e.g. “I was stopped at a red light when a truck hit me from behind.”"></textarea>
+      </div>
+      <div class="row" style="margin-top:16px;justify-content:space-between">
+        <label class="toggle"><input type="checkbox" id="useBase" checked> Also run the frontier model (Qwen 27B via DeepInfra) for comparison</label>
+        <button class="btn" id="go" disabled>Analyze video</button>
+      </div>
+      <div class="progress" id="progress"><div class="spinner"></div><div id="progressText">Scanning the whole video…</div></div>
+    </div>
+  </div>
+
+  <div id="result" style="display:none">
+    <div class="band">
+      <div class="wrap">
+        <h2 id="headline">Impact found.</h2>
+        <p class="muted" id="headSub"></p>
+        <div class="grid2" style="margin-top:22px;align-items:start">
+          <div class="card">
+            <video id="player" controls playsinline></video>
+            <div class="jump">
+              <button class="btn small" id="jumpCrash">Jump to crash</button>
+              <input type="number" id="jumpSec" min="0" step="0.1" placeholder="sec">
+              <button class="btn small ghost" id="jumpGo">Jump to second</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Crash probability, second by second</h3>
+            <div class="legend"><span><i class="dot" style="background:var(--drex)"></i>Drex</span><span id="legBase"><i class="dot" style="background:var(--base)"></i>Qwen 27B (DeepInfra)</span></div>
+            <svg class="chart" id="chart" viewBox="0 0 600 170" preserveAspectRatio="none"></svg>
+            <p class="muted">Click anywhere on the chart to jump the video to that second.</p>
+            <div class="thumbs" id="thumbs"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wrap" style="padding-top:40px">
+      <div class="grid2" id="verdicts"></div>
+      <div style="text-align:center;margin:36px 0 10px">
+        <button class="btn" onclick="show('compare')">Compare Drex with the frontier model →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 2: COMPARE -->
+<section class="page" id="compare">
+  <div class="hero">
+    <p class="eyebrow">Drex vs. the Giants</p>
+    <h1>Same video.<br>A fraction of the cost.</h1>
+    <p class="sub" id="cmpSub">Analyze a video first to see a live, side-by-side comparison.</p>
+  </div>
+  <div class="wrap" id="cmpBody"><div class="empty">No video analyzed yet. <a href="#" onclick="show('analyze');return false">Upload one →</a></div></div>
+  <div class="band"><div class="wrap">
+    <h2>Across 80 real dashcam clips</h2>
+    <p class="muted">Nexar collision dataset: 40 crashes or near-misses, 40 normal drives. Same frames, same questions for both models.</p>
+    <div class="card" style="margin-top:18px;overflow-x:auto"><table id="benchTable"></table></div>
+  </div></div>
+</section>
+
+<!-- PAGE 3: POLICY -->
+<section class="page" id="policy">
+  <div class="hero">
+    <p class="eyebrow">Real policy. Real clauses.</p>
+    <h1>Checked against<br>the actual contract.</h1>
+    <p class="sub" id="polSub">Loading policy…</p>
+  </div>
+  <div class="wrap">
+    <div class="grid3" id="polStats"></div>
+    <div class="card" style="margin-top:20px">
+      <h3>This claim</h3>
+      <div id="polClaim" class="muted">Enter a driver's claim on the Analyze page to see which policy clause applies.</div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <h3>Exclusions Drex checks</h3>
+      <div id="exclList"></div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <h3>Policy text Drex reads</h3>
+      <p class="muted">Parsed from the 51-page PDF by Nace NDI. Only these sections decide a collision claim on your own car.</p>
+      <div id="polSections"></div>
+    </div>
+  </div>
+</section>
+
+<footer>DrexCam · Drexathon · Decisions by Drex Max · Documents by Nace NDI · Agent by Intern · Baseline via DeepInfra</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+let R = null, file = null;
+const fmt$ = v => v < 0.01 ? '$' + v.toFixed(4) : '$' + v.toFixed(2);
+const pct = v => Math.round(v * 100) + '%';
+const num = v => (v || 0).toLocaleString();
+
+function show(p){
+  document.querySelectorAll('.page').forEach(s => s.classList.toggle('on', s.id === p));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  window.scrollTo({top:0});
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => show(b.dataset.p));
+
+// upload
+const drop = $('#drop');
+['dragover','dragenter'].forEach(e => drop.addEventListener(e, ev => {ev.preventDefault(); drop.classList.add('over')}));
+['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => {ev.preventDefault(); drop.classList.remove('over')}));
+drop.addEventListener('drop', ev => pick(ev.dataTransfer.files[0]));
+$('#file').onchange = ev => pick(ev.target.files[0]);
+function pick(f){ if(!f) return; file = f; $('#dropTitle').textContent = f.name;
+  $('#dropHint').textContent = (f.size/1e6).toFixed(1) + ' MB · ready'; $('#go').disabled = false; }
+
+$('#go').onclick = async () => {
+  const fd = new FormData(); fd.append('video', file); fd.append('claim', $('#claim').value);
+  fd.append('baseline', $('#useBase').checked);
+  $('#go').disabled = true; $('#progress').style.display = 'block'; $('#result').style.display = 'none';
+  const steps = ['Extracting frames from the whole video…','Drex is checking every 4-second window…',
+                 $('#useBase').checked ? 'Qwen 27B (DeepInfra) is checking the same windows…' : 'Finding the moment of impact…','Deciding the claim…'];
+  let i = 0; $('#progressText').textContent = steps[0];
+  const tick = setInterval(() => { i = Math.min(i+1, steps.length-1); $('#progressText').textContent = steps[i]; }, 2500);
+  try{
+    const r = await fetch('/api/analyze', {method:'POST', body:fd});
+    if(!r.ok) throw new Error((await r.json()).detail || r.statusText);
+    R = await r.json(); render();
+  }catch(e){ alert('Analysis failed: ' + e.message); }
+  finally{ clearInterval(tick); $('#progress').style.display = 'none'; $('#go').disabled = false; }
+};
+
+function render(){
+  const d = R.drex, b = R.baseline, v = $('#player');
+  v.src = R.video_url;
+  $('#result').style.display = 'block';
+  const hit = d.incident_p >= 0.5;
+  $('#headline').textContent = hit ? `Impact at ${R.crash.start.toFixed(1)} seconds.` : 'No clear incident found.';
+  $('#headSub').textContent = `Scanned ${R.duration.toFixed(0)} s of video in ${d.usage.calls} windows · ${R.frames_total} frames · Drex took ${d.usage.wall_s}s`;
+  $('#legBase').style.display = b ? '' : 'none';
+  drawChart(); thumbs(); verdicts(); compare(); policyClaim();
+  setTimeout(() => $('#result').scrollIntoView({behavior:'smooth'}), 100);
+}
+function jump(t){ const v = $('#player'); v.currentTime = Math.max(0, t); v.play(); }
+$('#jumpCrash').onclick = () => R && jump(Math.max(0, R.crash.start - 1));
+$('#jumpGo').onclick = () => { const t = parseFloat($('#jumpSec').value); if(!isNaN(t)) jump(t); };
+$('#jumpSec').onkeydown = e => { if(e.key === 'Enter') $('#jumpGo').click(); };
+
+function drawChart(){
+  const svg = $('#chart'), W = 600, H = 170, T = R.duration || 1;
+  const x = t => t / T * W, y = p => H - 10 - p * (H - 20);
+  const line = (tl, color, dash) => {
+    const pts = tl.map(w => `${x((w.start + w.end)/2).toFixed(1)},${y(w.incident_p).toFixed(1)}`).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="3" stroke-linejoin="round" ${dash?'stroke-dasharray="6 5"':''}/>`;
+  };
+  let g = `<rect x="${x(R.crash.start)}" y="0" width="${Math.max(4, x(R.crash.end)-x(R.crash.start))}" height="${H}" fill="#0071e3" opacity=".08"/>`;
+  g += `<line x1="0" x2="${W}" y1="${y(.5)}" y2="${y(.5)}" stroke="#d2d2d7" stroke-dasharray="3 4"/>`;
+  if(R.baseline) g += line(R.baseline.timeline, '#86868b', true);
+  g += line(R.drex.timeline, '#0071e3');
+  g += `<text x="4" y="${y(.5)-4}" font-size="11" fill="#86868b">50%</text>`;
+  svg.innerHTML = g;
+  svg.onclick = ev => { const r = svg.getBoundingClientRect(); jump((ev.clientX - r.left) / r.width * T); };
+}
+function thumbs(){
+  const step = (R.crash.end - R.crash.start) / Math.max(1, R.crash.frames.length - 1);
+  $('#thumbs').innerHTML = R.crash.frames.map((f, i) =>
+    `<img src="${f}" title="${(R.crash.start + i*step).toFixed(1)}s" onclick="jump(${(R.crash.start + i*step).toFixed(2)})">`).join('');
+}
+function verdictCard(m, isDrex){
+  const probs = m.at_fault_probs ? Object.entries(m.at_fault_probs).map(([k,v]) => `${k} ${pct(v)}`).join(' · ') : null;
+  return `<div class="card">
+    <p class="muted" style="margin:0">${m.info.name} · ${m.info.vendor}</p>
+    <div class="verdict"><span class="pill ${m.action}" style="font-size:22px;padding:6px 16px">${m.action.replaceAll('-',' ')}</span></div>
+    <p class="muted">${m.reason}</p>
+    <div>Incident <b style="float:right">${pct(m.incident_p)}</b></div><div class="bar"><i style="width:${pct(m.incident_p)};background:${isDrex?'var(--drex)':'var(--base)'}"></i></div>
+    <div>Collision <b style="float:right">${pct(m.collision_p)}</b></div><div class="bar"><i style="width:${pct(m.collision_p)};background:${isDrex?'var(--drex)':'var(--base)'}"></i></div>
+    ${m.claim_match_p!=null?`<div>Claim matches video <b style="float:right">${pct(m.claim_match_p)}</b></div><div class="bar"><i style="width:${pct(m.claim_match_p)}"></i></div>`:''}
+    <div class="kv"><span>Type</span><span>${m.event_type}</span></div>
+    <div class="kv"><span>At fault</span><span>${m.at_fault}</span></div>
+    ${probs?`<div class="kv"><span>Fault split</span><span>${probs}</span></div>`:''}
+    <div class="kv"><span>Severity</span><span>${m.severity.toFixed(1)} / 4</span></div>
+    <div class="kv"><span>Time · cost</span><span>${m.usage.wall_s}s · ${fmt$(m.usage.cost_usd)}</span></div>
+    <p class="muted" style="margin-top:12px">${isDrex ? 'Computed probabilities from a decision model.' : 'Numbers written by the model as text, not computed probabilities.'}</p>
+  </div>`;
+}
+function verdicts(){ $('#verdicts').innerHTML = verdictCard(R.drex, true) + (R.baseline ? verdictCard(R.baseline, false) : ''); }
+
+function compare(){
+  const d = R.drex, b = R.baseline;
+  if(!b){ $('#cmpSub').textContent = 'Run with the frontier model switched on to compare.'; $('#cmpBody').innerHTML = ''; return; }
+  const k = (x, y) => y > 0 ? (y / x) : 0;
+  $('#cmpSub').textContent = `On this ${R.duration.toFixed(0)}-second video, both models checked the same ${d.usage.calls} windows.`;
+  const rows = [
+    ['Model', d.info.name, b.info.name, null],
+    ['How it answers', d.info.kind, b.info.kind, null],
+    ['API calls', num(d.usage.calls), num(b.usage.calls), null],
+    ['Frames analyzed', num(d.usage.frames), num(b.usage.frames), null],
+    ['Input tokens', num(d.usage.input_tokens), num(b.usage.input_tokens), d.usage.input_tokens <= b.usage.input_tokens ? 0 : 1],
+    ['Output tokens', num(d.usage.output_tokens), num(b.usage.output_tokens), d.usage.output_tokens <= b.usage.output_tokens ? 0 : 1],
+    ['Time to decide', d.usage.wall_s + ' s', b.usage.wall_s + ' s', d.usage.wall_s <= b.usage.wall_s ? 0 : 1],
+    ['Cost for this video', fmt$(d.usage.cost_usd), fmt$(b.usage.cost_usd), d.usage.cost_usd <= b.usage.cost_usd ? 0 : 1],
+    ['Cost per 1,000 videos', fmt$(d.usage.cost_usd*1000), fmt$(b.usage.cost_usd*1000), d.usage.cost_usd <= b.usage.cost_usd ? 0 : 1],
+    ['Decision', d.action, b.action, null],
+    ['Crash found at', d.worst_window!=null ? d.worst_window.toFixed(1)+' s' : '—', b.worst_window!=null ? b.worst_window.toFixed(1)+' s' : '—', null],
+  ];
+  const fast = k(d.usage.wall_s, b.usage.wall_s), cheap = k(d.usage.cost_usd, b.usage.cost_usd);
+  const bars = (label, dv, bv, f) => { const m = Math.max(dv, bv) || 1;
+    return `<h3 style="margin-top:18px">${label}</h3>
+      <div class="hbar"><b>Drex</b><span class="t"><i style="width:${dv/m*100}%;background:var(--drex)"></i></span><em>${f(dv)}</em></div>
+      <div class="hbar"><b>Qwen 27B</b><span class="t"><i style="width:${bv/m*100}%;background:var(--base)"></i></span><em>${f(bv)}</em></div>`; };
+  $('#cmpBody').innerHTML = `
+    <div class="grid3">
+      <div class="card"><div class="stat">${fast.toFixed(0)}×<small>faster</small></div><p class="muted">${d.usage.wall_s}s vs ${b.usage.wall_s}s to decide</p></div>
+      <div class="card"><div class="stat">${cheap.toFixed(0)}×<small>cheaper</small></div><p class="muted">${fmt$(d.usage.cost_usd)} vs ${fmt$(b.usage.cost_usd)} for this video</p></div>
+      <div class="card"><div class="stat">${(b.usage.input_tokens/Math.max(1,d.usage.input_tokens)).toFixed(1)}×<small>fewer tokens</small></div><p class="muted">${num(d.usage.input_tokens)} vs ${num(b.usage.input_tokens)} input tokens</p></div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      ${bars('Time to decide (seconds)', d.usage.wall_s, b.usage.wall_s, v => v + ' s')}
+      ${bars('Cost for this video', d.usage.cost_usd, b.usage.cost_usd, fmt$)}
+      ${bars('Tokens processed (input + output)', d.usage.input_tokens + d.usage.output_tokens, b.usage.input_tokens + b.usage.output_tokens, num)}
+    </div>
+    <div class="card" style="margin-top:20px;overflow-x:auto"><table>
+      <tr><th></th><th>Drex</th><th>Frontier model</th></tr>
+      ${rows.map(r => `<tr><td class="muted">${r[0]}</td><td class="${r[3]===0?'win':''}">${r[1]}</td><td class="${r[3]===1?'win':''}">${r[2]}</td></tr>`).join('')}
+    </table>
+    <p class="muted">Compute is shown as API calls, frames and tokens: hosted APIs don't report GPU time. Prices: Drex per input token (output not billed); Qwen 27B per input and output token on DeepInfra.</p></div>`;
+}
+
+async function loadBench(){
+  const r = await (await fetch('/api/benchmark')).json();
+  const c = r.crash; if(!c.length) return;
+  const name = p => p === 'drex' ? 'Drex Max v1.1' : 'Qwen 27B Frontier (DeepInfra)';
+  const cols = [['Accuracy','accuracy',v=>pct(v)],['AUC (ranking)','auc',v=>v.toFixed(2)],['Tuned accuracy','acc_tuned_cutoff',v=>pct(v)],
+                ['Calibration (Brier, lower=better)','brier',v=>v.toFixed(3)],['Median time','p50_latency_s',v=>v.toFixed(1)+' s'],['Cost / 1k clips','cost_per_1k_clips_$',v=>fmt$(v)]];
+  $('#benchTable').innerHTML = `<tr><th>Model</th>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr>` +
+    c.map(row => `<tr><td><b>${name(row.pipeline)}</b></td>${cols.map(k=>`<td>${row[k[1]]!=null?k[2](row[k[1]]):'—'}</td>`).join('')}</tr>`).join('');
+}
+
+let P = null;
+async function loadPolicy(){
+  P = await (await fetch('/api/policy')).json();
+  $('#polSub').textContent = `${P.document}, ${P.insurer}. ${P.pages} pages, parsed by ${P.parsed_by}.`;
+  $('#polStats').innerHTML = `
+    <div class="card"><div class="stat">${P.pages}<small>pages</small></div><p class="muted">Real insurer policy PDF</p></div>
+    <div class="card"><div class="stat">${Object.keys(P.exclusions).length - 1}<small>exclusions</small></div><p class="muted">Checked on every claim</p></div>
+    <div class="card"><div class="stat">${Math.round(P.chars_used/1000)}k<small>chars read</small></div><p class="muted">of ${Math.round(P.chars_total/1000)}k: the sections that decide coverage</p></div>`;
+  $('#polSections').innerHTML = P.sections.map(s => `<details><summary>${s.title}</summary><pre>${s.text.replace(/</g,'&lt;')}</pre></details>`).join('');
+  renderExcl(null);
+}
+function renderExcl(cov){
+  $('#exclList').innerHTML = Object.entries(P.exclusions).filter(([k]) => k !== 'none').map(([k, desc]) => {
+    const p = cov && cov.exclusion_probs ? cov.exclusion_probs[k] : null, hit = cov && cov.exclusion === k;
+    return `<div class="excl ${hit?'hit':''}"><div><b>${k.replaceAll('-',' ')}</b><div class="muted">${desc}</div></div>
+      <div>${p!=null?`<span class="pill ${hit?'deny':''}">${pct(p)}</span>`:''}</div></div>`; }).join('');
+}
+function policyClaim(){
+  if(!P) return;
+  const c = R.coverage;
+  if(!c){ $('#polClaim').innerHTML = 'No claim text was entered for this video. Add one on the Analyze page to check it against the policy.'; renderExcl(null); return; }
+  const verdict = c.decision === 'deny' ? `Denied: ${c.exclusion.replaceAll('-',' ')} exclusion applies` :
+                  c.decision === 'pay' ? 'Covered under Part D' : 'Needs an adjuster';
+  $('#polClaim').innerHTML = `<div class="verdict"><span class="pill ${c.decision==='pay'?'pay':c.decision==='deny'?'deny':'send-to-adjuster'}" style="font-size:22px;padding:6px 16px">${verdict}</span></div>
+    <div class="kv"><span>Probability covered</span><span>${pct(c.covered_p)}</span></div>
+    <div class="kv"><span>Exclusion matched</span><span>${c.exclusion}</span></div>
+    <div class="kv"><span>Decided in</span><span>${(c.latency_ms/1000).toFixed(2)} s · ${num(c.input_tokens)} tokens · ${fmt$(c.cost_usd)}</span></div>
+    <p class="muted">Drex read the driver's claim, the video findings, and the policy text below.</p>`;
+  renderExcl(c);
+}
+loadBench(); loadPolicy();
+</script>
+</body>
+</html>

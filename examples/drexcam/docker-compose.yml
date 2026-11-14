@@ -1,0 +1,19 @@
+services:
+  chronoground:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chronoground-adjudicator
+    ports:
+      - "8000:8000"
+    environment:
+      - NACE_API_KEY=${NACE_API_KEY}
+      - NDI_API_KEY=${NDI_API_KEY}
+      - NDI_BASE_URL=${NDI_BASE_URL:-https://ndi-api.nace.ai}
+      - NACE_CONSOLE_URL=${NACE_CONSOLE_URL:-https://console.nace.ai/v1}
+      - DEEPINFRA_API_KEY=${DEEPINFRA_API_KEY}
+    volumes:
+      - ./backend/data/videos:/app/backend/data/videos
+      - ./backend/data/policies:/app/backend/data/policies
+    restart: unless-stopped
+

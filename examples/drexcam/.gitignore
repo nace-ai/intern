@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+dist/
+build/
+.next/
+out/
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# Environment Variables & Secrets - CRITICAL
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# System & IDE
+.DS_Store
+.vscode/
+.idea/
+*.log
+.playwright-mcp/
+

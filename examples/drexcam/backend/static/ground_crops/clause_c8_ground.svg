@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="100%" height="100%" style="background:#0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <!-- PDF Page Header Sim -->
+  <rect x="0" y="0" width="800" height="320" fill="#090d16"/>
+  <rect x="20" y="20" width="760" height="280" rx="8" fill="#131b2e" stroke="#1e293b" stroke-width="1.5"/>
+  
+  <text x="40" y="52" fill="#64748b" font-size="12" font-weight="600" letter-spacing="1">TEXAS PERSONAL AUTO POLICY TX 01-PAP-003 • EXCLUSIONS (PAGE 4 OF 51)</text>
+  <line x1="40" y1="64" x2="760" y2="64" stroke="#334155" stroke-width="1"/>
+
+  <!-- Policy Context -->
+  <text x="40" y="92" fill="#94a3b8" font-size="13" font-weight="500">EXCLUSIONS: We do not provide Liability Coverage for any covered person...</text>
+
+  <!-- NDI Grounding Highlight Box (Emerald for REFUTED / NOT TRIGGERED) -->
+  <rect x="36" y="112" width="728" height="138" rx="6" fill="#064e3b" fill-opacity="0.35" stroke="#10b981" stroke-width="2" stroke-dasharray="4,2"/>
+  
+  <!-- Grounding Badge -->
+  <rect x="560" y="118" width="194" height="24" rx="4" fill="#059669"/>
+  <text x="570" y="134" fill="#ffffff" font-size="11" font-weight="700">EXCLUSION REFUTED: 99.8%</text>
+
+  <!-- Clause Heading -->
+  <text x="50" y="138" fill="#34d399" font-size="14" font-weight="700">EXCLUSION 8 — RACING, SPEED CONTESTS &amp; DEMOLITION</text>
+  
+  <!-- Clause Legal Body -->
+  <text x="50" y="166" fill="#f1f5f9" font-size="13" font-weight="500">We do not provide Liability Coverage for any covered person using or operating a vehicle</text>
+  <text x="50" y="188" fill="#f1f5f9" font-size="13" font-weight="500">located inside a facility designed for racing, or for prearranged racing or speed contests.</text>
+  <text x="50" y="210" fill="#a7f3d0" font-size="13" font-weight="600">Telematics speed proof (26 MPH in 30 MPH posted zone) and continuous single-vehicle video</text>
+  <text x="50" y="232" fill="#a7f3d0" font-size="13" font-weight="600">affirmatively refutes any speed contest or reckless operation. Exclusion inapplicable.</text>
+
+  <!-- Grounding Coordinates Footer -->
+  <text x="40" y="280" fill="#64748b" font-size="11">NDI Ground Coordinates: [Page: 4, x0: 72px, y0: 380px, x1: 540px, y1: 510px] • TDI Form: TX 01-PAP-003</text>
+</svg>
