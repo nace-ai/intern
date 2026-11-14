@@ -113,7 +113,7 @@ No Nace, NDI, Drex or Groq calls were made in deployment work. Existing local le
 - [x] Public Training and security verifiers passed after Live activation; no provider calls occur in those verifiers.
 - [x] 48 automated tests, production frontend build, Worker typecheck/dry run, repository audit, configured-secret audit, and public-bundle audit passed.
 - [x] Server-only `GROQ_API_KEY` is present as a Cloudflare `secret_text`; `ENABLE_LIVE=true`; browser-rendered deployment verified.
-- [x] Deployed Worker version `c490c728-824b-47bb-8074-026ddab0fde6` at https://agent-heist.agent-heist.workers.dev.
+- [x] Deployed application commit `be5802c` as Worker version `1b55d001-5a33-487c-851e-9f65b6484279` at https://agent-heist.agent-heist.workers.dev; provider-free Training, public security, bundle, and exact PDF checks passed.
 - [x] Replaced the Cloudflare-incompatible NDI upload with the SDK's documented public HTTPS URL source; Parse-result reuse, extraction-to-Drex handoff, caching, caps, and zero retries remain intact.
 - [x] Added legitimate and malicious text-extractable Mission 02 PDFs, direct selection in Live, explicit NDI extraction rendering in Forensics, and retained safe failure-stage reporting.
 - [x] Added two-minute/five-minute judge scripts, exact attack payloads, and Adobe Firefly/Express production briefs under `demo/`.

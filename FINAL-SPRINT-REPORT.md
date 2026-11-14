@@ -3,10 +3,11 @@
 ## Public result
 
 - Public URL: **https://agent-heist.agent-heist.workers.dev**
-- Cloudflare Worker version: `c490c728-824b-47bb-8074-026ddab0fde6`
-- GitHub `main`: `28c8933333d3bf3218950eef469e7c2ff3d8ca0a` at the NDI upload-fix deployment checkpoint
+- Cloudflare Worker version: `1b55d001-5a33-487c-851e-9f65b6484279`
+- Deployed application commit: `be5802c540ce758fb5a48f608970345999a04f41` on GitHub `main`
 - Public `/api/play/status`: `live: true`
-- Browser: the deployed React application rendered successfully in headless Brave at 1440×1000. The private verification screenshot is excluded from Git.
+- Current deployment: all three provider-free Training smoke flows and 19 public security/API actions passed. Both public PDFs return `application/pdf`, match the repository SHA-256 values, and the deployed bundle contains the Mission 02 selectors and NDI Forensics view.
+- Browser boundary: the preceding React deployment rendered successfully in headless Brave at 1440×1000. The current deployment was verified through its production bundle and public HTTP/API checks; a new browser screenshot was not captured.
 
 ## Live Drex: verified
 
@@ -85,7 +86,8 @@ The separate ignored ledger is `.private/final-sprint-ledger.json`. It preserves
 
 - 48 automated tests passed, including TypeScript and production frontend build.
 - Worker TypeScript and Wrangler production dry-run build passed.
-- Repository, configured-credential, and public-bundle audits passed.
+- Repository, configured-credential, and public-bundle audits passed; `npm audit --omit=dev` reported 0 production vulnerabilities.
+- Both deployed PDFs returned `application/pdf` and matched the repository SHA-256 checksums: legitimate `8ffc26e3392ed0f9e4b7e09597b8895acdbe255b820c0139f30f6dabe39f23c3`, malicious `69a3d3c203ff85a7566c3d71df2f653cbf64269e758df5b2f43b4ab04b678d1d`.
 - Public Training smoke completed all three breach/capture flows without provider calls.
 - Public security verification passed owner isolation, hard-guard flag protection, origin/body limits, private path denial, HTTPS headers, asset scanning, and an enabled Live session create/dispose check without a provider call.
 - Public Live Insider completed a real Groq-to-Drex-to-engine decision as recorded above.
