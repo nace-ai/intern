@@ -1,0 +1,278 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Linking Ancestors with Drex</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap"><style>body{margin:0;background:#222}section{width:1920px;height:1080px;position:relative;box-sizing:border-box;overflow:hidden;margin:0 auto 24px;display:block!important}:root {
+  --light: #F3F5F7;
+  --alt: #E3E9EF;
+  --paper: #FBFCFD;
+  --ink: #13202B;
+  --soft: #44546A;
+  --line: #CBD5DF;
+  --blue: #2D6CDF;
+  --blue-dark: #1F56B8;
+  --blue-tint: #DCE7FA;
+  --orange: #E07A1F;
+  --orange-tint: #F9E3CF;
+  --on-dark: #F3F5F7;
+  --on-dark-soft: #B8C7D6;
+}
+body { font-family: 'Public Sans', Arial, sans-serif; color: var(--ink); }
+section {
+  background: var(--light);
+  color: var(--ink);
+  padding: 128px 128px 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  font-family: 'Public Sans', Arial, sans-serif;
+}
+section.dark { background: var(--ink); color: var(--on-dark); }
+section.alt { background: var(--alt); }
+h1 { font-family: 'Libre Baskerville', Georgia, serif; font-size: 96px; font-weight: 700; line-height: 1.15; }
+h2 { font-family: 'Libre Baskerville', Georgia, serif; font-size: 60px; font-weight: 700; line-height: 1.2; }
+h3 { font-family: 'Public Sans', Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 1.3; }
+.eyebrow { font-size: 24px; font-weight: 700; letter-spacing: 3px; color: var(--blue-dark); }
+.dark .eyebrow { color: #8FB4F5; }
+.lead { font-size: 40px; line-height: 1.35; }
+.body { font-size: 30px; line-height: 1.4; color: var(--soft); }
+.small { font-size: 24px; line-height: 1.4; color: var(--soft); }
+.dark .lead { color: var(--on-dark); }
+.dark .body, .dark .small { color: var(--on-dark-soft); }
+.cards { display: flex; gap: 32px; }
+.card {
+  flex: 1;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card.blue { border-color: var(--blue); }
+.card.orange { border-color: var(--orange); }
+.tag { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: var(--blue-dark); }
+.tag.or { color: #A4520C; }
+.rec {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-size: 24px;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--light);
+  border-left: 6px solid var(--blue);
+  padding: 14px 20px;
+}
+.rec.or { border-left-color: var(--orange); }
+.big { font-family: 'Libre Baskerville', Georgia, serif; font-size: 120px; font-weight: 700; line-height: 1; color: var(--blue-dark); }
+.grid-tbl { font-size: 26px; color: var(--ink); width: 1664px; }
+.foot { position: absolute; left: 128px; bottom: 64px; width: 1664px; font-size: 24px; color: var(--soft); }
+.dark .foot { color: var(--on-dark-soft); }
+.flow { display: flex; align-items: center; gap: 16px; }
+.step {
+  flex: 1;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.step.drex { border-color: var(--blue); background: var(--blue-tint); }
+.step-n { font-size: 24px; font-weight: 700; color: var(--blue-dark); }
+.step-t { font-size: 30px; font-weight: 700; line-height: 1.25; }
+.step-d { font-size: 24px; line-height: 1.4; color: var(--soft); }
+.arrow { width: 48px; height: 28px; background: var(--soft); }
+.band { display: flex; height: 120px; border-radius: 12px; overflow: hidden; }
+.zone { display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700; }
+.z-no { flex: 25; background: #C9D3DD; color: var(--ink); }
+.z-mid { flex: 50; background: var(--orange); color: var(--ink); }
+.z-yes { flex: 25; background: var(--blue); color: var(--paper); }
+.ticks { display: flex; justify-content: space-between; font-size: 24px; color: var(--soft); font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+.pre { font-size: 24px; font-weight: 700; color: var(--ink); background: var(--orange-tint); border: 2px solid var(--orange); border-radius: 999px; padding: 8px 24px; align-self: flex-start; }
+</style></head><body><section id="cover" class="dark" style="justify-content:center; gap:48px">
+<p class="eyebrow">DREXATHON · NACE.AI · NOVEMBER 2026</p>
+<h1 style="width:1400px">Linking ancestors with Drex</h1>
+<p class="lead" style="width:1300px">Record linkage for a family network: turning public-domain scans into people, and following each person from record to record.</p>
+<p class="foot">Relavy · census-bench</p>
+
+</section>
+<section id="problem">
+<p class="eyebrow">THE PROBLEM</p>
+<h2>Family history is locked in scans</h2>
+<div class="cards">
+<div class="card"><p class="tag">WHERE IT LIVES</p><h3>FamilySearch and Ancestry</h3><p class="body">Today, the linked family records people search sit inside these platforms.</p></div>
+<div class="card"><p class="tag">WHAT’S FREE</p><h3>The raw public records</h3><p class="body">Census pages and city directories are public domain. But they are scanned images, not data.</p></div>
+<div class="card blue"><p class="tag">THE HARD PART</p><h3>Scans → people</h3><p class="body">Turn each scan into entries, then follow the same person from one record to the next.</p></div>
+</div>
+
+</section>
+<section id="why">
+<p class="eyebrow">WHY IT MATTERS FOR RELAVY</p>
+<h2>A family network needs its own records</h2>
+<p class="body" style="width:1400px">Relavy is a private family network: members keep family trees, share updates and message each other.</p>
+<div class="cards">
+<div class="card"><p class="tag">OWN DATASET</p><h3>Not borrowed</h3><p class="body">Built from public-domain records instead of relying on competitors’ databases.</p></div>
+<div class="card blue"><p class="tag">SUGGESTIONS</p><h3>“Is this your great-grandfather in the 1930 directory?”</h3><p class="body">Linked records become prompts in members’ trees.</p></div>
+<div class="card"><p class="tag">MEMBERS IMPROVE IT</p><h3>Confirm or correct</h3><p class="body">Every answer from a family member makes the data better.</p></div>
+</div>
+
+</section>
+<section id="pipeline">
+<p class="eyebrow">THE PIPELINE</p>
+<h2>From public scans to linked people</h2>
+<div class="flow" style="margin-top:40px">
+<div class="step"><p class="step-n">1</p><p class="step-t">Public scans</p><p class="step-d">1950 census, city directories</p></div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="step"><p class="step-n">2</p><p class="step-t">Read</p><p class="step-d">Transcribe every entry</p></div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="step"><p class="step-n">3</p><p class="step-t">Candidate pairs</p><p class="step-d">Entries across editions</p></div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="step drex"><p class="step-n">4</p><p class="step-t">Same person?</p><p class="step-d">Rules, then Drex</p></div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="step"><p class="step-n">5</p><p class="step-t">Link, or ask family</p><p class="step-d">Unsure pairs go to a family member</p></div>
+</div>
+<p class="body" style="width:1500px; margin-top:24px">Reading was a comparison of Claude, Nace Extract and Nemotron. Deciding is a hybrid: rules for easy pairs, Drex Max for the messy middle, people for the truly ambiguous.</p>
+
+</section>
+<section id="reading">
+<p class="eyebrow">STEP 1 · READING</p>
+<h2>Handwriting is hard; print is easy</h2>
+<div class="cards">
+<div class="card" style="flex:1.2"><p class="tag">1950 CENSUS · HANDWRITTEN · 20 PAGES</p>
+<table class="grid-tbl" style="width:auto">
+<tr><th style="width:68%">Reader</th><th style="width:32%; text-align:right">First names right</th></tr>
+<tr><td>Claude Sonnet 5.5</td><td style="text-align:right">91%</td></tr>
+<tr><td>Claude Haiku 5.5</td><td style="text-align:right">84%</td></tr>
+<tr><td>Nemotron VL</td><td style="text-align:right">52%</td></tr>
+<tr><td>NARA machine index</td><td style="text-align:right">39%</td></tr>
+<tr><td>Nace Extract, whole page</td><td style="text-align:right">23%</td></tr>
+</table>
+<p class="small">Checked against NARA volunteer corrections. Nace Extract was empty on 11 of 20 pages; on page strips it reached 58%.</p>
+</div>
+<div class="card blue"><p class="tag">1928 WILMINGTON, NC DIRECTORY · PRINTED</p>
+<p class="big">~96%</p>
+<p class="body">of names confirmed by the Internet Archive’s OCR, and ~93–94% of addresses, for Sonnet, Haiku, Nace and Nemotron alike.</p>
+<p class="small">20 pages, about 780 entries.</p>
+</div>
+</div>
+<p class="lead"><b>Print is easy and cheap.</b> Yearly printed city directories are the scalable source.</p>
+
+</section>
+<section id="examples">
+<p class="eyebrow">STEP 2 · SAME PERSON?</p>
+<h2>Three pairs, as printed</h2>
+<div class="cards">
+<div class="card blue"><p class="tag">MATCH</p>
+<p class="rec">1928 · Carver Edward H (Ruth L), carp h 12 Elm</p>
+<p class="rec">1930 · Carver Edwin H (Ruth L), carp h 12 Elm</p>
+<p class="body">Same wife, trade and house; only the first name differs.</p>
+</div>
+<div class="card"><p class="tag">NO MATCH</p>
+<p class="rec">BAKER JNO HILL, V-Pres, The Union Ice Co h 301 S 2d</p>
+<p class="rec">Baker John H (c; Ella), lab h 908 S 6th</p>
+<p class="body">Drex v2.0 said 0.78 (wrong). <b>Drex Max said 0.23 (right).</b></p>
+</div>
+<div class="card orange"><p class="tag or">HARD</p>
+<p class="rec or">Bright Mary (c), maid r 210 Oak</p>
+<p class="rec or">Bright Mary E (c) h 505 S 5th</p>
+<p class="body">Four big models split 2–2. This one goes to a person.</p>
+</div>
+</div>
+<p class="small">Key: h householder · r resides · name in parentheses = wife · wid = widow of · (c) = the directory’s own 1920s race mark</p>
+
+</section>
+<section id="rule" class="alt">
+<p class="eyebrow">THE REALIZATION</p>
+<h2>Most pairs are simple</h2>
+<div class="cards">
+<div class="card blue"><p class="big">87%</p><p class="body">72 of 83 pairs right with a 5-minute rule and no AI: same first name + same spouse or address, minus conflicts. Scored against a 4-model jury.</p></div>
+<div class="card"><h3>What the rule misses</h3>
+<p class="body"><b>Period abbreviations:</b> Jno = John, Edw = Edward, Eliz = Elizabeth</p>
+<p class="body"><b>Spelling:</b> Wilhemenia / Wilhelmina</p>
+<p class="body"><b>Job wording:</b> cook vs dom</p>
+<p class="body"><b>Conflicting clues</b></p>
+</div>
+</div>
+<p class="lead">So: <b>rules</b> for the easy majority, <b>a decision model</b> for the messy middle, <b>people</b> for the truly ambiguous.</p>
+
+</section>
+<section id="hybrid">
+<p class="eyebrow">THE DESIGN</p>
+<h2>A hybrid matcher in three stages</h2>
+<div class="cards">
+<div class="card"><p class="tag">STAGE 1 · RULES</p><p class="body">Abbreviation table (~30 names), soundex, occupation abbreviations.</p><p class="body"><b>Link</b> on same name + spouse, address or occupation. <b>Hard no-link</b> on conflicts with nothing else in common.</p></div>
+<div class="card blue"><p class="tag">STAGE 2 · DREX MAX v1.1</p><p class="body">Everything the rules don’t settle.</p><p class="body"><b>p ≥ 0.75</b> link · <b>p ≤ 0.25</b> no link. Name-only pairs need <b>p ≥ 0.9</b>.</p></div>
+<div class="card orange"><p class="tag or">STAGE 3 · PEOPLE</p><p class="body">The middle band goes to a family member to review.</p><p class="body"><b>One-to-one:</b> each person links to at most one person in the next edition.</p></div>
+</div>
+<p class="lead">Check set: rules <b>71/71</b> right · Drex <b>9/9</b> right · <b>3</b> to review</p>
+<p class="small">On the 83 pairs where DeepSeek V4 Pro, Kimi K3.1 Pro, Claude Sonnet 5.5 and Gemini 3.1 Pro agree.</p>
+
+</section>
+<section id="versus">
+<p class="eyebrow">DREX VS LARGE LLMS · SAME 100 PAIRS</p>
+<h2>Same answers, a fraction of the cost</h2>
+<table class="grid-tbl">
+<tr><th style="width:30%">Model</th><th style="width:34%">Right, of the 83 the jury agrees on</th><th style="width:16%; text-align:right">Time / pair</th><th style="width:20%; text-align:right">Cost / 1M pairs</th></tr>
+<tr style="background:#DCE7FA"><td>Drex Max v1.1</td><td>81/81 (3 rate-limited)</td><td style="text-align:right">0.66 s</td><td style="text-align:right">≈ $2–3</td></tr>
+<tr style="background:#DCE7FA"><td>Drex v2.0</td><td>63/83 at 0.5 · 78/83 at 0.73</td><td style="text-align:right">0.27 s</td><td style="text-align:right">≈ $2–3</td></tr>
+<tr><td>DeepSeek V4 Flash</td><td>83/83</td><td style="text-align:right">2.9 s</td><td style="text-align:right">≈ $90</td></tr>
+<tr><td>Claude Sonnet 5.5</td><td>83/83 (on the jury)</td><td style="text-align:right">1.6 s</td><td style="text-align:right">≈ $1,800</td></tr>
+<tr><td>Kimi K3.1 Pro</td><td>on the jury</td><td style="text-align:right">4.5 s</td><td style="text-align:right">≈ $1,500</td></tr>
+<tr><td>DeepSeek V4 Pro</td><td>on the jury</td><td style="text-align:right">7.8 s</td><td style="text-align:right">≈ $1,800</td></tr>
+<tr><td>Gemini 3.1 Pro</td><td>on the jury</td><td style="text-align:right">6.6 s</td><td style="text-align:right">≈ $3,500</td></tr>
+</table>
+<p class="lead"><b>Drex Max matches the big models on clear cases at 1/600–1/1,500 of the cost, 2–10× faster.</b> In the hybrid, only ~20% of pairs reach Drex at all.</p>
+<p class="small">Accuracy at a 0.5 cut-off. Drex cost: $0.03 per 1M input tokens × ~80 tokens a pair; output not billed.</p>
+
+</section>
+<section id="thresholds">
+<p class="eyebrow">CALIBRATED PROBABILITIES</p>
+<h2>One call, three outcomes</h2>
+<p class="body" style="width:1500px">Drex returns a probability, not just yes or no, so cut-offs turn one call into auto-reject, send to a person, or auto-link.</p>
+<div style="display:flex; flex-direction:column; gap:12px">
+<div class="band"><div class="zone z-no">Auto-reject</div><div class="zone z-mid">Send to a family member</div><div class="zone z-yes">Auto-link</div></div>
+<div class="ticks"><p>0</p><p style="margin-left:-10px">0.25</p><p>0.5</p><p style="margin-right:-10px">0.75</p><p>1</p></div>
+</div>
+<div class="cards">
+<div class="card"><h3>Calibration</h3><p class="body">Drex v2.0 runs high and needs ~0.73. Drex Max is calibrated at 0.5.</p></div>
+<div class="card"><h3>One config change</h3><p class="body">Raise the bar to 0.9 for name-only pairs.</p></div>
+<div class="card blue"><h3>A dial, not a rebuild</h3><p class="body">The size of members’ review queue is set by the cut-offs.</p></div>
+</div>
+
+</section>
+<section id="loop">
+<p class="eyebrow">SELF-IMPROVING LOOP</p>
+<h2>Drex’s decisions become rules</h2>
+<div class="cards">
+<div class="card blue" style="flex:1"><p class="big">680/697</p><p class="body">From 4,356 Drex decisions: “same name + same occupation, different address” was linked 680 times and rejected 0.</p><p class="body"><b>Now a rule:</b> ~700 fewer calls per year pair.</p></div>
+<div style="flex:1.2; display:flex; flex-direction:column; gap:20px">
+<div class="card"><p class="tag">FOUND</p><p class="rec">lndrs = laundress · slsmn = salesman · pntr = painter</p></div>
+<div class="card"><p class="tag">REJECTED</p><p class="body">cook ↔ dom, laborer ↔ porter: job changes, not synonyms.</p></div>
+<div class="card orange"><p class="tag or">CAUGHT</p><p class="body">Where only the name matches, Drex linked 74% and the big models split → stricter 0.9 bar.</p></div>
+</div>
+</div>
+<p class="lead"><b>Guardrail:</b> a fixed human-labeled check set gates every rule change.</p>
+
+</section>
+<section id="scale" class="alt">
+<p class="pre">PRELIMINARY · NUMBERS STILL BEING FINALIZED</p>
+<h2>At scale: Wilmington, 1860–1963</h2>
+<p class="body" style="width:1500px">37 directory editions on the Internet Archive, public domain. Read so far: ~1,000+ pages by Nace, plus thousands by DeepInfra.</p>
+<table class="grid-tbl">
+<tr><th style="width:16%">Editions</th><th style="width:16%; text-align:right">Candidate pairs</th><th style="width:28%; text-align:right">Linked (rules + Drex)</th><th style="width:16%; text-align:right">Removed by one-to-one</th><th style="width:24%; text-align:right">Left for review</th></tr>
+<tr><td>1924 → 1928</td><td style="text-align:right">7,592</td><td style="text-align:right">2,913 (2,245 + 668)</td><td style="text-align:right">311</td><td style="text-align:right">991 pairs / 858 people</td></tr>
+<tr><td>1928 → 1930</td><td style="text-align:right">9,392</td><td style="text-align:right">4,170 (3,644 + 526)</td><td style="text-align:right">231</td><td style="text-align:right">658 pairs / 579 people</td></tr>
+</table>
+
+</section>
+<section id="next" class="dark">
+<p class="eyebrow">NEXT FOR RELAVY</p>
+<h2>From linked records to family trees</h2>
+<div class="cards">
+<div class="card" style="background:#1D2F3F; border-color:#3A5268"><h3 style="color:#F3F5F7">Link more records</h3><p class="body">Directories to the 1950 census and to members’ trees.</p></div>
+<div class="card" style="background:#1D2F3F; border-color:#3A5268"><h3 style="color:#F3F5F7">Members confirm</h3><p class="body">The review queue becomes questions family members answer.</p></div>
+<div class="card" style="background:#1D2F3F; border-color:#3A5268"><h3 style="color:#F3F5F7">Human-labeled check set</h3><p class="body">People, not only a model jury, as the yardstick.</p></div>
+</div>
+<p class="lead">Open source: [github.com/… — publishing]</p>
+<p class="body">Built with Nace Drex + Perception · DeepInfra · Claude Code</p>
+
+</section>
+</body></html>

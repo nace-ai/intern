@@ -1,0 +1,20 @@
+# secrets
+.env.local
+.env*
+
+# outputs stay local (owner's decision, 2026-11-14)
+results/
+
+# downloaded and rendered images/PDFs (re-fetched from NARA / Internet Archive by the scripts)
+data/pages/
+data/crops/
+data/directory/*.pdf
+data/directory/pages/
+data/directory/full/
+data/directory/reference/
+data/reference/raw-search.jsonl
+# real people's names (NARA indexes); rebuilt locally, never published
+data/reference/manifest.json
+data/reference/urls.txt
+
+__pycache__/
