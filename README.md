@@ -234,6 +234,10 @@ prints the event JSON Schema.
 - **It does not start sub-agents.** Your intern works on one task at a time, alone.
 - **It has no editor plugin of its own.** Editors reach it over the Agent Client Protocol.
 
+## Community & Showcase
+
+- **[DrexCam](https://github.com/Spartacam/DrexCam)** — Autonomous First-Notice-of-Loss collision adjudication platform using Drex System 1 fast decider and Intern dual-brain supervision ([example](docs/examples/drexcam.md)).
+
 ## Data
 
 Intern collects no telemetry. What leaves your machine:
