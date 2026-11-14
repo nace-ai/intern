@@ -57,7 +57,7 @@ for (const path of names) {
     (/(^|\/)\.dev\.vars[^/]*$/.test(path) && path !== ".dev.vars.example")
   )
     throw Error(`Private/generated path is indexed: ${path}`);
-  inspect(git("show", `:${path}`), `index:${path}`);
+  inspect(git("show", `:./${path}`), `index:${path}`);
 }
 let historyBlobs = 0;
 for (const line of git("rev-list", "--objects", "--all")
