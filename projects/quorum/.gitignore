@@ -1,0 +1,40 @@
+/dataset
+/backend/data
+/.venv
+/venv
+# /.plans
+/.intern-home
+/.attacker-memory
+/.intern-home-coder
+/.plans/from-himanshu
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Secrets / env
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+build/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Generated case data
+backend/data/

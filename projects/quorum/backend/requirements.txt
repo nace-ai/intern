@@ -1,0 +1,10 @@
+nace-sdk
+pymupdf
+pyarrow
+pydantic
+httpx
+fastapi
+uvicorn[standard]
+python-dotenv
+pytest
+pytest-asyncio

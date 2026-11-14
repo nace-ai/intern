@@ -1,3 +1,5 @@
+> **Quorum hackathon submission:** [Evaluation guide](SUBMISSION.md) · [Project code and README](projects/quorum/README.md) · [Results](projects/quorum/results/arena/report.md)
+
 <p align="center">
   <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, its eyes on the top face, glancing around and blinking" width="160">
 </p>
