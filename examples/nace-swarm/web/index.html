@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nace Swarm — election replay</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --panel: #181d24;
+    --panel-2: #1f2630;
+    --text: #e6ebf0;
+    --muted: #8b97a5;
+    --line: #2a3340;
+    --grid: #1c232d;
+    --dot-left: 64 140 246;   /* blue  */
+    --dot-right: 235 70 70;   /* red   */
+    --left: #408cf6;
+    --right: #eb4646;
+    --abstain: #6b7480;
+    --winner: #f4c145;
+    --arrow: #9aa7b5;
+    --accent: #7c6cf0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, sans-serif;
+  }
+  header { padding: 14px 20px 0; }
+  header h1 { margin: 0 0 2px; font-size: 19px; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  #main {
+    display: flex; gap: 16px; padding: 16px 20px 24px;
+    align-items: flex-start; flex-wrap: wrap;
+  }
+  section {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  section h2 {
+    margin: 0 0 10px; font-size: 13px; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--muted);
+  }
+  #left-col { display: flex; flex-direction: column; gap: 12px; }
+  #board { display: block; border-radius: 8px; background: var(--panel-2); cursor: crosshair; }
+  #controls { display: flex; align-items: center; gap: 12px; }
+  #controls input[type=range] { flex: 1; accent-color: var(--accent); }
+  #round-label { min-width: 74px; font-variant-numeric: tabular-nums; }
+  button {
+    background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+    padding: 6px 16px; font-size: 13px; cursor: pointer;
+  }
+  button:disabled { background: var(--abstain); cursor: default; }
+  #right-col { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 380px; max-width: 560px; }
+  .parties { display: flex; gap: 12px; }
+  .party { flex: 1; }
+  .party h3 { margin: 0 0 8px; font-size: 14px; }
+  .party.Left h3 { color: var(--left); }
+  .party.Right h3 { color: var(--right); }
+  .cand {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 7px 9px; margin-bottom: 8px; background: var(--panel-2);
+  }
+  .cand .name { font-weight: 600; }
+  .cand .slogan { color: var(--muted); font-size: 12px; margin: 1px 0 4px; }
+  .cand .pols { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .cand.primary-winner { border-color: var(--accent); }
+  .cand.winner { border-color: var(--winner); box-shadow: 0 0 0 1px var(--winner); }
+  .badge {
+    display: inline-block; font-size: 10px; border-radius: 4px;
+    padding: 1px 5px; margin-left: 6px; vertical-align: 1px;
+  }
+  .badge.primary { background: var(--accent); color: #fff; }
+  .badge.winner { background: var(--winner); color: #1a1405; }
+  .bar-row { display: grid; grid-template-columns: 110px 1fr 44px; gap: 8px; align-items: center; margin: 4px 0; }
+  .bar-row .lbl { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-track { background: var(--panel-2); border-radius: 4px; height: 14px; }
+  .bar-fill { height: 100%; border-radius: 4px; min-width: 2px; }
+  .bar-row .n { font-size: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+  .chart-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; align-items: center; margin: 5px 0; }
+  .chart-row .lbl { font-size: 12px; color: var(--muted); }
+  .chart-row canvas { display: block; }
+  #memory { display: none; }
+  #memory table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  #memory th, #memory td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+  #memory th { color: var(--muted); font-weight: 500; }
+  #memory .head { font-size: 13px; margin-bottom: 6px; }
+  #hint { color: var(--muted); font-size: 12px; }
+  #dataset {
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 4px 8px; font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Nace Swarm — election replay</h1>
+  <p id="sub">Loading…</p>
+  <p>
+    <select id="dataset">
+      <option value="data/disaster.json" selected>Disaster scenario — live Drex voters (disaster.json)</option>
+      <option value="data/run.json">Normal run (run.json)</option>
+    </select>
+  </p>
+</header>
+<div id="main">
+  <div id="left-col">
+    <section>
+      <h2>Swarm (click a dot for its memory)</h2>
+      <canvas id="board" width="640" height="640"></canvas>
+      <div id="controls" style="margin-top:10px">
+        <input type="range" id="slider" min="1" step="1">
+        <span id="round-label">round —</span>
+        <button id="play">Play</button>
+      </div>
+    </section>
+  </div>
+  <div id="right-col">
+    <section>
+      <h2>Candidates</h2>
+      <div class="parties">
+        <div class="party Left" id="cands-Left"></div>
+        <div class="party Right" id="cands-Right"></div>
+      </div>
+    </section>
+    <section>
+      <h2>Primaries</h2>
+      <div id="primary-Left"></div>
+      <div id="primary-Right" style="margin-top:8px"></div>
+    </section>
+    <section>
+      <h2>General election</h2>
+      <div id="general"></div>
+    </section>
+    <section>
+      <h2>Country state</h2>
+      <div id="country-charts"></div>
+    </section>
+    <section id="memory">
+      <h2>Agent memory</h2>
+      <div id="memory-body"></div>
+    </section>
+  </div>
+</div>
+<script>
+"use strict";
+
+const GRID = 40;
+const METRICS = ["stock_market", "class_mobility", "foreign_relations", "unemployment", "healthcare_access"];
+const css = getComputedStyle(document.documentElement);
+const [LR, LG, LB] = css.getPropertyValue("--dot-left").trim().split(/\s+/).map(Number);
+const [RR, RG, RB] = css.getPropertyValue("--dot-right").trim().split(/\s+/).map(Number);
+const ARROW = css.getPropertyValue("--arrow").trim();
+const GRID_COL = css.getPropertyValue("--grid").trim();
+const BOARD_BG = css.getPropertyValue("--panel-2").trim();
+
+let data = null;      // {rounds: [...]}
+let roundIdx = 0;     // 0-based index into rounds
+let playing = false;
+let playTimer = null;
+let selected = null;  // agent id
+
+const board = document.getElementById("board");
+const bctx = board.getContext("2d");
+const slider = document.getElementById("slider");
+
+function leanColor(lean) {
+  const t = (Math.max(-1, Math.min(1, lean)) + 1) / 2;
+  const r = Math.round(LR + (RR - LR) * t);
+  const g = Math.round(LG + (RG - LG) * t);
+  const b = Math.round(LB + (RB - LB) * t);
+  return `rgb(${r},${g},${b})`;
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function record() { return data.rounds[roundIdx]; }
+
+function drawBoard() {
+  const size = board.width;
+  const px = v => (v / GRID) * size;
+  bctx.fillStyle = BOARD_BG;
+  bctx.fillRect(0, 0, size, size);
+  bctx.strokeStyle = GRID_COL;
+  bctx.lineWidth = 1;
+  for (let i = 0; i <= GRID; i += 5) {
+    bctx.beginPath(); bctx.moveTo(px(i), 0); bctx.lineTo(px(i), size); bctx.stroke();
+    bctx.beginPath(); bctx.moveTo(0, px(i)); bctx.lineTo(size, px(i)); bctx.stroke();
+  }
+  const r = record();
+  const cell = size / GRID;
+  for (const a of r.agents) {
+    const x = px(a.x), y = px(a.y);
+    const dx = x - px(a.prev_x), dy = y - px(a.prev_y);
+    if (dx * dx + dy * dy > 0.4) {
+      const ang = Math.atan2(dy, dx);
+      bctx.strokeStyle = ARROW;
+      bctx.lineWidth = 1;
+      bctx.beginPath(); bctx.moveTo(px(a.prev_x), px(a.prev_y)); bctx.lineTo(x, y); bctx.stroke();
+      const h = 4;
+      bctx.beginPath();
+      bctx.moveTo(x, y);
+      bctx.lineTo(x - h * Math.cos(ang - 0.5), y - h * Math.sin(ang - 0.5));
+      bctx.lineTo(x - h * Math.cos(ang + 0.5), y - h * Math.sin(ang + 0.5));
+      bctx.closePath();
+      bctx.fillStyle = ARROW;
+      bctx.fill();
+    }
+  }
+  for (const a of r.agents) {
+    bctx.beginPath();
+    bctx.arc(px(a.x), px(a.y), cell * 0.32, 0, Math.PI * 2);
+    bctx.fillStyle = leanColor(a.lean);
+    bctx.fill();
+    if (a.id === selected) {
+      bctx.lineWidth = 2;
+      bctx.strokeStyle = "#ffffff";
+      bctx.stroke();
+    }
+  }
+}
+
+board.addEventListener("click", e => {
+  const rect = board.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (board.width / rect.width);
+  const my = (e.clientY - rect.top) * (board.height / rect.height);
+  const size = board.width;
+  const px = v => (v / GRID) * size;
+  let best = null, bestD = Infinity;
+  for (const a of record().agents) {
+    const d = Math.hypot(px(a.x) - mx, px(a.y) - my);
+    if (d < bestD) { bestD = d; best = a; }
+  }
+  selected = bestD < (size / GRID) * 0.6 ? best.id : null;
+  drawBoard();
+  renderMemory();
+});
+
+function renderMemory() {
+  const sec = document.getElementById("memory");
+  const body = document.getElementById("memory-body");
+  if (!selected) { sec.style.display = "none"; body.innerHTML = ""; return; }
+  const a = record().agents.find(x => x.id === selected);
+  if (!a) { sec.style.display = "none"; return; }
+  const rows = a.history.map(s =>
+    `<tr><td>${s.round}</td><td>${s.wealth.toFixed(0)}</td><td>${s.health.toFixed(2)}</td>` +
+    `<td>${s.lean.toFixed(2)}</td><td>${s.x.toFixed(1)}, ${s.y.toFixed(1)}</td><td>${esc(s.vote ?? "—")}</td></tr>`
+  ).join("");
+  body.innerHTML =
+    `<div class="head"><b>${esc(a.id)}</b> — vote: ${esc(a.vote)}</div>` +
+    `<table><tr><th>round</th><th>wealth</th><th>health</th><th>lean</th><th>pos</th><th>vote</th></tr>${rows}</table>`;
+  sec.style.display = "block";
+}
+
+function barChart(el, entries, colorFor) {
+  const total = entries.reduce((s, [, v]) => s + v, 0) || 1;
+  el.innerHTML = entries.map(([label, value]) =>
+    `<div class="bar-row"><span class="lbl" title="${esc(label)}">${esc(label)}</span>` +
+    `<span class="bar-track"><span class="bar-fill" style="width:${(100 * value / total).toFixed(1)}%;background:${colorFor(label)}"></span></span>` +
+    `<span class="n">${value}</span></div>`
+  ).join("");
+}
+
+const LEFT = getComputedStyle(document.documentElement).getPropertyValue("--left").trim();
+const RIGHT = getComputedStyle(document.documentElement).getPropertyValue("--right").trim();
+const ABSTAIN = getComputedStyle(document.documentElement).getPropertyValue("--abstain").trim();
+
+function nameOf(cands, id) {
+  for (const c of cands) if (c.id === id) return c.name;
+  return id;
+}
+
+function renderCandidates() {
+  const r = record();
+  const leftTop = Object.entries(r.primary_tallies.Left).sort((a, b) => b[1] - a[1])[0][0];
+  const rightTop = Object.entries(r.primary_tallies.Right).sort((a, b) => b[1] - a[1])[0][0];
+  for (const party of ["Left", "Right"]) {
+    const el = document.getElementById("cands-" + party);
+    el.innerHTML = `<h3>${party}</h3>` + r.candidates[party].map(c => {
+      const p = c.policies;
+      const pols = `F ${p.foreign.value.toFixed(1)} · E ${p.economic.value.toFixed(1)} · S ${p.social_welfare.value.toFixed(1)}`;
+      const isWinner = r.winner.id === c.id;
+      const isPrimary = (party === "Left" && c.id === leftTop) || (party === "Right" && c.id === rightTop);
+      return `<div class="cand${isWinner ? " winner" : ""}${isPrimary && !isWinner ? " primary-winner" : ""}">` +
+        `<div class="name">${esc(c.name)}` +
+        (isWinner ? `<span class="badge winner">winner</span>` : "") +
+        (isPrimary && !isWinner ? `<span class="badge primary">primary</span>` : "") +
+        `</div>` +
+        `<div class="slogan">${esc(c.slogan)}</div>` +
+        `<div class="pols" title="${esc(p.foreign.text)} | ${esc(p.economic.text)} | ${esc(p.social_welfare.text)}">${pols}</div>` +
+        `</div>`;
+    }).join("");
+  }
+}
+
+function renderTallies() {
+  const r = record();
+  barChart(document.getElementById("primary-Left"),
+    r.candidates.Left.map(c => [c.name, r.primary_tallies.Left[c.id] ?? 0]), () => LEFT);
+  barChart(document.getElementById("primary-Right"),
+    r.candidates.Right.map(c => [c.name, r.primary_tallies.Right[c.id] ?? 0]), () => RIGHT);
+  const gen = Object.entries(r.general_tally);
+  barChart(document.getElementById("general"), gen, ([id]) =>
+    id === "abstain" ? ABSTAIN :
+    r.winner.id === id ? (r.winner.party === "Left" ? LEFT : RIGHT) : (id.startsWith("l") ? LEFT : RIGHT));
+}
+
+function drawLineChart(canvas, series, cur) {
+  const w = canvas.width, h = canvas.height, pad = 6;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = GRID_COL;
+  ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+  const min = 0, max = 1;
+  const X = i => pad + (i / (series.length - 1)) * (w - 2 * pad);
+  const Y = v => h - pad - ((v - min) / (max - min)) * (h - 2 * pad);
+  ctx.strokeStyle = "#8f9db0";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  series.forEach((v, i) => i === 0 ? ctx.moveTo(X(i), Y(v)) : ctx.lineTo(X(i), Y(v)));
+  ctx.stroke();
+  ctx.fillStyle = "#e6ebf0";
+  series.forEach((v, i) => {
+    ctx.beginPath(); ctx.arc(X(i), Y(v), i === cur ? 3.5 : 2, 0, Math.PI * 2); ctx.fill();
+  });
+}
+
+function renderCountry() {
+  const wrap = document.getElementById("country-charts");
+  const n = data.rounds.length;
+  const series = METRICS.map(m =>
+    [data.rounds[0].country_before[m], ...data.rounds.map(r => r.country_after[m])]
+  );
+  if (!wrap.dataset.built) {
+    wrap.dataset.built = "1";
+    wrap.innerHTML = METRICS.map(m =>
+      `<div class="chart-row"><span class="lbl">${m}</span>` +
+      `<canvas width="180" height="34" data-m="${m}"></canvas></div>`
+    ).join("");
+  }
+  METRICS.forEach((m, i) => {
+    const canvas = wrap.querySelector(`canvas[data-m="${m}"]`);
+    drawLineChart(canvas, series[i], roundIdx + 1);
+  });
+}
+
+function render() {
+  const r = record();
+  document.getElementById("round-label").textContent = `round ${r.round}/${data.rounds.length}`;
+  slider.value = r.round;
+  document.getElementById("sub").textContent =
+    `${data.rounds.length} rounds · winner: ${r.winner.name} (${r.winner.party}) · ${r.agents.length} agents`;
+  drawBoard();
+  renderCandidates();
+  renderTallies();
+  renderCountry();
+  renderMemory();
+}
+
+function setPlaying(on) {
+  playing = on;
+  document.getElementById("play").textContent = on ? "Pause" : "Play";
+  clearInterval(playTimer);
+  if (on) playTimer = setInterval(() => {
+    if (roundIdx < data.rounds.length - 1) { roundIdx++; render(); }
+    else setPlaying(false);
+  }, 900);
+}
+
+document.getElementById("play").addEventListener("click", () => {
+  if (!playing && roundIdx === data.rounds.length - 1) roundIdx = 0;
+  setPlaying(!playing);
+  render();
+});
+slider.addEventListener("input", () => {
+  roundIdx = Number(slider.value) - 1;
+  setPlaying(false);
+  render();
+});
+
+function load(file) {
+  setPlaying(false);
+  fetch(file).then(res => res.json()).then(d => {
+    data = d;
+    roundIdx = 0;
+    slider.max = String(data.rounds.length);
+    render();
+  }).catch(err => {
+    document.getElementById("sub").textContent =
+      `Could not load ${file} — normal run: uv run python -m swarm.sim --agents 100 --rounds 5; ` +
+      "disaster: uv run python -m scenarios.disaster";
+  });
+}
+const datasetSel = document.getElementById("dataset");
+datasetSel.addEventListener("change", () => load(datasetSel.value));
+load(datasetSel.value);
+</script>
+</body>
+</html>
