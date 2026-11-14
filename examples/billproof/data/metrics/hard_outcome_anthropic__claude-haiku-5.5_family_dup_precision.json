@@ -1,0 +1,15 @@
+{
+  "value": 0.99830220713073,
+  "n": 589,
+  "source_run": "ladder_hard_anthropic__claude-haiku-5.5",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:08:31Z",
+  "k": 588,
+  "fp": 1,
+  "fn": 12,
+  "ci_low": 0.9904461977793717,
+  "ci_high": 0.9997002426863444,
+  "ci_method": "wilson",
+  "added_after_first_results": true,
+  "note": "Added after the first results because all-or-nothing over about 187 questions saturates at 0 for every lane. One deterministic OK-versus-dispute rule, no tuned threshold. Scored from recorded answers on the frozen 100. No new model call."
+}

@@ -1,0 +1,13 @@
+{
+  "value": 6736.77,
+  "n": 100,
+  "source_run": "hard_test_family_hybrid",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:35:33Z",
+  "caught_cents": 673677,
+  "gold_overcharge_cents": 673677,
+  "priced_lines": 3101,
+  "catch_rate": 1.0,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+}

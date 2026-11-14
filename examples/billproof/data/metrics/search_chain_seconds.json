@@ -1,0 +1,8 @@
+{
+  "value": 28.8,
+  "n": 2,
+  "source_run": "search_recorded_SYN-D07+SYN-D08",
+  "simulated": false,
+  "computed_at": "2026-11-14T07:08:16.460259+00:00",
+  "note": "ingest check + agent search + 2 Drex calls + letter, wall clock"
+}

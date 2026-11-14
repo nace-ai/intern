@@ -1,0 +1,12 @@
+{
+  "value": 0.2,
+  "n": 60,
+  "source_run": "hard_dev_family_hybrid",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:18:39Z",
+  "k": 12,
+  "ci_low": 0.11828389736858964,
+  "ci_high": 0.3178204609181701,
+  "added_after_first_results": true,
+  "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+}

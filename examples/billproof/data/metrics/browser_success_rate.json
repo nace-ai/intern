@@ -1,0 +1,13 @@
+{
+  "value": 0.667,
+  "n": 9,
+  "source_run": "browser_explore_20261114+SYN-D08",
+  "simulated": false,
+  "computed_at": "2026-11-14T07:08:06.075446+00:00",
+  "by_status": {
+    "cancelled": 2,
+    "failed": 1,
+    "succeeded": 6
+  },
+  "note": "2 cancelled runs were 'funded browser budget exhausted' (account side); 1 failed on a PDF start URL"
+}

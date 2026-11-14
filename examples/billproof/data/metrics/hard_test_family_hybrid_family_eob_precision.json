@@ -1,0 +1,14 @@
+{
+  "value": 1.0,
+  "n": 913,
+  "source_run": "hard_test_family_hybrid",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:35:33Z",
+  "k": 913,
+  "fp": 0,
+  "fn": 1,
+  "ci_low": 0.9958099632477407,
+  "ci_high": 0.9999999999999999,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+}

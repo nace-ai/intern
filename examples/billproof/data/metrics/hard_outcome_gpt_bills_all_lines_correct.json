@@ -1,0 +1,13 @@
+{
+  "value": 1.0,
+  "n": 100,
+  "source_run": "hard_test_gpt_subset",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:08:31Z",
+  "k": 100,
+  "ci_low": 0.9630051925239981,
+  "ci_high": 0.9999999999999999,
+  "ci_method": "wilson",
+  "added_after_first_results": true,
+  "note": "Added after the first results because all-or-nothing over about 187 questions saturates at 0 for every lane. One deterministic OK-versus-dispute rule, no tuned threshold. Scored from recorded answers on the frozen 100. No new model call."
+}

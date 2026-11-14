@@ -1,0 +1,2732 @@
+{
+  "pilot": "g_persius_dev",
+  "split": "train",
+  "n": 300,
+  "per_class": 150,
+  "stratified": true,
+  "rank_salt": "g-persius-dev|20261114",
+  "rank": "md5('g-persius-dev|20261114|{row_index}') ascending, first 150 within each class",
+  "excluded_pilot_ids": "data/runs/c_persius_ids.json",
+  "gold_map": {
+    "Overturned": "yes",
+    "Upheld": "no"
+  },
+  "source": "train sufficiency_id==1 after frozen c_persius.leaks, excluding the 20-row pilot",
+  "leakage": "imported c_persius.leaks; regexes not copied",
+  "question_instructions_sha256": "dea143e86a8e7d96800996393d1980b2bd1cd7be52d06e0d7aca364e5f70c2c2",
+  "gpt_system_sha256": "33c9fc9cfa12db680b37ff62567922c7e30ff1e59f4788a81e3d55a2fe4ca7ac",
+  "population": {
+    "train_rows": 64067,
+    "sufficiency_1": 62657,
+    "dropped_by_leaks": 1817,
+    "excluded_pilot": 20,
+    "kept": 60820,
+    "base_rate_before": 0.4716153023604705,
+    "base_rate_after_exclude": 0.4668858927984216,
+    "n_yes_kept": 28396,
+    "n_no_kept": 32424
+  },
+  "items": [
+    {
+      "row_index": 30058,
+      "case_id": "persius-train-30058",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "8d7a8ee9928ee1dcccf3d6f25b3ca3c54a5089a3d83e8d6e691aa14aeefd5c3c",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00002813e2b51047a4d7980646e5934d"
+    },
+    {
+      "row_index": 8707,
+      "case_id": "persius-train-8707",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "71a3281b3ee89b1d75445c07b7445257a781069ddf0d5ef7487b5a60c8e37992",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "000059e87800001d0422e75142d2fa54"
+    },
+    {
+      "row_index": 5006,
+      "case_id": "persius-train-5006",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "000d8723996b759beaace7077704f97900371e954a94cd2f95d744937c911b51",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0000e2978ae27d9b2d9b95f4e754d582"
+    },
+    {
+      "row_index": 36205,
+      "case_id": "persius-train-36205",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "1106bf5243a35780bdfb1da517b8dc5b757d47be8a122f1743d5f0914bf2dc0b",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00021cf4c54a76c28e883b2425fea0aa"
+    },
+    {
+      "row_index": 8517,
+      "case_id": "persius-train-8517",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "de4e392e991707f2e884bff62082e45822aa48078f38efb20581e74f9cecff68",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00042ecc26a974b5879104700aecdcae"
+    },
+    {
+      "row_index": 1517,
+      "case_id": "persius-train-1517",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "c3b5dacdb59f244d5592e08ff85b73f543cfb8c8bfc3c5a67988d55b0b951927",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00069d7f39dc7b416515fa06792bddb0"
+    },
+    {
+      "row_index": 47150,
+      "case_id": "persius-train-47150",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "75d7e813d69f40484756c535b65e5da38cab73736b0296e1cd4c8afb39acba9a",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00085177d64e3465b81bd4a4ae86f0a1"
+    },
+    {
+      "row_index": 23454,
+      "case_id": "persius-train-23454",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "e84353d145b2fe1122c4e68dd001172d90e2b34baab94fe458bc6a65472e4d07",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0009ef32be9f764dbe2bf70bee7ccce6"
+    },
+    {
+      "row_index": 45020,
+      "case_id": "persius-train-45020",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "daf46b1484a93a39425e4aec93b50fe8c5450d328af138b7c7fba7032ceff43d",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "000afba31532f76354bbef36fbb1c63c"
+    },
+    {
+      "row_index": 42579,
+      "case_id": "persius-train-42579",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "942635863fd3d38a21a31ff889c076a63c6ad983569cfe01c7fae80d9d74ee20",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "000b41306c794c521f67582a0233bf4b"
+    },
+    {
+      "row_index": 18736,
+      "case_id": "persius-train-18736",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "09c567f800d300f134a8a1d91ef42ea76427c071c47e463fe137e4857eb5ad5b",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "000eb64ce83fb18981a16ceb6b2af20c"
+    },
+    {
+      "row_index": 44654,
+      "case_id": "persius-train-44654",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "75c184f86fbd19ba0ba32e0ab8a092b2a7fc71d79b5b23f1094c32ca9992e2df",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "000ed22cc6f6461e474f48ff8d6ed070"
+    },
+    {
+      "row_index": 20356,
+      "case_id": "persius-train-20356",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "3c08bbf4d25d48494158d529554bd7ccbe9a75339a95d5d35e137a72938276f8",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "000f28404b5c8874dc62419fe042ed81"
+    },
+    {
+      "row_index": 46130,
+      "case_id": "persius-train-46130",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "ea03ffa0bc22ff69f624b99ac8393511390a6ede1155ad6611397ad316218d17",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00102ef7a174fe6f1540a8e16d93f243"
+    },
+    {
+      "row_index": 55835,
+      "case_id": "persius-train-55835",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "84e93bd7fad6a22244e16ce00641ccb7ef4710c1b8b93a58bfffa6fa48bd9a32",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0010fd011dfaf2dc571519aa69e96aee"
+    },
+    {
+      "row_index": 8623,
+      "case_id": "persius-train-8623",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e6096fe00c8ea2ca96d9f632f6823cc1e116468615752bd303c4b7182422ef8b",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0011528eef645c5fd3d80c17f5c16612"
+    },
+    {
+      "row_index": 2455,
+      "case_id": "persius-train-2455",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "668ed5bfd1f80da574c0e1fa651786960efe778118f5de1f3136e70540115a92",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0011a7c083d11690376c08a7b1b3cb4e"
+    },
+    {
+      "row_index": 10728,
+      "case_id": "persius-train-10728",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "d9f89d061226331def53afe86bd605675202bf5cda0185ba9ab7f850e84b611e",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0012047a0d41a162ca1d6c361b29f2c7"
+    },
+    {
+      "row_index": 46834,
+      "case_id": "persius-train-46834",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "2304e05112213f8e754e6c609d99814c7d676a740ad8fed78976fb1c656b68f2",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00121d67b5eeb9062f5869574fe091d9"
+    },
+    {
+      "row_index": 22399,
+      "case_id": "persius-train-22399",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "23c50f1781ea1d88e94ca3c97e52b45b273a11ff2649f3956e9f9dd20565d6ad",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00166693adcc83c433c516400c08a82a"
+    },
+    {
+      "row_index": 49509,
+      "case_id": "persius-train-49509",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "0b55201c68b72d32f65391d360bce2a3a98a21250c8c85e5005754ac942e55d8",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0016b9a8d680db78687b1d457de8f6df"
+    },
+    {
+      "row_index": 55733,
+      "case_id": "persius-train-55733",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "fde69a094d477fb2735d5cbc50ea7aa00c365378a256302c31eba2aa5fdbde08",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0017f0c89caf7fb459e4901afa37e58a"
+    },
+    {
+      "row_index": 43767,
+      "case_id": "persius-train-43767",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "a989aecdd54c46867afdfffdf5dedf3e5bdcfb9eb26dc72b7f7997a405ee8373",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00181796be26d4f97db99397068e8ef5"
+    },
+    {
+      "row_index": 22679,
+      "case_id": "persius-train-22679",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "e8ea9ebd492f8dc029e153de62010bc64029f9ffbd798430fc8a6730468a0f42",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0018830bebe78f677bcabde383e3b793"
+    },
+    {
+      "row_index": 3063,
+      "case_id": "persius-train-3063",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "7bf8da484a050278c2754869d8c769d987931d25f6eeeb792df7eda0f376ae29",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "001994568bb14216e3fb53ffe1be2143"
+    },
+    {
+      "row_index": 48571,
+      "case_id": "persius-train-48571",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "079807b1f6cf449b0dc930f3d939f7300836056cbe021d33b3ffa4e7174ee046",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "001b3d1a5f8b21282abe167e48f79fe1"
+    },
+    {
+      "row_index": 40151,
+      "case_id": "persius-train-40151",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "290aa8e5ab2bbf55a1879703f42e80a7d07ccfae1b2110a6c70ebd0638decf81",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "001b592adaa1cb151e03fdc60b0b70fa"
+    },
+    {
+      "row_index": 42354,
+      "case_id": "persius-train-42354",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "2801abcbebd3146a1e2d9c6517c0ba2e6385ee3e0051cbbd999d2001a7211504",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "001dc29ed518272b8607b8a18d6e8d0c"
+    },
+    {
+      "row_index": 40163,
+      "case_id": "persius-train-40163",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "ad7d56c51e6578474d3e8c5032f49050dbcf45f67fdd15a603adcaf766de805d",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0021220f38acc725c0a7a39c223a679b"
+    },
+    {
+      "row_index": 55854,
+      "case_id": "persius-train-55854",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "b49b5d2d1ba5ef88e70460b839256f3ca378b4744ae09e1e08232634568c45c6",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00214e7aa0c07c3f839c47c91cb64053"
+    },
+    {
+      "row_index": 19252,
+      "case_id": "persius-train-19252",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "3543ddca4513b18943f6aab621cf4040adc17bd3330860a0ad9daa358dffc663",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00243f18eb16d0a8f2b26a5cddc974a2"
+    },
+    {
+      "row_index": 16306,
+      "case_id": "persius-train-16306",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "b6edae513577a76f86e72a7b2fb50c1dc676088ebe161652e55266d210bd5b92",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "002557d2f0fd1d2c8ce643674e81f669"
+    },
+    {
+      "row_index": 36381,
+      "case_id": "persius-train-36381",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "9f68341b69eeb33efe2a9125a2fc968ef2840817ae0934f0077fd1a207b018c5",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0028ccb5ef99100cf25f3eeae89486bb"
+    },
+    {
+      "row_index": 10536,
+      "case_id": "persius-train-10536",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "86097787743c77006c3a0c9c5f9ae4bedc453327c8deb56f7a7584b75446f479",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "002a39d9210dd097d9d98c2dee7df652"
+    },
+    {
+      "row_index": 45842,
+      "case_id": "persius-train-45842",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "9df97ee3696d5e26f896515bcc4bf93f2952b7d1c1868d4ebfdf82c4b35cb709",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "002b5344f3cbcab568bed70ba89081ca"
+    },
+    {
+      "row_index": 21263,
+      "case_id": "persius-train-21263",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "a8837b049c4154d61bbd4cc8bc1beaf81189b8225e2510973cead2c6e8c2f66b",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "002e00be0935c1ea4f46b5619ec53a79"
+    },
+    {
+      "row_index": 19484,
+      "case_id": "persius-train-19484",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "a5c87c237cd4000a1a62cc3b9af0570a44e784fd7061fbb4111b20204c2dc002",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "002e1674b4329fed2a5a9ac051919c7b"
+    },
+    {
+      "row_index": 1961,
+      "case_id": "persius-train-1961",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "2b3e5bb0fdf291570a416666829b977de211ccc258dd13f185e27f7b3214dc23",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "002fd62e9bc055bd8ebed247279fbde8"
+    },
+    {
+      "row_index": 48322,
+      "case_id": "persius-train-48322",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "922fdc05153f0c1ea091a4773e8da9e6eae6803c19344062895061bf45bbf353",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "003043193813ecf08f39f66154e2f204"
+    },
+    {
+      "row_index": 15748,
+      "case_id": "persius-train-15748",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "8a4c84e230fbcd703647bfc7d09309def8e8512aecf1a62a9996f24051b0deb6",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0030ac36f0c805c5b8caecc40e83e13b"
+    },
+    {
+      "row_index": 3367,
+      "case_id": "persius-train-3367",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "61ecb761fd01e7e99213ef88cebbcda45277df5cd4bbc65aa3616a6981f4f69f",
+      "appeal_type": "Experimental",
+      "rank_md5": "003169c0a9f5fe94f8f4a76d80757436"
+    },
+    {
+      "row_index": 58208,
+      "case_id": "persius-train-58208",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "1e29ee157d07658b84c8ec702965cab74188c23bd64f1c1cc1247d011ef6d88f",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "003287339e6a918cb4006972712e8e74"
+    },
+    {
+      "row_index": 44115,
+      "case_id": "persius-train-44115",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "bcea72accfec1fdedf2e762eb356b9083a7858265b75320c9fd75ea83cb2dbce",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00332f1f0325f651f12e19b2cf88c624"
+    },
+    {
+      "row_index": 64064,
+      "case_id": "persius-train-64064",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "29eb45fb3a560db6efc4e40154b4a29eb7b2d1e6f91c7410c22d283f7e279ef8",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0033cab0218ec08b64f860be508b1433"
+    },
+    {
+      "row_index": 8348,
+      "case_id": "persius-train-8348",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "60fe057ee3297c3fbdc4b68f537d6810b121fbba63b71385bbe08a1eea239276",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0033f7e5cdf3154e0210b96783ab700f"
+    },
+    {
+      "row_index": 40182,
+      "case_id": "persius-train-40182",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "47d330924d74f42b4f0bd8a759880cc527309361c2c10cc9f9dae450a4af640b",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0035b9350f2a20afe29ba8e13fc73116"
+    },
+    {
+      "row_index": 5997,
+      "case_id": "persius-train-5997",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "da0ba8a01a9add9c0250855b2d9a2a47a708fe75eeaea1e499245f23fd2d5d30",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0035c20d2e16edede371102d5303e2d7"
+    },
+    {
+      "row_index": 26975,
+      "case_id": "persius-train-26975",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "9b9f8b2f552605f2b796c75e035da813ccb660eac43feef3825f26000e068794",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "003763a99213e664947c37c63e26cf4a"
+    },
+    {
+      "row_index": 28586,
+      "case_id": "persius-train-28586",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "72df50da24d272f03c143584663f58315750b0b3f4e45f37627d56a066e5c56a",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00399fb3c31bbdbfeb81a1f38d2b8735"
+    },
+    {
+      "row_index": 2739,
+      "case_id": "persius-train-2739",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "8a516ad81d28b8aff77982e8a3c3a06bbe65eef5bf9f6b819861ef8a3dce59f8",
+      "appeal_type": "Experimental",
+      "rank_md5": "003d338d04a7779a7358069a7f13f3d9"
+    },
+    {
+      "row_index": 46390,
+      "case_id": "persius-train-46390",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "39b91b89cfa0b19994ecb757e1bc35fc941d54845a62780d25bf3c90a0fac822",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "003dda5da10dc64f953b1d412c94a4d0"
+    },
+    {
+      "row_index": 48860,
+      "case_id": "persius-train-48860",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "303ef239dc1cf27cd524978204fb107c55dae78494f43a4f1f742492e55e2144",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "003ee960b18a4e55d6923c5200ea1cbb"
+    },
+    {
+      "row_index": 44653,
+      "case_id": "persius-train-44653",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "dd1fa1825d6827505dc5c518687fcd1b854bc80d9a1a72ac355ddbbe20f781e5",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0040377173e5f84f8ee6f3f4796747c1"
+    },
+    {
+      "row_index": 4066,
+      "case_id": "persius-train-4066",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "92fd8d560243ed3aff1e8c0649af7ab0be0dad0f8456f2841c45c6d7cc8f7198",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0040aab3348b6455884c261aa4fa70af"
+    },
+    {
+      "row_index": 31165,
+      "case_id": "persius-train-31165",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "55057ea0439b2c837139fef6f29a5989098d758a15eddafaeb58c5780d547c37",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0041b0260dea9ac1654200fe6c75a497"
+    },
+    {
+      "row_index": 13053,
+      "case_id": "persius-train-13053",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "6ee994289f14a12c914723014d5279120681166107000b8e69a50dd44a6ac8ec",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00441809fd61113b054f7e673cc78bd4"
+    },
+    {
+      "row_index": 24686,
+      "case_id": "persius-train-24686",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "42e920fab0fab6d6769de0214d46ecaafcc3cba664279ae880317a09b742fda5",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0044633a946d8b76a291d7deb6ceaded"
+    },
+    {
+      "row_index": 38592,
+      "case_id": "persius-train-38592",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "b138fc72ce65616ea4fdcf7f38ad8e2bdffe3fe899f097297ff49fef0105100b",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00451166d444e7c24ae4e4373d369f2f"
+    },
+    {
+      "row_index": 34292,
+      "case_id": "persius-train-34292",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e693fe70da6ae1aa124d90c3ded34b7ce58b416e747b25f90e72736df305fbdb",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0045c6af1588065941c2d4c4a4617dd9"
+    },
+    {
+      "row_index": 49905,
+      "case_id": "persius-train-49905",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "f54a9f6c82785463d7a322548e450ce6759aaa8583f31372546ff1d883543322",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00472d00c90236fa634dd75a8e0d1ee0"
+    },
+    {
+      "row_index": 13076,
+      "case_id": "persius-train-13076",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "000d8723996b759beaace7077704f97900371e954a94cd2f95d744937c911b51",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "004b27e374374c13641dbd4a0f695d72"
+    },
+    {
+      "row_index": 63132,
+      "case_id": "persius-train-63132",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "284358a8681e4b84267adfe027b1e2a298df475f25c3dc4a68e05713c852d300",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "004b5e7a22b5bc90aac27a3399c45844"
+    },
+    {
+      "row_index": 22214,
+      "case_id": "persius-train-22214",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "fff995b9d0975a264d8fd7ad20c8c1b1af36d61edc4832031c06fefc64a7f628",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "004d6005b5f7e65ff773056085177915"
+    },
+    {
+      "row_index": 59383,
+      "case_id": "persius-train-59383",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "1333c913ba4a1156b0f8cbb8724e22c9f2c6e8ab21f5af8b5cdadf6947672af5",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "004dbc058f5a423e3b47016d5d9f7533"
+    },
+    {
+      "row_index": 26986,
+      "case_id": "persius-train-26986",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "4051812e1033a53cffd865a46e7a3a8ddb3250fc3cc6f1bb72878b09fb41ac32",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "004df6b89aa1678ecdbf6d8f86231fa3"
+    },
+    {
+      "row_index": 63859,
+      "case_id": "persius-train-63859",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "a28103f20d61588ca06714cffb3dce8e68ba1f038548d44d0e77ac87134962bd",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "004eeadfe5cd568a9893cf5649cb1ad7"
+    },
+    {
+      "row_index": 4776,
+      "case_id": "persius-train-4776",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "ef10e86fe11a4bbe7375496ecec8c54b8aa9d7cd38ed823c634296935d8e1243",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "004f534f8874553446ea4f3c4481f9d4"
+    },
+    {
+      "row_index": 16110,
+      "case_id": "persius-train-16110",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "1a2a6b393578f42bf8cab5a766fda2af960ed3afec4834e2814945d60c338cc3",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "004fc4626451510e0dcab687600f4274"
+    },
+    {
+      "row_index": 57746,
+      "case_id": "persius-train-57746",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "90cce80403b68f33cba1409ee496b8439b6045cc34fe1cd8ec2cda4b32e2c865",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0050ca6625c1649bc6487f076aaf35bb"
+    },
+    {
+      "row_index": 40902,
+      "case_id": "persius-train-40902",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "2a61f593352fe3aa9e47a67373ca5225e6d885914c41f8514f9bd7a1198c8981",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "005138b3b66d4fa91d26dd9bbfb4c42b"
+    },
+    {
+      "row_index": 45412,
+      "case_id": "persius-train-45412",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "3771f300b3697e0a5fae2e642314ff28233eeb613c2eb21fbff082cba3e7ee4f",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00524a785081bfad9c18bf083f523837"
+    },
+    {
+      "row_index": 26977,
+      "case_id": "persius-train-26977",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "f6078ea42f18263a79c7ae014287d17863d23fdd51a6462e370efed2f9033382",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0054ce32744c19e12f2ab2270a5c97b8"
+    },
+    {
+      "row_index": 39308,
+      "case_id": "persius-train-39308",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "45fa8f470dab6a6e8ddb8c95c0bb79b69c5bcfb6346eed2192e225d3b9c8d44d",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "0055778ed509cdc9595b6ce836fb9c25"
+    },
+    {
+      "row_index": 61334,
+      "case_id": "persius-train-61334",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "74a5f10c2176e65c8bb90504ca8e6603421486ae69717eadac0efb565858c482",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "005941437cbfcb9024ac95ae2ca238c5"
+    },
+    {
+      "row_index": 14660,
+      "case_id": "persius-train-14660",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "aa0e0d83e789503f599c0b73e4072b9651ee818310b6557569fc5d810015bc47",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "005a87ef109143db05285f1b911dee74"
+    },
+    {
+      "row_index": 57529,
+      "case_id": "persius-train-57529",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "63d4925091e1362abc39025b810ca38177efa824570b83506a1491dec9f00c28",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "005a8a1963452c73282544ae172adaa8"
+    },
+    {
+      "row_index": 54272,
+      "case_id": "persius-train-54272",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "7e327ab8b27a23e8955e531a82ec6d061da4ee5bf61ce6d13dd32e9ae2fcd2e0",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "005d71d4791e131f93218502c467b677"
+    },
+    {
+      "row_index": 63643,
+      "case_id": "persius-train-63643",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "53173bbf4b013531fecc6324f637a3fa8016bf68b4866ae3a104ea444ca7bb14",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "005dac5f8b26df4f20057e575030bbc3"
+    },
+    {
+      "row_index": 56739,
+      "case_id": "persius-train-56739",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "8ee61c71ec5abcdddba0fad02063d4e0cee5726531a8c12bab9563d44244b88e",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "005e2a00d528579e9464f1044f4244cb"
+    },
+    {
+      "row_index": 3965,
+      "case_id": "persius-train-3965",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "efc828d712fb62f7f28a125405de3ce8f3e8199031e203d7ba2c4c24fa13db7e",
+      "appeal_type": "Experimental",
+      "rank_md5": "005e81e8946f160a9ee615cb5dde0a2b"
+    },
+    {
+      "row_index": 10777,
+      "case_id": "persius-train-10777",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "728dd9b21beb9bd614858621e9e354a03bd082fe523d3fe0f42b7659cb1298af",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "006003fb5bfd24a2c6611ff85f955171"
+    },
+    {
+      "row_index": 18131,
+      "case_id": "persius-train-18131",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "6985a6385ee67e570cf26bd94b47a83d6f18bd6f1ab8c8889c94b3133838effe",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00614665aa28430340783005ff76d036"
+    },
+    {
+      "row_index": 34706,
+      "case_id": "persius-train-34706",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "64bba53fefa8a22c67722d8bd83c99aa98b6e6e7333f63e990f87dd6c5c6d4e4",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00634ef2ffbf4aa8879df75092d85cb5"
+    },
+    {
+      "row_index": 41115,
+      "case_id": "persius-train-41115",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "e17cb41703978b93023e8c6e4c1c7cf281926f5814562b32b516118c5956a20e",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0063a55b3728435ef34f5ce04f17edfd"
+    },
+    {
+      "row_index": 26741,
+      "case_id": "persius-train-26741",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "843e9291dc3134b65d9f711b8bfd42fb222e5d2515ec9c165f4cb917fce2364f",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00675b85db5db8cd155741d8bc810f46"
+    },
+    {
+      "row_index": 29628,
+      "case_id": "persius-train-29628",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "a24cd5ab89e74b02564f4426a327a74dbd29e1ad946efa504033ff5f423e54de",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "006776a8e7e7c60cdc1dc3e351850cee"
+    },
+    {
+      "row_index": 5097,
+      "case_id": "persius-train-5097",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "9493552b82db90fba303c2a72f8076402c604e37072358db4023816bf17c6770",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00694891c5f3664cbf06c95bb1f3ec34"
+    },
+    {
+      "row_index": 35539,
+      "case_id": "persius-train-35539",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "8dc0853e2e3146a9fda4f2de9bc8ce0b8af41159605aa5559a66f175daf2510e",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "006a70d9dfb54dd75938a1d0ca7b57a4"
+    },
+    {
+      "row_index": 29862,
+      "case_id": "persius-train-29862",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "1786e0f0ca4c9e224072966c2c8c158a95856eb14e5d4078ffbdf4b82acfb482",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "006b639f67bd7e765d2903847f81ab22"
+    },
+    {
+      "row_index": 12629,
+      "case_id": "persius-train-12629",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "6ec3c4fd9961276eeff2e5a0fa40e49f130b1f7395f0797eafa9318524bf8d1d",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "006bd49a71987aae893041c59d3768b1"
+    },
+    {
+      "row_index": 31416,
+      "case_id": "persius-train-31416",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "a64983607245c0587fb8513b34948df9f733ff2dfe2bf670bec24f1760335f0e",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "006d07bd9d70e58f18a773d2cb8cc6ad"
+    },
+    {
+      "row_index": 40447,
+      "case_id": "persius-train-40447",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "24e7d1de5694e030cf59da0a4122ac48c0a5f5df8f16f46d7ab000227980bdd0",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "006d18f4008e2a16b6c514fd688bc12b"
+    },
+    {
+      "row_index": 13276,
+      "case_id": "persius-train-13276",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "2d5d171e964a37395afd4566fca077195ebf35200f8ba328800de013e4663bfb",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "006d2d680b09295488fbd213062ed0f7"
+    },
+    {
+      "row_index": 53058,
+      "case_id": "persius-train-53058",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "52aa4e943cd2386eeabda88c4dca79e98a3cd01be93aa88a9dee18b04185844b",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "006e3186e1547db981737212ffadeab1"
+    },
+    {
+      "row_index": 61776,
+      "case_id": "persius-train-61776",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "6e25d2d38d40b18a440a1021cc2ab232b087c87aea338020e2ec429900f9740c",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "006e66526f758f72b4fd694d86c0f78e"
+    },
+    {
+      "row_index": 56225,
+      "case_id": "persius-train-56225",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "fb8198a3d4b62cd0d31520884aab108cd08ca7b63c084ab6a5e351166232fe03",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "006f3657cc784db737571170ed79b596"
+    },
+    {
+      "row_index": 37663,
+      "case_id": "persius-train-37663",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "949924211762ffdbc7f67e446d3e34c685a7ddfd0057fccf197c3d04a8ae871d",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0071a5e5934babc12eedf1b77e5cba47"
+    },
+    {
+      "row_index": 16248,
+      "case_id": "persius-train-16248",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "e5bbfe25f65d8e438814192013728f3efd8e8279983dcde36beecd5ab3e1dca1",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "007282930872ac1350082f6ff0e30c79"
+    },
+    {
+      "row_index": 5609,
+      "case_id": "persius-train-5609",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "f49961c072e10152990800b9a1ea37e3829a713c2cbe3c06d161cda5410ef89f",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00731f40469477d7623bef17663f102f"
+    },
+    {
+      "row_index": 1377,
+      "case_id": "persius-train-1377",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "a0da2338968bc9eb5ab68b1ea1f27af762600bbb0f7b9f80a4f44d44075cc779",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00750c5b858b7f26063cc244abf6612a"
+    },
+    {
+      "row_index": 49528,
+      "case_id": "persius-train-49528",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "4355ff97a751d90de07687ce1cc307da05a107129347dc6bfea3f0ac8414fca8",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0075deba4d64ae897cd9604cc80cc322"
+    },
+    {
+      "row_index": 37635,
+      "case_id": "persius-train-37635",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "4767381787a1922bedafcffdb76132765b9207177613b14f464347fefae10c2b",
+      "appeal_type": "Step Therapy",
+      "rank_md5": "0077e4d02edc8b60799f114e6fe24add"
+    },
+    {
+      "row_index": 5359,
+      "case_id": "persius-train-5359",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "e9d46c7198bb50c81b8d59f39be1738aef333bf3e1feec05066a6163db85e1c3",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0078130051286aa740209afdfd99618b"
+    },
+    {
+      "row_index": 54735,
+      "case_id": "persius-train-54735",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e2d8f3da3f156e6af5c3f44b5b6944e114b5f6eb5a4265f77a7fb7fd0112fb02",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00784d82cf69a7df3c81d85e01dd0da2"
+    },
+    {
+      "row_index": 49883,
+      "case_id": "persius-train-49883",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "26a16793dbe755e05e4138c01db78ac6969a5e7b6a52d2ef0a15a2a23ccc029c",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "007a4cffb6bb04a876a27c7d38f4e77a"
+    },
+    {
+      "row_index": 48201,
+      "case_id": "persius-train-48201",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "d8dd2e3b273741978005bd3a5d6a5dd4d49f1dfd2c528deae5b1149900a32728",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "007ab9508efe5e0c9a3a9d5ffe7f209e"
+    },
+    {
+      "row_index": 41127,
+      "case_id": "persius-train-41127",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "ae2b24bd0b6a6faf8d27e98976f6789b1f7fa43d080f5729d328338a31555b12",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "007bd07bf3043f08b78b2afa7d182c2f"
+    },
+    {
+      "row_index": 33572,
+      "case_id": "persius-train-33572",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "18bb2be0cf7c211d5c6db17a93e4ee0499e32c5663ab57b2118181197d5e9ec3",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "007c9f9f71a38365faf2f1dec7dd4de1"
+    },
+    {
+      "row_index": 18629,
+      "case_id": "persius-train-18629",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "6f9333befd0b8e25ca2c09c07a691d6805297115a5650439cc490b56190adf9e",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "007d35432d34ffef723a0303b0378b78"
+    },
+    {
+      "row_index": 6008,
+      "case_id": "persius-train-6008",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "142e36c2f0b52fb12c2c703bf3af16fd2080214acab0429fc48f4b121deaef5f",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "007db61385df4d7316b0424aba54b9ea"
+    },
+    {
+      "row_index": 19624,
+      "case_id": "persius-train-19624",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "0629f23aea5683777abd9806752e4fee6cec8475df76ccedbf32b6b542a5b991",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "007e398593f572df96b47e72d7917f6c"
+    },
+    {
+      "row_index": 27695,
+      "case_id": "persius-train-27695",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "6906ad3940f06b4147ed79fe345a6d61c33ccb864021cc71b5fc53c0dd5ea22b",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "007f2b14214b712d0a0f4a67f3072e97"
+    },
+    {
+      "row_index": 64047,
+      "case_id": "persius-train-64047",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "545a005e85440edc774d77be5573cd584f82da500edb23e8364524a29e0aa975",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0080d4f57ba5478aa7d03a1d8bdcc36e"
+    },
+    {
+      "row_index": 9423,
+      "case_id": "persius-train-9423",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "c3ef99c2f807ca905763d90ca520458736ec03bcec90e1b03bfb1ebff6c57682",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00819de1fe9a43ea498c8de8ea2aa87a"
+    },
+    {
+      "row_index": 28984,
+      "case_id": "persius-train-28984",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "782626699a168f8c25209f16f65c7c03246731f80e8faedd0542c5873d301a76",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0081d479a8f7bd13c9e0ba74fc505ee5"
+    },
+    {
+      "row_index": 15214,
+      "case_id": "persius-train-15214",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "04e6982f9b8f3dafd7bbf64f89ef35c052a11a72dc9e9f1c3232be5aa385eb41",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0082fda9aa45838d35df28d504b2d24a"
+    },
+    {
+      "row_index": 36493,
+      "case_id": "persius-train-36493",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "13a31e4335ac99d9b02c7e388f0f313309789895c3b88ca64af4b6ef11dde6c9",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00841a216f54da4971d445d2e0586958"
+    },
+    {
+      "row_index": 33406,
+      "case_id": "persius-train-33406",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "27e59e0910668a655dc407cf98f98c3a3519bb57c341efd23771a9fb34c4b4e3",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008486ca641c15cb816709ac6167dd3f"
+    },
+    {
+      "row_index": 17692,
+      "case_id": "persius-train-17692",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "9b603d3d2f54d05dac15344115770bb2831af8dc8eefe345faa0ad021aecef69",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0084c0659686fa4a2f778a0ff9492840"
+    },
+    {
+      "row_index": 23708,
+      "case_id": "persius-train-23708",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "5282c858ae0b7a8fda30ade2481cb5e82abcbe83ab074aa8c4d3e0a0c9f8a315",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0084c0ac1958d5a41b216f9cbeff9991"
+    },
+    {
+      "row_index": 63815,
+      "case_id": "persius-train-63815",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "6c3d2fa1043ad3e44f99701254ad4d3cb6c68633655c3df40c87598fe7883623",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008504035bfbd2d14a8897befc5162c4"
+    },
+    {
+      "row_index": 42568,
+      "case_id": "persius-train-42568",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "b9378c44b0e6e78811e0a389fc551ca3098bbc93063b2884276f922700e52de5",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "008508105ae1a607dcd4c949d65ebc62"
+    },
+    {
+      "row_index": 10131,
+      "case_id": "persius-train-10131",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "eff738348689abbef43069100d9d11c384ecf4889811da4edc9ab304a1406014",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00861347e5b015fe78693330764e2d0c"
+    },
+    {
+      "row_index": 6400,
+      "case_id": "persius-train-6400",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "709788b570b1abee76ba545274ca952d99b9c013433d79f59b02b644f237124d",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0086d3e03c6b2c631d7a88721de4ccb9"
+    },
+    {
+      "row_index": 16118,
+      "case_id": "persius-train-16118",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "7bc3e14ac1f9d9e436b0f3af6a953355d7ef26656f77a80fbc2b417308508122",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0086df3385029fd11253f6f3af61c172"
+    },
+    {
+      "row_index": 16595,
+      "case_id": "persius-train-16595",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "abe6804561ee4f10c5fdcbc83827855177486f47509916c31f878320213280a7",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00876380b21a6029d21ae765f1b94684"
+    },
+    {
+      "row_index": 18634,
+      "case_id": "persius-train-18634",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "88cc2494863087f632246d18b7e4c559f1cadba202f3d9ff8cb6ce2c24346d1c",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0087e34ffd7d628bead644fafdd343d3"
+    },
+    {
+      "row_index": 37001,
+      "case_id": "persius-train-37001",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "b4817e94f17b73a9e406dc10376a7543ca9fac9c0aecd787ba33dc0343dbd784",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0089df44f110303d12c225263b571ef8"
+    },
+    {
+      "row_index": 48127,
+      "case_id": "persius-train-48127",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "89ef9815a7027457b9d9f92d4972a7b47bce573e8238e2bf9b585c0044644779",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008a7dc180db3a0546bae33486c1ab7e"
+    },
+    {
+      "row_index": 33073,
+      "case_id": "persius-train-33073",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "a0fdf18f67e863913783c35d274a7088f6fd22318c7ea91c549b2bf0939853cc",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "008b10f1b986f15bba165c68249d4067"
+    },
+    {
+      "row_index": 23928,
+      "case_id": "persius-train-23928",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "8b2c5f65f5a11d4e08f429cb78082c1de36fbd5b2d7411ff0dd220f927b8068d",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "008cbec1ce88d8ff4409b94292d999b8"
+    },
+    {
+      "row_index": 57138,
+      "case_id": "persius-train-57138",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "879268d3ce72dbbbacfe5eb5cd76eb59694a5f76c2a0b82f0d273f2206585bb3",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008cd287c12c9b652460e02e7b1ba406"
+    },
+    {
+      "row_index": 24984,
+      "case_id": "persius-train-24984",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "bbfd3b098bff48b5e38809e818629060f9ff58ab93fbf7c463a91b70bcdcef9e",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "008e578618acfb29416637c3f40558e4"
+    },
+    {
+      "row_index": 63414,
+      "case_id": "persius-train-63414",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "7d027beea1c84e03883ed8bb1e8a6ced23f0988620e52301023eba5399225abe",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008e6fa4817170b4364415ac303b5292"
+    },
+    {
+      "row_index": 61717,
+      "case_id": "persius-train-61717",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "85639bbaf76ac1d317a1000b961494acb7edeab1634fd3e40ab2f912524aed0b",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008eb87928e5829348776e579911066d"
+    },
+    {
+      "row_index": 49034,
+      "case_id": "persius-train-49034",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "c6242c99edcf13323451e23baf6ea79d115dcd99438fa2cefcd0e9f9865a2aa0",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008eda0a79112b281f295fb346b5a4a5"
+    },
+    {
+      "row_index": 40692,
+      "case_id": "persius-train-40692",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "a89ee309f220323cbd9dd29e8e7ed57512b0323473967e6da9ef9c1d4dfb097a",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008f17ab8624873d5df2b5b221cabe6e"
+    },
+    {
+      "row_index": 63377,
+      "case_id": "persius-train-63377",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "6beb6fc369e7a4b6c6cecb33d225144d5b3318c59868e90bd87bee73825f3213",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "008f37d754930f4e73375daacf1829d6"
+    },
+    {
+      "row_index": 15312,
+      "case_id": "persius-train-15312",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "1dd6c3d97c4f41ec8bf80ac75fa95758b8df29dbf02cc3295dadec98d8576e0d",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "008f97de21b44314630ba049ef5ec343"
+    },
+    {
+      "row_index": 19271,
+      "case_id": "persius-train-19271",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "08bc77876e3ae3947bf65a5f75173f4d3e4a8def3a8d2ab1f60af2912364e297",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "009081c2191efcbf00db3dd192aa1eab"
+    },
+    {
+      "row_index": 40829,
+      "case_id": "persius-train-40829",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "fdbdf35c5f4e41551328c3ee7c786a894fbcd15a95e8f0849f7c54d98c7982c8",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0090827bc0351c1b6bd2812eddc8acd0"
+    },
+    {
+      "row_index": 35275,
+      "case_id": "persius-train-35275",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "cf3cfb68460b0c65d2cb3d536bcf41a4ec17825d9e8cc57c71d5b7a12c1389d8",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0096bc6e53aee355714a077d81235462"
+    },
+    {
+      "row_index": 45662,
+      "case_id": "persius-train-45662",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "8fb45b92872b891be7927d35872e9965dd2a4c1107fc05723dc22965b05f14be",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00973c0fd685bd154690373d2be4ff1d"
+    },
+    {
+      "row_index": 13399,
+      "case_id": "persius-train-13399",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "7468794d312f0be8d7a891e068ef2612eb07c236d86527f1cd7dcaacb0072629",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "009761dbf4088468afd7375745e082ab"
+    },
+    {
+      "row_index": 39342,
+      "case_id": "persius-train-39342",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "688b5e21e7378eb07b4578b68b55c94257f3629c438adb90c8c0b8d8f3cdc5b2",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0098bdada1bb302774774eed50d3781a"
+    },
+    {
+      "row_index": 23169,
+      "case_id": "persius-train-23169",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "256d0761e1c7dbbc46e552e68f93cbb356471515732077879ca173ff4dde6440",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "009a2c7d1a07aec31f4db163fc21ce4f"
+    },
+    {
+      "row_index": 28176,
+      "case_id": "persius-train-28176",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "c6dfaf0764653a73d34ab5ff8c5ec4b4ae215d98d8975a3fe8d5735c8708abab",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "009c98a4bdb5444e03591a7e737677c9"
+    },
+    {
+      "row_index": 34423,
+      "case_id": "persius-train-34423",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "1e7f742928b9ac2732c963885b44118e839030ce149e11d2e9de5c7ed8d81f37",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "009e634b99247e13c7daf4f54258686a"
+    },
+    {
+      "row_index": 5797,
+      "case_id": "persius-train-5797",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "3b38195f6c23f20df8d69766b9da741e7e7f23d9a0f246ccde84484efac30cd0",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00a0618169321072733b99d54cbae18f"
+    },
+    {
+      "row_index": 4226,
+      "case_id": "persius-train-4226",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "f7c819dee7eae6b14e46216a90bc3a0f76d69477413a220ea7e1c80050835aff",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00a31ed9cb257e38f6e5267af22293bc"
+    },
+    {
+      "row_index": 20120,
+      "case_id": "persius-train-20120",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "a055480a127692bf5f6f3e990cedcc667967113f570cd22233c6fcaa461915b1",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00a37a67367b8a66a70c81e1ee62ff0e"
+    },
+    {
+      "row_index": 35931,
+      "case_id": "persius-train-35931",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "511e2eb2e8f70fdd2a06fe1af33e457ccd60953a708f470e1e08a4207414d2c0",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00a39382e933320d8a268d29a02b8c6a"
+    },
+    {
+      "row_index": 15808,
+      "case_id": "persius-train-15808",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "544b934b88f7e8859537b04cdfda6e9c8c9b3f48fbd0c9ff0081f50fc2feeb68",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00a4e3f21f1a4df7f3e107c17b5104e0"
+    },
+    {
+      "row_index": 58189,
+      "case_id": "persius-train-58189",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "852857eeda9d1b08c06bfc0b17d6d1d9d3a3853239ee38c048790243e46081f5",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00a5b5788909ed0e9d51b1cadd969e47"
+    },
+    {
+      "row_index": 26848,
+      "case_id": "persius-train-26848",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "920412ac2ec475870a5a1728f588eaaf3deab6a00a1701b2dcefb79ef7a7a6ad",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00a77df9c44516be16db427bdabdf7f6"
+    },
+    {
+      "row_index": 49116,
+      "case_id": "persius-train-49116",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "a9b741982725f7611d130a1b7f6d8889abcf60aadbca7b1e177575fea5cb1971",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00a804ac9ba71f3528d86f04c4da543a"
+    },
+    {
+      "row_index": 17647,
+      "case_id": "persius-train-17647",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "d5a94c2a58f60a5be9fd2a4acacd8380b49ea4b78cc453cf91801f2a3c837e10",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00a88073e7756f31bd9bfd26a433c919"
+    },
+    {
+      "row_index": 28503,
+      "case_id": "persius-train-28503",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "fe54e1e024ec9d090858f750e3682bc95221e238857c39ea67764cebfcc5d2d0",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00aa6a31b07651d6562cb86fb4326470"
+    },
+    {
+      "row_index": 28248,
+      "case_id": "persius-train-28248",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "a810932b016e29333d717f2f6a519d23d422cc1a3a90f93570752dfecfb36ca7",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00ac974c72780c2524679c86d14eafe7"
+    },
+    {
+      "row_index": 31543,
+      "case_id": "persius-train-31543",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "fcbbf180b8337c040f9196aa7314d3b94cdb70418928d96a7bf3d33a42ea694c",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00ad5dc218097cd60fa16a1c63ea3aa0"
+    },
+    {
+      "row_index": 33214,
+      "case_id": "persius-train-33214",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "de49d35079e842d385e4b988db8e2a6480e7f1402fc378430bdf4e1d36a72c10",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00afc675a40dd22a66df3e934261938e"
+    },
+    {
+      "row_index": 46997,
+      "case_id": "persius-train-46997",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "b1b3b51e3ae50dc9d41152e8226ad7a0d98403b84aaf1728a05fd6ea14871685",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00b1213a143a05dadb95a8758de5297f"
+    },
+    {
+      "row_index": 14366,
+      "case_id": "persius-train-14366",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "2add011bd373fc3993e4e2b42f0cce0603943772bcc1e3c58a3b556746664dfb",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00b17c4896c7a5e2e4132ca45a46b702"
+    },
+    {
+      "row_index": 39271,
+      "case_id": "persius-train-39271",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "d17315630ddd0e24cca60f6b70275fe4a09d08b6a2a0dee865a163f39c82be0a",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00b1d17edf517770536e55ef6a004ce4"
+    },
+    {
+      "row_index": 45730,
+      "case_id": "persius-train-45730",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "ca2457d2af2f021603c56a3db94ceed22904b52245fcc380f9c349ec6f91e513",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00b256fcd5eabf1e80026424654dbac4"
+    },
+    {
+      "row_index": 24357,
+      "case_id": "persius-train-24357",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e53aab052edf5df3215f76e2b3b456bcbc85d11fc62207e27df71b52410a023d",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00b268bfdbc365f53b023fadcec0eeee"
+    },
+    {
+      "row_index": 1763,
+      "case_id": "persius-train-1763",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "c7f30e2ed0d84a6d59bb9ff5efe768a00817b8f178b9c1a7f0daffe8143ae9dc",
+      "appeal_type": "Experimental",
+      "rank_md5": "00b3d5a52c8fa3324deb37eb520e6f35"
+    },
+    {
+      "row_index": 19261,
+      "case_id": "persius-train-19261",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "81e9bf8d8ff4ab3d83af94738d9f9bccb2528a9fc76c04f50871849ba005d9ee",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00b577100adc67fcaaee0cb9f8c20d0c"
+    },
+    {
+      "row_index": 16232,
+      "case_id": "persius-train-16232",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "654115dbd1f808a0184cc19db671979127ed32524bf0a47541caae03a84d7761",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00b6417aa088c1bcb55dff6ae864c63f"
+    },
+    {
+      "row_index": 8002,
+      "case_id": "persius-train-8002",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "0857d748ca65f253943e74ebe95ba7a01f41b0717c60a5fc7d2fe7b0540a0dcc",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00b6fe1ce948386a0b2b312121f8faef"
+    },
+    {
+      "row_index": 26024,
+      "case_id": "persius-train-26024",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e4d054c81a2c677a2581974b9836eceb475aac7b5d9f21f53b6697f5f33c263d",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00b734f8b72ba6b876d7981e1828f29d"
+    },
+    {
+      "row_index": 5679,
+      "case_id": "persius-train-5679",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "d2f18bf840ac7012b91a0070665afc35861dae546526633bdf4b8c1491d12347",
+      "appeal_type": "Urgent Care",
+      "rank_md5": "00b9af02a30a364352b5a75e09d147c4"
+    },
+    {
+      "row_index": 62594,
+      "case_id": "persius-train-62594",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "34662320e459b01618edf422ecc2a86fcdc25a30ae9b822966cad1ebcb0fd205",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00b9cd08c19720e69b33aba8158739a8"
+    },
+    {
+      "row_index": 21751,
+      "case_id": "persius-train-21751",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "73c52cfdbdc8566b31e9b010f2eac4e8b0e3526895fe9232b7a53b356b5881e1",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00bba35dbb16915b178c452ca12a2295"
+    },
+    {
+      "row_index": 47708,
+      "case_id": "persius-train-47708",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "51b5c17b459cefbbd940a145d1a51cf0067b2a44e11d42e751f1ff5a35c04f09",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00bc74242acb81960d79bb3a374cdb99"
+    },
+    {
+      "row_index": 33231,
+      "case_id": "persius-train-33231",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "8a9da8c2713766fc5e6c04c795d1eb5582f8be127b45e84fe8eea1768d826d6b",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00bcf48ec711a93eda38c97f0e762cf7"
+    },
+    {
+      "row_index": 9764,
+      "case_id": "persius-train-9764",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "1c1163d47cd4e569f470c7aeb6e5a12294f2037b82bdb8633b628af85a6a78b1",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00bec2f307c02558188dc89a80bb4adb"
+    },
+    {
+      "row_index": 54965,
+      "case_id": "persius-train-54965",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "35942d103436370f210f976367e58abd4a3233c20c6ba6a3ab57dd77e3fd34a3",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00beebf589519dc2fb6db2372f4566d1"
+    },
+    {
+      "row_index": 60960,
+      "case_id": "persius-train-60960",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "44fca4e21597e4aa75ae3f3544281f09926fe73fc0ec5dd7accca172ef4571bf",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00bf1ef4df9eb8f90081ee2ee1610ef0"
+    },
+    {
+      "row_index": 4635,
+      "case_id": "persius-train-4635",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "5eb9a52aec513f5ece6c3f988b6fa3fc525ef5bf3ec1323f3d9ef984fcaf96bb",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00bf1f4721392626aa2448ade655846c"
+    },
+    {
+      "row_index": 27321,
+      "case_id": "persius-train-27321",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "9cb57fa45204329842247b974f412b78d3b7e6c7ec04a5c429da2f46ae94835b",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00bfbd2caf840745f1980f89d822f607"
+    },
+    {
+      "row_index": 59876,
+      "case_id": "persius-train-59876",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "c82d9f0631aa37beea7fd663c0287bc9feb60588674a5138ddbf13c4f04f6bad",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00c0583169b6a373dcf09159ccc71fd1"
+    },
+    {
+      "row_index": 50760,
+      "case_id": "persius-train-50760",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "d0bb739f46177916e0eb843430fcdf9b2dea7098b58f9d6bbb8c1647d92a7ebe",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00c40dd5be58fbad4b2a53f49523f818"
+    },
+    {
+      "row_index": 29541,
+      "case_id": "persius-train-29541",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "eb9350d5412625aa9cbc95c80118f134a8a6895c8e1c224008cf657f5ea98b59",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00c6909be001798fa51cfd74362f5ca8"
+    },
+    {
+      "row_index": 50833,
+      "case_id": "persius-train-50833",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e72d6862e60401f98f584ad9a7b4c551afa10698d92275ca6b64c5a4c775ec15",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "00c69cfa3841310a5a0a5f47d47f76ea"
+    },
+    {
+      "row_index": 43951,
+      "case_id": "persius-train-43951",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "44ce29ed1978bb16bcdea35dca5326de3f1b1b64dd51cc0fdac41f8dcc0996ec",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00c7f1180b13a13185deb4bcada7c535"
+    },
+    {
+      "row_index": 49595,
+      "case_id": "persius-train-49595",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "65e4944fe6f80e468afc0c260078cb8ce2af09d77658cb21fa6dd6f0437e5451",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00c8dc7cb60942174d0d23eff8fd3135"
+    },
+    {
+      "row_index": 42454,
+      "case_id": "persius-train-42454",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "a5c2814cdbd2330c1d9d102b63fab801314d60c196cf7fa3c668c49c24386080",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00c8e072033f43fa048aa711139a42b3"
+    },
+    {
+      "row_index": 39795,
+      "case_id": "persius-train-39795",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "f87281a6b5a7977e5d6acfb64bf1b77380184bb682bc6d820d537e03631c26dc",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00c928a559e41f4a647c954db8730fab"
+    },
+    {
+      "row_index": 41415,
+      "case_id": "persius-train-41415",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "11de63a46cd2c7c98f20f034759ca4b1a05284a9c165caf746298cb8a9fc6d23",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00cd2dfdcfc00e378664f3f59d5bb6a1"
+    },
+    {
+      "row_index": 54430,
+      "case_id": "persius-train-54430",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "5fb8e1149aac625970594f2390855b288c83d3d94c7c52ed29bc24ff87a34359",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00cea8b0e6a9cfbbe2f6f8ffe6c93d00"
+    },
+    {
+      "row_index": 28452,
+      "case_id": "persius-train-28452",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "08c9d75092aed05fdc5a5c6e20ace461af4e38669a8a0510376591e14f82a091",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00ceaaadb6c36b6cbdbe9ace3be778b5"
+    },
+    {
+      "row_index": 60584,
+      "case_id": "persius-train-60584",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "68c762f6f7cb1c8424e3106c2c8c4d07dd566503e0ed171924e6f973b321689c",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00cf3f374c1f8c395fbb3d70b745e440"
+    },
+    {
+      "row_index": 54328,
+      "case_id": "persius-train-54328",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "da5ceca6107acc1675cf836f47314ecbf918e6c66fbb64b54d0710c1e51eee09",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00cfe9aefddc3a083c15bc066b1b74bc"
+    },
+    {
+      "row_index": 48625,
+      "case_id": "persius-train-48625",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "c5691bb772e5ea94b0743721d45451457643fe55c83feec54b64a146c2716913",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00d00e0531c4fa02e8e161513e103ef1"
+    },
+    {
+      "row_index": 25735,
+      "case_id": "persius-train-25735",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "24c353dbf5b8303e01cc7364471a6b421d3882a6fc73282b7c9e6c22b16107d3",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00d072e8e11ca6854a38c4ce42406df4"
+    },
+    {
+      "row_index": 50178,
+      "case_id": "persius-train-50178",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "8aa51a0455843a6f14229747bba999f70b59496b658b3b439b19ac29ee654df2",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00d13d207e98f8b6aeb48cbe2b095617"
+    },
+    {
+      "row_index": 39507,
+      "case_id": "persius-train-39507",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "fb190afba172724cc3f73658d0aac1bbf0c432a8dc703631078e65b352e5a521",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00d248c09e3aa4a517c397f46bd47ef3"
+    },
+    {
+      "row_index": 39184,
+      "case_id": "persius-train-39184",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "db552f1933204b8ccf9d22d616f3db3c88a5f00a906e5f35d1d2b5e67b05d95b",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00d4ad03ce50197b421132a2d12a446b"
+    },
+    {
+      "row_index": 18487,
+      "case_id": "persius-train-18487",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "d672b1b359838bdda1015f3e6ed3226c44d4b503bac21c4df53aa4d0057134c6",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00d5bc72062e46b38886756c926efe92"
+    },
+    {
+      "row_index": 45473,
+      "case_id": "persius-train-45473",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "fe5aee0169d92a95f80b8f3a51427861afac97ea74164d95e0a0ec68c16b4be3",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00d5c415e6df1de5bd518a344259d676"
+    },
+    {
+      "row_index": 49844,
+      "case_id": "persius-train-49844",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "68bbd86ebe95147cb3973b05625fc243d12d0ee98fce9234d6b2a5ed973b0992",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00d7d456531d481d92c8bfd51f8edb41"
+    },
+    {
+      "row_index": 32853,
+      "case_id": "persius-train-32853",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "0d78b267b2984b28d9ac49c571f4c380db2fef81dc48cc24d1aacfc0afc22090",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00d8a2e015306d28759b64cbf49282a0"
+    },
+    {
+      "row_index": 51672,
+      "case_id": "persius-train-51672",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "9281c24a0a760fb803e4a0876c75a69d3028d789b66aaa7b48b3fce4b0d9995d",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00daa44ab378e71a0b5dfc5e272923f3"
+    },
+    {
+      "row_index": 14880,
+      "case_id": "persius-train-14880",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "2e2cbbcb2de3facb3d06ff9e8c96d211e8fb365861b6bc2c5a3a5a8f769fd20b",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00daabfaa5203c73e135124f7988d022"
+    },
+    {
+      "row_index": 13,
+      "case_id": "persius-train-13",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "135e412b2b04e047f30dc0c4a8411ecbf7625155eb9c09bef79f89dd6b4bb40f",
+      "appeal_type": "Experimental",
+      "rank_md5": "00daca859785f5f865bf5ba923d14b07"
+    },
+    {
+      "row_index": 17244,
+      "case_id": "persius-train-17244",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "f73f982f26d5d199e6f23e8c9611f24d3a09673388c08d40c1aed8ece6be115e",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00db7d1613eb8d5d9eddf162063d44ad"
+    },
+    {
+      "row_index": 15557,
+      "case_id": "persius-train-15557",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "b651dbf573434b27c573ad8f010dd458dfcda953d9b579611c6a335d65c624ce",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00df112dbfba6bb3b0bb9a492964699a"
+    },
+    {
+      "row_index": 35373,
+      "case_id": "persius-train-35373",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "bc9a0a9ee940acba8ef3226613ac754795a39bdc96cc6adb372c4069bd73aeb5",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00df9feab422f0cd7c690008c6ad73b6"
+    },
+    {
+      "row_index": 7721,
+      "case_id": "persius-train-7721",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "50a88b66c4ab10d95c7200abf6c3ec790ac62d156ae40bea55c7d284ee79b6cd",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00e03c170f5afb2674b4ff5f6f1966b4"
+    },
+    {
+      "row_index": 38551,
+      "case_id": "persius-train-38551",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "3d83dff00a1a58ade3cf3a91685df5806416a845b6c9cf195e5826d858ffd8c4",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00e077a9558e49b85cc4b67ee1cbe35c"
+    },
+    {
+      "row_index": 18027,
+      "case_id": "persius-train-18027",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "83bbf7f1ecc1993946167be786c424965c526822ecb989883070317e9b9c89b0",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00e0fbc69b241ec5c0a606ae070ac1c4"
+    },
+    {
+      "row_index": 25694,
+      "case_id": "persius-train-25694",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "d38de41ddd54209ebda03790feef4c9630c04a73b7d92b26c38e8eccf5ec1b94",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00e1fca932e223896608a6b2baa4b570"
+    },
+    {
+      "row_index": 8170,
+      "case_id": "persius-train-8170",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e43f281d7f8d3ea525fe2cb7899affc86c24728511dd759c6c1e2ca0c753654a",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00e55637dd0f04336e815459daf59768"
+    },
+    {
+      "row_index": 5100,
+      "case_id": "persius-train-5100",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "a0a8310e1538f3ca1bb13c18f659b5b90ab8cb8d5d861805587876dcddd97106",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00e9a6b1e44e7a85ccf48afdf7397063"
+    },
+    {
+      "row_index": 1110,
+      "case_id": "persius-train-1110",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "61bfedefdcbaf43e98d5ef1b96deb4f996056b1949ecafe8ca70a5a46d98e927",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00e9e3625ada35f3edcac71f5813f3ca"
+    },
+    {
+      "row_index": 41352,
+      "case_id": "persius-train-41352",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "52fa661498d9d3f5e06b0523f45f45b4825e742ef39fcf1b732184574010206c",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00e9f311219126f70f7988d014e0f662"
+    },
+    {
+      "row_index": 60309,
+      "case_id": "persius-train-60309",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "f86122e475eb91f4fef0f6cbc56a5ec57d18a925bf65c0a54df5ab717b66b9de",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00ead629c29cff155b843bdba00fad94"
+    },
+    {
+      "row_index": 34554,
+      "case_id": "persius-train-34554",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "aacbbcec14ef1da24fd8ac43c92738c55c59e8168e3b6c18f4f7975d928c39e7",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00eafc368ab579f92d1f42661c41585b"
+    },
+    {
+      "row_index": 24487,
+      "case_id": "persius-train-24487",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "c1fef9cff3039f0c1c180e4eeb5ad75b1b154f1f0d5a9627a490113ea7caf39f",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00ec5e2baf57b9df55bad1ce42dea627"
+    },
+    {
+      "row_index": 29564,
+      "case_id": "persius-train-29564",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "b3453abffc9ad2b26627e2d1eb63b7e9ad7d1a9faf8a113951ff6c5d8d4d9fa7",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00ecdea0b8a1512f99ad5a9fd6604af7"
+    },
+    {
+      "row_index": 25155,
+      "case_id": "persius-train-25155",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "0526646b36449338cc79d257ca2cc6443e7684bbf8f9344f10bd558e971183eb",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00ecfd0aa75aa8b32ba1180e5d6be234"
+    },
+    {
+      "row_index": 32672,
+      "case_id": "persius-train-32672",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "9bc92d7ebd9f1df9eaea1cf0dbe2a66b57d9903eed6b26aa008bd6e1780a7fd0",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00ed75cc30b68f9d52a0c432241df8e2"
+    },
+    {
+      "row_index": 20976,
+      "case_id": "persius-train-20976",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "5fb8905f2c885c76854aaeb433328daa6e8b38af34cb6b59bf2754b04800f7fc",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00eda24f18e6b52e838024d5b769a495"
+    },
+    {
+      "row_index": 27435,
+      "case_id": "persius-train-27435",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "675068506e2056a4675225c57c6d96e837b9d6a749e7b8ec124897ab6bbfd329",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00ede07638913002c423483cb8f319ef"
+    },
+    {
+      "row_index": 40927,
+      "case_id": "persius-train-40927",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "ef761498efcbe841e3b0247502f4fbd76f774f0364f606805f6ffe005e7e7a2f",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00edf5de255bcd92fca41766720fc09b"
+    },
+    {
+      "row_index": 1809,
+      "case_id": "persius-train-1809",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "3136c13854f2ebead45b9a054c6fa47608ace83e6b9bbabb95a125587be10d88",
+      "appeal_type": "Experimental",
+      "rank_md5": "00eea978185d1e09663569936010004a"
+    },
+    {
+      "row_index": 686,
+      "case_id": "persius-train-686",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "ad4ce868dbd816ea413ba364cd53a319bf45ae3a93940be32093844e8e9c7ed5",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00ef2ed31810f06e80c5c747ff8cc799"
+    },
+    {
+      "row_index": 33451,
+      "case_id": "persius-train-33451",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "db4f2ce9362dee148e84b41bdbcaf315781c13d78144a1379e953240496cea34",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00ef8d5ed16818d1957921d3b325c3d9"
+    },
+    {
+      "row_index": 23773,
+      "case_id": "persius-train-23773",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "9d301ba4242cbbc0eb5cac0818a0c292d853cc1134c3e102c5a7efc4cbfc6466",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00f3c4a6fe2c182fe1e71f926a0f80f4"
+    },
+    {
+      "row_index": 21886,
+      "case_id": "persius-train-21886",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "94b2a9de871385fe5d94b9860f3999dca99d606d9a66aa21b520585a5509a771",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00f3ebd66af36e20940e2c93edc79519"
+    },
+    {
+      "row_index": 41359,
+      "case_id": "persius-train-41359",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "8ac71c15dadbc29a57d69917dae5bfaae75d70550c54abc3d643e189dca52205",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00f434f2af096bf6810b7a4fd8aa5b69"
+    },
+    {
+      "row_index": 7682,
+      "case_id": "persius-train-7682",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "27505a40f63fadd21678fa7efd7baf05783d7d4eb81e38d125a9f7408a593753",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00f4a13ea918c14167899ece08c50a62"
+    },
+    {
+      "row_index": 56085,
+      "case_id": "persius-train-56085",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "396e2e818f9ef3d463735600f4bc414b9dafb5707af6b8cc4b830b541faec89a",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00f5c9d3802044013a007d958ce58d1f"
+    },
+    {
+      "row_index": 6427,
+      "case_id": "persius-train-6427",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "69b34e525bb053c7086fb6501aa73c1f6feefaf2d48112a4c6fd25dd5f37d211",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00f6f27c4e6f3949e99e9d611648a2ca"
+    },
+    {
+      "row_index": 61628,
+      "case_id": "persius-train-61628",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "74fb8c3a1becb3697ad31d6fa99a97461cd5135c3001e79648febf7be6c9d272",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00f8012004a9fdc861876196c276db79"
+    },
+    {
+      "row_index": 2424,
+      "case_id": "persius-train-2424",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "221a18c58bb590525bd008e6eb3692ced4510875b7f1b2d8209bbd2463992ac0",
+      "appeal_type": "Experimental",
+      "rank_md5": "00f9f86537eda752c59cead7e0c3c04a"
+    },
+    {
+      "row_index": 21322,
+      "case_id": "persius-train-21322",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "8c87aa5920ccf552e4de12cbd06801c369ac7269b99bbf0866feea7f4b99934d",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "00fa10c33c6f4478470ec66a3985427d"
+    },
+    {
+      "row_index": 63566,
+      "case_id": "persius-train-63566",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "4a8665a504a7df3005e18634250eb5886a189e5a249a84fefc7204e8fbfa12ad",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00fb17b6045da9a2317fc5760f7084ad"
+    },
+    {
+      "row_index": 40336,
+      "case_id": "persius-train-40336",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "1e92dbc66a5d1132fc22670a2c5b2a602cf2ebdf338794e9716850dd4431240a",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "00fd61d16e37d78aec0cfe340cc3de18"
+    },
+    {
+      "row_index": 22341,
+      "case_id": "persius-train-22341",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "9a17e3333b1141baf5d952129fa645cde0be8a32fb43ef7a4d2370b4ac17d953",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "00ff5598197ba7b0181839eb6548998f"
+    },
+    {
+      "row_index": 923,
+      "case_id": "persius-train-923",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "4a84ccb74afb9084ddee42635092736dfe4637983e869378546518c0ac1ed832",
+      "appeal_type": "Experimental",
+      "rank_md5": "00ff5711ec1818d5b738ade3157706a7"
+    },
+    {
+      "row_index": 25378,
+      "case_id": "persius-train-25378",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "016978108637e683f5be5a84cd9c8d5ef47132a18ac2b703814617b77c3003f9",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0100d0109fae55f2d28f2aa19adacff7"
+    },
+    {
+      "row_index": 24109,
+      "case_id": "persius-train-24109",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "784b921639118e5faac6568c354df50f3f6617e8dc0395059a3b2a4a62f4c94f",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0101b0ac060d460fe4990ac71ad20477"
+    },
+    {
+      "row_index": 50595,
+      "case_id": "persius-train-50595",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "f8d7ebc70e1f7ff3a8e9fb2f932113b05312605784ee5482f02545683f222510",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0101f0a804a4d6e24ce2b4ecab2bed3a"
+    },
+    {
+      "row_index": 52598,
+      "case_id": "persius-train-52598",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "738803c2cf8e90248fb02c28a300709fa20005ba9e2d751196c935d3589eb60f",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "01022077e513407222274b02479d55f7"
+    },
+    {
+      "row_index": 60407,
+      "case_id": "persius-train-60407",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "83163b6a3f0d02b122928157645346eebb9670692ef01d8aa1a5af1a4ec124ab",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0102eacd6a5de93b9d566414337b5c15"
+    },
+    {
+      "row_index": 48570,
+      "case_id": "persius-train-48570",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "64845a7e21bea9699e0f9353973f5ec4e0f0d86a2d095bfcb4aa5f6ed3a34c5a",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "010453c190ed752af4e56ed5d34e3b8b"
+    },
+    {
+      "row_index": 2153,
+      "case_id": "persius-train-2153",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e153ce3720909f96a3dbb25abfac17a08ef0aa578ddbcb02d2508409ebf9c29b",
+      "appeal_type": "Experimental",
+      "rank_md5": "01067c58039a6ad956c596d49c5edeae"
+    },
+    {
+      "row_index": 11057,
+      "case_id": "persius-train-11057",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "814ed090d4f91dc9f084a080f29b925e73f7fe4e7327a562edb50ca9bf0da0d8",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0109f8979a2ae3e170a8d7c7f409b811"
+    },
+    {
+      "row_index": 58793,
+      "case_id": "persius-train-58793",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "fb0563281317a63d8a93e6649abe379a740a199707a36aad7c56823bfc018e80",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "010e0a7ac852243566d8bb9591332406"
+    },
+    {
+      "row_index": 61242,
+      "case_id": "persius-train-61242",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "40579beeefcb27beec4c65f60a04d79c13a742ea1dc19d8bfbb9666295c70289",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "010e97b2ce76903166e795954ad08f6c"
+    },
+    {
+      "row_index": 13699,
+      "case_id": "persius-train-13699",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "e0fc3f2dc7a888b4f1b875ab21d291bfba423925a2c1634590ce4d81a421663b",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "010ef7496b3ad6e2490f938c795f8ec1"
+    },
+    {
+      "row_index": 60783,
+      "case_id": "persius-train-60783",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "2a1291dc539b9725d7790c45c9a3ec54161ce0751076803d375e88104074493c",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "010f51e0d70bcd777ba3c8644188291a"
+    },
+    {
+      "row_index": 8112,
+      "case_id": "persius-train-8112",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "ca94d740c6f19b59fbd857dcb4f94e18c8e17aba9d708aa0971e9ade32294f95",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "010f8a2204b806f35734a4d19b58b52b"
+    },
+    {
+      "row_index": 37581,
+      "case_id": "persius-train-37581",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "dd6c1113e2a6819cdd2a7f57916fc413d3dbb58a1ed5e150b4ab5c21ccc92a2b",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "010fc46c45598e7b040e1a676f7b2e6b"
+    },
+    {
+      "row_index": 38236,
+      "case_id": "persius-train-38236",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "d533160926e2e147c92f42775bc067fa113cf6c33d0cd58ba121ad22aacfa0a5",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0110a03eaf22d7920826e2e4df46a9ea"
+    },
+    {
+      "row_index": 14698,
+      "case_id": "persius-train-14698",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "d407adfa05cf08e31fb3ffeb8f5fe95e514d7d29c46c016977bc5765093c5361",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0110f30a3f820dae45871a5d9601b7b8"
+    },
+    {
+      "row_index": 54209,
+      "case_id": "persius-train-54209",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "f3b44bbe6005e6e167dfd731c7740412ec1ff19b38896ec9c8cb2a6a2c264137",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0110fb365a7366ef12c7cbb61f13bce1"
+    },
+    {
+      "row_index": 43263,
+      "case_id": "persius-train-43263",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "b31d2a4bbe114ab6b75077d74d73b723686ad05d62dc56f06cbcae4c341a1fbe",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0111138cb390d2084fef44b515e33433"
+    },
+    {
+      "row_index": 42908,
+      "case_id": "persius-train-42908",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "dcce89d7da90cc7ca982524e121929e9909cbe4c76c4cb967a4d951c479cd3ba",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0112018b1dedb1452db1797ff6827a24"
+    },
+    {
+      "row_index": 54994,
+      "case_id": "persius-train-54994",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "06efeacea7d9e504fc450dd9a44badf0cb08dbb11ef1caf7a210260b140ca5d3",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "01124bba9e6aecfd775d219825be4527"
+    },
+    {
+      "row_index": 34712,
+      "case_id": "persius-train-34712",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "2ee0ef7daeffcadae98833426e9994fd0130574b2756949ff0e47fd6d770a48a",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0112c3b921d7a8e3b723d463b34023cd"
+    },
+    {
+      "row_index": 60057,
+      "case_id": "persius-train-60057",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "f7911b379ed5e68181c7bf2bd6c082830d01f5eea727fcf1b25f558383b6fd69",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0112de9f1f81e82c619c609fd80ee3d5"
+    },
+    {
+      "row_index": 14385,
+      "case_id": "persius-train-14385",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "9e64e2b4c60c0aaac9cd97ae5dab791cff891f6a53d3ae13029367937ec57f43",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "011594ef1a2d5eb02af1fac81c180bed"
+    },
+    {
+      "row_index": 14576,
+      "case_id": "persius-train-14576",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "f4007ab8a918ed3d4e5ddbc8a52a6fab6761702116a0d55d7cd1aa620077f3a2",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "011673daa94f698fc1f296e5efd36d03"
+    },
+    {
+      "row_index": 38656,
+      "case_id": "persius-train-38656",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "b165f3612e9d84b9c13cfd551f43ec56821ec58c2e39c5e73e101e1877fd10ee",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "011688c4597c999b05bca20ee5361bb7"
+    },
+    {
+      "row_index": 3603,
+      "case_id": "persius-train-3603",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "9f085fbf186794c040ca667a3b60f77ca082978f3380457a2228462974bcdc6b",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "01181ba0755d424da6562a91e3da491c"
+    },
+    {
+      "row_index": 13225,
+      "case_id": "persius-train-13225",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "0059bc19aa5d34ae532510648e2b93e7d6527d890b746e20234dcdaa4b9a5384",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "01181c12334a5437fa50fd0507c4dc7a"
+    },
+    {
+      "row_index": 55760,
+      "case_id": "persius-train-55760",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "c101026080a17ef7c775a853b6e9aacc80cd601b644c174fc3c1905ba20f916d",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0118b542b9871cc23be157f2c4ccda81"
+    },
+    {
+      "row_index": 63663,
+      "case_id": "persius-train-63663",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "8d3d3d09115d22af92b43b2a4ca8d9a4e088ed904258fe1cf348c583ed3a454e",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0118e22ab8cf9c832a71570668fc8b9d"
+    },
+    {
+      "row_index": 8825,
+      "case_id": "persius-train-8825",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "c7a72e3cb802717be9bbe1e326777993af2aa5396ab7710c652f5c7b6684b32a",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "011914d3cea16e32c0f0e0f6dc56a557"
+    },
+    {
+      "row_index": 63981,
+      "case_id": "persius-train-63981",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "abf12c117f00c3670df6fd8a80ccc31de347eb325112e68af289fe162399f4ce",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "01195751287eacd0ca8bc3aa1711a207"
+    },
+    {
+      "row_index": 4366,
+      "case_id": "persius-train-4366",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "76c3f21bc2915d9458c3c3af458828b5c8e4fb5b70a14b934b17679e318712e5",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "01199045169f1c007c5a018ccc382535"
+    },
+    {
+      "row_index": 49081,
+      "case_id": "persius-train-49081",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "6546f397df4655893fdf7d5eb7da7fa0356a93ba13c0c3b2562f7cbf50ad1a8a",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "0119e8fa228d95c8eb834197dddc2c01"
+    },
+    {
+      "row_index": 44934,
+      "case_id": "persius-train-44934",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "4a85987a73b693257ab4baf460f99bde4480597edb82414efcf156188d4cf17f",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "011a48e9abdbc9c4974598c0fef9cd88"
+    },
+    {
+      "row_index": 16727,
+      "case_id": "persius-train-16727",
+      "gold": "no",
+      "decision": "Upheld",
+      "text_sha256": "5abc378895641f382a83230adf911ea3120a36bef03ac2d4f2bfda9449c0ec0a",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "011ad39ef2ca2ecd6465aa2ac64ab3fa"
+    },
+    {
+      "row_index": 6343,
+      "case_id": "persius-train-6343",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "4500f8568777d6e3832f80839f954b403a045ce1057f2894c27913278b5b3cc5",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "011c6f4fddb69f2ab69dc2ba0d1bf70a"
+    },
+    {
+      "row_index": 40687,
+      "case_id": "persius-train-40687",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "ce899f4d3c77f60f5dd15c20675146ab69a6c54cdeb563889bfd1069bd5f4b9b",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "011cdc4c4e164953f9a1d89cd5f77068"
+    },
+    {
+      "row_index": 60315,
+      "case_id": "persius-train-60315",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "b801a70a2a8e3165d6ff6417c810ca7f8ed445fca577069c4ad1ed13b1385246",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "011cef506657ae1e3ac1c3d12591ff09"
+    },
+    {
+      "row_index": 38447,
+      "case_id": "persius-train-38447",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "d9d5cb8bfedb8c91c3f02b23d3936ba98bf6b9cac213b5803a91820419289de5",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "011deb6959fefbc0033b89054ed9abd8"
+    },
+    {
+      "row_index": 50315,
+      "case_id": "persius-train-50315",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "52c11d851c2e40f76313874c9f2207e098fd3324d98848ee5e72c2586250262b",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "011e065a218fb05cbbd0b3db7f928923"
+    },
+    {
+      "row_index": 7624,
+      "case_id": "persius-train-7624",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "7db49f96b9cd3889c0044588e01c8c696b554b44955b5628d794cd343a1cd50d",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "011f45d82dc741219a5d85e0c57b9616"
+    },
+    {
+      "row_index": 24379,
+      "case_id": "persius-train-24379",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "6ff80cb4edcec0cc358a8a4abc7198cf887051f9dbca077542a1d21aa32e1ca0",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "011faddf7a2afefd7a92fd129cdecb91"
+    },
+    {
+      "row_index": 32837,
+      "case_id": "persius-train-32837",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "ba67ef040a9dc2377203e166944ede97fd94cbffb5036d1986b43c710e8f2267",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "01213f5ffdcbb8078cfd9da4a1167c3d"
+    },
+    {
+      "row_index": 1769,
+      "case_id": "persius-train-1769",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "883d456a0a1c913233c77383e40d68f53199ede3e289df70eb2faaee9bfd8ec0",
+      "appeal_type": "Experimental",
+      "rank_md5": "01238620c5a312eb372bb2f845cd023a"
+    },
+    {
+      "row_index": 15071,
+      "case_id": "persius-train-15071",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "c548e37db70896c9643d61dc706bb913a8bbc95b7e52608b4476d23a583f1cb6",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "0123a7b3dcb09aedf2cfbe338da5e60d"
+    },
+    {
+      "row_index": 43835,
+      "case_id": "persius-train-43835",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "4e6c5a20b2f52ceea3d2e9005dfc50473ccd7e2793329089d10af7bfa7f299f3",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "012455393d4632d058a64437a122ecc3"
+    },
+    {
+      "row_index": 45216,
+      "case_id": "persius-train-45216",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "361905212869a9d452d74f587691cd06d54eafac2afc02425e4b21c8f835f0d5",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "01249023319d035504f5be9c2fc71d40"
+    },
+    {
+      "row_index": 21958,
+      "case_id": "persius-train-21958",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "7e9d5fcdd71b217b34f79d532ba5f983343706b89b61d6600de7e5b6c236a176",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "01266ea0c81d7c2915dfd14146e40575"
+    },
+    {
+      "row_index": 56262,
+      "case_id": "persius-train-56262",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "10644c189b56e5c20021f8674ef3f6e85b6163db62ebb30093a154e70b04016d",
+      "appeal_type": "Experimental/Investigational",
+      "rank_md5": "0128fac40408c11e8491b18b2e695f41"
+    },
+    {
+      "row_index": 36924,
+      "case_id": "persius-train-36924",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "47bf47a9045cb30b81bc4db8577bc98651134cb42418d82e2e32185d88ce590f",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "012a4eae06999c191bee0b2883dd0f32"
+    },
+    {
+      "row_index": 37665,
+      "case_id": "persius-train-37665",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "4216f0cec2103da9fadd28494fb2d1e7794926b8a0f5f953b6ac8815105550b7",
+      "appeal_type": "Formulary Exception",
+      "rank_md5": "012a4fa941cd170142f10f0fc6b678ad"
+    },
+    {
+      "row_index": 30059,
+      "case_id": "persius-train-30059",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "bbc57c15b4cdf85fe639ea47c5d8cebdcd050dda0d2c97b394149a1d3b7a719c",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "012d9345ea8bd132eee7b3ac06cc9aba"
+    },
+    {
+      "row_index": 3443,
+      "case_id": "persius-train-3443",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "c78462de3149c8d275d8fe7de1ae15c71c1bf7ef9113e3928039182b50d70219",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "012ef228b3b7738822ef133d02d823ef"
+    },
+    {
+      "row_index": 61715,
+      "case_id": "persius-train-61715",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "0bc274dfd291cb6c8087ac81fce5b5d4bb91b6efa175f30e3df9e1d4e67af5c8",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "01304438d8456bbdda5b388e90862f2e"
+    },
+    {
+      "row_index": 1811,
+      "case_id": "persius-train-1811",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "99ab644077c432dcd8734a4a7f7c4bc13c799a68a273be6dd1e2163184be0969",
+      "appeal_type": "Medical Necessity",
+      "rank_md5": "013146cc9291c7c7833b84dd10b6ad2d"
+    },
+    {
+      "row_index": 51141,
+      "case_id": "persius-train-51141",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "7a0b50f5bac8721ea2bab487f429517eaf0a1dd84e7f32c57f91d6d708712dda",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "013228581ee2b93fcdfa09c032b16774"
+    },
+    {
+      "row_index": 55182,
+      "case_id": "persius-train-55182",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "49dd9b020351af69c8a81a4b1fda19b98498750a1fb5c275268854151c005a76",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "01322b6f89f1e302456feae171f46c7a"
+    },
+    {
+      "row_index": 50791,
+      "case_id": "persius-train-50791",
+      "gold": "yes",
+      "decision": "Overturned",
+      "text_sha256": "37ef48e9c9acc92010c864aa0fdc2be2f1a7b3be42085cda0cab39c71387f51d",
+      "appeal_type": "Medical necessity",
+      "rank_md5": "013240364961bc7dca7fd2f162161d38"
+    }
+  ],
+  "computed_at": "2026-11-14T14:50:58Z"
+}

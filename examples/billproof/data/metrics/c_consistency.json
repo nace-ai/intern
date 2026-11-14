@@ -1,0 +1,614 @@
+{
+  "status": "complete",
+  "n": 4,
+  "spend_usd": {
+    "gpt": 0.075465,
+    "drex": 0.00040266,
+    "total": 0.07586766,
+    "gpt_requests": 8
+  },
+  "design": "The first 4 ids of the frozen S list, in that file order. Clean answers are read back from the inject JSONL and are not requested again. Reorder reverses the record list and leaves every question's text unchanged. Paraphrase uses the single template stored in c_stress_ids.json: the clinical clause and the three label definitions stay verbatim, and only the instruction boilerplate around them changes. Scope-question wording is not paraphrased, because those questions have no clinical clause. Option order was not shuffled, so this pilot stays inside the 24-request GPT cap. Flip rates, decision derivation, and accuracy use the inject-arm rules.",
+  "caveats": [
+    "Validation initial_packet only. The development 370-case panel and the development parquet were not read.",
+    "Option order was not shuffled. That cell was skipped so the GPT request count stays at or under 24.",
+    "These n are a pilot. A Wilson interval at this size is wide, including when the point estimate is 0 or 1.",
+    "Criteria-gym records often say explicitly whether a clause is satisfied, so a small or empty gap is a real result.",
+    "The injected note and the paraphrase were fixed before any model call and were not rewritten after the results.",
+    "GPT latency_ms includes shared rate-limit wait (FRONTIER_RPM stays at the default). service_latency_ms subtracts that wait.",
+    "Frontier case_id is sent beside state by the existing adapter. Drex's request has no case_id field. The state and the questions are the shared input.",
+    "Costs use the adapter's billed figures (configured router rates and Drex input-token price).",
+    "Clean calls were not repeated. Their cost sits on the inject arm.",
+    "Scope questions kept their original wording under the paraphrase condition."
+  ],
+  "simulated": false,
+  "computed_at": "2026-11-14T09:14:49Z",
+  "lanes": {
+    "gpt": {
+      "model": "gpt-6.1-sol",
+      "reorder": {
+        "model": "gpt-6.1-sol",
+        "fact_flip_rate": {
+          "value": 0.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.20388926630434784
+        },
+        "fact_accuracy": {
+          "value": 1.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 15,
+          "ci_low": 0.7961107336956521,
+          "ci_high": 1.0
+        },
+        "clean_fact_accuracy": {
+          "value": 1.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 15,
+          "ci_low": 0.7961107336956521,
+          "ci_high": 1.0
+        },
+        "decision_flip_rate": {
+          "value": 0.0,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.48990002040399916
+        },
+        "decision_accuracy": {
+          "value": 1.0,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 4,
+          "ci_low": 0.5100999795960008,
+          "ci_high": 1.0
+        },
+        "n_fact_errors": 0,
+        "latency_p50_ms": {
+          "value": 13728.915926010814,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "service_latency_p50_ms": {
+          "value": 4367.331473506056,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cost_per_1000_cases_usd": {
+          "value": 9.204374999999999,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cost_per_1000_calls_usd": {
+          "value": 9.204374999999999,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cases": [
+          {
+            "case_id": "pa1-ar-medicaid-pa-criteria-9bdac2d145012db6-all_required_information_provided__opposite",
+            "paired": true,
+            "gold_decision": "criteria_met",
+            "clean_decision": "criteria_met",
+            "condition_decision": "criteria_met",
+            "fact_flips": 0,
+            "fact_n": 2
+          },
+          {
+            "case_id": "pa1-fl-medicaid-drug-criteria-42401347833cd6b0-met_initial_review_criteria__opposite",
+            "paired": true,
+            "gold_decision": "criteria_unmet",
+            "clean_decision": "criteria_unmet",
+            "condition_decision": "criteria_unmet",
+            "fact_flips": 0,
+            "fact_n": 4
+          },
+          {
+            "case_id": "pa1-fl-medicaid-drug-criteria-73b4b135509696ba-nothing_documented",
+            "paired": true,
+            "gold_decision": "incomplete",
+            "clean_decision": "incomplete",
+            "condition_decision": "incomplete",
+            "fact_flips": 0,
+            "fact_n": 4
+          },
+          {
+            "case_id": "pa1-ms-medicaid-pa-criteria-e19e19e2232454a1-diagnosis_adhd__opposite",
+            "paired": true,
+            "gold_decision": "criteria_unmet",
+            "clean_decision": "criteria_unmet",
+            "condition_decision": "criteria_unmet",
+            "fact_flips": 0,
+            "fact_n": 5
+          }
+        ]
+      },
+      "paraphrase": {
+        "model": "gpt-6.1-sol",
+        "fact_flip_rate": {
+          "value": 0.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.20388926630434784
+        },
+        "fact_accuracy": {
+          "value": 1.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 15,
+          "ci_low": 0.7961107336956521,
+          "ci_high": 1.0
+        },
+        "clean_fact_accuracy": {
+          "value": 1.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 15,
+          "ci_low": 0.7961107336956521,
+          "ci_high": 1.0
+        },
+        "decision_flip_rate": {
+          "value": 0.0,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.48990002040399916
+        },
+        "decision_accuracy": {
+          "value": 1.0,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 4,
+          "ci_low": 0.5100999795960008,
+          "ci_high": 1.0
+        },
+        "n_fact_errors": 0,
+        "latency_p50_ms": {
+          "value": 21850.725325988606,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "service_latency_p50_ms": {
+          "value": 4777.555476495763,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cost_per_1000_cases_usd": {
+          "value": 9.661875,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cost_per_1000_calls_usd": {
+          "value": 9.661875,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cases": [
+          {
+            "case_id": "pa1-ar-medicaid-pa-criteria-9bdac2d145012db6-all_required_information_provided__opposite",
+            "paired": true,
+            "gold_decision": "criteria_met",
+            "clean_decision": "criteria_met",
+            "condition_decision": "criteria_met",
+            "fact_flips": 0,
+            "fact_n": 2
+          },
+          {
+            "case_id": "pa1-fl-medicaid-drug-criteria-42401347833cd6b0-met_initial_review_criteria__opposite",
+            "paired": true,
+            "gold_decision": "criteria_unmet",
+            "clean_decision": "criteria_unmet",
+            "condition_decision": "criteria_unmet",
+            "fact_flips": 0,
+            "fact_n": 4
+          },
+          {
+            "case_id": "pa1-fl-medicaid-drug-criteria-73b4b135509696ba-nothing_documented",
+            "paired": true,
+            "gold_decision": "incomplete",
+            "clean_decision": "incomplete",
+            "condition_decision": "incomplete",
+            "fact_flips": 0,
+            "fact_n": 4
+          },
+          {
+            "case_id": "pa1-ms-medicaid-pa-criteria-e19e19e2232454a1-diagnosis_adhd__opposite",
+            "paired": true,
+            "gold_decision": "criteria_unmet",
+            "clean_decision": "criteria_unmet",
+            "condition_decision": "criteria_unmet",
+            "fact_flips": 0,
+            "fact_n": 5
+          }
+        ]
+      }
+    },
+    "drex": {
+      "model": "drex-max-v1.1",
+      "reorder": {
+        "model": "drex-max-v1.1",
+        "fact_flip_rate": {
+          "value": 0.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.20388926630434784
+        },
+        "fact_accuracy": {
+          "value": 1.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 15,
+          "ci_low": 0.7961107336956521,
+          "ci_high": 1.0
+        },
+        "clean_fact_accuracy": {
+          "value": 1.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 15,
+          "ci_low": 0.7961107336956521,
+          "ci_high": 1.0
+        },
+        "decision_flip_rate": {
+          "value": 0.0,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.48990002040399916
+        },
+        "decision_accuracy": {
+          "value": 1.0,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 4,
+          "ci_low": 0.5100999795960008,
+          "ci_high": 1.0
+        },
+        "n_fact_errors": 0,
+        "latency_p50_ms": {
+          "value": 364.2585820052773,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "service_latency_p50_ms": {
+          "value": 364.2585820052773,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cost_per_1000_cases_usd": {
+          "value": 0.049995,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cost_per_1000_calls_usd": {
+          "value": 0.049995,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cases": [
+          {
+            "case_id": "pa1-ar-medicaid-pa-criteria-9bdac2d145012db6-all_required_information_provided__opposite",
+            "paired": true,
+            "gold_decision": "criteria_met",
+            "clean_decision": "criteria_met",
+            "condition_decision": "criteria_met",
+            "fact_flips": 0,
+            "fact_n": 2
+          },
+          {
+            "case_id": "pa1-fl-medicaid-drug-criteria-42401347833cd6b0-met_initial_review_criteria__opposite",
+            "paired": true,
+            "gold_decision": "criteria_unmet",
+            "clean_decision": "criteria_unmet",
+            "condition_decision": "criteria_unmet",
+            "fact_flips": 0,
+            "fact_n": 4
+          },
+          {
+            "case_id": "pa1-fl-medicaid-drug-criteria-73b4b135509696ba-nothing_documented",
+            "paired": true,
+            "gold_decision": "incomplete",
+            "clean_decision": "incomplete",
+            "condition_decision": "incomplete",
+            "fact_flips": 0,
+            "fact_n": 4
+          },
+          {
+            "case_id": "pa1-ms-medicaid-pa-criteria-e19e19e2232454a1-diagnosis_adhd__opposite",
+            "paired": true,
+            "gold_decision": "criteria_unmet",
+            "clean_decision": "criteria_unmet",
+            "condition_decision": "criteria_unmet",
+            "fact_flips": 0,
+            "fact_n": 5
+          }
+        ]
+      },
+      "paraphrase": {
+        "model": "drex-max-v1.1",
+        "fact_flip_rate": {
+          "value": 0.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.20388926630434784
+        },
+        "fact_accuracy": {
+          "value": 1.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 15,
+          "ci_low": 0.7961107336956521,
+          "ci_high": 1.0
+        },
+        "clean_fact_accuracy": {
+          "value": 1.0,
+          "n": 15,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 15,
+          "ci_low": 0.7961107336956521,
+          "ci_high": 1.0
+        },
+        "decision_flip_rate": {
+          "value": 0.0,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.48990002040399916
+        },
+        "decision_accuracy": {
+          "value": 1.0,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z",
+          "k": 4,
+          "ci_low": 0.5100999795960008,
+          "ci_high": 1.0
+        },
+        "n_fact_errors": 0,
+        "latency_p50_ms": {
+          "value": 392.7843039855361,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "service_latency_p50_ms": {
+          "value": 392.7843039855361,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cost_per_1000_cases_usd": {
+          "value": 0.05067,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cost_per_1000_calls_usd": {
+          "value": 0.05067,
+          "n": 4,
+          "source_run": "c_consistency",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:14:49Z"
+        },
+        "cases": [
+          {
+            "case_id": "pa1-ar-medicaid-pa-criteria-9bdac2d145012db6-all_required_information_provided__opposite",
+            "paired": true,
+            "gold_decision": "criteria_met",
+            "clean_decision": "criteria_met",
+            "condition_decision": "criteria_met",
+            "fact_flips": 0,
+            "fact_n": 2
+          },
+          {
+            "case_id": "pa1-fl-medicaid-drug-criteria-42401347833cd6b0-met_initial_review_criteria__opposite",
+            "paired": true,
+            "gold_decision": "criteria_unmet",
+            "clean_decision": "criteria_unmet",
+            "condition_decision": "criteria_unmet",
+            "fact_flips": 0,
+            "fact_n": 4
+          },
+          {
+            "case_id": "pa1-fl-medicaid-drug-criteria-73b4b135509696ba-nothing_documented",
+            "paired": true,
+            "gold_decision": "incomplete",
+            "clean_decision": "incomplete",
+            "condition_decision": "incomplete",
+            "fact_flips": 0,
+            "fact_n": 4
+          },
+          {
+            "case_id": "pa1-ms-medicaid-pa-criteria-e19e19e2232454a1-diagnosis_adhd__opposite",
+            "paired": true,
+            "gold_decision": "criteria_unmet",
+            "clean_decision": "criteria_unmet",
+            "condition_decision": "criteria_unmet",
+            "fact_flips": 0,
+            "fact_n": 5
+          }
+        ]
+      }
+    }
+  },
+  "gap": {
+    "reorder": {
+      "fact_flip_rate": {
+        "endpoint": "reorder_fact_flip_rate",
+        "appeared": false,
+        "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+        "gpt_minus_drex": 0.0,
+        "gpt": {
+          "value": 0.0,
+          "n": 15,
+          "ci": [
+            0.0,
+            0.20388926630434784
+          ]
+        },
+        "drex": {
+          "value": 0.0,
+          "n": 15,
+          "ci": [
+            0.0,
+            0.20388926630434784
+          ]
+        }
+      },
+      "fact_accuracy": {
+        "endpoint": "reorder_fact_accuracy",
+        "appeared": false,
+        "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+        "gpt_minus_drex": 0.0,
+        "gpt": {
+          "value": 1.0,
+          "n": 15,
+          "ci": [
+            0.7961107336956521,
+            1.0
+          ]
+        },
+        "drex": {
+          "value": 1.0,
+          "n": 15,
+          "ci": [
+            0.7961107336956521,
+            1.0
+          ]
+        }
+      }
+    },
+    "paraphrase": {
+      "fact_flip_rate": {
+        "endpoint": "paraphrase_fact_flip_rate",
+        "appeared": false,
+        "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+        "gpt_minus_drex": 0.0,
+        "gpt": {
+          "value": 0.0,
+          "n": 15,
+          "ci": [
+            0.0,
+            0.20388926630434784
+          ]
+        },
+        "drex": {
+          "value": 0.0,
+          "n": 15,
+          "ci": [
+            0.0,
+            0.20388926630434784
+          ]
+        }
+      },
+      "fact_accuracy": {
+        "endpoint": "paraphrase_fact_accuracy",
+        "appeared": false,
+        "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+        "gpt_minus_drex": 0.0,
+        "gpt": {
+          "value": 1.0,
+          "n": 15,
+          "ci": [
+            0.7961107336956521,
+            1.0
+          ]
+        },
+        "drex": {
+          "value": 1.0,
+          "n": 15,
+          "ci": [
+            0.7961107336956521,
+            1.0
+          ]
+        }
+      }
+    }
+  },
+  "sample_ids": [
+    "pa1-ar-medicaid-pa-criteria-9bdac2d145012db6-all_required_information_provided__opposite",
+    "pa1-fl-medicaid-drug-criteria-42401347833cd6b0-met_initial_review_criteria__opposite",
+    "pa1-fl-medicaid-drug-criteria-73b4b135509696ba-nothing_documented",
+    "pa1-ms-medicaid-pa-criteria-e19e19e2232454a1-diagnosis_adhd__opposite"
+  ],
+  "option_shuffle": "skipped"
+}

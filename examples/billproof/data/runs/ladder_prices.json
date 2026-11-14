@@ -1,0 +1,76 @@
+{
+  "checked": "2026-11-14",
+  "note": "Standard on-demand list prices, USD per 1M tokens. Cache, batch, and fast-mode rates are not used. Router markups are not in these rates. Output prices include reasoning tokens where the vendor says so.",
+  "models": {
+    "openai/gpt-5.4-mini": {
+      "input_usd_per_mtok": 0.75,
+      "output_usd_per_mtok": 4.50,
+      "estimated": false,
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "quote": "gpt-5.4-mini standard short-context input $0.75, output $4.50 per 1M tokens."
+    },
+    "openai/gpt-5.4-nano": {
+      "input_usd_per_mtok": 0.20,
+      "output_usd_per_mtok": 1.25,
+      "estimated": false,
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "quote": "gpt-5.4-nano standard input $0.20, output $1.25 per 1M tokens."
+    },
+    "openai/gpt-6.1-sol": {
+      "input_usd_per_mtok": 2.00,
+      "output_usd_per_mtok": 10.00,
+      "estimated": false,
+      "source": "https://developers.openai.com/api/docs/pricing",
+      "quote": "gpt-6.1-sol standard input $2.00, cached input $0.10, output $10.00 per 1M tokens.",
+      "note": "Stored cost_usd uses the configured adapter rates $2.50 / $15, not this list price. Ladder rows for GPT-6.1 Sol keep the stored dollars and also show this list price on the same token counts when tokens are present."
+    },
+    "anthropic/claude-haiku-5.5": {
+      "input_usd_per_mtok": 0.10,
+      "output_usd_per_mtok": 0.50,
+      "input_usd_per_mtok_over_100k": 0.50,
+      "output_usd_per_mtok_over_100k": 2.50,
+      "estimated": false,
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "quote": "Claude Haiku 5.5 prompts up to 100,000 tokens: input $0.10 and output $0.50 per 1M. Prompts over 100,000 tokens: input $0.50 and output $2.50 per 1M.",
+      "api_id": "claude-haiku-5-5",
+      "note": "The model page is https://www.anthropic.com/claude-haiku-5-5 (released 2026-10-07). The string claude-haiku-5.5 is not the API id. The whole request moves to the higher tier when the prompt is over 100,000 tokens. Ladder applies that tier from the measured input token count. Cache and batch rates are not used."
+    },
+    "google/gemini-3.5-flash-lite": {
+      "input_usd_per_mtok": 0.30,
+      "output_usd_per_mtok": 2.50,
+      "estimated": false,
+      "source": "https://aistudio.google.com/docs/pricing#gemini-3.5-flash-lite",
+      "quote": "Input price $0.30 (text / image / video / audio). Output price (including thinking tokens) $2.50 per 1M.",
+      "note": "Output limit on the pricing page is 65,536 tokens, and output includes thinking tokens. Cache, batch, flex, and priority rates are not used."
+    },
+    "google/gemini-3.5-flash": {
+      "input_usd_per_mtok": 0.75,
+      "output_usd_per_mtok": 3.75,
+      "input_usd_per_mtok_after_2026": 1.50,
+      "output_usd_per_mtok_after_2026": 7.50,
+      "estimated": false,
+      "not_run": true,
+      "source": "https://aistudio.google.com/docs/pricing",
+      "quote": "gemini-3.5-flash is not selectable. The API routes it to gemini-3.6-flash: input $0.75 and output $3.75 per 1M through 2026-12-31, then $1.50 and $7.50. Output includes thinking tokens.",
+      "note": "Not called. The earlier $1.50/$9 figure from the 3.6 what's-new page is stale and is not the rate. This record uses the promotional 3.6 Flash rate because the run date is 2026-11-14."
+    },
+    "deepseek/deepseek-v4.1-flash": {
+      "input_usd_per_mtok": 0.15,
+      "output_usd_per_mtok": 0.60,
+      "input_usd_per_mtok_peak": 0.30,
+      "output_usd_per_mtok_peak": 1.20,
+      "estimated": false,
+      "source": "https://api-docs.deepseek.com/quick_start/pricing",
+      "quote": "deepseek-flash (DeepSeek-V4.1-Flash-1017) cache-miss input $0.15 off-peak / $0.30 peak, output $0.60 / $1.20 per 1M.",
+      "note": "Vendor API id is deepseek-flash, version DeepSeek-V4.1-Flash-1017. deepseek-v4.1-flash is not a vendor API id; legacy deepseek-v4-flash routes here. The router id we call is deepseek/deepseek-v4.1-flash and the response model is deepseek-v4-1-flash-260910. Peak is 01:00-04:00 and 06:00-10:00 UTC, Monday-Friday, excluding Chinese public holidays. Saturday 2026-11-14 is off-peak. The ladder uses the off-peak cache-miss rate. Cache-hit and batch rates are not used. Maximum output on the vendor page is 384k tokens."
+    }
+  },
+  "drex": {
+    "model": "drex-max-v1.1",
+    "input_usd_per_mtok": 0.03,
+    "output_usd_per_mtok": 0.0,
+    "estimated": false,
+    "source": "configured DREX_PRICE_PER_MTOK in the project env, same rate stored",
+    "quote": "Drex billing in this repo is input tokens times $0.03 per 1M. Output tokens are not billed."
+  }
+}

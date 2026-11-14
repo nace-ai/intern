@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Intern session 20261114T185657Z</title>
+<style>
+  body {
+    margin: 0;
+    color: var(--foreground);
+    font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  code { font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted-foreground); font-weight: 600; font-size: 12px; }
+  .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sub { color: var(--muted-foreground); font-size: 12px; margin-top: 2px; }
+  .box {
+    background: var(--card);
+    color: var(--card-foreground);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin: 0 0 12px;
+  }
+  .meta { color: var(--muted-foreground); font-size: 13px; }
+  .chip {
+    display: inline-block;
+    border-radius: var(--radius);
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .success { background: var(--success-surface, var(--secondary)); color: var(--success, var(--foreground)); }
+  .destructive { background: var(--destructive-surface, var(--secondary)); color: var(--destructive, var(--foreground)); }
+  .warning { background: var(--warning-surface, var(--secondary)); color: var(--warning, var(--foreground)); }
+  pre {
+    white-space: pre-wrap;
+    margin: 0;
+    font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="meta">Intern 0.30.1 · System 2 <code>deepinfra/Qwen/Qwen3.8-27B</code> · System 1 <code>drex-latest</code> (Nace console)</div>
+    <div class="meta">40.2s · 4 turns · 6 tool calls · DeepInfra list $0.0063 · Drex audits $0.00027 · System 1 asks 12, nudges 0, refusals 0</div>
+  </div>
+  <div class="box">
+    <table>
+      <thead><tr><th>Case</th><th>Recommendation</th><th>Deciding record</th><th>Drex</th></tr></thead>
+      <tbody>
+        <tr><td><code>pa1-ms-medicaid-pa-criteria-123ccf74b29bbd93-documented</code><div class='sub'>Sdamlo</div></td><td><span class="chip success">approve</span></td><td>R1</td><td class='num'>$0.00009</td></tr><tr><td><code>pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-one_unmet_one_missing</code><div class='sub'>Physician Administered Drug PA Criteria</div></td><td><span class="chip destructive">deny</span></td><td>R2</td><td class='num'>$0.00009</td></tr><tr><td><code>pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-reduction_overall_number_migraine_days_reduction__missing</code><div class='sub'>Physician Administered Drug PA Criteria</div></td><td><span class="chip warning">request_documents</span></td><td>none</td><td class='num'>$0.00009</td></tr>
+      </tbody>
+    </table>
+    <p class="meta">What-if <code>arkansas_not_documented_as_not_met</code>: 269 of 1,354 flip, all incomplete to deny. Hypothetical. No new model call.</p>
+  </div>
+  <div class="box">
+    <div class="meta">System 1 (Drex) on each turn. No nudge, no refusal.</div>
+    <table>
+      <thead><tr><th>Turn</th><th>Check</th><th>Judgment</th><th>Call</th></tr></thead>
+      <tbody>
+        <tr><td class='num'>1</td><td>guard</td><td>routine 0.98, asked 1.00</td><td class='sub'>bp_cli.py list</td></tr><tr><td class='num'>1</td><td>supervise</td><td>advancing 0.96</td><td class='sub'></td></tr><tr><td class='num'>1</td><td>wrap_up</td><td>working 1.00</td><td class='sub'></td></tr><tr><td class='num'>2</td><td>guard</td><td>routine 0.86, asked 0.99</td><td class='sub'>bp_cli.py audit-case pa1-ms-medicaid-pa-criteria-123ccf74b29bbd93-documented</td></tr><tr><td class='num'>2</td><td>guard</td><td>routine 0.91, asked 0.99</td><td class='sub'>bp_cli.py audit-case pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-one_unmet_one_mi</td></tr><tr><td class='num'>2</td><td>guard</td><td>routine 0.89, asked 0.98</td><td class='sub'>bp_cli.py audit-case pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-reduction_overal</td></tr><tr><td class='num'>2</td><td>supervise</td><td>advancing 0.99</td><td class='sub'></td></tr><tr><td class='num'>2</td><td>wrap_up</td><td>working 0.99</td><td class='sub'></td></tr><tr><td class='num'>3</td><td>guard</td><td>routine 0.94, asked 1.00</td><td class='sub'>bp_cli.py explain pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-reduction_overall_n</td></tr><tr><td class='num'>3</td><td>guard</td><td>routine 0.97, asked 1.00</td><td class='sub'>bp_cli.py what-if arkansas_not_documented_as_not_met</td></tr><tr><td class='num'>3</td><td>supervise</td><td>advancing 0.63</td><td class='sub'></td></tr><tr><td class='num'>3</td><td>wrap_up</td><td>working 0.45</td><td class='sub'></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="box">
+    <pre>## Audit results
+
+**1. `pa1-ms-medicaid-pa-criteria-123ccf74b29bbd93-documented` — approve**
+Deciding record: **R1** (prescriber attestation of a positive clinical response to therapy; without it the decision would drop to request_documents). Both criteria are met.
+
+**2. `pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-one_unmet_one_missing` — deny**
+Deciding record: **R2** (explicitly documents that the criterion &quot;reduction in the overall number of migraine days or reduction in number of severe migraine days per month&quot; is **not met**). Note: the second criterion (significant clinical benefit from Vyepti) is undocumented, but the unmet criterion drives the deny.
+
+**3. `pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-reduction_overall_number_migraine_days_reduction__missing` — request_documents**
+Deciding record: **none** (no single record flips the decision; `explain` confirms the case is incomplete because evidence is absent, not contradicted).
+
+### Document request (case 3)
+
+&gt; This prior authorization request is pending additional documentation. One criterion is currently undocumented:
+&gt;
+&gt; **`reduction_overall_number_migraine_days_reduction`** — *&quot;The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month.&quot;*
+&gt;
+&gt; Please provide migraine diary data or prescriber documentation from before and after Vyepti therapy showing the reduction in overall migraine days or severe migraine days per month. Once received, the remaining criterion (significant clinical benefit from Vyepti) is already met, and the case can be completed.
+
+### What-if: `arkansas_not_documented_as_not_met`
+
+- **269 decisions flip**, all in the direction **incomplete → deny** (out of 1,354 affected Arkansas cases).
+- This is **hypothetical** (`&quot;hypothetical&quot;: true`): a simulation of a tightened Arkansas rule where not-documented counts as not-met. It is not a published policy change and doesn&#x27;t alter the real recommendations above.</pre>
+  </div>
+</body>
+</html>

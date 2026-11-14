@@ -1,0 +1,33 @@
+{
+  "bench": "persius",
+  "split": "test",
+  "model": "Qwen/Qwen3.8-27B",
+  "provider": "deepinfra",
+  "n_cases": 400,
+  "n_expected": 400,
+  "complete": true,
+  "accuracy": {
+    "value": 0.5075,
+    "k": 203,
+    "n": 400,
+    "ci95": [
+      0.458667706127959,
+      0.5561896042630459
+    ],
+    "ci_method": "wilson",
+    "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:24:46Z"
+  },
+  "latency_p50_ms": 1153.6258074920624,
+  "cost_usd_sum": 0.0553041,
+  "cost_per_1000_usd": 0.13826025,
+  "cost_basis_counts": {
+    "provider_estimated_cost": 400
+  },
+  "input_tokens_sum": 126294,
+  "output_tokens_sum": 19392,
+  "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl",
+  "prompt": "same as c_persius_fair GPT_SYSTEM",
+  "computed_at": "2026-11-14T19:24:46Z"
+}

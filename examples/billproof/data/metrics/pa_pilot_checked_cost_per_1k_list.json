@@ -1,0 +1,11 @@
+{
+ "value": 6.6361345,
+ "n": 20,
+ "source_run": "pa_checked_validation.jsonl",
+ "simulated": false,
+ "computed_at": "2026-11-14T12:18:53Z",
+ "list_price_usd_per_mtok": {
+  "input": 2.0,
+  "output": 10.0
+ }
+}

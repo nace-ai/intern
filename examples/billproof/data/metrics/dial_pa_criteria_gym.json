@@ -1,0 +1,1890 @@
+{
+ "bench": "pa_criteria_gym",
+ "title": "Prior authorization, criteria-gym (370)",
+ "chart": "whole_case",
+ "metrics": [
+  "whole_case",
+  "decision"
+ ],
+ "n_cases": 370,
+ "n_questions": 2186,
+ "drex_model": "drex-max-v1.1",
+ "gpt_model": "gpt-6.1-sol",
+ "label": "simulated from recorded answers",
+ "labels": {
+  "curve": "simulated from recorded answers",
+  "gpt_only": "simulated from recorded answers",
+  "drex_only": "simulated from recorded answers",
+  "measured": "measured"
+ },
+ "formulas": {
+  "rule": "Drex keeps every question with recorded confidence >= threshold. The rest take GPT-6.1 Sol's recorded answer to the same question.",
+  "cost_per_1000_usd": "mean over cases of [Drex recorded cost_usd + (if any question routed) (GPT recorded input_tokens * $2 + GPT recorded output_tokens * routed/asked * $10) / 1e6] * 1000. GPT list price $2 in / $10 out per 1M tokens.",
+  "latency_p50_ms": "median over cases of [Drex recorded latency_ms + (if any question routed) GPT recorded latency_ms * routed/asked]. GPT runs after Drex.",
+  "gpt_only": "GPT-6.1 Sol recorded answers on every question. Cost is GPT list price from recorded tokens. No Drex cost.",
+  "drex_only": "drex-max-v1.1 recorded answers on every question. Cost is Drex recorded cost_usd."
+ },
+ "thresholds": [
+  0.5,
+  0.51,
+  0.52,
+  0.53,
+  0.54,
+  0.55,
+  0.56,
+  0.57,
+  0.58,
+  0.59,
+  0.6,
+  0.61,
+  0.62,
+  0.63,
+  0.64,
+  0.65,
+  0.66,
+  0.67,
+  0.68,
+  0.69,
+  0.7,
+  0.71,
+  0.72,
+  0.73,
+  0.74,
+  0.75,
+  0.76,
+  0.77,
+  0.78,
+  0.79,
+  0.8,
+  0.81,
+  0.82,
+  0.83,
+  0.84,
+  0.85,
+  0.86,
+  0.87,
+  0.88,
+  0.89,
+  0.9,
+  0.91,
+  0.92,
+  0.93,
+  0.94,
+  0.95,
+  0.96,
+  0.97,
+  0.98,
+  0.99,
+  1.0
+ ],
+ "curve": [
+  {
+   "threshold": 0.5,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.51,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.52,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.53,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.54,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.55,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.56,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.57,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.58,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.59,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.6,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.61,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.62,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.63,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.64,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.65,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.66,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.67,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.68,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.69,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.7,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.71,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.72,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.73,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.74,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.75,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.76,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.77,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.78,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.79,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.8,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.81,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.82,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.83,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.84,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.85,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.86,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.87,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.88,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.89,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.9,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.91,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.92,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.93,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.94,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.95,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.96,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.97,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.98,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 2186,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 370,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.05574786486486486,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 0.99,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 1,
+    "n": 2186,
+    "share": 0.0004574565416285453
+   },
+   "cases_routed": {
+    "k": 1,
+    "n": 370,
+    "share": 0.002702702702702703
+   },
+   "cost_per_1000_usd": 0.07034554826254827,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 0.014597683397683399
+   },
+   "latency_p50_ms": 399.8984405188821,
+   "router": "global"
+  },
+  {
+   "threshold": 1.0,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "whole_case": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    },
+    "decision": {
+     "value": 1.0,
+     "k": 370,
+     "n": 370
+    }
+   },
+   "questions_routed": {
+    "k": 2186,
+    "n": 2186,
+    "share": 1.0
+   },
+   "cases_routed": {
+    "k": 370,
+    "n": 370,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 6.3112775945945945,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.05574786486486486,
+    "gpt": 6.25552972972973
+   },
+   "latency_p50_ms": 10102.572039002553,
+   "router": "global"
+  }
+ ],
+ "gpt_only": {
+  "label": "simulated from recorded answers",
+  "lane": "GPT-6.1 Sol",
+  "model": "gpt-6.1-sol",
+  "value": 1.0,
+  "metrics": {
+   "whole_case": {
+    "value": 1.0,
+    "k": 370,
+    "n": 370
+   },
+   "decision": {
+    "value": 1.0,
+    "k": 370,
+    "n": 370
+   }
+  },
+  "cost_per_1000_usd": 6.25552972972973,
+  "latency_p50_ms": 9410.99247901002,
+  "note": "GPT-6.1 Sol recorded answers on every question. Cost is GPT list price from recorded tokens. No Drex cost."
+ },
+ "drex_only": {
+  "label": "simulated from recorded answers",
+  "lane": "Drex v1.1",
+  "model": "drex-max-v1.1",
+  "value": 1.0,
+  "metrics": {
+   "whole_case": {
+    "value": 1.0,
+    "k": 370,
+    "n": 370
+   },
+   "decision": {
+    "value": 1.0,
+    "k": 370,
+    "n": 370
+   }
+  },
+  "cost_per_1000_usd": 0.05574786486486486,
+  "latency_p50_ms": 399.8984405188821,
+  "note": "drex-max-v1.1 recorded answers on every question. Cost is Drex recorded cost_usd."
+ },
+ "measured": [],
+ "match_gpt_within_1pt": {
+  "threshold": 0.5,
+  "router": "global",
+  "value": 1.0,
+  "gpt_value": 1.0,
+  "cost_per_1000_usd": 0.05574786486486486,
+  "gpt_cost_per_1000_usd": 6.25552972972973,
+  "questions_routed_share": 0.0,
+  "post_hoc": "Threshold picked on the same recorded set it is scored on. Not a held-out choice.",
+  "rule": "lowest simulated cost among points whose chart metric is >= GPT-6.1 Sol minus 0.01",
+  "label": "simulated from recorded answers"
+ },
+ "match_gpt_exact": {
+  "threshold": 0.5,
+  "router": "global",
+  "value": 1.0,
+  "gpt_value": 1.0,
+  "cost_per_1000_usd": 0.05574786486486486,
+  "gpt_cost_per_1000_usd": 6.25552972972973,
+  "questions_routed_share": 0.0,
+  "post_hoc": "Threshold picked on the same recorded set it is scored on. Not a held-out choice.",
+  "rule": "lowest simulated cost among points whose chart metric is >= GPT-6.1 Sol minus 0",
+  "label": "simulated from recorded answers"
+ },
+ "notes": [
+  "Questions are Drex's recorded fact:: and scope:: answers. GPT's scope answer is one field and scores both scope questions.",
+  "A case with any routed question takes GPT's recorded case-level fields (decision, action, criteria, evidence). Otherwise Drex's.",
+  "Both lanes are 370/370 on this set, so every threshold scores the same. Only cost and latency move."
+ ],
+ "computed_at": "2026-11-14T15:30:28Z",
+ "generator": "billproof.dial.build"
+}

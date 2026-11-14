@@ -1,0 +1,103 @@
+/* Trust dial component (js/dial.js). Self-contained: only theme.css tokens. */
+
+.tdial-card { margin-bottom: 1.25rem; padding: 1.6rem 1.8rem 1.2rem; }
+.tdial-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 2.6rem; align-items: stretch; }
+.tdial-left { display: flex; flex-direction: column; gap: 1.6rem; justify-content: center; min-width: 0; }
+
+/* sentence + slider */
+.tdial-hd { display: flex; flex-direction: column; gap: .75rem; }
+.tdial-eyebrow { display: flex; align-items: center; gap: .45rem; font-size: .78rem; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--drex-ink); }
+.tdial-sentence { font-size: 1.45rem; font-weight: 600; letter-spacing: -.015em; line-height: 1.3; color: var(--text); text-wrap: pretty; }
+.tdial-sentence .model { font-weight: 700; }
+.tdial-t {
+  display: inline-block; min-width: 4.2ch; padding: 0 .35rem; margin: 0 .05rem;
+  border-radius: var(--radius-xs); background: var(--drex-soft); color: var(--drex-ink);
+  font-weight: 750; text-align: center; font-variant-numeric: tabular-nums;
+}
+.tdial-t.is-pending { background: var(--surface-2); color: var(--text-3); }
+
+.tdial-range { position: relative; padding-top: .9rem; }
+.tdial-range input {
+  --p: 50%;
+  -webkit-appearance: none; appearance: none; width: 100%; height: 2.2rem; margin: 0; background: transparent; cursor: grab;
+}
+.tdial-range input:active { cursor: grabbing; }
+.tdial-range input:disabled { cursor: default; }
+.tdial-range input::-webkit-slider-runnable-track {
+  height: .6rem; border-radius: 999px;
+  background: linear-gradient(90deg, var(--drex-line), var(--gpt-line));
+}
+.tdial-range input::-moz-range-track { height: .6rem; border-radius: 999px; background: linear-gradient(90deg, var(--drex-line), var(--gpt-line)); }
+.tdial-range input::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 1.9rem; height: 1.9rem; margin-top: -.65rem; border-radius: 50%;
+  background: var(--drex); border: .25rem solid #fff; box-shadow: 0 0 0 1px var(--drex-line), 0 3px 10px rgba(79, 70, 229, .35);
+  transition: transform 120ms var(--ease), box-shadow 120ms var(--ease);
+}
+.tdial-range input::-moz-range-thumb {
+  width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--drex); border: .25rem solid #fff;
+  box-shadow: 0 0 0 1px var(--drex-line), 0 3px 10px rgba(79, 70, 229, .35);
+}
+.tdial-range input:hover::-webkit-slider-thumb { transform: scale(1.06); }
+.tdial-range input:active::-webkit-slider-thumb { transform: scale(1.12); box-shadow: 0 0 0 .45rem rgba(79, 70, 229, .16), 0 3px 12px rgba(79, 70, 229, .4); }
+.tdial-range input:focus-visible { outline: none; }
+.tdial-range input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 .3rem rgba(79, 70, 229, .35); }
+.tdial-range.is-pending input::-webkit-slider-runnable-track { background: var(--surface-3); }
+.tdial-range.is-pending input::-webkit-slider-thumb { background: var(--neutral); box-shadow: none; }
+
+/* recommended-setting star above the track; offset keeps it aligned with the thumb centre */
+.tdial-def {
+  position: absolute; top: -.2rem; transform: translateX(calc(-50% + (0.5 - var(--f, .5)) * 1.9rem));
+  border: 0; background: none; padding: 0 .2rem; cursor: pointer;
+  color: var(--green); font-size: .95rem; line-height: 1;
+}
+.tdial-def:hover { color: var(--green-ink); }
+.tdial-ends { display: flex; justify-content: space-between; margin-top: .15rem; font-size: .78rem; color: var(--text-3); font-variant-numeric: tabular-nums; }
+
+/* three big numbers */
+.tdial-bigs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.tdial-big { display: flex; flex-direction: column; gap: .3rem; padding: 1.1rem 1.1rem 1.1rem 0; }
+.tdial-big + .tdial-big { padding-left: 1.3rem; border-left: 1px solid var(--border); }
+.tdial-k { font-size: .78rem; font-weight: 650; letter-spacing: .05em; text-transform: uppercase; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tdial-v { font-size: 3.3rem; font-weight: 750; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; color: var(--text); }
+.tdial-big.is-acc .tdial-v { color: var(--drex-ink); }
+.tdial-big.is-routed .tdial-v { color: var(--gpt-ink); }
+.tdial-v.is-pending { color: var(--border-strong) !important; }
+.tdial-sub { font-size: .82rem; color: var(--text-3); min-height: 1.2em; font-variant-numeric: tabular-nums; }
+
+.tdial-status { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; min-height: 1.9rem; }
+.tdial-cheaper { font-weight: 650; color: var(--text); }
+.tdial-rec { font-size: .82rem; font-weight: 600; color: var(--green-ink); }
+
+/* chart */
+.tdial-chart { display: flex; flex-direction: column; gap: .6rem; min-width: 0; }
+.tdial-plot { position: relative; height: 25rem; }
+.tdial-legend { display: flex; flex-wrap: wrap; gap: .4rem 1.3rem; font-size: .8rem; color: var(--text-2); padding-left: 3.2rem; }
+.tdial-key { display: inline-flex; align-items: center; gap: .45rem; white-space: nowrap; }
+.tdial-key i { display: inline-block; width: .8rem; height: .8rem; flex: none; }
+.tdial-key.is-curve i { height: .22rem; width: 1.3rem; border-radius: 2px; background: var(--drex-line); }
+.tdial-key.is-now i { border-radius: 50%; background: var(--drex); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--drex-line); }
+.tdial-key.is-gpt i { background: var(--gpt); }
+.tdial-key.is-drex i { background: #fff; border: 2px solid var(--drex); }
+.tdial-key.is-measured i { width: .72rem; height: .72rem; transform: rotate(45deg); background: var(--amber-soft); border: 2px solid var(--amber); }
+
+.tdial-chart--pending { justify-content: center; }
+.tdial-wait {
+  height: 25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .45rem; text-align: center;
+  border: 1.5px dashed var(--border-strong); border-radius: var(--radius); background: var(--surface-2); color: var(--text-3);
+}
+.tdial-wait .ic { width: 1.8rem; height: 1.8rem; }
+.tdial-wait-t { font-size: 1.05rem; font-weight: 650; color: var(--text-2); }
+
+.tdial-foot { display: flex; align-items: center; gap: 1rem; margin-top: 1.1rem; padding-top: .9rem; border-top: 1px solid var(--border); }
+.tdial-foot .footnote { font-size: .8rem; }
+.tdial-foot .btn { flex: none; white-space: nowrap; }
+
+/* compact (Results hub): smaller chart and numbers */
+.tdial--compact .tdial-plot, .tdial--compact .tdial-wait { height: 20rem; }
+.tdial--compact .tdial-v { font-size: 2.7rem; }
+.tdial--compact .tdial-sentence { font-size: 1.25rem; }
+.tdial--compact .tdial-left { gap: 1.2rem; }
+
+@media (max-width: 1100px) {
+  .tdial-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,45 @@
+{
+  "value": 1.0,
+  "n": 7,
+  "source_run": "search_recorded_SYN-D07+SYN-D08",
+  "simulated": false,
+  "computed_at": "2026-11-14T07:08:16.461558+00:00",
+  "detail": [
+    {
+      "case_id": "SYN-D08",
+      "id": "appeal_days",
+      "ok": true
+    },
+    {
+      "case_id": "SYN-D08",
+      "id": "er_prior_auth",
+      "ok": true
+    },
+    {
+      "case_id": "SYN-D08",
+      "id": "final_dx_denial",
+      "ok": true
+    },
+    {
+      "case_id": "SYN-D08",
+      "id": "vitals",
+      "ok": true
+    },
+    {
+      "case_id": "SYN-D08",
+      "id": "final_dx",
+      "ok": true
+    },
+    {
+      "case_id": "SYN-D08",
+      "id": "visit_owed",
+      "ok": true
+    },
+    {
+      "case_id": "SYN-D08",
+      "id": "guideline_study",
+      "ok": true
+    }
+  ],
+  "note": "demo questions with known answers from the synthetic documents, fact mode"
+}

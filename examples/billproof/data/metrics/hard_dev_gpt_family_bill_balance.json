@@ -1,0 +1,10 @@
+{
+  "value": 1.0,
+  "n": 11,
+  "source_run": "hard_dev_gpt",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:34:42Z",
+  "k": 11,
+  "ci_low": 0.7411599827511859,
+  "ci_high": 1.0
+}

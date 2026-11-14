@@ -1,0 +1,161 @@
+{
+ "case_id": "SYN-D07",
+ "showcase_id": "SC-04",
+ "recorded_at": "2026-11-14T07:03:22+00:00",
+ "provenance": "recorded live Nace calls (Drex Search + Drex); replayed without network",
+ "chain": [
+  "ndi",
+  "search",
+  "drex",
+  "letter"
+ ],
+ "workspace": {
+  "workspace_id": "9e4d3d51-d8ec-4509-ae35-24ccc306d60b",
+  "workspace_name": "billproof-SYN-D07",
+  "uploaded": [],
+  "files_ingested": 0,
+  "files_skipped": 0,
+  "ingest_credits": 0,
+  "seconds": 1.0
+ },
+ "search": {
+  "query": "The plan denied the denied service (CO-16 missing info). Find the plan language that supports covering it on appeal (emergency services, medical necessity, prior authorization), quoting each clause verbatim with its section and page, and the facts in the medical record that support the service.",
+  "mode": "agent",
+  "job_id": "08f8c7b4-ba19-4850-90ef-4ba954a54e34",
+  "status": "succeeded",
+  "seconds": 20.2,
+  "cost_usd": 0.00898,
+  "confidence": "high",
+  "supports_coverage": false,
+  "appeal_deadline_days": 119,
+  "clauses": [
+   {
+    "page": 1,
+    "quote": "Emergency services are covered at the in-network cost-sharing level when No Surprises Act protections apply.",
+    "section": "COVERAGE NOTES",
+    "document": "SYN-D07/SYN-D07_plan.pdf",
+    "why_it_helps": "The only coverage-supporting clause in the plan document, but it is conditional on the service being an emergency and on No Surprises Act protections applying. The denied service 80048 (basic metabolic blood panel) was billed as a routine office-visit lab (POS 11, 2026-10-15), not an emergency, so this clause does not actually support covering it. No 'medical necessity' or 'prior authorization' clause appears anywhere in the plan document.",
+    "id": "q1",
+    "kind": "plan",
+    "doc_label": "Summary of benefits",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   },
+   {
+    "page": 1,
+    "quote": "This summary is not a guarantee of payment; the plan document controls.",
+    "section": "COVERAGE NOTES",
+    "document": "SYN-D07/SYN-D07_plan.pdf",
+    "why_it_helps": "Works against coverage on appeal: the summary of benefits is the only plan material in scope, and it defers to a full plan document (the denial cites 'Synthetic plan section 9') that is not present in the workspace, so no controlling medical-necessity or prior-authorization language can be quoted.",
+    "id": "q2",
+    "kind": "plan",
+    "doc_label": "Summary of benefits",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   }
+  ],
+  "record_facts": [],
+  "evidences": [
+   {
+    "source_path": "SYN-D07/SYN-D07_plan.pdf",
+    "page": 1,
+    "quote": "Emergency services are covered at the in-network cost-sharing level when No Surprises Act protections apply."
+   },
+   {
+    "source_path": "SYN-D07/SYN-D07_plan.pdf",
+    "page": 1,
+    "quote": "This summary is not a guarantee of payment; the plan document controls."
+   },
+   {
+    "source_path": "SYN-D07/SYN-D07_denial.pdf",
+    "page": 1,
+    "quote": "Determination: CO-16 \u00b7 Missing Info ... Plan reference: Synthetic plan section 9 ... APPEAL DEADLINE: 2027-03-01"
+   },
+   {
+    "source_path": "SYN-D07/SYN-D07_bill.pdf",
+    "page": 1,
+    "quote": "2026-10-15 80048 Basic metabolic blood panel Ref: SYN-CLINICIAN-01 1 11 $10.00"
+   }
+  ]
+ },
+ "policy": null,
+ "drex": {
+  "model": "drex-max-v1.1",
+  "simulated": false,
+  "without_documents": {
+   "answers": {
+    "plan_supports_coverage": {
+     "choice": "no",
+     "confidence": 0.9983,
+     "probabilities": {
+      "yes": 0.0017,
+      "no": 0.9983
+     }
+    },
+    "emergency_standard_met": {
+     "choice": "no",
+     "confidence": 0.9888,
+     "probabilities": {
+      "yes": 0.0112,
+      "no": 0.9888
+     }
+    },
+    "denial_conflicts_with_plan": {
+     "choice": "no",
+     "confidence": 0.9958,
+     "probabilities": {
+      "yes": 0.0042,
+      "no": 0.9958
+     }
+    }
+   },
+   "latency_ms": 357.0,
+   "input_tokens": 286,
+   "cost_usd": 9e-06
+  },
+  "with_documents": {
+   "answers": {
+    "plan_supports_coverage": {
+     "choice": "no",
+     "confidence": 0.8748,
+     "probabilities": {
+      "yes": 0.1252,
+      "no": 0.8748
+     }
+    },
+    "emergency_standard_met": {
+     "choice": "no",
+     "confidence": 0.9945,
+     "probabilities": {
+      "yes": 0.0055,
+      "no": 0.9945
+     }
+    },
+    "denial_conflicts_with_plan": {
+     "choice": "no",
+     "confidence": 0.9688,
+     "probabilities": {
+      "yes": 0.0312,
+      "no": 0.9688
+     }
+    },
+    "cite_clause": {
+     "choice": "q1",
+     "confidence": 0.7072,
+     "probabilities": {
+      "q1": 0.8536,
+      "q2": 0.1464
+     }
+    }
+   },
+   "latency_ms": 253.7,
+   "input_tokens": 483,
+   "cost_usd": 1.4e-05
+  }
+ },
+ "letter_support": [],
+ "letter": null,
+ "seconds_total": 22.2
+}

@@ -1,0 +1,11 @@
+{
+  "value": 47103.77,
+  "n": 300,
+  "source_run": "hard_test_drex-v1",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "wrongly_disputed_cents": 4710377,
+  "priced_lines": 9306,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call."
+}

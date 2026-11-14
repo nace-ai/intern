@@ -1,0 +1,14 @@
+{
+  "value": 0.6755555555555556,
+  "n": 900,
+  "source_run": "hard_test_billproof-system",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:06:43Z",
+  "k": 608,
+  "fp": 4,
+  "fn": 292,
+  "ci_low": 0.6442784388735834,
+  "ci_high": 0.7053403438865817,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+}

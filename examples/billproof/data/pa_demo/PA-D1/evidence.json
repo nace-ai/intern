@@ -1,0 +1,534 @@
+{
+  "case_id": "PA-D1",
+  "row_id": "pa1-mi-medicaid-pharmacy-criteria-312870052900fea6-documented",
+  "title": "Radicava (edaravone) for ALS \u2014 approve",
+  "drug": "RADICAVA (edaravone) oral suspension",
+  "beat": "approve",
+  "note": "3 AND criteria, all documented -> criteria_met -> approval letter.",
+  "payer": "Michigan Medicaid",
+  "policy_id": "MI-20261012-3128700529",
+  "request": {
+    "payer": "Michigan Medicaid",
+    "service_date": "2026-10-15"
+  },
+  "connective": "AND",
+  "scenario": "documented",
+  "service_date": "2026-10-15",
+  "policy_pages": [
+    1
+  ],
+  "packet_pages": [
+    1
+  ],
+  "gold_decision": "criteria_met",
+  "decision": "criteria_met",
+  "decision_action": "continue_full_review",
+  "scope": "applicable",
+  "correct": true,
+  "criteria": [
+    {
+      "criterion": "c_18_years_age",
+      "text": "Patient is \u226518 years of age",
+      "state": "met",
+      "confidence": 0.9994095032018925,
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.13293499416775173,
+            0.1404304022740836
+          ],
+          [
+            0.3506440306021497,
+            0.1404304022740836
+          ],
+          [
+            0.3506440306021497,
+            0.15935425806527187
+          ],
+          [
+            0.13293499416775173,
+            0.15935425806527187
+          ]
+        ]
+      ],
+      "match_method": "normalized",
+      "link": {
+        "record": "R2",
+        "record_page": 1,
+        "record_polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.4660700788401594
+            ],
+            [
+              0.6498334797379238,
+              0.4660700788401594
+            ],
+            [
+              0.6498334797379238,
+              0.4825511123194839
+            ],
+            [
+              0.0977777780271044,
+              0.4825511123194839
+            ]
+          ]
+        ],
+        "quote": "The record explicitly documents the following as met: Patient is  \\( \\geq \\) 18 years of age",
+        "verbatim": false,
+        "search_page": 1,
+        "page_ok": false,
+        "via": "search"
+      }
+    },
+    {
+      "criterion": "diagnosis_amyotrophic_lateral_sclerosis_als",
+      "text": "Diagnosis of amyotrophic lateral sclerosis (ALS)",
+      "state": "met",
+      "confidence": 0.9996204017375154,
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.13293499416775173,
+            0.16209918320781053
+          ],
+          [
+            0.5195259642756842,
+            0.16209918320781053
+          ],
+          [
+            0.5195259642756842,
+            0.1810230486320727
+          ],
+          [
+            0.13293499416775173,
+            0.1810230486320727
+          ]
+        ]
+      ],
+      "match_method": "normalized",
+      "link": {
+        "record": "R1",
+        "record_page": 1,
+        "record_polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.38273674550682607
+            ],
+            [
+              0.8629783680236417,
+              0.38273674550682607
+            ],
+            [
+              0.8629783680236417,
+              0.415631920400292
+            ],
+            [
+              0.0977777780271044,
+              0.415631920400292
+            ]
+          ]
+        ],
+        "quote": "Submitted chart documentation explicitly confirms that this criterion is satisfied: Diagnosis of amyotrophic lateral sclerosis (ALS)",
+        "verbatim": true,
+        "search_page": 1,
+        "page_ok": true,
+        "via": "search"
+      }
+    },
+    {
+      "criterion": "prescribed_consultation_neurologist",
+      "text": "Prescribed by or in consultation with a neurologist",
+      "state": "met",
+      "confidence": 0.9995093609454752,
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.13291704265120763,
+            0.18376805083920258
+          ],
+          [
+            0.5285127427842882,
+            0.18376805083920258
+          ],
+          [
+            0.5285127427842882,
+            0.20269191626346472
+          ],
+          [
+            0.13291704265120763,
+            0.20269191626346472
+          ]
+        ]
+      ],
+      "match_method": "exact",
+      "link": {
+        "record": "R3",
+        "record_page": 1,
+        "record_polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.5329892707593513
+            ],
+            [
+              0.8336867288826337,
+              0.5329892707593513
+            ],
+            [
+              0.8336867288826337,
+              0.5494703042386758
+            ],
+            [
+              0.0977777780271044,
+              0.5494703042386758
+            ]
+          ]
+        ],
+        "quote": "Prescriber attestation, explicitly documented as satisfied: Prescribed by or in consultation with a neurologist",
+        "verbatim": true,
+        "search_page": 1,
+        "page_ok": true,
+        "via": "search"
+      }
+    }
+  ],
+  "records": [
+    {
+      "record": "R1",
+      "kind": "record",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.0977777780271044,
+            0.38273674550682607
+          ],
+          [
+            0.8629783680236417,
+            0.38273674550682607
+          ],
+          [
+            0.8629783680236417,
+            0.415631920400292
+          ],
+          [
+            0.0977777780271044,
+            0.415631920400292
+          ]
+        ]
+      ],
+      "deciding": true,
+      "text": "Submitted chart documentation explicitly confirms that this criterion is satisfied: Diagnosis of amyotrophic lateral sclerosis (ALS)"
+    },
+    {
+      "record": "R2",
+      "kind": "record",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.0977777780271044,
+            0.4660700788401594
+          ],
+          [
+            0.6498334797379238,
+            0.4660700788401594
+          ],
+          [
+            0.6498334797379238,
+            0.4825511123194839
+          ],
+          [
+            0.0977777780271044,
+            0.4825511123194839
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": "The record explicitly documents the following as met: Patient is \u226518 years of age"
+    },
+    {
+      "record": "R3",
+      "kind": "record",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.0977777780271044,
+            0.5329892707593513
+          ],
+          [
+            0.8336867288826337,
+            0.5329892707593513
+          ],
+          [
+            0.8336867288826337,
+            0.5494703042386758
+          ],
+          [
+            0.0977777780271044,
+            0.5494703042386758
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": "Prescriber attestation, explicitly documented as satisfied: Prescribed by or in consultation with a neurologist"
+    },
+    {
+      "record": "request::payer",
+      "kind": "request_field",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2644444384606056,
+            0.19334284464518228
+          ],
+          [
+            0.3929738811418122,
+            0.19334284464518228
+          ],
+          [
+            0.3929738811418122,
+            0.2098238973906546
+          ],
+          [
+            0.2644444384606056,
+            0.2098238973906546
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": ""
+    },
+    {
+      "record": "request::service_date",
+      "kind": "request_field",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2644444384606056,
+            0.2362721375744752
+          ],
+          [
+            0.34382843815423303,
+            0.2362721375744752
+          ],
+          [
+            0.34382843815423303,
+            0.25275319031994753
+          ],
+          [
+            0.2644444384606056,
+            0.25275319031994753
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": ""
+    }
+  ],
+  "drex": {
+    "qa": {
+      "fact::c_18_years_age": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9994095032018925,
+        "probabilities": {
+          "documented_satisfied": 0.9996063354679284,
+          "documented_not_satisfied": 0.0001659419544079522,
+          "not_documented": 0.00022772257766365478
+        }
+      },
+      "fact::diagnosis_amyotrophic_lateral_sclerosis_als": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9996204017375154,
+        "probabilities": {
+          "documented_satisfied": 0.999746934491677,
+          "documented_not_satisfied": 0.00012653275416153772,
+          "not_documented": 0.00012653275416153772
+        }
+      },
+      "fact::prescribed_consultation_neurologist": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9995093609454752,
+        "probabilities": {
+          "documented_satisfied": 0.9996729072969835,
+          "documented_not_satisfied": 0.00012369516697868614,
+          "not_documented": 0.0002033975360377753
+        }
+      },
+      "scope::payer_match": {
+        "choice": "yes",
+        "confidence": 0.9998263449570925,
+        "probabilities": {
+          "yes": 0.9998263449570925,
+          "no": 0.000174
+        }
+      },
+      "scope::date_in_window": {
+        "choice": "yes",
+        "confidence": 0.9995901142184035,
+        "probabilities": {
+          "yes": 0.9995901142184035,
+          "no": 0.00041
+        }
+      }
+    },
+    "model": "drex-max-v1.1",
+    "cost_usd": 3.980999999999999e-05,
+    "latency_ms": 7583.379883028101,
+    "calls": 1,
+    "error": null
+  },
+  "deciding_record": "R1",
+  "ablation": [
+    {
+      "dropped": "R1",
+      "decision": "incomplete",
+      "changed": true,
+      "latency_ms": 7671.216665999964,
+      "cost_usd": 3.882e-05
+    },
+    {
+      "dropped": "R2",
+      "decision": "incomplete",
+      "changed": true,
+      "latency_ms": 1434.864015027415,
+      "cost_usd": 3.8939999999999996e-05
+    },
+    {
+      "dropped": "R3",
+      "decision": "incomplete",
+      "changed": true,
+      "latency_ms": 2557.1838169707917,
+      "cost_usd": 3.879e-05
+    }
+  ],
+  "search": {
+    "workspace_id": "f21f28b9-7b35-4241-97a2-ea3d25700e59",
+    "query": "This workspace holds a payer prior-authorization criteria page and one synthetic clinical packet (documents R1..Rn). For each approval criterion below, find which enclosed record (if any) addresses it \u2014 the record that documents it satisfied, not satisfied, or missing. Quote the record's text word for word, with its page. If no record addresses a criterion, say record_id null.\nCriteria: c_18_years_age: \"Patient is \u226518 years of age\"; diagnosis_amyotrophic_lateral_sclerosis_als: \"Diagnosis of amyotrophic lateral sclerosis (ALS)\"; prescribed_consultation_neurologist: \"Prescribed by or in consultation with a neurologist\"",
+    "job_id": "837b5057-7e6f-4e4b-b0f2-f57dd3b8f995",
+    "status": "succeeded",
+    "matches": [
+      {
+        "page": 1,
+        "quote": "The record explicitly documents the following as met: Patient is  \\( \\geq \\) 18 years of age",
+        "document": "PA-D1/packet.pdf",
+        "criterion": "c_18_years_age",
+        "record_id": "R2",
+        "verbatim": false,
+        "page_checked": null,
+        "page_ok": false
+      },
+      {
+        "page": 1,
+        "quote": "Submitted chart documentation explicitly confirms that this criterion is satisfied: Diagnosis of amyotrophic lateral sclerosis (ALS)",
+        "document": "PA-D1/packet.pdf",
+        "criterion": "diagnosis_amyotrophic_lateral_sclerosis_als",
+        "record_id": "R1",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      },
+      {
+        "page": 1,
+        "quote": "Prescriber attestation, explicitly documented as satisfied: Prescribed by or in consultation with a neurologist",
+        "document": "PA-D1/packet.pdf",
+        "criterion": "prescribed_consultation_neurologist",
+        "record_id": "R3",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      }
+    ],
+    "evidences": [
+      {
+        "source_path": "PA-D1/packet.pdf",
+        "page": 1,
+        "quote": "The record explicitly documents the following as met: Patient is  \\( \\geq \\) 18 years of age"
+      },
+      {
+        "source_path": "PA-D1/packet.pdf",
+        "page": 1,
+        "quote": "Submitted chart documentation explicitly confirms that this criterion is satisfied: Diagnosis of amyotrophic lateral sclerosis (ALS)"
+      },
+      {
+        "source_path": "PA-D1/packet.pdf",
+        "page": 1,
+        "quote": "Prescriber attestation, explicitly documented as satisfied: Prescribed by or in consultation with a neurologist"
+      }
+    ],
+    "ingest_seconds": 13.4,
+    "search_seconds": 8.5,
+    "cost_usd": 0.00289
+  },
+  "gpt_check": {
+    "gpt_decision": "criteria_met",
+    "checked_decision": "criteria_met",
+    "overrides": [],
+    "flagged": []
+  },
+  "letter": {
+    "type": "approval",
+    "recipient": "insurer",
+    "subject": "Prior authorization approved - RADICAVA (edaravone) oral suspension",
+    "clauses": [
+      {
+        "clause_id": "approval",
+        "title": "Prior authorization approved",
+        "text": "The request for RADICAVA (edaravone) oral suspension under Michigan Medicaid policy MI-20261012-3128700529 meets the published criteria. Each required clause is documented in the enclosed packet: c_18_years_age: \"Patient is \u226518 years of age\"; diagnosis_amyotrophic_lateral_sclerosis_als: \"Diagnosis of amyotrophic lateral sclerosis (ALS)\"; prescribed_consultation_neurologist: \"Prescribed by or in consultation with a neurologist\" Authorization may proceed to the next review step. The review window on file ends 2026-10-31.",
+        "picked_by": "decision"
+      },
+      {
+        "clause_id": "closing",
+        "title": "Closing and signature",
+        "text": "Please reply in writing by 2026-10-31 with a corrected statement or a decision.\n\nThis letter was assembled from a fixed clause library. No model wrote the wording. It is not medical advice or legal advice.\n\nPrepared with BillProof; reviewed and signed by: ____",
+        "picked_by": "decision"
+      }
+    ],
+    "generated_words": 0,
+    "decision": "criteria_met",
+    "action": "continue_full_review"
+  },
+  "timings": {
+    "ground_s": 5.2,
+    "search_s": 8.5,
+    "drex_ms": 7583.379883028101,
+    "ablate_ms": 11663.26449799817,
+    "gpt_ms": 26841.493169020396
+  },
+  "costs": {
+    "ndi_ground": 0.096,
+    "drex_search": 0.00289,
+    "drex_decide": 0.00015635999999999997,
+    "gpt": 0.0065625
+  },
+  "total_cost_usd": 0.10561,
+  "provenance": {
+    "dataset": "Hammer Labs criteria-gym policy_checklist (validation split, hackathon demo use)",
+    "row_id": "pa1-mi-medicaid-pharmacy-criteria-312870052900fea6-documented",
+    "policy_source_url": null,
+    "policy_document_title": "MIRx_clinical_criteria.pdf",
+    "source_pdf": "MIRx_clinical_criteria.pdf",
+    "char_spans": null,
+    "recorded_at": "2026-11-14T08:21:28Z"
+  },
+  "criterion_states": {
+    "c_18_years_age": "met",
+    "diagnosis_amyotrophic_lateral_sclerosis_als": "met",
+    "prescribed_consultation_neurologist": "met"
+  },
+  "missing_info": [],
+  "facts": {
+    "c_18_years_age": true,
+    "diagnosis_amyotrophic_lateral_sclerosis_als": true,
+    "prescribed_consultation_neurologist": true
+  }
+}

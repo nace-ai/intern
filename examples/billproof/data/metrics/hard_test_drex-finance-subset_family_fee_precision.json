@@ -1,0 +1,14 @@
+{
+  "value": 0.8731343283582089,
+  "n": 268,
+  "source_run": "hard_test_drex-finance-subset",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:49:01Z",
+  "k": 234,
+  "fp": 34,
+  "fn": 1269,
+  "ci_low": 0.827946488733511,
+  "ci_high": 0.9077760791148243,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+}

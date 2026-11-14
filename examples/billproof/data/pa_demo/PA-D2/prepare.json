@@ -1,0 +1,11 @@
+{
+  "criteria_pages": [
+    315
+  ],
+  "policy_slice": "data/pa_demo/PA-D2/policy_slice.pdf",
+  "packet": "data/pa_demo/PA-D2/packet.pdf",
+  "clause_texts": [
+    "Current therapy with antiretroviral meds",
+    "Therapeutic failure on any anti-diarrheal medication"
+  ]
+}

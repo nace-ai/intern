@@ -1,0 +1,199 @@
+{
+ "ef5114f7d17fc56d": {
+  "question": "How many days does the member have to file an internal appeal?",
+  "mode": "fact",
+  "route": "fact",
+  "status": "succeeded",
+  "structured_answer": {
+   "days": 180
+  },
+  "answer": "{\"days\": 180}",
+  "confidence": "certain",
+  "evidences": [
+   {
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "doc_label": "Plan Evidence of Coverage",
+    "page": 3,
+    "quote": "You may file an internal appeal within 180 days of the date of the notice of adverse benefit determination.",
+    "verbatim": true
+   }
+  ],
+  "seconds": 2.2,
+  "cost_usd": 0.00104,
+  "job_id": "04e48af1-c087-4cd3-8a8c-1437b111f96b",
+  "recorded_at": "2026-11-14T06:59:54+00:00"
+ },
+ "fb069a53065b2b80": {
+  "question": "Is prior authorization required for a CT done during an emergency department visit?",
+  "mode": "fact",
+  "route": "fact",
+  "status": "succeeded",
+  "structured_answer": {
+   "required": false
+  },
+  "answer": "{\"required\": false}",
+  "confidence": "certain",
+  "evidences": [
+   {
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "doc_label": "Plan Evidence of Coverage",
+    "page": 2,
+    "quote": "Prior authorization is not required for imaging performed during an emergency department visit.",
+    "verbatim": true
+   },
+   {
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "doc_label": "Plan Evidence of Coverage",
+    "page": 2,
+    "quote": "CT, MRI and PET scans performed outside an emergency department need prior authorization.",
+    "verbatim": true
+   }
+  ],
+  "seconds": 3.2,
+  "cost_usd": 0.00141,
+  "job_id": "437422ca-bb64-49f8-af62-7873fc8947cf",
+  "recorded_at": "2026-11-14T06:59:57+00:00"
+ },
+ "83a57ccbc4c37c0e": {
+  "question": "Can the plan deny an emergency claim only because the final diagnosis was not an emergency?",
+  "mode": "fact",
+  "route": "fact",
+  "status": "succeeded",
+  "structured_answer": {
+   "allowed": false
+  },
+  "answer": "{\"allowed\": false}",
+  "confidence": "certain",
+  "evidences": [
+   {
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "doc_label": "Plan Evidence of Coverage",
+    "page": 2,
+    "quote": "A claim for emergency services will not be denied solely because the final diagnosis was not an emergency.",
+    "verbatim": true
+   },
+   {
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "doc_label": "Plan Evidence of Coverage",
+    "page": 2,
+    "quote": "The plan decides whether a visit was an emergency from the symptoms present when the member sought care, not from the final diagnosis.",
+    "verbatim": true
+   }
+  ],
+  "seconds": 2.2,
+  "cost_usd": 0.00108,
+  "job_id": "7a8ae7bb-790f-425d-bd0c-98eb3aceb91e",
+  "recorded_at": "2026-11-14T07:00:00+00:00"
+ },
+ "2d507157e895adf3": {
+  "question": "What were the patient's temperature (Celsius) and white blood cell count in the ED?",
+  "mode": "fact",
+  "route": "fact",
+  "status": "succeeded",
+  "structured_answer": {
+   "wbc": 15.2,
+   "temperature_c": 38.6
+  },
+  "answer": "{\"temperature_c\": 38.6, \"wbc\": 15.2}",
+  "confidence": "certain",
+  "evidences": [
+   {
+    "document": "SYN-D08/SYN-D08_ed_record.pdf",
+    "doc_label": "ED record",
+    "page": 1,
+    "quote": "Temperature 38.6 C.",
+    "verbatim": true
+   },
+   {
+    "document": "SYN-D08/SYN-D08_ed_record.pdf",
+    "doc_label": "ED record",
+    "page": 1,
+    "quote": "White blood cell count 15.2 (high).",
+    "verbatim": true
+   }
+  ],
+  "seconds": 3.3,
+  "cost_usd": 0.00105,
+  "job_id": "6867c8ef-340c-4596-8ea4-ee5fb2bdff06",
+  "recorded_at": "2026-11-14T07:00:03+00:00"
+ },
+ "87f82940980f970c": {
+  "question": "What was the final diagnosis after the CT?",
+  "mode": "fact",
+  "route": "fact",
+  "status": "succeeded",
+  "structured_answer": {
+   "diagnosis": "mesenteric adenitis"
+  },
+  "answer": "{\"diagnosis\": \"mesenteric adenitis\"}",
+  "confidence": "certain",
+  "evidences": [
+   {
+    "document": "SYN-D08/SYN-D08_ed_record.pdf",
+    "doc_label": "ED record",
+    "page": 1,
+    "quote": "CT: normal appendix; enlarged mesenteric lymph nodes. Final diagnosis: mesenteric adenitis.",
+    "verbatim": true
+   }
+  ],
+  "seconds": 1.8,
+  "cost_usd": 0.00102,
+  "job_id": "08863a6b-124c-4bd6-9d14-48e99f102148",
+  "recorded_at": "2026-11-14T07:00:06+00:00"
+ },
+ "76a200a48bc9df97": {
+  "question": "How much does the patient owe for the emergency department visit according to the EOB?",
+  "mode": "fact",
+  "route": "fact",
+  "status": "succeeded",
+  "structured_answer": {
+   "amount_usd": 13.89
+  },
+  "answer": "{\"amount_usd\": 13.89}",
+  "confidence": "certain",
+  "evidences": [
+   {
+    "document": "SYN-D08/SYN-D08_eob.pdf",
+    "doc_label": "Explanation of benefits",
+    "page": 1,
+    "quote": "1 99283 1 $86.84 $69.47 $55.58 $13.89 Deductible met; patient pays 20% of allowance. Emergency visit documented as completed.",
+    "verbatim": true
+   },
+   {
+    "document": "SYN-D08/SYN-D08_eob.pdf",
+    "doc_label": "Explanation of benefits",
+    "page": 1,
+    "quote": "TOTALS $191.64 $69.47 $55.58 TOTAL YOUR COST $13.89",
+    "verbatim": true
+   }
+  ],
+  "seconds": 2.5,
+  "cost_usd": 0.00113,
+  "job_id": "7ada0bd8-450b-4c9f-9b8f-635afd8d9e51",
+  "recorded_at": "2026-11-14T07:00:08+00:00"
+ },
+ "cdce2ab3fab24d25": {
+  "question": "Which imaging study does the published imaging guideline list for lower quadrant or generalized abdominal pain?",
+  "mode": "fact",
+  "route": "fact",
+  "status": "succeeded",
+  "structured_answer": {
+   "study": "CT abdomen and/or pelvis"
+  },
+  "answer": "{\"study\": \"CT abdomen and/or pelvis\"}",
+  "confidence": "certain",
+  "evidences": [
+   {
+    "document": "SYN-D08/SYN-D08_policy.pdf",
+    "doc_label": "Published imaging guideline",
+    "page": 1,
+    "quote": "CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain",
+    "verbatim": true
+   }
+  ],
+  "seconds": 2.1,
+  "cost_usd": 0.00114,
+  "job_id": "74da3861-1cb7-4cd8-aea9-6e1ea99f739c",
+  "recorded_at": "2026-11-14T07:07:39+00:00"
+ }
+}

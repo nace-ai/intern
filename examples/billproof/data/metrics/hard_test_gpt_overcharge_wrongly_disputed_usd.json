@@ -1,0 +1,11 @@
+{
+  "value": 0.0,
+  "n": 4,
+  "source_run": "hard_test_gpt",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "wrongly_disputed_cents": 0,
+  "priced_lines": 122,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call."
+}

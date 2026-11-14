@@ -1,0 +1,13 @@
+{
+  "value": 0.78,
+  "n": 100,
+  "source_run": "ladder_hard_anthropic__claude-haiku-5.5",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:08:31Z",
+  "k": 78,
+  "ci_low": 0.6892946528499969,
+  "ci_high": 0.849988254963442,
+  "ci_method": "wilson",
+  "added_after_first_results": true,
+  "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+}

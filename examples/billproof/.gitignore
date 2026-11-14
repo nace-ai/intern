@@ -1,0 +1,19 @@
+# Local secrets and environments
+.env
+.venv
+
+# Python and tool caches
+__pycache__/
+
+# Generated output and downloads
+out/
+data/cache/
+data/raw/
+
+# Run locks
+*.lock
+
+# private judging context (never commit)
+.judge/
+.pytest_cache/
+EXPLANATION.md

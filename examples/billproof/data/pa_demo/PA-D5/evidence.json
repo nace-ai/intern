@@ -1,0 +1,532 @@
+{
+  "case_id": "PA-D5",
+  "row_id": "pa1-ar-medicaid-pa-criteria-148819a05a549d16-one_met_rest_missing",
+  "title": "Sildenafil (Revatio) \u2014 OR, one alternative met",
+  "drug": "SILDENAFIL (Revatio)",
+  "beat": "or_met",
+  "note": "3 OR alternatives, one met + two undocumented -> criteria_met via OR logic.",
+  "payer": "Arkansas Medicaid",
+  "policy_id": "AR-20261018-148819a05a",
+  "request": {
+    "payer": "Arkansas Medicaid",
+    "service_date": "2026-10-15"
+  },
+  "connective": "OR",
+  "scenario": "one_met_rest_missing",
+  "service_date": "2026-10-15",
+  "policy_pages": [
+    1
+  ],
+  "packet_pages": [
+    1
+  ],
+  "gold_decision": "criteria_met",
+  "decision": "criteria_met",
+  "decision_action": "continue_full_review",
+  "scope": "applicable",
+  "correct": true,
+  "criteria": [
+    {
+      "criterion": "diagnosis_pulmonary_heart_disease_last_365",
+      "text": "Diagnosis of pulmonary heart disease in the last 365 days",
+      "state": "met",
+      "confidence": 0.9996338362755774,
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.1117764890583512,
+            0.19156365442757656
+          ],
+          [
+            0.5775670568927441,
+            0.19156365442757656
+          ],
+          [
+            0.5775670568927441,
+            0.2105909212671145
+          ],
+          [
+            0.1117764890583512,
+            0.2105909212671145
+          ]
+        ]
+      ],
+      "match_method": "normalized",
+      "link": {
+        "record": "R1",
+        "record_page": 1,
+        "record_polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.38273674550682607
+            ],
+            [
+              0.9182088016684539,
+              0.38273674550682607
+            ],
+            [
+              0.9182088016684539,
+              0.415631920400292
+            ],
+            [
+              0.0977777780271044,
+              0.415631920400292
+            ]
+          ]
+        ],
+        "quote": "Submitted chart documentation explicitly confirms that this criterion is satisfied: Diagnosis of pulmonary heart disease in the last 365 days",
+        "verbatim": true,
+        "search_page": 1,
+        "page_ok": true,
+        "via": "search"
+      }
+    },
+    {
+      "criterion": "diagnosis_persistent_fetal_circulation_last_365",
+      "text": "Diagnosis of persistent fetal circulation in the last 365 days",
+      "state": "missing",
+      "confidence": 0.999886656749314,
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.11177650152468215,
+            0.21337871358852195
+          ],
+          [
+            0.5834659750944649,
+            0.21337871358852195
+          ],
+          [
+            0.5834659750944649,
+            0.2324059804280599
+          ],
+          [
+            0.11177650152468215,
+            0.2324059804280599
+          ]
+        ]
+      ],
+      "match_method": "normalized",
+      "link": {
+        "record": "R2",
+        "record_page": 1,
+        "record_polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.4660700788401594
+            ],
+            [
+              0.906162935144761,
+              0.4660700788401594
+            ],
+            [
+              0.906162935144761,
+              0.4989652537336253
+            ],
+            [
+              0.0977777780271044,
+              0.4989652537336253
+            ]
+          ]
+        ],
+        "quote": "No documentation addressing this criterion was submitted in this packet: Diagnosis of persistent fetal circulation in the last 365 days",
+        "verbatim": true,
+        "search_page": 1,
+        "page_ok": true,
+        "via": "search"
+      }
+    },
+    {
+      "criterion": "diagnosis_chronic_respiratory_disease_arising_pe",
+      "text": "Diagnosis of chronic respiratory disease arising in the perinatal period in the last 365 days",
+      "state": "missing",
+      "confidence": 0.9998717956091342,
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.11179455277187372,
+            0.23504072247129498
+          ],
+          [
+            0.8261598075916565,
+            0.23504072247129498
+          ],
+          [
+            0.8261598075916565,
+            0.25406798931083296
+          ],
+          [
+            0.11179455277187372,
+            0.25406798931083296
+          ]
+        ]
+      ],
+      "match_method": "exact",
+      "link": {
+        "record": "R3",
+        "record_page": 1,
+        "record_polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.5494034121734928
+            ],
+            [
+              0.8742169149560866,
+              0.5494034121734928
+            ],
+            [
+              0.8742169149560866,
+              0.5822985870669587
+            ],
+            [
+              0.0977777780271044,
+              0.5822985870669587
+            ]
+          ]
+        ],
+        "quote": "No documentation addressing this criterion was submitted in this packet: Diagnosis of chronic respiratory disease arising in the perinatal period in the last 365 days",
+        "verbatim": true,
+        "search_page": 1,
+        "page_ok": true,
+        "via": "search"
+      }
+    }
+  ],
+  "records": [
+    {
+      "record": "R1",
+      "kind": "record",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.0977777780271044,
+            0.38273674550682607
+          ],
+          [
+            0.9182088016684539,
+            0.38273674550682607
+          ],
+          [
+            0.9182088016684539,
+            0.415631920400292
+          ],
+          [
+            0.0977777780271044,
+            0.415631920400292
+          ]
+        ]
+      ],
+      "deciding": true,
+      "text": "Submitted chart documentation explicitly confirms that this criterion is satisfied: Diagnosis of pulmonary heart disease in the last 365 days"
+    },
+    {
+      "record": "R2",
+      "kind": "record",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.0977777780271044,
+            0.4660700788401594
+          ],
+          [
+            0.906162935144761,
+            0.4660700788401594
+          ],
+          [
+            0.906162935144761,
+            0.4989652537336253
+          ],
+          [
+            0.0977777780271044,
+            0.4989652537336253
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": "No documentation addressing this criterion was submitted in this packet: Diagnosis of persistent fetal circulation in the last 365 days"
+    },
+    {
+      "record": "R3",
+      "kind": "record",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.0977777780271044,
+            0.5494034121734928
+          ],
+          [
+            0.8742169149560866,
+            0.5494034121734928
+          ],
+          [
+            0.8742169149560866,
+            0.5822985870669587
+          ],
+          [
+            0.0977777780271044,
+            0.5822985870669587
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": "No documentation addressing this criterion was submitted in this packet: Diagnosis of chronic respiratory disease arising in the perinatal period in the last 365 days"
+    },
+    {
+      "record": "request::payer",
+      "kind": "request_field",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2644444384606056,
+            0.19334284464518228
+          ],
+          [
+            0.3955661798614302,
+            0.19334284464518228
+          ],
+          [
+            0.3955661798614302,
+            0.2098238973906546
+          ],
+          [
+            0.2644444384606056,
+            0.2098238973906546
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": ""
+    },
+    {
+      "record": "request::service_date",
+      "kind": "request_field",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2644444384606056,
+            0.2362721375744752
+          ],
+          [
+            0.34382843815423303,
+            0.2362721375744752
+          ],
+          [
+            0.34382843815423303,
+            0.25275319031994753
+          ],
+          [
+            0.2644444384606056,
+            0.25275319031994753
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": ""
+    }
+  ],
+  "drex": {
+    "qa": {
+      "fact::diagnosis_pulmonary_heart_disease_last_365": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9996338362755774,
+        "probabilities": {
+          "documented_satisfied": 0.999755890850385,
+          "documented_not_satisfied": 0.00010560009535143349,
+          "not_documented": 0.00013850905426359886
+        }
+      },
+      "fact::diagnosis_persistent_fetal_circulation_last_365": {
+        "choice": "not_documented",
+        "confidence": 0.999886656749314,
+        "probabilities": {
+          "documented_satisfied": 3.65004276892612e-05,
+          "documented_not_satisfied": 3.9061739434758856e-05,
+          "not_documented": 0.999924437832876
+        }
+      },
+      "fact::diagnosis_chronic_respiratory_disease_arising_pe": {
+        "choice": "not_documented",
+        "confidence": 0.9998717956091342,
+        "probabilities": {
+          "documented_satisfied": 3.6500063414803884e-05,
+          "documented_not_satisfied": 4.896953049562567e-05,
+          "not_documented": 0.9999145304060896
+        }
+      },
+      "scope::payer_match": {
+        "choice": "yes",
+        "confidence": 0.9998869750141348,
+        "probabilities": {
+          "yes": 0.9998869750141348,
+          "no": 0.000113
+        }
+      },
+      "scope::date_in_window": {
+        "choice": "yes",
+        "confidence": 0.9997773296595438,
+        "probabilities": {
+          "yes": 0.9997773296595438,
+          "no": 0.000223
+        }
+      }
+    },
+    "model": "drex-max-v1.1",
+    "cost_usd": 4.308e-05,
+    "latency_ms": 428.1968380091712,
+    "calls": 1,
+    "error": null
+  },
+  "deciding_record": "R1",
+  "ablation": [
+    {
+      "dropped": "R1",
+      "decision": "incomplete",
+      "changed": true,
+      "latency_ms": 341.3002180168405,
+      "cost_usd": 4.143e-05
+    },
+    {
+      "dropped": "R2",
+      "decision": "criteria_met",
+      "changed": false,
+      "latency_ms": 385.99217199953273,
+      "cost_usd": 4.143e-05
+    },
+    {
+      "dropped": "R3",
+      "decision": "criteria_met",
+      "changed": false,
+      "latency_ms": 317.983360029757,
+      "cost_usd": 4.128e-05
+    }
+  ],
+  "search": {
+    "workspace_id": "d38a226c-7570-4df7-a078-eaf711d33067",
+    "query": "This workspace holds a payer prior-authorization criteria page and one synthetic clinical packet (documents R1..Rn). For each approval criterion below, find which enclosed record (if any) addresses it \u2014 the record that documents it satisfied, not satisfied, or missing. Quote the record's text word for word, with its page. If no record addresses a criterion, say record_id null.\nCriteria: diagnosis_pulmonary_heart_disease_last_365: \"Diagnosis of pulmonary heart disease in the last 365 days\"; diagnosis_persistent_fetal_circulation_last_365: \"Diagnosis of persistent fetal circulation in the last 365 days\"; diagnosis_chronic_respiratory_disease_arising_pe: \"Diagnosis of chronic respiratory disease arising in the perinatal period in the last 365 days\"",
+    "job_id": "373551f8-1a93-47ae-87ce-76e4cc63877a",
+    "status": "succeeded",
+    "matches": [
+      {
+        "page": 1,
+        "quote": "Submitted chart documentation explicitly confirms that this criterion is satisfied: Diagnosis of pulmonary heart disease in the last 365 days",
+        "document": "PA-D5/packet.pdf",
+        "criterion": "diagnosis_pulmonary_heart_disease_last_365",
+        "record_id": "R1",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      },
+      {
+        "page": 1,
+        "quote": "No documentation addressing this criterion was submitted in this packet: Diagnosis of persistent fetal circulation in the last 365 days",
+        "document": "PA-D5/packet.pdf",
+        "criterion": "diagnosis_persistent_fetal_circulation_last_365",
+        "record_id": "R2",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      },
+      {
+        "page": 1,
+        "quote": "No documentation addressing this criterion was submitted in this packet: Diagnosis of chronic respiratory disease arising in the perinatal period in the last 365 days",
+        "document": "PA-D5/packet.pdf",
+        "criterion": "diagnosis_chronic_respiratory_disease_arising_pe",
+        "record_id": "R3",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      }
+    ],
+    "evidences": [
+      {
+        "source_path": "PA-D5/packet.pdf",
+        "page": 1,
+        "quote": "Submitted chart documentation explicitly confirms that this criterion is satisfied: Diagnosis of pulmonary heart disease in the last 365 days"
+      },
+      {
+        "source_path": "PA-D5/packet.pdf",
+        "page": 1,
+        "quote": "No documentation addressing this criterion was submitted in this packet: Diagnosis of persistent fetal circulation in the last 365 days"
+      },
+      {
+        "source_path": "PA-D5/packet.pdf",
+        "page": 1,
+        "quote": "No documentation addressing this criterion was submitted in this packet: Diagnosis of chronic respiratory disease arising in the perinatal period in the last 365 days"
+      }
+    ],
+    "ingest_seconds": 10.9,
+    "search_seconds": 8.0,
+    "cost_usd": 0.00295
+  },
+  "gpt_check": {
+    "gpt_decision": "criteria_met",
+    "checked_decision": "criteria_met",
+    "overrides": [],
+    "flagged": []
+  },
+  "letter": {
+    "type": "approval",
+    "recipient": "insurer",
+    "subject": "Prior authorization approved - SILDENAFIL (Revatio)",
+    "clauses": [
+      {
+        "clause_id": "approval",
+        "title": "Prior authorization approved",
+        "text": "The request for SILDENAFIL (Revatio) under Arkansas Medicaid policy AR-20261018-148819a05a meets the published criteria. Each required clause is documented in the enclosed packet: any_listed_alternative: \"any_listed_alternative\" Authorization may proceed to the next review step. The review window on file ends 2026-10-31.",
+        "picked_by": "decision"
+      },
+      {
+        "clause_id": "closing",
+        "title": "Closing and signature",
+        "text": "Please reply in writing by 2026-10-31 with a corrected statement or a decision.\n\nThis letter was assembled from a fixed clause library. No model wrote the wording. It is not medical advice or legal advice.\n\nPrepared with BillProof; reviewed and signed by: ____",
+        "picked_by": "decision"
+      }
+    ],
+    "generated_words": 0,
+    "decision": "criteria_met",
+    "action": "continue_full_review"
+  },
+  "timings": {
+    "ground_s": 4.8,
+    "search_s": 8.0,
+    "drex_ms": 428.1968380091712,
+    "ablate_ms": 1045.2757500461303,
+    "gpt_ms": 11000.044683052693
+  },
+  "costs": {
+    "ndi_ground": 0.096,
+    "drex_search": 0.00295,
+    "drex_decide": 0.00016722000000000002,
+    "gpt": 0.0058725
+  },
+  "total_cost_usd": 0.10499,
+  "provenance": {
+    "dataset": "Hammer Labs criteria-gym policy_checklist (validation split, hackathon demo use)",
+    "row_id": "pa1-ar-medicaid-pa-criteria-148819a05a549d16-one_met_rest_missing",
+    "policy_source_url": null,
+    "policy_document_title": "PACriteria.pdf",
+    "source_pdf": "PACriteria.pdf",
+    "char_spans": null,
+    "recorded_at": "2026-11-14T08:21:28Z"
+  },
+  "criterion_states": {
+    "any_listed_alternative": "met"
+  },
+  "missing_info": [],
+  "facts": {
+    "diagnosis_pulmonary_heart_disease_last_365": true,
+    "diagnosis_persistent_fetal_circulation_last_365": null,
+    "diagnosis_chronic_respiratory_disease_arising_pe": null
+  }
+}

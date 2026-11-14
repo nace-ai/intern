@@ -1,0 +1,13 @@
+{
+  "value": 189,
+  "n": 321,
+  "source_run": "command_center/rule_change.jsonl",
+  "simulated": true,
+  "computed_at": "2026-11-14T09:38:37Z",
+  "flip_counts": {
+    "incomplete_to_deny": 70,
+    "approve_to_deny": 91,
+    "approve_to_incomplete": 28
+  },
+  "pair_kind": "simulated_or_to_and"
+}

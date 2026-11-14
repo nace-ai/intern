@@ -1,0 +1,1574 @@
+{
+  "case_id": "SYN-D07",
+  "docs": {
+    "bill": {
+      "pages": 1,
+      "fields": [
+        {
+          "path": "bill.lines.1.dos",
+          "value": "2026-10-15",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.07369,
+                      0.2656
+                    ],
+                    [
+                      0.14348,
+                      0.2656
+                    ],
+                    [
+                      0.14348,
+                      0.27722
+                    ],
+                    [
+                      0.07369,
+                      0.27722
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "2026-10-15"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.1.code",
+          "value": "99213",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.20114,
+                      0.2656
+                    ],
+                    [
+                      0.24042,
+                      0.2656
+                    ],
+                    [
+                      0.24042,
+                      0.27722
+                    ],
+                    [
+                      0.20114,
+                      0.27722
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "99213"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.1.modifiers",
+          "value": null,
+          "status": "not_found",
+          "citations": []
+        },
+        {
+          "path": "bill.lines.1.label",
+          "value": "Office visit, established patient, low-moderate",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.32206,
+                      0.2656
+                    ],
+                    [
+                      0.58799,
+                      0.2656
+                    ],
+                    [
+                      0.58799,
+                      0.27722
+                    ],
+                    [
+                      0.32206,
+                      0.27722
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Office visit, established patient, low-moderate"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.1.rendering_provider",
+          "value": "SYN-CLINICIAN-01",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.32206,
+                      0.27896
+                    ],
+                    [
+                      0.44067,
+                      0.27896
+                    ],
+                    [
+                      0.44067,
+                      0.28882
+                    ],
+                    [
+                      0.32206,
+                      0.28882
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Ref: SYN-CLINICIAN-01"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.1.pos",
+          "value": "11",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.79518,
+                      0.2656
+                    ],
+                    [
+                      0.81266,
+                      0.2656
+                    ],
+                    [
+                      0.81266,
+                      0.27722
+                    ],
+                    [
+                      0.79518,
+                      0.27722
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "11"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.1.units",
+          "value": 1,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.73999,
+                      0.2656
+                    ],
+                    [
+                      0.7502,
+                      0.2656
+                    ],
+                    [
+                      0.7502,
+                      0.27722
+                    ],
+                    [
+                      0.73999,
+                      0.27722
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "1"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.1.charge_cents",
+          "value": 11899,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.87612,
+                      0.2656
+                    ],
+                    [
+                      0.92631,
+                      0.2656
+                    ],
+                    [
+                      0.92631,
+                      0.27722
+                    ],
+                    [
+                      0.87612,
+                      0.27722
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$118.99"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.2.dos",
+          "value": "2026-10-15",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.07369,
+                      0.29212
+                    ],
+                    [
+                      0.14348,
+                      0.29212
+                    ],
+                    [
+                      0.14348,
+                      0.30373
+                    ],
+                    [
+                      0.07369,
+                      0.30373
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "2026-10-15"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.2.code",
+          "value": "85025",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.20114,
+                      0.29212
+                    ],
+                    [
+                      0.24042,
+                      0.29212
+                    ],
+                    [
+                      0.24042,
+                      0.30373
+                    ],
+                    [
+                      0.20114,
+                      0.30373
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "85025"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.2.modifiers",
+          "value": null,
+          "status": "not_found",
+          "citations": []
+        },
+        {
+          "path": "bill.lines.2.label",
+          "value": "Complete blood count with automated differential",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.32206,
+                      0.29212
+                    ],
+                    [
+                      0.60836,
+                      0.29212
+                    ],
+                    [
+                      0.60836,
+                      0.30373
+                    ],
+                    [
+                      0.32206,
+                      0.30373
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Complete blood count with automated differential"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.2.rendering_provider",
+          "value": "SYN-CLINICIAN-01",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.32206,
+                      0.30547
+                    ],
+                    [
+                      0.44067,
+                      0.30547
+                    ],
+                    [
+                      0.44067,
+                      0.31534
+                    ],
+                    [
+                      0.32206,
+                      0.31534
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Ref: SYN-CLINICIAN-01"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.2.pos",
+          "value": "11",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.79518,
+                      0.29212
+                    ],
+                    [
+                      0.81266,
+                      0.29212
+                    ],
+                    [
+                      0.81266,
+                      0.30373
+                    ],
+                    [
+                      0.79518,
+                      0.30373
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "11"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.2.units",
+          "value": 1,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.73999,
+                      0.29212
+                    ],
+                    [
+                      0.7502,
+                      0.29212
+                    ],
+                    [
+                      0.7502,
+                      0.30373
+                    ],
+                    [
+                      0.73999,
+                      0.30373
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "1"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.2.charge_cents",
+          "value": 1188,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.88339,
+                      0.29212
+                    ],
+                    [
+                      0.92631,
+                      0.29212
+                    ],
+                    [
+                      0.92631,
+                      0.30373
+                    ],
+                    [
+                      0.88339,
+                      0.30373
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$11.88"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.3.dos",
+          "value": null,
+          "status": "not_found",
+          "citations": []
+        },
+        {
+          "path": "bill.lines.3.code",
+          "value": "80048",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.20114,
+                      0.31863
+                    ],
+                    [
+                      0.24042,
+                      0.31863
+                    ],
+                    [
+                      0.24042,
+                      0.33025
+                    ],
+                    [
+                      0.20114,
+                      0.33025
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "80048"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.3.modifiers",
+          "value": null,
+          "status": "not_found",
+          "citations": []
+        },
+        {
+          "path": "bill.lines.3.label",
+          "value": "Basic metabolic blood panel",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.32206,
+                      0.31863
+                    ],
+                    [
+                      0.48775,
+                      0.31863
+                    ],
+                    [
+                      0.48775,
+                      0.33025
+                    ],
+                    [
+                      0.32206,
+                      0.33025
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Basic metabolic blood panel"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.3.rendering_provider",
+          "value": "SYN-CLINICIAN-01",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.32206,
+                      0.33199
+                    ],
+                    [
+                      0.44067,
+                      0.33199
+                    ],
+                    [
+                      0.44067,
+                      0.34185
+                    ],
+                    [
+                      0.32206,
+                      0.34185
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Ref: SYN-CLINICIAN-01"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.3.pos",
+          "value": "11",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.79518,
+                      0.31863
+                    ],
+                    [
+                      0.81266,
+                      0.31863
+                    ],
+                    [
+                      0.81266,
+                      0.33025
+                    ],
+                    [
+                      0.79518,
+                      0.33025
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "11"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.3.units",
+          "value": 1,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.73999,
+                      0.31863
+                    ],
+                    [
+                      0.7502,
+                      0.31863
+                    ],
+                    [
+                      0.7502,
+                      0.33025
+                    ],
+                    [
+                      0.73999,
+                      0.33025
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "1"
+            }
+          ]
+        },
+        {
+          "path": "bill.lines.3.charge_cents",
+          "value": 1000,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.88339,
+                      0.31863
+                    ],
+                    [
+                      0.92631,
+                      0.31863
+                    ],
+                    [
+                      0.92631,
+                      0.33025
+                    ],
+                    [
+                      0.88339,
+                      0.33025
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$10.00"
+            }
+          ]
+        },
+        {
+          "path": "patient.member_id",
+          "value": "SYN-DEMO-07",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.17173,
+                      0.19237
+                    ],
+                    [
+                      0.26401,
+                      0.19237
+                    ],
+                    [
+                      0.26401,
+                      0.20398
+                    ],
+                    [
+                      0.17173,
+                      0.20398
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "SYN-DEMO-07"
+            }
+          ]
+        },
+        {
+          "path": "provider.name",
+          "value": "Cedar Vale Clinic",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.13578,
+                      0.07339
+                    ],
+                    [
+                      0.3557,
+                      0.07339
+                    ],
+                    [
+                      0.3557,
+                      0.09026
+                    ],
+                    [
+                      0.13578,
+                      0.09026
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "CEDAR VALE CLINIC"
+            }
+          ]
+        },
+        {
+          "path": "bill.statement_date",
+          "value": "2026-11-05",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.85234,
+                      0.09217
+                    ],
+                    [
+                      0.92631,
+                      0.09217
+                    ],
+                    [
+                      0.92631,
+                      0.10437
+                    ],
+                    [
+                      0.85234,
+                      0.10437
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "2026-11-05"
+            }
+          ]
+        },
+        {
+          "path": "bill.account_no",
+          "value": "AC-DEMO-07",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.83771,
+                      0.10479
+                    ],
+                    [
+                      0.92631,
+                      0.10479
+                    ],
+                    [
+                      0.92631,
+                      0.11699
+                    ],
+                    [
+                      0.83771,
+                      0.11699
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "AC-DEMO-07"
+            }
+          ]
+        },
+        {
+          "path": "patient.patient_id",
+          "value": "PT-D07",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.87552,
+                      0.11742
+                    ],
+                    [
+                      0.92631,
+                      0.11742
+                    ],
+                    [
+                      0.92631,
+                      0.12962
+                    ],
+                    [
+                      0.87552,
+                      0.12962
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "PT-D07"
+            }
+          ]
+        },
+        {
+          "path": "provider.in_network",
+          "value": true,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.53775,
+                      0.19201
+                    ],
+                    [
+                      0.70341,
+                      0.19201
+                    ],
+                    [
+                      0.70341,
+                      0.20246
+                    ],
+                    [
+                      0.53775,
+                      0.20246
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "In-network participating provider"
+            }
+          ]
+        },
+        {
+          "path": "bill.total_charges_cents",
+          "value": 14087,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.87612,
+                      0.35525
+                    ],
+                    [
+                      0.92631,
+                      0.35525
+                    ],
+                    [
+                      0.92631,
+                      0.36686
+                    ],
+                    [
+                      0.87612,
+                      0.36686
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$140.87"
+            }
+          ]
+        },
+        {
+          "path": "bill.insurance_paid_cents",
+          "value": 0,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.89066,
+                      0.36914
+                    ],
+                    [
+                      0.92631,
+                      0.36914
+                    ],
+                    [
+                      0.92631,
+                      0.38075
+                    ],
+                    [
+                      0.89066,
+                      0.38075
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$0.00"
+            }
+          ]
+        },
+        {
+          "path": "bill.adjustments_cents",
+          "value": 0,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.89066,
+                      0.38303
+                    ],
+                    [
+                      0.92631,
+                      0.38303
+                    ],
+                    [
+                      0.92631,
+                      0.39464
+                    ],
+                    [
+                      0.89066,
+                      0.39464
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$0.00"
+            }
+          ]
+        },
+        {
+          "path": "bill.patient_balance_cents",
+          "value": 14087,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.85746,
+                      0.40566
+                    ],
+                    [
+                      0.9165,
+                      0.40566
+                    ],
+                    [
+                      0.9165,
+                      0.41902
+                    ],
+                    [
+                      0.85746,
+                      0.41902
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$140.87"
+            }
+          ]
+        }
+      ]
+    },
+    "denial": {
+      "pages": 1,
+      "fields": [
+        {
+          "path": "denial.letter_date",
+          "value": "2026-11-02",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.85234,
+                      0.09217
+                    ],
+                    [
+                      0.92631,
+                      0.09217
+                    ],
+                    [
+                      0.92631,
+                      0.10437
+                    ],
+                    [
+                      0.85234,
+                      0.10437
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "2026-11-02"
+            }
+          ]
+        },
+        {
+          "path": "denial.carc",
+          "value": "CO-16",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.21422,
+                      0.22005
+                    ],
+                    [
+                      0.26287,
+                      0.22005
+                    ],
+                    [
+                      0.26287,
+                      0.23342
+                    ],
+                    [
+                      0.21422,
+                      0.23342
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "CO-16"
+            }
+          ]
+        },
+        {
+          "path": "denial.category",
+          "value": "MISSING_INFO",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.30568,
+                      0.22005
+                    ],
+                    [
+                      0.39918,
+                      0.22005
+                    ],
+                    [
+                      0.39918,
+                      0.23342
+                    ],
+                    [
+                      0.30568,
+                      0.23342
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Missing Info"
+            }
+          ]
+        },
+        {
+          "path": "denial.reason_text",
+          "value": "No explanation for this determination was included in the notice.",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.07369,
+                      0.2407
+                    ],
+                    [
+                      0.49268,
+                      0.2407
+                    ],
+                    [
+                      0.49268,
+                      0.25349
+                    ],
+                    [
+                      0.07369,
+                      0.25349
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "No explanation for this determination was included in the notice."
+            }
+          ]
+        },
+        {
+          "path": "denial.service_code",
+          "value": "80048",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.25016,
+                      0.15358
+                    ],
+                    [
+                      0.29399,
+                      0.15358
+                    ],
+                    [
+                      0.29399,
+                      0.16637
+                    ],
+                    [
+                      0.25016,
+                      0.16637
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "80048"
+            }
+          ]
+        },
+        {
+          "path": "denial.appeal_deadline",
+          "value": "2027-03-01",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.27304,
+                      0.39435
+                    ],
+                    [
+                      0.35536,
+                      0.39435
+                    ],
+                    [
+                      0.35536,
+                      0.40772
+                    ],
+                    [
+                      0.27304,
+                      0.40772
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "2027-03-01"
+            }
+          ]
+        },
+        {
+          "path": "denial.plan_section",
+          "value": "Synthetic plan section 9",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.21422,
+                      0.27233
+                    ],
+                    [
+                      0.37247,
+                      0.27233
+                    ],
+                    [
+                      0.37247,
+                      0.28512
+                    ],
+                    [
+                      0.21422,
+                      0.28512
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Synthetic plan section 9"
+            }
+          ]
+        }
+      ]
+    },
+    "plan": {
+      "pages": 1,
+      "fields": [
+        {
+          "path": "plan.plan_name",
+          "value": "Cedar Choice PPO",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.12925,
+                      0.12273
+                    ],
+                    [
+                      0.29101,
+                      0.12273
+                    ],
+                    [
+                      0.29101,
+                      0.13785
+                    ],
+                    [
+                      0.12925,
+                      0.13785
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Cedar Choice PPO"
+            }
+          ]
+        },
+        {
+          "path": "plan.plan_type",
+          "value": "PPO",
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.30767,
+                      0.12273
+                    ],
+                    [
+                      0.34858,
+                      0.12273
+                    ],
+                    [
+                      0.34858,
+                      0.13785
+                    ],
+                    [
+                      0.30767,
+                      0.13785
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "PPO"
+            }
+          ]
+        },
+        {
+          "path": "plan.deductible_cents",
+          "value": 100000,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.84488,
+                      0.17505
+                    ],
+                    [
+                      0.91324,
+                      0.17505
+                    ],
+                    [
+                      0.91324,
+                      0.18783
+                    ],
+                    [
+                      0.84488,
+                      0.18783
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$1,000.00"
+            }
+          ]
+        },
+        {
+          "path": "plan.deductible_met_cents",
+          "value": 100000,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.84488,
+                      0.2003
+                    ],
+                    [
+                      0.91324,
+                      0.2003
+                    ],
+                    [
+                      0.91324,
+                      0.21308
+                    ],
+                    [
+                      0.84488,
+                      0.21308
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$1,000.00"
+            }
+          ]
+        },
+        {
+          "path": "plan.copay_cents",
+          "value": 0,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.8735,
+                      0.22555
+                    ],
+                    [
+                      0.91324,
+                      0.22555
+                    ],
+                    [
+                      0.91324,
+                      0.23834
+                    ],
+                    [
+                      0.8735,
+                      0.23834
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$0.00"
+            }
+          ]
+        },
+        {
+          "path": "plan.coinsurance_pct",
+          "value": 20,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.88087,
+                      0.25081
+                    ],
+                    [
+                      0.91324,
+                      0.25081
+                    ],
+                    [
+                      0.91324,
+                      0.26359
+                    ],
+                    [
+                      0.88087,
+                      0.26359
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "20%"
+            }
+          ]
+        },
+        {
+          "path": "plan.oop_max_cents",
+          "value": 600000,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.84488,
+                      0.27606
+                    ],
+                    [
+                      0.91324,
+                      0.27606
+                    ],
+                    [
+                      0.91324,
+                      0.28884
+                    ],
+                    [
+                      0.84488,
+                      0.28884
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "$6,000.00"
+            }
+          ]
+        },
+        {
+          "path": "plan.emergency_nsa_protected",
+          "value": true,
+          "status": "found",
+          "citations": [
+            {
+              "location": {
+                "kind": "page_region",
+                "page": 1,
+                "polygons": [
+                  [
+                    [
+                      0.86207,
+                      0.30131
+                    ],
+                    [
+                      0.91324,
+                      0.30131
+                    ],
+                    [
+                      0.91324,
+                      0.31409
+                    ],
+                    [
+                      0.86207,
+                      0.31409
+                    ]
+                  ]
+                ]
+              },
+              "source_text": "Applies"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "value": 1.0,
+  "n": 914,
+  "source_run": "hard_test_gpt-subset",
+  "simulated": false,
+  "computed_at": "2026-11-14T12:45:54Z",
+  "k": 914,
+  "fp": 0,
+  "fn": 0,
+  "ci_low": 0.9958145283456317,
+  "ci_high": 1.0,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+}

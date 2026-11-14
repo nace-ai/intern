@@ -1,0 +1,65 @@
+{
+  "split": "dev",
+  "finished_at": "2026-11-14T13:17:50Z",
+  "n_cases": 60,
+  "questions_correct": 11139,
+  "questions": 11226,
+  "accuracy": 0.9922501336183859,
+  "ci_low": 0.9904511115799983,
+  "ci_high": 0.9937123694080148,
+  "n_escalated": 4760,
+  "escalation_rate": 0.42401567789061106,
+  "list_cost_usd": 3.847288,
+  "cost_per_1000_cases_usd": 64.12146666666666,
+  "line_k": 1774,
+  "line_n": 1861,
+  "line_ci_low": 0.9426905337606029,
+  "line_ci_high": 0.9619439402880241,
+  "bill_k": 60,
+  "bill_n": 60,
+  "strict_k": 12,
+  "strict_n": 60,
+  "caught_cents": 377703,
+  "wrong_cents": 0,
+  "gold_overcharge_cents": 377703,
+  "families": {
+    "bill_balance": {
+      "k": 60,
+      "n": 60,
+      "escalated": 60
+    },
+    "dup": {
+      "k": 1861,
+      "n": 1861,
+      "escalated": 134
+    },
+    "eob": {
+      "k": 1857,
+      "n": 1861,
+      "escalated": 201
+    },
+    "fee": {
+      "k": 1861,
+      "n": 1861,
+      "escalated": 1861
+    },
+    "mue": {
+      "k": 1784,
+      "n": 1861,
+      "escalated": 212
+    },
+    "ncci": {
+      "k": 1855,
+      "n": 1861,
+      "escalated": 431
+    },
+    "pr": {
+      "k": 1861,
+      "n": 1861,
+      "escalated": 1861
+    }
+  },
+  "taus_unchanged": true,
+  "allow_test": true,
+  "note": "Cutoffs were frozen before these calls and were not changed after the answers. Test may use the same map on the frozen 100."
+}

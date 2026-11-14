@@ -1,0 +1,14 @@
+{
+  "value": null,
+  "n": 0,
+  "source_run": "hard_test_gpt-one",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "k": 0,
+  "fp": 0,
+  "fn": 0,
+  "ci_low": null,
+  "ci_high": null,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call."
+}

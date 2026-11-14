@@ -1,0 +1,161 @@
+{
+  "pilot": "c_persius",
+  "question": "overturned",
+  "family": "imr_overturn",
+  "type": "noul",
+  "n_items_frozen": 20,
+  "population_base_rate_overturned": 0.46689677843523997,
+  "base_rate_overturned_before": 0.4716153023604705,
+  "pilot_base_rate_yes": 0.5,
+  "leakage": {
+    "n_in": 62657,
+    "n_dropped": 1817,
+    "n_kept": 60840,
+    "drop_rate": 0.028999154124838406,
+    "tight_n_dropped": 763
+  },
+  "spend": {
+    "router": 0.0548875,
+    "nace": 0.00015825
+  },
+  "simulated": false,
+  "source_run": "data/runs/c_persius.jsonl",
+  "computed_at": "2026-11-14T09:09:52Z",
+  "status": "complete",
+  "lanes": {
+    "drex": {
+      "n": 20,
+      "n_correct": 13,
+      "n_errors": 0,
+      "accuracy": 0.65,
+      "wilson_95": [
+        0.43285051021946463,
+        0.8188104521320554
+      ],
+      "brier": 0.26749011563733865,
+      "ece": 0.19882640014290387,
+      "n_calibration": 20,
+      "latency_p50_ms": 350.92872800305486,
+      "mean_cost_usd": 7.9125e-06,
+      "cost_per_1000_usd": 0.0079125,
+      "input_tokens": 5275,
+      "output_tokens": 708,
+      "tokens": 5983,
+      "model": "drex-max-v1.1",
+      "confidence_kind": "native",
+      "accuracy_envelope": {
+        "value": 0.65,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      },
+      "brier_envelope": {
+        "value": 0.26749011563733865,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      },
+      "ece_envelope": {
+        "value": 0.19882640014290387,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      }
+    },
+    "frontier": {
+      "n": 20,
+      "n_correct": 10,
+      "n_errors": 0,
+      "accuracy": 0.5,
+      "wilson_95": [
+        0.2992949144298199,
+        0.7007050855701801
+      ],
+      "brier": 0.23903,
+      "ece": 0.23100000000000004,
+      "n_calibration": 20,
+      "latency_p50_ms": 25474.543284479296,
+      "mean_cost_usd": 0.002744375,
+      "cost_per_1000_usd": 2.744375,
+      "input_tokens": 9313,
+      "output_tokens": 2107,
+      "tokens": 11420,
+      "model": "gpt-6.1-sol",
+      "confidence_kind": "self_reported",
+      "accuracy_envelope": {
+        "value": 0.5,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      },
+      "brier_envelope": {
+        "value": 0.23903,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      },
+      "ece_envelope": {
+        "value": 0.23100000000000004,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      }
+    }
+  },
+  "envelopes": {
+    "accuracy": {
+      "drex": {
+        "value": 0.65,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      },
+      "frontier": {
+        "value": 0.5,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      }
+    },
+    "brier": {
+      "drex": {
+        "value": 0.26749011563733865,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      },
+      "frontier": {
+        "value": 0.23903,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      }
+    },
+    "ece": {
+      "drex": {
+        "value": 0.19882640014290387,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      },
+      "frontier": {
+        "value": 0.23100000000000004,
+        "n": 20,
+        "source_run": "data/runs/c_persius.jsonl",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:09:52Z"
+      }
+    }
+  }
+}

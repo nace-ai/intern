@@ -1,0 +1,9 @@
+{
+  "value": 0.9981416477390047,
+  "n": 9686,
+  "source_run": "command_center/full_replay.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T15:38:48Z",
+  "partial": false,
+  "n_planned": 9686
+}

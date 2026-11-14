@@ -1,0 +1,14 @@
+{
+  "value": 0.751951951951952,
+  "n": 1665,
+  "source_run": "hard_test_drex-v1-subset",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:49:01Z",
+  "k": 1252,
+  "fp": 413,
+  "fn": 557,
+  "ci_low": 0.7306428183645658,
+  "ci_high": 0.7721011209044458,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+}

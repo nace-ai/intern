@@ -1,0 +1,829 @@
+{
+  "schema_version": 1,
+  "model": "drex-max-v1.1",
+  "model_slug": "drex_max_v1_1",
+  "bench": "synthetic",
+  "split": "test",
+  "run_id": "real_synthetic_test",
+  "simulated": false,
+  "computed_at": "2026-11-14T07:34:52.286835+00:00",
+  "n_cases": 115,
+  "n_questions": 731,
+  "population": {
+    "run_id": "real_synthetic_test",
+    "split": "test",
+    "n_cases": 115,
+    "planned_cases": 115,
+    "partial": false,
+    "n_error_rows": 0,
+    "n_duplicate_rows": 0,
+    "lanes_present": [
+      "frontier",
+      "drex",
+      "hybrid"
+    ],
+    "lanes_expected": [
+      "frontier",
+      "drex",
+      "hybrid"
+    ],
+    "lanes_missing": [],
+    "status": "complete",
+    "complete": true,
+    "lane_population_ok": true,
+    "expected_cases": 115,
+    "headline_eligible": true
+  },
+  "headline": "Drex+Frontier strict question accuracy 99.2% vs Frontier 99.9% on 115 test cases.",
+  "cost_note": "All costs are estimates: recorded token counts times list prices (frontier $2.50/$15 per 1M; Drex list price), not invoices. Simulated runs use the adapter's token estimator.",
+  "sources": {
+    "run": "real_synthetic_test",
+    "dev_run": "real_synthetic_dev",
+    "frontier_run": "real_synthetic_test",
+    "frontier_simulated": false
+  },
+  "frontier_borrowed": false,
+  "frontier_note": null,
+  "threshold": {
+    "target_error_rate": 0.01,
+    "selection_split": "dev",
+    "selection_run": "real_synthetic_dev",
+    "selection_run_status": "complete",
+    "selection_run_partial": false,
+    "confidence_source": "drex native probability of the chosen answer",
+    "lane": "drex",
+    "min_automated": 30,
+    "achieved_on_dev": true,
+    "reason": null,
+    "value": {
+      "value": 0.46661232728647734,
+      "n": 384,
+      "source_run": "real_synthetic_dev",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "achieved": true,
+      "n_automated": 383,
+      "error_automated": 0.007832898172323759,
+      "automation_rate": 0.9973958333333334,
+      "best_available": {
+        "threshold": 0.46661232728647734,
+        "n_automated": 383,
+        "n_wrong": 3,
+        "error_automated": 0.007832898172323759,
+        "accuracy_automated": 0.9921671018276762,
+        "automation_rate": 0.9973958333333334
+      },
+      "selection_split": "dev"
+    },
+    "dev": {
+      "automation_rate": {
+        "value": 0.9973958333333334,
+        "n": 384,
+        "source_run": "real_synthetic_dev",
+        "simulated": false,
+        "computed_at": "2026-11-14T07:34:52.286835+00:00"
+      },
+      "error_automated": {
+        "value": 0.007832898172323759,
+        "n": 383,
+        "source_run": "real_synthetic_dev",
+        "simulated": false,
+        "computed_at": "2026-11-14T07:34:52.286835+00:00"
+      },
+      "accuracy_automated": {
+        "value": 0.9921671018276762,
+        "n": 383,
+        "source_run": "real_synthetic_dev",
+        "simulated": false,
+        "computed_at": "2026-11-14T07:34:52.286835+00:00"
+      }
+    },
+    "test": {
+      "automation_rate": {
+        "value": 1.0,
+        "n": 731,
+        "source_run": "real_synthetic_test",
+        "simulated": false,
+        "computed_at": "2026-11-14T07:34:52.286835+00:00"
+      },
+      "error_automated": {
+        "value": 0.009575923392612859,
+        "n": 731,
+        "source_run": "real_synthetic_test",
+        "simulated": false,
+        "computed_at": "2026-11-14T07:34:52.286835+00:00"
+      },
+      "accuracy_automated": {
+        "value": 0.9904240766073872,
+        "n": 731,
+        "source_run": "real_synthetic_test",
+        "simulated": false,
+        "computed_at": "2026-11-14T07:34:52.286835+00:00"
+      },
+      "n_automated": {
+        "value": 731,
+        "n": 731,
+        "source_run": "real_synthetic_test",
+        "simulated": false,
+        "computed_at": "2026-11-14T07:34:52.286835+00:00"
+      },
+      "n_wrong": {
+        "value": 7,
+        "n": 731,
+        "source_run": "real_synthetic_test",
+        "simulated": false,
+        "computed_at": "2026-11-14T07:34:52.286835+00:00"
+      },
+      "fixed_policy": true
+    },
+    "note": "Selected on dev only; test rows never choose the threshold."
+  },
+  "metrics": {
+    "question_accuracy.frontier": {
+      "value": 0.9986320109439124,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "ci95": [
+        0.9922920499819564,
+        0.9997584817244684
+      ],
+      "denominator": "questions answered by the model",
+      "excluded_human_routed": 0
+    },
+    "question_accuracy_all_scored.frontier": {
+      "value": 0.9986320109439124,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "note": "human/hard-cap routed questions count as not correct, never as human success"
+    },
+    "coverage.frontier": {
+      "value": 1.0,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "denominator": "questions with a gold answer"
+    },
+    "case_pass.frontier": {
+      "value": 0.991304347826087,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "note": "strict: a case with a human handoff does not pass"
+    },
+    "cost_per_case_usd.frontier": {
+      "value": 0.012374891304347825,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "estimated": true,
+      "basis": "recorded_cost_usd_estimate_from_list_prices"
+    },
+    "cost_per_1000_cases_usd.frontier": {
+      "value": 12.374891304347825,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "estimated": true,
+      "basis": "recorded_cost_usd_estimate_from_list_prices"
+    },
+    "latency_p50_ms.frontier": {
+      "value": 8557.615533994976,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "latency_p95_ms.frontier": {
+      "value": 15723.166453029262,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "brier_self_reported.frontier": {
+      "value": 0.0013114911080711355,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "self_reported"
+    },
+    "ece_self_reported.frontier": {
+      "value": 0.002585499316005381,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "self_reported",
+      "bins": 10
+    },
+    "reliability_self_reported.frontier": {
+      "value": [
+        {
+          "lo": 0.8,
+          "hi": 0.9,
+          "conf": 0.855,
+          "acc": 1.0,
+          "n": 2
+        },
+        {
+          "lo": 0.9,
+          "hi": 1.0,
+          "conf": 0.9964334705075447,
+          "acc": 0.9986282578875172,
+          "n": 729
+        }
+      ],
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "self_reported"
+    },
+    "by_family.frontier.action": {
+      "value": 0.9886363636363636,
+      "n": 88,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.after_death": {
+      "value": 1.0,
+      "n": 21,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.appeal_strength": {
+      "value": 1.0,
+      "n": 32,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.denial_category": {
+      "value": 1.0,
+      "n": 32,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.dup": {
+      "value": 1.0,
+      "n": 20,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.eob_mismatch": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.fee": {
+      "value": 1.0,
+      "n": 17,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.missing_data": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.mue": {
+      "value": 1.0,
+      "n": 37,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.ncci": {
+      "value": 1.0,
+      "n": 24,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.nsa": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.frontier.received": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "question_accuracy.drex": {
+      "value": 0.9904240766073872,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "ci95": [
+        0.9803665887893802,
+        0.9953538930124122
+      ],
+      "denominator": "questions answered by the model",
+      "excluded_human_routed": 0
+    },
+    "question_accuracy_all_scored.drex": {
+      "value": 0.9904240766073872,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "note": "human/hard-cap routed questions count as not correct, never as human success"
+    },
+    "coverage.drex": {
+      "value": 1.0,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "denominator": "questions with a gold answer"
+    },
+    "case_pass.drex": {
+      "value": 0.9565217391304348,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "note": "strict: a case with a human handoff does not pass"
+    },
+    "cost_per_case_usd.drex": {
+      "value": 8.861347826086955e-05,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "estimated": true,
+      "basis": "recorded_cost_usd_estimate_from_list_prices"
+    },
+    "cost_per_1000_cases_usd.drex": {
+      "value": 0.08861347826086954,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "estimated": true,
+      "basis": "recorded_cost_usd_estimate_from_list_prices"
+    },
+    "latency_p50_ms.drex": {
+      "value": 415.7084380276501,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "latency_p95_ms.drex": {
+      "value": 714.5775476121343,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "brier_native.drex": {
+      "value": 0.011973467770645889,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "native_probability"
+    },
+    "ece_native.drex": {
+      "value": 0.007426985400276738,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "native_probability",
+      "bins": 10
+    },
+    "reliability_native.drex": {
+      "value": [
+        {
+          "lo": 0.5,
+          "hi": 0.6,
+          "conf": 0.592493751985216,
+          "acc": 0.0,
+          "n": 2
+        },
+        {
+          "lo": 0.6,
+          "hi": 0.7,
+          "conf": 0.6406469658539524,
+          "acc": 0.6666666666666666,
+          "n": 6
+        },
+        {
+          "lo": 0.7,
+          "hi": 0.8,
+          "conf": 0.7565213798867435,
+          "acc": 0.6666666666666666,
+          "n": 3
+        },
+        {
+          "lo": 0.8,
+          "hi": 0.9,
+          "conf": 0.8466492919932357,
+          "acc": 0.8823529411764706,
+          "n": 17
+        },
+        {
+          "lo": 0.9,
+          "hi": 1.0,
+          "conf": 0.9954317290996012,
+          "acc": 1.0,
+          "n": 703
+        }
+      ],
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "native_probability"
+    },
+    "by_family.drex.action": {
+      "value": 0.9545454545454546,
+      "n": 88,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.after_death": {
+      "value": 1.0,
+      "n": 21,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.appeal_strength": {
+      "value": 1.0,
+      "n": 32,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.denial_category": {
+      "value": 0.96875,
+      "n": 32,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.dup": {
+      "value": 1.0,
+      "n": 20,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.eob_mismatch": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.fee": {
+      "value": 0.8823529411764706,
+      "n": 17,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.missing_data": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.mue": {
+      "value": 1.0,
+      "n": 37,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.ncci": {
+      "value": 1.0,
+      "n": 24,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.nsa": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.drex.received": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "question_accuracy.hybrid": {
+      "value": 0.9931506849315068,
+      "n": 730,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "ci95": [
+        0.9840671833796858,
+        0.9970709804965513
+      ],
+      "denominator": "questions answered by the model",
+      "excluded_human_routed": 1
+    },
+    "question_accuracy_all_scored.hybrid": {
+      "value": 0.9917920656634747,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "note": "human/hard-cap routed questions count as not correct, never as human success"
+    },
+    "coverage.hybrid": {
+      "value": 0.9986320109439124,
+      "n": 731,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "denominator": "questions with a gold answer"
+    },
+    "case_pass.hybrid": {
+      "value": 0.9565217391304348,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "note": "strict: a case with a human handoff does not pass"
+    },
+    "cost_per_case_usd.hybrid": {
+      "value": 0.0007437439130434782,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "estimated": true,
+      "basis": "recorded_cost_usd_estimate_from_list_prices"
+    },
+    "cost_per_1000_cases_usd.hybrid": {
+      "value": 0.7437439130434782,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "estimated": true,
+      "basis": "recorded_cost_usd_estimate_from_list_prices"
+    },
+    "latency_p50_ms.hybrid": {
+      "value": 429.0699940174818,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "latency_p95_ms.hybrid": {
+      "value": 5587.393199157666,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "brier_native.hybrid": {
+      "value": 0.002845853596210073,
+      "n": 714,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "native_probability"
+    },
+    "ece_native.hybrid": {
+      "value": 0.005541386134816458,
+      "n": 714,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "native_probability",
+      "bins": 10
+    },
+    "reliability_native.hybrid": {
+      "value": [
+        {
+          "lo": 0.8,
+          "hi": 0.9,
+          "conf": 0.85481355088133,
+          "acc": 0.9166666666666666,
+          "n": 12
+        },
+        {
+          "lo": 0.9,
+          "hi": 1.0,
+          "conf": 0.9954212075344232,
+          "acc": 1.0,
+          "n": 702
+        }
+      ],
+      "n": 714,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "native_probability"
+    },
+    "brier_self_reported.hybrid_frontier_verified": {
+      "value": 0.21328750000000002,
+      "n": 16,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "self_reported"
+    },
+    "ece_self_reported.hybrid_frontier_verified": {
+      "value": 0.2062500000000001,
+      "n": 16,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "self_reported",
+      "bins": 10
+    },
+    "reliability_self_reported.hybrid_frontier_verified": {
+      "value": [
+        {
+          "lo": 0.8,
+          "hi": 0.9,
+          "conf": 0.85,
+          "acc": 0.5,
+          "n": 2
+        },
+        {
+          "lo": 0.9,
+          "hi": 1.0,
+          "conf": 0.9714285714285715,
+          "acc": 0.7857142857142857,
+          "n": 14
+        }
+      ],
+      "n": 16,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "confidence_kind": "self_reported"
+    },
+    "by_family.hybrid.action": {
+      "value": 0.9545454545454546,
+      "n": 88,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.after_death": {
+      "value": 1.0,
+      "n": 21,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.appeal_strength": {
+      "value": 1.0,
+      "n": 32,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.denial_category": {
+      "value": 1.0,
+      "n": 32,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.dup": {
+      "value": 1.0,
+      "n": 20,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.eob_mismatch": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.fee": {
+      "value": 0.9411764705882353,
+      "n": 17,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.missing_data": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.mue": {
+      "value": 1.0,
+      "n": 37,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.ncci": {
+      "value": 1.0,
+      "n": 24,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.nsa": {
+      "value": 1.0,
+      "n": 114,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "by_family.hybrid.received": {
+      "value": 1.0,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00"
+    },
+    "cost_ratio_vs_frontier.drex": {
+      "value": 0.007160748008326818,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "frontier_source_run": "real_synthetic_test",
+      "basis": "mean cost on paired cases / frontier mean cost on the same cases"
+    },
+    "speed_ratio_vs_frontier.drex": {
+      "value": 20.585619032890023,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "frontier_source_run": "real_synthetic_test",
+      "basis": "frontier p50 latency / lane p50 latency on paired cases; >1 is faster"
+    },
+    "cost_ratio_vs_frontier.hybrid": {
+      "value": 0.06010104612249559,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "frontier_source_run": "real_synthetic_test",
+      "basis": "mean cost on paired cases / frontier mean cost on the same cases"
+    },
+    "speed_ratio_vs_frontier.hybrid": {
+      "value": 19.94456767733404,
+      "n": 115,
+      "source_run": "real_synthetic_test",
+      "simulated": false,
+      "computed_at": "2026-11-14T07:34:52.286835+00:00",
+      "frontier_source_run": "real_synthetic_test",
+      "basis": "frontier p50 latency / lane p50 latency on paired cases; >1 is faster"
+    }
+  },
+  "honesty": [
+    "Costs are estimates (recorded tokens x list prices), not invoices.",
+    "Old IMR dropped: structured fields only, near chance, superseded by Persius. Recorded IMR rows are retained for audit.",
+    "Latency is observed client wall time including router pacing and retries; speed ratios are deployment-specific.",
+    "Native calibration and the automation cutoff use the selected-class probability; live routing uses the API confidence scalar, which can differ.",
+    "Frontier confidence is self-reported by the model; Drex confidence is a native probability. ECE, Brier and reliability bins are never pooled across the two.",
+    "Human/hard-cap routed questions are not model answers: they are excluded from model accuracy and counted as not correct in the all-scored view, never as human success.",
+    "The 1% automation threshold is selected on the dev split only; test rows are used only to evaluate the fixed cutoff.",
+    "Synthetic upper bound: the same team wrote the documents and the labels."
+  ]
+}

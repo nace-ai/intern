@@ -1,0 +1,3043 @@
+{
+  "case_id": "SYN-0149",
+  "split": "test",
+  "title": "Outpatient visit · itemized statement",
+  "patient": {
+    "patient_id": "PT-0149",
+    "display_name": "Patient",
+    "dob": "1978-04-12",
+    "date_of_death": "2026-10-14",
+    "member_id": "SYN-M000149"
+  },
+  "provider": {
+    "name": "Emberline Medical Center",
+    "npi": null,
+    "in_network": true,
+    "address": null
+  },
+  "bill": {
+    "account_no": "AC-000149",
+    "statement_date": "2026-11-05",
+    "lines": [
+      {
+        "line_no": 1,
+        "dos": "2026-10-15",
+        "code": "97110",
+        "modifiers": [],
+        "label": "Therapeutic exercise, per 15 minutes",
+        "units": 1,
+        "charge_cents": 3632,
+        "pos": "22",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      },
+      {
+        "line_no": 2,
+        "dos": "2026-10-02",
+        "code": "97140",
+        "modifiers": [],
+        "label": "Hands-on manual therapy, per 15 minutes",
+        "units": 1,
+        "charge_cents": 3465,
+        "pos": "22",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      },
+      {
+        "line_no": 3,
+        "dos": "2026-10-03",
+        "code": "97530",
+        "modifiers": [],
+        "label": "Therapeutic activities training, per 15 minutes",
+        "units": 1,
+        "charge_cents": 4384,
+        "pos": "22",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      },
+      {
+        "line_no": 4,
+        "dos": "2026-10-04",
+        "code": "97163",
+        "modifiers": [],
+        "label": "Physical therapy evaluation, high complexity",
+        "units": 1,
+        "charge_cents": 12232,
+        "pos": "22",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      },
+      {
+        "line_no": 5,
+        "dos": "2026-10-05",
+        "code": "96374",
+        "modifiers": [],
+        "label": "IV push of a single medication",
+        "units": 1,
+        "charge_cents": 4718,
+        "pos": "22",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      },
+      {
+        "line_no": 6,
+        "dos": "2026-10-06",
+        "code": "74018",
+        "modifiers": [],
+        "label": "Abdominal X-ray, single view",
+        "units": 1,
+        "charge_cents": 1085,
+        "pos": "22",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      }
+    ],
+    "total_charges_cents": 29516,
+    "insurance_paid_cents": 15821,
+    "adjustments_cents": 5903,
+    "patient_balance_cents": 7792
+  },
+  "eob": {
+    "payer": "Emberline Health Cooperative",
+    "claim_id": "CL-000149",
+    "processed_date": "2026-10-30",
+    "lines": [
+      {
+        "line_no": 1,
+        "code": "97110",
+        "units": 1,
+        "billed_cents": 3632,
+        "allowed_cents": 2906,
+        "plan_paid_cents": 0,
+        "patient_resp_cents": 2906,
+        "carc": [],
+        "remark": "Deductible 2906 cents; coinsurance 15% of remaining allowance. "
+      },
+      {
+        "line_no": 2,
+        "code": "97140",
+        "units": 1,
+        "billed_cents": 3465,
+        "allowed_cents": 2772,
+        "plan_paid_cents": 576,
+        "patient_resp_cents": 2196,
+        "carc": [],
+        "remark": "Deductible 2094 cents; coinsurance 15% of remaining allowance. "
+      },
+      {
+        "line_no": 3,
+        "code": "97530",
+        "units": 1,
+        "billed_cents": 4384,
+        "allowed_cents": 3507,
+        "plan_paid_cents": 2981,
+        "patient_resp_cents": 526,
+        "carc": [],
+        "remark": "Deductible 0 cents; coinsurance 15% of remaining allowance. "
+      },
+      {
+        "line_no": 4,
+        "code": "97163",
+        "units": 1,
+        "billed_cents": 12232,
+        "allowed_cents": 9786,
+        "plan_paid_cents": 8318,
+        "patient_resp_cents": 1468,
+        "carc": [],
+        "remark": "Deductible 0 cents; coinsurance 15% of remaining allowance. "
+      },
+      {
+        "line_no": 5,
+        "code": "96374",
+        "units": 1,
+        "billed_cents": 4718,
+        "allowed_cents": 3774,
+        "plan_paid_cents": 3208,
+        "patient_resp_cents": 566,
+        "carc": [],
+        "remark": "Deductible 0 cents; coinsurance 15% of remaining allowance. "
+      },
+      {
+        "line_no": 6,
+        "code": "74018",
+        "units": 1,
+        "billed_cents": 1085,
+        "allowed_cents": 868,
+        "plan_paid_cents": 738,
+        "patient_resp_cents": 130,
+        "carc": [],
+        "remark": "Deductible 0 cents; coinsurance 15% of remaining allowance. "
+      }
+    ],
+    "patient_resp_total_cents": 7792
+  },
+  "denial": null,
+  "plan": {
+    "plan_name": "Kestrel Ridge EPO 1000",
+    "plan_type": "EPO",
+    "deductible_cents": 100000,
+    "deductible_met_cents": 95000,
+    "coinsurance_pct": 15,
+    "copay_cents": 0,
+    "oop_max_cents": 600000,
+    "emergency_nsa_protected": true
+  },
+  "service_setting": "outpatient",
+  "docs": [
+    {
+      "kind": "bill",
+      "pdf": "data/synthetic/pdf/SYN-0149_bill.pdf",
+      "pages": 1
+    },
+    {
+      "kind": "eob",
+      "pdf": "data/synthetic/pdf/SYN-0149_eob.pdf",
+      "pages": 1
+    },
+    {
+      "kind": "plan",
+      "pdf": "data/synthetic/pdf/SYN-0149_plan.pdf",
+      "pages": 1
+    }
+  ],
+  "citations": {
+    "bill.lines.1.dos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.28868
+          ],
+          [
+            0.13763,
+            0.28868
+          ],
+          [
+            0.13763,
+            0.30005
+          ],
+          [
+            0.07369,
+            0.30005
+          ]
+        ]
+      ],
+      "text": "2026-10-15"
+    },
+    "bill.lines.1.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.28868
+          ],
+          [
+            0.23676,
+            0.28868
+          ],
+          [
+            0.23676,
+            0.30005
+          ],
+          [
+            0.20114,
+            0.30005
+          ]
+        ]
+      ],
+      "text": "97110"
+    },
+    "bill.lines.1.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.28868
+          ],
+          [
+            0.51776,
+            0.28868
+          ],
+          [
+            0.51776,
+            0.30005
+          ],
+          [
+            0.32206,
+            0.30005
+          ]
+        ]
+      ],
+      "text": "Therapeutic exercise, per 15 minutes"
+    },
+    "bill.lines.1.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.30197
+          ],
+          [
+            0.43915,
+            0.30197
+          ],
+          [
+            0.43915,
+            0.31163
+          ],
+          [
+            0.32206,
+            0.31163
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.1.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79592,
+            0.28868
+          ],
+          [
+            0.81193,
+            0.28868
+          ],
+          [
+            0.81193,
+            0.30005
+          ],
+          [
+            0.79592,
+            0.30005
+          ]
+        ]
+      ],
+      "text": "22"
+    },
+    "bill.lines.1.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.74036,
+            0.28868
+          ],
+          [
+            0.74984,
+            0.28868
+          ],
+          [
+            0.74984,
+            0.30005
+          ],
+          [
+            0.74036,
+            0.30005
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.1.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88742,
+            0.28868
+          ],
+          [
+            0.92631,
+            0.28868
+          ],
+          [
+            0.92631,
+            0.30005
+          ],
+          [
+            0.88742,
+            0.30005
+          ]
+        ]
+      ],
+      "text": "$36.32"
+    },
+    "bill.lines.2.dos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.3152
+          ],
+          [
+            0.13763,
+            0.3152
+          ],
+          [
+            0.13763,
+            0.32656
+          ],
+          [
+            0.07369,
+            0.32656
+          ]
+        ]
+      ],
+      "text": "2026-10-02"
+    },
+    "bill.lines.2.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.3152
+          ],
+          [
+            0.23676,
+            0.3152
+          ],
+          [
+            0.23676,
+            0.32656
+          ],
+          [
+            0.20114,
+            0.32656
+          ]
+        ]
+      ],
+      "text": "97140"
+    },
+    "bill.lines.2.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.3152
+          ],
+          [
+            0.54428,
+            0.3152
+          ],
+          [
+            0.54428,
+            0.32656
+          ],
+          [
+            0.32206,
+            0.32656
+          ]
+        ]
+      ],
+      "text": "Hands-on manual therapy, per 15 minutes"
+    },
+    "bill.lines.2.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.32849
+          ],
+          [
+            0.43915,
+            0.32849
+          ],
+          [
+            0.43915,
+            0.33814
+          ],
+          [
+            0.32206,
+            0.33814
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.2.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79592,
+            0.3152
+          ],
+          [
+            0.81193,
+            0.3152
+          ],
+          [
+            0.81193,
+            0.32656
+          ],
+          [
+            0.79592,
+            0.32656
+          ]
+        ]
+      ],
+      "text": "22"
+    },
+    "bill.lines.2.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.74036,
+            0.3152
+          ],
+          [
+            0.74984,
+            0.3152
+          ],
+          [
+            0.74984,
+            0.32656
+          ],
+          [
+            0.74036,
+            0.32656
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.2.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88742,
+            0.3152
+          ],
+          [
+            0.92631,
+            0.3152
+          ],
+          [
+            0.92631,
+            0.32656
+          ],
+          [
+            0.88742,
+            0.32656
+          ]
+        ]
+      ],
+      "text": "$34.65"
+    },
+    "bill.lines.3.dos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.34171
+          ],
+          [
+            0.13763,
+            0.34171
+          ],
+          [
+            0.13763,
+            0.35308
+          ],
+          [
+            0.07369,
+            0.35308
+          ]
+        ]
+      ],
+      "text": "2026-10-03"
+    },
+    "bill.lines.3.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.34171
+          ],
+          [
+            0.23676,
+            0.34171
+          ],
+          [
+            0.23676,
+            0.35308
+          ],
+          [
+            0.20114,
+            0.35308
+          ]
+        ]
+      ],
+      "text": "97530"
+    },
+    "bill.lines.3.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.34171
+          ],
+          [
+            0.56607,
+            0.34171
+          ],
+          [
+            0.56607,
+            0.35308
+          ],
+          [
+            0.32206,
+            0.35308
+          ]
+        ]
+      ],
+      "text": "Therapeutic activities training, per 15 minutes"
+    },
+    "bill.lines.3.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.355
+          ],
+          [
+            0.43915,
+            0.355
+          ],
+          [
+            0.43915,
+            0.36466
+          ],
+          [
+            0.32206,
+            0.36466
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.3.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79592,
+            0.34171
+          ],
+          [
+            0.81193,
+            0.34171
+          ],
+          [
+            0.81193,
+            0.35308
+          ],
+          [
+            0.79592,
+            0.35308
+          ]
+        ]
+      ],
+      "text": "22"
+    },
+    "bill.lines.3.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.74036,
+            0.34171
+          ],
+          [
+            0.74984,
+            0.34171
+          ],
+          [
+            0.74984,
+            0.35308
+          ],
+          [
+            0.74036,
+            0.35308
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.3.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88742,
+            0.34171
+          ],
+          [
+            0.92631,
+            0.34171
+          ],
+          [
+            0.92631,
+            0.35308
+          ],
+          [
+            0.88742,
+            0.35308
+          ]
+        ]
+      ],
+      "text": "$43.84"
+    },
+    "bill.lines.4.dos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.36823
+          ],
+          [
+            0.13763,
+            0.36823
+          ],
+          [
+            0.13763,
+            0.37959
+          ],
+          [
+            0.07369,
+            0.37959
+          ]
+        ]
+      ],
+      "text": "2026-10-04"
+    },
+    "bill.lines.4.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.36823
+          ],
+          [
+            0.23676,
+            0.36823
+          ],
+          [
+            0.23676,
+            0.37959
+          ],
+          [
+            0.20114,
+            0.37959
+          ]
+        ]
+      ],
+      "text": "97163"
+    },
+    "bill.lines.4.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.36823
+          ],
+          [
+            0.56137,
+            0.36823
+          ],
+          [
+            0.56137,
+            0.37959
+          ],
+          [
+            0.32206,
+            0.37959
+          ]
+        ]
+      ],
+      "text": "Physical therapy evaluation, high complexity"
+    },
+    "bill.lines.4.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.38152
+          ],
+          [
+            0.43915,
+            0.38152
+          ],
+          [
+            0.43915,
+            0.39117
+          ],
+          [
+            0.32206,
+            0.39117
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.4.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79592,
+            0.36823
+          ],
+          [
+            0.81193,
+            0.36823
+          ],
+          [
+            0.81193,
+            0.37959
+          ],
+          [
+            0.79592,
+            0.37959
+          ]
+        ]
+      ],
+      "text": "22"
+    },
+    "bill.lines.4.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.74036,
+            0.36823
+          ],
+          [
+            0.74984,
+            0.36823
+          ],
+          [
+            0.74984,
+            0.37959
+          ],
+          [
+            0.74036,
+            0.37959
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.4.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88088,
+            0.36823
+          ],
+          [
+            0.92631,
+            0.36823
+          ],
+          [
+            0.92631,
+            0.37959
+          ],
+          [
+            0.88088,
+            0.37959
+          ]
+        ]
+      ],
+      "text": "$122.32"
+    },
+    "bill.lines.5.dos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.39474
+          ],
+          [
+            0.13763,
+            0.39474
+          ],
+          [
+            0.13763,
+            0.40611
+          ],
+          [
+            0.07369,
+            0.40611
+          ]
+        ]
+      ],
+      "text": "2026-10-05"
+    },
+    "bill.lines.5.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.39474
+          ],
+          [
+            0.23676,
+            0.39474
+          ],
+          [
+            0.23676,
+            0.40611
+          ],
+          [
+            0.20114,
+            0.40611
+          ]
+        ]
+      ],
+      "text": "96374"
+    },
+    "bill.lines.5.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.39474
+          ],
+          [
+            0.48584,
+            0.39474
+          ],
+          [
+            0.48584,
+            0.40611
+          ],
+          [
+            0.32206,
+            0.40611
+          ]
+        ]
+      ],
+      "text": "IV push of a single medication"
+    },
+    "bill.lines.5.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.40803
+          ],
+          [
+            0.43915,
+            0.40803
+          ],
+          [
+            0.43915,
+            0.41769
+          ],
+          [
+            0.32206,
+            0.41769
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.5.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79592,
+            0.39474
+          ],
+          [
+            0.81193,
+            0.39474
+          ],
+          [
+            0.81193,
+            0.40611
+          ],
+          [
+            0.79592,
+            0.40611
+          ]
+        ]
+      ],
+      "text": "22"
+    },
+    "bill.lines.5.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.74036,
+            0.39474
+          ],
+          [
+            0.74984,
+            0.39474
+          ],
+          [
+            0.74984,
+            0.40611
+          ],
+          [
+            0.74036,
+            0.40611
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.5.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88742,
+            0.39474
+          ],
+          [
+            0.92631,
+            0.39474
+          ],
+          [
+            0.92631,
+            0.40611
+          ],
+          [
+            0.88742,
+            0.40611
+          ]
+        ]
+      ],
+      "text": "$47.18"
+    },
+    "bill.lines.6.dos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.42126
+          ],
+          [
+            0.13763,
+            0.42126
+          ],
+          [
+            0.13763,
+            0.43262
+          ],
+          [
+            0.07369,
+            0.43262
+          ]
+        ]
+      ],
+      "text": "2026-10-06"
+    },
+    "bill.lines.6.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.42126
+          ],
+          [
+            0.23676,
+            0.42126
+          ],
+          [
+            0.23676,
+            0.43262
+          ],
+          [
+            0.20114,
+            0.43262
+          ]
+        ]
+      ],
+      "text": "74018"
+    },
+    "bill.lines.6.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.42126
+          ],
+          [
+            0.48402,
+            0.42126
+          ],
+          [
+            0.48402,
+            0.43262
+          ],
+          [
+            0.32206,
+            0.43262
+          ]
+        ]
+      ],
+      "text": "Abdominal X-ray, single view"
+    },
+    "bill.lines.6.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.43455
+          ],
+          [
+            0.43915,
+            0.43455
+          ],
+          [
+            0.43915,
+            0.44421
+          ],
+          [
+            0.32206,
+            0.44421
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.6.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79592,
+            0.42126
+          ],
+          [
+            0.81193,
+            0.42126
+          ],
+          [
+            0.81193,
+            0.43262
+          ],
+          [
+            0.79592,
+            0.43262
+          ]
+        ]
+      ],
+      "text": "22"
+    },
+    "bill.lines.6.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.74036,
+            0.42126
+          ],
+          [
+            0.74984,
+            0.42126
+          ],
+          [
+            0.74984,
+            0.43262
+          ],
+          [
+            0.74036,
+            0.43262
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.6.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88742,
+            0.42126
+          ],
+          [
+            0.92631,
+            0.42126
+          ],
+          [
+            0.92631,
+            0.43262
+          ],
+          [
+            0.88742,
+            0.43262
+          ]
+        ]
+      ],
+      "text": "$10.85"
+    },
+    "provider.name": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.13578,
+            0.07405
+          ],
+          [
+            0.47263,
+            0.07405
+          ],
+          [
+            0.47263,
+            0.09023
+          ],
+          [
+            0.13578,
+            0.09023
+          ]
+        ]
+      ],
+      "text": "EMBERLINE MEDICAL CENTER"
+    },
+    "bill.statement_date": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.85856,
+            0.09254
+          ],
+          [
+            0.92631,
+            0.09254
+          ],
+          [
+            0.92631,
+            0.10448
+          ],
+          [
+            0.85856,
+            0.10448
+          ]
+        ]
+      ],
+      "text": "2026-11-05"
+    },
+    "bill.account_no": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.85778,
+            0.10517
+          ],
+          [
+            0.92631,
+            0.10517
+          ],
+          [
+            0.92631,
+            0.1171
+          ],
+          [
+            0.85778,
+            0.1171
+          ]
+        ]
+      ],
+      "text": "AC-000149"
+    },
+    "patient.patient_id": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.87475,
+            0.1178
+          ],
+          [
+            0.92631,
+            0.1178
+          ],
+          [
+            0.92631,
+            0.12973
+          ],
+          [
+            0.87475,
+            0.12973
+          ]
+        ]
+      ],
+      "text": "PT-0149"
+    },
+    "patient.dob": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.13905,
+            0.19272
+          ],
+          [
+            0.20299,
+            0.19272
+          ],
+          [
+            0.20299,
+            0.20409
+          ],
+          [
+            0.13905,
+            0.20409
+          ]
+        ]
+      ],
+      "text": "1978-04-12"
+    },
+    "patient.date_of_death": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.1848,
+            0.20409
+          ],
+          [
+            0.24874,
+            0.20409
+          ],
+          [
+            0.24874,
+            0.21545
+          ],
+          [
+            0.1848,
+            0.21545
+          ]
+        ]
+      ],
+      "text": "2026-10-14"
+    },
+    "provider.in_network": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.53775,
+            0.19232
+          ],
+          [
+            0.69379,
+            0.19232
+          ],
+          [
+            0.69379,
+            0.20255
+          ],
+          [
+            0.53775,
+            0.20255
+          ]
+        ]
+      ],
+      "text": "In-network participating provider"
+    },
+    "bill.total_charges_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88088,
+            0.45787
+          ],
+          [
+            0.92631,
+            0.45787
+          ],
+          [
+            0.92631,
+            0.46924
+          ],
+          [
+            0.88088,
+            0.46924
+          ]
+        ]
+      ],
+      "text": "$295.16"
+    },
+    "bill.insurance_paid_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.87653,
+            0.47176
+          ],
+          [
+            0.92631,
+            0.47176
+          ],
+          [
+            0.92631,
+            0.48313
+          ],
+          [
+            0.87653,
+            0.48313
+          ]
+        ]
+      ],
+      "text": "-$158.21"
+    },
+    "bill.adjustments_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88307,
+            0.48565
+          ],
+          [
+            0.92631,
+            0.48565
+          ],
+          [
+            0.92631,
+            0.49702
+          ],
+          [
+            0.88307,
+            0.49702
+          ]
+        ]
+      ],
+      "text": "-$59.03"
+    },
+    "bill.patient_balance_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.87087,
+            0.50835
+          ],
+          [
+            0.9165,
+            0.50835
+          ],
+          [
+            0.9165,
+            0.52142
+          ],
+          [
+            0.87087,
+            0.52142
+          ]
+        ]
+      ],
+      "text": "$77.92"
+    },
+    "eob.lines.1.code": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.14886,
+            0.27913
+          ],
+          [
+            0.19101,
+            0.27913
+          ],
+          [
+            0.19101,
+            0.28934
+          ],
+          [
+            0.14886,
+            0.28934
+          ]
+        ]
+      ],
+      "text": "97110"
+    },
+    "eob.lines.1.units": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2299,
+            0.27913
+          ],
+          [
+            0.24069,
+            0.27913
+          ],
+          [
+            0.24069,
+            0.28934
+          ],
+          [
+            0.2299,
+            0.28934
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "eob.lines.1.billed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.29526,
+            0.27913
+          ],
+          [
+            0.34526,
+            0.27913
+          ],
+          [
+            0.34526,
+            0.28934
+          ],
+          [
+            0.29526,
+            0.28934
+          ]
+        ]
+      ],
+      "text": "$36.32"
+    },
+    "eob.lines.1.allowed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.4031,
+            0.27913
+          ],
+          [
+            0.4531,
+            0.27913
+          ],
+          [
+            0.4531,
+            0.28934
+          ],
+          [
+            0.4031,
+            0.28934
+          ]
+        ]
+      ],
+      "text": "$29.06"
+    },
+    "eob.lines.1.plan_paid_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.5116,
+            0.27913
+          ],
+          [
+            0.55376,
+            0.27913
+          ],
+          [
+            0.55376,
+            0.28934
+          ],
+          [
+            0.5116,
+            0.28934
+          ]
+        ]
+      ],
+      "text": "$0.00"
+    },
+    "eob.lines.1.patient_resp_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.60899,
+            0.27913
+          ],
+          [
+            0.65899,
+            0.27913
+          ],
+          [
+            0.65899,
+            0.28934
+          ],
+          [
+            0.60899,
+            0.28934
+          ]
+        ]
+      ],
+      "text": "$29.06"
+    },
+    "eob.lines.1.remark": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.70114,
+            0.27992
+          ],
+          [
+            0.85507,
+            0.27992
+          ],
+          [
+            0.85507,
+            0.28914
+          ],
+          [
+            0.70114,
+            0.28914
+          ]
+        ],
+        [
+          [
+            0.70114,
+            0.29128
+          ],
+          [
+            0.89624,
+            0.29128
+          ],
+          [
+            0.89624,
+            0.3005
+          ],
+          [
+            0.70114,
+            0.3005
+          ]
+        ],
+        [
+          [
+            0.70114,
+            0.30265
+          ],
+          [
+            0.77271,
+            0.30265
+          ],
+          [
+            0.77271,
+            0.31187
+          ],
+          [
+            0.70114,
+            0.31187
+          ]
+        ]
+      ],
+      "text": "Deductible 2906 cents; coinsurance 15% of remaining allowance. "
+    },
+    "eob.lines.2.code": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.14886,
+            0.32963
+          ],
+          [
+            0.19101,
+            0.32963
+          ],
+          [
+            0.19101,
+            0.33984
+          ],
+          [
+            0.14886,
+            0.33984
+          ]
+        ]
+      ],
+      "text": "97140"
+    },
+    "eob.lines.2.units": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2299,
+            0.32963
+          ],
+          [
+            0.24069,
+            0.32963
+          ],
+          [
+            0.24069,
+            0.33984
+          ],
+          [
+            0.2299,
+            0.33984
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "eob.lines.2.billed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.29526,
+            0.32963
+          ],
+          [
+            0.34526,
+            0.32963
+          ],
+          [
+            0.34526,
+            0.33984
+          ],
+          [
+            0.29526,
+            0.33984
+          ]
+        ]
+      ],
+      "text": "$34.65"
+    },
+    "eob.lines.2.allowed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.4031,
+            0.32963
+          ],
+          [
+            0.4531,
+            0.32963
+          ],
+          [
+            0.4531,
+            0.33984
+          ],
+          [
+            0.4031,
+            0.33984
+          ]
+        ]
+      ],
+      "text": "$27.72"
+    },
+    "eob.lines.2.plan_paid_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.5116,
+            0.32963
+          ],
+          [
+            0.55376,
+            0.32963
+          ],
+          [
+            0.55376,
+            0.33984
+          ],
+          [
+            0.5116,
+            0.33984
+          ]
+        ]
+      ],
+      "text": "$5.76"
+    },
+    "eob.lines.2.patient_resp_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.60899,
+            0.32963
+          ],
+          [
+            0.65899,
+            0.32963
+          ],
+          [
+            0.65899,
+            0.33984
+          ],
+          [
+            0.60899,
+            0.33984
+          ]
+        ]
+      ],
+      "text": "$21.96"
+    },
+    "eob.lines.2.remark": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.70114,
+            0.33043
+          ],
+          [
+            0.85507,
+            0.33043
+          ],
+          [
+            0.85507,
+            0.33965
+          ],
+          [
+            0.70114,
+            0.33965
+          ]
+        ],
+        [
+          [
+            0.70114,
+            0.34179
+          ],
+          [
+            0.89624,
+            0.34179
+          ],
+          [
+            0.89624,
+            0.35101
+          ],
+          [
+            0.70114,
+            0.35101
+          ]
+        ],
+        [
+          [
+            0.70114,
+            0.35315
+          ],
+          [
+            0.77271,
+            0.35315
+          ],
+          [
+            0.77271,
+            0.36237
+          ],
+          [
+            0.70114,
+            0.36237
+          ]
+        ]
+      ],
+      "text": "Deductible 2094 cents; coinsurance 15% of remaining allowance. "
+    },
+    "eob.lines.3.code": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.14886,
+            0.38014
+          ],
+          [
+            0.19101,
+            0.38014
+          ],
+          [
+            0.19101,
+            0.39035
+          ],
+          [
+            0.14886,
+            0.39035
+          ]
+        ]
+      ],
+      "text": "97530"
+    },
+    "eob.lines.3.units": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2299,
+            0.38014
+          ],
+          [
+            0.24069,
+            0.38014
+          ],
+          [
+            0.24069,
+            0.39035
+          ],
+          [
+            0.2299,
+            0.39035
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "eob.lines.3.billed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.29526,
+            0.38014
+          ],
+          [
+            0.34526,
+            0.38014
+          ],
+          [
+            0.34526,
+            0.39035
+          ],
+          [
+            0.29526,
+            0.39035
+          ]
+        ]
+      ],
+      "text": "$43.84"
+    },
+    "eob.lines.3.allowed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.4031,
+            0.38014
+          ],
+          [
+            0.4531,
+            0.38014
+          ],
+          [
+            0.4531,
+            0.39035
+          ],
+          [
+            0.4031,
+            0.39035
+          ]
+        ]
+      ],
+      "text": "$35.07"
+    },
+    "eob.lines.3.plan_paid_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.50768,
+            0.38014
+          ],
+          [
+            0.55768,
+            0.38014
+          ],
+          [
+            0.55768,
+            0.39035
+          ],
+          [
+            0.50768,
+            0.39035
+          ]
+        ]
+      ],
+      "text": "$29.81"
+    },
+    "eob.lines.3.patient_resp_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.61291,
+            0.38014
+          ],
+          [
+            0.65507,
+            0.38014
+          ],
+          [
+            0.65507,
+            0.39035
+          ],
+          [
+            0.61291,
+            0.39035
+          ]
+        ]
+      ],
+      "text": "$5.26"
+    },
+    "eob.lines.3.remark": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.70114,
+            0.38093
+          ],
+          [
+            0.91683,
+            0.38093
+          ],
+          [
+            0.91683,
+            0.39015
+          ],
+          [
+            0.70114,
+            0.39015
+          ]
+        ],
+        [
+          [
+            0.70114,
+            0.39229
+          ],
+          [
+            0.88938,
+            0.39229
+          ],
+          [
+            0.88938,
+            0.40151
+          ],
+          [
+            0.70114,
+            0.40151
+          ]
+        ]
+      ],
+      "text": "Deductible 0 cents; coinsurance 15% of remaining allowance. "
+    },
+    "eob.lines.4.code": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.14886,
+            0.41928
+          ],
+          [
+            0.19101,
+            0.41928
+          ],
+          [
+            0.19101,
+            0.42949
+          ],
+          [
+            0.14886,
+            0.42949
+          ]
+        ]
+      ],
+      "text": "97163"
+    },
+    "eob.lines.4.units": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2299,
+            0.41928
+          ],
+          [
+            0.24069,
+            0.41928
+          ],
+          [
+            0.24069,
+            0.42949
+          ],
+          [
+            0.2299,
+            0.42949
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "eob.lines.4.billed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.29134,
+            0.41928
+          ],
+          [
+            0.34918,
+            0.41928
+          ],
+          [
+            0.34918,
+            0.42949
+          ],
+          [
+            0.29134,
+            0.42949
+          ]
+        ]
+      ],
+      "text": "$122.32"
+    },
+    "eob.lines.4.allowed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.4031,
+            0.41928
+          ],
+          [
+            0.4531,
+            0.41928
+          ],
+          [
+            0.4531,
+            0.42949
+          ],
+          [
+            0.4031,
+            0.42949
+          ]
+        ]
+      ],
+      "text": "$97.86"
+    },
+    "eob.lines.4.plan_paid_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.50768,
+            0.41928
+          ],
+          [
+            0.55768,
+            0.41928
+          ],
+          [
+            0.55768,
+            0.42949
+          ],
+          [
+            0.50768,
+            0.42949
+          ]
+        ]
+      ],
+      "text": "$83.18"
+    },
+    "eob.lines.4.patient_resp_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.60899,
+            0.41928
+          ],
+          [
+            0.65899,
+            0.41928
+          ],
+          [
+            0.65899,
+            0.42949
+          ],
+          [
+            0.60899,
+            0.42949
+          ]
+        ]
+      ],
+      "text": "$14.68"
+    },
+    "eob.lines.4.remark": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.70114,
+            0.42007
+          ],
+          [
+            0.91683,
+            0.42007
+          ],
+          [
+            0.91683,
+            0.42929
+          ],
+          [
+            0.70114,
+            0.42929
+          ]
+        ],
+        [
+          [
+            0.70114,
+            0.43144
+          ],
+          [
+            0.88938,
+            0.43144
+          ],
+          [
+            0.88938,
+            0.44066
+          ],
+          [
+            0.70114,
+            0.44066
+          ]
+        ]
+      ],
+      "text": "Deductible 0 cents; coinsurance 15% of remaining allowance. "
+    },
+    "eob.lines.5.code": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.14886,
+            0.45842
+          ],
+          [
+            0.19101,
+            0.45842
+          ],
+          [
+            0.19101,
+            0.46863
+          ],
+          [
+            0.14886,
+            0.46863
+          ]
+        ]
+      ],
+      "text": "96374"
+    },
+    "eob.lines.5.units": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2299,
+            0.45842
+          ],
+          [
+            0.24069,
+            0.45842
+          ],
+          [
+            0.24069,
+            0.46863
+          ],
+          [
+            0.2299,
+            0.46863
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "eob.lines.5.billed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.29526,
+            0.45842
+          ],
+          [
+            0.34526,
+            0.45842
+          ],
+          [
+            0.34526,
+            0.46863
+          ],
+          [
+            0.29526,
+            0.46863
+          ]
+        ]
+      ],
+      "text": "$47.18"
+    },
+    "eob.lines.5.allowed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.4031,
+            0.45842
+          ],
+          [
+            0.4531,
+            0.45842
+          ],
+          [
+            0.4531,
+            0.46863
+          ],
+          [
+            0.4031,
+            0.46863
+          ]
+        ]
+      ],
+      "text": "$37.74"
+    },
+    "eob.lines.5.plan_paid_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.50768,
+            0.45842
+          ],
+          [
+            0.55768,
+            0.45842
+          ],
+          [
+            0.55768,
+            0.46863
+          ],
+          [
+            0.50768,
+            0.46863
+          ]
+        ]
+      ],
+      "text": "$32.08"
+    },
+    "eob.lines.5.patient_resp_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.61291,
+            0.45842
+          ],
+          [
+            0.65507,
+            0.45842
+          ],
+          [
+            0.65507,
+            0.46863
+          ],
+          [
+            0.61291,
+            0.46863
+          ]
+        ]
+      ],
+      "text": "$5.66"
+    },
+    "eob.lines.5.remark": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.70114,
+            0.45921
+          ],
+          [
+            0.91683,
+            0.45921
+          ],
+          [
+            0.91683,
+            0.46843
+          ],
+          [
+            0.70114,
+            0.46843
+          ]
+        ],
+        [
+          [
+            0.70114,
+            0.47058
+          ],
+          [
+            0.88938,
+            0.47058
+          ],
+          [
+            0.88938,
+            0.4798
+          ],
+          [
+            0.70114,
+            0.4798
+          ]
+        ]
+      ],
+      "text": "Deductible 0 cents; coinsurance 15% of remaining allowance. "
+    },
+    "eob.lines.6.code": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.14886,
+            0.49756
+          ],
+          [
+            0.19101,
+            0.49756
+          ],
+          [
+            0.19101,
+            0.50777
+          ],
+          [
+            0.14886,
+            0.50777
+          ]
+        ]
+      ],
+      "text": "74018"
+    },
+    "eob.lines.6.units": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2299,
+            0.49756
+          ],
+          [
+            0.24069,
+            0.49756
+          ],
+          [
+            0.24069,
+            0.50777
+          ],
+          [
+            0.2299,
+            0.50777
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "eob.lines.6.billed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.29526,
+            0.49756
+          ],
+          [
+            0.34526,
+            0.49756
+          ],
+          [
+            0.34526,
+            0.50777
+          ],
+          [
+            0.29526,
+            0.50777
+          ]
+        ]
+      ],
+      "text": "$10.85"
+    },
+    "eob.lines.6.allowed_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.40703,
+            0.49756
+          ],
+          [
+            0.44918,
+            0.49756
+          ],
+          [
+            0.44918,
+            0.50777
+          ],
+          [
+            0.40703,
+            0.50777
+          ]
+        ]
+      ],
+      "text": "$8.68"
+    },
+    "eob.lines.6.plan_paid_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.5116,
+            0.49756
+          ],
+          [
+            0.55376,
+            0.49756
+          ],
+          [
+            0.55376,
+            0.50777
+          ],
+          [
+            0.5116,
+            0.50777
+          ]
+        ]
+      ],
+      "text": "$7.38"
+    },
+    "eob.lines.6.patient_resp_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.61291,
+            0.49756
+          ],
+          [
+            0.65507,
+            0.49756
+          ],
+          [
+            0.65507,
+            0.50777
+          ],
+          [
+            0.61291,
+            0.50777
+          ]
+        ]
+      ],
+      "text": "$1.30"
+    },
+    "eob.lines.6.remark": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.70114,
+            0.49835
+          ],
+          [
+            0.91683,
+            0.49835
+          ],
+          [
+            0.91683,
+            0.50757
+          ],
+          [
+            0.70114,
+            0.50757
+          ]
+        ],
+        [
+          [
+            0.70114,
+            0.50972
+          ],
+          [
+            0.88938,
+            0.50972
+          ],
+          [
+            0.88938,
+            0.51894
+          ],
+          [
+            0.70114,
+            0.51894
+          ]
+        ]
+      ],
+      "text": "Deductible 0 cents; coinsurance 15% of remaining allowance. "
+    },
+    "patient.member_id": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.17173,
+            0.20084
+          ],
+          [
+            0.26095,
+            0.20084
+          ],
+          [
+            0.26095,
+            0.21106
+          ],
+          [
+            0.17173,
+            0.21106
+          ]
+        ]
+      ],
+      "text": "SYN-M000149"
+    },
+    "eob.payer": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.13578,
+            0.07484
+          ],
+          [
+            0.49951,
+            0.07484
+          ],
+          [
+            0.49951,
+            0.08924
+          ],
+          [
+            0.13578,
+            0.08924
+          ]
+        ]
+      ],
+      "text": "EMBERLINE HEALTH COOPERATIVE"
+    },
+    "eob.claim_id": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.84837,
+            0.09312
+          ],
+          [
+            0.92631,
+            0.09312
+          ],
+          [
+            0.92631,
+            0.10383
+          ],
+          [
+            0.84837,
+            0.10383
+          ]
+        ]
+      ],
+      "text": "CL-000149"
+    },
+    "eob.processed_date": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.84003,
+            0.10575
+          ],
+          [
+            0.92631,
+            0.10575
+          ],
+          [
+            0.92631,
+            0.11646
+          ],
+          [
+            0.84003,
+            0.11646
+          ]
+        ]
+      ],
+      "text": "2026-10-30"
+    },
+    "eob.patient_resp_total_cents": {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.85735,
+            0.54601
+          ],
+          [
+            0.91324,
+            0.54601
+          ],
+          [
+            0.91324,
+            0.55721
+          ],
+          [
+            0.85735,
+            0.55721
+          ]
+        ]
+      ],
+      "text": "$77.92"
+    },
+    "plan.plan_name": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.12925,
+            0.12401
+          ],
+          [
+            0.36944,
+            0.12401
+          ],
+          [
+            0.36944,
+            0.13695
+          ],
+          [
+            0.12925,
+            0.13695
+          ]
+        ]
+      ],
+      "text": "Kestrel Ridge EPO 1000"
+    },
+    "plan.plan_type": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.38611,
+            0.12401
+          ],
+          [
+            0.42141,
+            0.12401
+          ],
+          [
+            0.42141,
+            0.13695
+          ],
+          [
+            0.38611,
+            0.13695
+          ]
+        ]
+      ],
+      "text": "EPO"
+    },
+    "plan.deductible_cents": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.83088,
+            0.17606
+          ],
+          [
+            0.91324,
+            0.17606
+          ],
+          [
+            0.91324,
+            0.18726
+          ],
+          [
+            0.83088,
+            0.18726
+          ]
+        ]
+      ],
+      "text": "$1,000.00"
+    },
+    "plan.deductible_met_cents": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.84853,
+            0.20131
+          ],
+          [
+            0.91324,
+            0.20131
+          ],
+          [
+            0.91324,
+            0.21252
+          ],
+          [
+            0.84853,
+            0.21252
+          ]
+        ]
+      ],
+      "text": "$950.00"
+    },
+    "plan.copay_cents": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.86618,
+            0.22656
+          ],
+          [
+            0.91324,
+            0.22656
+          ],
+          [
+            0.91324,
+            0.23777
+          ],
+          [
+            0.86618,
+            0.23777
+          ]
+        ]
+      ],
+      "text": "$0.00"
+    },
+    "plan.coinsurance_pct": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88382,
+            0.25182
+          ],
+          [
+            0.91324,
+            0.25182
+          ],
+          [
+            0.91324,
+            0.26302
+          ],
+          [
+            0.88382,
+            0.26302
+          ]
+        ]
+      ],
+      "text": "15%"
+    },
+    "plan.oop_max_cents": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.83088,
+            0.27707
+          ],
+          [
+            0.91324,
+            0.27707
+          ],
+          [
+            0.91324,
+            0.28827
+          ],
+          [
+            0.83088,
+            0.28827
+          ]
+        ]
+      ],
+      "text": "$6,000.00"
+    },
+    "plan.emergency_nsa_protected": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.84853,
+            0.30232
+          ],
+          [
+            0.91324,
+            0.30232
+          ],
+          [
+            0.91324,
+            0.31353
+          ],
+          [
+            0.84853,
+            0.31353
+          ]
+        ]
+      ],
+      "text": "Applies"
+    }
+  }
+}

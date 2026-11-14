@@ -1,0 +1,2849 @@
+{
+  "events": [
+    {
+      "stage": "upload",
+      "stage_label": "Packet",
+      "status": "running",
+      "color": "neutral",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": null,
+      "elapsed_ms": 1.7,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": ""
+      },
+      "data": {}
+    },
+    {
+      "stage": "upload",
+      "stage_label": "Packet",
+      "status": "ok",
+      "color": "neutral",
+      "key_number": {
+        "value": 3,
+        "unit": "pages",
+        "label": "PDF pages staged"
+      },
+      "duration_ms": 1.7,
+      "elapsed_ms": 3.4,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "file",
+        "detail": "local packet PDFs"
+      },
+      "data": {
+        "documents": [
+          {
+            "kind": "bill",
+            "path": "data/synthetic/pdf/SYN-D05_bill.pdf",
+            "bytes": 3486,
+            "pages": 1
+          },
+          {
+            "kind": "eob",
+            "path": "data/synthetic/pdf/SYN-D05_eob.pdf",
+            "bytes": 3802,
+            "pages": 1
+          },
+          {
+            "kind": "plan",
+            "path": "data/synthetic/pdf/SYN-D05_plan.pdf",
+            "bytes": 3266,
+            "pages": 1
+          }
+        ],
+        "total_bytes": 10554,
+        "split": {
+          "status": "ok",
+          "segments": [
+            {
+              "class": "bill",
+              "pages": 1,
+              "file": "data/synthetic/pdf/SYN-D05_bill.pdf"
+            },
+            {
+              "class": "eob",
+              "pages": 1,
+              "file": "data/synthetic/pdf/SYN-D05_eob.pdf"
+            },
+            {
+              "class": "plan",
+              "pages": 1,
+              "file": "data/synthetic/pdf/SYN-D05_plan.pdf"
+            }
+          ],
+          "note": "documents already separate; no merged packet to split"
+        }
+      }
+    },
+    {
+      "stage": "read",
+      "stage_label": "Read (NDI)",
+      "status": "running",
+      "color": "neutral",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": null,
+      "elapsed_ms": 3.4,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": ""
+      },
+      "data": {}
+    },
+    {
+      "stage": "read",
+      "stage_label": "Read (NDI)",
+      "status": "ok",
+      "color": "neutral",
+      "key_number": {
+        "value": 67,
+        "unit": "fields",
+        "label": "fields extracted"
+      },
+      "duration_ms": 0.9,
+      "elapsed_ms": 4.3,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "cache",
+        "detail": "measured NDI extract, replayed from disk cache"
+      },
+      "data": {
+        "docs": {
+          "bill": {
+            "fields": 36,
+            "found": 31
+          },
+          "eob": {
+            "fields": 28,
+            "found": 28
+          },
+          "plan": {
+            "fields": 8,
+            "found": 8
+          }
+        },
+        "fields": {
+          "bill": [
+            {
+              "path": "bill.account_no",
+              "value": "AC-DEMO-05",
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "bill.statement_date",
+              "value": "2026-11-05",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [],
+                  "text": "2026-11-05"
+                }
+              ]
+            },
+            {
+              "path": "bill.adjustments_cents",
+              "value": 32825,
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "bill.total_charges_cents",
+              "value": 10872,
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "bill.insurance_paid_cents",
+              "value": 6958,
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "bill.patient_balance_cents",
+              "value": 36739,
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "patient.dob",
+              "value": null,
+              "status": "not_found",
+              "citations": []
+            },
+            {
+              "path": "patient.member_id",
+              "value": null,
+              "status": "not_found",
+              "citations": []
+            },
+            {
+              "path": "patient.patient_id",
+              "value": "PT-D05",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.7287581699346405,
+                        0.11472538264110835
+                      ],
+                      [
+                        0.924836701037837,
+                        0.11472538264110835
+                      ],
+                      [
+                        0.924836701037837,
+                        0.12947158620815086
+                      ],
+                      [
+                        0.7287581699346405,
+                        0.12947158620815086
+                      ]
+                    ]
+                  ],
+                  "text": "PATIENT ID PT-D05"
+                }
+              ]
+            },
+            {
+              "path": "patient.display_name",
+              "value": null,
+              "status": "not_found",
+              "citations": []
+            },
+            {
+              "path": "patient.date_of_death",
+              "value": null,
+              "status": "not_found",
+              "citations": []
+            },
+            {
+              "path": "provider.npi",
+              "value": null,
+              "status": "not_found",
+              "citations": []
+            },
+            {
+              "path": "provider.name",
+              "value": "Cedar Vale Medical Center",
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "provider.address",
+              "value": "PO Box 5550100",
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "provider.in_network",
+              "value": false,
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "bill.lines.1.dos",
+              "value": "2026-10-15",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2884387584647747
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.2884387584647747
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>99283</td><td></td><td>Emergency department visit, moderateRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$86.84</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.1.pos",
+              "value": "23",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2884387584647747
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.2884387584647747
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>99283</td><td></td><td>Emergency department visit, moderateRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$86.84</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.1.code",
+              "value": "99283",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2884387584647747
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.2884387584647747
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>99283</td><td></td><td>Emergency department visit, moderateRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$86.84</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.1.label",
+              "value": "Emergency department visit, moderate",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2884387584647747
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.2884387584647747
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>99283</td><td></td><td>Emergency department visit, moderateRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$86.84</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.1.units",
+              "value": 1,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2884387584647747
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.2884387584647747
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>99283</td><td></td><td>Emergency department visit, moderateRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$86.84</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.1.line_no",
+              "value": 1,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2884387584647747
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.2884387584647747
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>99283</td><td></td><td>Emergency department visit, moderateRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$86.84</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.1.charge_cents",
+              "value": 8684,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.263131305424854
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2884387584647747
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.2884387584647747
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>99283</td><td></td><td>Emergency department visit, moderateRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$86.84</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.2.dos",
+              "value": "2026-10-15",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.3149539099799262
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.3149539099799262
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>85025</td><td></td><td>Complete blood count with automated differentialRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$11.88</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.2.pos",
+              "value": "23",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.3149539099799262
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.3149539099799262
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>85025</td><td></td><td>Complete blood count with automated differentialRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$11.88</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.2.code",
+              "value": "85025",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.3149539099799262
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.3149539099799262
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>85025</td><td></td><td>Complete blood count with automated differentialRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$11.88</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.2.label",
+              "value": "Complete blood count with automated differential",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.3149539099799262
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.3149539099799262
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>85025</td><td></td><td>Complete blood count with automated differentialRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$11.88</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.2.units",
+              "value": 1,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.3149539099799262
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.3149539099799262
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>85025</td><td></td><td>Complete blood count with automated differentialRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$11.88</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.2.line_no",
+              "value": 2,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.3149539099799262
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.3149539099799262
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>85025</td><td></td><td>Complete blood count with automated differentialRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$11.88</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.2.charge_cents",
+              "value": 1188,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.2896464569400055
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.3149539099799262
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.3149539099799262
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>85025</td><td></td><td>Complete blood count with automated differentialRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$11.88</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.3.dos",
+              "value": "2026-10-15",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.34146908076122556
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.34146908076122556
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>80048</td><td></td><td>Basic metabolic blood panelRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$10.00</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.3.pos",
+              "value": "23",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.34146908076122556
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.34146908076122556
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>80048</td><td></td><td>Basic metabolic blood panelRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$10.00</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.3.code",
+              "value": "80048",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.34146908076122556
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.34146908076122556
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>80048</td><td></td><td>Basic metabolic blood panelRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$10.00</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.3.label",
+              "value": "Basic metabolic blood panel",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.34146908076122556
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.34146908076122556
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>80048</td><td></td><td>Basic metabolic blood panelRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$10.00</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.3.units",
+              "value": 1,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.34146908076122556
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.34146908076122556
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>80048</td><td></td><td>Basic metabolic blood panelRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$10.00</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.3.line_no",
+              "value": 3,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.34146908076122556
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.34146908076122556
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>80048</td><td></td><td>Basic metabolic blood panelRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$10.00</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "bill.lines.3.charge_cents",
+              "value": 1000,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.31616160845515706
+                      ],
+                      [
+                        0.9248365015765421,
+                        0.34146908076122556
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.34146908076122556
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2026-10-15</td><td>80048</td><td></td><td>Basic metabolic blood panelRef: SYN-CLINICIAN-01</td><td></td><td>1</td><td>23</td><td>$10.00</td></tr>"
+                }
+              ]
+            }
+          ],
+          "eob": [
+            {
+              "path": "eob.payer",
+              "value": "HARBOR SYNTHETIC HEALTH",
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "eob.claim_id",
+              "value": "CL-DEMO-05",
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "eob.processed_date",
+              "value": "2026-10-30",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [],
+                  "text": "2026-10-30"
+                }
+              ]
+            },
+            {
+              "path": "eob.patient_resp_total_cents",
+              "value": 1739,
+              "status": "found",
+              "citations": []
+            },
+            {
+              "path": "eob.lines.1.code",
+              "value": "99283",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.35728157891167533
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.35728157891167533
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>1</td><td>99283</td><td>1</td><td>$86.84</td><td>$69.47</td><td>$55.58</td><td>$13.89</td><td>Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency prov"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.1.units",
+              "value": 1,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.35728157891167533
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.35728157891167533
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>1</td><td>99283</td><td>1</td><td>$86.84</td><td>$69.47</td><td>$55.58</td><td>$13.89</td><td>Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency prov"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.1.remark",
+              "value": "Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency provider; EOB applies protected in-network cost sharing. No subsequent adjustment or other service explains the additional provider balance.",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.35728157891167533
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.35728157891167533
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>1</td><td>99283</td><td>1</td><td>$86.84</td><td>$69.47</td><td>$55.58</td><td>$13.89</td><td>Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency prov"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.1.line_no",
+              "value": 1,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.35728157891167533
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.35728157891167533
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>1</td><td>99283</td><td>1</td><td>$86.84</td><td>$69.47</td><td>$55.58</td><td>$13.89</td><td>Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency prov"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.1.billed_cents",
+              "value": 8684,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.35728157891167533
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.35728157891167533
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>1</td><td>99283</td><td>1</td><td>$86.84</td><td>$69.47</td><td>$55.58</td><td>$13.89</td><td>Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency prov"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.1.allowed_cents",
+              "value": 6947,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.35728157891167533
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.35728157891167533
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>1</td><td>99283</td><td>1</td><td>$86.84</td><td>$69.47</td><td>$55.58</td><td>$13.89</td><td>Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency prov"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.1.plan_paid_cents",
+              "value": 5558,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.35728157891167533
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.35728157891167533
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>1</td><td>99283</td><td>1</td><td>$86.84</td><td>$69.47</td><td>$55.58</td><td>$13.89</td><td>Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency prov"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.1.patient_resp_cents",
+              "value": 1389,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.275979803066061
+                      ],
+                      [
+                        0.9157483468647876,
+                        0.35728157891167533
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.35728157891167533
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>1</td><td>99283</td><td>1</td><td>$86.84</td><td>$69.47</td><td>$55.58</td><td>$13.89</td><td>Deductible met; patient pays 20% of allowance. Emergency department visit, not elective or ground ambulance. Out-of-network emergency prov"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.2.code",
+              "value": "85025",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.3964229930530895
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.3964229930530895
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2</td><td>85025</td><td>1</td><td>$11.88</td><td>$9.50</td><td>$7.60</td><td>$1.90</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.2.units",
+              "value": 1,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.3964229930530895
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.3964229930530895
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2</td><td>85025</td><td>1</td><td>$11.88</td><td>$9.50</td><td>$7.60</td><td>$1.90</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.2.remark",
+              "value": "Deductible met; patient pays 20% of allowance. Service documented as completed.",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.3964229930530895
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.3964229930530895
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2</td><td>85025</td><td>1</td><td>$11.88</td><td>$9.50</td><td>$7.60</td><td>$1.90</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.2.line_no",
+              "value": 2,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.3964229930530895
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.3964229930530895
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2</td><td>85025</td><td>1</td><td>$11.88</td><td>$9.50</td><td>$7.60</td><td>$1.90</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.2.billed_cents",
+              "value": 1188,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.3964229930530895
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.3964229930530895
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2</td><td>85025</td><td>1</td><td>$11.88</td><td>$9.50</td><td>$7.60</td><td>$1.90</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.2.allowed_cents",
+              "value": 950,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.3964229930530895
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.3964229930530895
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2</td><td>85025</td><td>1</td><td>$11.88</td><td>$9.50</td><td>$7.60</td><td>$1.90</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.2.plan_paid_cents",
+              "value": 760,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.3964229930530895
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.3964229930530895
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2</td><td>85025</td><td>1</td><td>$11.88</td><td>$9.50</td><td>$7.60</td><td>$1.90</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.2.patient_resp_cents",
+              "value": 190,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.37193937975950914
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.3964229930530895
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.3964229930530895
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>2</td><td>85025</td><td>1</td><td>$11.88</td><td>$9.50</td><td>$7.60</td><td>$1.90</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.3.code",
+              "value": "80048",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4355644071945036
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.4355644071945036
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>3</td><td>80048</td><td>1</td><td>$10.00</td><td>$8.00</td><td>$6.40</td><td>$1.60</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.3.units",
+              "value": 1,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4355644071945036
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.4355644071945036
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>3</td><td>80048</td><td>1</td><td>$10.00</td><td>$8.00</td><td>$6.40</td><td>$1.60</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.3.remark",
+              "value": "Deductible met; patient pays 20% of allowance. Service documented as completed.",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4355644071945036
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.4355644071945036
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>3</td><td>80048</td><td>1</td><td>$10.00</td><td>$8.00</td><td>$6.40</td><td>$1.60</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.3.line_no",
+              "value": 3,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4355644071945036
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.4355644071945036
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>3</td><td>80048</td><td>1</td><td>$10.00</td><td>$8.00</td><td>$6.40</td><td>$1.60</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.3.billed_cents",
+              "value": 1000,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4355644071945036
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.4355644071945036
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>3</td><td>80048</td><td>1</td><td>$10.00</td><td>$8.00</td><td>$6.40</td><td>$1.60</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.3.allowed_cents",
+              "value": 800,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4355644071945036
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.4355644071945036
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>3</td><td>80048</td><td>1</td><td>$10.00</td><td>$8.00</td><td>$6.40</td><td>$1.60</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.3.plan_paid_cents",
+              "value": 640,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4355644071945036
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.4355644071945036
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>3</td><td>80048</td><td>1</td><td>$10.00</td><td>$8.00</td><td>$6.40</td><td>$1.60</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            },
+            {
+              "path": "eob.lines.3.patient_resp_cents",
+              "value": 160,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.0915032679738562,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4110807939009233
+                      ],
+                      [
+                        0.9135292402279922,
+                        0.4355644071945036
+                      ],
+                      [
+                        0.0915032679738562,
+                        0.4355644071945036
+                      ]
+                    ]
+                  ],
+                  "text": "<tr><td>3</td><td>80048</td><td>1</td><td>$10.00</td><td>$8.00</td><td>$6.40</td><td>$1.60</td><td>Deductible met; patient pays 20% of allowance. Service documented as completed.</td></tr>"
+                }
+              ]
+            }
+          ],
+          "plan": [
+            {
+              "path": "plan.plan_name",
+              "value": "Cedar Choice PPO",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "plan",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.13857449425591362
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.13857449425591362
+                      ]
+                    ]
+                  ],
+                  "text": "Plan: Cedar Choice PPO PPO"
+                }
+              ]
+            },
+            {
+              "path": "plan.plan_type",
+              "value": "PPO",
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "plan",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.13857449425591362
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.13857449425591362
+                      ]
+                    ]
+                  ],
+                  "text": "Plan: Cedar Choice PPO PPO"
+                }
+              ]
+            },
+            {
+              "path": "plan.copay_cents",
+              "value": 0,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "plan",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.13857449425591362
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.13857449425591362
+                      ]
+                    ]
+                  ],
+                  "text": "Plan: Cedar Choice PPO PPO"
+                }
+              ]
+            },
+            {
+              "path": "plan.oop_max_cents",
+              "value": 600000,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "plan",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.13857449425591362
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.13857449425591362
+                      ]
+                    ]
+                  ],
+                  "text": "Plan: Cedar Choice PPO PPO"
+                }
+              ]
+            },
+            {
+              "path": "plan.coinsurance_pct",
+              "value": 20,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "plan",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.13857449425591362
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.13857449425591362
+                      ]
+                    ]
+                  ],
+                  "text": "Plan: Cedar Choice PPO PPO"
+                }
+              ]
+            },
+            {
+              "path": "plan.deductible_cents",
+              "value": 100000,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "plan",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.13857449425591362
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.13857449425591362
+                      ]
+                    ]
+                  ],
+                  "text": "Plan: Cedar Choice PPO PPO"
+                }
+              ]
+            },
+            {
+              "path": "plan.deductible_met_cents",
+              "value": 100000,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "plan",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.13857449425591362
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.13857449425591362
+                      ]
+                    ]
+                  ],
+                  "text": "Plan: Cedar Choice PPO PPO"
+                }
+              ]
+            },
+            {
+              "path": "plan.emergency_nsa_protected",
+              "value": true,
+              "status": "found",
+              "citations": [
+                {
+                  "doc": "plan",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.07516339869281045,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.1193383823741566
+                      ],
+                      [
+                        0.33204246969784007,
+                        0.13857449425591362
+                      ],
+                      [
+                        0.07516339869281045,
+                        0.13857449425591362
+                      ]
+                    ]
+                  ],
+                  "text": "Plan: Cedar Choice PPO PPO"
+                }
+              ]
+            }
+          ]
+        },
+        "case_state_source": "prepared synthetic fixture",
+        "fields_found": 67,
+        "fields_cited": 56,
+        "doccheck": {
+          "status": "ok",
+          "source": "billproof.doccheck",
+          "result": [
+            {
+              "item": "provider.npi",
+              "status": "missing",
+              "reason": "The provider identifier is missing, so network status can't be verified and disputes can't be submitted.",
+              "evidence": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.13578,
+                        0.07339
+                      ],
+                      [
+                        0.47553,
+                        0.07339
+                      ],
+                      [
+                        0.47553,
+                        0.09026
+                      ],
+                      [
+                        0.13578,
+                        0.09026
+                      ]
+                    ]
+                  ],
+                  "text": "CEDAR VALE MEDICAL CENTER"
+                },
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.53775,
+                        0.19201
+                      ],
+                      [
+                        0.66082,
+                        0.19201
+                      ],
+                      [
+                        0.66082,
+                        0.20246
+                      ],
+                      [
+                        0.53775,
+                        0.20246
+                      ]
+                    ]
+                  ],
+                  "text": "Out-of-network provider"
+                }
+              ]
+            },
+            {
+              "item": "patient balance",
+              "status": "review",
+              "reason": "The bill's patient balance is $367.39 and the explanation of benefits lists patient responsibility of $17.39.",
+              "evidence": [
+                {
+                  "doc": "bill",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.84837,
+                        0.40672
+                      ],
+                      [
+                        0.9165,
+                        0.40672
+                      ],
+                      [
+                        0.9165,
+                        0.41842
+                      ],
+                      [
+                        0.84837,
+                        0.41842
+                      ]
+                    ]
+                  ],
+                  "text": "$367.39"
+                },
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.86985,
+                        0.46206
+                      ],
+                      [
+                        0.91324,
+                        0.46206
+                      ],
+                      [
+                        0.91324,
+                        0.47456
+                      ],
+                      [
+                        0.86985,
+                        0.47456
+                      ]
+                    ]
+                  ],
+                  "text": "$17.39"
+                }
+              ]
+            },
+            {
+              "item": "eob",
+              "status": "approve",
+              "reason": "EOB provided by Harbor Synthetic Health processed 2026-10-30.",
+              "evidence": [
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.85856,
+                        0.10517
+                      ],
+                      [
+                        0.92631,
+                        0.10517
+                      ],
+                      [
+                        0.92631,
+                        0.1171
+                      ],
+                      [
+                        0.85856,
+                        0.1171
+                      ]
+                    ]
+                  ],
+                  "text": "2026-10-30"
+                },
+                {
+                  "doc": "eob",
+                  "page": 1,
+                  "polygons": [
+                    [
+                      [
+                        0.86985,
+                        0.46206
+                      ],
+                      [
+                        0.91324,
+                        0.46206
+                      ],
+                      [
+                        0.91324,
+                        0.47456
+                      ],
+                      [
+                        0.86985,
+                        0.47456
+                      ]
+                    ]
+                  ],
+                  "text": "$17.39"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "stage": "rules",
+      "stage_label": "Rules",
+      "status": "running",
+      "color": "neutral",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": null,
+      "elapsed_ms": 4.3,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": ""
+      },
+      "data": {}
+    },
+    {
+      "stage": "rules",
+      "stage_label": "Rules",
+      "status": "ok",
+      "color": "neutral",
+      "key_number": {
+        "value": 2,
+        "unit": "flags",
+        "label": "rule flags fired"
+      },
+      "duration_ms": 0.1,
+      "elapsed_ms": 4.4,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": "deterministic CMS rules; never simulated"
+      },
+      "data": {
+        "n_checks": 2,
+        "flags": [
+          {
+            "check": "EOB_BILL_MISMATCH",
+            "line_no": null,
+            "detail": "Bill requests 36739 cents; EOB responsibility 1739 cents; check later adjustment remarks.",
+            "rule_cite": "Bill/EOB patient-responsibility reconciliation",
+            "amount_cents": 35000
+          },
+          {
+            "check": "NO_SURPRISES_ACT",
+            "line_no": null,
+            "detail": "Out-of-network emergency service; reconcile balance against protected in-network cost sharing. Human review required.",
+            "rule_cite": "CMS No Surprises Act emergency balance-billing protections",
+            "amount_cents": 35000
+          }
+        ],
+        "at_stake_cents": 70000
+      }
+    },
+    {
+      "stage": "decide",
+      "stage_label": "Decide (Drex)",
+      "status": "running",
+      "color": "neutral",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": null,
+      "elapsed_ms": 4.4,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": ""
+      },
+      "data": {}
+    },
+    {
+      "stage": "decide",
+      "stage_label": "Decide (Drex)",
+      "status": "ok",
+      "color": "neutral",
+      "key_number": {
+        "value": 4,
+        "unit": "questions",
+        "label": "typed decisions"
+      },
+      "duration_ms": 0.6,
+      "elapsed_ms": 5.0,
+      "mode": "replay",
+      "simulated": true,
+      "provenance": {
+        "kind": "simulator",
+        "detail": "drex-max-v1.1+openai/gpt-6.1-sol \u00b7 1 call(s)"
+      },
+      "data": {
+        "lane": "hybrid",
+        "model": "drex-max-v1.1+openai/gpt-6.1-sol",
+        "calls": 1,
+        "latency_ms": 69.7,
+        "cost_usd": 4.005e-05,
+        "input_tokens": 1335,
+        "routes": {
+          "drex_kept": 3,
+          "hard_cap": 1
+        },
+        "error": null,
+        "answers": {
+          "eob_mismatch": {
+            "choice": "yes",
+            "confidence": 0.816,
+            "route": "drex_kept",
+            "probabilities": {
+              "yes": 0.8163,
+              "no": 0.1837
+            }
+          },
+          "missing_data": {
+            "choice": "no",
+            "confidence": 0.991,
+            "route": "drex_kept",
+            "probabilities": {
+              "no": 0.991,
+              "yes": 0.009
+            }
+          },
+          "nsa": {
+            "choice": "yes",
+            "confidence": 0.999,
+            "route": "hard_cap",
+            "probabilities": {
+              "yes": 0.999,
+              "no": 0.001
+            }
+          },
+          "received": {
+            "choice": "yes",
+            "confidence": 0.999,
+            "route": "drex_kept",
+            "probabilities": {
+              "yes": 0.999,
+              "no": 0.001
+            }
+          }
+        }
+      }
+    },
+    {
+      "stage": "ask",
+      "stage_label": "Ask your documents",
+      "status": "running",
+      "color": "neutral",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": null,
+      "elapsed_ms": 5.0,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": ""
+      },
+      "data": {}
+    },
+    {
+      "stage": "ask",
+      "stage_label": "Ask your documents",
+      "status": "missing",
+      "color": "amber",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": 0.0,
+      "elapsed_ms": 5.1,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "unavailable",
+        "detail": "not_recorded"
+      },
+      "data": {
+        "evidence": {
+          "case_id": "SYN-D05",
+          "status": "not_recorded",
+          "replayed": false
+        }
+      }
+    },
+    {
+      "stage": "browser",
+      "stage_label": "External check",
+      "status": "running",
+      "color": "neutral",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": null,
+      "elapsed_ms": 5.1,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": ""
+      },
+      "data": {}
+    },
+    {
+      "stage": "browser",
+      "stage_label": "External check",
+      "status": "missing",
+      "color": "amber",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": 0.0,
+      "elapsed_ms": 5.1,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "unavailable",
+        "detail": "not_recorded"
+      },
+      "data": {
+        "evidence": {
+          "case_id": "SYN-D05",
+          "status": "not_recorded",
+          "replayed": false
+        }
+      }
+    },
+    {
+      "stage": "verdict",
+      "stage_label": "Verdict",
+      "status": "running",
+      "color": "neutral",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": null,
+      "elapsed_ms": 5.1,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": ""
+      },
+      "data": {}
+    },
+    {
+      "stage": "verdict",
+      "stage_label": "Verdict",
+      "status": "ok",
+      "color": "amber",
+      "key_number": {
+        "value": 35000,
+        "unit": "cents",
+        "label": "patient charge disputed"
+      },
+      "duration_ms": 0.1,
+      "elapsed_ms": 5.2,
+      "mode": "replay",
+      "simulated": true,
+      "provenance": {
+        "kind": "code",
+        "detail": "code-computed from answers; models never set dollars"
+      },
+      "data": {
+        "verdict": {
+          "case_action": "DISPUTE",
+          "lines": [
+            {
+              "line_no": 1,
+              "action": "OK",
+              "reasons": [],
+              "disputed_cents": 0,
+              "rule_cites": []
+            },
+            {
+              "line_no": 2,
+              "action": "OK",
+              "reasons": [],
+              "disputed_cents": 0,
+              "rule_cites": []
+            },
+            {
+              "line_no": 3,
+              "action": "OK",
+              "reasons": [],
+              "disputed_cents": 0,
+              "rule_cites": []
+            }
+          ],
+          "billed_balance_cents": 36739,
+          "owed_cents": 1739,
+          "disputed_cents": 35000,
+          "needs_human": true,
+          "human_reasons": [
+            "human_signature_required_for_money_movement_or_appeal",
+            "decision_escalated_to_human",
+            "human_review_balance_billing",
+            "EOB_BILL_MISMATCH",
+            "NO_SURPRISES_ACT"
+          ],
+          "deadline": null
+        },
+        "case_action": "DISPUTE",
+        "billed_balance_cents": 36739,
+        "owed_cents": 1739,
+        "owed_known": true,
+        "disputed_cents": 35000,
+        "needs_human": true,
+        "human_reasons": [
+          "human_signature_required_for_money_movement_or_appeal",
+          "decision_escalated_to_human",
+          "human_review_balance_billing",
+          "EOB_BILL_MISMATCH",
+          "NO_SURPRISES_ACT"
+        ],
+        "deadline": null
+      }
+    },
+    {
+      "stage": "act",
+      "stage_label": "Letter",
+      "status": "running",
+      "color": "neutral",
+      "key_number": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "duration_ms": null,
+      "elapsed_ms": 5.2,
+      "mode": "replay",
+      "simulated": false,
+      "provenance": {
+        "kind": "code",
+        "detail": ""
+      },
+      "data": {}
+    },
+    {
+      "stage": "act",
+      "stage_label": "Letter",
+      "status": "ok",
+      "color": "amber",
+      "key_number": {
+        "value": 35000,
+        "unit": "cents",
+        "label": "amount addressed in draft"
+      },
+      "duration_ms": 1.2,
+      "elapsed_ms": 6.4,
+      "mode": "replay",
+      "simulated": true,
+      "provenance": {
+        "kind": "simulator",
+        "detail": "Drex picks grounds; code fills every fact"
+      },
+      "data": {
+        "support_documents": [],
+        "letter_support": [],
+        "browser_proposal_status": null,
+        "letter": {
+          "letter_type": "dispute",
+          "recipient": "provider_billing",
+          "subject": "Billing dispute for account AC-DEMO-05",
+          "clauses": [
+            {
+              "clause_id": "opening_dispute",
+              "title": "Opening a billing dispute",
+              "text": "I am writing about account AC-DEMO-05 with Cedar Vale Medical Center. The bill asks for $367.39. This review calculates $17.39 as the amount owed. The amount in dispute is $350.00. Please correct the charges below and send a revised statement.",
+              "picked_by": "letter_type",
+              "probability": 0.9218,
+              "evidence": []
+            },
+            {
+              "clause_id": "eob_mismatch",
+              "title": "Bill does not match the EOB",
+              "text": "The bill for account AC-DEMO-05 does not match the patient responsibility on the explanation of benefits for claim CL-DEMO-05 from Harbor Synthetic Health. The amount in dispute is $350.00. Please change the bill so the patient balance matches that explanation of benefits, and send a corrected statement.",
+              "picked_by": "ground_L0",
+              "probability": 0.999,
+              "evidence": []
+            },
+            {
+              "clause_id": "nsa_balance_bill",
+              "title": "No Surprises Act balance",
+              "text": "Account AC-DEMO-05 with Cedar Vale Medical Center shows a patient balance above the protected amount for claim CL-DEMO-05 (Harbor Synthetic Health). The amount in dispute is $350.00. Please reduce any patient balance above what the No Surprises Act allows for this service. If you believe a signed notice-and-consent form creates an exception, please include that form. Surprise-bill questions can go to the No Surprises Help Desk at 1-800-985-3059.",
+              "picked_by": "verdict",
+              "probability": null,
+              "evidence": []
+            },
+            {
+              "clause_id": "hold_collections",
+              "title": "Hold collections",
+              "text": "Please hold collections, late fees, and credit reporting on account AC-DEMO-05 while you review this letter. The amount in dispute is $350.00.",
+              "picked_by": "letter_type",
+              "probability": 0.9218,
+              "evidence": []
+            },
+            {
+              "clause_id": "closing",
+              "title": "Closing and signature",
+              "text": "Member id on file: SYN-DEMO-05.\n\nThis letter was assembled from a fixed clause library. No model wrote the wording. It is not medical advice or legal advice.\n\nPrepared with BillProof; reviewed and signed by: ____",
+              "picked_by": "letter_type",
+              "probability": 0.9218,
+              "evidence": []
+            }
+          ],
+          "n_clauses": 5,
+          "clause_ids": [
+            "opening_dispute",
+            "eob_mismatch",
+            "nsa_balance_bill",
+            "hold_collections",
+            "closing"
+          ],
+          "grounds": [
+            {
+              "clause_id": "opening_dispute",
+              "title": "Opening a billing dispute",
+              "picked_by": "letter_type",
+              "probability": 0.9218,
+              "evidence": []
+            },
+            {
+              "clause_id": "eob_mismatch",
+              "title": "Bill does not match the EOB",
+              "picked_by": "ground_L0",
+              "probability": 0.999,
+              "evidence": []
+            },
+            {
+              "clause_id": "nsa_balance_bill",
+              "title": "No Surprises Act balance",
+              "picked_by": "verdict",
+              "probability": null,
+              "evidence": []
+            },
+            {
+              "clause_id": "hold_collections",
+              "title": "Hold collections",
+              "picked_by": "letter_type",
+              "probability": 0.9218,
+              "evidence": []
+            },
+            {
+              "clause_id": "closing",
+              "title": "Closing and signature",
+              "picked_by": "letter_type",
+              "probability": 0.9218,
+              "evidence": []
+            }
+          ],
+          "amount_cents": 35000,
+          "deadline": null,
+          "generated_words": 0
+        },
+        "human_review_required": true
+      }
+    }
+  ],
+  "complete": {
+    "case_id": "SYN-D05",
+    "mode": "replay",
+    "stages": {
+      "upload": "ok",
+      "read": "ok",
+      "rules": "ok",
+      "decide": "ok",
+      "ask": "missing",
+      "browser": "missing",
+      "verdict": "ok",
+      "act": "ok"
+    },
+    "key_numbers": {
+      "upload": {
+        "value": 3,
+        "unit": "pages",
+        "label": "PDF pages staged"
+      },
+      "read": {
+        "value": 67,
+        "unit": "fields",
+        "label": "fields extracted"
+      },
+      "rules": {
+        "value": 2,
+        "unit": "flags",
+        "label": "rule flags fired"
+      },
+      "decide": {
+        "value": 4,
+        "unit": "questions",
+        "label": "typed decisions"
+      },
+      "ask": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "browser": {
+        "value": null,
+        "unit": "",
+        "label": "\u2014"
+      },
+      "verdict": {
+        "value": 35000,
+        "unit": "cents",
+        "label": "patient charge disputed"
+      },
+      "act": {
+        "value": 35000,
+        "unit": "cents",
+        "label": "amount addressed in draft"
+      }
+    },
+    "simulated": true,
+    "total_ms": 6.4,
+    "verdict": {
+      "case_action": "DISPUTE",
+      "lines": [
+        {
+          "line_no": 1,
+          "action": "OK",
+          "reasons": [],
+          "disputed_cents": 0,
+          "rule_cites": []
+        },
+        {
+          "line_no": 2,
+          "action": "OK",
+          "reasons": [],
+          "disputed_cents": 0,
+          "rule_cites": []
+        },
+        {
+          "line_no": 3,
+          "action": "OK",
+          "reasons": [],
+          "disputed_cents": 0,
+          "rule_cites": []
+        }
+      ],
+      "billed_balance_cents": 36739,
+      "owed_cents": 1739,
+      "disputed_cents": 35000,
+      "needs_human": true,
+      "human_reasons": [
+        "human_signature_required_for_money_movement_or_appeal",
+        "decision_escalated_to_human",
+        "human_review_balance_billing",
+        "EOB_BILL_MISMATCH",
+        "NO_SURPRISES_ACT"
+      ],
+      "deadline": null
+    },
+    "letter": {
+      "letter_type": "dispute",
+      "recipient": "provider_billing",
+      "subject": "Billing dispute for account AC-DEMO-05",
+      "clauses": [
+        {
+          "clause_id": "opening_dispute",
+          "title": "Opening a billing dispute",
+          "text": "I am writing about account AC-DEMO-05 with Cedar Vale Medical Center. The bill asks for $367.39. This review calculates $17.39 as the amount owed. The amount in dispute is $350.00. Please correct the charges below and send a revised statement.",
+          "picked_by": "letter_type",
+          "probability": 0.9218,
+          "evidence": []
+        },
+        {
+          "clause_id": "eob_mismatch",
+          "title": "Bill does not match the EOB",
+          "text": "The bill for account AC-DEMO-05 does not match the patient responsibility on the explanation of benefits for claim CL-DEMO-05 from Harbor Synthetic Health. The amount in dispute is $350.00. Please change the bill so the patient balance matches that explanation of benefits, and send a corrected statement.",
+          "picked_by": "ground_L0",
+          "probability": 0.999,
+          "evidence": []
+        },
+        {
+          "clause_id": "nsa_balance_bill",
+          "title": "No Surprises Act balance",
+          "text": "Account AC-DEMO-05 with Cedar Vale Medical Center shows a patient balance above the protected amount for claim CL-DEMO-05 (Harbor Synthetic Health). The amount in dispute is $350.00. Please reduce any patient balance above what the No Surprises Act allows for this service. If you believe a signed notice-and-consent form creates an exception, please include that form. Surprise-bill questions can go to the No Surprises Help Desk at 1-800-985-3059.",
+          "picked_by": "verdict",
+          "probability": null,
+          "evidence": []
+        },
+        {
+          "clause_id": "hold_collections",
+          "title": "Hold collections",
+          "text": "Please hold collections, late fees, and credit reporting on account AC-DEMO-05 while you review this letter. The amount in dispute is $350.00.",
+          "picked_by": "letter_type",
+          "probability": 0.9218,
+          "evidence": []
+        },
+        {
+          "clause_id": "closing",
+          "title": "Closing and signature",
+          "text": "Member id on file: SYN-DEMO-05.\n\nThis letter was assembled from a fixed clause library. No model wrote the wording. It is not medical advice or legal advice.\n\nPrepared with BillProof; reviewed and signed by: ____",
+          "picked_by": "letter_type",
+          "probability": 0.9218,
+          "evidence": []
+        }
+      ],
+      "n_clauses": 5,
+      "clause_ids": [
+        "opening_dispute",
+        "eob_mismatch",
+        "nsa_balance_bill",
+        "hold_collections",
+        "closing"
+      ],
+      "grounds": [
+        {
+          "clause_id": "opening_dispute",
+          "title": "Opening a billing dispute",
+          "picked_by": "letter_type",
+          "probability": 0.9218,
+          "evidence": []
+        },
+        {
+          "clause_id": "eob_mismatch",
+          "title": "Bill does not match the EOB",
+          "picked_by": "ground_L0",
+          "probability": 0.999,
+          "evidence": []
+        },
+        {
+          "clause_id": "nsa_balance_bill",
+          "title": "No Surprises Act balance",
+          "picked_by": "verdict",
+          "probability": null,
+          "evidence": []
+        },
+        {
+          "clause_id": "hold_collections",
+          "title": "Hold collections",
+          "picked_by": "letter_type",
+          "probability": 0.9218,
+          "evidence": []
+        },
+        {
+          "clause_id": "closing",
+          "title": "Closing and signature",
+          "picked_by": "letter_type",
+          "probability": 0.9218,
+          "evidence": []
+        }
+      ],
+      "amount_cents": 35000,
+      "deadline": null,
+      "generated_words": 0
+    },
+    "ok": true
+  },
+  "showcase_case_id": "SC-06",
+  "recorded_at": "2026-11-14T07:11:47.099575+00:00",
+  "note": "Mixed provenance: offline fixture/simulator walkthrough; Search/Browser use recorded live artifacts where present. See per-stage provenance."
+}

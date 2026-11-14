@@ -1,0 +1,10 @@
+{
+  "value": 0.879197470383896,
+  "n": 44908,
+  "source_run": "hard_test_drex-finance",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:51:39Z",
+  "coverage": 0.8,
+  "ci_low": 0.876150766128953,
+  "ci_high": 0.8821793042193534
+}

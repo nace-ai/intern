@@ -1,0 +1,3442 @@
+{
+  "split": "test",
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call.",
+  "unreported": {
+    "hard_test_hybrid_subset": {
+      "file": "data/runs/hard_test_hybrid_subset.jsonl",
+      "n_rows": 12,
+      "label": "stopped, rule changed before completion, not reported"
+    }
+  },
+  "lanes": {
+    "drex-v1": {
+      "line_verdict": {
+        "value": 0.3655705996131528,
+        "n": 9306,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 3402,
+        "ci_low": 0.35584313492589353,
+        "ci_high": 0.3754090058194442,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "bill_verdict": {
+        "value": 0.5466666666666666,
+        "n": 300,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 164,
+        "ci_low": 0.49009743799114724,
+        "ci_high": 0.6020558418757308,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "strict_case": {
+        "value": 0.0,
+        "n": 300,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.012643429997735661,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 16457.18,
+        "n": 300,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "caught_cents": 1645718,
+        "gold_overcharge_cents": 2026976,
+        "priced_lines": 9306,
+        "catch_rate": 0.8119079850970116,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 47103.77,
+        "n": 300,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "wrongly_disputed_cents": 4710377,
+        "priced_lines": 9306,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 0.5476190476190477,
+            "n": 42,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 23,
+            "fp": 19,
+            "fn": 117,
+            "ci_low": 0.39948862747122693,
+            "ci_high": 0.6877683618136149,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.16428571428571428,
+            "n": 140,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 23,
+            "fp": 19,
+            "fn": 117,
+            "ci_low": 0.11203753808504885,
+            "ci_high": 0.23446583785070274,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 0.9766431287343835,
+            "n": 1841,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1798,
+            "fp": 43,
+            "fn": 2,
+            "ci_low": 0.9686873874479583,
+            "ci_high": 0.982613797434256,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.9988888888888889,
+            "n": 1800,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1798,
+            "fp": 43,
+            "fn": 2,
+            "ci_low": 0.9959575866402931,
+            "ci_high": 0.9996952467348769,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 0.9996171516079633,
+            "n": 2612,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 2611,
+            "fp": 1,
+            "fn": 148,
+            "ci_low": 0.9978344208586258,
+            "ci_high": 0.9999324163994103,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.9463573758608191,
+            "n": 2759,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 2611,
+            "fp": 1,
+            "fn": 148,
+            "ci_low": 0.93731227022165,
+            "ci_high": 0.9541612040448445,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 0.8865905848787446,
+            "n": 1402,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1243,
+            "fp": 159,
+            "fn": 3279,
+            "ci_low": 0.8689247789549819,
+            "ci_high": 0.9021435974538539,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.27487837240159224,
+            "n": 4522,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1243,
+            "fp": 159,
+            "fn": 3279,
+            "ci_low": 0.26206090649199704,
+            "ci_high": 0.28807801131723426,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 0.996272630457934,
+            "n": 1878,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1871,
+            "fp": 7,
+            "fn": 829,
+            "ci_low": 0.9923257572406986,
+            "ci_high": 0.9981933172658911,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.692962962962963,
+            "n": 2700,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1871,
+            "fp": 7,
+            "fn": 829,
+            "ci_low": 0.6752999938048201,
+            "ci_high": 0.7100776111554705,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.7064989517819706,
+            "n": 1431,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1011,
+            "fp": 420,
+            "fn": 27,
+            "ci_low": 0.6823774551725872,
+            "ci_high": 0.729514700728106,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.9739884393063584,
+            "n": 1038,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1011,
+            "fp": 420,
+            "fn": 27,
+            "ci_low": 0.9624186453754155,
+            "ci_high": 0.9820627421982808,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 0.7525987525987526,
+            "n": 4810,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 3620,
+            "fp": 1190,
+            "fn": 1777,
+            "ci_low": 0.7402058083477416,
+            "ci_high": 0.7645885330364868,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.6707430053733555,
+            "n": 5397,
+            "source_run": "hard_test_drex-v1",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 3620,
+            "fp": 1190,
+            "fn": 1777,
+            "ci_low": 0.6580875094127441,
+            "ci_high": 0.6831556035124711,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        }
+      },
+      "n_cases": 300
+    },
+    "drex-finance": {
+      "line_verdict": {
+        "value": 0.2678916827852998,
+        "n": 9306,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 2493,
+        "ci_low": 0.2589908925470113,
+        "ci_high": 0.2769840267255142,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "bill_verdict": {
+        "value": 0.54,
+        "n": 300,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 162,
+        "ci_low": 0.4834506745713475,
+        "ci_high": 0.5955378510288337,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "strict_case": {
+        "value": 0.0,
+        "n": 300,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.012643429997735661,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 15915.35,
+        "n": 300,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "caught_cents": 1591535,
+        "gold_overcharge_cents": 2026976,
+        "priced_lines": 9306,
+        "catch_rate": 0.7851770321898237,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 44025.45,
+        "n": 300,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "wrongly_disputed_cents": 4402545,
+        "priced_lines": 9306,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 0.5333333333333333,
+            "n": 30,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 16,
+            "fp": 14,
+            "fn": 124,
+            "ci_low": 0.3614201328152505,
+            "ci_high": 0.6976787277587178,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.11428571428571428,
+            "n": 140,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 16,
+            "fp": 14,
+            "fn": 124,
+            "ci_low": 0.07158199283635171,
+            "ci_high": 0.17759209866429904,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 0.9637919684002634,
+            "n": 1519,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1464,
+            "fp": 55,
+            "fn": 336,
+            "ci_low": 0.9531667250672146,
+            "ci_high": 0.9720772398993324,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.8133333333333334,
+            "n": 1800,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1464,
+            "fp": 55,
+            "fn": 336,
+            "ci_low": 0.7946722137836469,
+            "ci_high": 0.8306598552849455,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 2202,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 2202,
+            "fp": 0,
+            "fn": 557,
+            "ci_low": 0.9982584424919724,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.7981152591518667,
+            "n": 2759,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 2202,
+            "fp": 0,
+            "fn": 557,
+            "ci_low": 0.7827270448184822,
+            "ci_high": 0.8126744432726194,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 0.8586698337292161,
+            "n": 842,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 723,
+            "fp": 119,
+            "fn": 3799,
+            "ci_low": 0.8335074259503135,
+            "ci_high": 0.8805742649951307,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.15988500663423263,
+            "n": 4522,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 723,
+            "fp": 119,
+            "fn": 3799,
+            "ci_low": 0.1494920519851644,
+            "ci_high": 0.1708553503631634,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 0.9948586118251928,
+            "n": 778,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 774,
+            "fp": 4,
+            "fn": 1926,
+            "ci_low": 0.9868553365355383,
+            "ci_high": 0.997998884575234,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.2866666666666667,
+            "n": 2700,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 774,
+            "fp": 4,
+            "fn": 1926,
+            "ci_low": 0.2699219449694098,
+            "ci_high": 0.3040175935005952,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.7236286919831224,
+            "n": 1422,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1029,
+            "fp": 393,
+            "fn": 9,
+            "ci_low": 0.6998057040858069,
+            "ci_high": 0.7462466484335754,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.9913294797687862,
+            "n": 1038,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1029,
+            "fp": 393,
+            "fn": 9,
+            "ci_low": 0.9836037445590361,
+            "ci_high": 0.995431840121015,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 0.7307238394964595,
+            "n": 5084,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 3715,
+            "fp": 1369,
+            "fn": 1682,
+            "ci_low": 0.7183594754096179,
+            "ci_high": 0.7427397852277415,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 0.6883453770613304,
+            "n": 5397,
+            "source_run": "hard_test_drex-finance",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 3715,
+            "fp": 1369,
+            "fn": 1682,
+            "ci_low": 0.6758578832454352,
+            "ci_high": 0.7005649320432044,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        }
+      },
+      "n_cases": 300
+    },
+    "gpt": {
+      "line_verdict": {
+        "value": 1.0,
+        "n": 122,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 122,
+        "ci_low": 0.9694727339766817,
+        "ci_high": 0.9999999999999999,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "bill_verdict": {
+        "value": 1.0,
+        "n": 4,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 4,
+        "ci_low": 0.5100999795960008,
+        "ci_high": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "strict_case": {
+        "value": 1.0,
+        "n": 4,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 4,
+        "ci_low": 0.5100999795960008,
+        "ci_high": 1.0,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 232.15,
+        "n": 4,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "caught_cents": 23215,
+        "gold_overcharge_cents": 23215,
+        "priced_lines": 122,
+        "catch_rate": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 0.0,
+        "n": 4,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "wrongly_disputed_cents": 0,
+        "priced_lines": 122,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 1.0,
+            "n": 2,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 2,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.34237195288961925,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 2,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 2,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.34237195288961925,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 1.0,
+            "n": 24,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 24,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.8620194241710247,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 24,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 24,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.8620194241710247,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 38,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 38,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.90818706741616,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 38,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 38,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.90818706741616,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 1.0,
+            "n": 64,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 64,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9433739770288436,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 64,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 64,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9433739770288436,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 1.0,
+            "n": 36,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 36,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9035781695514236,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 36,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 36,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9035781695514236,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 1.0,
+            "n": 14,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 14,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.7846829880728186,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 14,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 14,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.7846829880728186,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 1.0,
+            "n": 79,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 79,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9536271631644004,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 79,
+            "source_run": "hard_test_gpt",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 79,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9536271631644004,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        }
+      },
+      "n_cases": 4
+    },
+    "gpt-one": {
+      "line_verdict": {
+        "value": null,
+        "n": 0,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 0,
+        "ci_low": null,
+        "ci_high": null,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "bill_verdict": {
+        "value": null,
+        "n": 0,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 0,
+        "ci_low": null,
+        "ci_high": null,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "strict_case": {
+        "value": null,
+        "n": 0,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "k": 0,
+        "ci_low": null,
+        "ci_high": null,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 26.01,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "caught_cents": 2601,
+        "gold_overcharge_cents": 2601,
+        "priced_lines": 5,
+        "catch_rate": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 0.0,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T11:58:32Z",
+        "wrongly_disputed_cents": 0,
+        "priced_lines": 5,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call."
+      },
+      "families": {
+        "dup": {
+          "precision": {
+            "value": null,
+            "n": 0,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 0,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": null,
+            "ci_high": null,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": null,
+            "n": 0,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 0,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": null,
+            "ci_high": null,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 3,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 3,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.43849391955098227,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 3,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 3,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.43849391955098227,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 1.0,
+            "n": 4,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 4,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.5100999795960008,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 4,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 4,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.5100999795960008,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": null,
+            "n": 0,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 0,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": null,
+            "ci_high": null,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": null,
+            "n": 0,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 0,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": null,
+            "ci_high": null,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": null,
+            "n": 0,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 0,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": null,
+            "ci_high": null,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": null,
+            "n": 0,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 0,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": null,
+            "ci_high": null,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 1.0,
+            "n": 1,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.2065432914738929,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1,
+            "source_run": "hard_test_gpt-one",
+            "simulated": false,
+            "computed_at": "2026-11-14T11:58:32Z",
+            "k": 1,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.2065432914738929,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call."
+          }
+        }
+      },
+      "n_cases": 20
+    },
+    "system": {
+      "superseded_by": "billproof-system",
+      "label": "superseded by billproof-system: rules engine matched gold by construction",
+      "line_verdict": {
+        "value": 0.8471460819090616,
+        "n": 3101,
+        "source_run": "hard_test_system",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:04:36Z",
+        "k": 2627,
+        "ci_low": 0.8340516042681967,
+        "ci_high": 0.8593815164423737,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+      },
+      "bill_verdict": {
+        "value": 1.0,
+        "n": 100,
+        "source_run": "hard_test_system",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:04:36Z",
+        "k": 100,
+        "ci_low": 0.9630051925239981,
+        "ci_high": 0.9999999999999999,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+      },
+      "strict_case": {
+        "value": 0.0,
+        "n": 100,
+        "source_run": "hard_test_system",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:04:36Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.03699480747600191,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 6736.77,
+        "n": 100,
+        "source_run": "hard_test_system",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:04:36Z",
+        "caught_cents": 673677,
+        "gold_overcharge_cents": 673677,
+        "priced_lines": 3101,
+        "catch_rate": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 0.0,
+        "n": 100,
+        "source_run": "hard_test_system",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:04:36Z",
+        "wrongly_disputed_cents": 0,
+        "priced_lines": 3101,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 1.0,
+            "n": 42,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 42,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9161983874908382,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 42,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 42,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9161983874908382,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 0.9882747068676717,
+            "n": 597,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 590,
+            "fp": 7,
+            "fn": 10,
+            "ci_low": 0.9759966741973254,
+            "ci_high": 0.9943089770758222,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          },
+          "recall": {
+            "value": 0.9833333333333333,
+            "n": 600,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 590,
+            "fp": 7,
+            "fn": 10,
+            "ci_low": 0.9695944296370503,
+            "ci_high": 0.9909223681456795,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 889,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 889,
+            "fp": 0,
+            "fn": 25,
+            "ci_low": 0.9956973330991744,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          },
+          "recall": {
+            "value": 0.9726477024070022,
+            "n": 914,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 889,
+            "fp": 0,
+            "fn": 25,
+            "ci_low": 0.9599333228970719,
+            "ci_high": 0.9814055747950787,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 1.0,
+            "n": 1503,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 1503,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9974505614923296,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1503,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 1503,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9974505614923296,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 0.9950166112956811,
+            "n": 602,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 599,
+            "fp": 3,
+            "fn": 301,
+            "ci_low": 0.9854516780286985,
+            "ci_high": 0.9983038118551261,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          },
+          "recall": {
+            "value": 0.6655555555555556,
+            "n": 900,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 599,
+            "fp": 3,
+            "fn": 301,
+            "ci_low": 0.6340854241424305,
+            "ci_high": 0.6956183646630416,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.7186147186147186,
+            "n": 462,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 332,
+            "fp": 130,
+            "fn": 16,
+            "ci_low": 0.6759368247829405,
+            "ci_high": 0.7576869649344227,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          },
+          "recall": {
+            "value": 0.9540229885057471,
+            "n": 348,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 332,
+            "fp": 130,
+            "fn": 16,
+            "ci_low": 0.9266269933330679,
+            "ci_high": 0.9715044385385468,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 1.0,
+            "n": 1809,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 1809,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9978808959370749,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1809,
+            "source_run": "hard_test_system",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:04:36Z",
+            "k": 1809,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9978808959370749,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+          }
+        }
+      },
+      "n_cases": 100
+    },
+    "gpt-subset": {
+      "line_verdict": {
+        "value": 1.0,
+        "n": 3101,
+        "source_run": "hard_test_gpt-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:45:54Z",
+        "k": 3101,
+        "ci_low": 0.9987627066063531,
+        "ci_high": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+      },
+      "bill_verdict": {
+        "value": 1.0,
+        "n": 100,
+        "source_run": "hard_test_gpt-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:45:54Z",
+        "k": 100,
+        "ci_low": 0.9630051925239981,
+        "ci_high": 0.9999999999999999,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+      },
+      "strict_case": {
+        "value": 1.0,
+        "n": 100,
+        "source_run": "hard_test_gpt-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:45:54Z",
+        "k": 100,
+        "ci_low": 0.9630051925239981,
+        "ci_high": 0.9999999999999999,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 6736.77,
+        "n": 100,
+        "source_run": "hard_test_gpt-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:45:54Z",
+        "caught_cents": 673677,
+        "gold_overcharge_cents": 673677,
+        "priced_lines": 3101,
+        "catch_rate": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 0.0,
+        "n": 100,
+        "source_run": "hard_test_gpt-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T12:45:54Z",
+        "wrongly_disputed_cents": 0,
+        "priced_lines": 3101,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 1.0,
+            "n": 42,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 42,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9161983874908382,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 42,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 42,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9161983874908382,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 1.0,
+            "n": 600,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 600,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9936380666717896,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 600,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 600,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9936380666717896,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 914,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 914,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9958145283456317,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 914,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 914,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9958145283456317,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 1.0,
+            "n": 1503,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 1503,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9974505614923296,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1503,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 1503,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9974505614923296,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 1.0,
+            "n": 900,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 900,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9957496977346473,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 900,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 900,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9957496977346473,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 1.0,
+            "n": 348,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 348,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9890814502889936,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 348,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 348,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9890814502889936,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 1.0,
+            "n": 1809,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 1809,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9978808959370749,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1809,
+            "source_run": "hard_test_gpt-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T12:45:54Z",
+            "k": 1809,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9978808959370749,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+          }
+        }
+      },
+      "n_cases": 100
+    },
+    "billproof-system": {
+      "line_verdict": {
+        "value": 0.7894227668494034,
+        "n": 3101,
+        "source_run": "hard_test_billproof-system",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:06:43Z",
+        "k": 2448,
+        "ci_low": 0.7747186198998821,
+        "ci_high": 0.8034107120441372,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+      },
+      "bill_verdict": {
+        "value": 0.94,
+        "n": 100,
+        "source_run": "hard_test_billproof-system",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:06:43Z",
+        "k": 94,
+        "ci_low": 0.8752303146877748,
+        "ci_high": 0.9722142547333433,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+      },
+      "strict_case": {
+        "value": 0.0,
+        "n": 100,
+        "source_run": "hard_test_billproof-system",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:06:43Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.03699480747600191,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 6527.54,
+        "n": 100,
+        "source_run": "hard_test_billproof-system",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:06:43Z",
+        "caught_cents": 652754,
+        "gold_overcharge_cents": 673677,
+        "priced_lines": 3101,
+        "catch_rate": 0.9689420894583012,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 2305.12,
+        "n": 100,
+        "source_run": "hard_test_billproof-system",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:06:43Z",
+        "wrongly_disputed_cents": 230512,
+        "priced_lines": 3101,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 1.0,
+            "n": 36,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 36,
+            "fp": 0,
+            "fn": 6,
+            "ci_low": 0.9035781695514236,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          },
+          "recall": {
+            "value": 0.8571428571428571,
+            "n": 42,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 36,
+            "fp": 0,
+            "fn": 6,
+            "ci_low": 0.7215861764782122,
+            "ci_high": 0.9328412431581007,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 0.9507936507936507,
+            "n": 630,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 599,
+            "fp": 31,
+            "fn": 1,
+            "ci_low": 0.9310021400380218,
+            "ci_high": 0.9651208029811803,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          },
+          "recall": {
+            "value": 0.9983333333333333,
+            "n": 600,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 599,
+            "fp": 31,
+            "fn": 1,
+            "ci_low": 0.9906202004134312,
+            "ci_high": 0.9997057393694524,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 883,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 883,
+            "fp": 0,
+            "fn": 31,
+            "ci_low": 0.9956682230513316,
+            "ci_high": 0.9999999999999998,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          },
+          "recall": {
+            "value": 0.9660831509846827,
+            "n": 914,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 883,
+            "fp": 0,
+            "fn": 31,
+            "ci_low": 0.9522601882022264,
+            "ci_high": 0.976004558133089,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 1.0,
+            "n": 1422,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 1422,
+            "fp": 0,
+            "fn": 81,
+            "ci_low": 0.9973057315763545,
+            "ci_high": 0.9999999999999998,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          },
+          "recall": {
+            "value": 0.9461077844311377,
+            "n": 1503,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 1422,
+            "fp": 0,
+            "fn": 81,
+            "ci_low": 0.9335125422223166,
+            "ci_high": 0.9564283779115582,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 0.9934640522875817,
+            "n": 612,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 608,
+            "fp": 4,
+            "fn": 292,
+            "ci_low": 0.9833161897379106,
+            "ci_high": 0.9974554892133003,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          },
+          "recall": {
+            "value": 0.6755555555555556,
+            "n": 900,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 608,
+            "fp": 4,
+            "fn": 292,
+            "ci_low": 0.6442784388735834,
+            "ci_high": 0.7053403438865817,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.7687074829931972,
+            "n": 441,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 339,
+            "fp": 102,
+            "fn": 9,
+            "ci_low": 0.7271337684105236,
+            "ci_high": 0.8056401448206131,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          },
+          "recall": {
+            "value": 0.9741379310344828,
+            "n": 348,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 339,
+            "fp": 102,
+            "fn": 9,
+            "ci_low": 0.951586518674029,
+            "ci_high": 0.9863355462551892,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 0.9746251441753172,
+            "n": 1734,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 1690,
+            "fp": 44,
+            "fn": 119,
+            "ci_low": 0.9661080231220179,
+            "ci_high": 0.9810438922194032,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          },
+          "recall": {
+            "value": 0.9342177998894416,
+            "n": 1809,
+            "source_run": "hard_test_billproof-system",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:06:43Z",
+            "k": 1690,
+            "fp": 44,
+            "fn": 119,
+            "ci_low": 0.9218488038350726,
+            "ci_high": 0.9447464905359303,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+          }
+        }
+      },
+      "question_accuracy": {
+        "bill_balance": {
+          "value": 0.94,
+          "n": 100,
+          "source_run": "hard_test_billproof-system",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:06:43Z",
+          "k": 94,
+          "ci_low": 0.8752303146877748,
+          "ci_high": 0.9722142547333433,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+        },
+        "dup": {
+          "value": 0.9896807481457595,
+          "n": 3101,
+          "source_run": "hard_test_billproof-system",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:06:43Z",
+          "k": 3069,
+          "ci_low": 0.9854688639000543,
+          "ci_high": 0.9926808748821111,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+        },
+        "eob": {
+          "value": 0.9900032247662045,
+          "n": 3101,
+          "source_run": "hard_test_billproof-system",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:06:43Z",
+          "k": 3070,
+          "ci_low": 0.9858454871563784,
+          "ci_high": 0.992948406870293,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+        },
+        "fee": {
+          "value": 0.9738793937439536,
+          "n": 3101,
+          "source_run": "hard_test_billproof-system",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:06:43Z",
+          "k": 3020,
+          "ci_low": 0.9676522817486412,
+          "ci_high": 0.9789338500527366,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+        },
+        "mue": {
+          "value": 0.9045469203482748,
+          "n": 3101,
+          "source_run": "hard_test_billproof-system",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:06:43Z",
+          "k": 2805,
+          "ci_low": 0.8936983981375253,
+          "ci_high": 0.91439435609509,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+        },
+        "ncci": {
+          "value": 0.964205095130603,
+          "n": 3101,
+          "source_run": "hard_test_billproof-system",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:06:43Z",
+          "k": 2990,
+          "ci_low": 0.9570707545382252,
+          "ci_high": 0.9701907199279763,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+        },
+        "pr": {
+          "value": 0.9474363108674622,
+          "n": 3101,
+          "source_run": "hard_test_billproof-system",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:06:43Z",
+          "k": 2938,
+          "ci_low": 0.9390134810815839,
+          "ci_high": 0.9547519206703124,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Code computed the fee threshold, patient responsibility, and the balance sum from the case inputs and passed those numbers to Drex as facts. Drex answered every yes/no question. The label function was not imported. Arithmetic families are near-deterministic by design: money is computed by code, judgment by Drex."
+        }
+      },
+      "n_cases": 100
+    },
+    "family_hybrid": {
+      "line_verdict": {
+        "value": 0.9509835536923573,
+        "n": 3101,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "k": 2949,
+        "ci_low": 0.9428106776972286,
+        "ci_high": 0.9580404317442323,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "bill_verdict": {
+        "value": 1.0,
+        "n": 100,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "k": 100,
+        "ci_low": 0.9630051925239981,
+        "ci_high": 0.9999999999999999,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "strict_case": {
+        "value": 0.1,
+        "n": 100,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "k": 10,
+        "ci_low": 0.05522854161313613,
+        "ci_high": 0.1743673043676654,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 6736.77,
+        "n": 100,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "caught_cents": 673677,
+        "gold_overcharge_cents": 673677,
+        "priced_lines": 3101,
+        "catch_rate": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 0.0,
+        "n": 100,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "wrongly_disputed_cents": 0,
+        "priced_lines": 3101,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 1.0,
+            "n": 42,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 42,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9161983874908382,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 42,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 42,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9161983874908382,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 1.0,
+            "n": 600,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 600,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9936380666717896,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 600,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 600,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9936380666717896,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 913,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 913,
+            "fp": 0,
+            "fn": 1,
+            "ci_low": 0.9958099632477407,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.9989059080962801,
+            "n": 914,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 913,
+            "fp": 0,
+            "fn": 1,
+            "ci_low": 0.9938286583516751,
+            "ci_high": 0.9998068447678174,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 1.0,
+            "n": 1503,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 1503,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9974505614923296,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1503,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 1503,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9974505614923296,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 1.0,
+            "n": 765,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 765,
+            "fp": 0,
+            "fn": 135,
+            "ci_low": 0.9950033921161395,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.85,
+            "n": 900,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 765,
+            "fp": 0,
+            "fn": 135,
+            "ci_low": 0.825185874753349,
+            "ci_high": 0.871838913660904,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.9585635359116023,
+            "n": 362,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 347,
+            "fp": 15,
+            "fn": 1,
+            "ci_low": 0.9327656828242685,
+            "ci_high": 0.974730894929601,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.9971264367816092,
+            "n": 348,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 347,
+            "fp": 15,
+            "fn": 1,
+            "ci_low": 0.9839044957756382,
+            "ci_high": 0.999492578362269,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 1.0,
+            "n": 1809,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 1809,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9978808959370749,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1809,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 1809,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9978808959370749,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        }
+      },
+      "question_accuracy": {
+        "bill_balance": {
+          "value": 1.0,
+          "n": 100,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 100,
+          "ci_low": 0.9630051925239981,
+          "ci_high": 0.9999999999999999,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "dup": {
+          "value": 1.0,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3101,
+          "ci_low": 0.9987627066063531,
+          "ci_high": 1.0,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "eob": {
+          "value": 0.999677523379555,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3100,
+          "ci_low": 0.9981754772076524,
+          "ci_high": 0.9999430741541949,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "fee": {
+          "value": 1.0,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3101,
+          "ci_low": 0.9987627066063531,
+          "ci_high": 1.0,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "mue": {
+          "value": 0.9564656562399226,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 2966,
+          "ci_low": 0.9487009598710252,
+          "ci_high": 0.9631007887270355,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "ncci": {
+          "value": 0.9948403740728797,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3085,
+          "ci_low": 0.9916346777512977,
+          "ci_high": 0.9968215449429616,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "pr": {
+          "value": 1.0,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3101,
+          "ci_low": 0.9987627066063531,
+          "ci_high": 1.0,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        }
+      },
+      "n_cases": 100
+    },
+    "drex-v1-subset": {
+      "line_verdict": {
+        "value": 0.3711705901322154,
+        "n": 3101,
+        "source_run": "hard_test_drex-v1-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "k": 1151,
+        "ci_low": 0.3543354796962989,
+        "ci_high": 0.3883245001236057,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+      },
+      "bill_verdict": {
+        "value": 0.54,
+        "n": 100,
+        "source_run": "hard_test_drex-v1-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "k": 54,
+        "ci_low": 0.44264685393523856,
+        "ci_high": 0.6343935614666815,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+      },
+      "strict_case": {
+        "value": 0.0,
+        "n": 100,
+        "source_run": "hard_test_drex-v1-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.03699480747600191,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 5419.54,
+        "n": 100,
+        "source_run": "hard_test_drex-v1-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "caught_cents": 541954,
+        "gold_overcharge_cents": 673677,
+        "priced_lines": 3101,
+        "catch_rate": 0.8044715791098701,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 15470.9,
+        "n": 100,
+        "source_run": "hard_test_drex-v1-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "wrongly_disputed_cents": 1547090,
+        "priced_lines": 3101,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 0.3,
+            "n": 10,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 3,
+            "fp": 7,
+            "fn": 39,
+            "ci_low": 0.10778928748621183,
+            "ci_high": 0.6032267800204347,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.07142857142857142,
+            "n": 42,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 3,
+            "fp": 7,
+            "fn": 39,
+            "ci_low": 0.02458996355117285,
+            "ci_high": 0.19009713288525168,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 0.9787581699346405,
+            "n": 612,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 599,
+            "fp": 13,
+            "fn": 1,
+            "ci_low": 0.9639984072008015,
+            "ci_high": 0.9875449766823267,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.9983333333333333,
+            "n": 600,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 599,
+            "fp": 13,
+            "fn": 1,
+            "ci_low": 0.9906202004134312,
+            "ci_high": 0.9997057393694524,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 861,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 861,
+            "fp": 0,
+            "fn": 53,
+            "ci_low": 0.9955580305110208,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.9420131291028446,
+            "n": 914,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 861,
+            "fp": 0,
+            "fn": 53,
+            "ci_low": 0.924929859807976,
+            "ci_high": 0.955396331552276,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 0.890495867768595,
+            "n": 484,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 431,
+            "fp": 53,
+            "fn": 1072,
+            "ci_low": 0.8595400168227577,
+            "ci_high": 0.9153016530963308,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.2867598137059215,
+            "n": 1503,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 431,
+            "fp": 53,
+            "fn": 1072,
+            "ci_low": 0.2644620752575399,
+            "ci_high": 0.3101448376389451,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 0.9968051118210862,
+            "n": 626,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 624,
+            "fp": 2,
+            "fn": 276,
+            "ci_low": 0.9884264584621888,
+            "ci_high": 0.9991234270963388,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.6933333333333334,
+            "n": 900,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 624,
+            "fp": 2,
+            "fn": 276,
+            "ci_low": 0.6624386312406612,
+            "ci_high": 0.7225845852167359,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.7278617710583153,
+            "n": 463,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 337,
+            "fp": 126,
+            "fn": 11,
+            "ci_low": 0.6855702431857207,
+            "ci_high": 0.7664031884878919,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.9683908045977011,
+            "n": 348,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 337,
+            "fp": 126,
+            "fn": 11,
+            "ci_low": 0.9442931921732258,
+            "ci_high": 0.9822601204538197,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 0.751951951951952,
+            "n": 1665,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 1252,
+            "fp": 413,
+            "fn": 557,
+            "ci_low": 0.7306428183645658,
+            "ci_high": 0.7721011209044458,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.6920950801547816,
+            "n": 1809,
+            "source_run": "hard_test_drex-v1-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 1252,
+            "fp": 413,
+            "fn": 557,
+            "ci_low": 0.6704337010138803,
+            "ci_high": 0.712942320366035,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        }
+      },
+      "question_accuracy": {
+        "bill_balance": {
+          "value": 0.54,
+          "n": 100,
+          "source_run": "hard_test_drex-v1-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 54,
+          "ci_low": 0.44264685393523856,
+          "ci_high": 0.6343935614666815,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "dup": {
+          "value": 0.9954853273137697,
+          "n": 3101,
+          "source_run": "hard_test_drex-v1-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 3087,
+          "ci_low": 0.9924357528340672,
+          "ci_high": 0.9973087803492037,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "eob": {
+          "value": 0.9829087391164141,
+          "n": 3101,
+          "source_run": "hard_test_drex-v1-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 3048,
+          "ci_low": 0.9777131437477377,
+          "ci_high": 0.9869093348998045,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "fee": {
+          "value": 0.6372138019993551,
+          "n": 3101,
+          "source_run": "hard_test_drex-v1-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 1976,
+          "ci_low": 0.6201308123574452,
+          "ci_high": 0.6539572441798029,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "mue": {
+          "value": 0.910351499516285,
+          "n": 3101,
+          "source_run": "hard_test_drex-v1-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 2823,
+          "ci_low": 0.8997821970864376,
+          "ci_high": 0.9199053515472834,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "ncci": {
+          "value": 0.9558207029990325,
+          "n": 3101,
+          "source_run": "hard_test_drex-v1-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 2964,
+          "ci_low": 0.9480064867661423,
+          "ci_high": 0.9625069513429064,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "pr": {
+          "value": 0.6871976781683328,
+          "n": 3101,
+          "source_run": "hard_test_drex-v1-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 2131,
+          "ci_low": 0.6706559843236719,
+          "ci_high": 0.7032761351119863,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        }
+      },
+      "n_cases": 100
+    },
+    "drex-finance-subset": {
+      "line_verdict": {
+        "value": 0.2605611093195743,
+        "n": 3101,
+        "source_run": "hard_test_drex-finance-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "k": 808,
+        "ci_low": 0.24541470151061814,
+        "ci_high": 0.27630002944377263,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+      },
+      "bill_verdict": {
+        "value": 0.55,
+        "n": 100,
+        "source_run": "hard_test_drex-finance-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "k": 55,
+        "ci_low": 0.45244427031643447,
+        "ci_high": 0.6438562489359654,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+      },
+      "strict_case": {
+        "value": 0.0,
+        "n": 100,
+        "source_run": "hard_test_drex-finance-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.03699480747600191,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 5128.69,
+        "n": 100,
+        "source_run": "hard_test_drex-finance-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "caught_cents": 512869,
+        "gold_overcharge_cents": 673677,
+        "priced_lines": 3101,
+        "catch_rate": 0.761298070143407,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 14822.99,
+        "n": 100,
+        "source_run": "hard_test_drex-finance-subset",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:49:01Z",
+        "wrongly_disputed_cents": 1482299,
+        "priced_lines": 3101,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 0.2857142857142857,
+            "n": 7,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 2,
+            "fp": 5,
+            "fn": 40,
+            "ci_low": 0.0822171657090155,
+            "ci_high": 0.6410709098517873,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.047619047619047616,
+            "n": 42,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 2,
+            "fp": 5,
+            "fn": 40,
+            "ci_low": 0.013157248639206365,
+            "ci_high": 0.1579013531547973,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 0.9584158415841584,
+            "n": 505,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 484,
+            "fp": 21,
+            "fn": 116,
+            "ci_low": 0.9372667983444564,
+            "ci_high": 0.9726430832375524,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.8066666666666666,
+            "n": 600,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 484,
+            "fp": 21,
+            "fn": 116,
+            "ci_low": 0.7731564402675086,
+            "ci_high": 0.8362749072911888,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 727,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 727,
+            "fp": 0,
+            "fn": 187,
+            "ci_low": 0.9947435942343732,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.7954048140043763,
+            "n": 914,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 727,
+            "fp": 0,
+            "fn": 187,
+            "ci_low": 0.7680407266470322,
+            "ci_high": 0.820296084410562,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 0.8731343283582089,
+            "n": 268,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 234,
+            "fp": 34,
+            "fn": 1269,
+            "ci_low": 0.827946488733511,
+            "ci_high": 0.9077760791148243,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.15568862275449102,
+            "n": 1503,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 234,
+            "fp": 34,
+            "fn": 1269,
+            "ci_low": 0.13823902868126287,
+            "ci_high": 0.17489381819527683,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 0.996031746031746,
+            "n": 252,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 251,
+            "fp": 1,
+            "fn": 649,
+            "ci_low": 0.9778679421784356,
+            "ci_high": 0.9992991799783989,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.2788888888888889,
+            "n": 900,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 251,
+            "fp": 1,
+            "fn": 649,
+            "ci_low": 0.2505769947915951,
+            "ci_high": 0.309080361099083,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.7293868921775899,
+            "n": 473,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 345,
+            "fp": 128,
+            "fn": 3,
+            "ci_low": 0.6876190816955896,
+            "ci_high": 0.7674586631991511,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.9913793103448276,
+            "n": 348,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 345,
+            "fp": 128,
+            "fn": 3,
+            "ci_low": 0.9749643269458734,
+            "ci_high": 0.9970639948898616,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 0.7362700228832952,
+            "n": 1748,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 1287,
+            "fp": 461,
+            "fn": 522,
+            "ci_low": 0.7151102864371222,
+            "ci_high": 0.7563935298896509,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          },
+          "recall": {
+            "value": 0.7114427860696517,
+            "n": 1809,
+            "source_run": "hard_test_drex-finance-subset",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:49:01Z",
+            "k": 1287,
+            "fp": 461,
+            "fn": 522,
+            "ci_low": 0.6901324118574512,
+            "ci_high": 0.7318570217477793,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+          }
+        }
+      },
+      "question_accuracy": {
+        "bill_balance": {
+          "value": 0.55,
+          "n": 100,
+          "source_run": "hard_test_drex-finance-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 55,
+          "ci_low": 0.45244427031643447,
+          "ci_high": 0.6438562489359654,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "dup": {
+          "value": 0.9558207029990325,
+          "n": 3101,
+          "source_run": "hard_test_drex-finance-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 2964,
+          "ci_low": 0.9480064867661423,
+          "ci_high": 0.9625069513429064,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "eob": {
+          "value": 0.9396968719767816,
+          "n": 3101,
+          "source_run": "hard_test_drex-finance-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 2914,
+          "ci_low": 0.930761815474584,
+          "ci_high": 0.9475438604091713,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "fee": {
+          "value": 0.5798129635601419,
+          "n": 3101,
+          "source_run": "hard_test_drex-finance-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 1798,
+          "ci_low": 0.5623518554921091,
+          "ci_high": 0.5970765675230941,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "mue": {
+          "value": 0.7903901967107385,
+          "n": 3101,
+          "source_run": "hard_test_drex-finance-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 2451,
+          "ci_low": 0.7757090322127522,
+          "ci_high": 0.8043527654647848,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "ncci": {
+          "value": 0.9577555627217027,
+          "n": 3101,
+          "source_run": "hard_test_drex-finance-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 2970,
+          "ci_low": 0.9500911933369721,
+          "ci_high": 0.964287176239112,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        },
+        "pr": {
+          "value": 0.6830054821025475,
+          "n": 3101,
+          "source_run": "hard_test_drex-finance-subset",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:49:01Z",
+          "k": 2118,
+          "ci_low": 0.6664102871272753,
+          "ci_high": 0.6991478141298065,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+        }
+      },
+      "n_cases": 100
+    },
+    "hybrid-subset": {
+      "line_verdict": {
+        "value": 0.9509835536923573,
+        "n": 3101,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "k": 2949,
+        "ci_low": 0.9428106776972286,
+        "ci_high": 0.9580404317442323,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "bill_verdict": {
+        "value": 1.0,
+        "n": 100,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "k": 100,
+        "ci_low": 0.9630051925239981,
+        "ci_high": 0.9999999999999999,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "strict_case": {
+        "value": 0.1,
+        "n": 100,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "k": 10,
+        "ci_low": 0.05522854161313613,
+        "ci_high": 0.1743673043676654,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 6736.77,
+        "n": 100,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "caught_cents": 673677,
+        "gold_overcharge_cents": 673677,
+        "priced_lines": 3101,
+        "catch_rate": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 0.0,
+        "n": 100,
+        "source_run": "hard_test_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:35:33Z",
+        "wrongly_disputed_cents": 0,
+        "priced_lines": 3101,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 1.0,
+            "n": 42,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 42,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9161983874908382,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 42,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 42,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9161983874908382,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 1.0,
+            "n": 600,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 600,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9936380666717896,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 600,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 600,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9936380666717896,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 913,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 913,
+            "fp": 0,
+            "fn": 1,
+            "ci_low": 0.9958099632477407,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.9989059080962801,
+            "n": 914,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 913,
+            "fp": 0,
+            "fn": 1,
+            "ci_low": 0.9938286583516751,
+            "ci_high": 0.9998068447678174,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 1.0,
+            "n": 1503,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 1503,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9974505614923296,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1503,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 1503,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9974505614923296,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 1.0,
+            "n": 765,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 765,
+            "fp": 0,
+            "fn": 135,
+            "ci_low": 0.9950033921161395,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.85,
+            "n": 900,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 765,
+            "fp": 0,
+            "fn": 135,
+            "ci_low": 0.825185874753349,
+            "ci_high": 0.871838913660904,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.9585635359116023,
+            "n": 362,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 347,
+            "fp": 15,
+            "fn": 1,
+            "ci_low": 0.9327656828242685,
+            "ci_high": 0.974730894929601,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.9971264367816092,
+            "n": 348,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 347,
+            "fp": 15,
+            "fn": 1,
+            "ci_low": 0.9839044957756382,
+            "ci_high": 0.999492578362269,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 1.0,
+            "n": 1809,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 1809,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9978808959370749,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1809,
+            "source_run": "hard_test_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:35:33Z",
+            "k": 1809,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9978808959370749,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        }
+      },
+      "question_accuracy": {
+        "bill_balance": {
+          "value": 1.0,
+          "n": 100,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 100,
+          "ci_low": 0.9630051925239981,
+          "ci_high": 0.9999999999999999,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "dup": {
+          "value": 1.0,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3101,
+          "ci_low": 0.9987627066063531,
+          "ci_high": 1.0,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "eob": {
+          "value": 0.999677523379555,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3100,
+          "ci_low": 0.9981754772076524,
+          "ci_high": 0.9999430741541949,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "fee": {
+          "value": 1.0,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3101,
+          "ci_low": 0.9987627066063531,
+          "ci_high": 1.0,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "mue": {
+          "value": 0.9564656562399226,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 2966,
+          "ci_low": 0.9487009598710252,
+          "ci_high": 0.9631007887270355,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "ncci": {
+          "value": 0.9948403740728797,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3085,
+          "ci_low": 0.9916346777512977,
+          "ci_high": 0.9968215449429616,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "pr": {
+          "value": 1.0,
+          "n": 3101,
+          "source_run": "hard_test_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:35:33Z",
+          "k": 3101,
+          "ci_low": 0.9987627066063531,
+          "ci_high": 1.0,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        }
+      },
+      "n_cases": 100,
+      "note": "Same run as family_hybrid."
+    }
+  }
+}

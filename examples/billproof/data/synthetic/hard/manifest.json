@@ -1,0 +1,187 @@
+{
+  "seed": 20261114,
+  "knobs": {
+    "seed": 20261114,
+    "dev_n": 60,
+    "test_n": 300,
+    "lines_min": 30,
+    "lines_max": 32,
+    "dup_triplets": 3,
+    "allowed_pairs": 1,
+    "mue_triplets": 3,
+    "ncci_col2": 4,
+    "near_threshold_share": 0.7,
+    "fee_over_share": 0.48,
+    "noise_rate": 0.06,
+    "pr_wrong_share": 0.42,
+    "eob_mismatch_share": 0.3,
+    "secondary_share": 0.5,
+    "oon_share": 0.4,
+    "nsa_given_oon_share": 0.5,
+    "denial_share": 0.12,
+    "patient_liable_share": 0.1,
+    "partial_pay_share": 0.55,
+    "bill_wrong_share": 0.5,
+    "tight_oop_share": 0.25,
+    "contradictory_remark_rate": 0.5
+  },
+  "frozen": true,
+  "dev_sha256": "f627a6b949e083c0a9d7b13c4b9297c65da1245d54df610e73f6a0949893bffc",
+  "dev_summary": {
+    "n_cases": 60,
+    "n_lines": 1861,
+    "n_questions": 11226,
+    "mean_lines": 31.016666666666666,
+    "mean_questions": 187.1,
+    "yes_rate": {
+      "dup": 0.19344438473938744,
+      "mue": 0.2901665771090811,
+      "ncci": 0.11284255776464266,
+      "fee": 0.48844707146695326,
+      "eob": 0.30360021493820527,
+      "pr": 0.5679742074153681,
+      "bill_balance": 0.5333333333333333
+    },
+    "counts": {
+      "dup": {
+        "yes": 360,
+        "no": 1501,
+        "n": 1861
+      },
+      "mue": {
+        "yes": 540,
+        "no": 1321,
+        "n": 1861
+      },
+      "ncci": {
+        "yes": 210,
+        "no": 1651,
+        "n": 1861
+      },
+      "fee": {
+        "yes": 909,
+        "no": 952,
+        "n": 1861
+      },
+      "eob": {
+        "yes": 565,
+        "no": 1296,
+        "n": 1861
+      },
+      "pr": {
+        "yes": 1057,
+        "no": 804,
+        "n": 1861
+      },
+      "bill_balance": {
+        "yes": 32,
+        "no": 28,
+        "n": 60
+      }
+    }
+  },
+  "generator_sha256": "230497f44f85f19ef5c55997cfe72b14de44b037889ccf6b88c60f0cb1dccaa4",
+  "rules_sha256": "6508086aa062b7783035e3c62b5a50a544c088ca8325b8911e95e4a125fc7de4",
+  "gpt_system_sha256": "96d422019d3cc720270bdca7098902ca6ccf163beb94c1f9858f0b00e51876db",
+  "updated": "2026-11-14T10:35:40Z",
+  "frozen_at": "2026-11-14T10:34:43Z",
+  "hybrid_tau": 0.95,
+  "hybrid_tau_dev": {
+    "tau": 0.95,
+    "question_accuracy": 0.9892555640828856,
+    "n": 1303,
+    "k": 1289,
+    "grid": [
+      {
+        "tau": 0.5,
+        "accuracy": 0.8710667689946278,
+        "n": 1303,
+        "k": 1135
+      },
+      {
+        "tau": 0.6,
+        "accuracy": 0.898695318495779,
+        "n": 1303,
+        "k": 1171
+      },
+      {
+        "tau": 0.7,
+        "accuracy": 0.9255564082885649,
+        "n": 1303,
+        "k": 1206
+      },
+      {
+        "tau": 0.8,
+        "accuracy": 0.9547198772064467,
+        "n": 1303,
+        "k": 1244
+      },
+      {
+        "tau": 0.9,
+        "accuracy": 0.9815809669992326,
+        "n": 1303,
+        "k": 1279
+      },
+      {
+        "tau": 0.95,
+        "accuracy": 0.9892555640828856,
+        "n": 1303,
+        "k": 1289
+      }
+    ]
+  },
+  "test_sha256": "2e1ea008a8d00d6ff01eac0e9a524a7d8f72f2efc7136bad6775df56bef618b9",
+  "test_summary": {
+    "n_cases": 300,
+    "n_lines": 9306,
+    "n_questions": 56136,
+    "mean_lines": 31.02,
+    "mean_questions": 187.12,
+    "yes_rate": {
+      "dup": 0.19342359767891681,
+      "mue": 0.2901353965183752,
+      "ncci": 0.11154094132817537,
+      "fee": 0.4859230603911455,
+      "eob": 0.2964753922200731,
+      "pr": 0.5799484203739523,
+      "bill_balance": 0.4666666666666667
+    },
+    "counts": {
+      "dup": {
+        "yes": 1800,
+        "no": 7506,
+        "n": 9306
+      },
+      "mue": {
+        "yes": 2700,
+        "no": 6606,
+        "n": 9306
+      },
+      "ncci": {
+        "yes": 1038,
+        "no": 8268,
+        "n": 9306
+      },
+      "fee": {
+        "yes": 4522,
+        "no": 4784,
+        "n": 9306
+      },
+      "eob": {
+        "yes": 2759,
+        "no": 6547,
+        "n": 9306
+      },
+      "pr": {
+        "yes": 5397,
+        "no": 3909,
+        "n": 9306
+      },
+      "bill_balance": {
+        "yes": 140,
+        "no": 160,
+        "n": 300
+      }
+    }
+  }
+}

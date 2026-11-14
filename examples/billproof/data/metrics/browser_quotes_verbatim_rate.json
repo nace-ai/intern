@@ -1,0 +1,8 @@
+{
+  "value": 1.0,
+  "n": 2,
+  "source_run": "browser_explore_20261114+SYN-D08",
+  "simulated": false,
+  "computed_at": "2026-11-14T07:08:06.076128+00:00",
+  "note": "each *_quote field found word for word in the page text BillProof fetched itself"
+}

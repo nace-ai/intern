@@ -1,0 +1,3180 @@
+{
+  "bench": "hard",
+  "title": "BillProof-Hard (frozen 100)",
+  "chart": "line_verdict",
+  "metrics": [
+    "line_verdict",
+    "question_accuracy"
+  ],
+  "n_cases": 100,
+  "n_expected": 100,
+  "n_questions": 18706,
+  "partial": false,
+  "first_missing": null,
+  "escalate": "qwen",
+  "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "via": "DeepInfra",
+  "provider": "deepinfra",
+  "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+  "label": "simulated from recorded answers",
+  "threshold": 0.9,
+  "threshold_selection": {
+    "method": "fixed",
+    "threshold": 0.9,
+    "tuned_on": null,
+    "note": "t=0.90 was not tuned. Persius rows are the frozen 400 test, Hard rows are the frozen 100, and the 370 prior-auth rows are the shared held-out set this bench reports. No DeepInfra answers exist on a separate dev or practice split. The dial file holds the curve from 0.50 to 1.00. post_hoc_on_reported_rows is the cheapest point within 1 point of the escalation model on these same rows. It is not the operating point."
+  },
+  "formulas": {
+    "rule": "Drex keeps every question with recorded confidence >= 0.90. The rest take this model's recorded answer to the same question.",
+    "cases": "Only cases in the longest prefix of the frozen order where both Drex and this model have a non-error recorded answer. partial is true when that prefix is shorter than the frozen set.",
+    "cost_per_1000_usd": "cost per 1,000 cases = mean(Drex recorded cost_usd + routed DeepInfra cost) * 1000. Routed cost is 0 when no question is sent. Otherwise it is the recorded packed call, scaled as (list input dollars + list output dollars * routed/asked) * (recorded cost_usd / list-price of that call) when cost_basis is provider_estimated_cost and both the recorded cost and the list price are positive. List rates are DeepInfra's published cents_per_token figures from _deepinfra_list. If the provider did not send estimated_cost, the scale is 1 and the list rate is used. If no list rate is known, the recorded cost_usd is scaled by routed/asked. The escalation model alone uses mean(recorded cost_usd) * 1000 and no Drex cost. Drex alone uses mean(recorded Drex cost_usd) * 1000 and no DeepInfra cost. On prior auth, a case with any routed question takes the escalation model's recorded decision and the other case-level parts; Drex keeps those when nothing is routed.",
+    "latency_p50_ms": "p50 latency is the median over paired cases of [Drex recorded latency_ms + DeepInfra recorded latency_ms * routed/asked when any question is routed]. Drex alone is the median Drex latency. The escalation model alone is the median of its recorded latency."
+  },
+  "thresholds": [
+    0.5,
+    0.51,
+    0.52,
+    0.53,
+    0.54,
+    0.55,
+    0.56,
+    0.57,
+    0.58,
+    0.59,
+    0.6,
+    0.61,
+    0.62,
+    0.63,
+    0.64,
+    0.65,
+    0.66,
+    0.67,
+    0.68,
+    0.69,
+    0.7,
+    0.71,
+    0.72,
+    0.73,
+    0.74,
+    0.75,
+    0.76,
+    0.77,
+    0.78,
+    0.79,
+    0.8,
+    0.81,
+    0.82,
+    0.83,
+    0.84,
+    0.85,
+    0.86,
+    0.87,
+    0.88,
+    0.89,
+    0.9,
+    0.91,
+    0.92,
+    0.93,
+    0.94,
+    0.95,
+    0.96,
+    0.97,
+    0.98,
+    0.99,
+    1.0
+  ],
+  "curve": [
+    {
+      "threshold": 0.5,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8619800064495324,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8619800064495324,
+          "k": 2673,
+          "n": 3101,
+          "ci95": [
+            0.8493912094690808,
+            0.8736730524887597
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8597776114615632,
+          "k": 16083,
+          "n": 18706,
+          "ci95": [
+            0.8547278517425838,
+            0.8646796284361902
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 0,
+        "n": 18706,
+        "share": 0.0
+      },
+      "cases_routed": {
+        "k": 0,
+        "n": 100,
+        "share": 0.0
+      },
+      "cost_per_1000_usd": 0.5263941,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 0.0
+      },
+      "latency_p50_ms": 894.5794439932797,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.51,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8639148661722025,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8639148661722025,
+          "k": 2679,
+          "n": 3101,
+          "ci95": [
+            0.8513953655519041,
+            0.8755338278729713
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8590291884956699,
+          "k": 16069,
+          "n": 18706,
+          "ci95": [
+            0.8539684976421302,
+            0.86394244394489
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 84,
+        "n": 18706,
+        "share": 0.004490537795359777
+      },
+      "cases_routed": {
+        "k": 57,
+        "n": 100,
+        "share": 0.57
+      },
+      "cost_per_1000_usd": 1.6824407593935742,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 1.156046659393574
+      },
+      "latency_p50_ms": 1026.5978813611841,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.52,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8664946791357626,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8664946791357626,
+          "k": 2687,
+          "n": 3101,
+          "ci95": [
+            0.854068842454197,
+            0.8780135929267255
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8590826472789479,
+          "k": 16070,
+          "n": 18706,
+          "ci95": [
+            0.8540227356387227,
+            0.863995101561994
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 226,
+        "n": 18706,
+        "share": 0.012081685020848925
+      },
+      "cases_routed": {
+        "k": 84,
+        "n": 100,
+        "share": 0.84
+      },
+      "cost_per_1000_usd": 2.24464588874279,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 1.7182517887427897
+      },
+      "latency_p50_ms": 1231.6438500020395,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.53,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8674621089970977,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8674621089970977,
+          "k": 2690,
+          "n": 3101,
+          "ci95": [
+            0.8550717765704736,
+            0.8789431245439665
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8589222709291137,
+          "k": 16067,
+          "n": 18706,
+          "ci95": [
+            0.8538600223772518,
+            0.863837127982375
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 354,
+        "n": 18706,
+        "share": 0.018924409280444778
+      },
+      "cases_routed": {
+        "k": 97,
+        "n": 100,
+        "share": 0.97
+      },
+      "cost_per_1000_usd": 2.5232963179158547,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 1.9969022179158546
+      },
+      "latency_p50_ms": 1420.5578948869254,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.54,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8700419219606579,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8700419219606579,
+          "k": 2698,
+          "n": 3101,
+          "ci95": [
+            0.8577473015352414,
+            0.8814208415352459
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8586015182294451,
+          "k": 16061,
+          "n": 18706,
+          "ci95": [
+            0.8535346024007807,
+            0.8635211742766659
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 508,
+        "n": 18706,
+        "share": 0.027157061905271035
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.604501301254533,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.078107201254533
+      },
+      "latency_p50_ms": 1697.6754917327057,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.55,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.873589164785553,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.873589164785553,
+          "k": 2709,
+          "n": 3101,
+          "ci95": [
+            0.8614286613960898,
+            0.884825189363962
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8591895648455041,
+          "k": 16072,
+          "n": 18706,
+          "ci95": [
+            0.8541312123607924,
+            0.8641004160673179
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 625,
+        "n": 18706,
+        "share": 0.03341173954880787
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.62143733363992,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.0950432336399194
+      },
+      "latency_p50_ms": 1824.478108748172,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.56,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8764914543695582,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8764914543695582,
+          "k": 2718,
+          "n": 3101,
+          "ci95": [
+            0.8644429133466569,
+            0.8876083346139476
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8589757297123918,
+          "k": 16068,
+          "n": 18706,
+          "ci95": [
+            0.8539142598883449,
+            0.8638897860849786
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 773,
+        "n": 18706,
+        "share": 0.04132363947396557
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.6430990845110682,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.116704984511068
+      },
+      "latency_p50_ms": 2063.5492175973113,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.57,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8777813608513383,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8777813608513383,
+          "k": 2722,
+          "n": 3101,
+          "ci95": [
+            0.8657832423333068,
+            0.8888446266053213
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8581738479632204,
+          "k": 16053,
+          "n": 18706,
+          "ci95": [
+            0.8531007226402785,
+            0.8630998891275945
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 931,
+        "n": 18706,
+        "share": 0.0497701272319042
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.6659822491888754,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.1395881491888753
+      },
+      "latency_p50_ms": 2296.979079550446,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.58,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8806836504353435,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8806836504353435,
+          "k": 2731,
+          "n": 3101,
+          "ci95": [
+            0.8688005081334859,
+            0.891624758005695
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.857960012830108,
+          "k": 16049,
+          "n": 18706,
+          "ci95": [
+            0.8528837885470705,
+            0.8628892407660157
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1099,
+        "n": 18706,
+        "share": 0.058751202822623756
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.690379012095775,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.163984912095775
+      },
+      "latency_p50_ms": 2552.6066693614375,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.59,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8822960335375686,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8822960335375686,
+          "k": 2736,
+          "n": 3101,
+          "ci95": [
+            0.870477698738742,
+            0.8931683436229684
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8575858013471613,
+          "k": 16042,
+          "n": 18706,
+          "ci95": [
+            0.8525041631396639,
+            0.8625205968775453
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1230,
+        "n": 18706,
+        "share": 0.06575430343205389
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.709292495715404,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.182898395715404
+      },
+      "latency_p50_ms": 2767.1706616734705,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.6,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8822960335375686,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8822960335375686,
+          "k": 2736,
+          "n": 3101,
+          "ci95": [
+            0.870477698738742,
+            0.8931683436229684
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8575858013471613,
+          "k": 16042,
+          "n": 18706,
+          "ci95": [
+            0.8525041631396639,
+            0.8625205968775453
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1230,
+        "n": 18706,
+        "share": 0.06575430343205389
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.709292495715404,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.182898395715404
+      },
+      "latency_p50_ms": 2767.1706616734705,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.61,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8848758465011287,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8848758465011287,
+          "k": 2744,
+          "n": 3101,
+          "ci95": [
+            0.8731626243313464,
+            0.895636659986411
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8576392601304395,
+          "k": 16043,
+          "n": 18706,
+          "ci95": [
+            0.8525583946206283,
+            0.8625732610102776
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1384,
+        "n": 18706,
+        "share": 0.07398695605688015
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.731564606091921,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.2051705060919216
+      },
+      "latency_p50_ms": 3004.614814245746,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.62,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8858432763624637,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8858432763624637,
+          "k": 2747,
+          "n": 3101,
+          "ci95": [
+            0.8741699309159509,
+            0.8965618191353241
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8571046722976585,
+          "k": 16033,
+          "n": 18706,
+          "ci95": [
+            0.8520160905853927,
+            0.8620466089085462
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1523,
+        "n": 18706,
+        "share": 0.08141772693253502
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.751758097781268,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.2253639977812685
+      },
+      "latency_p50_ms": 3186.9598324044955,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.63,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8897129958078039,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8897129958078039,
+          "k": 2759,
+          "n": 3101,
+          "ci95": [
+            0.8782017352533976,
+            0.9002598777319476
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8568373783812681,
+          "k": 16028,
+          "n": 18706,
+          "ci95": [
+            0.8517449475268575,
+            0.861783273898598
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1686,
+        "n": 18706,
+        "share": 0.09013150860686411
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.7755507412223492,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.249156641222349
+      },
+      "latency_p50_ms": 3390.8070174865898,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.64,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.890680425669139,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.890680425669139,
+          "k": 2762,
+          "n": 3101,
+          "ci95": [
+            0.8792103455211131,
+            0.9011837331977497
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8560889554153748,
+          "k": 16014,
+          "n": 18706,
+          "ci95": [
+            0.8509857785948438,
+            0.8610459042388581
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1832,
+        "n": 18706,
+        "share": 0.09793649096546563
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.7967750144107644,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.2703809144107643
+      },
+      "latency_p50_ms": 3638.8649467570594,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.65,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8926152853918091,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8926152853918091,
+          "k": 2768,
+          "n": 3101,
+          "ci95": [
+            0.8812283785348444,
+            0.9030306316510538
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8553405324494815,
+          "k": 16000,
+          "n": 18706,
+          "ci95": [
+            0.8502266560408184,
+            0.8603084882011297
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1980,
+        "n": 18706,
+        "share": 0.10584839089062333
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.8183241640229095,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.2919300640229094
+      },
+      "latency_p50_ms": 3826.420063977294,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.66,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8955175749758143,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8955175749758143,
+          "k": 2777,
+          "n": 3101,
+          "ci95": [
+            0.8842575078145178,
+            0.9057988995719333
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8543782743504758,
+          "k": 15982,
+          "n": 18706,
+          "ci95": [
+            0.8492507089951287,
+            0.8593603142002788
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 2156,
+        "n": 18706,
+        "share": 0.11525713674756763
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.843926870731443,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.317532770731443
+      },
+      "latency_p50_ms": 4148.616152606006,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.67,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8964850048371493,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8964850048371493,
+          "k": 2780,
+          "n": 3101,
+          "ci95": [
+            0.8852677856426877,
+            0.906721087477281
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8535229338180264,
+          "k": 15966,
+          "n": 18706,
+          "ci95": [
+            0.8483832639504726,
+            0.8585174294257879
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 2310,
+        "n": 18706,
+        "share": 0.12348978937239388
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.866356845522024,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.3399627455220235
+      },
+      "latency_p50_ms": 4393.978998090595,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.68,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8984198645598194,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8984198645598194,
+          "k": 2786,
+          "n": 3101,
+          "ci95": [
+            0.8872892145358924,
+            0.9085645900511112
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8524537581524645,
+          "k": 15946,
+          "n": 18706,
+          "ci95": [
+            0.8472990409252752,
+            0.8574637401770513
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 2446,
+        "n": 18706,
+        "share": 0.13076018389821448
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.8860989452008745,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.3597048452008744
+      },
+      "latency_p50_ms": 4623.884532828048,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.69,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8987423411802644,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8987423411802644,
+          "k": 2787,
+          "n": 3101,
+          "ci95": [
+            0.8876262341270799,
+            0.9088717257044298
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8517587939698492,
+          "k": 15933,
+          "n": 18706,
+          "ci95": [
+            0.8465943452157015,
+            0.8567787929085676
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 2572,
+        "n": 18706,
+        "share": 0.13749599059125414
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.904415506911688,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.378021406911688
+      },
+      "latency_p50_ms": 4812.154389350854,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.7,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8984198645598194,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8984198645598194,
+          "k": 2786,
+          "n": 3101,
+          "ci95": [
+            0.8872892145358924,
+            0.9085645900511112
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8511707473537903,
+          "k": 15922,
+          "n": 18706,
+          "ci95": [
+            0.8459980943438095,
+            0.8561991920297962
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 2711,
+        "n": 18706,
+        "share": 0.14492676146690903
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.9246769573098907,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.398282857309891
+      },
+      "latency_p50_ms": 5051.656316112053,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.71,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9016446307642696,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9016446307642696,
+          "k": 2796,
+          "n": 3101,
+          "ci95": [
+            0.8906609198319776,
+            0.911634437200085
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8503154068213408,
+          "k": 15906,
+          "n": 18706,
+          "ci95": [
+            0.8451308693326567,
+            0.8553560872218018
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 2837,
+        "n": 18706,
+        "share": 0.1516625681599487
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.9429613749911634,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.4165672749911637
+      },
+      "latency_p50_ms": 5372.717522303945,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.72,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9039019671073847,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9039019671073847,
+          "k": 2803,
+          "n": 3101,
+          "ci95": [
+            0.8930231559211629,
+            0.9137812878224406
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8499946541216722,
+          "k": 15900,
+          "n": 18706,
+          "ci95": [
+            0.8448056748481245,
+            0.8550399080241537
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 2978,
+        "n": 18706,
+        "share": 0.15920025660215972
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.963454679788567,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.4370605797885676
+      },
+      "latency_p50_ms": 5454.240552341074,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.73,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9051918735891648,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9051918735891648,
+          "k": 2807,
+          "n": 3101,
+          "ci95": [
+            0.8943737838509478,
+            0.9150072808706793
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8495135250721694,
+          "k": 15891,
+          "n": 18706,
+          "ci95": [
+            0.8443178982852154,
+            0.8545656240637926
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 3100,
+        "n": 18706,
+        "share": 0.16572222816208704
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.9812318344819446,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.454837734481944
+      },
+      "latency_p50_ms": 5729.947467172444,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.74,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9058368268300548,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9058368268300548,
+          "k": 2809,
+          "n": 3101,
+          "ci95": [
+            0.8950493143685718,
+            0.915620060842067
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.847589008874158,
+          "k": 15855,
+          "n": 18706,
+          "ci95": [
+            0.8423669726527009,
+            0.8526683076032259
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 3377,
+        "n": 18706,
+        "share": 0.18053031113011866
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.021291211199759,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.4948971111997587
+      },
+      "latency_p50_ms": 6132.9622232288875,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.75,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9061593034504999,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9061593034504999,
+          "k": 2810,
+          "n": 3101,
+          "ci95": [
+            0.8953871343434692,
+            0.9159263961116757
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8461456217256496,
+          "k": 15828,
+          "n": 18706,
+          "ci95": [
+            0.8409039661147298,
+            0.8512451325713862
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 3505,
+        "n": 18706,
+        "share": 0.18737303538971453
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.039898445040828,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.5135043450408276
+      },
+      "latency_p50_ms": 6332.072393644361,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.76,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.908416639793615,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.908416639793615,
+          "k": 2817,
+          "n": 3101,
+          "ci95": [
+            0.8977529114085114,
+            0.9180697057581744
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.845824869025981,
+          "k": 15822,
+          "n": 18706,
+          "ci95": [
+            0.8405788751824845,
+            0.8509288498214513
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 3631,
+        "n": 18706,
+        "share": 0.1941088420827542
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.058189082777084,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.5317949827770843
+      },
+      "latency_p50_ms": 6580.244718695341,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.77,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.90938406965495,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.90938406965495,
+          "k": 2820,
+          "n": 3101,
+          "ci95": [
+            0.8987673811478021,
+            0.9189877017524013
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8450229872768096,
+          "k": 15807,
+          "n": 18706,
+          "ci95": [
+            0.8397661820320028,
+            0.8501381087664825
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 3761,
+        "n": 18706,
+        "share": 0.20105848390890624
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.076958912009728,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.550564812009728
+      },
+      "latency_p50_ms": 6821.757945543755,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.78,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.908416639793615,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.908416639793615,
+          "k": 2817,
+          "n": 3101,
+          "ci95": [
+            0.8977529114085114,
+            0.9180697057581744
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8444349406607505,
+          "k": 15796,
+          "n": 18706,
+          "ci95": [
+            0.8391702379485186,
+            0.849558201099303
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 3890,
+        "n": 18706,
+        "share": 0.20795466695178016
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.095861531822874,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.569467431822874
+      },
+      "latency_p50_ms": 7037.522003090087,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.79,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.909706546275395,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.909706546275395,
+          "k": 2821,
+          "n": 3101,
+          "ci95": [
+            0.8991056144146302,
+            0.9192936237300792
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8436865176948573,
+          "k": 15782,
+          "n": 18706,
+          "ci95": [
+            0.838411801255388,
+            0.8488200992006799
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 4117,
+        "n": 18706,
+        "share": 0.2200898107559072
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.128920382698783,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.6025262826987827
+      },
+      "latency_p50_ms": 7392.007984656599,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.8,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9113189293776202,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9113189293776202,
+          "k": 2826,
+          "n": 3101,
+          "ci95": [
+            0.9007973642638737,
+            0.9208226501033651
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8425104244627393,
+          "k": 15760,
+          "n": 18706,
+          "ci95": [
+            0.8372200566823356,
+            0.8476601402724051
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 4230,
+        "n": 18706,
+        "share": 0.22613065326633167
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.145306957968937,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.618912857968937
+      },
+      "latency_p50_ms": 7556.756874244587,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.81,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9116414059980651,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9116414059980651,
+          "k": 2827,
+          "n": 3101,
+          "ci95": [
+            0.9011358322665636,
+            0.9211283373451807
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.841173954880787,
+          "k": 15735,
+          "n": 18706,
+          "ci95": [
+            0.835865925818646,
+            0.8463418807936771
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 4441,
+        "n": 18706,
+        "share": 0.23741045653800918
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.1759555729184408,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.6495614729184407
+      },
+      "latency_p50_ms": 7950.348854742267,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.82,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9116414059980651,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9116414059980651,
+          "k": 2827,
+          "n": 3101,
+          "ci95": [
+            0.9011358322665636,
+            0.9211283373451807
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8399978616486689,
+          "k": 15713,
+          "n": 18706,
+          "ci95": [
+            0.8346743990406613,
+            0.8451817040703344
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 4548,
+        "n": 18706,
+        "share": 0.2431305463487651
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.191482413455383,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.665088313455383
+      },
+      "latency_p50_ms": 8071.618599537012,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.83,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9116414059980651,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9116414059980651,
+          "k": 2827,
+          "n": 3101,
+          "ci95": [
+            0.9011358322665636,
+            0.9211283373451807
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8381268042339356,
+          "k": 15678,
+          "n": 18706,
+          "ci95": [
+            0.8327789950569857,
+            0.8433357615746255
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 4733,
+        "n": 18706,
+        "share": 0.25302042125521224
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.21828560103007,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.69189150103007
+      },
+      "latency_p50_ms": 8354.414906887367,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.84,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9106739761367301,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9106739761367301,
+          "k": 2824,
+          "n": 3101,
+          "ci95": [
+            0.9001205468663245,
+            0.9202111570119023
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8370041697850957,
+          "k": 15657,
+          "n": 18706,
+          "ci95": [
+            0.8316418733002304,
+            0.8422280754437503
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 4856,
+        "n": 18706,
+        "share": 0.25959585159841764
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.236137773534318,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.709743673534318
+      },
+      "latency_p50_ms": 8589.836650742442,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.85,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9119638826185101,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9119638826185101,
+          "k": 2828,
+          "n": 3101,
+          "ci95": [
+            0.9014743400647685,
+            0.9214339847914819
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8355607826365872,
+          "k": 15630,
+          "n": 18706,
+          "ci95": [
+            0.8301799910992514,
+            0.8408037760749184
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 5031,
+        "n": 18706,
+        "share": 0.2689511386720838
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.2615422781006913,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.7351481781006917
+      },
+      "latency_p50_ms": 8952.171334925795,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.86,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9116414059980651,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9116414059980651,
+          "k": 2827,
+          "n": 3101,
+          "ci95": [
+            0.9011358322665636,
+            0.9211283373451807
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8334224313054635,
+          "k": 15590,
+          "n": 18706,
+          "ci95": [
+            0.8280145084765229,
+            0.8386934341497791
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 5206,
+        "n": 18706,
+        "share": 0.27830642574575004
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.2868541852562223,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.760460085256222
+      },
+      "latency_p50_ms": 9156.324188705108,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.87,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9148661722025153,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9148661722025153,
+          "k": 2837,
+          "n": 3101,
+          "ci95": [
+            0.9045227341309581,
+            0.9241829879258452
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8314979151074522,
+          "k": 15554,
+          "n": 18706,
+          "ci95": [
+            0.8260658448892289,
+            0.8367938556439922
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 5369,
+        "n": 18706,
+        "share": 0.2870202074200791
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.3105667020660485,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.7841726020660484
+      },
+      "latency_p50_ms": 9542.665345618407,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.88,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9161560786842954,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9161560786842954,
+          "k": 2841,
+          "n": 3101,
+          "ci95": [
+            0.9058786549183931,
+            0.9254036881164335
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8296268576927189,
+          "k": 15519,
+          "n": 18706,
+          "ci95": [
+            0.8241715533229775,
+            0.834946800730859
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 5537,
+        "n": 18706,
+        "share": 0.2960012830107987
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.334881838220407,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.8084877382204074
+      },
+      "latency_p50_ms": 9766.810722842165,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.89,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9155111254434054,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9155111254434054,
+          "k": 2839,
+          "n": 3101,
+          "ci95": [
+            0.9052006099615835,
+            0.9247934225842316
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.827328130011761,
+          "k": 15476,
+          "n": 18706,
+          "ci95": [
+            0.8218446034521062,
+            0.8326772392127725
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 5678,
+        "n": 18706,
+        "share": 0.30353897145300973
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.35536209728605,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.8289679972860498
+      },
+      "latency_p50_ms": 9924.425490662717,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.9,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9161560786842954,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9161560786842954,
+          "k": 2841,
+          "n": 3101,
+          "ci95": [
+            0.9058786549183931,
+            0.9254036881164335
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8249224847642468,
+          "k": 15431,
+          "n": 18706,
+          "ci95": [
+            0.8194097985344417,
+            0.8303017415140854
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 5831,
+        "n": 18706,
+        "share": 0.31171816529455787
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.3776462096229896,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.85125210962299
+      },
+      "latency_p50_ms": 10095.34727960416,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.91,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9168010319251855,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9168010319251855,
+          "k": 2843,
+          "n": 3101,
+          "ci95": [
+            0.9065568707688736,
+            0.926013782754965
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8225702983000107,
+          "k": 15387,
+          "n": 18706,
+          "ci95": [
+            0.8170294655093824,
+            0.8279786675364902
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 6027,
+        "n": 18706,
+        "share": 0.322196086817064
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.4060676556306335,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.8796735556306334
+      },
+      "latency_p50_ms": 10429.462535256444,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.92,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9171235085456304,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9171235085456304,
+          "k": 2844,
+          "n": 3101,
+          "ci95": [
+            0.9068960433408012,
+            0.926318765427543
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8192023949534909,
+          "k": 15324,
+          "n": 18706,
+          "ci95": [
+            0.813621878660116,
+            0.8246518307228646
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 6230,
+        "n": 18706,
+        "share": 0.33304821982251687
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.435506844612965,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.909112744612965
+      },
+      "latency_p50_ms": 10696.240735609294,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.93,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9174459851660755,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9174459851660755,
+          "k": 2845,
+          "n": 3101,
+          "ci95": [
+            0.9072352593143266,
+            0.9266237046985236
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8167967497059767,
+          "k": 15279,
+          "n": 18706,
+          "ci95": [
+            0.8111883252506625,
+            0.8222750815159666
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 6432,
+        "n": 18706,
+        "share": 0.34384689404469154
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.4650068143600943,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.938612714360094
+      },
+      "latency_p50_ms": 11011.516645968954,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.94,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9164785553047404,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9164785553047404,
+          "k": 2842,
+          "n": 3101,
+          "ci95": [
+            0.9062177413701463,
+            0.9257087569091863
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8142841868919063,
+          "k": 15232,
+          "n": 18706,
+          "ci95": [
+            0.8086469960550113,
+            0.8197923168678729
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 6658,
+        "n": 18706,
+        "share": 0.3559285790655405
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.497820809383815,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 2.9714267093838154
+      },
+      "latency_p50_ms": 11348.684225084835,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.95,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9168010319251855,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9168010319251855,
+          "k": 2843,
+          "n": 3101,
+          "ci95": [
+            0.9065568707688736,
+            0.926013782754965
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8099540254463808,
+          "k": 15151,
+          "n": 18706,
+          "ci95": [
+            0.8042681572786414,
+            0.8155126109348105
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 6979,
+        "n": 18706,
+        "share": 0.3730888484978082
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.544378770704271,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 3.017984670704271
+      },
+      "latency_p50_ms": 11825.558704069757,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.96,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9161560786842954,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9161560786842954,
+          "k": 2841,
+          "n": 3101,
+          "ci95": [
+            0.9058786549183931,
+            0.9254036881164335
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8050358173847963,
+          "k": 15059,
+          "n": 18706,
+          "ci95": [
+            0.7992960084855787,
+            0.8106503632677771
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 7308,
+        "n": 18706,
+        "share": 0.39067678819630064
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.592254989869668,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 3.065860889869668
+      },
+      "latency_p50_ms": 12305.097024526185,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.97,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9164785553047404,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9164785553047404,
+          "k": 2842,
+          "n": 3101,
+          "ci95": [
+            0.9062177413701463,
+            0.9257087569091863
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.7987811397412595,
+          "k": 14942,
+          "n": 18706,
+          "ci95": [
+            0.7929747397187473,
+            0.8044648452320949
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 7816,
+        "n": 18706,
+        "share": 0.4178338501015717
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.666005477244446,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 3.139611377244446
+      },
+      "latency_p50_ms": 13200.32827412624,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.98,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9158336020638503,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9158336020638503,
+          "k": 2840,
+          "n": 3101,
+          "ci95": [
+            0.9055396111895294,
+            0.9250985766007914
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.7902811932000428,
+          "k": 14783,
+          "n": 18706,
+          "ci95": [
+            0.7843877688976215,
+            0.7960554134754456
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 8583,
+        "n": 18706,
+        "share": 0.4588367368758687
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.777223137503297,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 3.2508290375032973
+      },
+      "latency_p50_ms": 14405.293763787453,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 0.99,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9138987423411803,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9138987423411803,
+          "k": 2834,
+          "n": 3101,
+          "ci95": [
+            0.9035062337110681,
+            0.9232670226122176
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.7724794183684379,
+          "k": 14450,
+          "n": 18706,
+          "ci95": [
+            0.7664159732562572,
+            0.7784309697558096
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 10350,
+        "n": 18706,
+        "share": 0.5532984069282583
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.03365551986847,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 3.507261419868469
+      },
+      "latency_p50_ms": 17105.987795826633,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    },
+    {
+      "threshold": 1.0,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9119638826185101,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9119638826185101,
+          "k": 2828,
+          "n": 3101,
+          "ci95": [
+            0.9014743400647685,
+            0.9214339847914819
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.7239923019352079,
+          "k": 13543,
+          "n": 18706,
+          "ci95": [
+            0.7175407111883271,
+            0.7303519102008352
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 18706,
+        "n": 18706,
+        "share": 1.0
+      },
+      "cases_routed": {
+        "k": 100,
+        "n": 100,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.2479991,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.5263941,
+        "deepinfra": 4.721605
+      },
+      "latency_p50_ms": 30113.863598031458,
+      "n_cases": 100,
+      "escalate": "qwen",
+      "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": false
+    }
+  ],
+  "qwen_only": {
+    "threshold": null,
+    "router": null,
+    "label": "recorded",
+    "value": 0.9119638826185101,
+    "metrics": {
+      "line_verdict": {
+        "value": 0.9119638826185101,
+        "k": 2828,
+        "n": 3101,
+        "ci95": [
+          0.9014743400647685,
+          0.9214339847914819
+        ],
+        "ci_method": "wilson",
+        "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+        "partial": false,
+        "simulated": false
+      },
+      "question_accuracy": {
+        "value": 0.7239923019352079,
+        "k": 13543,
+        "n": 18706,
+        "ci95": [
+          0.7175407111883271,
+          0.7303519102008352
+        ],
+        "ci_method": "wilson",
+        "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+        "partial": false,
+        "simulated": false
+      }
+    },
+    "questions_routed": {
+      "k": 18706,
+      "n": 18706,
+      "share": 1.0
+    },
+    "cases_routed": {
+      "k": 100,
+      "n": 100,
+      "share": 1.0
+    },
+    "cost_per_1000_usd": 4.721605,
+    "cost_parts_per_1000_usd": {
+      "drex": 0.0,
+      "deepinfra": 4.721605
+    },
+    "latency_p50_ms": 29193.040757993003,
+    "n_cases": 100,
+    "escalate_model": "deepseek-ai/DeepSeek-V4.1-Flash",
+    "via": "DeepInfra",
+    "provider": "deepinfra",
+    "chart": "line_verdict"
+  },
+  "drex_only": {
+    "threshold": null,
+    "router": null,
+    "label": "recorded",
+    "value": 0.8619800064495324,
+    "metrics": {
+      "line_verdict": {
+        "value": 0.8619800064495324,
+        "k": 2673,
+        "n": 3101,
+        "ci95": [
+          0.8493912094690808,
+          0.8736730524887597
+        ],
+        "ci_method": "wilson",
+        "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+        "partial": false,
+        "simulated": false
+      },
+      "question_accuracy": {
+        "value": 0.8597776114615632,
+        "k": 16083,
+        "n": 18706,
+        "ci95": [
+          0.8547278517425838,
+          0.8646796284361902
+        ],
+        "ci_method": "wilson",
+        "source_run": "data/runs/di_hard_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+        "partial": false,
+        "simulated": false
+      }
+    },
+    "questions_routed": {
+      "k": 0,
+      "n": 18706,
+      "share": 0.0
+    },
+    "cases_routed": {
+      "k": 0,
+      "n": 100,
+      "share": 0.0
+    },
+    "cost_per_1000_usd": 0.5263941,
+    "cost_parts_per_1000_usd": {
+      "drex": 0.5263941,
+      "deepinfra": 0.0
+    },
+    "latency_p50_ms": 894.5794439932797,
+    "n_cases": 100,
+    "escalate_model": null,
+    "via": null,
+    "provider": "nace",
+    "chart": "line_verdict"
+  },
+  "match_qwen_within_1pt": {
+    "threshold": 0.9,
+    "router": "global",
+    "value": 0.9161560786842954,
+    "cost_per_1000_usd": 3.3776462096229896,
+    "questions_routed_share": 0.31171816529455787,
+    "post_hoc": "Operating point t=0.90. Not tuned: no DeepInfra answers on a dev or practice split. The star is this fixed point, not a search over the reported rows.",
+    "label": "simulated from recorded answers"
+  },
+  "post_hoc_on_reported_rows": {
+    "threshold": 0.72,
+    "router": "global",
+    "value": 0.9039019671073847,
+    "gpt_value": 0.9119638826185101,
+    "cost_per_1000_usd": 2.963454679788567,
+    "gpt_cost_per_1000_usd": 4.721605,
+    "questions_routed_share": 0.15920025660215972,
+    "post_hoc": "Threshold picked on the same recorded set it is scored on. Not a held-out choice.",
+    "rule": "lowest simulated cost among points whose chart metric is within 1 point of this model alone. Reported only as a post-hoc description of these rows.",
+    "label": "simulated from recorded answers",
+    "note": "Scored on the same rows. Not used as the operating point."
+  },
+  "computed_at": "2026-11-14T20:21:41Z",
+  "generator": "billproof.dial.qcombo"
+}

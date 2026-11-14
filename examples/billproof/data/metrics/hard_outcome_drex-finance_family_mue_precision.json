@@ -1,0 +1,15 @@
+{
+  "value": 0.996031746031746,
+  "n": 252,
+  "source_run": "hard_test_drex-finance",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:08:30Z",
+  "k": 251,
+  "fp": 1,
+  "fn": 649,
+  "ci_low": 0.9778679421784356,
+  "ci_high": 0.9992991799783989,
+  "ci_method": "wilson",
+  "added_after_first_results": true,
+  "note": "Added after the first results because all-or-nothing over about 187 questions saturates at 0 for every lane. One deterministic OK-versus-dispute rule, no tuned threshold. Scored from recorded answers on the frozen 100. No new model call."
+}

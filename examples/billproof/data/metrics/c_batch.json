@@ -1,0 +1,483 @@
+{
+  "status": "complete",
+  "n": 128,
+  "spend_usd": {
+    "gpt": 0.0721575,
+    "drex": 0.00234462,
+    "total": 0.07450212,
+    "gpt_requests": 2
+  },
+  "design": "Fact questions only, from validation initial_packet cases outside S. The other cases are shuffled with random.Random(3) and taken in that order until 128 fact questions, then frozen before any call. Names are {row_id}::fact::{fact}. A call's state is {packets: [{case_id, state: case.state()}]} for exactly the cases named by that call's questions. Every batch question, including the one-case call, uses the same pre-registered prefix that names the case_id, then the standard fact instructions, so question count is the factor that changes. Drex is called three times: the first other case's fact questions, the first 32 frozen questions, and the first 128. GPT is called twice: the first 8 and the first 16 of that same list. GPT is not sent the one-case, 32-question, or 128-question cells. Invalid means a call error, a missing choice, a choice outside the options, or the frontier adapter's raw error for an invalid or missing choice. Invalid rows stay in the accuracy denominator and count as incorrect.",
+  "caveats": [
+    "Validation initial_packet only. The development 370-case panel and the development parquet were not read.",
+    "Option order was not shuffled. That cell was skipped so the GPT request count stays at or under 24.",
+    "These n are a pilot. A Wilson interval at this size is wide, including when the point estimate is 0 or 1.",
+    "Criteria-gym records often say explicitly whether a clause is satisfied, so a small or empty gap is a real result.",
+    "The injected note and the paraphrase were fixed before any model call and were not rewritten after the results.",
+    "GPT latency_ms includes shared rate-limit wait (FRONTIER_RPM stays at the default). service_latency_ms subtracts that wait.",
+    "Frontier case_id is sent beside state by the existing adapter. Drex's request has no case_id field. The state and the questions are the shared input.",
+    "Costs use the adapter's billed figures (configured router rates and Drex input-token price).",
+    "GPT cells at one_case, q32, and q128 were not run. The missing 128-question GPT cell is by design.",
+    "Invalid rows are counted in the accuracy denominator. invalid_rate is the share that a drop rule would have removed.",
+    "The batch state is a packet list, including the one-case call, so it is not the same prompt as the inject arm.",
+    "Paired GPT numbers at 8 and 16 reuse Drex answers from the larger packed call when that call contains the same question names."
+  ],
+  "simulated": false,
+  "computed_at": "2026-11-14T09:15:17Z",
+  "lanes": {
+    "gpt": {
+      "q8": {
+        "present": true,
+        "n_questions": 8,
+        "model": "gpt-6.1-sol",
+        "accuracy": {
+          "value": 1.0,
+          "n": 8,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 8,
+          "ci_low": 0.6755843804891231,
+          "ci_high": 1.0
+        },
+        "invalid_rate": {
+          "value": 0.0,
+          "n": 8,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.32441561951087694
+        },
+        "latency_ms": {
+          "value": 8165.2322330046445,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "service_latency_ms": {
+          "value": 7662.302367039956,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_usd": {
+          "value": 0.0259025,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_per_1000_questions_usd": {
+          "value": 3.2378125,
+          "n": 8,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        }
+      },
+      "q16": {
+        "present": true,
+        "n_questions": 16,
+        "model": "gpt-6.1-sol",
+        "accuracy": {
+          "value": 1.0,
+          "n": 16,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 16,
+          "ci_low": 0.8063865817272802,
+          "ci_high": 1.0
+        },
+        "invalid_rate": {
+          "value": 0.0,
+          "n": 16,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.19361341827271994
+        },
+        "latency_ms": {
+          "value": 15238.62686404027,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "service_latency_ms": {
+          "value": 12627.286936040036,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_usd": {
+          "value": 0.046255,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_per_1000_questions_usd": {
+          "value": 2.8909374999999997,
+          "n": 16,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        }
+      }
+    },
+    "drex": {
+      "one_case": {
+        "present": true,
+        "n_questions": 7,
+        "model": "drex-max-v1.1",
+        "accuracy": {
+          "value": 1.0,
+          "n": 7,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 7,
+          "ci_low": 0.6456611570247934,
+          "ci_high": 1.0
+        },
+        "invalid_rate": {
+          "value": 0.0,
+          "n": 7,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.35433884297520657
+        },
+        "latency_ms": {
+          "value": 438.6726299999282,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "service_latency_ms": {
+          "value": 438.6726299999282,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_usd": {
+          "value": 9.429e-05,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_per_1000_questions_usd": {
+          "value": 0.01347,
+          "n": 7,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        }
+      },
+      "q32": {
+        "present": true,
+        "n_questions": 32,
+        "model": "drex-max-v1.1",
+        "accuracy": {
+          "value": 1.0,
+          "n": 32,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 32,
+          "ci_low": 0.8928172849426366,
+          "ci_high": 1.0
+        },
+        "invalid_rate": {
+          "value": 0.0,
+          "n": 32,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.1071827150573635
+        },
+        "latency_ms": {
+          "value": 764.5294459653087,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "service_latency_ms": {
+          "value": 764.5294459653087,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_usd": {
+          "value": 0.00045975,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_per_1000_questions_usd": {
+          "value": 0.0143671875,
+          "n": 32,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        }
+      },
+      "q128": {
+        "present": true,
+        "n_questions": 128,
+        "model": "drex-max-v1.1",
+        "accuracy": {
+          "value": 1.0,
+          "n": 128,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 128,
+          "ci_low": 0.9708620041018919,
+          "ci_high": 0.9999999999999999
+        },
+        "invalid_rate": {
+          "value": 0.0,
+          "n": 128,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z",
+          "k": 0,
+          "ci_low": 0.0,
+          "ci_high": 0.029137995898108032
+        },
+        "latency_ms": {
+          "value": 2724.5262489886954,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "service_latency_ms": {
+          "value": 2724.5262489886954,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_usd": {
+          "value": 0.00179058,
+          "n": 1,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        },
+        "cost_per_1000_questions_usd": {
+          "value": 0.013988906249999999,
+          "n": 128,
+          "source_run": "c_batch",
+          "simulated": false,
+          "computed_at": "2026-11-14T09:15:17Z"
+        }
+      }
+    }
+  },
+  "paired": {
+    "q8": {
+      "n_questions": 8,
+      "gpt_accuracy": {
+        "value": 1.0,
+        "n": 8,
+        "source_run": "c_batch",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:17Z",
+        "k": 8,
+        "ci_low": 0.6755843804891231,
+        "ci_high": 1.0
+      },
+      "drex_accuracy": {
+        "value": 1.0,
+        "n": 8,
+        "source_run": "c_batch",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:17Z",
+        "k": 8,
+        "ci_low": 0.6755843804891231,
+        "ci_high": 1.0
+      },
+      "gpt_invalid_rate": {
+        "value": 0.0,
+        "n": 8,
+        "source_run": "c_batch",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:17Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.32441561951087694
+      },
+      "drex_invalid_rate": {
+        "value": 0.0,
+        "n": 8,
+        "source_run": "c_batch",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:17Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.32441561951087694
+      },
+      "drex_source_call": "q128",
+      "gap_accuracy": {
+        "endpoint": "batch_q8_accuracy",
+        "appeared": false,
+        "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+        "gpt_minus_drex": 0.0,
+        "gpt": {
+          "value": 1.0,
+          "n": 8,
+          "ci": [
+            0.6755843804891231,
+            1.0
+          ]
+        },
+        "drex": {
+          "value": 1.0,
+          "n": 8,
+          "ci": [
+            0.6755843804891231,
+            1.0
+          ]
+        }
+      }
+    },
+    "q16": {
+      "n_questions": 16,
+      "gpt_accuracy": {
+        "value": 1.0,
+        "n": 16,
+        "source_run": "c_batch",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:17Z",
+        "k": 16,
+        "ci_low": 0.8063865817272802,
+        "ci_high": 1.0
+      },
+      "drex_accuracy": {
+        "value": 1.0,
+        "n": 16,
+        "source_run": "c_batch",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:17Z",
+        "k": 16,
+        "ci_low": 0.8063865817272802,
+        "ci_high": 1.0
+      },
+      "gpt_invalid_rate": {
+        "value": 0.0,
+        "n": 16,
+        "source_run": "c_batch",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:17Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.19361341827271994
+      },
+      "drex_invalid_rate": {
+        "value": 0.0,
+        "n": 16,
+        "source_run": "c_batch",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:17Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.19361341827271994
+      },
+      "drex_source_call": "q128",
+      "gap_accuracy": {
+        "endpoint": "batch_q16_accuracy",
+        "appeared": false,
+        "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+        "gpt_minus_drex": 0.0,
+        "gpt": {
+          "value": 1.0,
+          "n": 16,
+          "ci": [
+            0.8063865817272802,
+            1.0
+          ]
+        },
+        "drex": {
+          "value": 1.0,
+          "n": 16,
+          "ci": [
+            0.8063865817272802,
+            1.0
+          ]
+        }
+      }
+    }
+  },
+  "gpt_missing_cells": [
+    "one_case",
+    "q32",
+    "q128"
+  ],
+  "gap": {
+    "q8": {
+      "endpoint": "batch_q8_accuracy",
+      "appeared": false,
+      "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+      "gpt_minus_drex": 0.0,
+      "gpt": {
+        "value": 1.0,
+        "n": 8,
+        "ci": [
+          0.6755843804891231,
+          1.0
+        ]
+      },
+      "drex": {
+        "value": 1.0,
+        "n": 8,
+        "ci": [
+          0.6755843804891231,
+          1.0
+        ]
+      }
+    },
+    "q16": {
+      "endpoint": "batch_q16_accuracy",
+      "appeared": false,
+      "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+      "gpt_minus_drex": 0.0,
+      "gpt": {
+        "value": 1.0,
+        "n": 16,
+        "ci": [
+          0.8063865817272802,
+          1.0
+        ]
+      },
+      "drex": {
+        "value": 1.0,
+        "n": 16,
+        "ci": [
+          0.8063865817272802,
+          1.0
+        ]
+      }
+    }
+  }
+}

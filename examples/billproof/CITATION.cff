@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+title: BillProof
+message: If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - given-names: Aldridge
+    family-names: Fonseca
+  - given-names: Gitika
+    family-names: Rath
+year: 2026
+license: MIT
+references:
+  - type: dataset
+    title: criteria-gym policy_checklist
+    authors:
+      - name: Hammer Labs
+    notes: "Published Medicaid prior-authorization criteria with synthetic patient facts. The licence is not declared. This repository stores no URL for the dataset."
+  - type: dataset
+    title: Persius/imr-appeals
+    authors:
+      - name: Persius / TPAFS
+    url: https://huggingface.co/datasets/Persius/imr-appeals
+    license: CC-BY-SA-4.0
+    notes: "The 400-appeal benchmark described in docs/METHODS.md (200 overturn and 200 uphold). Separate from data/real/."
+  - type: dataset
+    title: Independent Medical Review (IMR) Determinations, Trend
+    authors:
+      - name: California Department of Managed Health Care
+    url: https://data.chhs.ca.gov/dataset/independent-medical-review-imr-determinations-trend
+    notes: "Open-data CSV used for data/real/. The CKAN record declares no licence field. Shipped counts differ from the Persius 400."
+  - type: dataset
+    title: CMS Medically Unlikely Edits, Medicaid NCCI procedure-to-procedure edits, and the Physician Fee Schedule
+    notes: "US government works, public domain."

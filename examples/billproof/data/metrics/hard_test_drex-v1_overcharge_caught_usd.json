@@ -1,0 +1,13 @@
+{
+  "value": 16457.18,
+  "n": 300,
+  "source_run": "hard_test_drex-v1",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "caught_cents": 1645718,
+  "gold_overcharge_cents": 2026976,
+  "priced_lines": 9306,
+  "catch_rate": 0.8119079850970116,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call."
+}

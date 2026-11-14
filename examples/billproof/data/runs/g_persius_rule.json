@@ -1,0 +1,871 @@
+{
+  "pilot": "g_persius_dev",
+  "split": "train",
+  "n": 300,
+  "selection": "max dev accuracy, then lower list cost per 1,000, then rule_id",
+  "selection_note": "Grid fixed in scripts/g_persius_combo.py before this file was written. Test rows were not read.",
+  "rule_id": "band_0.15_0.85",
+  "description": "Drex when p_yes<=0.15 or >=0.85, else GPT",
+  "dev": {
+    "n": 300,
+    "k": 226,
+    "accuracy": 0.7533333333333333,
+    "ci95": [
+      0.7015536959202178,
+      0.7987069662142627
+    ],
+    "ci_method": "wilson",
+    "mcnemar_vs_gpt": {
+      "b": 5.0,
+      "c": 0.0,
+      "p_value": 0.0625,
+      "stat": 3.2
+    },
+    "mcnemar_vs_drex": {
+      "b": 41.0,
+      "c": 26.0,
+      "p_value": 0.0871970644902114,
+      "stat": 2.925373134328358
+    },
+    "counts": {
+      "tp": 92,
+      "fp": 16,
+      "tn": 134,
+      "fn": 58
+    },
+    "sensitivity": 0.6133333333333333,
+    "specificity": 0.8933333333333333,
+    "cost_per_1000_usd_list": 1.2199062333333333,
+    "latency_p50_ms": 8031.929791497532,
+    "gpt_call_rate": 0.7233333333333334,
+    "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+  },
+  "baselines": {
+    "drex": {
+      "n": 300,
+      "k": 211,
+      "accuracy": 0.7033333333333334,
+      "ci95": [
+        0.649335553589633,
+        0.7521894515446212
+      ],
+      "ci_method": "wilson",
+      "cost_per_1000_usd_list": 0.008372899999999999,
+      "latency_p50_ms": 321.30334101384506
+    },
+    "frontier": {
+      "n": 300,
+      "k": 221,
+      "accuracy": 0.7366666666666667,
+      "ci95": [
+        0.6840594845533765,
+        0.7832892919143619
+      ],
+      "ci_method": "wilson",
+      "cost_per_1000_usd_list": 1.6131866666666668,
+      "latency_p50_ms": 12206.92438451806
+    }
+  },
+  "grid": [
+    {
+      "rule_id": "band_0.15_0.85",
+      "description": "Drex when p_yes<=0.15 or >=0.85, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 226,
+        "accuracy": 0.7533333333333333,
+        "ci95": [
+          0.7015536959202178,
+          0.7987069662142627
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 5.0,
+          "c": 0.0,
+          "p_value": 0.0625,
+          "stat": 3.2
+        },
+        "mcnemar_vs_drex": {
+          "b": 41.0,
+          "c": 26.0,
+          "p_value": 0.0871970644902114,
+          "stat": 2.925373134328358
+        },
+        "counts": {
+          "tp": 92,
+          "fp": 16,
+          "tn": 134,
+          "fn": 58
+        },
+        "sensitivity": 0.6133333333333333,
+        "specificity": 0.8933333333333333,
+        "cost_per_1000_usd_list": 1.2199062333333333,
+        "latency_p50_ms": 8031.929791497532,
+        "gpt_call_rate": 0.7233333333333334,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "drex_conf_0.85",
+      "description": "use Drex when Drex confidence>=0.85, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 226,
+        "accuracy": 0.7533333333333333,
+        "ci95": [
+          0.7015536959202178,
+          0.7987069662142627
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 5.0,
+          "c": 0.0,
+          "p_value": 0.0625,
+          "stat": 3.2
+        },
+        "mcnemar_vs_drex": {
+          "b": 41.0,
+          "c": 26.0,
+          "p_value": 0.0871970644902114,
+          "stat": 2.925373134328358
+        },
+        "counts": {
+          "tp": 92,
+          "fp": 16,
+          "tn": 134,
+          "fn": 58
+        },
+        "sensitivity": 0.6133333333333333,
+        "specificity": 0.8933333333333333,
+        "cost_per_1000_usd_list": 1.2199062333333333,
+        "latency_p50_ms": 8031.929791497532,
+        "gpt_call_rate": 0.7233333333333334,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "band_0.30_0.70",
+      "description": "Drex when p_yes<=0.3 or >=0.7, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 223,
+        "accuracy": 0.7433333333333333,
+        "ci95": [
+          0.6910460832802706,
+          0.7894674474541646
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 13.0,
+          "c": 11.0,
+          "p_value": 0.8388197422027588,
+          "stat": 0.041666666666666664
+        },
+        "mcnemar_vs_drex": {
+          "b": 30.0,
+          "c": 18.0,
+          "p_value": 0.11235119769046388,
+          "stat": 2.5208333333333335
+        },
+        "counts": {
+          "tp": 99,
+          "fp": 26,
+          "tn": 124,
+          "fn": 51
+        },
+        "sensitivity": 0.66,
+        "specificity": 0.8266666666666667,
+        "cost_per_1000_usd_list": 0.7506062333333333,
+        "latency_p50_ms": 418.3660305279773,
+        "gpt_call_rate": 0.44333333333333336,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "band_0.20_0.80",
+      "description": "Drex when p_yes<=0.2 or >=0.8, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 223,
+        "accuracy": 0.7433333333333333,
+        "ci95": [
+          0.6910460832802706,
+          0.7894674474541646
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 6.0,
+          "c": 4.0,
+          "p_value": 0.75390625,
+          "stat": 0.1
+        },
+        "mcnemar_vs_drex": {
+          "b": 37.0,
+          "c": 25.0,
+          "p_value": 0.16241315102200884,
+          "stat": 1.9516129032258065
+        },
+        "counts": {
+          "tp": 93,
+          "fp": 20,
+          "tn": 130,
+          "fn": 57
+        },
+        "sensitivity": 0.62,
+        "specificity": 0.8666666666666667,
+        "cost_per_1000_usd_list": 1.0402662333333332,
+        "latency_p50_ms": 6671.703845000593,
+        "gpt_call_rate": 0.6166666666666667,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "logodds_0.25",
+      "description": "sigmoid(w*logit drex + (1-w)*logit gpt), w=0.25, yes if score>=0.5",
+      "dev": {
+        "n": 300,
+        "k": 222,
+        "accuracy": 0.74,
+        "ci95": [
+          0.6875509670609357,
+          0.7863801865401512
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 2.0,
+          "c": 1.0,
+          "p_value": 1.0,
+          "stat": 0.0
+        },
+        "mcnemar_vs_drex": {
+          "b": 40.0,
+          "c": 29.0,
+          "p_value": 0.22864426234107676,
+          "stat": 1.4492753623188406
+        },
+        "counts": {
+          "tp": 91,
+          "fp": 19,
+          "tn": 131,
+          "fn": 59
+        },
+        "sensitivity": 0.6066666666666667,
+        "specificity": 0.8733333333333333,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "weighted_0.25",
+      "description": "w*drex_p+(1-w)*gpt_p, w=0.25, yes if score>=0.5",
+      "dev": {
+        "n": 300,
+        "k": 222,
+        "accuracy": 0.74,
+        "ci95": [
+          0.6875509670609357,
+          0.7863801865401512
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 2.0,
+          "c": 1.0,
+          "p_value": 1.0,
+          "stat": 0.0
+        },
+        "mcnemar_vs_drex": {
+          "b": 40.0,
+          "c": 29.0,
+          "p_value": 0.22864426234107676,
+          "stat": 1.4492753623188406
+        },
+        "counts": {
+          "tp": 91,
+          "fp": 19,
+          "tn": 131,
+          "fn": 59
+        },
+        "sensitivity": 0.6066666666666667,
+        "specificity": 0.8733333333333333,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "drex_conf_0.95",
+      "description": "use Drex when Drex confidence>=0.95, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 221,
+        "accuracy": 0.7366666666666667,
+        "ci95": [
+          0.6840594845533765,
+          0.7832892919143619
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 0.0,
+          "c": 0.0,
+          "p_value": 1.0,
+          "stat": 0.0
+        },
+        "mcnemar_vs_drex": {
+          "b": 41.0,
+          "c": 31.0,
+          "p_value": 0.28884436634648486,
+          "stat": 1.125
+        },
+        "counts": {
+          "tp": 89,
+          "fp": 18,
+          "tn": 132,
+          "fn": 61
+        },
+        "sensitivity": 0.5933333333333334,
+        "specificity": 0.88,
+        "cost_per_1000_usd_list": 1.5768529,
+        "latency_p50_ms": 12039.53174353228,
+        "gpt_call_rate": 0.9633333333333334,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "weighted_0.00",
+      "description": "w*drex_p+(1-w)*gpt_p, w=0.0, yes if score>=0.5",
+      "dev": {
+        "n": 300,
+        "k": 221,
+        "accuracy": 0.7366666666666667,
+        "ci95": [
+          0.6840594845533765,
+          0.7832892919143619
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 0.0,
+          "c": 0.0,
+          "p_value": 1.0,
+          "stat": 0.0
+        },
+        "mcnemar_vs_drex": {
+          "b": 41.0,
+          "c": 31.0,
+          "p_value": 0.28884436634648486,
+          "stat": 1.125
+        },
+        "counts": {
+          "tp": 89,
+          "fp": 18,
+          "tn": 132,
+          "fn": 61
+        },
+        "sensitivity": 0.5933333333333334,
+        "specificity": 0.88,
+        "cost_per_1000_usd_list": 1.6131866666666668,
+        "latency_p50_ms": 12206.92438451806,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "disagree_higher_conf",
+      "description": "agree on the shared choice; on a split, take the higher confidence (GPT wins a tie)",
+      "dev": {
+        "n": 300,
+        "k": 220,
+        "accuracy": 0.7333333333333333,
+        "ci95": [
+          0.6805715919237879,
+          0.7801948074106021
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 11.0,
+          "c": 12.0,
+          "p_value": 1.0,
+          "stat": 0.0
+        },
+        "mcnemar_vs_drex": {
+          "b": 29.0,
+          "c": 20.0,
+          "p_value": 0.2530979089471156,
+          "stat": 1.3061224489795917
+        },
+        "counts": {
+          "tp": 97,
+          "fp": 27,
+          "tn": 123,
+          "fn": 53
+        },
+        "sensitivity": 0.6466666666666666,
+        "specificity": 0.82,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "logodds_0.50",
+      "description": "sigmoid(w*logit drex + (1-w)*logit gpt), w=0.5, yes if score>=0.5",
+      "dev": {
+        "n": 300,
+        "k": 220,
+        "accuracy": 0.7333333333333333,
+        "ci95": [
+          0.6805715919237879,
+          0.7801948074106021
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 11.0,
+          "c": 12.0,
+          "p_value": 1.0,
+          "stat": 0.0
+        },
+        "mcnemar_vs_drex": {
+          "b": 29.0,
+          "c": 20.0,
+          "p_value": 0.2530979089471156,
+          "stat": 1.3061224489795917
+        },
+        "counts": {
+          "tp": 97,
+          "fp": 27,
+          "tn": 123,
+          "fn": 53
+        },
+        "sensitivity": 0.6466666666666666,
+        "specificity": 0.82,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "weighted_0.50",
+      "description": "w*drex_p+(1-w)*gpt_p, w=0.5, yes if score>=0.5",
+      "dev": {
+        "n": 300,
+        "k": 220,
+        "accuracy": 0.7333333333333333,
+        "ci95": [
+          0.6805715919237879,
+          0.7801948074106021
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 11.0,
+          "c": 12.0,
+          "p_value": 1.0,
+          "stat": 0.0
+        },
+        "mcnemar_vs_drex": {
+          "b": 29.0,
+          "c": 20.0,
+          "p_value": 0.2530979089471156,
+          "stat": 1.3061224489795917
+        },
+        "counts": {
+          "tp": 97,
+          "fp": 27,
+          "tn": 123,
+          "fn": 53
+        },
+        "sensitivity": 0.6466666666666666,
+        "specificity": 0.82,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "band_0.25_0.75",
+      "description": "Drex when p_yes<=0.25 or >=0.75, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 218,
+        "accuracy": 0.7266666666666667,
+        "ci95": [
+          0.6736064082504327,
+          0.7739952368172605
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 6.0,
+          "c": 9.0,
+          "p_value": 0.60723876953125,
+          "stat": 0.26666666666666666
+        },
+        "mcnemar_vs_drex": {
+          "b": 32.0,
+          "c": 25.0,
+          "p_value": 0.4267767365329837,
+          "stat": 0.631578947368421
+        },
+        "counts": {
+          "tp": 92,
+          "fp": 24,
+          "tn": 126,
+          "fn": 58
+        },
+        "sensitivity": 0.6133333333333333,
+        "specificity": 0.84,
+        "cost_per_1000_usd_list": 0.9286129000000001,
+        "latency_p50_ms": 5048.96657896461,
+        "gpt_call_rate": 0.55,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "drex_conf_0.75",
+      "description": "use Drex when Drex confidence>=0.75, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 218,
+        "accuracy": 0.7266666666666667,
+        "ci95": [
+          0.6736064082504327,
+          0.7739952368172605
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 6.0,
+          "c": 9.0,
+          "p_value": 0.60723876953125,
+          "stat": 0.26666666666666666
+        },
+        "mcnemar_vs_drex": {
+          "b": 32.0,
+          "c": 25.0,
+          "p_value": 0.4267767365329837,
+          "stat": 0.631578947368421
+        },
+        "counts": {
+          "tp": 92,
+          "fp": 24,
+          "tn": 126,
+          "fn": 58
+        },
+        "sensitivity": 0.6133333333333333,
+        "specificity": 0.84,
+        "cost_per_1000_usd_list": 0.9286129000000001,
+        "latency_p50_ms": 5048.96657896461,
+        "gpt_call_rate": 0.55,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "drex_conf_0.65",
+      "description": "use Drex when Drex confidence>=0.65, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 217,
+        "accuracy": 0.7233333333333334,
+        "ci95": [
+          0.6701290366526463,
+          0.7708902312816984
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 13.0,
+          "c": 17.0,
+          "p_value": 0.5838824207703651,
+          "stat": 0.3
+        },
+        "mcnemar_vs_drex": {
+          "b": 24.0,
+          "c": 18.0,
+          "p_value": 0.44040069813900323,
+          "stat": 0.5952380952380952
+        },
+        "counts": {
+          "tp": 98,
+          "fp": 31,
+          "tn": 119,
+          "fn": 52
+        },
+        "sensitivity": 0.6533333333333333,
+        "specificity": 0.7933333333333333,
+        "cost_per_1000_usd_list": 0.6194662333333333,
+        "latency_p50_ms": 362.35133800073527,
+        "gpt_call_rate": 0.37,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "and_yes",
+      "description": "yes only if both lanes say yes",
+      "dev": {
+        "n": 300,
+        "k": 217,
+        "accuracy": 0.7233333333333334,
+        "ci95": [
+          0.6701290366526463,
+          0.7708902312816984
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 2.0,
+          "c": 6.0,
+          "p_value": 0.2890625,
+          "stat": 1.125
+        },
+        "mcnemar_vs_drex": {
+          "b": 35.0,
+          "c": 29.0,
+          "p_value": 0.5319710580974011,
+          "stat": 0.390625
+        },
+        "counts": {
+          "tp": 83,
+          "fp": 16,
+          "tn": 134,
+          "fn": 67
+        },
+        "sensitivity": 0.5533333333333333,
+        "specificity": 0.8933333333333333,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "logodds_0.75",
+      "description": "sigmoid(w*logit drex + (1-w)*logit gpt), w=0.75, yes if score>=0.5",
+      "dev": {
+        "n": 300,
+        "k": 217,
+        "accuracy": 0.7233333333333334,
+        "ci95": [
+          0.6701290366526463,
+          0.7708902312816984
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 21.0,
+          "c": 25.0,
+          "p_value": 0.6582534143112833,
+          "stat": 0.1956521739130435
+        },
+        "mcnemar_vs_drex": {
+          "b": 16.0,
+          "c": 10.0,
+          "p_value": 0.326799567668966,
+          "stat": 0.9615384615384616
+        },
+        "counts": {
+          "tp": 104,
+          "fp": 37,
+          "tn": 113,
+          "fn": 46
+        },
+        "sensitivity": 0.6933333333333334,
+        "specificity": 0.7533333333333333,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "band_0.40_0.60",
+      "description": "Drex when p_yes<=0.4 or >=0.6, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 216,
+        "accuracy": 0.72,
+        "ci95": [
+          0.6666550937163631,
+          0.7677817970846332
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 17.0,
+          "c": 22.0,
+          "p_value": 0.5218393903336154,
+          "stat": 0.41025641025641024
+        },
+        "mcnemar_vs_drex": {
+          "b": 19.0,
+          "c": 14.0,
+          "p_value": 0.4862343213882973,
+          "stat": 0.48484848484848486
+        },
+        "counts": {
+          "tp": 101,
+          "fp": 35,
+          "tn": 115,
+          "fn": 49
+        },
+        "sensitivity": 0.6733333333333333,
+        "specificity": 0.7666666666666667,
+        "cost_per_1000_usd_list": 0.4487728999999999,
+        "latency_p50_ms": 346.5312315092888,
+        "gpt_call_rate": 0.27,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "or_yes",
+      "description": "yes if either lane says yes",
+      "dev": {
+        "n": 300,
+        "k": 215,
+        "accuracy": 0.7166666666666667,
+        "ci95": [
+          0.6631845423956875,
+          0.7646699712719605
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 29.0,
+          "c": 35.0,
+          "p_value": 0.5319710580974011,
+          "stat": 0.390625
+        },
+        "mcnemar_vs_drex": {
+          "b": 6.0,
+          "c": 2.0,
+          "p_value": 0.2890625,
+          "stat": 1.125
+        },
+        "counts": {
+          "tp": 118,
+          "fp": 53,
+          "tn": 97,
+          "fn": 32
+        },
+        "sensitivity": 0.7866666666666666,
+        "specificity": 0.6466666666666666,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "drex_conf_0.55",
+      "description": "use Drex when Drex confidence>=0.55, else GPT",
+      "dev": {
+        "n": 300,
+        "k": 214,
+        "accuracy": 0.7133333333333334,
+        "ci95": [
+          0.6597173468493974,
+          0.7615547896849021
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 24.0,
+          "c": 31.0,
+          "p_value": 0.4184922334468198,
+          "stat": 0.6545454545454545
+        },
+        "mcnemar_vs_drex": {
+          "b": 10.0,
+          "c": 7.0,
+          "p_value": 0.629058837890625,
+          "stat": 0.23529411764705882
+        },
+        "counts": {
+          "tp": 107,
+          "fp": 43,
+          "tn": 107,
+          "fn": 43
+        },
+        "sensitivity": 0.7133333333333334,
+        "specificity": 0.7133333333333334,
+        "cost_per_1000_usd_list": 0.26581289999999996,
+        "latency_p50_ms": 332.71028599119745,
+        "gpt_call_rate": 0.16,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "weighted_0.75",
+      "description": "w*drex_p+(1-w)*gpt_p, w=0.75, yes if score>=0.5",
+      "dev": {
+        "n": 300,
+        "k": 214,
+        "accuracy": 0.7133333333333334,
+        "ci95": [
+          0.6597173468493974,
+          0.7615547896849021
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 21.0,
+          "c": 28.0,
+          "p_value": 0.39136593830755195,
+          "stat": 0.7346938775510204
+        },
+        "mcnemar_vs_drex": {
+          "b": 13.0,
+          "c": 10.0,
+          "p_value": 0.6776394844055176,
+          "stat": 0.17391304347826086
+        },
+        "counts": {
+          "tp": 104,
+          "fp": 40,
+          "tn": 110,
+          "fn": 46
+        },
+        "sensitivity": 0.6933333333333334,
+        "specificity": 0.7333333333333333,
+        "cost_per_1000_usd_list": 1.6215595666666667,
+        "latency_p50_ms": 12543.436998996185,
+        "gpt_call_rate": 1.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    },
+    {
+      "rule_id": "weighted_1.00",
+      "description": "w*drex_p+(1-w)*gpt_p, w=1.0, yes if score>=0.5",
+      "dev": {
+        "n": 300,
+        "k": 211,
+        "accuracy": 0.7033333333333334,
+        "ci95": [
+          0.649335553589633,
+          0.7521894515446212
+        ],
+        "ci_method": "wilson",
+        "mcnemar_vs_gpt": {
+          "b": 31.0,
+          "c": 41.0,
+          "p_value": 0.28884436634648486,
+          "stat": 1.125
+        },
+        "mcnemar_vs_drex": {
+          "b": 0.0,
+          "c": 0.0,
+          "p_value": 1.0,
+          "stat": 0.0
+        },
+        "counts": {
+          "tp": 112,
+          "fp": 51,
+          "tn": 99,
+          "fn": 38
+        },
+        "sensitivity": 0.7466666666666667,
+        "specificity": 0.66,
+        "cost_per_1000_usd_list": 0.008372899999999999,
+        "latency_p50_ms": 321.30334101384506,
+        "gpt_call_rate": 0.0,
+        "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+      }
+    }
+  ],
+  "source_run": "data/runs/g_persius_dev.jsonl",
+  "computed_at": "2026-11-14T16:38:25Z"
+}

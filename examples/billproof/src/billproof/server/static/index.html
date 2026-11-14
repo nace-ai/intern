@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BillProof · Prior-authorization review</title>
+  <meta name="description" content="BillProof reads the insurer's policy and the patient file, decides each criterion with evidence, and drafts the next letter.">
+  <meta name="theme-color" content="#f5f7fa">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="preload" href="/static/vendor/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/vendor/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/vendor/fonts/fonts.css">
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="stylesheet" href="/static/css/screens.css">
+  <link rel="stylesheet" href="/static/css/evidence.css">
+  <link rel="stylesheet" href="/static/css/dial.css">
+  <link rel="stylesheet" href="/static/css/command.css">
+  <link rel="stylesheet" href="/static/css/simple.css">
+  <link rel="stylesheet" href="/static/css/products.css">
+  <script src="/static/vendor/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <aside class="sidebar">
+      <a class="wordmark" href="#/overview" aria-label="BillProof overview">
+        <span class="wordmark-mark" aria-hidden="true">B</span>
+        <span class="wordmark-text">Bill<b>Proof</b></span>
+      </a>
+      <div class="wordmark-sub">Prior-authorization review</div>
+      <nav class="nav" id="nav"></nav>
+      <div class="nav-case" id="nav-case"></div>
+      <div class="spacer"></div>
+      <div class="powered">
+        <div class="powered-hd"><img src="/static/img/nace-mark.svg" alt=""> Powered by <b>Nace AI</b></div>
+        <div class="powered-list">Drex · NDI · Drex Search · Browser runs</div>
+      </div>
+    </aside>
+
+    <header class="topbar">
+      <div class="search" id="search">
+        <span class="search-ic" id="search-ic"></span>
+        <input id="search-input" type="search" placeholder="Search requests, drugs, payers…" autocomplete="off" spellcheck="false">
+        <div class="search-results" id="search-results" hidden></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="presenter" id="presenter" hidden></div>
+      <span class="mode-pill mode-pill--demo" id="demo-pill">Demo · recorded real results</span>
+      <div class="seg" id="mode-seg" role="group" aria-label="Mode">
+        <button data-mode="live">Live</button>
+        <button data-mode="demo">Demo</button>
+      </div>
+      <button class="btn btn--primary" id="upload-btn"></button>
+    </header>
+
+    <main class="main" id="view" tabindex="-1"></main>
+
+    <footer class="credit" id="credit">
+      <span><b>BillProof</b> · hackathon project built on Nace AI (Drex, NDI, Drex Search, Browser runs). Not an official Nace product.</span>
+      <span class="spacer"></span>
+      <span>Policies: real published Medicaid criteria · Patients: synthetic · Data: Hammer Labs criteria-gym (hackathon demo use)</span>
+    </footer>
+  </div>
+
+  <div class="modal-backdrop" id="modal" hidden></div>
+
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

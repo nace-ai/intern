@@ -1,0 +1,14 @@
+{
+  "value": 1.0,
+  "n": 38,
+  "source_run": "hard_test_gpt",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "k": 38,
+  "fp": 0,
+  "fn": 0,
+  "ci_low": 0.90818706741616,
+  "ci_high": 0.9999999999999999,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call."
+}

@@ -1,0 +1,11 @@
+{
+  "value": 2.140295357053663e-33,
+  "n": 736,
+  "source_run": "hard_test_gpt_vs_drex-finance",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:48:00Z",
+  "b": 147.0,
+  "c": 0.0,
+  "stat": 145.00680272108843,
+  "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+}

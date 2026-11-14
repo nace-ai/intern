@@ -1,0 +1,129 @@
+{
+  "value": 6,
+  "n": 6,
+  "source_run": "data/showcase/replay/SC-01.json through SC-06.json",
+  "simulated": true,
+  "computed_at": "2026-11-14T07:11:47.102373+00:00",
+  "label": "Mixed-provenance offline replay validation, not benchmark",
+  "cases": [
+    {
+      "case_id": "SC-01",
+      "outcome": "DISPUTE",
+      "stage_timings_ms": {
+        "upload": 55.7,
+        "read": 1.0,
+        "rules": 0.1,
+        "decide": 2.7,
+        "ask": 1.3,
+        "browser": 0.5,
+        "verdict": 0.1,
+        "act": 4.4
+      },
+      "pending": [
+        "ask",
+        "browser"
+      ],
+      "recorded_live_stages": []
+    },
+    {
+      "case_id": "SC-02",
+      "outcome": "DISPUTE",
+      "stage_timings_ms": {
+        "upload": 1.8,
+        "read": 0.8,
+        "rules": 0.1,
+        "decide": 0.8,
+        "ask": 0.0,
+        "browser": 0.0,
+        "verdict": 0.1,
+        "act": 2.0
+      },
+      "pending": [
+        "ask",
+        "browser"
+      ],
+      "recorded_live_stages": []
+    },
+    {
+      "case_id": "SC-03",
+      "outcome": "OK",
+      "stage_timings_ms": {
+        "upload": 1.9,
+        "read": 1.0,
+        "rules": 0.1,
+        "decide": 0.6,
+        "ask": 0.1,
+        "browser": 0.1,
+        "verdict": 0.1,
+        "act": 0.2
+      },
+      "pending": [
+        "ask",
+        "browser"
+      ],
+      "recorded_live_stages": []
+    },
+    {
+      "case_id": "SC-04",
+      "outcome": "INSUFFICIENT_EVIDENCE",
+      "stage_timings_ms": {
+        "upload": 1.1,
+        "read": 1.3,
+        "rules": 0.0,
+        "decide": 0.6,
+        "ask": 0.1,
+        "browser": 0.0,
+        "verdict": 0.1,
+        "act": 1.3
+      },
+      "pending": [
+        "browser"
+      ],
+      "recorded_live_stages": [
+        "ask"
+      ]
+    },
+    {
+      "case_id": "SC-05",
+      "outcome": "APPEAL",
+      "stage_timings_ms": {
+        "upload": 1.3,
+        "read": 1.8,
+        "rules": 0.0,
+        "decide": 0.7,
+        "ask": 0.2,
+        "browser": 0.1,
+        "verdict": 0.1,
+        "act": 1.6
+      },
+      "pending": [],
+      "recorded_live_stages": [
+        "ask",
+        "browser"
+      ]
+    },
+    {
+      "case_id": "SC-06",
+      "outcome": "DISPUTE",
+      "stage_timings_ms": {
+        "upload": 1.7,
+        "read": 0.9,
+        "rules": 0.1,
+        "decide": 0.6,
+        "ask": 0.0,
+        "browser": 0.0,
+        "verdict": 0.1,
+        "act": 1.2
+      },
+      "pending": [
+        "ask",
+        "browser"
+      ],
+      "recorded_live_stages": []
+    }
+  ],
+  "live_spend_usd": 0,
+  "manual_baseline_seconds": null,
+  "time_saved_seconds": null,
+  "note": "Local stage timings are not live service latency. T3 Search/Browser recordings preserve recorded_live provenance; other decisions use fixture/simulation."
+}

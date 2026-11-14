@@ -1,0 +1,16 @@
+# Pinned 2026-11-13. From the repository root: uv venv .venv --python 3.12 && uv pip install -r requirements.txt
+fastapi==0.162.7
+uvicorn[standard]==0.54.0
+httpx==0.28.1
+python-dotenv==1.2.4
+pydantic==2.14.3
+reportlab==5.1.0
+pypdf==7.1.0
+pypdfium2==5.3.0
+pillow==13.0.0
+numpy==2.5.4
+openpyxl==3.1.5
+huggingface-hub==2.4.0
+pyarrow==26.0.1
+python-multipart==0.0.20
+pytest==9.2.0

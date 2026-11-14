@@ -1,0 +1,7783 @@
+{
+  "version": "2026-11-13-cms2026q4",
+  "generated": "2026-11-13",
+  "codes": {
+    "10060": {
+      "label": "Drainage of a simple skin abscess",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 12859,
+      "fee_facility_cents": 10054,
+      "mue": 1,
+      "mai": 2
+    },
+    "10061": {
+      "label": "Drainage of complicated or multiple skin abscesses",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 22011,
+      "fee_facility_cents": 17335,
+      "mue": 1,
+      "mai": 2
+    },
+    "10120": {
+      "label": "Removal of foreign object under the skin",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 15732,
+      "fee_facility_cents": 10221,
+      "mue": 3,
+      "mai": 3
+    },
+    "11042": {
+      "label": "Cleaning/debriding a wound, up to 20 sq cm",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency",
+        "inpatient"
+      ],
+      "fee_cents": 13260,
+      "fee_facility_cents": 5578,
+      "mue": 1,
+      "mai": 2
+    },
+    "11102": {
+      "label": "Skin biopsy, single lesion",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 9553,
+      "fee_facility_cents": 3006,
+      "mue": 1,
+      "mai": 2
+    },
+    "11300": {
+      "label": "Shave removal of a small skin lesion",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 9653,
+      "fee_facility_cents": 2772,
+      "mue": 5,
+      "mai": 3
+    },
+    "11401": {
+      "label": "Surgical removal of a benign skin lesion, trunk or limb, 0.6-1 cm",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 15498,
+      "fee_facility_cents": 9452,
+      "mue": 3,
+      "mai": 3
+    },
+    "11720": {
+      "label": "Nail cleanup/debridement, up to 5 nails",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 3273,
+      "fee_facility_cents": 1269,
+      "mue": 1,
+      "mai": 2
+    },
+    "12001": {
+      "label": "Simple wound repair, scalp/neck/limbs, up to 2.5 cm",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 11390,
+      "fee_facility_cents": 4409,
+      "mue": 1,
+      "mai": 2
+    },
+    "12002": {
+      "label": "Simple wound repair, scalp/neck/limbs, 2.6-7.5 cm",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 13928,
+      "fee_facility_cents": 5745,
+      "mue": 1,
+      "mai": 2
+    },
+    "12011": {
+      "label": "Simple wound repair, face/ears/lips, up to 2.5 cm",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 13962,
+      "fee_facility_cents": 5444,
+      "mue": 1,
+      "mai": 2
+    },
+    "12032": {
+      "label": "Layered (intermediate) wound repair, up to 2.5 cm",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 29994,
+      "fee_facility_cents": 16500,
+      "mue": 1,
+      "mai": 2
+    },
+    "17110": {
+      "label": "Wart destruction, up to 14 lesions",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 11122,
+      "fee_facility_cents": 6246,
+      "mue": 1,
+      "mai": 2
+    },
+    "20600": {
+      "label": "Joint fluid draw or injection, small joint (e.g. wrist)",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 5611,
+      "fee_facility_cents": 3140,
+      "mue": 6,
+      "mai": 3
+    },
+    "20605": {
+      "label": "Joint fluid draw or injection, medium joint",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 5712,
+      "fee_facility_cents": 3206,
+      "mue": 2,
+      "mai": 3
+    },
+    "20610": {
+      "label": "Joint fluid draw or injection, major joint (e.g. knee/shoulder)",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 6881,
+      "fee_facility_cents": 3975,
+      "mue": 2,
+      "mai": 3
+    },
+    "29075": {
+      "label": "Elbow-to-finger cast application",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 9753,
+      "fee_facility_cents": 5879,
+      "mue": 1,
+      "mai": 3
+    },
+    "29105": {
+      "label": "Long arm splint application",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 9720,
+      "fee_facility_cents": 3774,
+      "mue": 1,
+      "mai": 2
+    },
+    "29125": {
+      "label": "Short arm splint application",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 7916,
+      "fee_facility_cents": 4108,
+      "mue": 1,
+      "mai": 2
+    },
+    "29130": {
+      "label": "Finger splint application",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 4609,
+      "fee_facility_cents": 2572,
+      "mue": 3,
+      "mai": 3
+    },
+    "36415": {
+      "label": "Blood draw from a vein",
+      "setting": [
+        "lab",
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 300,
+      "fee_facility_cents": 300,
+      "mue": 2,
+      "mai": 3
+    },
+    "51701": {
+      "label": "Bladder catheter insertion",
+      "setting": [
+        "outpatient",
+        "emergency",
+        "inpatient"
+      ],
+      "fee_cents": 4543,
+      "fee_facility_cents": 2204,
+      "mue": 2,
+      "mai": 3
+    },
+    "69210": {
+      "label": "Earwax removal, one ear",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 4776,
+      "fee_facility_cents": 2705,
+      "mue": 1,
+      "mai": 2
+    },
+    "70450": {
+      "label": "CT scan of head without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 10655,
+      "fee_facility_cents": 3941,
+      "mue": 3,
+      "mai": 3
+    },
+    "70551": {
+      "label": "MRI of brain without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 19540,
+      "fee_facility_cents": 6780,
+      "mue": 2,
+      "mai": 3
+    },
+    "70552": {
+      "label": "MRI of brain with contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 26888,
+      "fee_facility_cents": 8183,
+      "mue": 2,
+      "mai": 3
+    },
+    "70553": {
+      "label": "MRI of brain with and without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 31697,
+      "fee_facility_cents": 10521,
+      "mue": 2,
+      "mai": 3
+    },
+    "71045": {
+      "label": "Chest X-ray, single view",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 2538,
+      "fee_facility_cents": 835,
+      "mue": 4,
+      "mai": 3
+    },
+    "71046": {
+      "label": "Chest X-ray, two views",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 3307,
+      "fee_facility_cents": 1002,
+      "mue": 2,
+      "mai": 3
+    },
+    "71250": {
+      "label": "CT scan of chest without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 13260,
+      "fee_facility_cents": 4943,
+      "mue": 2,
+      "mai": 3
+    },
+    "71260": {
+      "label": "CT scan of chest with contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 16667,
+      "fee_facility_cents": 5378,
+      "mue": 2,
+      "mai": 3
+    },
+    "72100": {
+      "label": "Lower back (lumbar) X-ray, two or three views",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 4042,
+      "fee_facility_cents": 1069,
+      "mue": 2,
+      "mai": 3
+    },
+    "72110": {
+      "label": "Lower back (lumbar) X-ray, four views",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 5344,
+      "fee_facility_cents": 1269,
+      "mue": 1,
+      "mai": 3
+    },
+    "72148": {
+      "label": "MRI of lower back (lumbar spine) without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 19172,
+      "fee_facility_cents": 6847,
+      "mue": 1,
+      "mai": 3
+    },
+    "72149": {
+      "label": "MRI of lower back (lumbar spine) with contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 26955,
+      "fee_facility_cents": 8217,
+      "mue": 1,
+      "mai": 3
+    },
+    "72158": {
+      "label": "MRI of lower back (lumbar spine) with and without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 31831,
+      "fee_facility_cents": 10555,
+      "mue": 1,
+      "mai": 3
+    },
+    "72192": {
+      "label": "CT scan of pelvis without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 13260,
+      "fee_facility_cents": 4977,
+      "mue": 1,
+      "mai": 3
+    },
+    "72193": {
+      "label": "CT scan of pelvis with contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 22579,
+      "fee_facility_cents": 5344,
+      "mue": 1,
+      "mai": 3
+    },
+    "72194": {
+      "label": "CT scan of pelvis with and without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 25051,
+      "fee_facility_cents": 5611,
+      "mue": 1,
+      "mai": 3
+    },
+    "73030": {
+      "label": "Shoulder X-ray, two or more views",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 3574,
+      "fee_facility_cents": 902,
+      "mue": 4,
+      "mai": 3
+    },
+    "73221": {
+      "label": "MRI of arm joint (e.g. shoulder) without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 20508,
+      "fee_facility_cents": 6313,
+      "mue": 2,
+      "mai": 3
+    },
+    "73560": {
+      "label": "Knee X-ray, one or two views",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 3440,
+      "fee_facility_cents": 802,
+      "mue": 4,
+      "mai": 3
+    },
+    "73562": {
+      "label": "Knee X-ray, three views",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 4242,
+      "fee_facility_cents": 935,
+      "mue": 3,
+      "mai": 3
+    },
+    "73600": {
+      "label": "Ankle X-ray, two views",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 3240,
+      "fee_facility_cents": 802,
+      "mue": 2,
+      "mai": 3
+    },
+    "73610": {
+      "label": "Ankle X-ray, three or more views",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 3707,
+      "fee_facility_cents": 835,
+      "mue": 3,
+      "mai": 3
+    },
+    "73721": {
+      "label": "MRI of leg joint (e.g. knee) without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 20441,
+      "fee_facility_cents": 6279,
+      "mue": 3,
+      "mai": 3
+    },
+    "73722": {
+      "label": "MRI of leg joint (e.g. knee) with contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 31497,
+      "fee_facility_cents": 7515,
+      "mue": 2,
+      "mai": 3
+    },
+    "73723": {
+      "label": "MRI of leg joint (e.g. knee) with and without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 38144,
+      "fee_facility_cents": 9920,
+      "mue": 2,
+      "mai": 3
+    },
+    "74018": {
+      "label": "Abdominal X-ray, single view",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 2973,
+      "fee_facility_cents": 868,
+      "mue": 3,
+      "mai": 3
+    },
+    "74150": {
+      "label": "CT scan of abdomen without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 13628,
+      "fee_facility_cents": 5478,
+      "mue": 1,
+      "mai": 3
+    },
+    "74160": {
+      "label": "CT scan of abdomen with contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 23013,
+      "fee_facility_cents": 5845,
+      "mue": 1,
+      "mai": 3
+    },
+    "74170": {
+      "label": "CT scan of abdomen with and without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 25886,
+      "fee_facility_cents": 6413,
+      "mue": 1,
+      "mai": 3
+    },
+    "74176": {
+      "label": "CT scan of abdomen and pelvis without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 18304,
+      "fee_facility_cents": 7983,
+      "mue": 2,
+      "mai": 3
+    },
+    "74177": {
+      "label": "CT scan of abdomen and pelvis with contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 30027,
+      "fee_facility_cents": 8384,
+      "mue": 2,
+      "mai": 3
+    },
+    "74178": {
+      "label": "CT scan of abdomen and pelvis with and without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 33802,
+      "fee_facility_cents": 9285,
+      "mue": 1,
+      "mai": 3
+    },
+    "74181": {
+      "label": "MRI of abdomen without contrast dye",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 19373,
+      "fee_facility_cents": 6647,
+      "mue": 1,
+      "mai": 3
+    },
+    "76700": {
+      "label": "Ultrasound of abdomen, complete",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 11423,
+      "fee_facility_cents": 3741,
+      "mue": 1,
+      "mai": 3
+    },
+    "76705": {
+      "label": "Ultrasound of abdomen, limited (e.g. FAST exam)",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 8617,
+      "fee_facility_cents": 2739,
+      "mue": 2,
+      "mai": 3
+    },
+    "76856": {
+      "label": "Ultrasound of pelvis, complete",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 10521,
+      "fee_facility_cents": 3240,
+      "mue": 1,
+      "mai": 3
+    },
+    "77067": {
+      "label": "Screening mammogram, both breasts",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 12626,
+      "fee_facility_cents": 3507,
+      "mue": 1,
+      "mai": 2
+    },
+    "77080": {
+      "label": "Bone density scan (DXA), spine or hip",
+      "setting": [
+        "imaging",
+        "outpatient"
+      ],
+      "fee_cents": 3941,
+      "fee_facility_cents": 935,
+      "mue": 1,
+      "mai": 2
+    },
+    "80048": {
+      "label": "Basic metabolic blood panel",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 800,
+      "fee_facility_cents": 800,
+      "mue": 2,
+      "mai": 3
+    },
+    "80053": {
+      "label": "Comprehensive metabolic blood panel",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 1150,
+      "fee_facility_cents": 1150,
+      "mue": 1,
+      "mai": 3
+    },
+    "80061": {
+      "label": "Cholesterol and lipid panel",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 1350,
+      "fee_facility_cents": 1350,
+      "mue": 1,
+      "mai": 3
+    },
+    "81003": {
+      "label": "Urinalysis, automated dipstick",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 300,
+      "fee_facility_cents": 300,
+      "mue": 2,
+      "mai": 3
+    },
+    "82310": {
+      "label": "Calcium blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 650,
+      "fee_facility_cents": 650,
+      "mue": 2,
+      "mai": 3
+    },
+    "82374": {
+      "label": "Carbon dioxide (bicarbonate) blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 650,
+      "fee_facility_cents": 650,
+      "mue": 1,
+      "mai": 3
+    },
+    "82435": {
+      "label": "Chloride blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 650,
+      "fee_facility_cents": 650,
+      "mue": 1,
+      "mai": 3
+    },
+    "82465": {
+      "label": "Total cholesterol blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 600,
+      "fee_facility_cents": 600,
+      "mue": 1,
+      "mai": 3
+    },
+    "82565": {
+      "label": "Creatinine blood test (kidney function)",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 650,
+      "fee_facility_cents": 650,
+      "mue": 2,
+      "mai": 3
+    },
+    "82947": {
+      "label": "Blood glucose (sugar) test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 550,
+      "fee_facility_cents": 550,
+      "mue": 5,
+      "mai": 3
+    },
+    "83036": {
+      "label": "Hemoglobin A1c diabetes test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 1050,
+      "fee_facility_cents": 1050,
+      "mue": 1,
+      "mai": 2
+    },
+    "83718": {
+      "label": "HDL cholesterol blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 900,
+      "fee_facility_cents": 900,
+      "mue": 1,
+      "mai": 3
+    },
+    "84132": {
+      "label": "Potassium blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 650,
+      "fee_facility_cents": 650,
+      "mue": 2,
+      "mai": 3
+    },
+    "84295": {
+      "label": "Sodium blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 650,
+      "fee_facility_cents": 650,
+      "mue": 1,
+      "mai": 3
+    },
+    "84443": {
+      "label": "Thyroid stimulating hormone (TSH) test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 1800,
+      "fee_facility_cents": 1800,
+      "mue": 4,
+      "mai": 2
+    },
+    "84450": {
+      "label": "AST liver enzyme test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 700,
+      "fee_facility_cents": 700,
+      "mue": 1,
+      "mai": 3
+    },
+    "84460": {
+      "label": "ALT liver enzyme test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 700,
+      "fee_facility_cents": 700,
+      "mue": 1,
+      "mai": 3
+    },
+    "84478": {
+      "label": "Triglycerides blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 800,
+      "fee_facility_cents": 800,
+      "mue": 1,
+      "mai": 3
+    },
+    "84484": {
+      "label": "Troponin heart attack blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 1550,
+      "fee_facility_cents": 1550,
+      "mue": 2,
+      "mai": 3
+    },
+    "84520": {
+      "label": "BUN kidney function blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 650,
+      "fee_facility_cents": 650,
+      "mue": 1,
+      "mai": 3
+    },
+    "85018": {
+      "label": "Hemoglobin blood test",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 300,
+      "fee_facility_cents": 300,
+      "mue": 2,
+      "mai": 3
+    },
+    "85025": {
+      "label": "Complete blood count with automated differential",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 950,
+      "fee_facility_cents": 950,
+      "mue": 2,
+      "mai": 3
+    },
+    "85027": {
+      "label": "Complete blood count without differential",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 780,
+      "fee_facility_cents": 780,
+      "mue": 2,
+      "mai": 3
+    },
+    "87040": {
+      "label": "Blood culture",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 1000,
+      "fee_facility_cents": 1000,
+      "mue": 2,
+      "mai": 3
+    },
+    "87086": {
+      "label": "Urine culture",
+      "setting": [
+        "lab"
+      ],
+      "fee_cents": 1050,
+      "fee_facility_cents": 1050,
+      "mue": 3,
+      "mai": 3
+    },
+    "87804": {
+      "label": "Rapid flu test",
+      "setting": [
+        "lab",
+        "office",
+        "emergency"
+      ],
+      "fee_cents": 1650,
+      "fee_facility_cents": 1650,
+      "mue": 3,
+      "mai": 3
+    },
+    "87880": {
+      "label": "Rapid strep throat test",
+      "setting": [
+        "lab",
+        "office",
+        "emergency"
+      ],
+      "fee_cents": 1600,
+      "fee_facility_cents": 1600,
+      "mue": 2,
+      "mai": 3
+    },
+    "90471": {
+      "label": "Vaccine administration, first vaccine",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 2204,
+      "fee_facility_cents": 2204,
+      "mue": 1,
+      "mai": 2
+    },
+    "90472": {
+      "label": "Vaccine administration, each additional vaccine",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 1603,
+      "fee_facility_cents": 1603,
+      "mue": 8,
+      "mai": 3
+    },
+    "90686": {
+      "label": "Flu vaccine, quadrivalent (the vaccine itself)",
+      "setting": [
+        "office",
+        "outpatient",
+        "pharmacy"
+      ],
+      "fee_cents": 2100,
+      "fee_facility_cents": 2100,
+      "mue": 1,
+      "mai": 2
+    },
+    "93000": {
+      "label": "12-lead ECG, complete with interpretation",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency",
+        "inpatient"
+      ],
+      "fee_cents": 1536,
+      "fee_facility_cents": 1536,
+      "mue": 3,
+      "mai": 3
+    },
+    "93010": {
+      "label": "ECG interpretation and report only",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency",
+        "inpatient"
+      ],
+      "fee_cents": 835,
+      "fee_facility_cents": 835,
+      "mue": 5,
+      "mai": 3
+    },
+    "93307": {
+      "label": "Echocardiogram with Doppler, complete",
+      "setting": [
+        "office",
+        "outpatient",
+        "inpatient"
+      ],
+      "fee_cents": 13795,
+      "fee_facility_cents": 4309,
+      "mue": 1,
+      "mai": 3
+    },
+    "93971": {
+      "label": "Ultrasound scan of leg veins for clots, one leg",
+      "setting": [
+        "imaging",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 11624,
+      "fee_facility_cents": 2037,
+      "mue": 1,
+      "mai": 3
+    },
+    "94010": {
+      "label": "Breathing capacity test (spirometry)",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 2973,
+      "fee_facility_cents": 835,
+      "mue": 1,
+      "mai": 3
+    },
+    "94640": {
+      "label": "Nebulizer breathing treatment",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 868,
+      "fee_facility_cents": 868,
+      "mue": 4,
+      "mai": 3
+    },
+    "94760": {
+      "label": "Pulse oximetry, single reading",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 401,
+      "fee_facility_cents": 401,
+      "mue": 1,
+      "mai": 3
+    },
+    "96360": {
+      "label": "IV hydration, first hour",
+      "setting": [
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 3340,
+      "fee_facility_cents": 3340,
+      "mue": 1,
+      "mai": 3
+    },
+    "96361": {
+      "label": "IV hydration, each additional hour",
+      "setting": [
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 1303,
+      "fee_facility_cents": 1303,
+      "mue": 8,
+      "mai": 3
+    },
+    "96365": {
+      "label": "IV medication infusion, first hour",
+      "setting": [
+        "outpatient",
+        "emergency",
+        "inpatient"
+      ],
+      "fee_cents": 6714,
+      "fee_facility_cents": 6714,
+      "mue": 1,
+      "mai": 3
+    },
+    "96366": {
+      "label": "IV medication infusion, each additional hour",
+      "setting": [
+        "outpatient",
+        "emergency",
+        "inpatient"
+      ],
+      "fee_cents": 2138,
+      "fee_facility_cents": 2138,
+      "mue": 8,
+      "mai": 3
+    },
+    "96372": {
+      "label": "Injection into muscle or under the skin",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 1536,
+      "fee_facility_cents": 1536,
+      "mue": 4,
+      "mai": 3
+    },
+    "96374": {
+      "label": "IV push of a single medication",
+      "setting": [
+        "outpatient",
+        "emergency",
+        "inpatient"
+      ],
+      "fee_cents": 3774,
+      "fee_facility_cents": 3774,
+      "mue": 1,
+      "mai": 3
+    },
+    "97010": {
+      "label": "Hot or cold pack application",
+      "setting": [
+        "outpatient",
+        "office"
+      ],
+      "fee_cents": 668,
+      "fee_facility_cents": 668,
+      "mue": 0,
+      "mai": 3
+    },
+    "97032": {
+      "label": "Electrical stimulation therapy attended, per 15 minutes",
+      "setting": [
+        "outpatient",
+        "office"
+      ],
+      "fee_cents": 1470,
+      "fee_facility_cents": 1470,
+      "mue": 4,
+      "mai": 3
+    },
+    "97110": {
+      "label": "Therapeutic exercise, per 15 minutes",
+      "setting": [
+        "outpatient",
+        "office"
+      ],
+      "fee_cents": 2906,
+      "fee_facility_cents": 2906,
+      "mue": 6,
+      "mai": 3
+    },
+    "97140": {
+      "label": "Hands-on manual therapy, per 15 minutes",
+      "setting": [
+        "outpatient",
+        "office"
+      ],
+      "fee_cents": 2772,
+      "fee_facility_cents": 2772,
+      "mue": 6,
+      "mai": 3
+    },
+    "97161": {
+      "label": "Physical therapy evaluation, low complexity",
+      "setting": [
+        "outpatient",
+        "office"
+      ],
+      "fee_cents": 9786,
+      "fee_facility_cents": 9786,
+      "mue": 1,
+      "mai": 2
+    },
+    "97163": {
+      "label": "Physical therapy evaluation, high complexity",
+      "setting": [
+        "outpatient",
+        "office"
+      ],
+      "fee_cents": 9786,
+      "fee_facility_cents": 9786,
+      "mue": 1,
+      "mai": 2
+    },
+    "97530": {
+      "label": "Therapeutic activities training, per 15 minutes",
+      "setting": [
+        "outpatient",
+        "office"
+      ],
+      "fee_cents": 3507,
+      "fee_facility_cents": 3507,
+      "mue": 6,
+      "mai": 3
+    },
+    "98940": {
+      "label": "Chiropractic adjustment, one to two regions",
+      "setting": [
+        "office"
+      ],
+      "fee_cents": 2672,
+      "fee_facility_cents": 1837,
+      "mue": 1,
+      "mai": 2
+    },
+    "98941": {
+      "label": "Chiropractic adjustment, three to four regions",
+      "setting": [
+        "office"
+      ],
+      "fee_cents": 3841,
+      "fee_facility_cents": 2806,
+      "mue": 1,
+      "mai": 2
+    },
+    "99202": {
+      "label": "Office visit, new patient, low complexity",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 7515,
+      "fee_facility_cents": 4108,
+      "mue": 1,
+      "mai": 2
+    },
+    "99203": {
+      "label": "Office visit, new patient, moderate-low complexity",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 11757,
+      "fee_facility_cents": 7148,
+      "mue": 1,
+      "mai": 2
+    },
+    "99204": {
+      "label": "Office visit, new patient, moderate-high complexity",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 17736,
+      "fee_facility_cents": 11690,
+      "mue": 1,
+      "mai": 2
+    },
+    "99205": {
+      "label": "Office visit, new patient, high complexity",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 23681,
+      "fee_facility_cents": 16032,
+      "mue": 1,
+      "mai": 2
+    },
+    "99211": {
+      "label": "Office visit, established patient, minimal",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 2438,
+      "fee_facility_cents": 768,
+      "mue": 1,
+      "mai": 3
+    },
+    "99213": {
+      "label": "Office visit, established patient, low-moderate",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 9519,
+      "fee_facility_cents": 5745,
+      "mue": 2,
+      "mai": 3
+    },
+    "99214": {
+      "label": "Office visit, established patient, moderate-high",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 13561,
+      "fee_facility_cents": 8450,
+      "mue": 2,
+      "mai": 3
+    },
+    "99215": {
+      "label": "Office visit, established patient, high complexity",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 19239,
+      "fee_facility_cents": 12559,
+      "mue": 1,
+      "mai": 3
+    },
+    "99221": {
+      "label": "Initial hospital care, low complexity",
+      "setting": [
+        "inpatient"
+      ],
+      "fee_cents": 7448,
+      "fee_facility_cents": 7448,
+      "mue": 1,
+      "mai": 3
+    },
+    "99222": {
+      "label": "Initial hospital care, moderate complexity",
+      "setting": [
+        "inpatient"
+      ],
+      "fee_cents": 11690,
+      "fee_facility_cents": 11690,
+      "mue": 1,
+      "mai": 3
+    },
+    "99232": {
+      "label": "Subsequent hospital care, moderate",
+      "setting": [
+        "inpatient"
+      ],
+      "fee_cents": 7048,
+      "fee_facility_cents": 7048,
+      "mue": 1,
+      "mai": 3
+    },
+    "99238": {
+      "label": "Hospital discharge day, 30 minutes or less",
+      "setting": [
+        "inpatient"
+      ],
+      "fee_cents": 7482,
+      "fee_facility_cents": 7482,
+      "mue": 1,
+      "mai": 3
+    },
+    "99281": {
+      "label": "Emergency department visit, minor",
+      "setting": [
+        "emergency"
+      ],
+      "fee_cents": 1102,
+      "fee_facility_cents": 1102,
+      "mue": 1,
+      "mai": 3
+    },
+    "99282": {
+      "label": "Emergency department visit, low complexity",
+      "setting": [
+        "emergency"
+      ],
+      "fee_cents": 4042,
+      "fee_facility_cents": 4042,
+      "mue": 1,
+      "mai": 3
+    },
+    "99283": {
+      "label": "Emergency department visit, moderate",
+      "setting": [
+        "emergency"
+      ],
+      "fee_cents": 6947,
+      "fee_facility_cents": 6947,
+      "mue": 1,
+      "mai": 3
+    },
+    "99284": {
+      "label": "Emergency department visit, moderate-high",
+      "setting": [
+        "emergency"
+      ],
+      "fee_cents": 11824,
+      "fee_facility_cents": 11824,
+      "mue": 1,
+      "mai": 3
+    },
+    "99285": {
+      "label": "Emergency department visit, high complexity",
+      "setting": [
+        "emergency"
+      ],
+      "fee_cents": 17135,
+      "fee_facility_cents": 17135,
+      "mue": 1,
+      "mai": 3
+    },
+    "99291": {
+      "label": "Critical care, first 30-74 minutes",
+      "setting": [
+        "emergency",
+        "inpatient"
+      ],
+      "fee_cents": 30896,
+      "fee_facility_cents": 19907,
+      "mue": 1,
+      "mai": 2
+    },
+    "99395": {
+      "label": "Preventive exam, established patient age 18-39",
+      "setting": [
+        "office"
+      ],
+      "fee_cents": 12158,
+      "fee_facility_cents": 7482,
+      "mue": 0,
+      "mai": 3
+    },
+    "99396": {
+      "label": "Preventive exam, established patient age 40-64",
+      "setting": [
+        "office"
+      ],
+      "fee_cents": 12893,
+      "fee_facility_cents": 8116,
+      "mue": 0,
+      "mai": 3
+    },
+    "99486": {
+      "label": "Complex care management supervision, each additional 30 minutes",
+      "setting": [
+        "office",
+        "outpatient"
+      ],
+      "fee_cents": 5545,
+      "fee_facility_cents": 5545,
+      "mue": 4,
+      "mai": 1
+    },
+    "A0425": {
+      "label": "Ground ambulance mileage, per mile",
+      "setting": [
+        "emergency",
+        "outpatient"
+      ],
+      "fee_cents": 900,
+      "fee_facility_cents": 900,
+      "mue": 250,
+      "mai": 1
+    },
+    "A0428": {
+      "label": "Ground ambulance, basic life support, non-emergency transport",
+      "setting": [
+        "emergency",
+        "outpatient"
+      ],
+      "fee_cents": 25000,
+      "fee_facility_cents": 25000,
+      "mue": 2,
+      "mai": 3
+    },
+    "J1885": {
+      "label": "Ketorolac (anti-inflammatory) injection, per 15 mg",
+      "setting": [
+        "office",
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 120,
+      "fee_facility_cents": 120,
+      "mue": 8,
+      "mai": 3
+    },
+    "J2405": {
+      "label": "Ondansetron (anti-nausea) injection, per 1 mg",
+      "setting": [
+        "outpatient",
+        "emergency"
+      ],
+      "fee_cents": 15,
+      "fee_facility_cents": 15,
+      "mue": 64,
+      "mai": 3
+    }
+  },
+  "ptp": [
+    {
+      "col1": "10060",
+      "col2": "11401",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "11720",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10060",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "10060",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "11720",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10061",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "11720",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "10120",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "10060",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "11720",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "29075",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "29105",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "29125",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "29130",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11042",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "11300",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11102",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11300",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "10061",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "11102",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11401",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "29075",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "29125",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "29130",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "11720",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12001",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "12001",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12002",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12011",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "12032",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "11102",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "11300",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "11401",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "17110",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "10060",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "10061",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "29075",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "29105",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "29125",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "29130",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20600",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "10060",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "10061",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "29075",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "29105",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "29125",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20605",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "10060",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "10061",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "29075",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "29105",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "29125",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "29130",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "20610",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "29125",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "29130",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29075",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "29075",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "29125",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29105",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "29130",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29125",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "29130",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "36415",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "51701",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "11042",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "12001",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "12002",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "12011",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "12032",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "93000",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "69210",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70552",
+      "col2": "70551",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70552",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70552",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70552",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70552",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70553",
+      "col2": "70551",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70553",
+      "col2": "70552",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70553",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70553",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70553",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "70553",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "71046",
+      "col2": "71045",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "71260",
+      "col2": "71250",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "71260",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "71260",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "71260",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "71260",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72110",
+      "col2": "72100",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72149",
+      "col2": "72148",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72149",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72149",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72149",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72149",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72158",
+      "col2": "72148",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72158",
+      "col2": "72149",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72158",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72158",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72158",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72158",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72193",
+      "col2": "72192",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72193",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72193",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72193",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72193",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72194",
+      "col2": "72192",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72194",
+      "col2": "72193",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72194",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72194",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72194",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "72194",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73562",
+      "col2": "73560",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73610",
+      "col2": "73600",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73722",
+      "col2": "73721",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73722",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73722",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73722",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73722",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73723",
+      "col2": "73721",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73723",
+      "col2": "73722",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73723",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73723",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73723",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "73723",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74150",
+      "col2": "72192",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74150",
+      "col2": "72193",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74150",
+      "col2": "72194",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74160",
+      "col2": "72192",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74160",
+      "col2": "72193",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74160",
+      "col2": "72194",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74160",
+      "col2": "74150",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74160",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74160",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74160",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74160",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "72192",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "72193",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "72194",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "74150",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "74160",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74170",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74176",
+      "col2": "72192",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74176",
+      "col2": "72193",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74176",
+      "col2": "72194",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74176",
+      "col2": "74150",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74176",
+      "col2": "74160",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74176",
+      "col2": "74170",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "72192",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "72193",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "72194",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "74150",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "74160",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "74170",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "74176",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74177",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "72192",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "72193",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "72194",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "74150",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "74160",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "74170",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "74176",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "74177",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "74178",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "76700",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "76700",
+      "col2": "76705",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "76705",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "76856",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80048",
+      "col2": "82310",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80048",
+      "col2": "82374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80048",
+      "col2": "82435",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80048",
+      "col2": "82565",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80048",
+      "col2": "82947",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80048",
+      "col2": "84132",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80048",
+      "col2": "84295",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80048",
+      "col2": "84520",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "80048",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "82310",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "82374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "82435",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "82565",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "82947",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "84132",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "84295",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "84450",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "84460",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80053",
+      "col2": "84520",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80061",
+      "col2": "82465",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80061",
+      "col2": "83718",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "80061",
+      "col2": "84478",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "85025",
+      "col2": "85018",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "85025",
+      "col2": "85027",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "85027",
+      "col2": "85018",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99395",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90471",
+      "col2": "99396",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99395",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "90472",
+      "col2": "99396",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "93000",
+      "col2": "93010",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "93000",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "93010",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "93307",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "93307",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "93307",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "94640",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94010",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94640",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "94760",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96360",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96365",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96372",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96372",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96372",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96372",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96372",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96372",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96372",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96374",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96374",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96374",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96374",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96374",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96374",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96374",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "96374",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97161",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "97161",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "97163",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "97140",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "97161",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "97163",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99395",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99396",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98940",
+      "col2": "99486",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "96361",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "96366",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "97140",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "97161",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "97163",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "98940",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99221",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99222",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99232",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99238",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99291",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99395",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99396",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "98941",
+      "col2": "99486",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99202",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99202",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99202",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99202",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99203",
+      "col2": "99202",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99203",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99203",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99203",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99203",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99204",
+      "col2": "99202",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99204",
+      "col2": "99203",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99204",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99204",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99204",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99204",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99205",
+      "col2": "99202",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99205",
+      "col2": "99203",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99205",
+      "col2": "99204",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99205",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99205",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99205",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99205",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99213",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99214",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99214",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99215",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99215",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99215",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99232",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99238",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99281",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99282",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99283",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99284",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99285",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99395",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99221",
+      "col2": "99396",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99221",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99232",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99238",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99281",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99282",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99283",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99284",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99285",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99395",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99222",
+      "col2": "99396",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "96360",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "96365",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "96372",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "96374",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "99281",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "99282",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "99283",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "99284",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99232",
+      "col2": "99285",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99202",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99203",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99204",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99205",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99211",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99213",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99214",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99215",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99232",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99281",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99282",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99283",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99284",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99238",
+      "col2": "99285",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99281",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99281",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99281",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99281",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99282",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99282",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99282",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99282",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99282",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99283",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99283",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99283",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99283",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99283",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99283",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99284",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99284",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99284",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99284",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99284",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99284",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99284",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99285",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99285",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99285",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99285",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99285",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99285",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99285",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99285",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "36415",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "71045",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "71046",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "94760",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "99281",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "99282",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "99283",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "99284",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99291",
+      "col2": "99285",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99395",
+      "col2": "99396",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99396",
+      "col2": "99202",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99396",
+      "col2": "99203",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99396",
+      "col2": "99204",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99396",
+      "col2": "99205",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99396",
+      "col2": "99211",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99396",
+      "col2": "99213",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99396",
+      "col2": "99214",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99396",
+      "col2": "99215",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "36415",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "51701",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "71045",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "71046",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "94760",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "96360",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "96365",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "96372",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "96374",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "97161",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "97163",
+      "modifier_indicator": 1,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99202",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99203",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99204",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99205",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99211",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99213",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99214",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99215",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99221",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99222",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99232",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99238",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99281",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99282",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99283",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99284",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99285",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    },
+    {
+      "col1": "99486",
+      "col2": "99291",
+      "modifier_indicator": 0,
+      "source": "medicaid-ncci-practitioner"
+    }
+  ],
+  "sources": {
+    "fee_cents": "CMS PFS Relative Value File RVU26D Oct-2026 (non-QPP CF 33.4009), national non-facility amount = non-facility total RVU x CF; facility = facility total RVU x CF, or 26-modifier (professional) row for split codes",
+    "fee_provisional_codes": [
+      "36415",
+      "80048",
+      "80053",
+      "80061",
+      "81003",
+      "82310",
+      "82374",
+      "82435",
+      "82465",
+      "82565",
+      "82947",
+      "83036",
+      "83718",
+      "84132",
+      "84295",
+      "84443",
+      "84450",
+      "84460",
+      "84478",
+      "84484",
+      "84520",
+      "85018",
+      "85025",
+      "85027",
+      "87040",
+      "87086",
+      "87804",
+      "87880",
+      "90686",
+      "A0425",
+      "A0428",
+      "J1885",
+      "J2405"
+    ],
+    "fee_provisional_reason": "not priced on the PFS: labs (CLFS NLA), J drugs (ASP), ambulance (AFS), status-N non-covered - estimated national amounts",
+    "mue_mai": "CMS Medicare NCCI MUE Practitioner Services table, 2026 Q4 (eff. 2026-10-01)",
+    "ptp": "Medicaid NCCI PTP edits Practitioner Services, 2026 Q4 (MCD-PTP-PractitionerServices-Effective_10012026.txt; active edits, empty DelDt)",
+    "labels": "BillProof plain-language descriptions written for this project; no AMA CPT descriptor text used",
+    "detail": "data/cms/SOURCES.md"
+  }
+}

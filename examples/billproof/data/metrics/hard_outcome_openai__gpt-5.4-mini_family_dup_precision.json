@@ -1,0 +1,15 @@
+{
+  "value": 0.542654028436019,
+  "n": 422,
+  "source_run": "ladder_hard_openai__gpt-5.4-mini",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:08:32Z",
+  "k": 229,
+  "fp": 193,
+  "fn": 371,
+  "ci_low": 0.49495080736283936,
+  "ci_high": 0.5895876689156642,
+  "ci_method": "wilson",
+  "added_after_first_results": true,
+  "note": "Added after the first results because all-or-nothing over about 187 questions saturates at 0 for every lane. One deterministic OK-versus-dispute rule, no tuned threshold. Scored from recorded answers on the frozen 100. No new model call."
+}

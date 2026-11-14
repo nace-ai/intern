@@ -1,0 +1,11 @@
+{
+  "value": 5.5783219608987455e-62,
+  "n": 2057,
+  "source_run": "hard_dev_gpt_vs_drex-v1",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:27:07Z",
+  "b": 278.0,
+  "c": 0.0,
+  "stat": 276.00359712230215,
+  "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+}

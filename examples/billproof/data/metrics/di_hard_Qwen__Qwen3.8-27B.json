@@ -1,0 +1,89 @@
+{
+  "bench": "hard",
+  "model": "Qwen/Qwen3.8-27B",
+  "provider": "deepinfra",
+  "n_cases": 1,
+  "n_expected": 100,
+  "complete": false,
+  "line_verdict": {
+    "value": 0.9354838709677419,
+    "n": 31,
+    "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:15:29Z",
+    "k": 29,
+    "ci_low": 0.7928101168125354,
+    "ci_high": 0.9821255922249368,
+    "ci_method": "wilson",
+    "undefined_lines": 0,
+    "gold_dispute_lines": 30,
+    "model_dispute_lines": 30,
+    "added_after_first_results": true,
+    "note": "Added after the first results because all-or-nothing over about 187 questions saturates at 0 for every lane. One deterministic OK-versus-dispute rule, no tuned threshold. Scored from recorded answers on the frozen 100. No new model call."
+  },
+  "question_accuracy": {
+    "value": 0.7593582887700535,
+    "n": 187,
+    "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:15:29Z",
+    "k": 142,
+    "ci_low": 0.6932635087923685,
+    "ci_high": 0.8150114165907766,
+    "ci_method": "wilson",
+    "added_after_first_results": true,
+    "note": "Added after the first results because all-or-nothing over about 187 questions saturates at 0 for every lane. One deterministic OK-versus-dispute rule, no tuned threshold. Scored from recorded answers on the frozen 100. No new model call."
+  },
+  "bill_verdict": {
+    "value": 1.0,
+    "n": 1,
+    "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:15:29Z",
+    "k": 1,
+    "ci_low": 0.2065432914738929,
+    "ci_high": 1.0,
+    "ci_method": "wilson",
+    "gold_dispute_bills": 1,
+    "model_dispute_bills": 1,
+    "undefined_bills": 0,
+    "added_after_first_results": true,
+    "note": "Added after the first results because all-or-nothing over about 187 questions saturates at 0 for every lane. One deterministic OK-versus-dispute rule, no tuned threshold. Scored from recorded answers on the frozen 100. No new model call."
+  },
+  "strict_case": {
+    "value": 0.0,
+    "n": 1,
+    "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:15:29Z",
+    "k": 0,
+    "ci_low": 0.0,
+    "ci_high": 0.7934567085261071,
+    "ci_method": "wilson",
+    "added_after_first_results": true,
+    "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+  },
+  "latency_p50_ms": 442755.43718301924,
+  "cost_usd_sum": 0.017582775000000002,
+  "cost_per_1000_usd": 17.582775,
+  "cost_basis_counts": {
+    "provider_estimated_cost": 1
+  },
+  "input_tokens_sum": 15340,
+  "output_tokens_sum": 8997,
+  "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+  "computed_at": "2026-11-14T19:15:29Z",
+  "line_verdict_wilson": {
+    "value": 0.9354838709677419,
+    "k": 29,
+    "n": 31,
+    "ci95": [
+      0.7928101168125354,
+      0.9821255922249368
+    ],
+    "ci_method": "wilson",
+    "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:15:29Z"
+  }
+}

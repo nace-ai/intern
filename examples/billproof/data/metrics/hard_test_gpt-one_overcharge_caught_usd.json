@@ -1,0 +1,13 @@
+{
+  "value": 26.01,
+  "n": 20,
+  "source_run": "hard_test_gpt-one",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "caught_cents": 2601,
+  "gold_overcharge_cents": 2601,
+  "priced_lines": 5,
+  "catch_rate": 1.0,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call."
+}

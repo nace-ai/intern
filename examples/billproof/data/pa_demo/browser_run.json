@@ -1,0 +1,60 @@
+{
+ "task": "pa_criteria_lookup",
+ "kind": "policy_lookup",
+ "title": "Find Arkansas Medicaid PA criteria on Prime Therapeutics provider page",
+ "run_id": "brun_0163df6e21fe44f49dd73f13b8a84db1",
+ "status": "succeeded",
+ "outcome": "completed",
+ "reason": null,
+ "seconds": 52.9,
+ "cost_usd": 0.0194086,
+ "usage": {
+  "drex_input_tokens": 0,
+  "llm_input_tokens": 63128,
+  "llm_output_tokens": 2958,
+  "browser_seconds": 51,
+  "cost_usd": 0.0194086
+ },
+ "start_url": "https://ar.primetherapeutics.com/provider-documents",
+ "final_url": "https://ar.primetherapeutics.com/provider-documents",
+ "answer": {
+  "pad_url": "https://ar.primetherapeutics.com/documents/d/arkansas/arkansas_medicaid_pad_criteria",
+  "page_url": "https://ar.primetherapeutics.com/provider-documents",
+  "row_quote": "Prior Authorization Criteria PACriteria.pdf",
+  "heading_quote": "Provider Documents",
+  "pacriteria_url": "https://ar.primetherapeutics.com/documents/d/arkansas/pacriteria",
+  "criterion_quote": ""
+ },
+ "steps": [],
+ "evidence": [],
+ "screenshots": [],
+ "verification": {
+  "checked": true,
+  "quotes": [
+   {
+    "field": "row_quote",
+    "quote": "Prior Authorization Criteria PACriteria.pdf",
+    "verbatim": true
+   },
+   {
+    "field": "heading_quote",
+    "quote": "Provider Documents",
+    "verbatim": true
+   }
+  ],
+  "doc_links": [
+   {
+    "field": "pacriteria_url",
+    "url": "https://ar.primetherapeutics.com/documents/d/arkansas/pacriteria",
+    "serves_pdf": true
+   },
+   {
+    "field": "pad_url",
+    "url": "https://ar.primetherapeutics.com/documents/d/arkansas/arkansas_medicaid_pad_criteria",
+    "serves_pdf": true
+   }
+  ]
+ },
+ "recorded_at": "2026-11-14T08:14:20+00:00",
+ "provenance": "recorded live Nace browser run; replayed without network"
+}

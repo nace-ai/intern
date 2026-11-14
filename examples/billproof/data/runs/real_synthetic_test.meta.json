@@ -1,0 +1,65 @@
+{
+  "run_id": "real_synthetic_test",
+  "bench": "synthetic",
+  "split": "test",
+  "mode": "LIVE",
+  "lanes": [
+    "frontier",
+    "drex",
+    "hybrid"
+  ],
+  "n_cases": 115,
+  "planned_cases": 115,
+  "label_sha256": "46da273a2c472e43c24a00c430ddaf26710e0c5f7cd0c4d0f47058a5965e9d22",
+  "created": "2026-11-14T07:11:33.361146+00:00",
+  "assume_human_correct": false,
+  "seed": 0,
+  "coverage": {
+    "frontier": {
+      "done": 115,
+      "planned": 115,
+      "complete": true
+    },
+    "drex": {
+      "done": 115,
+      "planned": 115,
+      "complete": true
+    },
+    "hybrid": {
+      "done": 115,
+      "planned": 115,
+      "complete": true
+    }
+  },
+  "partial": false,
+  "spent_usd": 1.518834,
+  "event_day": true,
+  "drex_model": "drex-max-v1.1",
+  "frontier_model": "openai/gpt-6.1-sol",
+  "bands": {
+    "bench": "synthetic",
+    "drex_model": "drex-max-v1.1",
+    "confidence_basis": "api_scalar_not_chosen_class_probability",
+    "keep": 0.8,
+    "verify": 0.3,
+    "scope": "synthetic|drex-max-v1.1",
+    "provenance": {
+      "source_run": "real_synthetic_dev",
+      "tuned_at": "2026-11-14T07:09:01.575818+00:00",
+      "n_cases": 60,
+      "n_questions": 384,
+      "selection": "minimum_cost_within_margin",
+      "selection_basis": "paired observed frontier dev answers proxy the verifier outcome; verify cost = proportional share of the observed frontier call (cost_per_case_upper = full-call upper bound). No gold-informed simulation: the real hybrid test run alone establishes outcome.",
+      "margin": 0.01,
+      "accuracy": 0.9921875,
+      "frontier_accuracy": 1.0,
+      "bench": "synthetic",
+      "drex_model": "drex-max-v1.1"
+    }
+  },
+  "frontier_shared_rows": 0,
+  "shared_cost_usd": 0,
+  "hybrid_accuracy_strict": 0.9917920656634747,
+  "hybrid_accuracy_if_humans_correct": 0.9931600547195623,
+  "hybrid_escalation_rate": 0.023255813953488372
+}

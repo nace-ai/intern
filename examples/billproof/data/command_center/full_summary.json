@@ -1,0 +1,139 @@
+{
+  "status": "complete",
+  "note": "Every cached row is a real drex-max-v1.1 answer (or a reused answer from the earlier queue of the same model). Accuracy is against the dataset target. Edits in the presets are hypothetical.",
+  "hypothetical_edits": true,
+  "n_planned": 9686,
+  "n_cases": 9686,
+  "n_initial": 6730,
+  "n_followup": 2956,
+  "n_policies": 424,
+  "n_cached": 9686,
+  "by_state": {
+    "AR": 1354,
+    "FL": 1219,
+    "MI": 2338,
+    "MS": 1082,
+    "PA": 971,
+    "SC": 169,
+    "TN": 190,
+    "WV": 2363
+  },
+  "partial": false,
+  "computed_at": "2026-11-14T15:38:48Z",
+  "drex": {
+    "n": 9686,
+    "n_error": 0,
+    "n_correct": 9668,
+    "accuracy": 0.9981416477390047,
+    "criteria_accuracy": 0.9928763163328516,
+    "facts_accuracy": 0.992153623786909,
+    "by_label": {
+      "deny": 3326,
+      "incomplete": 2189,
+      "approve": 2475,
+      "not applicable": 1696
+    },
+    "by_colour": {
+      "red": 3326,
+      "amber": 3885,
+      "green": 2475
+    },
+    "total_cost_usd": 0.62274905,
+    "reused_n": 2211,
+    "reused_cost_usd": 0.14937542,
+    "new_row_cost_usd": 0.47337363,
+    "cost_per_1000": 0.06429372780646984,
+    "service_seconds": 887.403,
+    "cases_per_minute": 654.8999042251644,
+    "simulated": false,
+    "model": "drex-max-v1.1",
+    "n_rederive_mismatch": 0
+  },
+  "spend": {
+    "nace_usd": 0.74093037,
+    "nace_cap": 1.0,
+    "scale_usd": 0.74087214,
+    "criterion_usd": 5.823e-05,
+    "criterion_cap": 0.05,
+    "reused_cost_usd": 0.14937542,
+    "row_cost_usd": 0.62274905,
+    "note": "nace_usd is new Drex spend for this full-queue run, cap $1.00. reused_cost_usd was already paid on the earlier queue and is not charged again. row_cost_usd sums the cost stored on each decided row."
+  },
+  "model": "drex-max-v1.1",
+  "simulated": false,
+  "presets": [
+    {
+      "id": "arkansas_not_documented_as_not_met",
+      "title": "Arkansas tightens: not-documented counts as not-met",
+      "hypothetical": true,
+      "n_affected": 1354,
+      "n_decided": 1354,
+      "n_flips": 269,
+      "flip_counts": {
+        "incomplete_to_deny": 269
+      },
+      "partial": false,
+      "policy": null
+    },
+    {
+      "id": "drug_policy_or_to_and",
+      "title": "A drug policy switches OR \u2192 AND",
+      "hypothetical": true,
+      "n_affected": 32,
+      "n_decided": 32,
+      "n_flips": 21,
+      "flip_counts": {
+        "incomplete_to_deny": 6,
+        "approve_to_deny": 14,
+        "approve_to_incomplete": 1
+      },
+      "partial": false,
+      "policy": {
+        "id": "mi-medicaid-pharmacy-criteria:33344cc07d6d0f7a",
+        "policy_id": "MI-20261012-33344cc07d",
+        "title": "MIRx_clinical_criteria.pdf",
+        "drug": "MICHIGAN PREFERRED DRUG LIST)",
+        "payer": "Michigan Medicaid",
+        "state": "MI",
+        "family": "mi-medicaid-pharmacy-criteria",
+        "connective": "OR",
+        "n_cases": 32,
+        "selection": "OR list in a pharmacy or drug family with the most cases; list id breaks ties"
+      }
+    },
+    {
+      "id": "policy_year_rollover",
+      "title": "Policy year rolls over (date window moves)",
+      "hypothetical": true,
+      "n_affected": 40,
+      "n_decided": 40,
+      "n_flips": 37,
+      "flip_counts": {
+        "incomplete_to_not_applicable": 9,
+        "deny_to_not_applicable": 18,
+        "approve_to_not_applicable": 9,
+        "not_applicable_to_incomplete": 1
+      },
+      "partial": false,
+      "policy": {
+        "id": "pa-medicaid-pharmacy-criteria:57f2e52b139ae873",
+        "policy_id": "PA-20261004-57f2e52b13",
+        "title": "Cystic Fibrosis Transmembrane Regulator (CFTR) Modulators (Alyftrek, Kalydeco, Orkambi, Symdeko, Trikafta)",
+        "drug": "Cystic Fibrosis Transmembrane Regulator (CFTR) Modulators (Alyftrek, Kalydeco, Orkambi, Symdeko, Trikafta)",
+        "payer": "Pennsylvania Medical Assistance",
+        "state": "PA",
+        "family": "pa-medicaid-pharmacy-criteria",
+        "window": {
+          "from": "2026-10-01",
+          "through": "2026-10-31"
+        },
+        "shifted_window": {
+          "from": "2027-10-01",
+          "through": "2027-10-31"
+        },
+        "n_scope_changed": 39,
+        "selection": "Policy whose published window, shifted forward one year, changes whether the most requests fall inside it (at least 16 cases). This scope count is the calendar, not a model."
+      }
+    }
+  ]
+}

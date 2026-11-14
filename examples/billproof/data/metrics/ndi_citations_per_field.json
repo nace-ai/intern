@@ -1,0 +1,18 @@
+{
+  "value": 0.848,
+  "n": 448,
+  "source_run": "ndi_warm_20261114T065556",
+  "simulated": false,
+  "computed_at": "2026-11-14T06:57:16.384430+00:00",
+  "run_id": "ndi_warm_20261114T065556",
+  "cases": [
+    "SYN-D01",
+    "SYN-D02",
+    "SYN-D03",
+    "SYN-D04",
+    "SYN-D05",
+    "SYN-D06"
+  ],
+  "grounds_mode": "key",
+  "citations_total": 380
+}

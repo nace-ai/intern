@@ -1,0 +1,10 @@
+{
+  "value": 0.5642127888232134,
+  "n": 1861,
+  "source_run": "hard_dev_drex-finance",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:34:42Z",
+  "k": 1050,
+  "ci_low": 0.5415743547584647,
+  "ci_high": 0.5865866643865393
+}

@@ -1,0 +1,41 @@
+{
+  "value": 6,
+  "n": 6,
+  "unit": "cases",
+  "source_run": "data/showcase/cases.json",
+  "simulated": true,
+  "computed_at": "2026-11-14T07:11:46+00:00",
+  "label": "Showcase examples (not a benchmark)",
+  "total_dollars_at_stake_cents": 104744,
+  "dollars_at_stake_by_basis": {
+    "patient_balance_reduction": 80177,
+    "unverified_balance_no_eob": 14087,
+    "denied_charge_under_appeal": 10480
+  },
+  "dollars_at_stake_by_verification": {
+    "verified": 90657,
+    "unverified": 14087
+  },
+  "by_expected_outcome": {
+    "DISPUTE": 3,
+    "OK": 1,
+    "INSUFFICIENT_EVIDENCE": 1,
+    "APPEAL": 1
+  },
+  "by_status_color": {
+    "red": 2,
+    "green": 1,
+    "amber": 3
+  },
+  "unverified_case_ids": [
+    "SC-04"
+  ],
+  "case_ids": [
+    "SC-01",
+    "SC-02",
+    "SC-03",
+    "SC-04",
+    "SC-05",
+    "SC-06"
+  ]
+}

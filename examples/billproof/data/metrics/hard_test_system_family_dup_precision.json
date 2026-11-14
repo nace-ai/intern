@@ -1,0 +1,14 @@
+{
+  "value": 0.9882747068676717,
+  "n": 597,
+  "source_run": "hard_test_system",
+  "simulated": false,
+  "computed_at": "2026-11-14T12:04:36Z",
+  "k": 590,
+  "fp": 7,
+  "fn": 10,
+  "ci_low": 0.9759966741973254,
+  "ci_high": 0.9943089770758222,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Fee, patient responsibility, and bill_balance are the rules engine on this lane, so those families match the stored gold by construction. Drex answers duplicate, MUE, NCCI, and EOB."
+}

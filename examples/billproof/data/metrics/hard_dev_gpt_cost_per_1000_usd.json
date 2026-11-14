@@ -1,0 +1,11 @@
+{
+  "value": 118.22581818181817,
+  "n": 11,
+  "source_run": "hard_dev_gpt",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:52:33Z",
+  "stored_value": 166.71977272727273,
+  "list_cost_usd": 1.300484,
+  "stored_cost_usd": 1.8339175,
+  "note": "Recomputed from recorded tokens at $2 input and $10 output per 1M. stored_value is the earlier $2.50/$15 estimate."
+}

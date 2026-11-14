@@ -1,0 +1,46 @@
+{
+  "bench": "pa_criteria_gym",
+  "split": "development",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "provider": "deepinfra",
+  "n_cases": 370,
+  "n_expected": 370,
+  "complete": true,
+  "whole_case": {
+    "value": 0.8405405405405405,
+    "k": 311,
+    "n": 370,
+    "ci95": [
+      0.7997643214419985,
+      0.8743179636755485
+    ],
+    "ci_method": "wilson",
+    "source_run": "data/runs/di_pa_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:21:06Z"
+  },
+  "decision": {
+    "value": 0.8648648648648649,
+    "k": 320,
+    "n": 370,
+    "ci95": [
+      0.8262579102667192,
+      0.8959731095020812
+    ],
+    "ci_method": "wilson",
+    "source_run": "data/runs/di_pa_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:21:06Z"
+  },
+  "latency_p50_ms": 1491.6412039892748,
+  "cost_usd_sum": 0.0639657704,
+  "cost_per_1000_usd": 0.17288046054054054,
+  "cost_basis_counts": {
+    "provider_estimated_cost": 370
+  },
+  "input_tokens_sum": 667653,
+  "output_tokens_sum": 75802,
+  "source_run": "data/runs/di_pa_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+  "prompt": "same as pa gpt_structured",
+  "computed_at": "2026-11-14T19:21:06Z"
+}

@@ -1,0 +1,11 @@
+{
+ "value": 0.05574786486486484,
+ "n": 370,
+ "source_run": "pa_hybrid_development.jsonl",
+ "simulated": false,
+ "computed_at": "2026-11-14T12:18:53Z",
+ "list_price_usd_per_mtok": {
+  "input": 2.0,
+  "output": 10.0
+ }
+}

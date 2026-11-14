@@ -1,0 +1,861 @@
+{
+ "case_id": "SYN-D08",
+ "showcase_id": "SC-05",
+ "recorded_at": "2026-11-14T07:07:22+00:00",
+ "provenance": "recorded live Nace calls (Drex Search + Drex); replayed without network",
+ "chain": [
+  "ndi",
+  "search",
+  "browser",
+  "drex",
+  "letter"
+ ],
+ "workspace": {
+  "workspace_id": "aaca0e59-facc-4889-a131-448b4454e2c8",
+  "workspace_name": "billproof-SYN-D08",
+  "uploaded": [
+   "SYN-D08/SYN-D08_policy.pdf"
+  ],
+  "files_ingested": 1,
+  "files_skipped": 0,
+  "ingest_credits": 2,
+  "seconds": 9.4
+ },
+ "search": {
+  "query": "The plan denied line 2, CT scan of abdomen and pelvis with contrast dye (74177) on 2026-10-15 (CO-50 medical necessity). Find the plan language that supports covering it on appeal (emergency services, medical necessity, prior authorization), quoting each clause verbatim with its section and page, and the facts in the medical record that support the service.",
+  "mode": "agent",
+  "job_id": "fde997f0-5b50-4e81-ba31-779c8f22d116",
+  "status": "succeeded",
+  "seconds": 24.7,
+  "cost_usd": 0.00451,
+  "confidence": "certain",
+  "supports_coverage": true,
+  "appeal_deadline_days": 180,
+  "clauses": [
+   {
+    "page": 1,
+    "quote": "1.4 Emergency medical condition. A medical condition with acute symptoms of sufficient severity, including severe pain, that a prudent layperson with an average knowledge of health and medicine could reasonably expect, without immediate medical attention, to place the health of the person in serious jeopardy or cause serious impairment of bodily functions.",
+    "section": "1.4",
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "why_it_helps": "The member presented with sudden severe (8/10) right lower abdominal pain, fever, and tachycardia \u2014 acute symptoms of sufficient severity that a prudent layperson could reasonably expect to place health in serious jeopardy, so the visit qualifies as an emergency medical condition.",
+    "id": "q1",
+    "kind": "coverage",
+    "doc_label": "Plan Evidence of Coverage",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   },
+   {
+    "page": 1,
+    "quote": "1.7 Medically necessary. Services that a treating clinician orders to diagnose or treat an illness, injury or its symptoms, consistent with generally accepted standards of medical practice, and not mainly for the convenience of the member or the clinician.",
+    "section": "1.7",
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "why_it_helps": "The CT was ordered by the treating emergency clinician to diagnose the cause of acute abdominal pain with fever and leukocytosis, consistent with accepted practice \u2014 it was not for convenience \u2014 so it meets the plan's own definition of medically necessary, directly rebutting the CO-50 denial.",
+    "id": "q2",
+    "kind": "coverage",
+    "doc_label": "Plan Evidence of Coverage",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   },
+   {
+    "page": 1,
+    "quote": "1.9 Emergency services. A medical screening examination in an emergency department and the further examination, imaging and treatment needed to stabilize the member.",
+    "section": "1.9",
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "why_it_helps": "The CT is 'imaging' performed in the emergency department as part of the further examination needed after the screening exam, so it falls within the plan's definition of emergency services.",
+    "id": "q3",
+    "kind": "coverage",
+    "doc_label": "Plan Evidence of Coverage",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   },
+   {
+    "page": 2,
+    "quote": "5.2 Emergency services. The plan covers emergency services for an emergency medical condition, including diagnostic imaging ordered by the treating emergency clinician, at the in-network cost-sharing level. The plan decides whether a visit was an emergency from the symptoms present when the member sought care, not from the final diagnosis. A claim for emergency services will not be denied solely because the final diagnosis was not an emergency.",
+    "section": "5.2",
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "why_it_helps": "This is the strongest clause: it expressly covers diagnostic imaging ordered by the treating emergency clinician, and states the emergency determination is made from the presenting symptoms, not the final diagnosis \u2014 so the benign final diagnosis (mesenteric adenitis) cannot ground the CO-50 denial.",
+    "id": "q4",
+    "kind": "coverage",
+    "doc_label": "Plan Evidence of Coverage",
+    "verbatim": true,
+    "page_checked": 2,
+    "page_ok": true
+   },
+   {
+    "page": 2,
+    "quote": "5.3 Advanced imaging. CT, MRI and PET scans performed outside an emergency department need prior authorization. Prior authorization is not required for imaging performed during an emergency department visit.",
+    "section": "5.3",
+    "document": "SYN-D08/SYN-D08_coverage.pdf",
+    "why_it_helps": "The CT was performed during an emergency department visit, so no prior authorization was required \u2014 the plan cannot rely on a missing prior authorization as a basis for denial.",
+    "id": "q5",
+    "kind": "coverage",
+    "doc_label": "Plan Evidence of Coverage",
+    "verbatim": true,
+    "page_checked": 2,
+    "page_ok": true
+   }
+  ],
+  "record_facts": [
+   {
+    "page": 1,
+    "quote": "Sudden severe right lower abdominal pain for 6 hours, pain 8 of 10, with nausea and one episode of vomiting.",
+    "document": "SYN-D08/SYN-D08_ed_record.pdf",
+    "id": "q1",
+    "kind": "ed_record",
+    "doc_label": "ED record",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   },
+   {
+    "page": 1,
+    "quote": "Temperature 38.6 C. Heart rate 112. Right lower quadrant tenderness with guarding and rebound.",
+    "document": "SYN-D08/SYN-D08_ed_record.pdf",
+    "id": "q2",
+    "kind": "ed_record",
+    "doc_label": "ED record",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   },
+   {
+    "page": 1,
+    "quote": "White blood cell count 15.2 (high).",
+    "document": "SYN-D08/SYN-D08_ed_record.pdf",
+    "id": "q3",
+    "kind": "ed_record",
+    "doc_label": "ED record",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   },
+   {
+    "page": 1,
+    "quote": "CT abdomen and pelvis with contrast (74177) ordered at 03:25 to evaluate for acute appendicitis. Reason: acute abdominal pain with fever and raised white count.",
+    "document": "SYN-D08/SYN-D08_ed_record.pdf",
+    "id": "q4",
+    "kind": "ed_record",
+    "doc_label": "ED record",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   },
+   {
+    "page": 1,
+    "quote": "CT: normal appendix; enlarged mesenteric lymph nodes. Final diagnosis: mesenteric adenitis. Discharged home at 07:10 with follow-up.",
+    "document": "SYN-D08/SYN-D08_ed_record.pdf",
+    "id": "q5",
+    "kind": "ed_record",
+    "doc_label": "ED record",
+    "verbatim": true,
+    "page_checked": 1,
+    "page_ok": true
+   }
+  ],
+  "evidences": [
+   {
+    "source_path": "SYN-D08/SYN-D08_coverage.pdf",
+    "page": 1,
+    "quote": "1.4 Emergency medical condition. A medical condition with acute symptoms of sufficient severity, including severe pain, that a prudent layperson with an average knowledge of health and medicine could reasonably expect, without immediate medical attention, to place the health of the person in serious jeopardy or cause serious impairment of bodily functions."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_coverage.pdf",
+    "page": 1,
+    "quote": "1.7 Medically necessary. Services that a treating clinician orders to diagnose or treat an illness, injury or its symptoms, consistent with generally accepted standards of medical practice, and not mainly for the convenience of the member or the clinician."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_coverage.pdf",
+    "page": 1,
+    "quote": "1.9 Emergency services. A medical screening examination in an emergency department and the further examination, imaging and treatment needed to stabilize the member."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_coverage.pdf",
+    "page": 2,
+    "quote": "5.2 Emergency services. The plan covers emergency services for an emergency medical condition, including diagnostic imaging ordered by the treating emergency clinician, at the in-network cost-sharing level. The plan decides whether a visit was an emergency from the symptoms present when the member sought care, not from the final diagnosis. A claim for emergency services will not be denied solely because the final diagnosis was not an emergency."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_coverage.pdf",
+    "page": 2,
+    "quote": "5.3 Advanced imaging. CT, MRI and PET scans performed outside an emergency department need prior authorization. Prior authorization is not required for imaging performed during an emergency department visit."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_coverage.pdf",
+    "page": 3,
+    "quote": "8.1 Internal appeal. You may file an internal appeal within 180 days of the date of the notice of adverse benefit determination."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_ed_record.pdf",
+    "page": 1,
+    "quote": "Sudden severe right lower abdominal pain for 6 hours, pain 8 of 10, with nausea and one episode of vomiting."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_ed_record.pdf",
+    "page": 1,
+    "quote": "Temperature 38.6 C. Heart rate 112. Right lower quadrant tenderness with guarding and rebound."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_ed_record.pdf",
+    "page": 1,
+    "quote": "White blood cell count 15.2 (high)."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_ed_record.pdf",
+    "page": 1,
+    "quote": "CT abdomen and pelvis with contrast (74177) ordered at 03:25 to evaluate for acute appendicitis. Reason: acute abdominal pain with fever and raised white count."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_ed_record.pdf",
+    "page": 1,
+    "quote": "CT: normal appendix; enlarged mesenteric lymph nodes. Final diagnosis: mesenteric adenitis. Discharged home at 07:10 with follow-up."
+   },
+   {
+    "source_path": "SYN-D08/SYN-D08_eob.pdf",
+    "page": 1,
+    "quote": "2  74177  1  $104.80  $0.00  $0.00  $0.00  CO-50Denied: plan says the CT was not medically necessary. No patient liability while the appeal is open."
+   }
+  ]
+ },
+ "policy": {
+  "title": "Imaging of the Abdomen and Pelvis 2025-03-23 [for Amerigroup Georgia Medicaid]",
+  "policy_number": "RBM01-0325.1",
+  "effective_date": "03/23/2025",
+  "section": "Abdominal and/or pelvic pain, undifferentiated",
+  "url": "https://guidelines.carelonmedicalbenefitsmanagement.com/imaging-of-the-abdomen-and-pelvis-2025-03-23/",
+  "quote": "Acute abdominal pain EITHER associated with clinical findings of a surgical abdomen, including severe undifferentiated abdominal pain or guarding, OR acute pain that remains unexplained after ALL of the following:",
+  "study": "CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain",
+  "contexts": [
+   "profile, complete blood count (CBC), C-reactive protein (CRP), erythrocyte sedimentation rate (ESR), and/or urinalysis. IMAGING STUDY CT abdomen for upper quadrant (right or left) and epigastric pain CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain CT pelvis for pelvic pain MRI pelvis for pelvic pain MRI abdomen in pediatric patients; MRI abdomen in adults when CT cannot be performed Rationale ACUTE ABDOMINAL PAIN In adult patients with unexpla",
+   "ut a clear source when a most likely diagnosis cannot be established or is uncertain (undifferentiated). ADULT Advanced imaging is considered medically necessary in EITHER of the following scenarios: Acute abdominal pain EITHER associated with clinical findings of a surgical abdomen, including severe undifferentiated abdominal pain or guarding, OR acute pain that remains unexplained after ALL of the following: History Physical exam Relevant lab results* Ultrasound if the pain localizes to the right upper quadrant (abdominal ultrasound) or female pelvis (pelvic ultrasound) Nonacute abdominal pain that remai"
+  ],
+  "retrieved_at": "2026-11-14T07:06:13+00:00",
+  "run_id": "brun_acbd47735e634a2ba73fe30d3ff04058",
+  "stand_in": "Public Carelon guideline; the case payer is fictional, so this is a real stand-in."
+ },
+ "drex": {
+  "model": "drex-max-v1.1",
+  "simulated": false,
+  "without_documents": {
+   "answers": {
+    "plan_supports_coverage": {
+     "choice": "no",
+     "confidence": 0.9987,
+     "probabilities": {
+      "yes": 0.0013,
+      "no": 0.9987
+     }
+    },
+    "emergency_standard_met": {
+     "choice": "no",
+     "confidence": 0.9912,
+     "probabilities": {
+      "yes": 0.0088,
+      "no": 0.9912
+     }
+    },
+    "denial_conflicts_with_plan": {
+     "choice": "no",
+     "confidence": 0.999,
+     "probabilities": {
+      "yes": 0.001,
+      "no": 0.999
+     }
+    },
+    "guideline_supports_service": {
+     "choice": "no",
+     "confidence": 0.9945,
+     "probabilities": {
+      "yes": 0.0055,
+      "no": 0.9945
+     }
+    }
+   },
+   "latency_ms": 421.8,
+   "input_tokens": 457,
+   "cost_usd": 1.4e-05
+  },
+  "with_documents": {
+   "answers": {
+    "plan_supports_coverage": {
+     "choice": "yes",
+     "confidence": 0.9996,
+     "probabilities": {
+      "yes": 0.9996,
+      "no": 0.0004
+     }
+    },
+    "emergency_standard_met": {
+     "choice": "yes",
+     "confidence": 0.9994,
+     "probabilities": {
+      "yes": 0.9994,
+      "no": 0.0006
+     }
+    },
+    "denial_conflicts_with_plan": {
+     "choice": "yes",
+     "confidence": 0.9979,
+     "probabilities": {
+      "yes": 0.9979,
+      "no": 0.0021
+     }
+    },
+    "guideline_supports_service": {
+     "choice": "yes",
+     "confidence": 0.9839,
+     "probabilities": {
+      "yes": 0.9839,
+      "no": 0.0161
+     }
+    },
+    "cite_clause": {
+     "choice": "q4",
+     "confidence": 0.9991,
+     "probabilities": {
+      "q1": 0.0002,
+      "q2": 0.0002,
+      "q3": 0.0002,
+      "q4": 0.9993,
+      "q5": 0.0002
+     }
+    }
+   },
+   "latency_ms": 433.8,
+   "input_tokens": 1527,
+   "cost_usd": 4.6e-05
+  }
+ },
+ "letter_support": [
+  {
+   "doc_label": "Plan Evidence of Coverage",
+   "section": "5.2",
+   "page": 2,
+   "quote": "5.2 Emergency services. The plan covers emergency services for an emergency medical condition, including diagnostic imaging ordered by the treating emergency clinician, at the in-network cost-sharing level. The plan decides whether a visit was an emergency from the symptoms present when the member sought care, not from the final diagnosis. A claim for emergency services will not be denied solely because the final diagnosis was not an emergency.",
+   "facts": [
+    {
+     "doc_label": "ED record",
+     "page": 1,
+     "quote": "Sudden severe right lower abdominal pain for 6 hours, pain 8 of 10, with nausea and one episode of vomiting."
+    },
+    {
+     "doc_label": "ED record",
+     "page": 1,
+     "quote": "Temperature 38.6 C. Heart rate 112. Right lower quadrant tenderness with guarding and rebound."
+    },
+    {
+     "doc_label": "ED record",
+     "page": 1,
+     "quote": "White blood cell count 15.2 (high)."
+    }
+   ],
+   "policy": {
+    "title": "Imaging of the Abdomen and Pelvis 2025-03-23 [for Amerigroup Georgia Medicaid]",
+    "policy_number": "RBM01-0325.1",
+    "effective_date": "03/23/2025",
+    "section": "Abdominal and/or pelvic pain, undifferentiated",
+    "url": "https://guidelines.carelonmedicalbenefitsmanagement.com/imaging-of-the-abdomen-and-pelvis-2025-03-23/",
+    "quote": "Acute abdominal pain EITHER associated with clinical findings of a surgical abdomen, including severe undifferentiated abdominal pain or guarding, OR acute pain that remains unexplained after ALL of the following:",
+    "study": "CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain",
+    "contexts": [
+     "profile, complete blood count (CBC), C-reactive protein (CRP), erythrocyte sedimentation rate (ESR), and/or urinalysis. IMAGING STUDY CT abdomen for upper quadrant (right or left) and epigastric pain CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain CT pelvis for pelvic pain MRI pelvis for pelvic pain MRI abdomen in pediatric patients; MRI abdomen in adults when CT cannot be performed Rationale ACUTE ABDOMINAL PAIN In adult patients with unexpla",
+     "ut a clear source when a most likely diagnosis cannot be established or is uncertain (undifferentiated). ADULT Advanced imaging is considered medically necessary in EITHER of the following scenarios: Acute abdominal pain EITHER associated with clinical findings of a surgical abdomen, including severe undifferentiated abdominal pain or guarding, OR acute pain that remains unexplained after ALL of the following: History Physical exam Relevant lab results* Ultrasound if the pain localizes to the right upper quadrant (abdominal ultrasound) or female pelvis (pelvic ultrasound) Nonacute abdominal pain that remai"
+    ],
+    "retrieved_at": "2026-11-14T07:06:13+00:00",
+    "run_id": "brun_acbd47735e634a2ba73fe30d3ff04058",
+    "stand_in": "Public Carelon guideline; the case payer is fictional, so this is a real stand-in."
+   },
+   "picked_by": "cite_clause",
+   "probability": 0.9991
+  }
+ ],
+ "letter": {
+  "letter_type": "appeal",
+  "recipient": "insurer",
+  "subject": "Appeal of claim CL-DEMO-08",
+  "clauses": [
+   {
+    "clause_id": "opening_appeal",
+    "title": "Opening an appeal",
+    "text": "Please treat this letter as an internal appeal of claim CL-DEMO-08 with Harbor Synthetic Health. The bill asks for $13.89. This review calculates $13.89 as the amount owed. The amount in dispute is $0.00. I am asking for a written decision on the denial below. The deadline on file is 2027-03-15. Where the plan uses them, the appeal rules are 45 CFR 147.136 for commercial coverage and 42 CFR 422.568 for Medicare Advantage. This letter adds no facts beyond the documents in the packet.",
+    "picked_by": "letter_type",
+    "probability": null,
+    "evidence": [
+     {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.13578,
+         0.07339
+        ],
+        [
+         0.47553,
+         0.07339
+        ],
+        [
+         0.47553,
+         0.09026
+        ],
+        [
+         0.13578,
+         0.09026
+        ]
+       ]
+      ],
+      "text": "CEDAR VALE MEDICAL CENTER"
+     }
+    ]
+   },
+   {
+    "clause_id": "medical_necessity",
+    "title": "Medical-necessity appeal",
+    "text": "Please reconsider the denial of line 2, 74177 (CT scan of abdomen and pelvis with contrast dye), on 2026-10-15, for $0.00, on claim CL-DEMO-08 with Harbor Synthetic Health. The stated ground is that the service is not medically necessary. This letter does not offer a medical opinion. It asks the plan to review the denial against the records that belong to this claim and to send a written decision. The deadline on file is 2027-03-15.",
+    "picked_by": "verdict_L2",
+    "probability": null,
+    "evidence": [
+     {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.07369,
+         0.29212
+        ],
+        [
+         0.14348,
+         0.29212
+        ],
+        [
+         0.14348,
+         0.30373
+        ],
+        [
+         0.07369,
+         0.30373
+        ]
+       ]
+      ],
+      "text": "2026-10-15"
+     },
+     {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.20114,
+         0.29302
+        ],
+        [
+         0.2433,
+         0.29302
+        ],
+        [
+         0.2433,
+         0.30323
+        ],
+        [
+         0.20114,
+         0.30323
+        ]
+       ]
+      ],
+      "text": "74177"
+     },
+     {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.32206,
+         0.29212
+        ],
+        [
+         0.61053,
+         0.29212
+        ],
+        [
+         0.61053,
+         0.30373
+        ],
+        [
+         0.32206,
+         0.30373
+        ]
+       ]
+      ],
+      "text": "CT scan of abdomen and pelvis with contrast dye"
+     },
+     {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.32206,
+         0.30547
+        ],
+        [
+         0.44067,
+         0.30547
+        ],
+        [
+         0.44067,
+         0.31534
+        ],
+        [
+         0.32206,
+         0.31534
+        ]
+       ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+     },
+     {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.79461,
+         0.29302
+        ],
+        [
+         0.81324,
+         0.29302
+        ],
+        [
+         0.81324,
+         0.30323
+        ],
+        [
+         0.79461,
+         0.30323
+        ]
+       ]
+      ],
+      "text": "23"
+     },
+     {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.73971,
+         0.29302
+        ],
+        [
+         0.75049,
+         0.29302
+        ],
+        [
+         0.75049,
+         0.30323
+        ],
+        [
+         0.73971,
+         0.30323
+        ]
+       ]
+      ],
+      "text": "1"
+     },
+     {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.86846,
+         0.29302
+        ],
+        [
+         0.92631,
+         0.29302
+        ],
+        [
+         0.92631,
+         0.30323
+        ],
+        [
+         0.86846,
+         0.30323
+        ]
+       ]
+      ],
+      "text": "$104.80"
+     },
+     {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.15212,
+         0.32909
+        ],
+        [
+         0.18775,
+         0.32909
+        ],
+        [
+         0.18775,
+         0.34045
+        ],
+        [
+         0.15212,
+         0.34045
+        ]
+       ]
+      ],
+      "text": "74177"
+     },
+     {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.23056,
+         0.32909
+        ],
+        [
+         0.24003,
+         0.32909
+        ],
+        [
+         0.24003,
+         0.34045
+        ],
+        [
+         0.23056,
+         0.34045
+        ]
+       ]
+      ],
+      "text": "1"
+     },
+     {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.29755,
+         0.32909
+        ],
+        [
+         0.34297,
+         0.32909
+        ],
+        [
+         0.34297,
+         0.34045
+        ],
+        [
+         0.29755,
+         0.34045
+        ]
+       ]
+      ],
+      "text": "$104.80"
+     },
+     {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.41193,
+         0.32909
+        ],
+        [
+         0.44428,
+         0.32909
+        ],
+        [
+         0.44428,
+         0.34045
+        ],
+        [
+         0.41193,
+         0.34045
+        ]
+       ]
+      ],
+      "text": "$0.00"
+     },
+     {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.5165,
+         0.32909
+        ],
+        [
+         0.54886,
+         0.32909
+        ],
+        [
+         0.54886,
+         0.34045
+        ],
+        [
+         0.5165,
+         0.34045
+        ]
+       ]
+      ],
+      "text": "$0.00"
+     },
+     {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.61781,
+         0.32909
+        ],
+        [
+         0.65016,
+         0.32909
+        ],
+        [
+         0.65016,
+         0.34045
+        ],
+        [
+         0.61781,
+         0.34045
+        ]
+       ]
+      ],
+      "text": "$0.00"
+     },
+     {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.70114,
+         0.32952
+        ],
+        [
+         0.73744,
+         0.32952
+        ],
+        [
+         0.73744,
+         0.34031
+        ],
+        [
+         0.70114,
+         0.34031
+        ]
+       ]
+      ],
+      "text": "CO-50"
+     },
+     {
+      "doc": "eob",
+      "page": 1,
+      "polygons": [
+       [
+        [
+         0.70114,
+         0.34131
+        ],
+        [
+         0.90582,
+         0.34131
+        ],
+        [
+         0.90582,
+         0.35154
+        ],
+        [
+         0.70114,
+         0.35154
+        ]
+       ],
+       [
+        [
+         0.70114,
+         0.35268
+        ],
+        [
+         0.91851,
+         0.35268
+        ],
+        [
+         0.91851,
+         0.3629
+        ],
+        [
+         0.70114,
+         0.3629
+        ]
+       ],
+       [
+        [
+         0.70114,
+         0.36404
+        ],
+        [
+         0.73967,
+         0.36404
+        ],
+        [
+         0.73967,
+         0.37427
+        ],
+        [
+         0.70114,
+         0.37427
+        ]
+       ]
+      ],
+      "text": "Denied: plan says the CT was not medically necessary. No patient liability while the appeal is open."
+     }
+    ]
+   },
+   {
+    "clause_id": "plan_language",
+    "title": "The plan's own words",
+    "text": "The plan's own terms support coverage. The Plan Evidence of Coverage, section 5.2, page 2, says: \"5.2 Emergency services. The plan covers emergency services for an emergency medical condition, including diagnostic imaging ordered by the treating emergency clinician, at the in-network cost-sharing level. The plan decides whether a visit was an emergency from the symptoms present when the member sought care, not from the final diagnosis. A claim for emergency services will not be denied solely because the final diagnosis was not an emergency.\" The enclosed records show: \"Sudden severe right lower abdominal pain for 6 hours, pain 8 of 10, with nausea and one episode of vomiting.\" (ED record, page 1); \"Temperature 38.6 C. Heart rate 112. Right lower quadrant tenderness with guarding and rebound.\" (ED record, page 1); \"White blood cell count 15.2 (high).\" (ED record, page 1). A published imaging guideline (\"Imaging of the Abdomen and Pelvis 2025-03-23 [for Amerigroup Georgia Medicaid]\", https://guidelines.carelonmedicalbenefitsmanagement.com/imaging-of-the-abdomen-and-pelvis-2025-03-23/) lists as medically necessary: \"Acute abdominal pain EITHER associated with clinical findings of a surgical abdomen, including severe undifferentiated abdominal pain or guarding, OR acute pain that remains unexplained after ALL of the following:\" Its imaging study for this pain is \"CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain\". Please apply these terms to the denied service. Each quote above is copied from the document named, not paraphrased.",
+    "picked_by": "cite_clause",
+    "probability": 0.9991,
+    "evidence": [
+     {
+      "doc": "plan",
+      "page": 2,
+      "polygons": [],
+      "text": "5.2 Emergency services. The plan covers emergency services for an emergency medical condition, including diagnostic imaging ordered by the treating emergency clinician, at the in-network cost-sharing level. The plan decides whether a visit was an emergency from the symptoms present when the member sought care, not from the final diagnosis. A claim for emergency services will not be denied solely because the final diagnosis was not an emergency."
+     }
+    ]
+   },
+   {
+    "clause_id": "closing",
+    "title": "Closing and signature",
+    "text": "Please reply in writing by 2027-03-15 with a corrected statement or a decision.\nMember id on file: SYN-DEMO-08.\n\nThis letter was assembled from a fixed clause library. No model wrote the wording. It is not medical advice or legal advice.\n\nPrepared with BillProof; reviewed and signed by: ____",
+    "picked_by": "letter_type",
+    "probability": null,
+    "evidence": []
+   }
+  ],
+  "amount_cents": 0,
+  "deadline": "2027-03-15",
+  "generated_words": 0
+ },
+ "seconds_total": 35.3
+}

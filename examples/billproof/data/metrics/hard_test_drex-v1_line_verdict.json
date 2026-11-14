@@ -1,0 +1,12 @@
+{
+  "value": 0.3655705996131528,
+  "n": 9306,
+  "source_run": "hard_test_drex-v1",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "k": 3402,
+  "ci_low": 0.35584313492589353,
+  "ci_high": 0.3754090058194442,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call."
+}

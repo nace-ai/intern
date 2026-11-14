@@ -1,0 +1,75 @@
+{
+  "pilot": "g_persius_combo",
+  "applied": true,
+  "status": "complete",
+  "rule_id": "band_0.15_0.85",
+  "description": "Drex when p_yes<=0.15 or >=0.85, else GPT",
+  "selection": "max dev accuracy, then lower list cost per 1,000, then rule_id",
+  "dev_n": 300,
+  "dev_accuracy": 0.7533333333333333,
+  "dev_source": "data/runs/g_persius_rule.json",
+  "test": {
+    "n": 400,
+    "k": 293,
+    "accuracy": 0.7325,
+    "ci95": [
+      0.6870582978814362,
+      0.7735183242397125
+    ],
+    "ci_method": "wilson",
+    "mcnemar_vs_gpt": {
+      "b": 1.0,
+      "c": 2.0,
+      "p_value": 1.0,
+      "stat": 0.0
+    },
+    "mcnemar_vs_drex": {
+      "b": 55.0,
+      "c": 51.0,
+      "p_value": 0.770756305139485,
+      "stat": 0.08490566037735849
+    },
+    "counts": {
+      "tp": 115,
+      "fp": 22,
+      "tn": 178,
+      "fn": 85
+    },
+    "sensitivity": 0.575,
+    "specificity": 0.89,
+    "cost_per_1000_usd_list": 1.3008516749999999,
+    "latency_p50_ms": 8760.227137041511,
+    "gpt_call_rate": 0.7775,
+    "cost_note": "Drex at recorded cost_usd. GPT at list $2/$10 per 1M from recorded tokens. Latency is the sum of the lanes the rule uses, sequential."
+  },
+  "baselines": {
+    "drex": {
+      "n": 400,
+      "k": 289,
+      "accuracy": 0.7225,
+      "ci95": [
+        0.6766603906469573,
+        0.7641064842861849
+      ],
+      "ci_method": "wilson",
+      "cost_per_1000_usd_list": 0.008151675,
+      "latency_p50_ms": 376.88510949374177
+    },
+    "frontier": {
+      "n": 400,
+      "k": 294,
+      "accuracy": 0.735,
+      "ci95": [
+        0.6896620712769463,
+        0.7758669876412037
+      ],
+      "ci_method": "wilson",
+      "cost_per_1000_usd_list": 1.60011,
+      "latency_p50_ms": 9289.971807476832
+    }
+  },
+  "source_run": "data/runs/c_persius_test.jsonl",
+  "new_test_calls": 0,
+  "note": "Rule chosen on the train dev sample only. Applied once to the recorded 400 test rows. No new test model call. The test p-value is not corrected for the dev grid search.",
+  "computed_at": "2026-11-14T16:38:25Z"
+}

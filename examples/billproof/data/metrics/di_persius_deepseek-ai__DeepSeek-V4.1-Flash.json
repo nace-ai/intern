@@ -1,0 +1,33 @@
+{
+  "bench": "persius",
+  "split": "test",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "provider": "deepinfra",
+  "n_cases": 400,
+  "n_expected": 400,
+  "complete": true,
+  "accuracy": {
+    "value": 0.6325,
+    "k": 253,
+    "n": 400,
+    "ci95": [
+      0.5841997778817278,
+      0.6782793723593568
+    ],
+    "ci_method": "wilson",
+    "source_run": "data/runs/di_persius_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:20:05Z"
+  },
+  "latency_p50_ms": 607.5421389832627,
+  "cost_usd_sum": 0.02250878,
+  "cost_per_1000_usd": 0.056271949999999994,
+  "cost_basis_counts": {
+    "provider_estimated_cost": 400
+  },
+  "input_tokens_sum": 121033,
+  "output_tokens_sum": 13248,
+  "source_run": "data/runs/di_persius_deepseek-ai__DeepSeek-V4.1-Flash.jsonl",
+  "prompt": "same as c_persius_fair GPT_SYSTEM",
+  "computed_at": "2026-11-14T19:20:05Z"
+}

@@ -1,0 +1,11 @@
+{
+  "criteria_pages": [
+    351
+  ],
+  "policy_slice": "data/pa_demo/PA-D3/policy_slice.pdf",
+  "packet": "data/pa_demo/PA-D3/packet.pdf",
+  "clause_texts": [
+    "The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month",
+    "The beneficiary has obtained a clinical benefit from Vyepti considered significant by the beneficiary or the prescriber."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "value": 0.6276195593766792,
+  "n": 1861,
+  "source_run": "hard_dev_drex-v1",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:34:42Z",
+  "k": 1168,
+  "ci_low": 0.6054130585035755,
+  "ci_high": 0.6493002640649472
+}

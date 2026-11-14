@@ -1,0 +1,14 @@
+{
+  "value": 0.11428571428571428,
+  "n": 140,
+  "source_run": "hard_test_drex-finance",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "k": 16,
+  "fp": 14,
+  "fn": 124,
+  "ci_low": 0.07158199283635171,
+  "ci_high": 0.17759209866429904,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call."
+}

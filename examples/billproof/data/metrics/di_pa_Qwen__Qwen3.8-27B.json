@@ -1,0 +1,47 @@
+{
+  "bench": "pa_criteria_gym",
+  "split": "development",
+  "model": "Qwen/Qwen3.8-27B",
+  "provider": "deepinfra",
+  "n_cases": 370,
+  "n_expected": 370,
+  "complete": true,
+  "whole_case": {
+    "value": 0.9351351351351351,
+    "k": 346,
+    "n": 370,
+    "ci95": [
+      0.9053001239879046,
+      0.9560272403289611
+    ],
+    "ci_method": "wilson",
+    "source_run": "data/runs/di_pa_Qwen__Qwen3.8-27B.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:53:01Z"
+  },
+  "decision": {
+    "value": 0.9486486486486486,
+    "k": 351,
+    "n": 370,
+    "ci95": [
+      0.9211944126923659,
+      0.9668822486529738
+    ],
+    "ci_method": "wilson",
+    "source_run": "data/runs/di_pa_Qwen__Qwen3.8-27B.jsonl",
+    "simulated": false,
+    "computed_at": "2026-11-14T19:53:01Z"
+  },
+  "latency_p50_ms": 8498.781915492145,
+  "cost_usd_sum": 0.303002775,
+  "cost_per_1000_usd": 0.8189264189189189,
+  "cost_basis_counts": {
+    "provider_estimated_cost": 370
+  },
+  "input_tokens_sum": 643326,
+  "output_tokens_sum": 119073,
+  "source_run": "data/runs/di_pa_Qwen__Qwen3.8-27B.jsonl",
+  "prompt": "same as pa gpt_structured",
+  "computed_at": "2026-11-14T19:53:01Z",
+  "via": "via DeepInfra"
+}

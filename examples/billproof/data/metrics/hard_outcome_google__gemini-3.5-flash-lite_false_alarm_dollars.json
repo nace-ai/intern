@@ -1,0 +1,15 @@
+{
+  "value": 1120.45,
+  "n": 100,
+  "source_run": "ladder_hard_google__gemini-3.5-flash-lite",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:08:31Z",
+  "false_alarm_cents": 112045,
+  "ok_patient_cents": 312076,
+  "false_alarm_rate": 0.3590311334418539,
+  "ci_low": 504.43,
+  "ci_high": 1837.84,
+  "ci_method": "case_bootstrap_sum_2000_seed1",
+  "added_after_first_results": true,
+  "note": "Added after the first results because all-or-nothing over about 187 questions saturates at 0 for every lane. One deterministic OK-versus-dispute rule, no tuned threshold. Scored from recorded answers on the frozen 100. No new model call."
+}

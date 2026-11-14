@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Bluebay Mutual Health",
+    "short": "BLUEBAY",
+    "claims_address": "PO Box 4410, Sacramento, CA 95814",
+    "phone": "(866) 555-0152",
+    "appeal_window_days": 180,
+    "brand_color": "#2F6FA8"
+  },
+  {
+    "name": "Kestrel Ridge Health Plan",
+    "short": "KESTREL",
+    "claims_address": "PO Box 2275, Fresno, CA 93745",
+    "phone": "(877) 555-0125",
+    "appeal_window_days": 180,
+    "brand_color": "#3F8C7A"
+  },
+  {
+    "name": "Northlight Assurance",
+    "short": "NORTHLT",
+    "claims_address": "PO Box 7712, Portland, OR 97208",
+    "phone": "(855) 555-0100",
+    "appeal_window_days": 90,
+    "brand_color": "#6A5CA8"
+  },
+  {
+    "name": "Tidewreath Health",
+    "short": "TIDEWR",
+    "claims_address": "PO Box 1188, Long Beach, CA 90801",
+    "phone": "(866) 555-0102",
+    "appeal_window_days": 180,
+    "brand_color": "#2C7E93"
+  },
+  {
+    "name": "Copperleaf Benefits",
+    "short": "CPRLF",
+    "claims_address": "PO Box 3350, Denver, CO 80239",
+    "phone": "(855) 555-0142",
+    "appeal_window_days": 60,
+    "brand_color": "#A9764F"
+  },
+  {
+    "name": "Silvermoor Health",
+    "short": "SILVMR",
+    "claims_address": "PO Box 5521, San Jose, CA 95150",
+    "phone": "(855) 555-0106",
+    "appeal_window_days": 180,
+    "brand_color": "#5E7FA6"
+  },
+  {
+    "name": "Juniper Gate Health",
+    "short": "JNGATE",
+    "claims_address": "PO Box 8830, Reno, NV 89520",
+    "phone": "(877) 555-0123",
+    "appeal_window_days": 180,
+    "brand_color": "#4C7A5A"
+  },
+  {
+    "name": "Hollowfern Health Plan",
+    "short": "HOLWFN",
+    "claims_address": "PO Box 6402, Pasadena, CA 91109",
+    "phone": "(888) 555-0188",
+    "appeal_window_days": 90,
+    "brand_color": "#8A6FA8"
+  },
+  {
+    "name": "Prairie Lantern Health",
+    "short": "PRLNTR",
+    "claims_address": "PO Box 9915, Austin, TX 78766",
+    "phone": "(855) 555-0113",
+    "appeal_window_days": 180,
+    "brand_color": "#B07A4E"
+  },
+  {
+    "name": "Emberline Health Cooperative",
+    "short": "EMBRLN",
+    "claims_address": "PO Box 3020, Seattle, WA 98124",
+    "phone": "(800) 555-0102",
+    "appeal_window_days": 120,
+    "brand_color": "#B4553F"
+  }
+]

@@ -1,0 +1,723 @@
+{
+  "split": "test",
+  "lanes": {
+    "drex-v1": {
+      "question_accuracy": {
+        "value": 0.8571683055436796,
+        "n": 56136,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z",
+        "k": 48118,
+        "ci_low": 0.8542493131469002,
+        "ci_high": 0.8600384165142394
+      },
+      "case_accuracy": {
+        "value": 0.0,
+        "n": 300,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.012643429997735661
+      },
+      "invalid": {
+        "value": 0.0,
+        "n": 56136,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z",
+        "k": 0
+      },
+      "latency_p50_ms": {
+        "value": 893.8113005133346,
+        "n": 300,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z"
+      },
+      "cost_per_1000_usd": {
+        "value": 0.5267767,
+        "n": 300,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z"
+      },
+      "brier_native": {
+        "value": 0.18727935666693463,
+        "n": 56136,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z"
+      },
+      "ece_native": {
+        "value": 0.041586123161852374,
+        "n": 56136,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z"
+      },
+      "risk80": {
+        "value": 0.935267658323684,
+        "n": 44908,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z",
+        "coverage": 0.8,
+        "ci_low": 0.9329544788665631,
+        "ci_high": 0.9375063752704003
+      },
+      "risk90": {
+        "value": 0.8942836783975298,
+        "n": 50522,
+        "source_run": "hard_test_drex-v1",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z",
+        "coverage": 0.9,
+        "ci_low": 0.891572463622703,
+        "ci_high": 0.8969349365192473
+      },
+      "families": {
+        "bill_balance": {
+          "value": 0.5466666666666666,
+          "n": 300,
+          "source_run": "hard_test_drex-v1",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:38Z",
+          "k": 164,
+          "ci_low": 0.49009743799114724,
+          "ci_high": 0.6020558418757308
+        },
+        "dup": {
+          "value": 0.995164410058027,
+          "n": 9306,
+          "source_run": "hard_test_drex-v1",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:38Z",
+          "k": 9261,
+          "ci_low": 0.9935362003560855,
+          "ci_high": 0.9963839718625267
+        },
+        "eob": {
+          "value": 0.9839888244143563,
+          "n": 9306,
+          "source_run": "hard_test_drex-v1",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:38Z",
+          "k": 9157,
+          "ci_low": 0.9812315875465581,
+          "ci_high": 0.9863466363407313
+        },
+        "fee": {
+          "value": 0.6305609284332688,
+          "n": 9306,
+          "source_run": "hard_test_drex-v1",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:38Z",
+          "k": 5868,
+          "ci_low": 0.6207025320184122,
+          "ci_high": 0.6403115758907921
+        },
+        "mue": {
+          "value": 0.9101654846335697,
+          "n": 9306,
+          "source_run": "hard_test_drex-v1",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:38Z",
+          "k": 8470,
+          "ci_low": 0.9041852327482259,
+          "ci_high": 0.9158072362965749
+        },
+        "ncci": {
+          "value": 0.9519664732430689,
+          "n": 9306,
+          "source_run": "hard_test_drex-v1",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:38Z",
+          "k": 8859,
+          "ci_low": 0.9474321909587325,
+          "ci_high": 0.9561277579022663
+        },
+        "pr": {
+          "value": 0.6811734364925854,
+          "n": 9306,
+          "source_run": "hard_test_drex-v1",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:38Z",
+          "k": 6339,
+          "ci_low": 0.6716318475562972,
+          "ci_high": 0.6905655071226482
+        }
+      }
+    },
+    "drex-finance": {
+      "question_accuracy": {
+        "value": 0.8149672224597406,
+        "n": 56136,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z",
+        "k": 45749,
+        "ci_low": 0.811733306195866,
+        "ci_high": 0.8181580328634162
+      },
+      "case_accuracy": {
+        "value": 0.0,
+        "n": 300,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.012643429997735661
+      },
+      "invalid": {
+        "value": 0.0,
+        "n": 56136,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z",
+        "k": 0
+      },
+      "latency_p50_ms": {
+        "value": 806.8815449951217,
+        "n": 300,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z"
+      },
+      "cost_per_1000_usd": {
+        "value": 0.5267767,
+        "n": 300,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:38Z"
+      },
+      "brier_native": {
+        "value": 0.27687034246034087,
+        "n": 56136,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z"
+      },
+      "ece_native": {
+        "value": 0.09860531776693979,
+        "n": 56136,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z"
+      },
+      "risk80": {
+        "value": 0.879197470383896,
+        "n": 44908,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "coverage": 0.8,
+        "ci_low": 0.876150766128953,
+        "ci_high": 0.8821793042193534
+      },
+      "risk90": {
+        "value": 0.8465025137563834,
+        "n": 50522,
+        "source_run": "hard_test_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "coverage": 0.9,
+        "ci_low": 0.8433329155647765,
+        "ci_high": 0.8496194211262368
+      },
+      "families": {
+        "bill_balance": {
+          "value": 0.54,
+          "n": 300,
+          "source_run": "hard_test_drex-finance",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 162,
+          "ci_low": 0.4834506745713475,
+          "ci_high": 0.5955378510288337
+        },
+        "dup": {
+          "value": 0.9579840962819687,
+          "n": 9306,
+          "source_run": "hard_test_drex-finance",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 8915,
+          "ci_low": 0.9537153285882303,
+          "ci_high": 0.961874900143481
+        },
+        "eob": {
+          "value": 0.9401461422738019,
+          "n": 9306,
+          "source_run": "hard_test_drex-finance",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 8749,
+          "ci_low": 0.935142412834558,
+          "ci_high": 0.9447866291375417
+        },
+        "fee": {
+          "value": 0.5789813023855577,
+          "n": 9306,
+          "source_run": "hard_test_drex-finance",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 5388,
+          "ci_low": 0.5689194218746196,
+          "ci_high": 0.5889780014284793
+        },
+        "mue": {
+          "value": 0.7926069202664947,
+          "n": 9306,
+          "source_run": "hard_test_drex-finance",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 7376,
+          "ci_low": 0.7842493958527186,
+          "ci_high": 0.8007229628606671
+        },
+        "ncci": {
+          "value": 0.9568020631850419,
+          "n": 9306,
+          "source_run": "hard_test_drex-finance",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 8904,
+          "ci_low": 0.9524794842259602,
+          "ci_high": 0.9607476538168612
+        },
+        "pr": {
+          "value": 0.6721470019342359,
+          "n": 9306,
+          "source_run": "hard_test_drex-finance",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 6255,
+          "ci_low": 0.6625399137473338,
+          "ci_high": 0.681612021125543
+        }
+      }
+    },
+    "gpt": {
+      "question_accuracy": {
+        "value": 1.0,
+        "n": 736,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "k": 736,
+        "ci_low": 0.9948075371809318,
+        "ci_high": 1.0
+      },
+      "case_accuracy": {
+        "value": 1.0,
+        "n": 4,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "k": 4,
+        "ci_low": 0.5100999795960008,
+        "ci_high": 1.0
+      },
+      "invalid": {
+        "value": 0.0,
+        "n": 736,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "k": 0
+      },
+      "latency_p50_ms": {
+        "value": 74629.63814599789,
+        "n": 4,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z"
+      },
+      "cost_per_1000_usd": {
+        "value": 121.6585,
+        "n": 4,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:52:33Z",
+        "stored_value": 171.9675,
+        "note": "Recomputed from recorded tokens at $2 input and $10 output per 1M. stored_value is the earlier $2.50/$15 estimate."
+      },
+      "brier_self_reported": {
+        "value": 4.211956521739138e-06,
+        "n": 736,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z"
+      },
+      "ece_self_reported": {
+        "value": 0.0004211956521738003,
+        "n": 736,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z"
+      },
+      "risk80": {
+        "value": 1.0,
+        "n": 588,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "coverage": 0.8,
+        "ci_low": 0.9935090740495431,
+        "ci_high": 1.0
+      },
+      "risk90": {
+        "value": 1.0,
+        "n": 662,
+        "source_run": "hard_test_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "coverage": 0.9,
+        "ci_low": 0.994230459616822,
+        "ci_high": 1.0
+      },
+      "families": {
+        "bill_balance": {
+          "value": 1.0,
+          "n": 4,
+          "source_run": "hard_test_gpt",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 4,
+          "ci_low": 0.5100999795960008,
+          "ci_high": 1.0
+        },
+        "dup": {
+          "value": 1.0,
+          "n": 122,
+          "source_run": "hard_test_gpt",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 122,
+          "ci_low": 0.9694727339766817,
+          "ci_high": 0.9999999999999999
+        },
+        "eob": {
+          "value": 1.0,
+          "n": 122,
+          "source_run": "hard_test_gpt",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 122,
+          "ci_low": 0.9694727339766817,
+          "ci_high": 0.9999999999999999
+        },
+        "fee": {
+          "value": 1.0,
+          "n": 122,
+          "source_run": "hard_test_gpt",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 122,
+          "ci_low": 0.9694727339766817,
+          "ci_high": 0.9999999999999999
+        },
+        "mue": {
+          "value": 1.0,
+          "n": 122,
+          "source_run": "hard_test_gpt",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 122,
+          "ci_low": 0.9694727339766817,
+          "ci_high": 0.9999999999999999
+        },
+        "ncci": {
+          "value": 1.0,
+          "n": 122,
+          "source_run": "hard_test_gpt",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 122,
+          "ci_low": 0.9694727339766817,
+          "ci_high": 0.9999999999999999
+        },
+        "pr": {
+          "value": 1.0,
+          "n": 122,
+          "source_run": "hard_test_gpt",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 122,
+          "ci_low": 0.9694727339766817,
+          "ci_high": 0.9999999999999999
+        }
+      }
+    },
+    "gpt-one": {
+      "question_accuracy": {
+        "value": 1.0,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "k": 20,
+        "ci_low": 0.8388698745050667,
+        "ci_high": 1.0
+      },
+      "case_accuracy": {
+        "value": 1.0,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "k": 20,
+        "ci_low": 0.8388698745050667,
+        "ci_high": 1.0
+      },
+      "invalid": {
+        "value": 0.0,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "k": 0
+      },
+      "latency_p50_ms": {
+        "value": 9899.043600511504,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z"
+      },
+      "cost_per_1000_usd": {
+        "value": 13.884800000000002,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:52:33Z",
+        "stored_value": 17.551125000000003,
+        "note": "Recomputed from recorded tokens at $2 input and $10 output per 1M. stored_value is the earlier $2.50/$15 estimate."
+      },
+      "brier_self_reported": {
+        "value": 0.0,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z"
+      },
+      "ece_self_reported": {
+        "value": 0.0,
+        "n": 20,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z"
+      },
+      "risk80": {
+        "value": 1.0,
+        "n": 16,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "coverage": 0.8,
+        "ci_low": 0.8063865817272802,
+        "ci_high": 1.0
+      },
+      "risk90": {
+        "value": 1.0,
+        "n": 18,
+        "source_run": "hard_test_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "coverage": 0.9,
+        "ci_low": 0.8241154494176252,
+        "ci_high": 1.0
+      },
+      "families": {
+        "dup": {
+          "value": 1.0,
+          "n": 1,
+          "source_run": "hard_test_gpt-one",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 1,
+          "ci_low": 0.2065432914738929,
+          "ci_high": 1.0
+        },
+        "eob": {
+          "value": 1.0,
+          "n": 4,
+          "source_run": "hard_test_gpt-one",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 4,
+          "ci_low": 0.5100999795960008,
+          "ci_high": 1.0
+        },
+        "fee": {
+          "value": 1.0,
+          "n": 5,
+          "source_run": "hard_test_gpt-one",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 5,
+          "ci_low": 0.5655085052479191,
+          "ci_high": 1.0
+        },
+        "mue": {
+          "value": 1.0,
+          "n": 3,
+          "source_run": "hard_test_gpt-one",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 3,
+          "ci_low": 0.43849391955098227,
+          "ci_high": 1.0
+        },
+        "ncci": {
+          "value": 1.0,
+          "n": 2,
+          "source_run": "hard_test_gpt-one",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 2,
+          "ci_low": 0.34237195288961925,
+          "ci_high": 1.0
+        },
+        "pr": {
+          "value": 1.0,
+          "n": 5,
+          "source_run": "hard_test_gpt-one",
+          "simulated": false,
+          "computed_at": "2026-11-14T10:51:39Z",
+          "k": 5,
+          "ci_low": 0.5655085052479191,
+          "ci_high": 1.0
+        }
+      }
+    }
+  },
+  "mcnemar": [
+    {
+      "pair": [
+        "drex-v1",
+        "drex-finance"
+      ],
+      "mcnemar": {
+        "value": 5.102753548820538e-213,
+        "n": 56136,
+        "source_run": "hard_test_drex-v1_vs_drex-finance",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "b": 4074.0,
+        "c": 1705.0,
+        "stat": 970.3104343311992,
+        "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+      }
+    },
+    {
+      "pair": [
+        "drex-v1",
+        "gpt"
+      ],
+      "mcnemar": {
+        "value": 1.615499326980762e-25,
+        "n": 736,
+        "source_run": "hard_test_drex-v1_vs_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "b": 0.0,
+        "c": 111.0,
+        "stat": 109.009009009009,
+        "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+      }
+    },
+    {
+      "pair": [
+        "drex-v1",
+        "gpt-one"
+      ],
+      "mcnemar": {
+        "value": 0.03125,
+        "n": 20,
+        "source_run": "hard_test_drex-v1_vs_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "b": 0.0,
+        "c": 6.0,
+        "stat": 4.166666666666667,
+        "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+      }
+    },
+    {
+      "pair": [
+        "drex-finance",
+        "gpt"
+      ],
+      "mcnemar": {
+        "value": 2.140295357053663e-33,
+        "n": 736,
+        "source_run": "hard_test_drex-finance_vs_gpt",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "b": 0.0,
+        "c": 147.0,
+        "stat": 145.00680272108843,
+        "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+      }
+    },
+    {
+      "pair": [
+        "drex-finance",
+        "gpt-one"
+      ],
+      "mcnemar": {
+        "value": 0.0078125,
+        "n": 20,
+        "source_run": "hard_test_drex-finance_vs_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "b": 0.0,
+        "c": 8.0,
+        "stat": 6.125,
+        "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+      }
+    },
+    {
+      "pair": [
+        "gpt",
+        "gpt-one"
+      ],
+      "mcnemar": {
+        "value": 1.0,
+        "n": 4,
+        "source_run": "hard_test_gpt_vs_gpt-one",
+        "simulated": false,
+        "computed_at": "2026-11-14T10:51:39Z",
+        "b": 0.0,
+        "c": 0.0,
+        "stat": 0.0,
+        "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+      }
+    }
+  ],
+  "hybrid_tau": null,
+  "packing_agreement": {
+    "value": 1.0,
+    "n": 4,
+    "source_run": "hard_test_gpt_one_vs_gpt",
+    "simulated": false,
+    "computed_at": "2026-11-14T10:51:39Z",
+    "k": 4,
+    "ci_low": 0.5100999795960008,
+    "ci_high": 1.0,
+    "n_paired": 4,
+    "packed_invalid": 0,
+    "one_invalid": 0,
+    "both_correct": 4,
+    "one_only_correct": 0,
+    "packed_only_correct": 0,
+    "both_wrong": 0,
+    "note": "Share of items where the packed GPT choice matches the one-question call. gpt-one is not a primary lane."
+  },
+  "computed_at": "2026-11-14T10:51:39Z"
+}

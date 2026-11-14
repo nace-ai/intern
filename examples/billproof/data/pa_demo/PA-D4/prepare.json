@@ -1,0 +1,13 @@
+{
+  "criteria_pages": [
+    249
+  ],
+  "policy_slice": "data/pa_demo/PA-D4/policy_slice.pdf",
+  "packet": "data/pa_demo/PA-D4/packet.pdf",
+  "clause_texts": [
+    "Patient age \u226518 years",
+    "Diagnosis of lupus nephritis",
+    "Prescribed by or in consultation with a rheumatologist or nephrologist",
+    "Patient must concomitantly receive background immunosuppressive therapy (mycophenolate mofetil (MMF) and corticosteroids), with the exception of cyclophosphamide."
+  ]
+}

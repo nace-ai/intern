@@ -1,0 +1,10 @@
+{
+  "value": 0.14285714285714285,
+  "n": 7,
+  "source_run": "hard_dev_hybrid",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:34:42Z",
+  "k": 1,
+  "ci_low": 0.02567895594897482,
+  "ci_high": 0.5131345033190299
+}

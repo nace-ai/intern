@@ -1,0 +1,502 @@
+{
+ "gpt_whole_case": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_decision": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_per_fact": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_scope": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_missing_info": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_evidence": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_cost_per_1000": {
+  "value": 8.322614864864864,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_whole_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_decision_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_whole_case": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_decision": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_per_fact": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_scope": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_missing_info": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_evidence": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_cost_per_1000": {
+  "value": 0.05574786486486486,
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_whole_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_decision_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_whole_case": {
+  "value": 1.0,
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_decision": {
+  "value": 1.0,
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_per_fact": {
+  "value": 1.0,
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_scope": {
+  "value": 1.0,
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_missing_info": {
+  "value": 1.0,
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_evidence": {
+  "value": 1.0,
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_cost_per_1000": {
+  "value": 0.06392089572192514,
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_whole_ci": {
+  "value": [
+   0.994890413087012,
+   1.0
+  ],
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drex_supp_decision_ci": {
+  "value": [
+   0.994890413087012,
+   1.0
+  ],
+  "n": 748,
+  "source_run": "pa_drex_supp_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_whole_case": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_decision": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_per_fact": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_scope": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_missing_info": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_evidence": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_cost_per_1000": {
+  "value": 0.05574786486486486,
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_whole_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "hybrid_decision_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_whole_case": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_decision": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_per_fact": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_scope": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_missing_info": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_evidence": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_cost_per_1000": {
+  "value": 8.37836272972973,
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_whole_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "checked_decision_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_whole_case": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_decision": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_per_fact": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_scope": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_missing_info": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_evidence": {
+  "value": 1.0,
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_cost_per_1000": {
+  "value": 0.05574786486486486,
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_whole_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "drexfin_decision_ci": {
+  "value": [
+   0.9897239900535413,
+   0.9999999999999998
+  ],
+  "n": 370,
+  "source_run": "pa_drexfin_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "deciding_record_agreement": {
+  "value": 1.0,
+  "n": 80,
+  "source_run": "pa_decide_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "deciding_record_calls_per_case": {
+  "value": 5.525,
+  "n": 80,
+  "source_run": "pa_decide_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "deciding_record_seconds_per_case": {
+  "value": 6.470000000000001,
+  "n": 80,
+  "source_run": "pa_decide_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "deciding_record_cost_total": {
+  "value": 0.026175209999999997,
+  "n": 80,
+  "source_run": "pa_decide_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "spend_router_usd": {
+  "value": 3.0794,
+  "n": null,
+  "source_run": "all",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "spend_nace_usd": {
+  "value": 0.1359,
+  "n": null,
+  "source_run": "all",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:19:03Z"
+ },
+ "gpt_cost_per_1k_list": {
+  "value": 6.25552972972973,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T12:18:53Z",
+  "list_price_usd_per_mtok": {
+   "input": 2.0,
+   "output": 10.0
+  }
+ },
+ "hybrid_cost_per_1k_list": {
+  "value": 0.05574786486486484,
+  "n": 370,
+  "source_run": "pa_hybrid_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T12:18:53Z",
+  "list_price_usd_per_mtok": {
+   "input": 2.0,
+   "output": 10.0
+  }
+ },
+ "checked_cost_per_1k_list": {
+  "value": 6.311277594594601,
+  "n": 370,
+  "source_run": "pa_checked_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T12:18:53Z",
+  "list_price_usd_per_mtok": {
+   "input": 2.0,
+   "output": 10.0
+  }
+ },
+ "drex_vs_gpt_cost_ratio_list": {
+  "value": 112.21110880019161,
+  "n": 370,
+  "source_run": "pa_gpt_development.jsonl|pa_drex_development.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T12:18:53Z",
+  "list_price_usd_per_mtok": {
+   "input": 2.0,
+   "output": 10.0
+  }
+ }
+}

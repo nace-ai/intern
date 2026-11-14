@@ -1,0 +1,60 @@
+{
+  "rule": "tau 1.0 when hard_dev_drex-v1 family accuracy < 0.90, else 0.95",
+  "always_below": 0.9,
+  "else_tau": 0.95,
+  "source": "data/metrics/hard_dev_drex-v1_family_*.json",
+  "taus": {
+    "dup": 0.95,
+    "mue": 0.95,
+    "ncci": 0.95,
+    "fee": 1.0,
+    "eob": 0.95,
+    "pr": 1.0,
+    "bill_balance": 1.0
+  },
+  "families": {
+    "dup": {
+      "dev_accuracy": 0.9924771628156905,
+      "n": 1861,
+      "k": 1847,
+      "tau": 0.95
+    },
+    "mue": {
+      "dev_accuracy": 0.9108006448146158,
+      "n": 1861,
+      "k": 1695,
+      "tau": 0.95
+    },
+    "ncci": {
+      "dev_accuracy": 0.9543256313809779,
+      "n": 1861,
+      "k": 1776,
+      "tau": 0.95
+    },
+    "fee": {
+      "dev_accuracy": 0.6276195593766792,
+      "n": 1861,
+      "k": 1168,
+      "tau": 1.0
+    },
+    "eob": {
+      "dev_accuracy": 0.9817302525523912,
+      "n": 1861,
+      "k": 1827,
+      "tau": 0.95
+    },
+    "pr": {
+      "dev_accuracy": 0.6888769478774852,
+      "n": 1861,
+      "k": 1282,
+      "tau": 1.0
+    },
+    "bill_balance": {
+      "dev_accuracy": 0.5,
+      "n": 60,
+      "k": 30,
+      "tau": 1.0
+    }
+  },
+  "frozen_before_family_hybrid_calls": true
+}

@@ -1,0 +1,7 @@
+{
+  "value": 0.94,
+  "n": 100,
+  "source_run": "data/runs/ladder_pa_google__gemini-3.5-flash-lite.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:15:25Z"
+}

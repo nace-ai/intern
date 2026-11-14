@@ -1,0 +1,3770 @@
+{
+ "bench": "hard",
+ "title": "BillProof-Hard (frozen 100)",
+ "chart": "line_verdict",
+ "metrics": [
+  "line_verdict",
+  "question_accuracy"
+ ],
+ "n_cases": 100,
+ "n_questions": 18706,
+ "drex_model": "drex-max-v1.1",
+ "gpt_model": "gpt-6.1-sol",
+ "label": "simulated from recorded answers",
+ "labels": {
+  "curve": "simulated from recorded answers",
+  "gpt_only": "simulated from recorded answers",
+  "drex_only": "simulated from recorded answers",
+  "measured": "measured"
+ },
+ "formulas": {
+  "rule": "Drex keeps every question with recorded confidence >= threshold. The rest take GPT-6.1 Sol's recorded answer to the same question.",
+  "cost_per_1000_usd": "mean over cases of [Drex recorded cost_usd + (if any question routed) (GPT recorded input_tokens * $2 + GPT recorded output_tokens * routed/asked * $10) / 1e6] * 1000. GPT list price $2 in / $10 out per 1M tokens.",
+  "latency_p50_ms": "median over cases of [Drex recorded latency_ms + (if any question routed) GPT recorded latency_ms * routed/asked]. GPT runs after Drex.",
+  "gpt_only": "GPT-6.1 Sol recorded answers on every question. Cost is GPT list price from recorded tokens. No Drex cost.",
+  "drex_only": "drex-max-v1.1 recorded answers on every question. Cost is Drex recorded cost_usd."
+ },
+ "thresholds": [
+  0.5,
+  0.51,
+  0.52,
+  0.53,
+  0.54,
+  0.55,
+  0.56,
+  0.57,
+  0.58,
+  0.59,
+  0.6,
+  0.61,
+  0.62,
+  0.63,
+  0.64,
+  0.65,
+  0.66,
+  0.67,
+  0.68,
+  0.69,
+  0.7,
+  0.71,
+  0.72,
+  0.73,
+  0.74,
+  0.75,
+  0.76,
+  0.77,
+  0.78,
+  0.79,
+  0.8,
+  0.81,
+  0.82,
+  0.83,
+  0.84,
+  0.85,
+  0.86,
+  0.87,
+  0.88,
+  0.89,
+  0.9,
+  0.91,
+  0.92,
+  0.93,
+  0.94,
+  0.95,
+  0.96,
+  0.97,
+  0.98,
+  0.99,
+  1.0
+ ],
+ "curve": [
+  {
+   "threshold": 0.5,
+   "label": "simulated from recorded answers",
+   "value": 0.8619800064495324,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8619800064495324,
+     "k": 2673,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8597776114615632,
+     "k": 16083,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 0,
+    "n": 18706,
+    "share": 0.0
+   },
+   "cases_routed": {
+    "k": 0,
+    "n": 100,
+    "share": 0.0
+   },
+   "cost_per_1000_usd": 0.5263941,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 0.0
+   },
+   "latency_p50_ms": 894.5794439932797,
+   "router": "global"
+  },
+  {
+   "threshold": 0.51,
+   "label": "simulated from recorded answers",
+   "value": 0.8639148661722025,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8639148661722025,
+     "k": 2679,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8614882925264621,
+     "k": 16115,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 84,
+    "n": 18706,
+    "share": 0.004490537795359777
+   },
+   "cases_routed": {
+    "k": 57,
+    "n": 100,
+    "share": 0.57
+   },
+   "cost_per_1000_usd": 25.144589656551265,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 24.618195556551267
+   },
+   "latency_p50_ms": 1140.0658549072612,
+   "router": "global"
+  },
+  {
+   "threshold": 0.52,
+   "label": "simulated from recorded answers",
+   "value": 0.8658497258948726,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8658497258948726,
+     "k": 2685,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8651769485726505,
+     "k": 16184,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 226,
+    "n": 18706,
+    "share": 0.012081685020848925
+   },
+   "cases_routed": {
+    "k": 84,
+    "n": 100,
+    "share": 0.84
+   },
+   "cost_per_1000_usd": 37.2184716789927,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 36.692077578992695
+   },
+   "latency_p50_ms": 1468.3419566437447,
+   "router": "global"
+  },
+  {
+   "threshold": 0.53,
+   "label": "simulated from recorded answers",
+   "value": 0.8681070622379877,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8681070622379877,
+     "k": 2692,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8685448519191703,
+     "k": 16247,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 354,
+    "n": 18706,
+    "share": 0.018924409280444778
+   },
+   "cases_routed": {
+    "k": 97,
+    "n": 100,
+    "share": 0.97
+   },
+   "cost_per_1000_usd": 43.26518606414956,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 42.738791964149556
+   },
+   "latency_p50_ms": 1820.5326168901793,
+   "router": "global"
+  },
+  {
+   "threshold": 0.54,
+   "label": "simulated from recorded answers",
+   "value": 0.871654305062883,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.871654305062883,
+     "k": 2703,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8725008018817492,
+     "k": 16321,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 508,
+    "n": 18706,
+    "share": 0.027157061905271035
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 45.14453576338588,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 44.61814166338588
+   },
+   "latency_p50_ms": 2281.4453530425308,
+   "router": "global"
+  },
+  {
+   "threshold": 0.55,
+   "label": "simulated from recorded answers",
+   "value": 0.8745565946468881,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8745565946468881,
+     "k": 2712,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8759221640115471,
+     "k": 16385,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 625,
+    "n": 18706,
+    "share": 0.03341173954880787
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 45.62483535289802,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 45.09844125289802
+   },
+   "latency_p50_ms": 2496.958918595823,
+   "router": "global"
+  },
+  {
+   "threshold": 0.56,
+   "label": "simulated from recorded answers",
+   "value": 0.8781038374717833,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8781038374717833,
+     "k": 2723,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8791831497915108,
+     "k": 16446,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 773,
+    "n": 18706,
+    "share": 0.04132363947396557
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 46.22918495954764,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 45.70279085954763
+   },
+   "latency_p50_ms": 3002.0739390921935,
+   "router": "global"
+  },
+  {
+   "threshold": 0.57,
+   "label": "simulated from recorded answers",
+   "value": 0.8784263140922283,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8784263140922283,
+     "k": 2724,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8829252646209772,
+     "k": 16516,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 931,
+    "n": 18706,
+    "share": 0.0497701272319042
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 46.87814822943433,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 46.351754129434326
+   },
+   "latency_p50_ms": 3506.853185509416,
+   "router": "global"
+  },
+  {
+   "threshold": 0.58,
+   "label": "simulated from recorded answers",
+   "value": 0.8835859400193486,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8835859400193486,
+     "k": 2740,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8876296375494493,
+     "k": 16604,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 1099,
+    "n": 18706,
+    "share": 0.058751202822623756
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 47.57065327743224,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 47.04425917743224
+   },
+   "latency_p50_ms": 3844.636435997152,
+   "router": "global"
+  },
+  {
+   "threshold": 0.59,
+   "label": "simulated from recorded answers",
+   "value": 0.8855207997420187,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8855207997420187,
+     "k": 2746,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8913717523789159,
+     "k": 16674,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 1230,
+    "n": 18706,
+    "share": 0.06575430343205389
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 48.10812192046182,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 47.581727820461815
+   },
+   "latency_p50_ms": 4310.033011134181,
+   "router": "global"
+  },
+  {
+   "threshold": 0.6,
+   "label": "simulated from recorded answers",
+   "value": 0.8855207997420187,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8855207997420187,
+     "k": 2746,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8913717523789159,
+     "k": 16674,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 1230,
+    "n": 18706,
+    "share": 0.06575430343205389
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 48.10812192046182,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 47.581727820461815
+   },
+   "latency_p50_ms": 4310.033011134181,
+   "router": "global"
+  },
+  {
+   "threshold": 0.61,
+   "label": "simulated from recorded answers",
+   "value": 0.8881006127055788,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8881006127055788,
+     "k": 2754,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8954346199080508,
+     "k": 16750,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 1384,
+    "n": 18706,
+    "share": 0.07398695605688015
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 48.7393380080495,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 48.21294390804949
+   },
+   "latency_p50_ms": 4661.65736364592,
+   "router": "global"
+  },
+  {
+   "threshold": 0.62,
+   "label": "simulated from recorded answers",
+   "value": 0.891325378910029,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.891325378910029,
+     "k": 2764,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.8991232759542392,
+     "k": 16819,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 1523,
+    "n": 18706,
+    "share": 0.08141772693253502
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 49.3068245432978,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 48.7804304432978
+   },
+   "latency_p50_ms": 4920.13259923791,
+   "router": "global"
+  },
+  {
+   "threshold": 0.63,
+   "label": "simulated from recorded answers",
+   "value": 0.8948726217349242,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8948726217349242,
+     "k": 2775,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9033465198332086,
+     "k": 16898,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 1686,
+    "n": 18706,
+    "share": 0.09013150860686411
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 49.97427478401069,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 49.44788068401069
+   },
+   "latency_p50_ms": 5483.554904107874,
+   "router": "global"
+  },
+  {
+   "threshold": 0.64,
+   "label": "simulated from recorded answers",
+   "value": 0.8974524346984843,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8974524346984843,
+     "k": 2783,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9067678819630065,
+     "k": 16962,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 1832,
+    "n": 18706,
+    "share": 0.09793649096546563
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 50.57679691142618,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 50.050402811426174
+   },
+   "latency_p50_ms": 5930.322867767496,
+   "router": "global"
+  },
+  {
+   "threshold": 0.65,
+   "label": "simulated from recorded answers",
+   "value": 0.8993872944211545,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.8993872944211545,
+     "k": 2789,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9097615738265797,
+     "k": 17018,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 1980,
+    "n": 18706,
+    "share": 0.10584839089062333
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 51.181885827687736,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 50.65549172768773
+   },
+   "latency_p50_ms": 6140.938939691156,
+   "router": "global"
+  },
+  {
+   "threshold": 0.66,
+   "label": "simulated from recorded answers",
+   "value": 0.9042244437278297,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9042244437278297,
+     "k": 2804,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9139848177055491,
+     "k": 17097,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 2156,
+    "n": 18706,
+    "share": 0.11525713674756763
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 51.90389415631254,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 51.37750005631253
+   },
+   "latency_p50_ms": 6653.40101159969,
+   "router": "global"
+  },
+  {
+   "threshold": 0.67,
+   "label": "simulated from recorded answers",
+   "value": 0.9058368268300548,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9058368268300548,
+     "k": 2809,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9173527210520689,
+     "k": 17160,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 2310,
+    "n": 18706,
+    "share": 0.12348978937239388
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 52.537997552592444,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 52.01160345259244
+   },
+   "latency_p50_ms": 7086.4459959431315,
+   "router": "global"
+  },
+  {
+   "threshold": 0.68,
+   "label": "simulated from recorded answers",
+   "value": 0.9080941631731699,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9080941631731699,
+     "k": 2816,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9201325777825297,
+     "k": 17212,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 2446,
+    "n": 18706,
+    "share": 0.13076018389821448
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 53.096260044733626,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 52.56986594473363
+   },
+   "latency_p50_ms": 7484.442752263989,
+   "router": "global"
+  },
+  {
+   "threshold": 0.69,
+   "label": "simulated from recorded answers",
+   "value": 0.90938406965495,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.90938406965495,
+     "k": 2820,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9229658932962685,
+     "k": 17265,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 2572,
+    "n": 18706,
+    "share": 0.13749599059125414
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 53.60866454609306,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 53.08227044609306
+   },
+   "latency_p50_ms": 7823.427124947346,
+   "router": "global"
+  },
+  {
+   "threshold": 0.7,
+   "label": "simulated from recorded answers",
+   "value": 0.9129313124798452,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9129313124798452,
+     "k": 2831,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9260665027263979,
+     "k": 17323,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 2711,
+    "n": 18706,
+    "share": 0.14492676146690903
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 54.17535084789218,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 53.648956747892186
+   },
+   "latency_p50_ms": 8508.197761906242,
+   "router": "global"
+  },
+  {
+   "threshold": 0.71,
+   "label": "simulated from recorded answers",
+   "value": 0.9161560786842954,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9161560786842954,
+     "k": 2841,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9288463594568588,
+     "k": 17375,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 2837,
+    "n": 18706,
+    "share": 0.1516625681599487
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 54.691856183285175,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 54.16546208328518
+   },
+   "latency_p50_ms": 8908.3082912604,
+   "router": "global"
+  },
+  {
+   "threshold": 0.72,
+   "label": "simulated from recorded answers",
+   "value": 0.9216381812318607,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9216381812318607,
+     "k": 2858,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.932428097936491,
+     "k": 17442,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 2978,
+    "n": 18706,
+    "share": 0.15920025660215972
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 55.26960074802952,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 54.743206648029506
+   },
+   "latency_p50_ms": 9160.180247177774,
+   "router": "global"
+  },
+  {
+   "threshold": 0.73,
+   "label": "simulated from recorded answers",
+   "value": 0.9255079006772009,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9255079006772009,
+     "k": 2870,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9354752485833422,
+     "k": 17499,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 3100,
+    "n": 18706,
+    "share": 0.16572222816208704
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 55.766594928516504,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 55.2402008285165
+   },
+   "latency_p50_ms": 9381.35292538131,
+   "router": "global"
+  },
+  {
+   "threshold": 0.74,
+   "label": "simulated from recorded answers",
+   "value": 0.9293776201225411,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9293776201225411,
+     "k": 2882,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.941676467443601,
+     "k": 17615,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 3377,
+    "n": 18706,
+    "share": 0.18053031113011866
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 56.898650364981506,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 56.3722562649815
+   },
+   "latency_p50_ms": 10031.32333227618,
+   "router": "global"
+  },
+  {
+   "threshold": 0.75,
+   "label": "simulated from recorded answers",
+   "value": 0.9309900032247662,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9309900032247662,
+     "k": 2887,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9441890302576713,
+     "k": 17662,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 3505,
+    "n": 18706,
+    "share": 0.18737303538971453
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 57.42582997202454,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 56.89943587202453
+   },
+   "latency_p50_ms": 10523.126269370452,
+   "router": "global"
+  },
+  {
+   "threshold": 0.76,
+   "label": "simulated from recorded answers",
+   "value": 0.9345372460496614,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9345372460496614,
+     "k": 2898,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9470758045546883,
+     "k": 17716,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 3631,
+    "n": 18706,
+    "share": 0.1941088420827542
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 57.93995313737804,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 57.41355903737804
+   },
+   "latency_p50_ms": 10916.89006574035,
+   "router": "global"
+  },
+  {
+   "threshold": 0.77,
+   "label": "simulated from recorded answers",
+   "value": 0.9374395356336666,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9374395356336666,
+     "k": 2907,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9499625788517053,
+     "k": 17770,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 3761,
+    "n": 18706,
+    "share": 0.20105848390890624
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 58.473032718642166,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 57.94663861864216
+   },
+   "latency_p50_ms": 11478.47102978936,
+   "router": "global"
+  },
+  {
+   "threshold": 0.78,
+   "label": "simulated from recorded answers",
+   "value": 0.9390519187358917,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9390519187358917,
+     "k": 2912,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9524216828824976,
+     "k": 17816,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 3890,
+    "n": 18706,
+    "share": 0.20795466695178016
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 59.00129250999831,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 58.4748984099983
+   },
+   "latency_p50_ms": 11712.09374470691,
+   "router": "global"
+  },
+  {
+   "threshold": 0.79,
+   "label": "simulated from recorded answers",
+   "value": 0.944534021283457,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.944534021283457,
+     "k": 2929,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9574468085106383,
+     "k": 17910,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 4117,
+    "n": 18706,
+    "share": 0.2200898107559072
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 59.9307655603647,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 59.40437146036469
+   },
+   "latency_p50_ms": 12474.126168888659,
+   "router": "global"
+  },
+  {
+   "threshold": 0.8,
+   "label": "simulated from recorded answers",
+   "value": 0.946146404385682,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.946146404385682,
+     "k": 2934,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9596386186250401,
+     "k": 17951,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 4230,
+    "n": 18706,
+    "share": 0.22613065326633167
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 60.39057467096006,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 59.86418057096006
+   },
+   "latency_p50_ms": 12876.2184205875,
+   "router": "global"
+  },
+  {
+   "threshold": 0.81,
+   "label": "simulated from recorded answers",
+   "value": 0.9503386004514672,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9503386004514672,
+     "k": 2947,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9630065219715599,
+     "k": 18014,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 4441,
+    "n": 18706,
+    "share": 0.23741045653800918
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 61.25226979014237,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 60.725875690142374
+   },
+   "latency_p50_ms": 13567.848361959186,
+   "router": "global"
+  },
+  {
+   "threshold": 0.82,
+   "label": "simulated from recorded answers",
+   "value": 0.9529184134150274,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9529184134150274,
+     "k": 2955,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.964770661819737,
+     "k": 18047,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 4548,
+    "n": 18706,
+    "share": 0.2431305463487651
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 61.690177897105265,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 61.16378379710526
+   },
+   "latency_p50_ms": 13868.842647138405,
+   "router": "global"
+  },
+  {
+   "threshold": 0.83,
+   "label": "simulated from recorded answers",
+   "value": 0.9571106094808126,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9571106094808126,
+     "k": 2968,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.967657436116754,
+     "k": 18101,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 4733,
+    "n": 18706,
+    "share": 0.25302042125521224
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 62.446774531533485,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 61.92038043153349
+   },
+   "latency_p50_ms": 14130.644859590153,
+   "router": "global"
+  },
+  {
+   "threshold": 0.84,
+   "label": "simulated from recorded answers",
+   "value": 0.9600128990648178,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9600128990648178,
+     "k": 2977,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9696354110980434,
+     "k": 18138,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 4856,
+    "n": 18706,
+    "share": 0.25959585159841764
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 62.95216548206355,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 62.42577138206354
+   },
+   "latency_p50_ms": 14503.135832044343,
+   "router": "global"
+  },
+  {
+   "threshold": 0.85,
+   "label": "simulated from recorded answers",
+   "value": 0.961947758787488,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.961947758787488,
+     "k": 2983,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9723083502619481,
+     "k": 18188,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 5031,
+    "n": 18706,
+    "share": 0.2689511386720838
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 63.66585464872038,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 63.139460548720386
+   },
+   "latency_p50_ms": 15239.175751965593,
+   "router": "global"
+  },
+  {
+   "threshold": 0.86,
+   "label": "simulated from recorded answers",
+   "value": 0.9658174782328282,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9658174782328282,
+     "k": 2995,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9748743718592965,
+     "k": 18236,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 5206,
+    "n": 18706,
+    "share": 0.27830642574575004
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 64.38479890221956,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 63.858404802219546
+   },
+   "latency_p50_ms": 15723.085182589946,
+   "router": "global"
+  },
+  {
+   "threshold": 0.87,
+   "label": "simulated from recorded answers",
+   "value": 0.9703321509190583,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9703321509190583,
+     "k": 3009,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9771196407569763,
+     "k": 18278,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 5369,
+    "n": 18706,
+    "share": 0.2870202074200791
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 65.04626063556671,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 64.5198665355667
+   },
+   "latency_p50_ms": 15983.283275177604,
+   "router": "global"
+  },
+  {
+   "threshold": 0.88,
+   "label": "simulated from recorded answers",
+   "value": 0.9722670106417285,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9722670106417285,
+     "k": 3015,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9791510745215439,
+     "k": 18316,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 5537,
+    "n": 18706,
+    "share": 0.2960012830107987
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 65.73439944692922,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 65.20800534692921
+   },
+   "latency_p50_ms": 16265.542308338152,
+   "router": "global"
+  },
+  {
+   "threshold": 0.89,
+   "label": "simulated from recorded answers",
+   "value": 0.9745243469848436,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9745243469848436,
+     "k": 3022,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9809686731529991,
+     "k": 18350,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 5678,
+    "n": 18706,
+    "share": 0.30353897145300973
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 66.30933170700354,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 65.78293760700355
+   },
+   "latency_p50_ms": 16680.08754939485,
+   "router": "global"
+  },
+  {
+   "threshold": 0.9,
+   "label": "simulated from recorded answers",
+   "value": 0.9761367300870687,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9761367300870687,
+     "k": 3027,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9821982251683952,
+     "k": 18373,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 5831,
+    "n": 18706,
+    "share": 0.31171816529455787
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 66.93439416010897,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 66.40800006010896
+   },
+   "latency_p50_ms": 17067.06686276904,
+   "router": "global"
+  },
+  {
+   "threshold": 0.91,
+   "label": "simulated from recorded answers",
+   "value": 0.9780715898097387,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9780715898097387,
+     "k": 3033,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9842296589329627,
+     "k": 18411,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6027,
+    "n": 18706,
+    "share": 0.322196086817064
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 67.73331533407206,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 67.20692123407207
+   },
+   "latency_p50_ms": 17742.340032712593,
+   "router": "global"
+  },
+  {
+   "threshold": 0.92,
+   "label": "simulated from recorded answers",
+   "value": 0.9793614962915189,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9793614962915189,
+     "k": 3037,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9856195872981931,
+     "k": 18437,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6230,
+    "n": 18706,
+    "share": 0.33304821982251687
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 68.56252913894009,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.03613503894009
+   },
+   "latency_p50_ms": 18184.99250553432,
+   "router": "global"
+  },
+  {
+   "threshold": 0.93,
+   "label": "simulated from recorded answers",
+   "value": 0.981941309255079,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.981941309255079,
+     "k": 3045,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.987330268363092,
+     "k": 18469,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6432,
+    "n": 18706,
+    "share": 0.34384689404469154
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.3876790437311,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.8612849437311
+   },
+   "latency_p50_ms": 18988.974167942317,
+   "router": "global"
+  },
+  {
+   "threshold": 0.94,
+   "label": "simulated from recorded answers",
+   "value": 0.9838761689777491,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9838761689777491,
+     "k": 3051,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9888271142948787,
+     "k": 18497,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6658,
+    "n": 18706,
+    "share": 0.3559285790655405
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.30850071718362,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.7821066171836
+   },
+   "latency_p50_ms": 19550.555066950743,
+   "router": "global"
+  },
+  {
+   "threshold": 0.95,
+   "label": "simulated from recorded answers",
+   "value": 0.9861335053208642,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9861335053208642,
+     "k": 3058,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9903774190099434,
+     "k": 18526,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6979,
+    "n": 18706,
+    "share": 0.3730888484978082
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 71.62350867570343,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 71.09711457570343
+   },
+   "latency_p50_ms": 20344.745261676384,
+   "router": "global"
+  },
+  {
+   "threshold": 0.96,
+   "label": "simulated from recorded answers",
+   "value": 0.9887133182844243,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9887133182844243,
+     "k": 3066,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9917673473751737,
+     "k": 18552,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7308,
+    "n": 18706,
+    "share": 0.39067678819630064
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 72.96878572642437,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 72.44239162642437
+   },
+   "latency_p50_ms": 21270.360026909104,
+   "router": "global"
+  },
+  {
+   "threshold": 0.97,
+   "label": "simulated from recorded answers",
+   "value": 0.9912931312479846,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9912931312479846,
+     "k": 3074,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9939056987062974,
+     "k": 18592,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7816,
+    "n": 18706,
+    "share": 0.4178338501015717
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 75.04095670322624,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 74.51456260322625
+   },
+   "latency_p50_ms": 22678.531397410738,
+   "router": "global"
+  },
+  {
+   "threshold": 0.98,
+   "label": "simulated from recorded answers",
+   "value": 0.9954853273137697,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9954853273137697,
+     "k": 3087,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9967924730033144,
+     "k": 18646,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 8583,
+    "n": 18706,
+    "share": 0.4588367368758687
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 78.17344054661416,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 77.64704644661414
+   },
+   "latency_p50_ms": 24785.548925158702,
+   "router": "global"
+  },
+  {
+   "threshold": 0.99,
+   "label": "simulated from recorded answers",
+   "value": 0.9980651402773298,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9980651402773298,
+     "k": 3095,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9988239067678819,
+     "k": 18684,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 10350,
+    "n": 18706,
+    "share": 0.5532984069282583
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 85.39962557587795,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 84.87323147587796
+   },
+   "latency_p50_ms": 29898.55143042587,
+   "router": "global"
+  },
+  {
+   "threshold": 1.0,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "line_verdict": {
+     "value": 1.0,
+     "k": 3101,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 1.0,
+     "k": 18706,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 18706,
+    "n": 18706,
+    "share": 1.0
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 119.5662541,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 119.03986
+   },
+   "latency_p50_ms": 53176.95801900118,
+   "router": "global"
+  }
+ ],
+ "gpt_only": {
+  "label": "simulated from recorded answers",
+  "lane": "GPT-6.1 Sol",
+  "model": "gpt-6.1-sol",
+  "value": 1.0,
+  "metrics": {
+   "line_verdict": {
+    "value": 1.0,
+    "k": 3101,
+    "n": 3101
+   },
+   "question_accuracy": {
+    "value": 1.0,
+    "k": 18706,
+    "n": 18706
+   }
+  },
+  "cost_per_1000_usd": 119.03986,
+  "latency_p50_ms": 52285.30920550111,
+  "note": "GPT-6.1 Sol recorded answers on every question. Cost is GPT list price from recorded tokens. No Drex cost."
+ },
+ "drex_only": {
+  "label": "simulated from recorded answers",
+  "lane": "Drex v1.1",
+  "model": "drex-max-v1.1",
+  "value": 0.8619800064495324,
+  "metrics": {
+   "line_verdict": {
+    "value": 0.8619800064495324,
+    "k": 2673,
+    "n": 3101
+   },
+   "question_accuracy": {
+    "value": 0.8597776114615632,
+    "k": 16083,
+    "n": 18706
+   }
+  },
+  "cost_per_1000_usd": 0.5263941,
+  "latency_p50_ms": 894.5794439932797,
+  "note": "drex-max-v1.1 recorded answers on every question. Cost is Drex recorded cost_usd."
+ },
+ "measured": [
+  {
+   "label": "measured",
+   "lane": "Drex-first hybrid (per-family map), measured",
+   "threshold": 0.95,
+   "router": "family",
+   "value": 0.9874234118026443,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9874234118026443,
+     "k": 3062,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9918742649417299,
+     "k": 18554,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7747,
+    "n": 18706,
+    "share": 0.4141451940553833
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "gpt_wrong_on_escalated": 0,
+   "cost_per_1000_usd": 62.255919999999996,
+   "cost_basis": "recorded list_cost_usd of the GPT escalation call only (as published, $62.26). Drex is not included.",
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 62.255919999999996
+   },
+   "cost_per_1000_usd_with_drex": 62.782314099999994,
+   "latency_p50_ms": 35347.96874047606,
+   "sources": [
+    "data/runs/hard_test_family_hybrid.jsonl",
+    "data/metrics/hard_outcome_hybrid_line_verdict.json",
+    "data/metrics/hard_outcome_hybrid_question_accuracy.json"
+   ]
+  }
+ ],
+ "match_gpt_within_1pt": {
+  "threshold": 0.97,
+  "router": "global",
+  "value": 0.9912931312479846,
+  "gpt_value": 1.0,
+  "cost_per_1000_usd": 75.04095670322624,
+  "gpt_cost_per_1000_usd": 119.03986,
+  "questions_routed_share": 0.4178338501015717,
+  "post_hoc": "Threshold picked on the same recorded set it is scored on. Not a held-out choice.",
+  "rule": "lowest simulated cost among points whose chart metric is >= GPT-6.1 Sol minus 0.01",
+  "label": "simulated from recorded answers"
+ },
+ "match_gpt_exact": {
+  "threshold": 1.0,
+  "router": "global",
+  "value": 1.0,
+  "gpt_value": 1.0,
+  "cost_per_1000_usd": 119.5662541,
+  "gpt_cost_per_1000_usd": 119.03986,
+  "questions_routed_share": 1.0,
+  "post_hoc": "Threshold picked on the same recorded set it is scored on. Not a held-out choice.",
+  "rule": "lowest simulated cost among points whose chart metric is >= GPT-6.1 Sol minus 0",
+  "label": "simulated from recorded answers"
+ },
+ "family_curve": [
+  {
+   "threshold": 0.5,
+   "label": "simulated from recorded answers",
+   "value": 0.9719445340212834,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9719445340212834,
+     "k": 3014,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9742328664599593,
+     "k": 18224,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6302,
+    "n": 18706,
+    "share": 0.3368972522185395
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 68.83906382734514,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.31266972734514
+   },
+   "latency_p50_ms": 18525.92058155655,
+   "router": "family"
+  },
+  {
+   "threshold": 0.51,
+   "label": "simulated from recorded answers",
+   "value": 0.9719445340212834,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9719445340212834,
+     "k": 3014,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9745536191596279,
+     "k": 18230,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6314,
+    "n": 18706,
+    "share": 0.3375387576178766
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 68.888556767796,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.36216266779599
+   },
+   "latency_p50_ms": 18552.128102861592,
+   "router": "family"
+  },
+  {
+   "threshold": 0.52,
+   "label": "simulated from recorded answers",
+   "value": 0.9722670106417285,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9722670106417285,
+     "k": 3015,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9748743718592965,
+     "k": 18236,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6326,
+    "n": 18706,
+    "share": 0.3381802630172137
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 68.93788179057834,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.41148769057834
+   },
+   "latency_p50_ms": 18597.737725235893,
+   "router": "family"
+  },
+  {
+   "threshold": 0.53,
+   "label": "simulated from recorded answers",
+   "value": 0.9722670106417285,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9722670106417285,
+     "k": 3015,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9749812894258527,
+     "k": 18238,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6337,
+    "n": 18706,
+    "share": 0.33876830963327276
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 68.9839073014149,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.4575132014149
+   },
+   "latency_p50_ms": 18665.328905411992,
+   "router": "family"
+  },
+  {
+   "threshold": 0.54,
+   "label": "simulated from recorded answers",
+   "value": 0.9722670106417285,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9722670106417285,
+     "k": 3015,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9751951245589651,
+     "k": 18242,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6347,
+    "n": 18706,
+    "share": 0.3393028974660537
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.02470451847105,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.49831041847105
+   },
+   "latency_p50_ms": 18769.206557280828,
+   "router": "family"
+  },
+  {
+   "threshold": 0.55,
+   "label": "simulated from recorded answers",
+   "value": 0.9722670106417285,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9722670106417285,
+     "k": 3015,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9755693360419116,
+     "k": 18249,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6359,
+    "n": 18706,
+    "share": 0.3399444028653908
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.07449181886626,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.54809771886626
+   },
+   "latency_p50_ms": 18769.206557280828,
+   "router": "family"
+  },
+  {
+   "threshold": 0.56,
+   "label": "simulated from recorded answers",
+   "value": 0.9722670106417285,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9722670106417285,
+     "k": 3015,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9757831711750241,
+     "k": 18253,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6368,
+    "n": 18706,
+    "share": 0.3404255319148936
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.11109497240494,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.58470087240494
+   },
+   "latency_p50_ms": 18769.206557280828,
+   "router": "family"
+  },
+  {
+   "threshold": 0.57,
+   "label": "simulated from recorded answers",
+   "value": 0.9722670106417285,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9722670106417285,
+     "k": 3015,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9760504650914145,
+     "k": 18258,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6381,
+    "n": 18706,
+    "share": 0.34112049609750883
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.16439308648765,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.63799898648764
+   },
+   "latency_p50_ms": 18802.872045900374,
+   "router": "family"
+  },
+  {
+   "threshold": 0.58,
+   "label": "simulated from recorded answers",
+   "value": 0.9725894872621735,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9725894872621735,
+     "k": 3016,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9763177590078049,
+     "k": 18263,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6392,
+    "n": 18706,
+    "share": 0.3417085427135678
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.21011475328113,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.68372065328113
+   },
+   "latency_p50_ms": 18866.4926451838,
+   "router": "family"
+  },
+  {
+   "threshold": 0.59,
+   "label": "simulated from recorded answers",
+   "value": 0.9725894872621735,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9725894872621735,
+     "k": 3016,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9765850529241954,
+     "k": 18268,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6404,
+    "n": 18706,
+    "share": 0.3423500481129049
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.25938408358508,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.73298998358509
+   },
+   "latency_p50_ms": 18866.4926451838,
+   "router": "family"
+  },
+  {
+   "threshold": 0.6,
+   "label": "simulated from recorded answers",
+   "value": 0.9725894872621735,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9725894872621735,
+     "k": 3016,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9765850529241954,
+     "k": 18268,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6404,
+    "n": 18706,
+    "share": 0.3423500481129049
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.25938408358508,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.73298998358509
+   },
+   "latency_p50_ms": 18866.4926451838,
+   "router": "family"
+  },
+  {
+   "threshold": 0.61,
+   "label": "simulated from recorded answers",
+   "value": 0.9725894872621735,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9725894872621735,
+     "k": 3016,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9767454292740297,
+     "k": 18271,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6417,
+    "n": 18706,
+    "share": 0.34304501229552015
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.31274916993601,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.78635506993602
+   },
+   "latency_p50_ms": 18879.429343606804,
+   "router": "family"
+  },
+  {
+   "threshold": 0.62,
+   "label": "simulated from recorded answers",
+   "value": 0.9729119638826185,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9729119638826185,
+     "k": 3017,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9768523468405859,
+     "k": 18273,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6428,
+    "n": 18706,
+    "share": 0.3436330589115792
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.3573719492794,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.83097784927938
+   },
+   "latency_p50_ms": 18909.69175375651,
+   "router": "family"
+  },
+  {
+   "threshold": 0.63,
+   "label": "simulated from recorded answers",
+   "value": 0.9735569171235086,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9735569171235086,
+     "k": 3019,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9772800171068107,
+     "k": 18281,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6445,
+    "n": 18706,
+    "share": 0.34454185822730676
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.42673258117505,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.90033848117504
+   },
+   "latency_p50_ms": 18992.642879105555,
+   "router": "family"
+  },
+  {
+   "threshold": 0.64,
+   "label": "simulated from recorded answers",
+   "value": 0.9735569171235086,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9735569171235086,
+     "k": 3019,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9776007698064793,
+     "k": 18287,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6465,
+    "n": 18706,
+    "share": 0.3456110338928686
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.5098055794172,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 68.98341147941721
+   },
+   "latency_p50_ms": 18997.351004473614,
+   "router": "family"
+  },
+  {
+   "threshold": 0.65,
+   "label": "simulated from recorded answers",
+   "value": 0.9735569171235086,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9735569171235086,
+     "k": 3019,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9777076873730354,
+     "k": 18289,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6477,
+    "n": 18706,
+    "share": 0.34625253929220573
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.55859326837901,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.03219916837901
+   },
+   "latency_p50_ms": 19006.42916398333,
+   "router": "family"
+  },
+  {
+   "threshold": 0.66,
+   "label": "simulated from recorded answers",
+   "value": 0.9735569171235086,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9735569171235086,
+     "k": 3019,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9777076873730354,
+     "k": 18289,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6489,
+    "n": 18706,
+    "share": 0.34689404469154284
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.60835112718925,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.08195702718925
+   },
+   "latency_p50_ms": 19006.42916398333,
+   "router": "family"
+  },
+  {
+   "threshold": 0.67,
+   "label": "simulated from recorded answers",
+   "value": 0.9738793937439536,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9738793937439536,
+     "k": 3020,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9780818988559821,
+     "k": 18296,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6508,
+    "n": 18706,
+    "share": 0.3479097615738266
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.68696252991879,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.16056842991878
+   },
+   "latency_p50_ms": 19039.902608920725,
+   "router": "family"
+  },
+  {
+   "threshold": 0.68,
+   "label": "simulated from recorded answers",
+   "value": 0.9738793937439536,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9738793937439536,
+     "k": 3020,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9785095691222068,
+     "k": 18304,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6523,
+    "n": 18706,
+    "share": 0.348711643322998
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.74893681961713,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.22254271961712
+   },
+   "latency_p50_ms": 19138.483157164927,
+   "router": "family"
+  },
+  {
+   "threshold": 0.69,
+   "label": "simulated from recorded answers",
+   "value": 0.9738793937439536,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9738793937439536,
+     "k": 3020,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9787768630385972,
+     "k": 18309,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6540,
+    "n": 18706,
+    "share": 0.34962044263872555
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.81822726190153,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.29183316190152
+   },
+   "latency_p50_ms": 19214.90123052052,
+   "router": "family"
+  },
+  {
+   "threshold": 0.7,
+   "label": "simulated from recorded answers",
+   "value": 0.9738793937439536,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9738793937439536,
+     "k": 3020,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9789372393884315,
+     "k": 18312,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6550,
+    "n": 18706,
+    "share": 0.3501550304715065
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.85826837187355,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.33187427187355
+   },
+   "latency_p50_ms": 19280.730759030994,
+   "router": "family"
+  },
+  {
+   "threshold": 0.71,
+   "label": "simulated from recorded answers",
+   "value": 0.9742018703643985,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9742018703643985,
+     "k": 3021,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9793114508713782,
+     "k": 18319,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6562,
+    "n": 18706,
+    "share": 0.3507965358708436
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.90661581052271,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.38022171052272
+   },
+   "latency_p50_ms": 19280.730759030994,
+   "router": "family"
+  },
+  {
+   "threshold": 0.72,
+   "label": "simulated from recorded answers",
+   "value": 0.9742018703643985,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9742018703643985,
+     "k": 3021,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9795252860044905,
+     "k": 18323,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6578,
+    "n": 18706,
+    "share": 0.35165187640329304
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 69.97254576659905,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.44615166659905
+   },
+   "latency_p50_ms": 19325.362595979444,
+   "router": "family"
+  },
+  {
+   "threshold": 0.73,
+   "label": "simulated from recorded answers",
+   "value": 0.9745243469848436,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9745243469848436,
+     "k": 3022,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9798460387041591,
+     "k": 18329,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6593,
+    "n": 18706,
+    "share": 0.35245375815246444
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.03281518268984,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.50642108268984
+   },
+   "latency_p50_ms": 19378.80465149662,
+   "router": "family"
+  },
+  {
+   "threshold": 0.74,
+   "label": "simulated from recorded answers",
+   "value": 0.9745243469848436,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9745243469848436,
+     "k": 3022,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.98038062653694,
+     "k": 18339,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6630,
+    "n": 18706,
+    "share": 0.35443173313375387
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.18315346821763,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.65675936821764
+   },
+   "latency_p50_ms": 19469.600272611497,
+   "router": "family"
+  },
+  {
+   "threshold": 0.75,
+   "label": "simulated from recorded answers",
+   "value": 0.9745243469848436,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9745243469848436,
+     "k": 3022,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9805944616700524,
+     "k": 18343,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6651,
+    "n": 18706,
+    "share": 0.35555436758259384
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.27024403928944,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.74384993928943
+   },
+   "latency_p50_ms": 19537.60771710535,
+   "router": "family"
+  },
+  {
+   "threshold": 0.76,
+   "label": "simulated from recorded answers",
+   "value": 0.9748468236052886,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9748468236052886,
+     "k": 3023,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9808082968031647,
+     "k": 18347,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6666,
+    "n": 18706,
+    "share": 0.3563562493317652
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.33162120177512,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.80522710177512
+   },
+   "latency_p50_ms": 19546.534399301658,
+   "router": "family"
+  },
+  {
+   "threshold": 0.77,
+   "label": "simulated from recorded answers",
+   "value": 0.9751693002257337,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9751693002257337,
+     "k": 3024,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.980915214369721,
+     "k": 18349,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6680,
+    "n": 18706,
+    "share": 0.3571046722976585
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.38898405022864,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.86258995022864
+   },
+   "latency_p50_ms": 19566.54814186111,
+   "router": "family"
+  },
+  {
+   "threshold": 0.78,
+   "label": "simulated from recorded answers",
+   "value": 0.9751693002257337,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9751693002257337,
+     "k": 3024,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9811290495028333,
+     "k": 18353,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6696,
+    "n": 18706,
+    "share": 0.357960012830108
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.45375221732805,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 69.92735811732803
+   },
+   "latency_p50_ms": 19572.165690065212,
+   "router": "family"
+  },
+  {
+   "threshold": 0.79,
+   "label": "simulated from recorded answers",
+   "value": 0.9761367300870687,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9761367300870687,
+     "k": 3027,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9818774724687266,
+     "k": 18367,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6730,
+    "n": 18706,
+    "share": 0.3597776114615631
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.59232714947852,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 70.06593304947853
+   },
+   "latency_p50_ms": 19814.758124219,
+   "router": "family"
+  },
+  {
+   "threshold": 0.8,
+   "label": "simulated from recorded answers",
+   "value": 0.9761367300870687,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9761367300870687,
+     "k": 3027,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9819309312520047,
+     "k": 18368,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6753,
+    "n": 18706,
+    "share": 0.36100716347695927
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.6882821023593,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 70.16188800235929
+   },
+   "latency_p50_ms": 19832.064529723073,
+   "router": "family"
+  },
+  {
+   "threshold": 0.81,
+   "label": "simulated from recorded answers",
+   "value": 0.9761367300870687,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9761367300870687,
+     "k": 3027,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9824120603015075,
+     "k": 18377,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6778,
+    "n": 18706,
+    "share": 0.3623436330589116
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.79110729775626,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 70.26471319775625
+   },
+   "latency_p50_ms": 19860.7564512357,
+   "router": "family"
+  },
+  {
+   "threshold": 0.82,
+   "label": "simulated from recorded answers",
+   "value": 0.9764592067075137,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9764592067075137,
+     "k": 3028,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9826258954346199,
+     "k": 18381,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6800,
+    "n": 18706,
+    "share": 0.36351972629102963
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 70.88087049751634,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 70.35447639751634
+   },
+   "latency_p50_ms": 19952.952547858556,
+   "router": "family"
+  },
+  {
+   "threshold": 0.83,
+   "label": "simulated from recorded answers",
+   "value": 0.9777491131892938,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9777491131892938,
+     "k": 3032,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9831604832674008,
+     "k": 18391,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6834,
+    "n": 18706,
+    "share": 0.3653373249224848
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 71.02086631845455,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 70.49447221845455
+   },
+   "latency_p50_ms": 20087.20220896564,
+   "router": "family"
+  },
+  {
+   "threshold": 0.84,
+   "label": "simulated from recorded answers",
+   "value": 0.9780715898097387,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9780715898097387,
+     "k": 3033,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9834812359670694,
+     "k": 18397,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6864,
+    "n": 18706,
+    "share": 0.36694108842082757
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 71.14460560314483,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 70.61821150314483
+   },
+   "latency_p50_ms": 20130.269559687717,
+   "router": "family"
+  },
+  {
+   "threshold": 0.85,
+   "label": "simulated from recorded answers",
+   "value": 0.9783940664301838,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9783940664301838,
+     "k": 3034,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9840158237998503,
+     "k": 18407,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6905,
+    "n": 18706,
+    "share": 0.36913289853522935
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 71.31239476491838,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 70.78600066491838
+   },
+   "latency_p50_ms": 20331.75296364083,
+   "router": "family"
+  },
+  {
+   "threshold": 0.86,
+   "label": "simulated from recorded answers",
+   "value": 0.9796839729119639,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9796839729119639,
+     "k": 3038,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9847642467657436,
+     "k": 18421,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6946,
+    "n": 18706,
+    "share": 0.37132470864963113
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 71.48054090595751,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 70.9541468059575
+   },
+   "latency_p50_ms": 20380.522384577238,
+   "router": "family"
+  },
+  {
+   "threshold": 0.87,
+   "label": "simulated from recorded answers",
+   "value": 0.980651402773299,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.980651402773299,
+     "k": 3041,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9852988345985245,
+     "k": 18431,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 6985,
+    "n": 18706,
+    "share": 0.37340960119747674
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 71.64031444964411,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 71.1139203496441
+   },
+   "latency_p50_ms": 20505.747222934457,
+   "router": "family"
+  },
+  {
+   "threshold": 0.88,
+   "label": "simulated from recorded answers",
+   "value": 0.981296356014189,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.981296356014189,
+     "k": 3043,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9858334224313055,
+     "k": 18441,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7044,
+    "n": 18706,
+    "share": 0.3765636694108842
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 71.8824606432667,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 71.3560665432667
+   },
+   "latency_p50_ms": 20640.972017404194,
+   "router": "family"
+  },
+  {
+   "threshold": 0.89,
+   "label": "simulated from recorded answers",
+   "value": 0.981941309255079,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.981941309255079,
+     "k": 3045,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9864749278306426,
+     "k": 18453,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7099,
+    "n": 18706,
+    "share": 0.3795039024911793
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 72.11033034956927,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 71.58393624956926
+   },
+   "latency_p50_ms": 20674.481532295504,
+   "router": "family"
+  },
+  {
+   "threshold": 0.9,
+   "label": "simulated from recorded answers",
+   "value": 0.981941309255079,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.981941309255079,
+     "k": 3045,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9871164332299797,
+     "k": 18465,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7152,
+    "n": 18706,
+    "share": 0.3823372180049182
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 72.32765218178253,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 71.80125808178254
+   },
+   "latency_p50_ms": 20838.269860504515,
+   "router": "family"
+  },
+  {
+   "threshold": 0.91,
+   "label": "simulated from recorded answers",
+   "value": 0.981941309255079,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.981941309255079,
+     "k": 3045,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9881321501122634,
+     "k": 18484,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7243,
+    "n": 18706,
+    "share": 0.38720196728322465
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 72.70053717126049,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 72.17414307126047
+   },
+   "latency_p50_ms": 20917.24519791577,
+   "router": "family"
+  },
+  {
+   "threshold": 0.92,
+   "label": "simulated from recorded answers",
+   "value": 0.9829087391164141,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9829087391164141,
+     "k": 3048,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9889340318614348,
+     "k": 18499,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7332,
+    "n": 18706,
+    "share": 0.39195979899497485
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 73.06877510364473,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 72.5423810036447
+   },
+   "latency_p50_ms": 21291.019815703505,
+   "router": "family"
+  },
+  {
+   "threshold": 0.93,
+   "label": "simulated from recorded answers",
+   "value": 0.9841986455981941,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9841986455981941,
+     "k": 3052,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9897359136106062,
+     "k": 18514,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7429,
+    "n": 18706,
+    "share": 0.39714530097294987
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 73.4654500006171,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 72.93905590061708
+   },
+   "latency_p50_ms": 21626.17832422473,
+   "router": "family"
+  },
+  {
+   "threshold": 0.94,
+   "label": "simulated from recorded answers",
+   "value": 0.9858110287004193,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9858110287004193,
+     "k": 3057,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9906981717096119,
+     "k": 18532,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7556,
+    "n": 18706,
+    "share": 0.4039345664492676
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 73.98471430089488,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 73.45832020089487
+   },
+   "latency_p50_ms": 22003.988159642984,
+   "router": "family"
+  },
+  {
+   "threshold": 0.95,
+   "label": "simulated from recorded answers",
+   "value": 0.9874234118026443,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9874234118026443,
+     "k": 3062,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9918742649417299,
+     "k": 18554,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7747,
+    "n": 18706,
+    "share": 0.4141451940553833
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 74.76794335509199,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 74.241549255092
+   },
+   "latency_p50_ms": 22648.36852119852,
+   "router": "family"
+  },
+  {
+   "threshold": 0.96,
+   "label": "simulated from recorded answers",
+   "value": 0.9890357949048694,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9890357949048694,
+     "k": 3067,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9929434406072918,
+     "k": 18574,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 7961,
+    "n": 18706,
+    "share": 0.42558537367689514
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 75.64338653022435,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 75.11699243022433
+   },
+   "latency_p50_ms": 23108.94227022048,
+   "router": "family"
+  },
+  {
+   "threshold": 0.97,
+   "label": "simulated from recorded answers",
+   "value": 0.9916156078684295,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9916156078684295,
+     "k": 3075,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.994814498022025,
+     "k": 18609,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 8320,
+    "n": 18706,
+    "share": 0.44477707687373036
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 77.10595230164529,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 76.57955820164528
+   },
+   "latency_p50_ms": 24298.29873524487,
+   "router": "family"
+  },
+  {
+   "threshold": 0.98,
+   "label": "simulated from recorded answers",
+   "value": 0.9958078039342148,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9958078039342148,
+     "k": 3088,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9971666844862611,
+     "k": 18653,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 8912,
+    "n": 18706,
+    "share": 0.47642467657436116
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 79.52258421486772,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 78.9961901148677
+   },
+   "latency_p50_ms": 25942.157580417246,
+   "router": "family"
+  },
+  {
+   "threshold": 0.99,
+   "label": "simulated from recorded answers",
+   "value": 0.9980651402773298,
+   "metrics": {
+    "line_verdict": {
+     "value": 0.9980651402773298,
+     "k": 3095,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 0.9988239067678819,
+     "k": 18684,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 10491,
+    "n": 18706,
+    "share": 0.5608360953704694
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 85.97884699810854,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 85.45245289810855
+   },
+   "latency_p50_ms": 30330.472654677706,
+   "router": "family"
+  },
+  {
+   "threshold": 1.0,
+   "label": "simulated from recorded answers",
+   "value": 1.0,
+   "metrics": {
+    "line_verdict": {
+     "value": 1.0,
+     "k": 3101,
+     "n": 3101
+    },
+    "question_accuracy": {
+     "value": 1.0,
+     "k": 18706,
+     "n": 18706
+    }
+   },
+   "questions_routed": {
+    "k": 18706,
+    "n": 18706,
+    "share": 1.0
+   },
+   "cases_routed": {
+    "k": 100,
+    "n": 100,
+    "share": 1.0
+   },
+   "cost_per_1000_usd": 119.5662541,
+   "cost_parts_per_1000_usd": {
+    "drex": 0.5263941,
+    "gpt": 119.03986
+   },
+   "latency_p50_ms": 53176.95801900118,
+   "router": "family"
+  }
+ ],
+ "family_map": {
+  "source": "data/runs/hard_family_tau.json",
+  "rule": "Families with tau 1.0 (fee, pr, bill_balance; dev accuracy < 0.90) always go to GPT. The rest use the dial. The frozen map is the point at 0.95.",
+  "taus": {
+   "dup": 0.95,
+   "mue": 0.95,
+   "ncci": 0.95,
+   "fee": 1.0,
+   "eob": 0.95,
+   "pr": 1.0,
+   "bill_balance": 1.0
+  }
+ },
+ "match_gpt_within_1pt_family": {
+  "threshold": 0.97,
+  "router": "family",
+  "value": 0.9916156078684295,
+  "gpt_value": 1.0,
+  "cost_per_1000_usd": 77.10595230164529,
+  "gpt_cost_per_1000_usd": 119.03986,
+  "questions_routed_share": 0.44477707687373036,
+  "post_hoc": "Threshold picked on the same recorded set it is scored on. Not a held-out choice.",
+  "rule": "lowest simulated cost among points whose chart metric is >= GPT-6.1 Sol minus 0.01",
+  "label": "simulated from recorded answers"
+ },
+ "match_gpt_exact_family": {
+  "threshold": 1.0,
+  "router": "family",
+  "value": 1.0,
+  "gpt_value": 1.0,
+  "cost_per_1000_usd": 119.5662541,
+  "gpt_cost_per_1000_usd": 119.03986,
+  "questions_routed_share": 1.0,
+  "post_hoc": "Threshold picked on the same recorded set it is scored on. Not a held-out choice.",
+  "rule": "lowest simulated cost among points whose chart metric is >= GPT-6.1 Sol minus 0",
+  "label": "simulated from recorded answers"
+ },
+ "family_frozen_simulated": {
+  "threshold": 0.95,
+  "label": "simulated from recorded answers",
+  "value": 0.9874234118026443,
+  "metrics": {
+   "line_verdict": {
+    "value": 0.9874234118026443,
+    "k": 3062,
+    "n": 3101
+   },
+   "question_accuracy": {
+    "value": 0.9918742649417299,
+    "k": 18554,
+    "n": 18706
+   }
+  },
+  "questions_routed": {
+   "k": 7747,
+   "n": 18706,
+   "share": 0.4141451940553833
+  },
+  "cases_routed": {
+   "k": 100,
+   "n": 100,
+   "share": 1.0
+  },
+  "cost_per_1000_usd": 74.76794335509199,
+  "cost_parts_per_1000_usd": {
+   "drex": 0.5263941,
+   "gpt": 74.241549255092
+  },
+  "latency_p50_ms": 22648.36852119852,
+  "router": "family"
+ },
+ "measured_vs_simulated": {
+  "line_verdict": {
+   "measured": 0.9874234118026443,
+   "simulated": 0.9874234118026443,
+   "measured_minus_simulated": 0.0
+  },
+  "question_accuracy": {
+   "measured": 0.9918742649417299,
+   "simulated": 0.9918742649417299,
+   "measured_minus_simulated": 0.0
+  },
+  "cost_per_1000_usd": {
+   "measured_gpt_only": 62.255919999999996,
+   "simulated_gpt_part": 74.241549255092,
+   "measured_minus_simulated": -11.985629255092
+  },
+  "latency_p50_ms": {
+   "measured": 35347.96874047606,
+   "simulated": 22648.36852119852,
+   "measured_minus_simulated": 12699.600219277541
+  },
+  "routing": {
+   "same_question_ids": 7747,
+   "ids_in_only_one": 0,
+   "measured_share": 0.4141451940553833,
+   "simulated_share": 0.4141451940553833
+  },
+  "why": [
+   "Routing: the simulated per-family map picks the same 7747 question ids E escalated (0 ids differ).",
+   "Accuracy: measured minus simulated line verdict is +0.0000. The simulation takes the packed GPT call's answers on routed questions. The fresh escalation call got 0 of 7747 escalated questions wrong; the packed call got 0 of them wrong. Any accuracy gap comes from those calls, since the questions Drex kept are the same recorded answers in both.",
+   "Cost: the simulation charges the full packed GPT input once per routed case plus scaled output. The escalation call sent a shorter prompt, so the simulation over-states GPT cost by $11.99 per 1,000 cases.",
+   "Latency: the simulation scales packed GPT time by the routed share and ignores prompt reading time, so it under-states the measured median by 12.7 s."
+  ]
+ },
+ "computed_at": "2026-11-14T15:30:28Z",
+ "generator": "billproof.dial.build"
+}

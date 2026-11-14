@@ -1,0 +1,12 @@
+{
+  "criteria_pages": [
+    552
+  ],
+  "policy_slice": "data/pa_demo/PA-D5/policy_slice.pdf",
+  "packet": "data/pa_demo/PA-D5/packet.pdf",
+  "clause_texts": [
+    "Diagnosis of pulmonary heart disease in the last 365 days",
+    "Diagnosis of persistent fetal circulation in the last 365 days",
+    "Diagnosis of chronic respiratory disease arising in the perinatal period in the last 365 days"
+  ]
+}

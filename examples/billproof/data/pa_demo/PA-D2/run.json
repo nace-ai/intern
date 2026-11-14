@@ -1,0 +1,394 @@
+{
+  "ground": {
+    "policy": {
+      "current_therapy_antiretroviral_meds": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Current therapy with antiretroviral meds;",
+        "match_method": "normalized",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.11176470837561912,
+              0.1404304022740836
+            ],
+            [
+              0.4314030167324091,
+              0.1404304022740836
+            ],
+            [
+              0.4314030167324091,
+              0.15935425806527187
+            ],
+            [
+              0.11176470837561912,
+              0.15935425806527187
+            ]
+          ]
+        ]
+      },
+      "therapeutic_failure_any_anti_diarrheal_medicatio": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Therapeutic failure on any anti-diarrheal medication",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.11176470837561912,
+              0.1633849288478042
+            ],
+            [
+              0.521299025591682,
+              0.1633849288478042
+            ],
+            [
+              0.521299025591682,
+              0.18230879427206637
+            ],
+            [
+              0.11176470837561912,
+              0.18230879427206637
+            ]
+          ]
+        ]
+      }
+    },
+    "packet": {
+      "R1": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Submitted chart documentation explicitly states that this criterion is not satisfied: Current therapy with antiretroviral meds",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.38273674550682607
+            ],
+            [
+              0.8802554061989379,
+              0.38273674550682607
+            ],
+            [
+              0.8802554061989379,
+              0.415631920400292
+            ],
+            [
+              0.0977777780271044,
+              0.415631920400292
+            ]
+          ]
+        ]
+      },
+      "R2": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Prescriber response, explicitly documented as not satisfied: Therapeutic failure on any anti-diarrheal medication",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.4660700788401594
+            ],
+            [
+              0.8638789357702716,
+              0.4660700788401594
+            ],
+            [
+              0.8638789357702716,
+              0.4825511123194839
+            ],
+            [
+              0.0977777780271044,
+              0.4825511123194839
+            ]
+          ]
+        ]
+      },
+      "request::payer": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Michigan Medicaid",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.2644444384606056,
+              0.19334284464518228
+            ],
+            [
+              0.3929738811418122,
+              0.19334284464518228
+            ],
+            [
+              0.3929738811418122,
+              0.2098238973906546
+            ],
+            [
+              0.2644444384606056,
+              0.2098238973906546
+            ]
+          ]
+        ]
+      },
+      "request::service_date": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "2026-10-15",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.2644444384606056,
+              0.2362721375744752
+            ],
+            [
+              0.34382843815423303,
+              0.2362721375744752
+            ],
+            [
+              0.34382843815423303,
+              0.25275319031994753
+            ],
+            [
+              0.2644444384606056,
+              0.25275319031994753
+            ]
+          ]
+        ]
+      }
+    },
+    "seconds": 5.0,
+    "cost_usd": 0.072
+  },
+  "drex": {
+    "latency_ms": 414.4688119995408,
+    "calls": 1,
+    "model": "drex-max-v1.1",
+    "input_tokens": 1092,
+    "output_tokens": 361,
+    "cost_usd": 3.276e-05,
+    "error": null,
+    "qa": {
+      "fact::current_therapy_antiretroviral_meds": {
+        "choice": "documented_not_satisfied",
+        "confidence": 0.9996393977510999,
+        "probabilities": {
+          "documented_satisfied": 0.00013238664330428087,
+          "documented_not_satisfied": 0.9997595985007333,
+          "not_documented": 0.00010801485596244596
+        }
+      },
+      "fact::therapeutic_failure_any_anti_diarrheal_medicatio": {
+        "choice": "documented_not_satisfied",
+        "confidence": 0.999345274372204,
+        "probabilities": {
+          "documented_satisfied": 0.00016972881003152294,
+          "documented_not_satisfied": 0.999563516248136,
+          "not_documented": 0.0002667549418325232
+        }
+      },
+      "scope::payer_match": {
+        "choice": "yes",
+        "confidence": 0.9997871709015566,
+        "probabilities": {
+          "yes": 0.9997871709015566,
+          "no": 0.000213
+        }
+      },
+      "scope::date_in_window": {
+        "choice": "yes",
+        "confidence": 0.9997144834346934,
+        "probabilities": {
+          "yes": 0.9997144834346934,
+          "no": 0.000286
+        }
+      }
+    },
+    "prediction": {
+      "policy_id": "MI-20261012-4371b79aa0",
+      "scope": "applicable",
+      "branch": "unspecified",
+      "facts": {
+        "current_therapy_antiretroviral_meds": false,
+        "therapeutic_failure_any_anti_diarrheal_medicatio": false
+      },
+      "criteria": {
+        "current_therapy_antiretroviral_meds": {
+          "state": "unmet",
+          "evidence": []
+        },
+        "therapeutic_failure_any_anti_diarrheal_medicatio": {
+          "state": "unmet",
+          "evidence": []
+        }
+      },
+      "missing_info": [],
+      "decision": "criteria_unmet",
+      "action": "review_unmet_criteria"
+    },
+    "facts": {
+      "current_therapy_antiretroviral_meds": false,
+      "therapeutic_failure_any_anti_diarrheal_medicatio": false
+    },
+    "seconds": 0.4
+  },
+  "search": {
+    "workspace_id": "31419ad3-90b2-4f35-adfd-9706410b6090",
+    "query": "This workspace holds a payer prior-authorization criteria page and one synthetic clinical packet (documents R1..Rn). For each approval criterion below, find which enclosed record (if any) addresses it \u2014 the record that documents it satisfied, not satisfied, or missing. Quote the record's text word for word, with its page. If no record addresses a criterion, say record_id null.\nCriteria: current_therapy_antiretroviral_meds: \"Current therapy with antiretroviral meds\"; therapeutic_failure_any_anti_diarrheal_medicatio: \"Therapeutic failure on any anti-diarrheal medication\"",
+    "job_id": "dded4607-5fca-4eba-b687-9f58124d1ed9",
+    "status": "succeeded",
+    "matches": [
+      {
+        "page": 1,
+        "quote": "Submitted chart documentation explicitly states that this criterion is not satisfied: Current therapy with antiretroviral meds",
+        "document": "PA-D2/packet.pdf",
+        "criterion": "current_therapy_antiretroviral_meds",
+        "record_id": "R1",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      },
+      {
+        "page": 1,
+        "quote": "Prescriber response, explicitly documented as not satisfied: Therapeutic failure on any anti-diarrheal medication",
+        "document": "PA-D2/packet.pdf",
+        "criterion": "therapeutic_failure_any_anti_diarrheal_medicatio",
+        "record_id": "R2",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      }
+    ],
+    "evidences": [
+      {
+        "source_path": "PA-D2/packet.pdf",
+        "page": 1,
+        "quote": "Submitted chart documentation explicitly states that this criterion is not satisfied: Current therapy with antiretroviral meds"
+      },
+      {
+        "source_path": "PA-D2/packet.pdf",
+        "page": 1,
+        "quote": "Prescriber response, explicitly documented as not satisfied: Therapeutic failure on any anti-diarrheal medication"
+      }
+    ],
+    "ingest_seconds": 13.7,
+    "search_seconds": 7.5,
+    "cost_usd": 0.00261
+  },
+  "ablate": {
+    "runs": [
+      {
+        "dropped": "R1",
+        "decision": "criteria_unmet",
+        "changed": false,
+        "latency_ms": 445.03637304296717,
+        "cost_usd": 3.132e-05
+      },
+      {
+        "dropped": "R2",
+        "decision": "criteria_unmet",
+        "changed": false,
+        "latency_ms": 360.0056970026344,
+        "cost_usd": 3.12e-05
+      }
+    ],
+    "deciding_record": null
+  },
+  "gpt": {
+    "structured": {
+      "latency_ms": 12672.243383014575,
+      "calls": 1,
+      "model": "gpt-6.1-sol",
+      "input_tokens": 1548,
+      "output_tokens": 136,
+      "cost_usd": 0.00591,
+      "request_id": "chatcmpl-Ek3CQnO96xOHB3csuQwlp177hW73j",
+      "prediction": {
+        "action": "review_unmet_criteria",
+        "branch": "unspecified",
+        "criteria": {
+          "current_therapy_antiretroviral_meds": {
+            "evidence": [
+              "R1"
+            ],
+            "state": "unmet"
+          },
+          "therapeutic_failure_any_anti_diarrheal_medicatio": {
+            "evidence": [
+              "R2"
+            ],
+            "state": "unmet"
+          }
+        },
+        "decision": "criteria_unmet",
+        "facts": {
+          "current_therapy_antiretroviral_meds": false,
+          "therapeutic_failure_any_anti_diarrheal_medicatio": false
+        },
+        "missing_info": [],
+        "policy_id": "MI-20261012-4371b79aa0",
+        "scope": "applicable"
+      }
+    },
+    "checked": {
+      "latency_ms": 13086.712195014115,
+      "calls": 2,
+      "cost_usd": 0.00594276,
+      "input_tokens": 2640,
+      "output_tokens": 497,
+      "flagged": [],
+      "overrides": [],
+      "prediction": {
+        "policy_id": "MI-20261012-4371b79aa0",
+        "scope": "applicable",
+        "branch": "unspecified",
+        "facts": {
+          "current_therapy_antiretroviral_meds": false,
+          "therapeutic_failure_any_anti_diarrheal_medicatio": false
+        },
+        "criteria": {
+          "current_therapy_antiretroviral_meds": {
+            "state": "unmet",
+            "evidence": [
+              "R1"
+            ]
+          },
+          "therapeutic_failure_any_anti_diarrheal_medicatio": {
+            "state": "unmet",
+            "evidence": [
+              "R2"
+            ]
+          }
+        },
+        "missing_info": [],
+        "decision": "criteria_unmet",
+        "action": "review_unmet_criteria"
+      },
+      "facts": {
+        "current_therapy_antiretroviral_meds": false,
+        "therapeutic_failure_any_anti_diarrheal_medicatio": false
+      }
+    }
+  }
+}

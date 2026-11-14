@@ -1,0 +1,12 @@
+{
+  "criteria_pages": [
+    357
+  ],
+  "policy_slice": "data/pa_demo/PA-D1/policy_slice.pdf",
+  "packet": "data/pa_demo/PA-D1/packet.pdf",
+  "clause_texts": [
+    "Patient is \u226518 years of age",
+    "Diagnosis of amyotrophic lateral sclerosis (ALS)",
+    "Prescribed by or in consultation with a neurologist"
+  ]
+}

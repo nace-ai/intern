@@ -1,0 +1,13 @@
+{
+  "value": 1.0,
+  "n": 100,
+  "source_run": "hard_test_gpt_subset",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:08:31Z",
+  "k": 100,
+  "ci_low": 0.9630051925239981,
+  "ci_high": 0.9999999999999999,
+  "ci_method": "wilson",
+  "added_after_first_results": true,
+  "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+}

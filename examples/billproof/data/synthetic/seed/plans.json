@@ -1,0 +1,178 @@
+[
+  {
+    "plan_id": "PLN-01",
+    "payer_short": "BLUEBAY",
+    "plan_name": "Bluebay PPO Select 1500",
+    "plan_type": "PPO",
+    "deductible_cents": 150000,
+    "coinsurance_pct": 20,
+    "copay_cents": 2500,
+    "oop_max_cents": 650000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-02",
+    "payer_short": "BLUEBAY",
+    "plan_name": "Bluebay HMO Core 500",
+    "plan_type": "HMO",
+    "deductible_cents": 50000,
+    "coinsurance_pct": 10,
+    "copay_cents": 3000,
+    "oop_max_cents": 550000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-03",
+    "payer_short": "BLUEBAY",
+    "plan_name": "Bluebay HDHP Advantage 3000",
+    "plan_type": "HDHP",
+    "deductible_cents": 300000,
+    "coinsurance_pct": 20,
+    "copay_cents": 0,
+    "oop_max_cents": 700000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-04",
+    "payer_short": "BLUEBAY",
+    "plan_name": "Bluebay EPO Essential 3000",
+    "plan_type": "EPO",
+    "deductible_cents": 300000,
+    "coinsurance_pct": 25,
+    "copay_cents": 4500,
+    "oop_max_cents": 850000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-05",
+    "payer_short": "KESTREL",
+    "plan_name": "Kestrel Ridge PPO 2000",
+    "plan_type": "PPO",
+    "deductible_cents": 200000,
+    "coinsurance_pct": 20,
+    "copay_cents": 3500,
+    "oop_max_cents": 750000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-06",
+    "payer_short": "KESTREL",
+    "plan_name": "Kestrel Ridge EPO 1000",
+    "plan_type": "EPO",
+    "deductible_cents": 100000,
+    "coinsurance_pct": 15,
+    "copay_cents": 3000,
+    "oop_max_cents": 600000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-07",
+    "payer_short": "KESTREL",
+    "plan_name": "Kestrel Ridge HDHP 2500",
+    "plan_type": "HDHP",
+    "deductible_cents": 250000,
+    "coinsurance_pct": 20,
+    "copay_cents": 0,
+    "oop_max_cents": 760000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-08",
+    "payer_short": "NORTHLT",
+    "plan_name": "Northlight Assurance PPO 750",
+    "plan_type": "PPO",
+    "deductible_cents": 75000,
+    "coinsurance_pct": 10,
+    "copay_cents": 2500,
+    "oop_max_cents": 500000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-09",
+    "payer_short": "NORTHLT",
+    "plan_name": "Northlight Assurance HDHP 4000",
+    "plan_type": "HDHP",
+    "deductible_cents": 400000,
+    "coinsurance_pct": 20,
+    "copay_cents": 0,
+    "oop_max_cents": 800000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-10",
+    "payer_short": "TIDEWR",
+    "plan_name": "Tidewreath Health HMO 250",
+    "plan_type": "HMO",
+    "deductible_cents": 25000,
+    "coinsurance_pct": 10,
+    "copay_cents": 2000,
+    "oop_max_cents": 450000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-11",
+    "payer_short": "CPRLF",
+    "plan_name": "Copperleaf Benefits PPO 2500",
+    "plan_type": "PPO",
+    "deductible_cents": 250000,
+    "coinsurance_pct": 25,
+    "copay_cents": 4000,
+    "oop_max_cents": 800000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-12",
+    "payer_short": "SILVMR",
+    "plan_name": "Silvermoor Health EPO 1750",
+    "plan_type": "EPO",
+    "deductible_cents": 175000,
+    "coinsurance_pct": 20,
+    "copay_cents": 3500,
+    "oop_max_cents": 700000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-13",
+    "payer_short": "JNGATE",
+    "plan_name": "Juniper Gate Health PPO 1250",
+    "plan_type": "PPO",
+    "deductible_cents": 125000,
+    "coinsurance_pct": 15,
+    "copay_cents": 3000,
+    "oop_max_cents": 650000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-14",
+    "payer_short": "HOLWFN",
+    "plan_name": "Hollowfern Health Plan HMO 0",
+    "plan_type": "HMO",
+    "deductible_cents": 0,
+    "coinsurance_pct": 0,
+    "copay_cents": 1500,
+    "oop_max_cents": 400000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-15",
+    "payer_short": "PRLNTR",
+    "plan_name": "Prairie Lantern Health HDHP 1700",
+    "plan_type": "HDHP",
+    "deductible_cents": 170000,
+    "coinsurance_pct": 20,
+    "copay_cents": 0,
+    "oop_max_cents": 850000,
+    "emergency_nsa_protected": true
+  },
+  {
+    "plan_id": "PLN-16",
+    "payer_short": "EMBRLN",
+    "plan_name": "Emberline Cooperative PPO 5000",
+    "plan_type": "PPO",
+    "deductible_cents": 500000,
+    "coinsurance_pct": 30,
+    "copay_cents": 5000,
+    "oop_max_cents": 950000,
+    "emergency_nsa_protected": true
+  }
+]

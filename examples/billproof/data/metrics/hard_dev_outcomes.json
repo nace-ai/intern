@@ -1,0 +1,368 @@
+{
+  "split": "dev",
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call.",
+  "lanes": {
+    "family_hybrid": {
+      "line_verdict": {
+        "value": 0.9532509403546481,
+        "n": 1861,
+        "source_run": "hard_dev_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:18:39Z",
+        "k": 1774,
+        "ci_low": 0.9426905337606029,
+        "ci_high": 0.9619439402880241,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "bill_verdict": {
+        "value": 1.0,
+        "n": 60,
+        "source_run": "hard_dev_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:18:39Z",
+        "k": 60,
+        "ci_low": 0.9398260695220669,
+        "ci_high": 0.9999999999999999,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "strict_case": {
+        "value": 0.2,
+        "n": 60,
+        "source_run": "hard_dev_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:18:39Z",
+        "k": 12,
+        "ci_low": 0.11828389736858964,
+        "ci_high": 0.3178204609181701,
+        "added_after_first_results": true,
+        "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+      },
+      "overcharge_caught_usd": {
+        "value": 3777.03,
+        "n": 60,
+        "source_run": "hard_dev_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:18:39Z",
+        "caught_cents": 377703,
+        "gold_overcharge_cents": 377703,
+        "priced_lines": 1861,
+        "catch_rate": 1.0,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "overcharge_wrongly_disputed_usd": {
+        "value": 0.0,
+        "n": 60,
+        "source_run": "hard_dev_family_hybrid",
+        "simulated": false,
+        "computed_at": "2026-11-14T13:18:39Z",
+        "wrongly_disputed_cents": 0,
+        "priced_lines": 1861,
+        "added_after_first_results": true,
+        "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+      },
+      "families": {
+        "bill_balance": {
+          "precision": {
+            "value": 1.0,
+            "n": 32,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 32,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.8928172849426366,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 32,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 32,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.8928172849426366,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "dup": {
+          "precision": {
+            "value": 1.0,
+            "n": 360,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 360,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9894415591839967,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 360,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 360,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9894415591839967,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "eob": {
+          "precision": {
+            "value": 1.0,
+            "n": 561,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 561,
+            "fp": 0,
+            "fn": 4,
+            "ci_low": 0.9931988012214398,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.9929203539823008,
+            "n": 565,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 561,
+            "fp": 0,
+            "fn": 4,
+            "ci_low": 0.9819393925722328,
+            "ci_high": 0.9972435645110744,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "fee": {
+          "precision": {
+            "value": 1.0,
+            "n": 909,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 909,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9957916028366804,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 909,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 909,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9957916028366804,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "mue": {
+          "precision": {
+            "value": 1.0,
+            "n": 463,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 463,
+            "fp": 0,
+            "fn": 77,
+            "ci_low": 0.9917710846676905,
+            "ci_high": 1.0,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.8574074074074074,
+            "n": 540,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 463,
+            "fp": 0,
+            "fn": 77,
+            "ci_low": 0.82538704472047,
+            "ci_high": 0.8843784458194225,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "ncci": {
+          "precision": {
+            "value": 0.9766355140186916,
+            "n": 214,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 209,
+            "fp": 5,
+            "fn": 1,
+            "ci_low": 0.9464803572853617,
+            "ci_high": 0.9899798964035573,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 0.9952380952380953,
+            "n": 210,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 209,
+            "fp": 5,
+            "fn": 1,
+            "ci_low": 0.9735236503748348,
+            "ci_high": 0.9991589333693947,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        },
+        "pr": {
+          "precision": {
+            "value": 1.0,
+            "n": 1057,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 1057,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9963787242129266,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          },
+          "recall": {
+            "value": 1.0,
+            "n": 1057,
+            "source_run": "hard_dev_family_hybrid",
+            "simulated": false,
+            "computed_at": "2026-11-14T13:18:39Z",
+            "k": 1057,
+            "fp": 0,
+            "fn": 0,
+            "ci_low": 0.9963787242129266,
+            "ci_high": 0.9999999999999999,
+            "added_after_first_results": true,
+            "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+          }
+        }
+      },
+      "question_accuracy": {
+        "bill_balance": {
+          "value": 1.0,
+          "n": 60,
+          "source_run": "hard_dev_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:18:39Z",
+          "k": 60,
+          "ci_low": 0.9398260695220669,
+          "ci_high": 0.9999999999999999,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "dup": {
+          "value": 1.0,
+          "n": 1861,
+          "source_run": "hard_dev_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:18:39Z",
+          "k": 1861,
+          "ci_low": 0.9979399858947805,
+          "ci_high": 0.9999999999999999,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "eob": {
+          "value": 0.9978506179473401,
+          "n": 1861,
+          "source_run": "hard_dev_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:18:39Z",
+          "k": 1857,
+          "ci_low": 0.9944862241458178,
+          "ci_high": 0.999163853158335,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "fee": {
+          "value": 1.0,
+          "n": 1861,
+          "source_run": "hard_dev_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:18:39Z",
+          "k": 1861,
+          "ci_low": 0.9979399858947805,
+          "ci_high": 0.9999999999999999,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "mue": {
+          "value": 0.9586243954862977,
+          "n": 1861,
+          "source_run": "hard_dev_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:18:39Z",
+          "k": 1784,
+          "ci_low": 0.9485911519052056,
+          "ci_high": 0.9667680936199908,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "ncci": {
+          "value": 0.9967759269210102,
+          "n": 1861,
+          "source_run": "hard_dev_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:18:39Z",
+          "k": 1855,
+          "ci_low": 0.9929835364639112,
+          "ci_high": 0.9985215865449277,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        },
+        "pr": {
+          "value": 1.0,
+          "n": 1861,
+          "source_run": "hard_dev_family_hybrid",
+          "simulated": false,
+          "computed_at": "2026-11-14T13:18:39Z",
+          "k": 1861,
+          "ci_low": 0.9979399858947805,
+          "ci_high": 0.9999999999999999,
+          "added_after_first_results": true,
+          "note": "Added after the first results. Scored from recorded answers. No new model call. Drex first. Per-family cutoffs were frozen from dev before these calls. Escalated questions are a fresh GPT call with no Drex draft."
+        }
+      },
+      "n_cases": 60
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "value": 1.0,
+  "n": 4,
+  "source_run": "hard_test_gpt_one_vs_gpt",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:51:39Z",
+  "k": 4,
+  "ci_low": 0.5100999795960008,
+  "ci_high": 1.0,
+  "n_paired": 4,
+  "packed_invalid": 0,
+  "one_invalid": 0,
+  "both_correct": 4,
+  "one_only_correct": 0,
+  "packed_only_correct": 0,
+  "both_wrong": 0,
+  "note": "Share of items where the packed GPT choice matches the one-question call. gpt-one is not a primary lane."
+}

@@ -1,0 +1,12 @@
+{
+  "value": 0.0,
+  "n": 100,
+  "source_run": "hard_test_system",
+  "simulated": false,
+  "computed_at": "2026-11-14T12:04:36Z",
+  "k": 0,
+  "ci_low": 0.0,
+  "ci_high": 0.03699480747600191,
+  "added_after_first_results": true,
+  "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+}

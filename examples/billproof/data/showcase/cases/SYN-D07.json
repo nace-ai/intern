@@ -1,0 +1,1226 @@
+{
+  "case_id": "SYN-D07",
+  "split": "demo",
+  "title": "Statement without an EOB · denial reason missing",
+  "patient": {
+    "patient_id": "PT-D07",
+    "display_name": "Patient",
+    "dob": null,
+    "date_of_death": null,
+    "member_id": "SYN-DEMO-07"
+  },
+  "provider": {
+    "name": "Cedar Vale Clinic",
+    "npi": null,
+    "in_network": true,
+    "address": null
+  },
+  "bill": {
+    "account_no": "AC-DEMO-07",
+    "statement_date": "2026-11-05",
+    "lines": [
+      {
+        "line_no": 1,
+        "dos": "2026-10-15",
+        "code": "99213",
+        "modifiers": [],
+        "label": "Office visit, established patient, low-moderate",
+        "units": 1,
+        "charge_cents": 11899,
+        "pos": "11",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      },
+      {
+        "line_no": 2,
+        "dos": "2026-10-15",
+        "code": "85025",
+        "modifiers": [],
+        "label": "Complete blood count with automated differential",
+        "units": 1,
+        "charge_cents": 1188,
+        "pos": "11",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      },
+      {
+        "line_no": 3,
+        "dos": null,
+        "code": "80048",
+        "modifiers": [],
+        "label": "Basic metabolic blood panel",
+        "units": 1,
+        "charge_cents": 1000,
+        "pos": "11",
+        "rendering_provider": "SYN-CLINICIAN-01"
+      }
+    ],
+    "total_charges_cents": 14087,
+    "insurance_paid_cents": 0,
+    "adjustments_cents": 0,
+    "patient_balance_cents": 14087
+  },
+  "eob": null,
+  "denial": {
+    "letter_date": "2026-11-02",
+    "carc": "CO-16",
+    "category": "MISSING_INFO",
+    "reason_text": "No explanation for this determination was included in the notice.",
+    "service_code": "80048",
+    "appeal_deadline": "2027-03-01",
+    "plan_section": "Synthetic plan section 9"
+  },
+  "plan": {
+    "plan_name": "Cedar Choice PPO",
+    "plan_type": "PPO",
+    "deductible_cents": 100000,
+    "deductible_met_cents": 100000,
+    "coinsurance_pct": 20,
+    "copay_cents": 0,
+    "oop_max_cents": 600000,
+    "emergency_nsa_protected": true
+  },
+  "service_setting": "office",
+  "docs": [
+    {
+      "kind": "bill",
+      "pdf": "data/showcase/pdf/SYN-D07_bill.pdf",
+      "pages": 1
+    },
+    {
+      "kind": "denial",
+      "pdf": "data/showcase/pdf/SYN-D07_denial.pdf",
+      "pages": 1
+    },
+    {
+      "kind": "plan",
+      "pdf": "data/showcase/pdf/SYN-D07_plan.pdf",
+      "pages": 1
+    }
+  ],
+  "citations": {
+    "bill.lines.1.dos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.2656
+          ],
+          [
+            0.14348,
+            0.2656
+          ],
+          [
+            0.14348,
+            0.27722
+          ],
+          [
+            0.07369,
+            0.27722
+          ]
+        ]
+      ],
+      "text": "2026-10-15"
+    },
+    "bill.lines.1.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.2656
+          ],
+          [
+            0.24042,
+            0.2656
+          ],
+          [
+            0.24042,
+            0.27722
+          ],
+          [
+            0.20114,
+            0.27722
+          ]
+        ]
+      ],
+      "text": "99213"
+    },
+    "bill.lines.1.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.2656
+          ],
+          [
+            0.58799,
+            0.2656
+          ],
+          [
+            0.58799,
+            0.27722
+          ],
+          [
+            0.32206,
+            0.27722
+          ]
+        ]
+      ],
+      "text": "Office visit, established patient, low-moderate"
+    },
+    "bill.lines.1.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.27896
+          ],
+          [
+            0.44067,
+            0.27896
+          ],
+          [
+            0.44067,
+            0.28882
+          ],
+          [
+            0.32206,
+            0.28882
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.1.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79518,
+            0.2656
+          ],
+          [
+            0.81266,
+            0.2656
+          ],
+          [
+            0.81266,
+            0.27722
+          ],
+          [
+            0.79518,
+            0.27722
+          ]
+        ]
+      ],
+      "text": "11"
+    },
+    "bill.lines.1.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.73999,
+            0.2656
+          ],
+          [
+            0.7502,
+            0.2656
+          ],
+          [
+            0.7502,
+            0.27722
+          ],
+          [
+            0.73999,
+            0.27722
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.1.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.87612,
+            0.2656
+          ],
+          [
+            0.92631,
+            0.2656
+          ],
+          [
+            0.92631,
+            0.27722
+          ],
+          [
+            0.87612,
+            0.27722
+          ]
+        ]
+      ],
+      "text": "$118.99"
+    },
+    "bill.lines.2.dos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.29212
+          ],
+          [
+            0.14348,
+            0.29212
+          ],
+          [
+            0.14348,
+            0.30373
+          ],
+          [
+            0.07369,
+            0.30373
+          ]
+        ]
+      ],
+      "text": "2026-10-15"
+    },
+    "bill.lines.2.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.29212
+          ],
+          [
+            0.24042,
+            0.29212
+          ],
+          [
+            0.24042,
+            0.30373
+          ],
+          [
+            0.20114,
+            0.30373
+          ]
+        ]
+      ],
+      "text": "85025"
+    },
+    "bill.lines.2.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.29212
+          ],
+          [
+            0.60836,
+            0.29212
+          ],
+          [
+            0.60836,
+            0.30373
+          ],
+          [
+            0.32206,
+            0.30373
+          ]
+        ]
+      ],
+      "text": "Complete blood count with automated differential"
+    },
+    "bill.lines.2.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.30547
+          ],
+          [
+            0.44067,
+            0.30547
+          ],
+          [
+            0.44067,
+            0.31534
+          ],
+          [
+            0.32206,
+            0.31534
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.2.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79518,
+            0.29212
+          ],
+          [
+            0.81266,
+            0.29212
+          ],
+          [
+            0.81266,
+            0.30373
+          ],
+          [
+            0.79518,
+            0.30373
+          ]
+        ]
+      ],
+      "text": "11"
+    },
+    "bill.lines.2.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.73999,
+            0.29212
+          ],
+          [
+            0.7502,
+            0.29212
+          ],
+          [
+            0.7502,
+            0.30373
+          ],
+          [
+            0.73999,
+            0.30373
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.2.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88339,
+            0.29212
+          ],
+          [
+            0.92631,
+            0.29212
+          ],
+          [
+            0.92631,
+            0.30373
+          ],
+          [
+            0.88339,
+            0.30373
+          ]
+        ]
+      ],
+      "text": "$11.88"
+    },
+    "bill.lines.3.code": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.20114,
+            0.31863
+          ],
+          [
+            0.24042,
+            0.31863
+          ],
+          [
+            0.24042,
+            0.33025
+          ],
+          [
+            0.20114,
+            0.33025
+          ]
+        ]
+      ],
+      "text": "80048"
+    },
+    "bill.lines.3.label": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.31863
+          ],
+          [
+            0.48775,
+            0.31863
+          ],
+          [
+            0.48775,
+            0.33025
+          ],
+          [
+            0.32206,
+            0.33025
+          ]
+        ]
+      ],
+      "text": "Basic metabolic blood panel"
+    },
+    "bill.lines.3.rendering_provider": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.32206,
+            0.33199
+          ],
+          [
+            0.44067,
+            0.33199
+          ],
+          [
+            0.44067,
+            0.34185
+          ],
+          [
+            0.32206,
+            0.34185
+          ]
+        ]
+      ],
+      "text": "Ref: SYN-CLINICIAN-01"
+    },
+    "bill.lines.3.pos": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.79518,
+            0.31863
+          ],
+          [
+            0.81266,
+            0.31863
+          ],
+          [
+            0.81266,
+            0.33025
+          ],
+          [
+            0.79518,
+            0.33025
+          ]
+        ]
+      ],
+      "text": "11"
+    },
+    "bill.lines.3.units": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.73999,
+            0.31863
+          ],
+          [
+            0.7502,
+            0.31863
+          ],
+          [
+            0.7502,
+            0.33025
+          ],
+          [
+            0.73999,
+            0.33025
+          ]
+        ]
+      ],
+      "text": "1"
+    },
+    "bill.lines.3.charge_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88339,
+            0.31863
+          ],
+          [
+            0.92631,
+            0.31863
+          ],
+          [
+            0.92631,
+            0.33025
+          ],
+          [
+            0.88339,
+            0.33025
+          ]
+        ]
+      ],
+      "text": "$10.00"
+    },
+    "patient.member_id": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.17173,
+            0.19237
+          ],
+          [
+            0.26401,
+            0.19237
+          ],
+          [
+            0.26401,
+            0.20398
+          ],
+          [
+            0.17173,
+            0.20398
+          ]
+        ]
+      ],
+      "text": "SYN-DEMO-07"
+    },
+    "provider.name": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.13578,
+            0.07339
+          ],
+          [
+            0.3557,
+            0.07339
+          ],
+          [
+            0.3557,
+            0.09026
+          ],
+          [
+            0.13578,
+            0.09026
+          ]
+        ]
+      ],
+      "text": "CEDAR VALE CLINIC"
+    },
+    "bill.statement_date": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.85234,
+            0.09217
+          ],
+          [
+            0.92631,
+            0.09217
+          ],
+          [
+            0.92631,
+            0.10437
+          ],
+          [
+            0.85234,
+            0.10437
+          ]
+        ]
+      ],
+      "text": "2026-11-05"
+    },
+    "bill.account_no": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.83771,
+            0.10479
+          ],
+          [
+            0.92631,
+            0.10479
+          ],
+          [
+            0.92631,
+            0.11699
+          ],
+          [
+            0.83771,
+            0.11699
+          ]
+        ]
+      ],
+      "text": "AC-DEMO-07"
+    },
+    "patient.patient_id": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.87552,
+            0.11742
+          ],
+          [
+            0.92631,
+            0.11742
+          ],
+          [
+            0.92631,
+            0.12962
+          ],
+          [
+            0.87552,
+            0.12962
+          ]
+        ]
+      ],
+      "text": "PT-D07"
+    },
+    "provider.in_network": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.53775,
+            0.19201
+          ],
+          [
+            0.70341,
+            0.19201
+          ],
+          [
+            0.70341,
+            0.20246
+          ],
+          [
+            0.53775,
+            0.20246
+          ]
+        ]
+      ],
+      "text": "In-network participating provider"
+    },
+    "bill.total_charges_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.87612,
+            0.35525
+          ],
+          [
+            0.92631,
+            0.35525
+          ],
+          [
+            0.92631,
+            0.36686
+          ],
+          [
+            0.87612,
+            0.36686
+          ]
+        ]
+      ],
+      "text": "$140.87"
+    },
+    "bill.insurance_paid_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.89066,
+            0.36914
+          ],
+          [
+            0.92631,
+            0.36914
+          ],
+          [
+            0.92631,
+            0.38075
+          ],
+          [
+            0.89066,
+            0.38075
+          ]
+        ]
+      ],
+      "text": "$0.00"
+    },
+    "bill.adjustments_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.89066,
+            0.38303
+          ],
+          [
+            0.92631,
+            0.38303
+          ],
+          [
+            0.92631,
+            0.39464
+          ],
+          [
+            0.89066,
+            0.39464
+          ]
+        ]
+      ],
+      "text": "$0.00"
+    },
+    "bill.patient_balance_cents": {
+      "doc": "bill",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.85746,
+            0.40566
+          ],
+          [
+            0.9165,
+            0.40566
+          ],
+          [
+            0.9165,
+            0.41902
+          ],
+          [
+            0.85746,
+            0.41902
+          ]
+        ]
+      ],
+      "text": "$140.87"
+    },
+    "denial.letter_date": {
+      "doc": "denial",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.85234,
+            0.09217
+          ],
+          [
+            0.92631,
+            0.09217
+          ],
+          [
+            0.92631,
+            0.10437
+          ],
+          [
+            0.85234,
+            0.10437
+          ]
+        ]
+      ],
+      "text": "2026-11-02"
+    },
+    "denial.carc": {
+      "doc": "denial",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.21422,
+            0.22005
+          ],
+          [
+            0.26287,
+            0.22005
+          ],
+          [
+            0.26287,
+            0.23342
+          ],
+          [
+            0.21422,
+            0.23342
+          ]
+        ]
+      ],
+      "text": "CO-16"
+    },
+    "denial.category": {
+      "doc": "denial",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.30568,
+            0.22005
+          ],
+          [
+            0.39918,
+            0.22005
+          ],
+          [
+            0.39918,
+            0.23342
+          ],
+          [
+            0.30568,
+            0.23342
+          ]
+        ]
+      ],
+      "text": "Missing Info"
+    },
+    "denial.reason_text": {
+      "doc": "denial",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.07369,
+            0.2407
+          ],
+          [
+            0.49268,
+            0.2407
+          ],
+          [
+            0.49268,
+            0.25349
+          ],
+          [
+            0.07369,
+            0.25349
+          ]
+        ]
+      ],
+      "text": "No explanation for this determination was included in the notice."
+    },
+    "denial.service_code": {
+      "doc": "denial",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.25016,
+            0.15358
+          ],
+          [
+            0.29399,
+            0.15358
+          ],
+          [
+            0.29399,
+            0.16637
+          ],
+          [
+            0.25016,
+            0.16637
+          ]
+        ]
+      ],
+      "text": "80048"
+    },
+    "denial.appeal_deadline": {
+      "doc": "denial",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.27304,
+            0.39435
+          ],
+          [
+            0.35536,
+            0.39435
+          ],
+          [
+            0.35536,
+            0.40772
+          ],
+          [
+            0.27304,
+            0.40772
+          ]
+        ]
+      ],
+      "text": "2027-03-01"
+    },
+    "denial.plan_section": {
+      "doc": "denial",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.21422,
+            0.27233
+          ],
+          [
+            0.37247,
+            0.27233
+          ],
+          [
+            0.37247,
+            0.28512
+          ],
+          [
+            0.21422,
+            0.28512
+          ]
+        ]
+      ],
+      "text": "Synthetic plan section 9"
+    },
+    "plan.plan_name": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.12925,
+            0.12273
+          ],
+          [
+            0.29101,
+            0.12273
+          ],
+          [
+            0.29101,
+            0.13785
+          ],
+          [
+            0.12925,
+            0.13785
+          ]
+        ]
+      ],
+      "text": "Cedar Choice PPO"
+    },
+    "plan.plan_type": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.30767,
+            0.12273
+          ],
+          [
+            0.34858,
+            0.12273
+          ],
+          [
+            0.34858,
+            0.13785
+          ],
+          [
+            0.30767,
+            0.13785
+          ]
+        ]
+      ],
+      "text": "PPO"
+    },
+    "plan.deductible_cents": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.84488,
+            0.17505
+          ],
+          [
+            0.91324,
+            0.17505
+          ],
+          [
+            0.91324,
+            0.18783
+          ],
+          [
+            0.84488,
+            0.18783
+          ]
+        ]
+      ],
+      "text": "$1,000.00"
+    },
+    "plan.deductible_met_cents": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.84488,
+            0.2003
+          ],
+          [
+            0.91324,
+            0.2003
+          ],
+          [
+            0.91324,
+            0.21308
+          ],
+          [
+            0.84488,
+            0.21308
+          ]
+        ]
+      ],
+      "text": "$1,000.00"
+    },
+    "plan.copay_cents": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.8735,
+            0.22555
+          ],
+          [
+            0.91324,
+            0.22555
+          ],
+          [
+            0.91324,
+            0.23834
+          ],
+          [
+            0.8735,
+            0.23834
+          ]
+        ]
+      ],
+      "text": "$0.00"
+    },
+    "plan.coinsurance_pct": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.88087,
+            0.25081
+          ],
+          [
+            0.91324,
+            0.25081
+          ],
+          [
+            0.91324,
+            0.26359
+          ],
+          [
+            0.88087,
+            0.26359
+          ]
+        ]
+      ],
+      "text": "20%"
+    },
+    "plan.oop_max_cents": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.84488,
+            0.27606
+          ],
+          [
+            0.91324,
+            0.27606
+          ],
+          [
+            0.91324,
+            0.28884
+          ],
+          [
+            0.84488,
+            0.28884
+          ]
+        ]
+      ],
+      "text": "$6,000.00"
+    },
+    "plan.emergency_nsa_protected": {
+      "doc": "plan",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.86207,
+            0.30131
+          ],
+          [
+            0.91324,
+            0.30131
+          ],
+          [
+            0.91324,
+            0.31409
+          ],
+          [
+            0.86207,
+            0.31409
+          ]
+        ]
+      ],
+      "text": "Applies"
+    }
+  }
+}

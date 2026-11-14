@@ -1,0 +1,3180 @@
+{
+  "bench": "hard",
+  "title": "BillProof-Hard (frozen 100)",
+  "chart": "line_verdict",
+  "metrics": [
+    "line_verdict",
+    "question_accuracy"
+  ],
+  "n_cases": 1,
+  "n_expected": 100,
+  "n_questions": 187,
+  "partial": true,
+  "first_missing": "HARD-TEST-0220",
+  "escalate": "qwen",
+  "escalate_model": "Qwen/Qwen3.8-27B",
+  "via": "DeepInfra",
+  "provider": "deepinfra",
+  "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+  "label": "simulated from recorded answers",
+  "threshold": 0.9,
+  "threshold_selection": {
+    "method": "fixed",
+    "threshold": 0.9,
+    "tuned_on": null,
+    "note": "t=0.90 was not tuned. Persius rows are the frozen 400 test, Hard rows are the frozen 100, and the 370 prior-auth rows are the shared held-out set this bench reports. No DeepInfra answers exist on a separate dev or practice split. The dial file holds the curve from 0.50 to 1.00. post_hoc_on_reported_rows is the cheapest point within 1 point of the escalation model on these same rows. It is not the operating point."
+  },
+  "formulas": {
+    "rule": "Drex keeps every question with recorded confidence >= 0.90. The rest take this model's recorded answer to the same question.",
+    "cases": "Only cases in the longest prefix of the frozen order where both Drex and this model have a non-error recorded answer. partial is true when that prefix is shorter than the frozen set.",
+    "cost_per_1000_usd": "cost per 1,000 cases = mean(Drex recorded cost_usd + routed DeepInfra cost) * 1000. Routed cost is 0 when no question is sent. Otherwise it is the recorded packed call, scaled as (list input dollars + list output dollars * routed/asked) * (recorded cost_usd / list-price of that call) when cost_basis is provider_estimated_cost and both the recorded cost and the list price are positive. List rates are DeepInfra's published cents_per_token figures from _deepinfra_list. If the provider did not send estimated_cost, the scale is 1 and the list rate is used. If no list rate is known, the recorded cost_usd is scaled by routed/asked. The escalation model alone uses mean(recorded cost_usd) * 1000 and no Drex cost. Drex alone uses mean(recorded Drex cost_usd) * 1000 and no DeepInfra cost. On prior auth, a case with any routed question takes the escalation model's recorded decision and the other case-level parts; Drex keeps those when nothing is routed.",
+    "latency_p50_ms": "p50 latency is the median over paired cases of [Drex recorded latency_ms + DeepInfra recorded latency_ms * routed/asked when any question is routed]. Drex alone is the median Drex latency. The escalation model alone is the median of its recorded latency."
+  },
+  "thresholds": [
+    0.5,
+    0.51,
+    0.52,
+    0.53,
+    0.54,
+    0.55,
+    0.56,
+    0.57,
+    0.58,
+    0.59,
+    0.6,
+    0.61,
+    0.62,
+    0.63,
+    0.64,
+    0.65,
+    0.66,
+    0.67,
+    0.68,
+    0.69,
+    0.7,
+    0.71,
+    0.72,
+    0.73,
+    0.74,
+    0.75,
+    0.76,
+    0.77,
+    0.78,
+    0.79,
+    0.8,
+    0.81,
+    0.82,
+    0.83,
+    0.84,
+    0.85,
+    0.86,
+    0.87,
+    0.88,
+    0.89,
+    0.9,
+    0.91,
+    0.92,
+    0.93,
+    0.94,
+    0.95,
+    0.96,
+    0.97,
+    0.98,
+    0.99,
+    1.0
+  ],
+  "curve": [
+    {
+      "threshold": 0.5,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8387096774193549,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8387096774193549,
+          "k": 26,
+          "n": 31,
+          "ci95": [
+            0.6736529727502113,
+            0.9290748009456006
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.839572192513369,
+          "k": 157,
+          "n": 187,
+          "ci95": [
+            0.7802198297037941,
+            0.8852535262102204
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 0,
+        "n": 187,
+        "share": 0.0
+      },
+      "cases_routed": {
+        "k": 0,
+        "n": 1,
+        "share": 0.0
+      },
+      "cost_per_1000_usd": 0.53277,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 0.0
+      },
+      "latency_p50_ms": 920.1609260053374,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.51,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.8709677419354839,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.8709677419354839,
+          "k": 27,
+          "n": 31,
+          "ci95": [
+            0.7114724304561465,
+            0.9486579883535523
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8449197860962567,
+          "k": 158,
+          "n": 187,
+          "ci95": [
+            0.7861517299421766,
+            0.8898015213405627
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 1,
+        "n": 187,
+        "share": 0.0053475935828877
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 2.725951785981294,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 2.1931817859812943
+      },
+      "latency_p50_ms": 3287.8370606738895,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.52,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9032258064516129,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9032258064516129,
+          "k": 28,
+          "n": 31,
+          "ci95": [
+            0.7509971000182296,
+            0.9665359639053559
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8556149732620321,
+          "k": 160,
+          "n": 187,
+          "ci95": [
+            0.7980775929892,
+            0.8988354490309883
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 5,
+        "n": 187,
+        "share": 0.026737967914438502
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.056910779831159,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 2.5241407798311593
+      },
+      "latency_p50_ms": 12758.541599348098,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.53,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9032258064516129,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9032258064516129,
+          "k": 28,
+          "n": 31,
+          "ci95": [
+            0.7509971000182296,
+            0.9665359639053559
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8502673796791443,
+          "k": 159,
+          "n": 187,
+          "ci95": [
+            0.7921040292659803,
+            0.8943291173854834
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 7,
+        "n": 187,
+        "share": 0.0374331550802139
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.2223902767560912,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 2.6896202767560915
+      },
+      "latency_p50_ms": 17493.8938686852,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.54,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.839572192513369,
+          "k": 157,
+          "n": 187,
+          "ci95": [
+            0.7802198297037941,
+            0.8852535262102204
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 10,
+        "n": 187,
+        "share": 0.053475935828877004
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.47060952214349,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 2.9378395221434896
+      },
+      "latency_p50_ms": 24596.92227269086,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.55,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8502673796791443,
+          "k": 159,
+          "n": 187,
+          "ci95": [
+            0.7921040292659803,
+            0.8943291173854834
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 14,
+        "n": 187,
+        "share": 0.0748663101604278
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.8015685159933548,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 3.2687985159933546
+      },
+      "latency_p50_ms": 34067.626811365066,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.56,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8449197860962567,
+          "k": 158,
+          "n": 187,
+          "ci95": [
+            0.7861517299421766,
+            0.8898015213405627
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 15,
+        "n": 187,
+        "share": 0.08021390374331551
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 3.884308264455821,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 3.351538264455821
+      },
+      "latency_p50_ms": 36435.30294603362,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.57,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.839572192513369,
+          "k": 157,
+          "n": 187,
+          "ci95": [
+            0.7802198297037941,
+            0.8852535262102204
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 18,
+        "n": 187,
+        "share": 0.0962566844919786
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.13252750984322,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 3.599757509843219
+      },
+      "latency_p50_ms": 43538.331350039276,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.58,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.839572192513369,
+          "k": 157,
+          "n": 187,
+          "ci95": [
+            0.7802198297037941,
+            0.8852535262102204
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 20,
+        "n": 187,
+        "share": 0.10695187165775401
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.2980070067681515,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 3.7652370067681513
+      },
+      "latency_p50_ms": 48273.68361937638,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.59,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 23,
+        "n": 187,
+        "share": 0.12299465240641712
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.5462262521555505,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.01345625215555
+      },
+      "latency_p50_ms": 55376.71202338204,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.6,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 23,
+        "n": 187,
+        "share": 0.12299465240641712
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.5462262521555505,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.01345625215555
+      },
+      "latency_p50_ms": 55376.71202338204,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.61,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 23,
+        "n": 187,
+        "share": 0.12299465240641712
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.5462262521555505,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.01345625215555
+      },
+      "latency_p50_ms": 55376.71202338204,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.62,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 25,
+        "n": 187,
+        "share": 0.13368983957219252
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.711705749080482,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.178935749080482
+      },
+      "latency_p50_ms": 60112.06429271914,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.63,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8449197860962567,
+          "k": 158,
+          "n": 187,
+          "ci95": [
+            0.7861517299421766,
+            0.8898015213405627
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 28,
+        "n": 187,
+        "share": 0.1497326203208556
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.9599249944678805,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.42715499446788
+      },
+      "latency_p50_ms": 67215.0926967248,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.64,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8449197860962567,
+          "k": 158,
+          "n": 187,
+          "ci95": [
+            0.7861517299421766,
+            0.8898015213405627
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 28,
+        "n": 187,
+        "share": 0.1497326203208556
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 4.9599249944678805,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.42715499446788
+      },
+      "latency_p50_ms": 67215.0926967248,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.65,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8449197860962567,
+          "k": 158,
+          "n": 187,
+          "ci95": [
+            0.7861517299421766,
+            0.8898015213405627
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 29,
+        "n": 187,
+        "share": 0.15508021390374332
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.042664742930347,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.509894742930347
+      },
+      "latency_p50_ms": 69582.76883139335,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.66,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8449197860962567,
+          "k": 158,
+          "n": 187,
+          "ci95": [
+            0.7861517299421766,
+            0.8898015213405627
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 30,
+        "n": 187,
+        "share": 0.16042780748663102
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.125404491392814,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.592634491392814
+      },
+      "latency_p50_ms": 71950.4449660619,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.67,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8502673796791443,
+          "k": 159,
+          "n": 187,
+          "ci95": [
+            0.7921040292659803,
+            0.8943291173854834
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 32,
+        "n": 187,
+        "share": 0.1711229946524064
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.290883988317746,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.758113988317746
+      },
+      "latency_p50_ms": 76685.797235399,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.68,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8556149732620321,
+          "k": 160,
+          "n": 187,
+          "ci95": [
+            0.7980775929892,
+            0.8988354490309883
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 34,
+        "n": 187,
+        "share": 0.18181818181818182
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.456363485242679,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.923593485242678
+      },
+      "latency_p50_ms": 81421.14950473611,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.69,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8556149732620321,
+          "k": 160,
+          "n": 187,
+          "ci95": [
+            0.7980775929892,
+            0.8988354490309883
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 34,
+        "n": 187,
+        "share": 0.18181818181818182
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.456363485242679,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.923593485242678
+      },
+      "latency_p50_ms": 81421.14950473611,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.7,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8556149732620321,
+          "k": 160,
+          "n": 187,
+          "ci95": [
+            0.7980775929892,
+            0.8988354490309883
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 34,
+        "n": 187,
+        "share": 0.18181818181818182
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.456363485242679,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.923593485242678
+      },
+      "latency_p50_ms": 81421.14950473611,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.71,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8556149732620321,
+          "k": 160,
+          "n": 187,
+          "ci95": [
+            0.7980775929892,
+            0.8988354490309883
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 34,
+        "n": 187,
+        "share": 0.18181818181818182
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.456363485242679,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 4.923593485242678
+      },
+      "latency_p50_ms": 81421.14950473611,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.72,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8556149732620321,
+          "k": 160,
+          "n": 187,
+          "ci95": [
+            0.7980775929892,
+            0.8988354490309883
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 35,
+        "n": 187,
+        "share": 0.18716577540106952
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.539103233705144,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.006333233705144
+      },
+      "latency_p50_ms": 83788.82563940466,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.73,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8556149732620321,
+          "k": 160,
+          "n": 187,
+          "ci95": [
+            0.7980775929892,
+            0.8988354490309883
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 35,
+        "n": 187,
+        "share": 0.18716577540106952
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.539103233705144,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.006333233705144
+      },
+      "latency_p50_ms": 83788.82563940466,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.74,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 1.0,
+      "metrics": {
+        "line_verdict": {
+          "value": 1.0,
+          "k": 31,
+          "n": 31,
+          "ci95": [
+            0.889740999265246,
+            0.9999999999999999
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8502673796791443,
+          "k": 159,
+          "n": 187,
+          "ci95": [
+            0.7921040292659803,
+            0.8943291173854834
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 36,
+        "n": 187,
+        "share": 0.1925133689839572
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.62184298216761,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.08907298216761
+      },
+      "latency_p50_ms": 86156.50177407321,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.75,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.839572192513369,
+          "k": 157,
+          "n": 187,
+          "ci95": [
+            0.7802198297037941,
+            0.8852535262102204
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 38,
+        "n": 187,
+        "share": 0.20320855614973263
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.787322479092543,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.254552479092543
+      },
+      "latency_p50_ms": 90891.85404341032,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.76,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.839572192513369,
+          "k": 157,
+          "n": 187,
+          "ci95": [
+            0.7802198297037941,
+            0.8852535262102204
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 39,
+        "n": 187,
+        "share": 0.20855614973262032
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.870062227555009,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.337292227555009
+      },
+      "latency_p50_ms": 93259.53017807887,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.77,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.839572192513369,
+          "k": 157,
+          "n": 187,
+          "ci95": [
+            0.7802198297037941,
+            0.8852535262102204
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 40,
+        "n": 187,
+        "share": 0.21390374331550802
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 5.952801976017475,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.420031976017475
+      },
+      "latency_p50_ms": 95627.20631274742,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.78,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.839572192513369,
+          "k": 157,
+          "n": 187,
+          "ci95": [
+            0.7802198297037941,
+            0.8852535262102204
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 41,
+        "n": 187,
+        "share": 0.2192513368983957
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 6.03554172447994,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.50277172447994
+      },
+      "latency_p50_ms": 97994.88244741598,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.79,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 43,
+        "n": 187,
+        "share": 0.22994652406417113
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 6.201021221404874,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.668251221404874
+      },
+      "latency_p50_ms": 102730.23471675307,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.8,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 43,
+        "n": 187,
+        "share": 0.22994652406417113
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 6.201021221404874,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.668251221404874
+      },
+      "latency_p50_ms": 102730.23471675307,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.81,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 44,
+        "n": 187,
+        "share": 0.23529411764705882
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 6.283760969867339,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.750990969867339
+      },
+      "latency_p50_ms": 105097.91085142164,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.82,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 44,
+        "n": 187,
+        "share": 0.23529411764705882
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 6.283760969867339,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.750990969867339
+      },
+      "latency_p50_ms": 105097.91085142164,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.83,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8342245989304813,
+          "k": 156,
+          "n": 187,
+          "ci95": [
+            0.7743075324133393,
+            0.8806859281319506
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 47,
+        "n": 187,
+        "share": 0.25133689839572193
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 6.531980215254738,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 5.999210215254738
+      },
+      "latency_p50_ms": 112200.93925542729,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.84,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8288770053475936,
+          "k": 155,
+          "n": 187,
+          "ci95": [
+            0.768414103702214,
+            0.8760994614743512
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 48,
+        "n": 187,
+        "share": 0.25668449197860965
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 6.614719963717205,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 6.0819499637172045
+      },
+      "latency_p50_ms": 114568.61539009583,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.85,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8288770053475936,
+          "k": 155,
+          "n": 187,
+          "ci95": [
+            0.768414103702214,
+            0.8760994614743512
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 49,
+        "n": 187,
+        "share": 0.2620320855614973
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 6.69745971217967,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 6.16468971217967
+      },
+      "latency_p50_ms": 116936.29152476438,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.86,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8235294117647058,
+          "k": 154,
+          "n": 187,
+          "ci95": [
+            0.7625388645618929,
+            0.8714948052459477
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 55,
+        "n": 187,
+        "share": 0.29411764705882354
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 7.193898202954467,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 6.661128202954467
+      },
+      "latency_p50_ms": 131142.3483327757,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.87,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.967741935483871,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.967741935483871,
+          "k": 30,
+          "n": 31,
+          "ci95": [
+            0.8380554282383037,
+            0.9942829259130554
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8235294117647058,
+          "k": 154,
+          "n": 187,
+          "ci95": [
+            0.7625388645618929,
+            0.8714948052459477
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 58,
+        "n": 187,
+        "share": 0.31016042780748665
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 7.442117448341866,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 6.909347448341866
+      },
+      "latency_p50_ms": 138245.37673678136,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.88,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8128342245989305,
+          "k": 152,
+          "n": 187,
+          "ci95": [
+            0.7508404830478786,
+            0.8622333960225127
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 63,
+        "n": 187,
+        "share": 0.33689839572192515
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 7.855816190654197,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 7.323046190654197
+      },
+      "latency_p50_ms": 150083.75741012412,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.89,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8128342245989305,
+          "k": 152,
+          "n": 187,
+          "ci95": [
+            0.7508404830478786,
+            0.8622333960225127
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 64,
+        "n": 187,
+        "share": 0.3422459893048128
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 7.938555939116663,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 7.4057859391166625
+      },
+      "latency_p50_ms": 152451.43354479267,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.9,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8128342245989305,
+          "k": 152,
+          "n": 187,
+          "ci95": [
+            0.7508404830478786,
+            0.8622333960225127
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 66,
+        "n": 187,
+        "share": 0.35294117647058826
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 8.104035436041594,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 7.571265436041595
+      },
+      "latency_p50_ms": 157186.78581412978,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.91,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8074866310160428,
+          "k": 151,
+          "n": 187,
+          "ci95": [
+            0.7450162127611488,
+            0.8575777709405179
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 67,
+        "n": 187,
+        "share": 0.3582887700534759
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 8.186775184504059,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 7.654005184504061
+      },
+      "latency_p50_ms": 159554.46194879833,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.92,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8074866310160428,
+          "k": 151,
+          "n": 187,
+          "ci95": [
+            0.7450162127611488,
+            0.8575777709405179
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 68,
+        "n": 187,
+        "share": 0.36363636363636365
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 8.269514932966528,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 7.736744932966527
+      },
+      "latency_p50_ms": 161922.13808346688,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.93,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8074866310160428,
+          "k": 151,
+          "n": 187,
+          "ci95": [
+            0.7450162127611488,
+            0.8575777709405179
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 72,
+        "n": 187,
+        "share": 0.3850267379679144
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 8.600473926816392,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 8.067703926816392
+      },
+      "latency_p50_ms": 171392.8426221411,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.94,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8021390374331551,
+          "k": 150,
+          "n": 187,
+          "ci95": [
+            0.739207868210379,
+            0.8529062201225631
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 75,
+        "n": 187,
+        "share": 0.40106951871657753
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 8.84869317220379,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 8.31592317220379
+      },
+      "latency_p50_ms": 178495.87102614675,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.95,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.8021390374331551,
+          "k": 150,
+          "n": 187,
+          "ci95": [
+            0.739207868210379,
+            0.8529062201225631
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 78,
+        "n": 187,
+        "share": 0.41711229946524064
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 9.09691241759119,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 8.564142417591189
+      },
+      "latency_p50_ms": 185598.8994301524,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.96,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.7967914438502673,
+          "k": 149,
+          "n": 187,
+          "ci95": [
+            0.7334149763028144,
+            0.8482192166614029
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 82,
+        "n": 187,
+        "share": 0.4385026737967914
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 9.427871411441053,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 8.895101411441054
+      },
+      "latency_p50_ms": 195069.60396882662,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.97,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.7967914438502673,
+          "k": 149,
+          "n": 187,
+          "ci95": [
+            0.7334149763028144,
+            0.8482192166614029
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 86,
+        "n": 187,
+        "share": 0.45989304812834225
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 9.758830405290919,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 9.226060405290918
+      },
+      "latency_p50_ms": 204540.3085075008,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.98,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.786096256684492,
+          "k": 147,
+          "n": 187,
+          "ci95": [
+            0.7218738088392376,
+            0.8388005933875307
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 93,
+        "n": 187,
+        "share": 0.49732620320855614
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 10.338008644528182,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 9.805238644528181
+      },
+      "latency_p50_ms": 221114.04145018067,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 0.99,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.7754010695187166,
+          "k": 145,
+          "n": 187,
+          "ci95": [
+            0.7103894942807282,
+            0.8293251172085906
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 109,
+        "n": 187,
+        "share": 0.5828877005347594
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 11.66184461992764,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 11.12907461992764
+      },
+      "latency_p50_ms": 258996.8596048775,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    },
+    {
+      "threshold": 1.0,
+      "router": "global",
+      "label": "simulated from recorded answers",
+      "value": 0.9354838709677419,
+      "metrics": {
+        "line_verdict": {
+          "value": 0.9354838709677419,
+          "k": 29,
+          "n": 31,
+          "ci95": [
+            0.7928101168125354,
+            0.9821255922249368
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        },
+        "question_accuracy": {
+          "value": 0.7593582887700535,
+          "k": 142,
+          "n": 187,
+          "ci95": [
+            0.6932635087923685,
+            0.8150114165907766
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+          "partial": true,
+          "simulated": true
+        }
+      },
+      "questions_routed": {
+        "k": 187,
+        "n": 187,
+        "share": 1.0
+      },
+      "cases_routed": {
+        "k": 1,
+        "n": 1,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 18.115545,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.53277,
+        "deepinfra": 17.582775
+      },
+      "latency_p50_ms": 443675.5981090246,
+      "n_cases": 1,
+      "escalate": "qwen",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "via": "DeepInfra",
+      "provider": "deepinfra",
+      "bench": "hard",
+      "chart": "line_verdict",
+      "partial": true
+    }
+  ],
+  "qwen_only": {
+    "threshold": null,
+    "router": null,
+    "label": "recorded",
+    "value": 0.9354838709677419,
+    "metrics": {
+      "line_verdict": {
+        "value": 0.9354838709677419,
+        "k": 29,
+        "n": 31,
+        "ci95": [
+          0.7928101168125354,
+          0.9821255922249368
+        ],
+        "ci_method": "wilson",
+        "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+        "partial": true,
+        "simulated": false
+      },
+      "question_accuracy": {
+        "value": 0.7593582887700535,
+        "k": 142,
+        "n": 187,
+        "ci95": [
+          0.6932635087923685,
+          0.8150114165907766
+        ],
+        "ci_method": "wilson",
+        "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+        "partial": true,
+        "simulated": false
+      }
+    },
+    "questions_routed": {
+      "k": 187,
+      "n": 187,
+      "share": 1.0
+    },
+    "cases_routed": {
+      "k": 1,
+      "n": 1,
+      "share": 1.0
+    },
+    "cost_per_1000_usd": 17.582775,
+    "cost_parts_per_1000_usd": {
+      "drex": 0.0,
+      "deepinfra": 17.582775
+    },
+    "latency_p50_ms": 442755.43718301924,
+    "n_cases": 1,
+    "escalate_model": "Qwen/Qwen3.8-27B",
+    "via": "DeepInfra",
+    "provider": "deepinfra",
+    "chart": "line_verdict"
+  },
+  "drex_only": {
+    "threshold": null,
+    "router": null,
+    "label": "recorded",
+    "value": 0.8387096774193549,
+    "metrics": {
+      "line_verdict": {
+        "value": 0.8387096774193549,
+        "k": 26,
+        "n": 31,
+        "ci95": [
+          0.6736529727502113,
+          0.9290748009456006
+        ],
+        "ci_method": "wilson",
+        "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+        "partial": true,
+        "simulated": false
+      },
+      "question_accuracy": {
+        "value": 0.839572192513369,
+        "k": 157,
+        "n": 187,
+        "ci95": [
+          0.7802198297037941,
+          0.8852535262102204
+        ],
+        "ci_method": "wilson",
+        "source_run": "data/runs/di_hard_Qwen__Qwen3.8-27B.jsonl",
+        "partial": true,
+        "simulated": false
+      }
+    },
+    "questions_routed": {
+      "k": 0,
+      "n": 187,
+      "share": 0.0
+    },
+    "cases_routed": {
+      "k": 0,
+      "n": 1,
+      "share": 0.0
+    },
+    "cost_per_1000_usd": 0.53277,
+    "cost_parts_per_1000_usd": {
+      "drex": 0.53277,
+      "deepinfra": 0.0
+    },
+    "latency_p50_ms": 920.1609260053374,
+    "n_cases": 1,
+    "escalate_model": null,
+    "via": null,
+    "provider": "nace",
+    "chart": "line_verdict"
+  },
+  "match_qwen_within_1pt": {
+    "threshold": 0.9,
+    "router": "global",
+    "value": 0.9354838709677419,
+    "cost_per_1000_usd": 8.104035436041594,
+    "questions_routed_share": 0.35294117647058826,
+    "post_hoc": "Operating point t=0.90. Not tuned: no DeepInfra answers on a dev or practice split. The star is this fixed point, not a search over the reported rows.",
+    "label": "simulated from recorded answers"
+  },
+  "post_hoc_on_reported_rows": {
+    "threshold": 0.54,
+    "router": "global",
+    "value": 0.9354838709677419,
+    "gpt_value": 0.9354838709677419,
+    "cost_per_1000_usd": 3.47060952214349,
+    "gpt_cost_per_1000_usd": 17.582775,
+    "questions_routed_share": 0.053475935828877004,
+    "post_hoc": "Threshold picked on the same recorded set it is scored on. Not a held-out choice.",
+    "rule": "lowest simulated cost among points whose chart metric is within 1 point of this model alone. Reported only as a post-hoc description of these rows.",
+    "label": "simulated from recorded answers",
+    "note": "Scored on the same rows. Not used as the operating point."
+  },
+  "computed_at": "2026-11-14T20:21:41Z",
+  "generator": "billproof.dial.qcombo"
+}

@@ -1,0 +1,318 @@
+{
+  "status": "complete",
+  "n": 4,
+  "spend_usd": {
+    "gpt": 0.0,
+    "drex": 0.00039996000000000004,
+    "total": 0.00039996000000000004,
+    "gpt_requests": 0
+  },
+  "design": "No extra GPT calls. Every 1,000-case figure is calculated from the pilot calls already measured. It is not a live 1,000-case queue. The dollar exchange uses clean single-case costs only: GPT inject-clean, and Drex inject-clean plus the two extra clean repeats on the four consistency cases. Latency and the 500 ms fraction use every single-case inject and consistency call plus those Drex repeats, and they exclude the packed batch calls. service_latency_ms is the adapter latency minus time spent inside the shared frontier rate-limit wait. latency_ms is the adapter value and includes that wait when another process is using the same 13 rpm window. The 500 ms fraction is reported on both clocks. The SLO and the serial-throughput figures use service time. On each of the four consistency cases, Drex is called two more times on the clean state (three clean asks total). A fact flips when those three choices are not all equal.",
+  "caveats": [
+    "Validation initial_packet only. The development 370-case panel and the development parquet were not read.",
+    "Option order was not shuffled. That cell was skipped so the GPT request count stays at or under 24.",
+    "These n are a pilot. A Wilson interval at this size is wide, including when the point estimate is 0 or 1.",
+    "Criteria-gym records often say explicitly whether a clause is satisfied, so a small or empty gap is a real result.",
+    "The injected note and the paraphrase were fixed before any model call and were not rewritten after the results.",
+    "GPT latency_ms includes shared rate-limit wait (FRONTIER_RPM stays at the default). service_latency_ms subtracts that wait.",
+    "Frontier case_id is sent beside state by the existing adapter. Drex's request has no case_id field. The state and the questions are the shared input.",
+    "Costs use the adapter's billed figures (configured router rates and Drex input-token price).",
+    "CALCULATED from pilot calls, not a live 1000-case queue.",
+    "Dollar exchange uses clean calls only. Latency uses every single-case inject and consistency call plus the Drex clean repeats.",
+    "Three Drex asks are summed. They are not assumed to run inside one 500 ms budget."
+  ],
+  "simulated": false,
+  "computed_at": "2026-11-14T09:15:20Z",
+  "lanes": {
+    "gpt": {
+      "model": "gpt-6.1-sol",
+      "clean_mean_cost_usd": {
+        "value": 0.009000833333333333,
+        "n": 6,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z"
+      },
+      "service_latency_p50_ms": {
+        "value": 4423.119520477485,
+        "n": 20,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z"
+      },
+      "latency_p50_ms": {
+        "value": 13728.915926010814,
+        "n": 20,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z"
+      },
+      "fraction_service_le_500ms": {
+        "value": 0.0,
+        "n": 20,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.16113012549493322
+      },
+      "fraction_raw_le_500ms": {
+        "value": 0.0,
+        "n": 20,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.16113012549493322
+      },
+      "serial_cases_per_second": {
+        "value": 0.2252513668714193,
+        "n": 20,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z"
+      }
+    },
+    "drex": {
+      "model": "drex-max-v1.1",
+      "clean_mean_cost_usd": {
+        "value": 5.005928571428571e-05,
+        "n": 14,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z"
+      },
+      "service_latency_p50_ms": {
+        "value": 362.3414169996977,
+        "n": 28,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z"
+      },
+      "latency_p50_ms": {
+        "value": 362.3414169996977,
+        "n": 28,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z"
+      },
+      "fraction_service_le_500ms": {
+        "value": 0.9642857142857143,
+        "n": 28,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 27,
+        "ci_low": 0.8228742388150135,
+        "ci_high": 0.9936676435024582
+      },
+      "fraction_raw_le_500ms": {
+        "value": 0.9642857142857143,
+        "n": 28,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 27,
+        "ci_low": 0.8228742388150135,
+        "ci_high": 0.9936676435024582
+      },
+      "serial_cases_per_second": {
+        "value": 2.709767714765672,
+        "n": 28,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z"
+      },
+      "clean_repeat_fact_flip_rate": {
+        "value": 0.0,
+        "n": 15,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.20388926630434784
+      }
+    }
+  },
+  "calculated": {
+    "label": "CALCULATED from pilot calls, not a live 1000-case queue",
+    "same_dollar_budget": {
+      "budget_equal_to_1000_gpt_cases_usd": 9.000833333333333,
+      "drex_cases_that_money_buys": 179803.4711223359,
+      "budget_equal_to_1000_drex_cases_usd": 0.05005928571428571,
+      "gpt_cases_that_money_buys": 5.561627891597339,
+      "n_gpt_clean_calls": 6,
+      "n_drex_clean_calls": 14
+    },
+    "same_wall_clock_serial": {
+      "uses": "service_latency_ms",
+      "mean_gpt_service_ms": 4439.484713852289,
+      "mean_drex_service_ms": 369.0353215705337,
+      "wall_ms_for_1000_serial_gpt_cases": 4439484.713852289,
+      "drex_cases_in_that_wall": 12029.97234779265,
+      "wall_ms_for_1000_serial_drex_cases": 369035.32157053374,
+      "gpt_cases_in_that_wall": 83.1257106075965,
+      "expected_drex_cases_meeting_500ms_in_gpt_wall": 11600.330478228629,
+      "expected_gpt_cases_meeting_500ms_in_own_1000": 0.0
+    },
+    "slo_500ms": {
+      "gpt_service": {
+        "value": 0.0,
+        "n": 20,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.16113012549493322
+      },
+      "drex_service": {
+        "value": 0.9642857142857143,
+        "n": 28,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 27,
+        "ci_low": 0.8228742388150135,
+        "ci_high": 0.9936676435024582
+      },
+      "gpt_raw_includes_pace_wait": {
+        "value": 0.0,
+        "n": 20,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 0,
+        "ci_low": 0.0,
+        "ci_high": 0.16113012549493322
+      },
+      "drex_raw": {
+        "value": 0.9642857142857143,
+        "n": 28,
+        "source_run": "c_budget",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 27,
+        "ci_low": 0.8228742388150135,
+        "ci_high": 0.9936676435024582
+      },
+      "serial_throughput_cases_per_second": {
+        "gpt": 0.2252513668714193,
+        "drex": 2.709767714765672
+      }
+    }
+  },
+  "reask": {
+    "cases": [
+      {
+        "case_id": "pa1-ar-medicaid-pa-criteria-9bdac2d145012db6-all_required_information_provided__opposite",
+        "complete_trio": true
+      },
+      {
+        "case_id": "pa1-fl-medicaid-drug-criteria-42401347833cd6b0-met_initial_review_criteria__opposite",
+        "complete_trio": true
+      },
+      {
+        "case_id": "pa1-fl-medicaid-drug-criteria-73b4b135509696ba-nothing_documented",
+        "complete_trio": true
+      },
+      {
+        "case_id": "pa1-ms-medicaid-pa-criteria-e19e19e2232454a1-diagnosis_adhd__opposite",
+        "complete_trio": true
+      }
+    ],
+    "fact_flip_rate": {
+      "value": 0.0,
+      "n": 15,
+      "source_run": "c_budget",
+      "simulated": false,
+      "computed_at": "2026-11-14T09:15:20Z",
+      "k": 0,
+      "ci_low": 0.0,
+      "ci_high": 0.20388926630434784
+    },
+    "three_ask_vs_one_gpt": {
+      "per_case": [
+        {
+          "case_id": "pa1-ar-medicaid-pa-criteria-9bdac2d145012db6-all_required_information_provided__opposite",
+          "drex_three_asks_usd": 9.863999999999999e-05,
+          "gpt_one_ask_usd": 0.006425
+        },
+        {
+          "case_id": "pa1-fl-medicaid-drug-criteria-42401347833cd6b0-met_initial_review_criteria__opposite",
+          "drex_three_asks_usd": 0.00015867000000000002,
+          "gpt_one_ask_usd": 0.009575
+        },
+        {
+          "case_id": "pa1-fl-medicaid-drug-criteria-73b4b135509696ba-nothing_documented",
+          "drex_three_asks_usd": 0.000153,
+          "gpt_one_ask_usd": 0.009405
+        },
+        {
+          "case_id": "pa1-ms-medicaid-pa-criteria-e19e19e2232454a1-diagnosis_adhd__opposite",
+          "drex_three_asks_usd": 0.00018962999999999999,
+          "gpt_one_ask_usd": 0.0114425
+        }
+      ],
+      "mean_drex_three_asks_usd": 0.000149985,
+      "mean_gpt_one_ask_usd": 0.009211875,
+      "n": 4
+    },
+    "fits_500ms": [
+      {
+        "case_id": "pa1-ar-medicaid-pa-criteria-9bdac2d145012db6-all_required_information_provided__opposite",
+        "service_latency_ms": [
+          611.5310770110227,
+          355.0025839940645,
+          373.48757800646126
+        ],
+        "sum_service_latency_ms": 1340.0212390115485,
+        "fits_500ms": false
+      },
+      {
+        "case_id": "pa1-fl-medicaid-drug-criteria-42401347833cd6b0-met_initial_review_criteria__opposite",
+        "service_latency_ms": [
+          360.75844697188586,
+          408.1078890012577,
+          271.24314999673516
+        ],
+        "sum_service_latency_ms": 1040.1094859698787,
+        "fits_500ms": false
+      },
+      {
+        "case_id": "pa1-fl-medicaid-drug-criteria-73b4b135509696ba-nothing_documented",
+        "service_latency_ms": [
+          402.57402800489217,
+          349.65515800286084,
+          354.94462301721796
+        ],
+        "sum_service_latency_ms": 1107.173809024971,
+        "fits_500ms": false
+      },
+      {
+        "case_id": "pa1-ms-medicaid-pa-criteria-e19e19e2232454a1-diagnosis_adhd__opposite",
+        "service_latency_ms": [
+          331.59375604009256,
+          336.05313999578357,
+          363.9243870275095
+        ],
+        "sum_service_latency_ms": 1031.5712830633856,
+        "fits_500ms": false
+      }
+    ],
+    "n_cases_whose_three_asks_sum_le_500ms": 0
+  },
+  "gap": {
+    "endpoint": "clean_repeat_fact_flip_rate",
+    "appeared": null,
+    "note": "GPT was not re-asked. There is no paired stability gap."
+  },
+  "n_detail": {
+    "consistency_cases": 4,
+    "inject_cases": 6,
+    "repeat_calls": 8
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "status": "complete",
+  "n": 20,
+  "spend_usd": {
+    "gpt": 0.0,
+    "drex": 0.0,
+    "total": 0.0,
+    "gpt_requests": 0
+  },
+  "design": "No model calls. When c_persius.jsonl has at least 15 rows with a choice on each lane, that lane is ranked by its own confidence, highest first. Ties keep file order and do not look at correctness. Drex uses the native confidence of the chosen answer. GPT uses the self-reported confidence. The top floor(coverage * n) items are auto-decided at coverage 0.80 and 0.90. Accuracy and the Wilson interval are on that selected set. The cutoff is the confidence of the last included item.",
+  "caveats": [
+    "Validation initial_packet only. The development 370-case panel and the development parquet were not read.",
+    "Option order was not shuffled. That cell was skipped so the GPT request count stays at or under 24.",
+    "These n are a pilot. A Wilson interval at this size is wide, including when the point estimate is 0 or 1.",
+    "Criteria-gym records often say explicitly whether a clause is satisfied, so a small or empty gap is a real result.",
+    "The injected note and the paraphrase were fixed before any model call and were not rewritten after the results.",
+    "GPT latency_ms includes shared rate-limit wait (FRONTIER_RPM stays at the default). service_latency_ms subtracts that wait.",
+    "Frontier case_id is sent beside state by the existing adapter. Drex's request has no case_id field. The state and the questions are the shared input.",
+    "Costs use the adapter's billed figures (configured router rates and Drex input-token price).",
+    "This arm makes no model calls and does not wait on the other process."
+  ],
+  "simulated": false,
+  "computed_at": "2026-11-14T09:15:20Z",
+  "lanes": {
+    "gpt": {
+      "n_with_choice": 20,
+      "n_scoreable": 20,
+      "confidence_kind": "self_reported",
+      "coverage_0.80": {
+        "value": 0.5,
+        "n": 16,
+        "source_run": "c_risk",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 8,
+        "ci_low": 0.27999237611350836,
+        "ci_high": 0.7200076238864916,
+        "coverage": 0.8,
+        "cutoff": 0.55,
+        "n_ranked": 20
+      },
+      "coverage_0.90": {
+        "value": 0.5,
+        "n": 18,
+        "source_run": "c_risk",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 9,
+        "ci_low": 0.2903070395897999,
+        "ci_high": 0.7096929604102,
+        "coverage": 0.9,
+        "cutoff": 0.51,
+        "n_ranked": 20
+      }
+    },
+    "drex": {
+      "n_with_choice": 20,
+      "n_scoreable": 20,
+      "confidence_kind": "native",
+      "coverage_0.80": {
+        "value": 0.6875,
+        "n": 16,
+        "source_run": "c_risk",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 11,
+        "ci_low": 0.4440393186673406,
+        "ci_high": 0.8583556494803894,
+        "coverage": 0.8,
+        "cutoff": 0.567406475544,
+        "n_ranked": 20
+      },
+      "coverage_0.90": {
+        "value": 0.7222222222222222,
+        "n": 18,
+        "source_run": "c_risk",
+        "simulated": false,
+        "computed_at": "2026-11-14T09:15:20Z",
+        "k": 13,
+        "ci_low": 0.49126922453805477,
+        "ci_high": 0.8750043085364452,
+        "coverage": 0.9,
+        "cutoff": 0.522591085588,
+        "n_ranked": 20
+      }
+    }
+  },
+  "gap": {
+    "coverage_0.80": {
+      "endpoint": "selective_accuracy_0.80",
+      "appeared": false,
+      "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+      "gpt_minus_drex": -0.1875,
+      "gpt": {
+        "value": 0.5,
+        "n": 16,
+        "ci": [
+          0.27999237611350836,
+          0.7200076238864916
+        ]
+      },
+      "drex": {
+        "value": 0.6875,
+        "n": 16,
+        "ci": [
+          0.4440393186673406,
+          0.8583556494803894
+        ]
+      }
+    },
+    "coverage_0.90": {
+      "endpoint": "selective_accuracy_0.90",
+      "appeared": false,
+      "rule": "A gap is recorded only when the two Wilson 95% intervals are disjoint.",
+      "gpt_minus_drex": -0.2222222222222222,
+      "gpt": {
+        "value": 0.5,
+        "n": 18,
+        "ci": [
+          0.2903070395897999,
+          0.7096929604102
+        ]
+      },
+      "drex": {
+        "value": 0.7222222222222222,
+        "n": 18,
+        "ci": [
+          0.49126922453805477,
+          0.8750043085364452
+        ]
+      }
+    }
+  }
+}

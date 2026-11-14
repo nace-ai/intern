@@ -1,0 +1,83 @@
+{
+  "MEDICAL_NECESSITY": {
+    "carc": "CO-50",
+    "reasons": [
+      "Based on the plan's clinical criteria, {service} on {date} was not considered medically necessary for the member's documented condition.",
+      "The information submitted does not support {service} on {date} as medically necessary under the plan's coverage policy.",
+      "Coverage for {service} on {date} was denied because the plan's review found the service was not needed to diagnose or treat the member's condition.",
+      "The plan's medical review of {service} on {date} did not find documentation of a condition that meets the plan's criteria for this service."
+    ]
+  },
+  "PRIOR_AUTH": {
+    "carc": "CO-197",
+    "reasons": [
+      "No prior authorization was on file for {service} on {date}; the plan requires approval before this service is scheduled.",
+      "{service} on {date} was provided without the pre-service authorization required by the member's plan.",
+      "The authorization request for {service} was not received before {date}, so the claim cannot be paid as submitted.",
+      "The plan has no approved authorization matching {service} on {date}; please submit the authorization number with a corrected claim."
+    ]
+  },
+  "NOT_COVERED": {
+    "carc": "CO-96",
+    "reasons": [
+      "{service} on {date} is not a covered benefit under the member's plan.",
+      "The member's plan does not include coverage for {service}; the claim for {date} was denied as a non-covered service.",
+      "Benefits for {service} on {date} are excluded from the plan's schedule of covered services.",
+      "This plan does not pay for {service} in the setting billed on {date}."
+    ]
+  },
+  "OUT_OF_NETWORK": {
+    "carc": "CO-242",
+    "reasons": [
+      "{service} on {date} was provided by a non-network provider, and the plan's network benefits do not apply.",
+      "The provider who performed {service} on {date} is not in the plan's network; the claim was denied under out-of-network rules.",
+      "The plan requires {service} to be received from a network provider; the provider for {date} is not contracted with the plan.",
+      "No network exception was approved for {service} on {date}, so the claim was processed as out of network."
+    ]
+  },
+  "CODING_BUNDLING": {
+    "carc": "CO-97",
+    "reasons": [
+      "The benefit for {service} on {date} is included in another service billed on the same claim.",
+      "{service} on {date} is considered part of the primary procedure under the plan's bundling rules and is not separately payable.",
+      "Payment for {service} on {date} was combined with a related service that the plan pays once.",
+      "The plan's claims system found {service} on {date} to be a component of another billed service and denied separate payment."
+    ]
+  },
+  "DUPLICATE_CLAIM": {
+    "carc": "CO-18",
+    "reasons": [
+      "This claim for {service} on {date} duplicates a claim the plan has already processed.",
+      "{service} on {date} appears more than once in the plan's records, so this submission was denied as a duplicate.",
+      "A claim for {service} on {date} with the same member and provider was already on file.",
+      "The plan identified the submission for {service} on {date} as a repeat of an existing claim."
+    ]
+  },
+  "TIMELY_FILING": {
+    "carc": "CO-29",
+    "reasons": [
+      "The claim for {service} on {date} was received after the plan's filing limit for provider claims.",
+      "{service} on {date} was submitted outside the period the plan allows for claim submission.",
+      "The plan's records show the claim for {service} on {date} arrived after the filing deadline in the provider agreement.",
+      "Time to file for {service} on {date} has expired under the plan's submission rules."
+    ]
+  },
+  "ELIGIBILITY": {
+    "carc": "CO-27",
+    "reasons": [
+      "The member's coverage was not active on {date}, when {service} was provided.",
+      "The plan's records show no active coverage for the member on {date} for {service}.",
+      "{service} on {date} was provided after the member's enrollment in this plan ended.",
+      "The member could not be confirmed as eligible for benefits on {date}, so the claim for {service} was denied."
+    ]
+  },
+  "MISSING_INFO": {
+    "carc": "CO-16",
+    "reasons": [
+      "The claim for {service} on {date} is missing information the plan needs to process it.",
+      "The plan could not process {service} on {date} because required claim details were not included.",
+      "Additional information is needed before the plan can review {service} on {date}; the claim was returned as incomplete.",
+      "The submission for {service} on {date} does not include the data elements required for adjudication."
+    ]
+  }
+}

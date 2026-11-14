@@ -1,0 +1,419 @@
+{
+  "case_id": "PA-D3",
+  "row_id": "pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-reduction_overall_number_migraine_days_reduction__missing",
+  "title": "Vyepti renewal \u2014 missing documentation",
+  "drug": "VYEPTI (eptinezumab-jjmr) \u2014 renewal authorization",
+  "beat": "incomplete",
+  "note": "2 AND renewal criteria, one documented, one missing -> incomplete -> records request.",
+  "payer": "Arkansas Medicaid",
+  "policy_id": "AR-20261018-b1945e2bfc",
+  "request": {
+    "payer": "Arkansas Medicaid",
+    "service_date": "2026-10-15"
+  },
+  "connective": "AND",
+  "scenario": "reduction_overall_number_migraine_days_reduction__missing",
+  "service_date": "2026-10-15",
+  "policy_pages": [
+    1
+  ],
+  "packet_pages": [
+    1
+  ],
+  "gold_decision": "incomplete",
+  "decision": "incomplete",
+  "decision_action": "request_evidence",
+  "scope": "applicable",
+  "correct": true,
+  "criteria": [
+    {
+      "criterion": "reduction_overall_number_migraine_days_reduction",
+      "text": "The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month",
+      "state": "missing",
+      "confidence": 0.9990660638205369,
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.1117764890583512,
+            0.7768660265989978
+          ],
+          [
+            0.882061727685866,
+            0.7768660265989978
+          ],
+          [
+            0.882061727685866,
+            0.8151297521109533
+          ],
+          [
+            0.1117764890583512,
+            0.8151297521109533
+          ]
+        ]
+      ],
+      "match_method": "normalized",
+      "link": {
+        "record": "R2",
+        "record_page": 1,
+        "record_polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.4660700788401594
+            ],
+            [
+              0.9018788057215074,
+              0.4660700788401594
+            ],
+            [
+              0.9018788057215074,
+              0.4989652537336253
+            ],
+            [
+              0.0977777780271044,
+              0.4989652537336253
+            ]
+          ]
+        ],
+        "quote": "Not documented in this packet: The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month",
+        "verbatim": true,
+        "search_page": 1,
+        "page_ok": true,
+        "via": "search"
+      }
+    },
+    {
+      "criterion": "obtained_clinical_benefit_vyepti_considered_sign",
+      "text": "The beneficiary has obtained a clinical benefit from Vyepti considered significant by the beneficiary or the prescriber.",
+      "state": "met",
+      "confidence": 0.9992687749958358,
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.11177641426036561,
+            0.8177642051619712
+          ],
+          [
+            0.8952828201593137,
+            0.8177642051619712
+          ],
+          [
+            0.8952828201593137,
+            0.8560279306739268
+          ],
+          [
+            0.11177641426036561,
+            0.8560279306739268
+          ]
+        ]
+      ],
+      "match_method": "exact",
+      "link": {
+        "record": "R1",
+        "record_page": 1,
+        "record_polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.38273674550682607
+            ],
+            [
+              0.8889171126621221,
+              0.38273674550682607
+            ],
+            [
+              0.8889171126621221,
+              0.415631920400292
+            ],
+            [
+              0.0977777780271044,
+              0.415631920400292
+            ]
+          ]
+        ],
+        "quote": "Prescriber attestation, explicitly documented as satisfied: The beneficiary has obtained a clinical benefit from Vyepti considered significant by the beneficiary or the prescriber.",
+        "verbatim": true,
+        "search_page": 1,
+        "page_ok": true,
+        "via": "search"
+      }
+    }
+  ],
+  "records": [
+    {
+      "record": "R1",
+      "kind": "record",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.0977777780271044,
+            0.38273674550682607
+          ],
+          [
+            0.8889171126621221,
+            0.38273674550682607
+          ],
+          [
+            0.8889171126621221,
+            0.415631920400292
+          ],
+          [
+            0.0977777780271044,
+            0.415631920400292
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": "Prescriber attestation, explicitly documented as satisfied: The beneficiary has obtained a clinical benefit from Vyepti considered significant by the beneficiary or the prescriber."
+    },
+    {
+      "record": "R2",
+      "kind": "record",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.0977777780271044,
+            0.4660700788401594
+          ],
+          [
+            0.9018788057215074,
+            0.4660700788401594
+          ],
+          [
+            0.9018788057215074,
+            0.4989652537336253
+          ],
+          [
+            0.0977777780271044,
+            0.4989652537336253
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": "Not documented in this packet: The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month"
+    },
+    {
+      "record": "request::payer",
+      "kind": "request_field",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2644444384606056,
+            0.19334284464518228
+          ],
+          [
+            0.3955661798614302,
+            0.19334284464518228
+          ],
+          [
+            0.3955661798614302,
+            0.2098238973906546
+          ],
+          [
+            0.2644444384606056,
+            0.2098238973906546
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": ""
+    },
+    {
+      "record": "request::service_date",
+      "kind": "request_field",
+      "page": 1,
+      "polygons": [
+        [
+          [
+            0.2644444384606056,
+            0.2362721375744752
+          ],
+          [
+            0.34382843815423303,
+            0.2362721375744752
+          ],
+          [
+            0.34382843815423303,
+            0.25275319031994753
+          ],
+          [
+            0.2644444384606056,
+            0.25275319031994753
+          ]
+        ]
+      ],
+      "deciding": false,
+      "text": ""
+    }
+  ],
+  "drex": {
+    "qa": {
+      "fact::reduction_overall_number_migraine_days_reduction": {
+        "choice": "not_documented",
+        "confidence": 0.9990660638205369,
+        "probabilities": {
+          "documented_satisfied": 0.0002728032849619499,
+          "documented_not_satisfied": 0.0003498208346800006,
+          "not_documented": 0.999377375880358
+        }
+      },
+      "fact::obtained_clinical_benefit_vyepti_considered_sign": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9992687749958358,
+        "probabilities": {
+          "documented_satisfied": 0.9995125166638906,
+          "documented_not_satisfied": 0.0002382324950496221,
+          "not_documented": 0.00024925084105973126
+        }
+      },
+      "scope::payer_match": {
+        "choice": "yes",
+        "confidence": 0.999750689744924,
+        "probabilities": {
+          "yes": 0.999750689744924,
+          "no": 0.000249
+        }
+      },
+      "scope::date_in_window": {
+        "choice": "yes",
+        "confidence": 0.9996944542255327,
+        "probabilities": {
+          "yes": 0.9996944542255327,
+          "no": 0.000306
+        }
+      }
+    },
+    "model": "drex-max-v1.1",
+    "cost_usd": 3.4320000000000003e-05,
+    "latency_ms": 2897.7853969554417,
+    "calls": 1,
+    "error": null
+  },
+  "deciding_record": null,
+  "ablation": [
+    {
+      "dropped": "R1",
+      "decision": "incomplete",
+      "changed": false,
+      "latency_ms": 1492.366717022378,
+      "cost_usd": 3.294e-05
+    },
+    {
+      "dropped": "R2",
+      "decision": "incomplete",
+      "changed": false,
+      "latency_ms": 522.0513750100508,
+      "cost_usd": 3.3089999999999997e-05
+    }
+  ],
+  "search": {
+    "workspace_id": "ac7e6ac1-77d7-4efa-a101-0dd512490eb3",
+    "query": "This workspace holds a payer prior-authorization criteria page and one synthetic clinical packet (documents R1..Rn). For each approval criterion below, find which enclosed record (if any) addresses it \u2014 the record that documents it satisfied, not satisfied, or missing. Quote the record's text word for word, with its page. If no record addresses a criterion, say record_id null.\nCriteria: reduction_overall_number_migraine_days_reduction: \"The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month\"; obtained_clinical_benefit_vyepti_considered_sign: \"The beneficiary has obtained a clinical benefit from Vyepti considered significant by the beneficiary or the prescriber.\"",
+    "job_id": "9fb2dded-8bc8-4442-a386-bbbfd5ce57c8",
+    "status": "succeeded",
+    "matches": [
+      {
+        "page": 1,
+        "quote": "Not documented in this packet: The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month",
+        "document": "PA-D3/packet.pdf",
+        "criterion": "reduction_overall_number_migraine_days_reduction",
+        "record_id": "R2",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      },
+      {
+        "page": 1,
+        "quote": "Prescriber attestation, explicitly documented as satisfied: The beneficiary has obtained a clinical benefit from Vyepti considered significant by the beneficiary or the prescriber.",
+        "document": "PA-D3/packet.pdf",
+        "criterion": "obtained_clinical_benefit_vyepti_considered_sign",
+        "record_id": "R1",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      }
+    ],
+    "evidences": [
+      {
+        "source_path": "PA-D3/packet.pdf",
+        "page": 1,
+        "quote": "Not documented in this packet: The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month"
+      },
+      {
+        "source_path": "PA-D3/packet.pdf",
+        "page": 1,
+        "quote": "Prescriber attestation, explicitly documented as satisfied: The beneficiary has obtained a clinical benefit from Vyepti considered significant by the beneficiary or the prescriber."
+      }
+    ],
+    "ingest_seconds": 11.6,
+    "search_seconds": 7.1,
+    "cost_usd": 0.00291
+  },
+  "gpt_check": {
+    "gpt_decision": "incomplete",
+    "checked_decision": "incomplete",
+    "overrides": [],
+    "flagged": []
+  },
+  "letter": {
+    "type": "records_request",
+    "recipient": "requesting_provider",
+    "subject": "Request for missing documentation - VYEPTI (eptinezumab-jjmr) \u2014 renewal authorization",
+    "clauses": [
+      {
+        "clause_id": "records_request",
+        "title": "Request for missing documentation",
+        "text": "The request for VYEPTI (eptinezumab-jjmr) \u2014 renewal authorization under Arkansas Medicaid policy AR-20261018-b1945e2bfc cannot be completed: the criteria list is not fully documented. Documented so far: obtained_clinical_benefit_vyepti_considered_sign: \"The beneficiary has obtained a clinical benefit from Vyepti considered significant by the beneficiary or the prescriber.\" Still needed: reduction_overall_number_migraine_days_reduction: \"The beneficiary has a reduction in the overall number of migraine days or reduction in number of severe migraine days per month\" Please send records that address each missing criterion so the review can continue.",
+        "picked_by": "decision"
+      },
+      {
+        "clause_id": "closing",
+        "title": "Closing and signature",
+        "text": "Please reply in writing by 2026-10-31 with a corrected statement or a decision.\n\nThis letter was assembled from a fixed clause library. No model wrote the wording. It is not medical advice or legal advice.\n\nPrepared with BillProof; reviewed and signed by: ____",
+        "picked_by": "decision"
+      }
+    ],
+    "generated_words": 0,
+    "decision": "incomplete",
+    "action": "request_evidence"
+  },
+  "timings": {
+    "ground_s": 4.8,
+    "search_s": 7.1,
+    "drex_ms": 2897.7853969554417,
+    "ablate_ms": 2014.4180920324288,
+    "gpt_ms": 3609.4554669689387
+  },
+  "costs": {
+    "ndi_ground": 0.072,
+    "drex_search": 0.00291,
+    "drex_decide": 0.00010035,
+    "gpt": 0.00625
+  },
+  "total_cost_usd": 0.08126,
+  "provenance": {
+    "dataset": "Hammer Labs criteria-gym policy_checklist (validation split, hackathon demo use)",
+    "row_id": "pa1-ar-medicaid-pa-criteria-b1945e2bfca19b1a-reduction_overall_number_migraine_days_reduction__missing",
+    "policy_source_url": null,
+    "policy_document_title": "Physician Administered Drug PA Criteria",
+    "source_pdf": "PAD_Criteria.pdf",
+    "char_spans": null,
+    "recorded_at": "2026-11-14T08:21:28Z"
+  },
+  "criterion_states": {
+    "obtained_clinical_benefit_vyepti_considered_sign": "met",
+    "reduction_overall_number_migraine_days_reduction": "unknown"
+  },
+  "missing_info": [
+    "reduction_overall_number_migraine_days_reduction"
+  ],
+  "facts": {
+    "reduction_overall_number_migraine_days_reduction": null,
+    "obtained_clinical_benefit_vyepti_considered_sign": true
+  }
+}

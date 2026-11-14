@@ -1,0 +1,11 @@
+{
+  "value": 456.5,
+  "n": 6,
+  "source_run": "ndi_warm_20261114T065556",
+  "simulated": false,
+  "computed_at": "2026-11-14T06:58:00.370712+00:00",
+  "unit": "seconds saved per bill+EOB packet",
+  "manual_baseline_seconds": 480,
+  "manual_baseline_basis": "ASSUMPTION \u2014 unmeasured: a reviewer reading a bill and EOB side by side, matching 3 line items and reconciling totals, is assumed to take ~8 minutes",
+  "ndi_seconds_per_packet": 23.5
+}

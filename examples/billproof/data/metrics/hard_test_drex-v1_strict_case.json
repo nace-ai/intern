@@ -1,0 +1,12 @@
+{
+  "value": 0.0,
+  "n": 300,
+  "source_run": "hard_test_drex-v1",
+  "simulated": false,
+  "computed_at": "2026-11-14T11:58:32Z",
+  "k": 0,
+  "ci_low": 0.0,
+  "ci_high": 0.012643429997735661,
+  "added_after_first_results": true,
+  "note": "Same whole-case rule as the first results. Kept beside the line verdict."
+}

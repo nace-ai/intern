@@ -1,0 +1,258 @@
+/* BillProof design system. Defined once; every screen uses these tokens and components.
+   Light, calm, projector-first (1920×1080; scales down to 1440×900 via the root font size). */
+
+:root {
+  /* surfaces + ink */
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-2: #f0f3f7;
+  --surface-3: #e7ebf1;
+  --border: #e1e6ed;
+  --border-strong: #c9d1dc;
+  --text: #0f1b33;
+  --text-2: #42506b;
+  --text-3: #75809a;
+  --paper-shadow: 0 1px 2px rgba(15, 27, 51, .06), 0 8px 24px rgba(15, 27, 51, .08);
+
+  /* meaning: green = approve / met, red = deny / not met, amber = missing / sent to a person */
+  --green: #16a34a;  --green-ink: #0d7a35;  --green-soft: #e7f6ec;  --green-line: #8fd5a8;
+  --red: #dc2626;    --red-ink: #b42318;    --red-soft: #fdecec;    --red-line: #f2a3a3;
+  --amber: #d97706;  --amber-ink: #9a4f00;  --amber-soft: #fef3e0;  --amber-line: #f5c983;
+  --neutral: #94a3b8; --neutral-ink: #556079; --neutral-soft: #eef1f5;
+
+  /* models: Drex = indigo, GPT = slate grey */
+  --drex: #4f46e5;   --drex-ink: #3730a3;   --drex-soft: #eef0fe;   --drex-line: #b4b8f7;
+  --gpt: #64748b;    --gpt-ink: #334155;    --gpt-soft: #eef2f6;    --gpt-line: #c3ccd8;
+
+  /* brand (BillProof) = navy; interactive focus */
+  --brand: #0f1b33;
+  --focus: #4f46e5;
+
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius: .75rem;
+  --radius-sm: .5rem;
+  --radius-xs: .3rem;
+  --shadow-sm: 0 1px 2px rgba(15, 27, 51, .06);
+  --shadow: 0 1px 2px rgba(15, 27, 51, .05), 0 4px 14px rgba(15, 27, 51, .06);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --t: 200ms;
+
+  --sidebar-w: 15.5rem;
+  --topbar-h: 4.25rem;
+}
+
+/* Root size scales with the viewport: 18px at 1920 wide, ~14px at 1440. All sizes below are rem. */
+html { font-size: clamp(13px, .9375vw, 20px); }
+@media (max-aspect-ratio: 16/10) { html { font-size: clamp(13px, 1.55vh, 20px); } }
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  line-height: 1.45;
+  font-feature-settings: "cv11" 1;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+h1, h2, h3, h4 { margin: 0; font-weight: 700; letter-spacing: -.015em; }
+p { margin: 0; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+.num, .tnum { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-mono); font-size: .9em; }
+.muted { color: var(--text-3); }
+.ink-2 { color: var(--text-2); }
+.nowrap { white-space: nowrap; }
+
+/* ------------------------------------------------------------- type scale */
+.t-hero { font-size: 4.1rem; font-weight: 700; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+.t-title { font-size: 2.15rem; font-weight: 700; letter-spacing: -.025em; line-height: 1.15; }
+.t-h2 { font-size: 1.35rem; font-weight: 650; letter-spacing: -.01em; }
+.t-h3 { font-size: 1.05rem; font-weight: 650; }
+.t-label { font-size: .78rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+.t-small { font-size: .85rem; }
+.t-tiny { font-size: .74rem; }
+
+/* ------------------------------------------------------------- icons (Lucide) */
+.ic { width: 1.15em; height: 1.15em; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.2em; }
+.ic-lg { width: 1.5em; height: 1.5em; }
+
+/* ------------------------------------------------------------- layout helpers */
+.row { display: flex; align-items: center; gap: .75rem; }
+.col { display: flex; flex-direction: column; gap: .75rem; }
+.spacer { flex: 1; }
+.grid { display: grid; gap: 1.25rem; }
+
+/* ------------------------------------------------------------- card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem 1.4rem;
+}
+.card-hd { display: flex; align-items: center; gap: .6rem; margin-bottom: .9rem; }
+.card-title { font-size: 1.05rem; font-weight: 650; }
+.card-sub { color: var(--text-3); font-size: .85rem; }
+
+/* ------------------------------------------------------------- buttons */
+.btn {
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: .5rem;
+  height: 2.5rem; padding: 0 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600; font-size: .92rem;
+  cursor: pointer;
+  transition: background var(--t) var(--ease), border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.btn:hover { background: var(--surface-2); }
+.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn--primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn--primary:hover { background: #1d2c4d; }
+.btn--drex { background: var(--drex); border-color: var(--drex); color: #fff; }
+.btn--drex:hover { background: var(--drex-ink); }
+.btn--ghost { background: transparent; border-color: transparent; }
+.btn--ghost:hover { background: var(--surface-2); }
+.btn--sm { height: 2rem; padding: 0 .7rem; font-size: .82rem; }
+.btn--icon { width: 2.5rem; padding: 0; justify-content: center; }
+
+/* ------------------------------------------------------------- meaning pills (always icon + word) */
+.pill {
+  display: inline-flex; align-items: center; gap: .4rem;
+  height: 1.9rem; padding: 0 .75rem;
+  border-radius: 999px;
+  font-weight: 650; font-size: .85rem; white-space: nowrap;
+  border: 1px solid transparent;
+}
+.pill .ic { width: 1.05em; height: 1.05em; }
+.pill--green { background: var(--green-soft); color: var(--green-ink); border-color: var(--green-line); }
+.pill--red { background: var(--red-soft); color: var(--red-ink); border-color: var(--red-line); }
+.pill--amber { background: var(--amber-soft); color: var(--amber-ink); border-color: var(--amber-line); }
+.pill--neutral { background: var(--neutral-soft); color: var(--neutral-ink); border-color: var(--border); }
+.pill--lg { height: 2.5rem; padding: 0 1.1rem; font-size: 1.05rem; }
+
+/* ------------------------------------------------------------- model chips: Drex indigo, GPT slate */
+.model {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-weight: 650; white-space: nowrap;
+}
+.model::before { content: ""; width: .65em; height: .65em; border-radius: 3px; background: var(--m); }
+.model--drex { --m: var(--drex); color: var(--drex-ink); }
+.model--gpt { --m: var(--gpt); color: var(--gpt-ink); }
+.model--other { --m: #b6bfcc; color: var(--text-2); }
+.model--hybrid { --m: linear-gradient(90deg, var(--drex) 50%, var(--gpt) 50%); color: var(--text); }
+
+/* ------------------------------------------------------------- Nace product badge (one style for every product) */
+.nace {
+  display: inline-flex; align-items: center; gap: .4rem;
+  height: 1.7rem; padding: 0 .6rem 0 .45rem;
+  border-radius: var(--radius-xs);
+  background: var(--surface); border: 1px solid var(--border-strong);
+  color: var(--text-2); font-size: .76rem; font-weight: 600; white-space: nowrap;
+}
+.nace img { width: .95rem; height: .95rem; }
+.nace b { color: var(--text); font-weight: 700; }
+.nace--drex { border-color: var(--drex-line); background: var(--drex-soft); }
+.nace--drex b { color: var(--drex-ink); }
+
+/* ------------------------------------------------------------- mode badges */
+.mode-pill {
+  display: inline-flex; align-items: center; gap: .35rem;
+  height: 1.6rem; padding: 0 .6rem; border-radius: 999px;
+  font-size: .72rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase;
+}
+.mode-pill--demo { background: var(--brand); color: #fff; white-space: nowrap; flex: none; text-transform: none; letter-spacing: .01em; font-weight: 650; }
+.mode-pill--demo::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: #fff; opacity: .85; }
+.mode-pill--live { background: var(--green-soft); color: var(--green-ink); }
+.mode-pill--live::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: var(--green); }
+.tag {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .1rem .5rem; border-radius: var(--radius-xs);
+  background: var(--surface-2); color: var(--text-2); font-size: .74rem; font-weight: 600;
+}
+.tag--warn { background: var(--amber-soft); color: var(--amber-ink); }
+
+/* ------------------------------------------------------------- confidence bar */
+.conf { display: flex; align-items: center; gap: .6rem; }
+.conf-track { flex: 1; height: .5rem; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.conf-fill { height: 100%; border-radius: inherit; background: var(--drex); width: 0; transition: width 600ms var(--ease); }
+.conf--gpt .conf-fill { background: var(--gpt); }
+.conf-val { font-weight: 650; font-size: .85rem; min-width: 3.6em; text-align: right; color: var(--drex-ink); }
+
+/* ------------------------------------------------------------- KPI */
+.kpi { display: flex; flex-direction: column; gap: .3rem; }
+.kpi-value { font-size: 2.3rem; font-weight: 700; letter-spacing: -.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.kpi-label { font-size: .85rem; color: var(--text-3); font-weight: 550; }
+
+/* ------------------------------------------------------------- tables */
+.table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.table th, .table td { padding: .85rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+.table th { font-size: .78rem; font-weight: 650; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); }
+.table td.r, .table th.r { text-align: right; }
+
+/* ------------------------------------------------------------- pending / empty state (never fake numbers) */
+.pending {
+  display: inline-flex; align-items: center; gap: .4rem;
+  color: var(--text-3); font-weight: 600;
+}
+.pending .ic { color: var(--text-3); }
+.empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem;
+  padding: 2.5rem; text-align: center; color: var(--text-3);
+  border: 1.5px dashed var(--border-strong); border-radius: var(--radius); background: var(--surface);
+}
+.empty .ic { width: 2rem; height: 2rem; }
+.empty-title { color: var(--text-2); font-weight: 650; font-size: 1.05rem; }
+
+.footnote { font-size: .76rem; color: var(--text-3); }
+
+/* ------------------------------------------------------------- motion */
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fade-in 220ms var(--ease) both; }
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 var(--pulse, rgba(79, 70, 229, .55)); }
+  70% { box-shadow: 0 0 0 .7rem rgba(79, 70, 229, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
+
+/* ------------------------------------------------------------- DeepInfra lanes (Qwen, DeepSeek): partner teal */
+:root { --di: #0f766e; --di-ink: #115e59; --di-soft: #e6f4f1; --di-line: #9fd3c9; }
+.model--di { --m: var(--di); color: var(--di-ink); }
+.pb.pb--sm { height: 1.45rem; padding: 0 .45rem 0 .2rem; font-size: .7rem; gap: .3rem; vertical-align: middle; }
+.pb.pb--sm .pi { width: 1.05rem; height: 1.05rem; }
+.pb.pb--sm .pi .ic { width: .7rem; height: .7rem; }
+.di-who { display: inline-flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.tag--pending { color: var(--text-3); }
+.more-toggle { margin-left: auto; }
+.tdial-foot { flex-wrap: wrap; }
+.tdial-esc-note { flex-basis: 100%; order: -1; font-size: .8rem; font-weight: 600; color: var(--gpt-ink); }
+.lk-di { background: var(--di); }
+/* Drex + Qwen lanes and the stage trio */
+.model--combo { --m: linear-gradient(90deg, var(--drex) 50%, var(--di) 50%); color: var(--text); }
+.lk-combo { background: linear-gradient(90deg, var(--drex) 50%, var(--di) 50%); }
+.bench-card .bc-row { grid-template-columns: 1.3fr 1.2fr .75fr .55fr .6fr; }
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: .25rem 0 1rem; }
+.trio-card { display: flex; flex-direction: column; gap: .35rem; }
+.trio-hd { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; font-size: 1.05rem; }
+.trio-acc { font-size: 2.6rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+.trio--drex .trio-acc { color: var(--drex-ink); }
+.trio--di .trio-acc { color: var(--di-ink); }
+.trio--combo .trio-acc { color: var(--text); }
+.trio-sub { font-size: .8rem; color: var(--text-3); }
+.trio-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: .35rem; padding-top: .55rem; border-top: 1px solid var(--border); }
+.trio-v { font-size: 1.35rem; font-weight: 750; }
+.trio-pend { padding: 1.4rem 0; font-size: 1.3rem; }
+@media (max-width: 900px) { .trio { grid-template-columns: 1fr; } }

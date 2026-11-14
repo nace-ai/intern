@@ -1,0 +1,220 @@
+{
+  "bench": "persius",
+  "di_bench": "persius",
+  "title": "Persius real appeals (400)",
+  "chart": "accuracy",
+  "metrics": [
+    "accuracy"
+  ],
+  "model": "Qwen/Qwen3.8-27B",
+  "provider": "deepinfra",
+  "via": "DeepInfra",
+  "order": 1,
+  "alone_id": "qwen3827b",
+  "combo_id": "drex_then_qwen3827b",
+  "threshold": 0.9,
+  "threshold_selection": {
+    "method": "fixed",
+    "threshold": 0.9,
+    "tuned_on": null,
+    "note": "t=0.90 was not tuned. Persius rows are the frozen 400 test, Hard rows are the frozen 100, and the 370 prior-auth rows are the shared held-out set this bench reports. No DeepInfra answers exist on a separate dev or practice split. The dial file holds the curve from 0.50 to 1.00. post_hoc_on_reported_rows is the cheapest point within 1 point of the escalation model on these same rows. It is not the operating point."
+  },
+  "partial": false,
+  "n_cases": 400,
+  "n_expected": 400,
+  "n_qwen_ok": 400,
+  "n_both_anywhere": 400,
+  "first_missing": null,
+  "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl",
+  "list_rate_usd_per_mtok": {
+    "input": 0.2,
+    "output": 2.5
+  },
+  "formulas": {
+    "rule": "Drex keeps every question with recorded confidence >= 0.90. The rest take this model's recorded answer to the same question.",
+    "cases": "Only cases in the longest prefix of the frozen order where both Drex and this model have a non-error recorded answer. partial is true when that prefix is shorter than the frozen set.",
+    "cost_per_1000_usd": "cost per 1,000 cases = mean(Drex recorded cost_usd + routed DeepInfra cost) * 1000. Routed cost is 0 when no question is sent. Otherwise it is the recorded packed call, scaled as (list input dollars + list output dollars * routed/asked) * (recorded cost_usd / list-price of that call) when cost_basis is provider_estimated_cost and both the recorded cost and the list price are positive. List rates are DeepInfra's published cents_per_token figures from _deepinfra_list. If the provider did not send estimated_cost, the scale is 1 and the list rate is used. If no list rate is known, the recorded cost_usd is scaled by routed/asked. The escalation model alone uses mean(recorded cost_usd) * 1000 and no Drex cost. Drex alone uses mean(recorded Drex cost_usd) * 1000 and no DeepInfra cost. On prior auth, a case with any routed question takes the escalation model's recorded decision and the other case-level parts; Drex keeps those when nothing is routed.",
+    "latency_p50_ms": "p50 latency is the median over paired cases of [Drex recorded latency_ms + DeepInfra recorded latency_ms * routed/asked when any question is routed]. Drex alone is the median Drex latency. The escalation model alone is the median of its recorded latency."
+  },
+  "lanes": {
+    "drex": {
+      "id": "drex",
+      "label": "Drex v1.1",
+      "role": "drex",
+      "model": "drex-max-v1.1",
+      "provider": "nace",
+      "escalate_model": null,
+      "threshold": null,
+      "partial": false,
+      "simulated": false,
+      "value": 0.7225,
+      "k": 289,
+      "n": 400,
+      "ci95": [
+        0.6766603906469573,
+        0.7641064842861849
+      ],
+      "ci_method": "wilson",
+      "metrics": {
+        "accuracy": {
+          "value": 0.7225,
+          "k": 289,
+          "n": 400,
+          "ci95": [
+            0.6766603906469573,
+            0.7641064842861849
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl",
+          "partial": false,
+          "simulated": false
+        }
+      },
+      "n_cases": 400,
+      "n_expected": 400,
+      "questions_routed": {
+        "k": 0,
+        "n": 400,
+        "share": 0.0
+      },
+      "questions_routed_share": 0.0,
+      "cases_routed": {
+        "k": 0,
+        "n": 400,
+        "share": 0.0
+      },
+      "cost_per_1000_usd": 0.008151675,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.008151675,
+        "deepinfra": 0.0
+      },
+      "cost_basis": "recorded",
+      "latency_p50_ms": 376.88510949374177,
+      "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl"
+    },
+    "model": {
+      "id": "qwen3827b",
+      "label": "Qwen3.8-27B via DeepInfra",
+      "role": "model",
+      "model": "Qwen/Qwen3.8-27B",
+      "provider": "deepinfra",
+      "escalate_model": null,
+      "threshold": null,
+      "partial": false,
+      "simulated": false,
+      "value": 0.5075,
+      "k": 203,
+      "n": 400,
+      "ci95": [
+        0.458667706127959,
+        0.5561896042630459
+      ],
+      "ci_method": "wilson",
+      "metrics": {
+        "accuracy": {
+          "value": 0.5075,
+          "k": 203,
+          "n": 400,
+          "ci95": [
+            0.458667706127959,
+            0.5561896042630459
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl",
+          "partial": false,
+          "simulated": false
+        }
+      },
+      "n_cases": 400,
+      "n_expected": 400,
+      "questions_routed": {
+        "k": 400,
+        "n": 400,
+        "share": 1.0
+      },
+      "questions_routed_share": 1.0,
+      "cases_routed": {
+        "k": 400,
+        "n": 400,
+        "share": 1.0
+      },
+      "cost_per_1000_usd": 0.13826025,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.0,
+        "deepinfra": 0.13826025
+      },
+      "cost_basis": "provider_estimated_cost or list",
+      "latency_p50_ms": 1153.6258074920624,
+      "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl"
+    },
+    "combo": {
+      "id": "drex_then_qwen3827b",
+      "label": "Drex then Qwen3.8-27B",
+      "role": "combo",
+      "model": "Qwen/Qwen3.8-27B",
+      "provider": "deepinfra",
+      "escalate_model": "Qwen/Qwen3.8-27B",
+      "threshold": 0.9,
+      "partial": false,
+      "simulated": true,
+      "value": 0.5575,
+      "k": 223,
+      "n": 400,
+      "ci95": [
+        0.5085070928349432,
+        0.6053989534960934
+      ],
+      "ci_method": "wilson",
+      "metrics": {
+        "accuracy": {
+          "value": 0.5575,
+          "k": 223,
+          "n": 400,
+          "ci95": [
+            0.5085070928349432,
+            0.6053989534960934
+          ],
+          "ci_method": "wilson",
+          "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl",
+          "partial": false,
+          "simulated": true
+        }
+      },
+      "n_cases": 400,
+      "n_expected": 400,
+      "questions_routed": {
+        "k": 343,
+        "n": 400,
+        "share": 0.8575
+      },
+      "questions_routed_share": 0.8575,
+      "cases_routed": {
+        "k": 343,
+        "n": 400,
+        "share": 0.8575
+      },
+      "cost_per_1000_usd": 0.125580675,
+      "cost_parts_per_1000_usd": {
+        "drex": 0.008151675,
+        "deepinfra": 0.117429
+      },
+      "cost_basis": "recorded drex + routed deepinfra",
+      "latency_p50_ms": 1509.9462909856811,
+      "source_run": "data/runs/di_persius_Qwen__Qwen3.8-27B.jsonl",
+      "paired_drex": {
+        "value": 0.7225,
+        "k": 289,
+        "n": 400,
+        "ci95": [
+          0.6766603906469573,
+          0.7641064842861849
+        ],
+        "n_cases": 400,
+        "cost_per_1000_usd": 0.008151675,
+        "latency_p50_ms": 376.88510949374177
+      }
+    }
+  },
+  "computed_at": "2026-11-14T20:21:41Z",
+  "generator": "billproof.dial.qcombo"
+}

@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-14T07:11:46+00:00",
+  "disclaimer": "Hand-picked synthetic examples for the live demo, not a benchmark. They are excluded from every accuracy number. Dollar figures are computed from the documents shown; no live API calls.",
+  "expected_color_note": "expected_color is the semantic action token (ok/dispute/appeal/ask/insufficient); status_color is the literal card colour (green/red/amber). amber = human review or missing evidence.",
+  "owed_note": "verified_owed_cents is null when the amount is not verified. In that case expected_owed_cents is only the bill's current ask and must never be displayed as the amount owed.",
+  "products": {
+    "drex": "types the yes/no/choice questions and returns calibrated probabilities; code, not Drex, sets every dollar",
+    "ndi": "splits the packet and extracts bill/EOB/denial fields with page citations for evidence crops",
+    "search": "recorded live for SC-05 and SC-04 control; other cases have no recorded Search chain",
+    "browser": "recorded live for SC-05: public Carelon guideline stand-in; proposal approval pending; .gov blocked"
+  },
+  "product_status": {
+    "drex": "active",
+    "ndi": "active",
+    "search": "active",
+    "browser": "active"
+  },
+  "cases": [
+    {
+      "case_id": "SC-01",
+      "source_case_id": "SYN-D01",
+      "title": "ER visit \u00b7 one knee MRI",
+      "story": "Two identical knee MRI lines on the same day at the same time; the visit record documents one scan. Code removes the duplicate's patient share. A human signs the dispute.",
+      "expected_outcome": "DISPUTE",
+      "expected_color": "dispute",
+      "status_color": "red",
+      "billed_cents": 74989,
+      "expected_owed_cents": 38189,
+      "verified_owed_cents": 38189,
+      "total_charges_cents": 376684,
+      "dollars_at_stake_cents": 36800,
+      "dollars_at_stake_basis": "patient_balance_reduction",
+      "expected_owed_basis": "eob_recomputed",
+      "expected_owed_known": true,
+      "needs_human": true,
+      "human_reasons": [
+        "human_signature_required_for_money_movement_or_appeal"
+      ],
+      "evidence_documents": [],
+      "browser_proposal_status": "pending_user_approval",
+      "products": [
+        {
+          "name": "drex",
+          "role": "answers dup_L3 and action_L3 with calibrated probabilities",
+          "status": "active"
+        },
+        {
+          "name": "ndi",
+          "role": "extracts both MRI rows and the one-scan remark with page boxes",
+          "status": "active"
+        },
+        {
+          "name": "search",
+          "role": "planned (T3 pending): would quote the visit note that documents a single scan",
+          "status": "pending"
+        }
+      ],
+      "documents": [
+        {
+          "kind": "bill",
+          "pdf": "data/synthetic/pdf/SYN-D01_bill.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "eob",
+          "pdf": "data/synthetic/pdf/SYN-D01_eob.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "plan",
+          "pdf": "data/synthetic/pdf/SYN-D01_plan.pdf",
+          "pages": 1
+        }
+      ]
+    },
+    {
+      "case_id": "SC-02",
+      "source_case_id": "SYN-D03",
+      "title": "Office visit \u00b7 one facial wound repair",
+      "story": "One facial wound repair entered as four units. CMS MUE for 12011 is 1/day (MAI 2) and the record documents one repair. Code keeps one unit and disputes the excess.",
+      "expected_outcome": "DISPUTE",
+      "expected_color": "dispute",
+      "status_color": "red",
+      "billed_cents": 11520,
+      "expected_owed_cents": 3143,
+      "verified_owed_cents": 3143,
+      "total_charges_cents": 71996,
+      "dollars_at_stake_cents": 8377,
+      "dollars_at_stake_basis": "patient_balance_reduction",
+      "expected_owed_basis": "eob_recomputed",
+      "expected_owed_known": true,
+      "needs_human": true,
+      "human_reasons": [
+        "human_signature_required_for_money_movement_or_appeal"
+      ],
+      "evidence_documents": [],
+      "browser_proposal_status": "pending_user_approval",
+      "products": [
+        {
+          "name": "drex",
+          "role": "answers mue_L1 and action_L1",
+          "status": "active"
+        },
+        {
+          "name": "ndi",
+          "role": "extracts the four-unit quantity and the one-repair note",
+          "status": "active"
+        }
+      ],
+      "documents": [
+        {
+          "kind": "bill",
+          "pdf": "data/synthetic/pdf/SYN-D03_bill.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "eob",
+          "pdf": "data/synthetic/pdf/SYN-D03_eob.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "plan",
+          "pdf": "data/synthetic/pdf/SYN-D03_plan.pdf",
+          "pages": 1
+        }
+      ]
+    },
+    {
+      "case_id": "SC-03",
+      "source_case_id": "SYN-D06",
+      "title": "Office follow-up \u00b7 routine labs",
+      "story": "A routine follow-up with five lab lines; every charge matches its EOB row. The clean control stays green and nothing is disputed.",
+      "expected_outcome": "OK",
+      "expected_color": "ok",
+      "status_color": "green",
+      "billed_cents": 2804,
+      "expected_owed_cents": 2804,
+      "verified_owed_cents": 2804,
+      "total_charges_cents": 17525,
+      "dollars_at_stake_cents": 0,
+      "dollars_at_stake_basis": "patient_balance_reduction",
+      "expected_owed_basis": "eob_recomputed",
+      "expected_owed_known": true,
+      "needs_human": false,
+      "human_reasons": [],
+      "evidence_documents": [],
+      "browser_proposal_status": "pending_user_approval",
+      "products": [
+        {
+          "name": "drex",
+          "role": "confirms every line OK",
+          "status": "active"
+        },
+        {
+          "name": "ndi",
+          "role": "extracts all six lines and their EOB matches",
+          "status": "active"
+        },
+        {
+          "name": "search",
+          "role": "planned (T3 pending): would answer whether any lab was repeated",
+          "status": "pending"
+        }
+      ],
+      "documents": [
+        {
+          "kind": "bill",
+          "pdf": "data/synthetic/pdf/SYN-D06_bill.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "eob",
+          "pdf": "data/synthetic/pdf/SYN-D06_eob.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "plan",
+          "pdf": "data/synthetic/pdf/SYN-D06_plan.pdf",
+          "pages": 1
+        }
+      ]
+    },
+    {
+      "case_id": "SC-04",
+      "source_case_id": "SYN-D07",
+      "title": "Statement without an EOB \u00b7 denial reason missing",
+      "story": "No EOB was supplied and the denial notice states no reason; one charge also lacks a service date. BillProof asks for the missing documents instead of guessing an amount.",
+      "expected_outcome": "INSUFFICIENT_EVIDENCE",
+      "expected_color": "insufficient",
+      "status_color": "amber",
+      "billed_cents": 14087,
+      "expected_owed_cents": 14087,
+      "verified_owed_cents": null,
+      "total_charges_cents": 14087,
+      "dollars_at_stake_cents": 14087,
+      "dollars_at_stake_basis": "unverified_balance_no_eob",
+      "expected_owed_basis": "bill_balance_unverified",
+      "expected_owed_known": false,
+      "needs_human": false,
+      "human_reasons": [],
+      "evidence_documents": [],
+      "browser_proposal_status": "pending_user_approval",
+      "products": [
+        {
+          "name": "drex",
+          "role": "flags missing_data and refuses to price an unverified balance",
+          "status": "active"
+        },
+        {
+          "name": "ndi",
+          "role": "extracts the bill and shows the denial notice has no reason text",
+          "status": "active"
+        },
+        {
+          "name": "search",
+          "role": "recorded live negative control: no applicable supporting plan clause; draft stays an information request",
+          "status": "active"
+        }
+      ],
+      "documents": [
+        {
+          "kind": "bill",
+          "pdf": "data/showcase/pdf/SYN-D07_bill.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "denial",
+          "pdf": "data/showcase/pdf/SYN-D07_denial.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "plan",
+          "pdf": "data/showcase/pdf/SYN-D07_plan.pdf",
+          "pages": 1
+        }
+      ]
+    },
+    {
+      "case_id": "SC-05",
+      "source_case_id": "SYN-D08",
+      "title": "Emergency CT denial \u00b7 appeal with the ED record",
+      "story": "The plan denied an emergency CT as not medically necessary, but the notice does not address the enclosed ED record. The record supports an appeal; a human signs it.",
+      "expected_outcome": "APPEAL",
+      "expected_color": "appeal",
+      "status_color": "amber",
+      "billed_cents": 1389,
+      "expected_owed_cents": 1389,
+      "verified_owed_cents": 1389,
+      "total_charges_cents": 19164,
+      "dollars_at_stake_cents": 10480,
+      "dollars_at_stake_basis": "denied_charge_under_appeal",
+      "expected_owed_basis": "eob_recomputed",
+      "expected_owed_known": true,
+      "needs_human": true,
+      "human_reasons": [
+        "human_signature_required_for_money_movement_or_appeal"
+      ],
+      "evidence_documents": [
+        {
+          "label": "Plan Evidence of Coverage",
+          "pdf": "src/billproof/search/corpus/SYN-D08_coverage.pdf"
+        },
+        {
+          "label": "ED record",
+          "pdf": "src/billproof/search/corpus/SYN-D08_ed_record.pdf"
+        },
+        {
+          "label": "Public guideline stand-in",
+          "pdf": "src/billproof/search/corpus/SYN-D08_policy.pdf"
+        }
+      ],
+      "browser_proposal_status": "pending_user_approval",
+      "products": [
+        {
+          "name": "drex",
+          "role": "answers denial_category and appeal_strength",
+          "status": "active"
+        },
+        {
+          "name": "ndi",
+          "role": "extracts the ED record and the CO-50 notice",
+          "status": "active"
+        },
+        {
+          "name": "search",
+          "role": "recorded live: quotes plan section 5.2 page 2 and ED record; Drex document-support probability changes from 0.001 to 0.9996",
+          "status": "active"
+        },
+        {
+          "name": "browser",
+          "role": "recorded live public Carelon guideline stand-in: two verbatim quotes, 31 seconds, $0.009; proposal approval pending",
+          "status": "active"
+        }
+      ],
+      "documents": [
+        {
+          "kind": "bill",
+          "pdf": "data/showcase/pdf/SYN-D08_bill.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "eob",
+          "pdf": "data/showcase/pdf/SYN-D08_eob.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "denial",
+          "pdf": "data/showcase/pdf/SYN-D08_denial.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "plan",
+          "pdf": "data/showcase/pdf/SYN-D08_plan.pdf",
+          "pages": 1
+        }
+      ]
+    },
+    {
+      "case_id": "SC-06",
+      "source_case_id": "SYN-D05",
+      "title": "Emergency visit \u00b7 out-of-network clinician",
+      "story": "Out-of-network emergency clinician. The EOB applies protected in-network cost sharing, yet the bill adds $350. Balance billing goes to a human, never an auto-approval.",
+      "expected_outcome": "DISPUTE",
+      "expected_color": "dispute",
+      "status_color": "amber",
+      "billed_cents": 36739,
+      "expected_owed_cents": 1739,
+      "verified_owed_cents": 1739,
+      "total_charges_cents": 10872,
+      "dollars_at_stake_cents": 35000,
+      "dollars_at_stake_basis": "patient_balance_reduction",
+      "expected_owed_basis": "eob_recomputed",
+      "expected_owed_known": true,
+      "needs_human": true,
+      "human_reasons": [
+        "human_signature_required_for_money_movement_or_appeal",
+        "human_review_balance_billing",
+        "EOB_BILL_MISMATCH",
+        "NO_SURPRISES_ACT"
+      ],
+      "evidence_documents": [],
+      "browser_proposal_status": "pending_user_approval",
+      "products": [
+        {
+          "name": "drex",
+          "role": "answers nsa and routes to human review",
+          "status": "active"
+        },
+        {
+          "name": "ndi",
+          "role": "extracts the out-of-network flag and protected cost share",
+          "status": "active"
+        },
+        {
+          "name": "browser",
+          "role": "planned (T3 pending): would read the No Surprises Act emergency balance-billing page; .gov sources are blocked and no page is cached",
+          "status": "pending"
+        }
+      ],
+      "documents": [
+        {
+          "kind": "bill",
+          "pdf": "data/synthetic/pdf/SYN-D05_bill.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "eob",
+          "pdf": "data/synthetic/pdf/SYN-D05_eob.pdf",
+          "pages": 1
+        },
+        {
+          "kind": "plan",
+          "pdf": "data/synthetic/pdf/SYN-D05_plan.pdf",
+          "pages": 1
+        }
+      ]
+    }
+  ]
+}

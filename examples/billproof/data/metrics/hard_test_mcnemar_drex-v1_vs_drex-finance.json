@@ -1,0 +1,11 @@
+{
+  "value": 5.102753548820538e-213,
+  "n": 56136,
+  "source_run": "hard_test_drex-v1_vs_drex-finance",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:51:39Z",
+  "b": 4074.0,
+  "c": 1705.0,
+  "stat": 970.3104343311992,
+  "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+}

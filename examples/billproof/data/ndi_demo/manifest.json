@@ -1,0 +1,74 @@
+{
+  "files": {
+    "SYN-D01_bill_eob.pdf": {
+      "sources": [
+        "data/synthetic/pdf/SYN-D01_bill.pdf",
+        "data/synthetic/pdf/SYN-D01_eob.pdf"
+      ],
+      "pages": 2,
+      "expect": [
+        {
+          "kind": "bill",
+          "pages": [
+            1
+          ]
+        },
+        {
+          "kind": "eob",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    "SYN-D02_eob_bill.pdf": {
+      "sources": [
+        "data/synthetic/pdf/SYN-D02_eob.pdf",
+        "data/synthetic/pdf/SYN-D02_bill.pdf"
+      ],
+      "pages": 2,
+      "expect": [
+        {
+          "kind": "eob",
+          "pages": [
+            1
+          ]
+        },
+        {
+          "kind": "bill",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    "SYN-D03_bill_eob_plan.pdf": {
+      "sources": [
+        "data/synthetic/pdf/SYN-D03_bill.pdf",
+        "data/synthetic/pdf/SYN-D03_eob.pdf",
+        "data/synthetic/pdf/SYN-D03_plan.pdf"
+      ],
+      "pages": 3,
+      "expect": [
+        {
+          "kind": "bill",
+          "pages": [
+            1
+          ]
+        },
+        {
+          "kind": "eob",
+          "pages": [
+            2
+          ]
+        },
+        {
+          "kind": "plan",
+          "pages": [
+            3
+          ]
+        }
+      ]
+    }
+  }
+}

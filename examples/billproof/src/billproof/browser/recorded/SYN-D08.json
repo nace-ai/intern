@@ -1,0 +1,60 @@
+{
+ "case_id": "SYN-D08",
+ "task_id": "policy_ct_abdomen",
+ "kind": "clinical_policy",
+ "title": "Published imaging criteria for the denied CT",
+ "stand_in": "Public Carelon guideline; the case payer is fictional, so this is a real stand-in.",
+ "run_id": "brun_acbd47735e634a2ba73fe30d3ff04058",
+ "status": "succeeded",
+ "outcome": "completed",
+ "reason": null,
+ "seconds": 27.9,
+ "cost_usd": 0.0085252,
+ "usage": {
+  "drex_input_tokens": 0,
+  "llm_input_tokens": 22751,
+  "llm_output_tokens": 1875,
+  "browser_seconds": 28,
+  "cost_usd": 0.0085252
+ },
+ "start_url": "https://guidelines.carelonmedicalbenefitsmanagement.com/imaging-of-the-abdomen-and-pelvis-2025-03-23/",
+ "final_url": "https://guidelines.carelonmedicalbenefitsmanagement.com/imaging-of-the-abdomen-and-pelvis-2025-03-23/",
+ "allowed_origins": [
+  "https://guidelines.carelonmedicalbenefitsmanagement.com",
+  "https://guidelines.aimspecialtyhealth.com"
+ ],
+ "task": "You are on a public Carelon clinical guideline for imaging of the abdomen and pelvis. Stay on this website. Do not log in, do not open other websites, and do not download files. Find the section headed \"Abdominal and/or pelvic pain, undifferentiated\". Copy, word for word, the sentence or bullet that names CT abdomen and/or pelvis for lower quadrant (right or left) or generalized abdominal pain, as criterion_quote. Also copy, word for word, the adult bullet about acute abdominal pain with clinical findings of a surgical abdomen as indication_quote. Record the policy title, the Doc ID as policy_number, the effective date printed on the page, the section heading, and the final page URL. Do not invent text that is not visible on the page.",
+ "answer": {
+  "page_url": "https://guidelines.carelonmedicalbenefitsmanagement.com/imaging-of-the-abdomen-and-pelvis-2025-03-23/",
+  "policy_title": "Imaging of the Abdomen and Pelvis 2025-03-23 [for Amerigroup Georgia Medicaid]",
+  "policy_number": "RBM01-0325.1",
+  "effective_date": "03/23/2025",
+  "criterion_quote": "CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain",
+  "indication_quote": "Acute abdominal pain EITHER associated with clinical findings of a surgical abdomen, including severe undifferentiated abdominal pain or guarding, OR acute pain that remains unexplained after ALL of the following:",
+  "section_or_heading": "Abdominal and/or pelvic pain, undifferentiated"
+ },
+ "steps": [],
+ "evidence": [],
+ "screenshots": [],
+ "verification": {
+  "checked": true,
+  "url": "https://guidelines.carelonmedicalbenefitsmanagement.com/imaging-of-the-abdomen-and-pelvis-2025-03-23/",
+  "fetched_at": "2026-11-14T07:06:13+00:00",
+  "quotes": [
+   {
+    "field": "criterion_quote",
+    "quote": "CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain",
+    "verbatim": true,
+    "context": "profile, complete blood count (CBC), C-reactive protein (CRP), erythrocyte sedimentation rate (ESR), and/or urinalysis. IMAGING STUDY CT abdomen for upper quadrant (right or left) and epigastric pain CT abdomen and/or pelvis for lower quadrant (right or left) and generalized abdominal pain CT pelvis for pelvic pain MRI pelvis for pelvic pain MRI abdomen in pediatric patients; MRI abdomen in adults when CT cannot be performed Rationale ACUTE ABDOMINAL PAIN In adult patients with unexpla"
+   },
+   {
+    "field": "indication_quote",
+    "quote": "Acute abdominal pain EITHER associated with clinical findings of a surgical abdomen, including severe undifferentiated abdominal pain or guarding, OR acute pain that remains unexplained after ALL of the following:",
+    "verbatim": true,
+    "context": "ut a clear source when a most likely diagnosis cannot be established or is uncertain (undifferentiated). ADULT Advanced imaging is considered medically necessary in EITHER of the following scenarios: Acute abdominal pain EITHER associated with clinical findings of a surgical abdomen, including severe undifferentiated abdominal pain or guarding, OR acute pain that remains unexplained after ALL of the following: History Physical exam Relevant lab results* Ultrasound if the pain localizes to the right upper quadrant (abdominal ultrasound) or female pelvis (pelvic ultrasound) Nonacute abdominal pain that remai"
+   }
+  ]
+ },
+ "recorded_at": "2026-11-14T07:06:13+00:00",
+ "provenance": "recorded live Nace browser run; replayed without network"
+}

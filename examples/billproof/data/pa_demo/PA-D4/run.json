@@ -1,0 +1,614 @@
+{
+  "ground": {
+    "policy": {
+      "age_18_years": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Patient age \u226518 years;",
+        "match_method": "normalized",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.13293499416775173,
+              0.1404304022740836
+            ],
+            [
+              0.3125835244172539,
+              0.1404304022740836
+            ],
+            [
+              0.3125835244172539,
+              0.15935425806527187
+            ],
+            [
+              0.13293499416775173,
+              0.15935425806527187
+            ]
+          ]
+        ]
+      },
+      "diagnosis_lupus_nephritis": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Diagnosis of lupus nephritis;",
+        "match_method": "normalized",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.13291705511753854,
+              0.16209918320781053
+            ],
+            [
+              0.3577433567421109,
+              0.16209918320781053
+            ],
+            [
+              0.3577433567421109,
+              0.1810230486320727
+            ],
+            [
+              0.13291705511753854,
+              0.1810230486320727
+            ]
+          ]
+        ]
+      },
+      "prescribed_consultation_rheumatologist_nephrolog": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Prescribed by or in consultation with a rheumatologist or nephrologist;",
+        "match_method": "normalized",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.13291705511753854,
+              0.18376805083920258
+            ],
+            [
+              0.6873978758169934,
+              0.18376805083920258
+            ],
+            [
+              0.6873978758169934,
+              0.20269191626346472
+            ],
+            [
+              0.13291705511753854,
+              0.20269191626346472
+            ]
+          ]
+        ]
+      },
+      "concomitantly_receive_background_immunosuppressi": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Patient must concomitantly receive background immunosuppressive therapy (mycophenolate mofetil (MMF) and corticosteroids), with the exception of cyclophosphamide.",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.13289906620200165,
+              0.20550627660269688
+            ],
+            [
+              0.872125164356107,
+              0.20550627660269688
+            ],
+            [
+              0.872125164356107,
+              0.2436035040653113
+            ],
+            [
+              0.13289906620200165,
+              0.2436035040653113
+            ]
+          ]
+        ]
+      }
+    },
+    "packet": {
+      "R1": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "The record explicitly documents the following as met: Prescribed by or in consultation with a rheumatologist or nephrologist",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.38273674550682607
+            ],
+            [
+              0.8517863953035641,
+              0.38273674550682607
+            ],
+            [
+              0.8517863953035641,
+              0.415631920400292
+            ],
+            [
+              0.0977777780271044,
+              0.415631920400292
+            ]
+          ]
+        ]
+      },
+      "R2": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Prescriber attestation, explicitly documented as satisfied: Patient age \u226518 years",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.4660700788401594
+            ],
+            [
+              0.642941344018076,
+              0.4660700788401594
+            ],
+            [
+              0.642941344018076,
+              0.4825511123194839
+            ],
+            [
+              0.0977777780271044,
+              0.4825511123194839
+            ]
+          ]
+        ]
+      },
+      "R3": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "The record explicitly documents the following as met: Patient must concomitantly receive background immunosuppressive therapy (mycophenolate mofetil (MMF) and corticosteroids), with the exception of cyclophosphamide.",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.5329892707593513
+            ],
+            [
+              0.7965403039470996,
+              0.5329892707593513
+            ],
+            [
+              0.7965403039470996,
+              0.5822985870669587
+            ],
+            [
+              0.0977777780271044,
+              0.5822985870669587
+            ]
+          ]
+        ]
+      },
+      "R4": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "The record explicitly documents the following as met: Diagnosis of lupus nephritis",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.0977777780271044,
+              0.6327367069745304
+            ],
+            [
+              0.6559494616938573,
+              0.6327367069745304
+            ],
+            [
+              0.6559494616938573,
+              0.6492177789861505
+            ],
+            [
+              0.0977777780271044,
+              0.6492177789861505
+            ]
+          ]
+        ]
+      },
+      "request::payer": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "Other payer",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.2644444384606056,
+              0.19334284464518228
+            ],
+            [
+              0.3464052287581699,
+              0.19334284464518228
+            ],
+            [
+              0.3464052287581699,
+              0.2098238973906546
+            ],
+            [
+              0.2644444384606056,
+              0.2098238973906546
+            ]
+          ]
+        ]
+      },
+      "request::service_date": {
+        "status": "found",
+        "page": 1,
+        "matched_text": "2026-10-15",
+        "match_method": "exact",
+        "confidence": 1,
+        "match_count": 1,
+        "error": null,
+        "polygons": [
+          [
+            [
+              0.2644444384606056,
+              0.2362721375744752
+            ],
+            [
+              0.34382843815423303,
+              0.2362721375744752
+            ],
+            [
+              0.34382843815423303,
+              0.25275319031994753
+            ],
+            [
+              0.2644444384606056,
+              0.25275319031994753
+            ]
+          ]
+        ]
+      }
+    },
+    "seconds": 4.9,
+    "cost_usd": 0.12
+  },
+  "search": {
+    "workspace_id": "86fd9ab8-971a-4a47-a26e-6337f80bc5d2",
+    "query": "This workspace holds a payer prior-authorization criteria page and one synthetic clinical packet (documents R1..Rn). For each approval criterion below, find which enclosed record (if any) addresses it \u2014 the record that documents it satisfied, not satisfied, or missing. Quote the record's text word for word, with its page. If no record addresses a criterion, say record_id null.\nCriteria: age_18_years: \"Patient age \u226518 years\"; diagnosis_lupus_nephritis: \"Diagnosis of lupus nephritis\"; prescribed_consultation_rheumatologist_nephrolog: \"Prescribed by or in consultation with a rheumatologist or nephrologist\"; concomitantly_receive_background_immunosuppressi: \"Patient must concomitantly receive background immunosuppressive therapy (mycophenolate mofetil (MMF) and corticosteroids), with the exception of cyclophosphamide.\"",
+    "job_id": "804de1e0-2954-45ca-9eec-0b75ea956736",
+    "status": "succeeded",
+    "matches": [
+      {
+        "page": 1,
+        "quote": "Prescriber attestation, explicitly documented as satisfied: Patient age \\( \\geq \\) 18 years",
+        "document": "PA-D4/packet.pdf",
+        "criterion": "age_18_years",
+        "record_id": "R2",
+        "verbatim": false,
+        "page_checked": null,
+        "page_ok": false
+      },
+      {
+        "page": 1,
+        "quote": "The record explicitly documents the following as met: Diagnosis of lupus nephritis",
+        "document": "PA-D4/packet.pdf",
+        "criterion": "diagnosis_lupus_nephritis",
+        "record_id": "R4",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      },
+      {
+        "page": 1,
+        "quote": "The record explicitly documents the following as met: Prescribed by or in consultation with a rheumatologist or nephrologist",
+        "document": "PA-D4/packet.pdf",
+        "criterion": "prescribed_consultation_rheumatologist_nephrolog",
+        "record_id": "R1",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      },
+      {
+        "page": 1,
+        "quote": "The record explicitly documents the following as met: Patient must concomitantly receive background immunosuppressive therapy (mycophenolate mofetil (MMF) and corticosteroids), with the exception of cyclophosphamide.",
+        "document": "PA-D4/packet.pdf",
+        "criterion": "concomitantly_receive_background_immunosuppressi",
+        "record_id": "R3",
+        "verbatim": true,
+        "page_checked": 1,
+        "page_ok": true
+      }
+    ],
+    "evidences": [
+      {
+        "source_path": "PA-D4/packet.pdf",
+        "page": 1,
+        "quote": "Prescriber attestation, explicitly documented as satisfied: Patient age \\( \\geq \\) 18 years"
+      },
+      {
+        "source_path": "PA-D4/packet.pdf",
+        "page": 1,
+        "quote": "The record explicitly documents the following as met: Diagnosis of lupus nephritis"
+      },
+      {
+        "source_path": "PA-D4/packet.pdf",
+        "page": 1,
+        "quote": "The record explicitly documents the following as met: Prescribed by or in consultation with a rheumatologist or nephrologist"
+      },
+      {
+        "source_path": "PA-D4/packet.pdf",
+        "page": 1,
+        "quote": "The record explicitly documents the following as met: Patient must concomitantly receive background immunosuppressive therapy (mycophenolate mofetil (MMF) and corticosteroids), with the exception of cyclophosphamide."
+      }
+    ],
+    "ingest_seconds": 12.8,
+    "search_seconds": 8.7,
+    "cost_usd": 0.0031
+  },
+  "drex": {
+    "latency_ms": 3078.3383559901267,
+    "calls": 1,
+    "model": "drex-max-v1.1",
+    "input_tokens": 1826,
+    "output_tokens": 633,
+    "cost_usd": 5.478e-05,
+    "error": null,
+    "qa": {
+      "fact::age_18_years": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9996794049881798,
+        "probabilities": {
+          "documented_satisfied": 0.9997862699921198,
+          "documented_not_satisfied": 0.00010324262495771481,
+          "not_documented": 0.0001104873829224899
+        }
+      },
+      "fact::diagnosis_lupus_nephritis": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9998405007424261,
+        "probabilities": {
+          "documented_satisfied": 0.9998936671616174,
+          "documented_not_satisfied": 4.8968511782281e-05,
+          "not_documented": 5.736432660029487e-05
+        }
+      },
+      "fact::prescribed_consultation_rheumatologist_nephrolog": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9997875933151779,
+        "probabilities": {
+          "documented_satisfied": 0.999858395543452,
+          "documented_not_satisfied": 5.736224649862296e-05,
+          "not_documented": 8.424221004937626e-05
+        }
+      },
+      "fact::concomitantly_receive_background_immunosuppressi": {
+        "choice": "documented_satisfied",
+        "confidence": 0.9997809922639905,
+        "probabilities": {
+          "documented_satisfied": 0.9998539948426604,
+          "documented_not_satisfied": 4.275553258857921e-05,
+          "not_documented": 0.00010324962475106638
+        }
+      },
+      "scope::payer_match": {
+        "choice": "no",
+        "confidence": 0.999949909082,
+        "probabilities": {
+          "yes": 5.00909179502733e-05,
+          "no": 0.99995
+        }
+      },
+      "scope::date_in_window": {
+        "choice": "yes",
+        "confidence": 0.9997562612880816,
+        "probabilities": {
+          "yes": 0.9997562612880816,
+          "no": 0.000244
+        }
+      }
+    },
+    "prediction": {
+      "policy_id": "MI-20261012-269b8c4ab5",
+      "scope": "wrong_payer",
+      "branch": "unspecified",
+      "facts": {
+        "age_18_years": true,
+        "diagnosis_lupus_nephritis": true,
+        "prescribed_consultation_rheumatologist_nephrolog": true,
+        "concomitantly_receive_background_immunosuppressi": true
+      },
+      "criteria": {
+        "age_18_years": {
+          "state": "met",
+          "evidence": []
+        },
+        "concomitantly_receive_background_immunosuppressi": {
+          "state": "met",
+          "evidence": []
+        },
+        "diagnosis_lupus_nephritis": {
+          "state": "met",
+          "evidence": []
+        },
+        "prescribed_consultation_rheumatologist_nephrolog": {
+          "state": "met",
+          "evidence": []
+        }
+      },
+      "missing_info": [],
+      "decision": "not_applicable",
+      "action": "route_to_applicable_policy"
+    },
+    "facts": {
+      "age_18_years": true,
+      "diagnosis_lupus_nephritis": true,
+      "prescribed_consultation_rheumatologist_nephrolog": true,
+      "concomitantly_receive_background_immunosuppressi": true
+    },
+    "seconds": 3.1
+  },
+  "ablate": {
+    "runs": [
+      {
+        "dropped": "R1",
+        "decision": "not_applicable",
+        "changed": false,
+        "latency_ms": 4928.613436000887,
+        "cost_usd": 5.3129999999999994e-05
+      },
+      {
+        "dropped": "R2",
+        "decision": "not_applicable",
+        "changed": false,
+        "latency_ms": 7837.1400739997625,
+        "cost_usd": 5.361e-05
+      },
+      {
+        "dropped": "R3",
+        "decision": "not_applicable",
+        "changed": false,
+        "latency_ms": 360.18454103032127,
+        "cost_usd": 5.244e-05
+      },
+      {
+        "dropped": "R4",
+        "decision": "not_applicable",
+        "changed": false,
+        "latency_ms": 1614.1366769443266,
+        "cost_usd": 5.3549999999999994e-05
+      }
+    ],
+    "deciding_record": null
+  },
+  "gpt": {
+    "structured": {
+      "latency_ms": 12857.1637700079,
+      "calls": 1,
+      "model": "gpt-6.1-sol",
+      "input_tokens": 2057,
+      "output_tokens": 196,
+      "cost_usd": 0.0080825,
+      "request_id": "chatcmpl-Ek3HhTmec6M9JVz079auL3AxOzAqz",
+      "prediction": {
+        "action": "route_to_applicable_policy",
+        "branch": "unspecified",
+        "criteria": {
+          "age_18_years": {
+            "evidence": [
+              "R2"
+            ],
+            "state": "met"
+          },
+          "concomitantly_receive_background_immunosuppressi": {
+            "evidence": [
+              "R3"
+            ],
+            "state": "met"
+          },
+          "diagnosis_lupus_nephritis": {
+            "evidence": [
+              "R4"
+            ],
+            "state": "met"
+          },
+          "prescribed_consultation_rheumatologist_nephrolog": {
+            "evidence": [
+              "R1"
+            ],
+            "state": "met"
+          }
+        },
+        "decision": "not_applicable",
+        "facts": {
+          "age_18_years": true,
+          "concomitantly_receive_background_immunosuppressi": true,
+          "diagnosis_lupus_nephritis": true,
+          "prescribed_consultation_rheumatologist_nephrolog": true
+        },
+        "missing_info": [],
+        "policy_id": "MI-20261012-269b8c4ab5",
+        "scope": "wrong_payer"
+      }
+    },
+    "checked": {
+      "latency_ms": 15935.502125998028,
+      "calls": 2,
+      "cost_usd": 0.00813728,
+      "input_tokens": 3883,
+      "output_tokens": 829,
+      "flagged": [],
+      "overrides": [],
+      "prediction": {
+        "policy_id": "MI-20261012-269b8c4ab5",
+        "scope": "wrong_payer",
+        "branch": "unspecified",
+        "facts": {
+          "age_18_years": true,
+          "diagnosis_lupus_nephritis": true,
+          "prescribed_consultation_rheumatologist_nephrolog": true,
+          "concomitantly_receive_background_immunosuppressi": true
+        },
+        "criteria": {
+          "age_18_years": {
+            "state": "met",
+            "evidence": [
+              "R2"
+            ]
+          },
+          "concomitantly_receive_background_immunosuppressi": {
+            "state": "met",
+            "evidence": [
+              "R3"
+            ]
+          },
+          "diagnosis_lupus_nephritis": {
+            "state": "met",
+            "evidence": [
+              "R4"
+            ]
+          },
+          "prescribed_consultation_rheumatologist_nephrolog": {
+            "state": "met",
+            "evidence": [
+              "R1"
+            ]
+          }
+        },
+        "missing_info": [],
+        "decision": "not_applicable",
+        "action": "route_to_applicable_policy"
+      },
+      "facts": {
+        "age_18_years": true,
+        "diagnosis_lupus_nephritis": true,
+        "prescribed_consultation_rheumatologist_nephrolog": true,
+        "concomitantly_receive_background_immunosuppressi": true
+      }
+    }
+  }
+}

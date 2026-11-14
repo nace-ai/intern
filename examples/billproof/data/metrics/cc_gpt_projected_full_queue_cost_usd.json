@@ -1,0 +1,9 @@
+{
+  "value": 17.317242937499998,
+  "n": 40,
+  "source_run": "command_center/queue_gpt.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:11:24Z",
+  "projected": true,
+  "n_queue": 2211
+}

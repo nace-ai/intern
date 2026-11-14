@@ -1,0 +1,11 @@
+{
+  "value": 6.185271559303007e-47,
+  "n": 1303,
+  "source_run": "hard_dev_drex-finance_vs_hybrid",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:34:42Z",
+  "b": 0.0,
+  "c": 209.0,
+  "stat": 207.00478468899522,
+  "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+}

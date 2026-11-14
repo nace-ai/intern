@@ -1,0 +1,11 @@
+{
+  "value": 1.0,
+  "n": 4,
+  "source_run": "hard_test_gpt_vs_gpt-one",
+  "simulated": false,
+  "computed_at": "2026-11-14T10:51:39Z",
+  "b": 0.0,
+  "c": 0.0,
+  "stat": 0.0,
+  "note": "b = first lane correct and second wrong; c = first wrong and second correct"
+}

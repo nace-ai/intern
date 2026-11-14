@@ -1,0 +1,1414 @@
+{
+  "bench": "persius",
+  "split": "test",
+  "source": "data/runs/c_persius_test_ids.json",
+  "n": 200,
+  "population": 400,
+  "per_class": 100,
+  "rank": "within each frozen gold class, rank_md5 ascending, first 100; run_order is rank_md5 over those 200",
+  "chosen_before_any_ladder_call": true,
+  "run_order": [
+    {
+      "case_id": "persius-test-1389",
+      "row_index": 1389,
+      "gold": "no",
+      "text_sha256": "dca893d1c1efb2087b7f17a213c7f95168afcd09203ef1dc424a831c70b171fa",
+      "rank_md5": "0004b3f3a23991d798d5ef0f727bb908"
+    },
+    {
+      "case_id": "persius-test-2420",
+      "row_index": 2420,
+      "gold": "no",
+      "text_sha256": "3032253345b85f7925f88989a382cbcaa370a2bd3c7ebb17eb0763d9faa30d9a",
+      "rank_md5": "0005e14cb1cb4672576b5084edac0250"
+    },
+    {
+      "case_id": "persius-test-4940",
+      "row_index": 4940,
+      "gold": "yes",
+      "text_sha256": "f2cb3774f663eec8fcf89125e45e6582f5c80a5aacd8cf7f701be39d23ed4fc8",
+      "rank_md5": "000c153c9f5700b6904b6e7ef5818bc8"
+    },
+    {
+      "case_id": "persius-test-2882",
+      "row_index": 2882,
+      "gold": "no",
+      "text_sha256": "ffe19874bef2431341f4c11fe4b5f72adf21fa19744e1ab75ea86a7ba3274972",
+      "rank_md5": "0010ccf1dfa5c8fea2af048e5b11d542"
+    },
+    {
+      "case_id": "persius-test-6571",
+      "row_index": 6571,
+      "gold": "no",
+      "text_sha256": "ddf105237298c3821f5352bd00ebdc53addebbf3ec6c60ea80ab0a5df1387a18",
+      "rank_md5": "001130a7d8dadb9a3162ddf84aab4b10"
+    },
+    {
+      "case_id": "persius-test-5227",
+      "row_index": 5227,
+      "gold": "no",
+      "text_sha256": "dd4859f091dc6b381e556e59203b436911f16bc156a2f7b8a651b500e58aa2db",
+      "rank_md5": "001915294e099592b68a8ca996ba7f03"
+    },
+    {
+      "case_id": "persius-test-8589",
+      "row_index": 8589,
+      "gold": "no",
+      "text_sha256": "957df1ceb6b00cf9c0b59cab175f63a80c38f4b78be6d5598f29e49d346cbe1e",
+      "rank_md5": "001f41f85a416a50645496f58fca7977"
+    },
+    {
+      "case_id": "persius-test-6691",
+      "row_index": 6691,
+      "gold": "yes",
+      "text_sha256": "efdb323f79f3a94e152f816af99b7771164f0bc80cd7d7ddfeb3b931fca11571",
+      "rank_md5": "002596b9738c50a15ad2e996b6f3a232"
+    },
+    {
+      "case_id": "persius-test-7836",
+      "row_index": 7836,
+      "gold": "no",
+      "text_sha256": "661b937cb255b9fe23de698eec7bb787b51b87baa9ccda8f169596b1c8958c4d",
+      "rank_md5": "00338317db1e01db295451a5e410da4b"
+    },
+    {
+      "case_id": "persius-test-2259",
+      "row_index": 2259,
+      "gold": "yes",
+      "text_sha256": "9d3f38e93b25d8f614077bf16c60f1c61f7747d656b2466617e646b53022a605",
+      "rank_md5": "00404bb313ed048e891fa9421171150f"
+    },
+    {
+      "case_id": "persius-test-2233",
+      "row_index": 2233,
+      "gold": "yes",
+      "text_sha256": "fc3672110fcb687f0fc253ad2e8d1a3d196cfd6d61e5801d6c287d9966c0ec50",
+      "rank_md5": "0045f68e5a357e2bd62fc9fffd32d6b3"
+    },
+    {
+      "case_id": "persius-test-8877",
+      "row_index": 8877,
+      "gold": "no",
+      "text_sha256": "b9d432cab4aa98dd1cf001fd364646dd31e734e42b079b815d4e195c1dd3e6ea",
+      "rank_md5": "005074e8663c5a3bc7ad56764eae4c38"
+    },
+    {
+      "case_id": "persius-test-6669",
+      "row_index": 6669,
+      "gold": "no",
+      "text_sha256": "e22d5f8499ac13d7c957a47631c3d70ad50dda8dd7a0d30a7fd4c5b3d15daf87",
+      "rank_md5": "0054026f4079d4367768d3430347927e"
+    },
+    {
+      "case_id": "persius-test-3662",
+      "row_index": 3662,
+      "gold": "no",
+      "text_sha256": "6292b4c0771bef243be5c26500166eb3875c7ae91d2db6d96b78d1ee0da00466",
+      "rank_md5": "0076c96817215b29eeb8ee344459ea5d"
+    },
+    {
+      "case_id": "persius-test-67",
+      "row_index": 67,
+      "gold": "yes",
+      "text_sha256": "8bc8e397efea08125f2d522bad16bfc964326b14f03cfd52cd7f13c3b7155360",
+      "rank_md5": "008c26b09b7e6c8c90aca848869368f5"
+    },
+    {
+      "case_id": "persius-test-2326",
+      "row_index": 2326,
+      "gold": "yes",
+      "text_sha256": "253a18695b42814babcb150d95b80fd68b174cc5094a449d20ee68774b72b56f",
+      "rank_md5": "008ea1d2a47cee84f213a6b20e029b8b"
+    },
+    {
+      "case_id": "persius-test-6962",
+      "row_index": 6962,
+      "gold": "yes",
+      "text_sha256": "8152b16e1e12332761af8f6a15503a79450f54fa8a12996cb0fd919cc4a753f6",
+      "rank_md5": "0096984e4fd18340c4e2bcade9a62627"
+    },
+    {
+      "case_id": "persius-test-2496",
+      "row_index": 2496,
+      "gold": "no",
+      "text_sha256": "69b6bc056cd2b69f2539bc50aa4363513756f37f6730bc555dcb8c8e28e82781",
+      "rank_md5": "0098a1f46d174fda1a19fcd89bac776f"
+    },
+    {
+      "case_id": "persius-test-3288",
+      "row_index": 3288,
+      "gold": "no",
+      "text_sha256": "b56bf789213526a23596813c59fe798013f330f8e0afba3ee1b08f01ec5b8ca5",
+      "rank_md5": "009e3edd164db64e436aa1d5413a3e80"
+    },
+    {
+      "case_id": "persius-test-4672",
+      "row_index": 4672,
+      "gold": "yes",
+      "text_sha256": "7a481007dd89256c913e2a8f854f476ff68f7e6f95dc2ae5f3225744ca147af1",
+      "rank_md5": "00a534db38c3dc7e4d7f7acabacd1b86"
+    },
+    {
+      "case_id": "persius-test-6291",
+      "row_index": 6291,
+      "gold": "yes",
+      "text_sha256": "8e03ee49c10080a6f46ec66b662a549cdeb4724e41da3067331070f9e8587da7",
+      "rank_md5": "00a54fcb26cad27120c5f5902ecc1200"
+    },
+    {
+      "case_id": "persius-test-7462",
+      "row_index": 7462,
+      "gold": "no",
+      "text_sha256": "d50af688089efda14e092e02656f54337d7b3e20e377629b2fd4ec4d8ead7e38",
+      "rank_md5": "00a7f35bec3e163497f832377b0e0d5c"
+    },
+    {
+      "case_id": "persius-test-8467",
+      "row_index": 8467,
+      "gold": "yes",
+      "text_sha256": "4a71d338c1caf19caa0a603176d5c6314da7a3695e03297f1711b472914c9bd9",
+      "rank_md5": "00ab95b07185f91dd6d01f9b2b30a903"
+    },
+    {
+      "case_id": "persius-test-1358",
+      "row_index": 1358,
+      "gold": "no",
+      "text_sha256": "a225809928ff5b96bcb446849ebabf7cbe5ab109df2e86f96efc23af8149e9f4",
+      "rank_md5": "00ae23a1a7b3cfdf2c06b9056e7c3769"
+    },
+    {
+      "case_id": "persius-test-6713",
+      "row_index": 6713,
+      "gold": "no",
+      "text_sha256": "c076f7c4b0f3df073ac1612636dd2e306cbe838d75061aab2f06b0c2da9e5467",
+      "rank_md5": "00b05671e9ce0570e6c41f674bc2311a"
+    },
+    {
+      "case_id": "persius-test-1298",
+      "row_index": 1298,
+      "gold": "no",
+      "text_sha256": "16897a74d945754126dca8ecc5ba5daa373d62ea4e9299e23d3d52ddcd69ae82",
+      "rank_md5": "00b70fb838be58b2a5f60a968f2f9cd0"
+    },
+    {
+      "case_id": "persius-test-4689",
+      "row_index": 4689,
+      "gold": "yes",
+      "text_sha256": "45efeb87bef32fa31ffe938a6331c741b496950595a694f1c5a7df268599b944",
+      "rank_md5": "00bb175e3f58027a19be94361e11d0ce"
+    },
+    {
+      "case_id": "persius-test-378",
+      "row_index": 378,
+      "gold": "yes",
+      "text_sha256": "f2354a12c394ffe58876a1f4272c1ea23b8cd8fdc1a508376fe7c3d8d1cc998d",
+      "rank_md5": "00c5a58d8e24408008f337b3ed6205f0"
+    },
+    {
+      "case_id": "persius-test-5365",
+      "row_index": 5365,
+      "gold": "yes",
+      "text_sha256": "66bc466e1ae13ea1870f9f9e9f56940d006ea81463b53c27a0c0809a69b73c08",
+      "rank_md5": "00d8038c8d90acebacede5837c08125b"
+    },
+    {
+      "case_id": "persius-test-46",
+      "row_index": 46,
+      "gold": "yes",
+      "text_sha256": "918b4d3790947bf99fbdd4fddbd67e032da61a089a64610a98f03aaab3880677",
+      "rank_md5": "00f037322774b5d1eff8c572af10a01b"
+    },
+    {
+      "case_id": "persius-test-1117",
+      "row_index": 1117,
+      "gold": "no",
+      "text_sha256": "628b4ef9aa6eefeb4258fbdf445f99b27bd758dd3cb91abc637ec139eba7ba2c",
+      "rank_md5": "00fdacda9232d492be9e29ef2a8226ac"
+    },
+    {
+      "case_id": "persius-test-5678",
+      "row_index": 5678,
+      "gold": "no",
+      "text_sha256": "b146632da52b20d026651eb2af1a2048cbf71ca3421e38456914bcc64db09fd4",
+      "rank_md5": "01073f5c97ce5f59e7a1891607cf3aae"
+    },
+    {
+      "case_id": "persius-test-9442",
+      "row_index": 9442,
+      "gold": "yes",
+      "text_sha256": "e7ab704b2d737a0da5c62e6a79a3b86fc3c22617c8a3b1c303b3823d76a27a46",
+      "rank_md5": "0110b8cecb8a0b07cf15f9aed8cc9b73"
+    },
+    {
+      "case_id": "persius-test-222",
+      "row_index": 222,
+      "gold": "yes",
+      "text_sha256": "a3dd54a3cf340b7315dd9dbfa448043b702504ae217ac41cba28bf57a4f7c2fc",
+      "rank_md5": "01139f48ddc8c443f0e001a80ab47e9a"
+    },
+    {
+      "case_id": "persius-test-3395",
+      "row_index": 3395,
+      "gold": "yes",
+      "text_sha256": "f66d878d3d0fd18ebdf2bef0adca56e47b54cf442cd9cf92a98e6a56cc784e6f",
+      "rank_md5": "011a67ec199a483a8e69d78a0ce05355"
+    },
+    {
+      "case_id": "persius-test-741",
+      "row_index": 741,
+      "gold": "yes",
+      "text_sha256": "09eb9e2217941bc79f1248e1526735ecb4efbd178776b01c62010ec44be17d7f",
+      "rank_md5": "011afde1de2160f20b20fc4309a94ebf"
+    },
+    {
+      "case_id": "persius-test-107",
+      "row_index": 107,
+      "gold": "yes",
+      "text_sha256": "72c2f62427fd970409dfc409e150f0bf0dce213009b6b231d539ad42352597c1",
+      "rank_md5": "011d9b8655e2dca4b8a6ecd22cdc9b1e"
+    },
+    {
+      "case_id": "persius-test-298",
+      "row_index": 298,
+      "gold": "yes",
+      "text_sha256": "7ab1e74d0f9cc1969b82970fbd96d1441800321ab37f93c24169a1d437096020",
+      "rank_md5": "012abcedf8189a2fef82708c869037fa"
+    },
+    {
+      "case_id": "persius-test-9663",
+      "row_index": 9663,
+      "gold": "yes",
+      "text_sha256": "d1df04d73c6f43e8015232a417cfd75abdd3060e03abe73db9204b32b019f69b",
+      "rank_md5": "012ee3d9e9d83c483ee5db7a43014843"
+    },
+    {
+      "case_id": "persius-test-6600",
+      "row_index": 6600,
+      "gold": "no",
+      "text_sha256": "c1070e6b2a776e1349057d7cd914f78cc8d1914235567fc9f54700a0c3dc6bd6",
+      "rank_md5": "0136bb522d332e57d62aa21dcc2ac62b"
+    },
+    {
+      "case_id": "persius-test-4169",
+      "row_index": 4169,
+      "gold": "no",
+      "text_sha256": "3002f37153405b05c3afebce4f02600832d32d5932c9353262442f29a826d037",
+      "rank_md5": "014583e5b4832512c060ed4e5383e98d"
+    },
+    {
+      "case_id": "persius-test-299",
+      "row_index": 299,
+      "gold": "no",
+      "text_sha256": "01df4cfe1313cd1c1a6756023188fda1e3c08e584290c5169cb72c05f5556171",
+      "rank_md5": "0157a11665cca2d3f2194af0e7e41c78"
+    },
+    {
+      "case_id": "persius-test-861",
+      "row_index": 861,
+      "gold": "no",
+      "text_sha256": "62322fb44fd4a233ee40340c16d07361912d29dc58c4a988677fb2ea8030eba8",
+      "rank_md5": "01584ca74570806dd1a382e38cfe18c7"
+    },
+    {
+      "case_id": "persius-test-2119",
+      "row_index": 2119,
+      "gold": "no",
+      "text_sha256": "da2fc077163fe9dbd972b161e80631a20c3d9c5ec73f053142cf252ac72c0c4d",
+      "rank_md5": "0163e91e09dc54841ec30f56c648cb49"
+    },
+    {
+      "case_id": "persius-test-9011",
+      "row_index": 9011,
+      "gold": "yes",
+      "text_sha256": "fa407dfc546718c02b0197d0b21fd731c03663f901699a959333505eb2766e45",
+      "rank_md5": "016b31a8369b63bf1d347a7a1e3291af"
+    },
+    {
+      "case_id": "persius-test-9511",
+      "row_index": 9511,
+      "gold": "no",
+      "text_sha256": "5d3470af15896f55dcafa2d7cc7011a60493431037987547e6cc87e5483fa9f3",
+      "rank_md5": "01715dd83122f21b8b6207448c885428"
+    },
+    {
+      "case_id": "persius-test-5442",
+      "row_index": 5442,
+      "gold": "no",
+      "text_sha256": "36ca848d7b1480d5ed106d9008c11a0a08d746a843642c70147861a291a9d8f9",
+      "rank_md5": "0173359c068ae7696f7363ecb331ff9b"
+    },
+    {
+      "case_id": "persius-test-2522",
+      "row_index": 2522,
+      "gold": "yes",
+      "text_sha256": "05929e5e145795a33b7d8acb486acfac2f24c6b8ba8d8f0ec84e2249515c33cf",
+      "rank_md5": "0176af4345cda55d763b7186b6d6f119"
+    },
+    {
+      "case_id": "persius-test-9171",
+      "row_index": 9171,
+      "gold": "no",
+      "text_sha256": "481e2f41229ed5ed121171288b571b13c7655044c16807d2b3e1427f413113b8",
+      "rank_md5": "017b597ed1cd0dffcd5ef75f9524e5e1"
+    },
+    {
+      "case_id": "persius-test-2672",
+      "row_index": 2672,
+      "gold": "yes",
+      "text_sha256": "1e025d1278102ab9ec1d096e57b0731d9fed175ac184073290691237bf0f1f52",
+      "rank_md5": "01801f3d4bb30261ae972947b2a61a7d"
+    },
+    {
+      "case_id": "persius-test-6782",
+      "row_index": 6782,
+      "gold": "no",
+      "text_sha256": "6f9f6553ae0438e944a1c4e17afa12e28593a63af43bf4aefc1037ffb7829ec7",
+      "rank_md5": "018de3751cf24b777ba5d8928e660c8a"
+    },
+    {
+      "case_id": "persius-test-7809",
+      "row_index": 7809,
+      "gold": "no",
+      "text_sha256": "2be741afa9ffb8c73ead2d7fbff456f0110dd5f86181052df44cd42675b51af8",
+      "rank_md5": "0192521665a976ecbd9c340ff1f72d8b"
+    },
+    {
+      "case_id": "persius-test-849",
+      "row_index": 849,
+      "gold": "yes",
+      "text_sha256": "5dd0cd8cf4e81730a7e6b49c26d57464d1f46b39ba6be2336aa171992737b9fa",
+      "rank_md5": "019ab199b2cb346a9bea1871fa3951eb"
+    },
+    {
+      "case_id": "persius-test-1798",
+      "row_index": 1798,
+      "gold": "yes",
+      "text_sha256": "3fd86af8839c4dbf2a576bb0b12052132cbfc9c2c35f36c6482b3bbc670fcf24",
+      "rank_md5": "01a8f060134501d95ef41c9c0d8e8148"
+    },
+    {
+      "case_id": "persius-test-4937",
+      "row_index": 4937,
+      "gold": "no",
+      "text_sha256": "420f9269f3694fd59dcb691a46cf8490b426337e1fb2c27463d57ac16775f96d",
+      "rank_md5": "01a94ccab23b7dad36962059f46d54f8"
+    },
+    {
+      "case_id": "persius-test-5456",
+      "row_index": 5456,
+      "gold": "no",
+      "text_sha256": "dbe4da5e03ed89608317aa02361f3f2a0e1890b0c72bb012fe536b1d24343e9b",
+      "rank_md5": "01afc33091413f40bdc29855231a265d"
+    },
+    {
+      "case_id": "persius-test-6848",
+      "row_index": 6848,
+      "gold": "yes",
+      "text_sha256": "6975232cf4297d13b4b65eaf79b3149f0d4d3ce0056877ff4bc2458430eaca1e",
+      "rank_md5": "01b41505295259bd9f3ef0549ef972c6"
+    },
+    {
+      "case_id": "persius-test-6283",
+      "row_index": 6283,
+      "gold": "no",
+      "text_sha256": "66514d92b0bcadc272ef79ec209cf7eafe4b6f809dadf57dfdc9c2639a885110",
+      "rank_md5": "01d38cf86b7693b4fa92c86d8dce336b"
+    },
+    {
+      "case_id": "persius-test-457",
+      "row_index": 457,
+      "gold": "no",
+      "text_sha256": "cf8979a6e4333fbd0b8b3ce5a545c7d41a229d060ea6111fa48e7f034081f927",
+      "rank_md5": "01db9988b79258f0db5ef920cafba6ca"
+    },
+    {
+      "case_id": "persius-test-3014",
+      "row_index": 3014,
+      "gold": "yes",
+      "text_sha256": "0acd87d9ca3b938e2258c6303ad5e6507f637af1fabd375c823d8fa673cf004f",
+      "rank_md5": "01e0dc178a067b40458dbe6e161776ce"
+    },
+    {
+      "case_id": "persius-test-8252",
+      "row_index": 8252,
+      "gold": "yes",
+      "text_sha256": "caec8e64c9beb605b416f3123c4adbdc8dd5d1b1a127bfc36be1a28c1ce818a5",
+      "rank_md5": "01e32c72a5be6bb600793669c1f3543a"
+    },
+    {
+      "case_id": "persius-test-3930",
+      "row_index": 3930,
+      "gold": "yes",
+      "text_sha256": "aae3f2fa726ad21415fbb2f0aeb60052ab99f8f64dd164e6bd2a35d9341d9347",
+      "rank_md5": "01ece2cfba9c3346f6a9a4d777a227a4"
+    },
+    {
+      "case_id": "persius-test-130",
+      "row_index": 130,
+      "gold": "yes",
+      "text_sha256": "af77a4a67d5bf00ad7ea74d2ad7699cda05173b3702346d2a863ccfde2493f2e",
+      "rank_md5": "01ed55e61d98f4f7b5229433a1ef9e6c"
+    },
+    {
+      "case_id": "persius-test-399",
+      "row_index": 399,
+      "gold": "no",
+      "text_sha256": "2e7b17ea2ba26906e51a65538cc114404a3621b5851bd793341c2cfbad3c968f",
+      "rank_md5": "01f3512005336e1b12c31cd17285ef7e"
+    },
+    {
+      "case_id": "persius-test-2363",
+      "row_index": 2363,
+      "gold": "no",
+      "text_sha256": "0df6cda22096c66c947b3eb38c027b74b01733a8f71b1ebd77d4d7df08cb7bf5",
+      "rank_md5": "01f358d4d92e79918198cab9ba1be42e"
+    },
+    {
+      "case_id": "persius-test-1772",
+      "row_index": 1772,
+      "gold": "no",
+      "text_sha256": "67adfa0327d18748987da230a30b281197a8754407eb42fb39bce7d6850289b7",
+      "rank_md5": "0200bb585ff406029f7646b1e6873664"
+    },
+    {
+      "case_id": "persius-test-2697",
+      "row_index": 2697,
+      "gold": "no",
+      "text_sha256": "f4d766c0ef24cd5b3e082c430c2236191ac9c49bc4ee5dff6613bca6f64d2e7e",
+      "rank_md5": "02052549dcdebb7d2ecd4df9ce7d356d"
+    },
+    {
+      "case_id": "persius-test-766",
+      "row_index": 766,
+      "gold": "yes",
+      "text_sha256": "281b07aff815555fec7d8f8f81b28393aa61cb418f2c8dac1cc059deb8790820",
+      "rank_md5": "0209a0b2a71ebff14c1bfd5c2572176f"
+    },
+    {
+      "case_id": "persius-test-5495",
+      "row_index": 5495,
+      "gold": "no",
+      "text_sha256": "3cfe67c952602b0d74cf04ea5a1e41e853038b1325d8b35664272133cc700cd3",
+      "rank_md5": "0211ed993667b96db02cfaee0b0bb4fd"
+    },
+    {
+      "case_id": "persius-test-5661",
+      "row_index": 5661,
+      "gold": "yes",
+      "text_sha256": "c1f264a40de173291f3386c71adb882d0c6e82bff3841ecaaf4916e29d205406",
+      "rank_md5": "0212182440434507846f93ea7da7733a"
+    },
+    {
+      "case_id": "persius-test-9465",
+      "row_index": 9465,
+      "gold": "yes",
+      "text_sha256": "65b0e9de71dee3eb897af925f5948022a2930e8b2e9dd1982702b0c4e54e8020",
+      "rank_md5": "02285d0f87a1c7c16a28ff267b499896"
+    },
+    {
+      "case_id": "persius-test-4307",
+      "row_index": 4307,
+      "gold": "yes",
+      "text_sha256": "38f9df1e4acb492b84c7f7512f461a4bf9849e21be065869aaaa9ad5b79b5ae5",
+      "rank_md5": "0229417530b275fd0c5ecb5bac5959b2"
+    },
+    {
+      "case_id": "persius-test-5520",
+      "row_index": 5520,
+      "gold": "no",
+      "text_sha256": "b328c9fb599a832d15b4684d55c0ed02e30fe3d92e1cf23d41ad730af680bcec",
+      "rank_md5": "02362ba6a834c15882e08eaf4ef32244"
+    },
+    {
+      "case_id": "persius-test-7635",
+      "row_index": 7635,
+      "gold": "no",
+      "text_sha256": "10ac72fe9335720b8f4629baa9893d4a87843f533eab716e0b53e017918de6f7",
+      "rank_md5": "0248d4f07efcd46a1a7a3c012f1724a9"
+    },
+    {
+      "case_id": "persius-test-7713",
+      "row_index": 7713,
+      "gold": "no",
+      "text_sha256": "c4e2586eeea3f9df5e3c71e2d24a7e0977155c7fcc6244241cf83d4ad3c45948",
+      "rank_md5": "024bb1484860ce10a7f6ab64389323f4"
+    },
+    {
+      "case_id": "persius-test-6373",
+      "row_index": 6373,
+      "gold": "no",
+      "text_sha256": "7d22eccdc42a737b5a22f411b3970c375fb7c429cdff6b27ca83ec8c6d4be964",
+      "rank_md5": "024deb27811407b2c8c49ff1d3f2584d"
+    },
+    {
+      "case_id": "persius-test-4742",
+      "row_index": 4742,
+      "gold": "yes",
+      "text_sha256": "f4ab8b2c6cd83bef926a98158848ea819b0ba86188818152f5b14c24959fddb2",
+      "rank_md5": "0254033bebaf3bb6f87607713ba33809"
+    },
+    {
+      "case_id": "persius-test-7499",
+      "row_index": 7499,
+      "gold": "no",
+      "text_sha256": "75911fc2d13ed1b576c80163ffba483a6f863368bac8032dc7c71514b85d7f26",
+      "rank_md5": "026af316e5e5c413b15d5418a257c1a7"
+    },
+    {
+      "case_id": "persius-test-7638",
+      "row_index": 7638,
+      "gold": "no",
+      "text_sha256": "2adda1db30b418a06f3383dca96960a92a5ddbe6c3ab029f2093131795baec40",
+      "rank_md5": "026e195cf21891399884d8a905731fc9"
+    },
+    {
+      "case_id": "persius-test-3568",
+      "row_index": 3568,
+      "gold": "yes",
+      "text_sha256": "cf65c5c3d6828958c5d9fa0a84c47cde44ba0c883860da23d134707b3a060600",
+      "rank_md5": "026f68df134fb84cd9e65b85fc6471f3"
+    },
+    {
+      "case_id": "persius-test-3120",
+      "row_index": 3120,
+      "gold": "yes",
+      "text_sha256": "8dcefa2470d658d851c88afe90e677865adbd5e91023f286cb7a0f3f325e24cf",
+      "rank_md5": "02742c69e4ec83b5fd0d68c21991b4a6"
+    },
+    {
+      "case_id": "persius-test-9087",
+      "row_index": 9087,
+      "gold": "no",
+      "text_sha256": "3d05284ec58b20c2901d4f086284b8fc1ae9e73e9e010c751a0a2173bb10b114",
+      "rank_md5": "02754503a4d2543e86c1c5e1e01b6668"
+    },
+    {
+      "case_id": "persius-test-2227",
+      "row_index": 2227,
+      "gold": "yes",
+      "text_sha256": "a2bd8606944e2502284eb97ef1bf80e434e0540d3dea3f13c7afb7fb25af63ce",
+      "rank_md5": "0288d20ae4a8db29b285ad03fd567d51"
+    },
+    {
+      "case_id": "persius-test-6036",
+      "row_index": 6036,
+      "gold": "no",
+      "text_sha256": "2a391daf13db8afec0384b3fe5953139501773377fccc67a7c25143884523cf6",
+      "rank_md5": "02994f5b548b9d6a69b4f3ea2a238a4e"
+    },
+    {
+      "case_id": "persius-test-1591",
+      "row_index": 1591,
+      "gold": "no",
+      "text_sha256": "c730f8242220dcddae7312a5c701e47f37bbfd6c9ae598ff1b1a43e4ea2643d5",
+      "rank_md5": "02a05d41d504f82b3abc789c6599c7b6"
+    },
+    {
+      "case_id": "persius-test-9307",
+      "row_index": 9307,
+      "gold": "no",
+      "text_sha256": "78cb3342f5c3540107ed494a8ff7f2dc6b42d120bcacdaefb5fa9868de227b86",
+      "rank_md5": "02aa1d0ed3e8aa210101cccc03261327"
+    },
+    {
+      "case_id": "persius-test-1280",
+      "row_index": 1280,
+      "gold": "yes",
+      "text_sha256": "de0ea8036088e876e27ae3404f67837070353d7613d7f6c68678884bfd46ccc5",
+      "rank_md5": "02afd8f3fd404bdd2633d0d4f84e9c9f"
+    },
+    {
+      "case_id": "persius-test-1580",
+      "row_index": 1580,
+      "gold": "yes",
+      "text_sha256": "88ffe2d5dacbf6e1ee641b0ca3dc412776a354e9a79bbf223e9e52d5a31cbe6d",
+      "rank_md5": "02b0eec4afba2fe87c740cf7df3172c6"
+    },
+    {
+      "case_id": "persius-test-8887",
+      "row_index": 8887,
+      "gold": "no",
+      "text_sha256": "4eb2c0360c105594b22dbb21b0220685dbfc29a83e63d253af1666037c32188d",
+      "rank_md5": "02b1d2e0160857c84a81a97839b34d63"
+    },
+    {
+      "case_id": "persius-test-3858",
+      "row_index": 3858,
+      "gold": "no",
+      "text_sha256": "a901815207679406fc7963b5d422a12154816893ba25efb68b7bc7b66df47b90",
+      "rank_md5": "02bea6ea3283f7914d592d73a74d6349"
+    },
+    {
+      "case_id": "persius-test-4084",
+      "row_index": 4084,
+      "gold": "no",
+      "text_sha256": "f545613038e1b16b3a3e1926a94c2f1e23633202320a7ea2f7979c672e2962df",
+      "rank_md5": "02c0d21ff4056e6f7d7abe9f60857e38"
+    },
+    {
+      "case_id": "persius-test-4970",
+      "row_index": 4970,
+      "gold": "yes",
+      "text_sha256": "8feb4fd4f81df4f7064b70d64a83b214d49a2dd06664fd81c45ec1a861fceffa",
+      "rank_md5": "02c1a2c73a48b97dee80543e47e22a0c"
+    },
+    {
+      "case_id": "persius-test-4629",
+      "row_index": 4629,
+      "gold": "no",
+      "text_sha256": "7a3fbeff2ed3207ce448f414f2bb4c9bde82c735aaeda3cfae7f3198bbba3ecf",
+      "rank_md5": "02cf8f54dfe01d465b1dc048c16f6efe"
+    },
+    {
+      "case_id": "persius-test-4037",
+      "row_index": 4037,
+      "gold": "no",
+      "text_sha256": "7af29051f5207bcfdf6bb4109fad555833e9fc1568eb4f9b7402b62c6827638a",
+      "rank_md5": "02d5d24ab95798460a380eb27031bb9f"
+    },
+    {
+      "case_id": "persius-test-4726",
+      "row_index": 4726,
+      "gold": "no",
+      "text_sha256": "8b0c8222f85db2f36188fe0ed7fbbe468494c549d867460d46fdea3c8d434773",
+      "rank_md5": "02ddbcc6fc69c84bb1db195926017ecf"
+    },
+    {
+      "case_id": "persius-test-2573",
+      "row_index": 2573,
+      "gold": "yes",
+      "text_sha256": "03014c55aeca841413192a11101eae53d26105334a7b9f639ae44ce7b2c20ca2",
+      "rank_md5": "02e31e9b299b04048903d008c610de9b"
+    },
+    {
+      "case_id": "persius-test-755",
+      "row_index": 755,
+      "gold": "yes",
+      "text_sha256": "7f84f4898302a3ece77789b351e0eaa46e866d38a6c11b51b7e512f4315fcf8c",
+      "rank_md5": "02e5d2aa8b8d05e522e8c92e2dbfa786"
+    },
+    {
+      "case_id": "persius-test-8490",
+      "row_index": 8490,
+      "gold": "yes",
+      "text_sha256": "f99f0e6bfe096fdba734f46c9d9314f9a9b048dda453e1862ca5c7d92b74a6b8",
+      "rank_md5": "02eb16fbafab4c859c812247c49b5e7c"
+    },
+    {
+      "case_id": "persius-test-3795",
+      "row_index": 3795,
+      "gold": "no",
+      "text_sha256": "780b486cfc8cbe8bc8379eda164ec5fcd8f6af6fc844c152fca41a31e702cfaa",
+      "rank_md5": "02ecbcf72ce7f37bc5eec0a3cf88dba8"
+    },
+    {
+      "case_id": "persius-test-7930",
+      "row_index": 7930,
+      "gold": "no",
+      "text_sha256": "d9c73760db43df0fe046029a83cd8bac3f964de909b7aed67632bfeffa9e94d4",
+      "rank_md5": "030ccbadf4f44d292df4c4315556fe8d"
+    },
+    {
+      "case_id": "persius-test-6833",
+      "row_index": 6833,
+      "gold": "yes",
+      "text_sha256": "8a24270b43d765d212b8c10a793ca47ab611395540b3e1a2f5a8b82b53984233",
+      "rank_md5": "031e319f5c34efbcf0d6ac3aac8c9d79"
+    },
+    {
+      "case_id": "persius-test-2282",
+      "row_index": 2282,
+      "gold": "yes",
+      "text_sha256": "64ea27cbc40f4e46a9aa09cb40bfcf13858806da34e0bd8f5369d4746ba66539",
+      "rank_md5": "031f223ac699f64afbbb1bef34137245"
+    },
+    {
+      "case_id": "persius-test-7965",
+      "row_index": 7965,
+      "gold": "no",
+      "text_sha256": "65b23e9dacde88c5de1aee649b1996996555739b62a275123020ca086c8998d6",
+      "rank_md5": "032fd17ae2732e94bdd10e52859328cf"
+    },
+    {
+      "case_id": "persius-test-9856",
+      "row_index": 9856,
+      "gold": "yes",
+      "text_sha256": "90540b57f744bfdb8c470cd720199c6ade4d73d098aa7916c65f9613a74657f3",
+      "rank_md5": "033238d9d3c8eda902016c4c118a7a2d"
+    },
+    {
+      "case_id": "persius-test-2074",
+      "row_index": 2074,
+      "gold": "no",
+      "text_sha256": "56cdf5c98f3bdf17705b575679ec9b90d8b5afce218e00963413e6f4ca205045",
+      "rank_md5": "0332e9983eba538ea38452b6d6b07c3a"
+    },
+    {
+      "case_id": "persius-test-6955",
+      "row_index": 6955,
+      "gold": "no",
+      "text_sha256": "c78358650e62d7ea63fbf007f3eef99393a5b128fde82f85b184a2b92881c46b",
+      "rank_md5": "03560962e245ff902f3a40a21a0be208"
+    },
+    {
+      "case_id": "persius-test-4814",
+      "row_index": 4814,
+      "gold": "yes",
+      "text_sha256": "e1239dbcb07e5740095303f08be4f9dd935757f226a9d04ae048f2f5857ffeaf",
+      "rank_md5": "0359a6f6d4a7edec1d7084a049d68c0d"
+    },
+    {
+      "case_id": "persius-test-1654",
+      "row_index": 1654,
+      "gold": "no",
+      "text_sha256": "fd6693d01b0f28afac4882a66b9c2f8d162e30303612cf227f4771546ee145f6",
+      "rank_md5": "035bb9407315913869648a9bd2b3465e"
+    },
+    {
+      "case_id": "persius-test-3400",
+      "row_index": 3400,
+      "gold": "yes",
+      "text_sha256": "58aa4d570a473e1919f709e6c85a563e8eb3188a8a3a719640baacc1266fbfa0",
+      "rank_md5": "035cac4e835fe980129e3a30b352572f"
+    },
+    {
+      "case_id": "persius-test-3626",
+      "row_index": 3626,
+      "gold": "no",
+      "text_sha256": "5c2e918eed6d5e2f3d204c16dd2aea7baad093f46ced1efd915339d58cba282e",
+      "rank_md5": "035e64fd576b4341f935b1259083f021"
+    },
+    {
+      "case_id": "persius-test-7415",
+      "row_index": 7415,
+      "gold": "no",
+      "text_sha256": "b08e6e236077e08b2be835ad5f4b005c02c1796d167abe5fb7da409c1f7d40be",
+      "rank_md5": "0360ffd425316989ff66671137ef52f0"
+    },
+    {
+      "case_id": "persius-test-8048",
+      "row_index": 8048,
+      "gold": "no",
+      "text_sha256": "9f79230a8bbae6e43bcadfd582543d6dc85210e1cc9974c76e5072b494db2351",
+      "rank_md5": "036812dbac5b9471b0e0dfc0bcec9372"
+    },
+    {
+      "case_id": "persius-test-737",
+      "row_index": 737,
+      "gold": "no",
+      "text_sha256": "e68bbdb31d3cbe40d17cdf47c01f2c814945ec55fccc443b92ee2ccd495353d7",
+      "rank_md5": "036a94d7f1a7dac91da57f72398dd9fd"
+    },
+    {
+      "case_id": "persius-test-1999",
+      "row_index": 1999,
+      "gold": "no",
+      "text_sha256": "1af74b21849fd08eb325bdab756588d2a708428264971701243f54e606a374de",
+      "rank_md5": "036d7e4f1accf169cc90780071ecfbb8"
+    },
+    {
+      "case_id": "persius-test-5823",
+      "row_index": 5823,
+      "gold": "no",
+      "text_sha256": "ca1cc5642501c09822781128d452ef4bea99368224f9def0dd6d0bde20d1b22e",
+      "rank_md5": "0382435ff8818a23a3c089b4bbba533f"
+    },
+    {
+      "case_id": "persius-test-7020",
+      "row_index": 7020,
+      "gold": "yes",
+      "text_sha256": "ec02efeb8a3ad1572e3b050a5939e6c36918b9b8223a3043de9340d2c759bec6",
+      "rank_md5": "0384efdb386c2690213cf9d0a1fae643"
+    },
+    {
+      "case_id": "persius-test-4573",
+      "row_index": 4573,
+      "gold": "yes",
+      "text_sha256": "8aac7dd4a85e664250c31271eefec691092c17de3fde3d87564929d0c12cfc7c",
+      "rank_md5": "038b65d4bf753c255941ade00b0f2e7b"
+    },
+    {
+      "case_id": "persius-test-9183",
+      "row_index": 9183,
+      "gold": "no",
+      "text_sha256": "36f05a9928d1fff75ecf153ebe2a94aa8ae760467a85707a7abe139408d085bb",
+      "rank_md5": "03bb14e1679647f9dc4cf7c90a507afa"
+    },
+    {
+      "case_id": "persius-test-3317",
+      "row_index": 3317,
+      "gold": "yes",
+      "text_sha256": "fe011a201abd9c90829e2037a1a6c52e7dec7f767e3a4ac86aea08fd5e9baec3",
+      "rank_md5": "03bb6442c81fa64ef2277db533521672"
+    },
+    {
+      "case_id": "persius-test-9840",
+      "row_index": 9840,
+      "gold": "no",
+      "text_sha256": "0def8bc09486235f59f47f9c55208b67b4c02946f4ea2b0655feb202c626b33b",
+      "rank_md5": "03cf32f1c0d9d3f61e3b730ee16590ba"
+    },
+    {
+      "case_id": "persius-test-4185",
+      "row_index": 4185,
+      "gold": "no",
+      "text_sha256": "f09e20d03bad07b247eabad8688fe4de4c5dbdf2ff58ea1fce884da57aeafafe",
+      "rank_md5": "03d81e67df4aba9e6a177f35950c5b3a"
+    },
+    {
+      "case_id": "persius-test-6760",
+      "row_index": 6760,
+      "gold": "yes",
+      "text_sha256": "3dcd42b99cf692ef5040c55d91f91917d91638720bda5dee8f2d4e1d87a308dd",
+      "rank_md5": "03da9ba32bd8a94b7928003eda17f5f1"
+    },
+    {
+      "case_id": "persius-test-9363",
+      "row_index": 9363,
+      "gold": "no",
+      "text_sha256": "4642002077f6bf40144d7162c77a25352ca325e004a9a3203cc8f497ba7b3e45",
+      "rank_md5": "03e594fd75fa6591fc88ba9e81332570"
+    },
+    {
+      "case_id": "persius-test-9030",
+      "row_index": 9030,
+      "gold": "no",
+      "text_sha256": "5b995b54ffa3f84e5a6f5a8a077b166f3b3b67f70819a94b9f788b84019187bf",
+      "rank_md5": "03e7d6ea2b60923356d5afc0ad9d8802"
+    },
+    {
+      "case_id": "persius-test-8932",
+      "row_index": 8932,
+      "gold": "no",
+      "text_sha256": "6825e66db232494d2c958a30ada9ac5c651529c89bb9a662f10320f3ba207db5",
+      "rank_md5": "03eabd3959fb235c118ed1303ec47818"
+    },
+    {
+      "case_id": "persius-test-5151",
+      "row_index": 5151,
+      "gold": "no",
+      "text_sha256": "066ce39473a20aa519d94400f6d59e9ebc759b8a40b3d820d6a38413ff4cca35",
+      "rank_md5": "03faf37f76f496aba716c005c33de4a3"
+    },
+    {
+      "case_id": "persius-test-2914",
+      "row_index": 2914,
+      "gold": "no",
+      "text_sha256": "af44322ea5b5294f33e3e3f0150bd04d3eaa8cc68612c08012b097bdbbe70e28",
+      "rank_md5": "0400c82862c789ab5b8f64d6a1028aa6"
+    },
+    {
+      "case_id": "persius-test-3977",
+      "row_index": 3977,
+      "gold": "no",
+      "text_sha256": "924b158d0129892ad9bce4722f8409a0a97863bcdde864e5a586fb981cc08244",
+      "rank_md5": "04050bd351e174db0051dd3d2f4db374"
+    },
+    {
+      "case_id": "persius-test-7898",
+      "row_index": 7898,
+      "gold": "no",
+      "text_sha256": "e4706f0d5387db743ebee6b3afb4754bda859f58ed43a3a185f9904e62c0c7e1",
+      "rank_md5": "0409c100bb89065a8336f6e5aa25e375"
+    },
+    {
+      "case_id": "persius-test-8705",
+      "row_index": 8705,
+      "gold": "yes",
+      "text_sha256": "0c11d65d6d0b0f48f21814acae9d7c34989dbc00ee1f9ddc4af85873707f8b52",
+      "rank_md5": "040f34a644286ddc463bf3342bcbc757"
+    },
+    {
+      "case_id": "persius-test-6155",
+      "row_index": 6155,
+      "gold": "yes",
+      "text_sha256": "7c33e682d4ecd4252cdac6ae7ef845daac4a035867ba0f57b13db76b3f3314af",
+      "rank_md5": "041775fe2ec806c29aec70d1a92e5e3e"
+    },
+    {
+      "case_id": "persius-test-2155",
+      "row_index": 2155,
+      "gold": "yes",
+      "text_sha256": "4898694c64d3fa9cab6a8b10a0172d927bac51c923da971ae9b5cf183eab01d4",
+      "rank_md5": "0418dfb105145b9df5e2557eb9889a57"
+    },
+    {
+      "case_id": "persius-test-1743",
+      "row_index": 1743,
+      "gold": "no",
+      "text_sha256": "758a659d902b20ef95575566a0ff879ac6b1f0ec0e9f2e13d1da8140baf9eea2",
+      "rank_md5": "041b976d9bd8a1d8e908b6a1d9130538"
+    },
+    {
+      "case_id": "persius-test-4527",
+      "row_index": 4527,
+      "gold": "no",
+      "text_sha256": "9ab20988df753b92bcebf7a468a8dff97aaacb835a6c96cf4e40613d6cd22407",
+      "rank_md5": "04203f55240686f69d8019522c882ef1"
+    },
+    {
+      "case_id": "persius-test-1515",
+      "row_index": 1515,
+      "gold": "no",
+      "text_sha256": "3fd47219ef5e8331c86963b53fbc0275aaa078d84609edb21bde219fe693a834",
+      "rank_md5": "04267e55984f40ebc4c8f2cda2a59c8b"
+    },
+    {
+      "case_id": "persius-test-1960",
+      "row_index": 1960,
+      "gold": "yes",
+      "text_sha256": "974f72def3ea7aadd371867bd19554de54de0a72d60b15df673b3d4d847f7897",
+      "rank_md5": "0431bc9edbd864b65ef8207df7ffdc4b"
+    },
+    {
+      "case_id": "persius-test-248",
+      "row_index": 248,
+      "gold": "yes",
+      "text_sha256": "b8e59a86bd5aa4f29fcad7c562fee4172ede0a812ea9eab78da374b9c2fedee8",
+      "rank_md5": "043a99fad5a701e74d06375c82dd3598"
+    },
+    {
+      "case_id": "persius-test-327",
+      "row_index": 327,
+      "gold": "yes",
+      "text_sha256": "1e770182f0ce2a2098474e1c3b7a0741f7a06263950d96036d93014eb385f21c",
+      "rank_md5": "043e9792fd72d7905ede9df14a2e3cc3"
+    },
+    {
+      "case_id": "persius-test-1504",
+      "row_index": 1504,
+      "gold": "no",
+      "text_sha256": "4f113d302c6a5d9c55747eaea2878bcbdf34433a794f8fd79b6f95ba09abe49f",
+      "rank_md5": "044166111f9d759e5ceaf12abc98c6ee"
+    },
+    {
+      "case_id": "persius-test-6333",
+      "row_index": 6333,
+      "gold": "yes",
+      "text_sha256": "c9cdfe416326162a697c79758abd18d82c062ac78048b75969f314b370419609",
+      "rank_md5": "044c0e302e17d2f9d1e7732048ef56a9"
+    },
+    {
+      "case_id": "persius-test-6956",
+      "row_index": 6956,
+      "gold": "no",
+      "text_sha256": "961b6c35403f711b12c7b0298e45268b1f779cdb6480b08af59304269ec8e15d",
+      "rank_md5": "0456b642d0600f012f01d9ff84a80fb8"
+    },
+    {
+      "case_id": "persius-test-5419",
+      "row_index": 5419,
+      "gold": "no",
+      "text_sha256": "1a49826458694ccd24e18d92ebf96a41c00e1bf3f1a5a7c5ff0320e05aa056b0",
+      "rank_md5": "0458e90b33a587c2f74ccb7a2d4c5498"
+    },
+    {
+      "case_id": "persius-test-3065",
+      "row_index": 3065,
+      "gold": "no",
+      "text_sha256": "746367288ab20b3a9c5360d727a2289f8907a734414d9d6607163389ce0de346",
+      "rank_md5": "045b37333193976f1ae9d3aaec5e7b1e"
+    },
+    {
+      "case_id": "persius-test-1286",
+      "row_index": 1286,
+      "gold": "no",
+      "text_sha256": "de5cff7d61a06f48b085f5cdb0af222e46a3b29c67e63fd6eda3ff9b62abc656",
+      "rank_md5": "046285de262615b6abfb14b9903b28fa"
+    },
+    {
+      "case_id": "persius-test-2684",
+      "row_index": 2684,
+      "gold": "yes",
+      "text_sha256": "2d3e728c0800e285a67bb8a998e4cc46003cee02a59ec141ee7256252cff8b3f",
+      "rank_md5": "046cdc598d2948f6cb4a8f05bc24c478"
+    },
+    {
+      "case_id": "persius-test-9283",
+      "row_index": 9283,
+      "gold": "yes",
+      "text_sha256": "d139f60c783196ed90bbb81f3ab9b49a2017bfda249c10046fe98545b51106bb",
+      "rank_md5": "047e3b59fec62bba9a392cf40372f91c"
+    },
+    {
+      "case_id": "persius-test-7448",
+      "row_index": 7448,
+      "gold": "yes",
+      "text_sha256": "7ec9682bf16d4ffc9aa22ff035ed4bc467ed27f69d26fd9f0e2465bd6e9c9452",
+      "rank_md5": "0497d4ccb0b21dbe37e57121ad58e389"
+    },
+    {
+      "case_id": "persius-test-3362",
+      "row_index": 3362,
+      "gold": "no",
+      "text_sha256": "fd67f33633dcb6d6cdb7e7933825339f6f14d35ed1b8bf89c30e1f94bbc9a5e6",
+      "rank_md5": "04a1bb58897c8a53b94775a9aac1ab71"
+    },
+    {
+      "case_id": "persius-test-7407",
+      "row_index": 7407,
+      "gold": "no",
+      "text_sha256": "5cf392979d157612afbf063e0a68cbc64d4a43d92b7fd70d89e18e6900871912",
+      "rank_md5": "04a39c561fa1aade496a7d17c7c448fe"
+    },
+    {
+      "case_id": "persius-test-8229",
+      "row_index": 8229,
+      "gold": "yes",
+      "text_sha256": "d5c56378ff990f83b29c9e99a9339872ddcf5229e0b6ad6e2100175ffdcb0ea5",
+      "rank_md5": "04b043befe07c7a3bb5653f44e7e750d"
+    },
+    {
+      "case_id": "persius-test-5957",
+      "row_index": 5957,
+      "gold": "yes",
+      "text_sha256": "d508e2e161739c6a1f31be9d51dfb38e78f340c3f2f7bb8f9f5a78c272b53697",
+      "rank_md5": "04b3552335a1408bc70f43040a3fe028"
+    },
+    {
+      "case_id": "persius-test-3943",
+      "row_index": 3943,
+      "gold": "yes",
+      "text_sha256": "5c52f6e2a71f1e8071580306aef234172d6fcc76d192749ee47a051cfa81ad69",
+      "rank_md5": "04b52377e7958fe976e6de2449e662c5"
+    },
+    {
+      "case_id": "persius-test-2592",
+      "row_index": 2592,
+      "gold": "yes",
+      "text_sha256": "d1d865ad0ce4895b5fae578657fae0853c921e85fad09138b3aaeda9d33d58e3",
+      "rank_md5": "04b526efd8caa628947fd33e9638468b"
+    },
+    {
+      "case_id": "persius-test-1403",
+      "row_index": 1403,
+      "gold": "yes",
+      "text_sha256": "de36dd5d5297fa0a8f3aea5bf8d086a1f83eef52af2944e02da3395574679125",
+      "rank_md5": "04c10fc8e272127a17ee62a6db93aa95"
+    },
+    {
+      "case_id": "persius-test-5005",
+      "row_index": 5005,
+      "gold": "yes",
+      "text_sha256": "31920edcde3167fe53605c477f00bc405bcb6124a1c9c818d3eebd179afd2fa6",
+      "rank_md5": "04c1b5b9fff8bdf63fe311e8964db2fd"
+    },
+    {
+      "case_id": "persius-test-7746",
+      "row_index": 7746,
+      "gold": "yes",
+      "text_sha256": "852471a3f1566f7eae96efeefe5bf9f827bac69076c412a2f1f27e1eff9acf3a",
+      "rank_md5": "04d382ca06224bba89dc4cbb7d8fbfb6"
+    },
+    {
+      "case_id": "persius-test-690",
+      "row_index": 690,
+      "gold": "yes",
+      "text_sha256": "164f3cb5bc7bf5589bdb2d72baf874d6eea156ffb8586f1e956f24c53d7a89c7",
+      "rank_md5": "04da10038a105e3a525b870916040930"
+    },
+    {
+      "case_id": "persius-test-8723",
+      "row_index": 8723,
+      "gold": "no",
+      "text_sha256": "d12b15d03fb230ada7c2b5d09a63dee87c0c7153f1edf4e39fc239b0d07df0b3",
+      "rank_md5": "04da6bd97c6786b69a218d69ce0369f2"
+    },
+    {
+      "case_id": "persius-test-4943",
+      "row_index": 4943,
+      "gold": "yes",
+      "text_sha256": "f84228e56f508e4b4818c1354ac9b255081cdd6c3de2801c3ad3c97acb82adc2",
+      "rank_md5": "04dd1b9f3da1bed9ee7d21fdeeff2188"
+    },
+    {
+      "case_id": "persius-test-4351",
+      "row_index": 4351,
+      "gold": "no",
+      "text_sha256": "45074f8180c680b5cb7a36dbcdb50d93e2d376484bc61090e2b88afef334a854",
+      "rank_md5": "04e2a76b13805a896e4522deab50f8da"
+    },
+    {
+      "case_id": "persius-test-1706",
+      "row_index": 1706,
+      "gold": "no",
+      "text_sha256": "dba37c905ee09d9ccfc591ed1f36b2e2728767dd693f9af6ab711ae9be7fb800",
+      "rank_md5": "04f0f20601f574ba050715962558ae13"
+    },
+    {
+      "case_id": "persius-test-4868",
+      "row_index": 4868,
+      "gold": "no",
+      "text_sha256": "b8ee6e0ce7d60a91aff64b9ec09b50165d703ffbf732c21cabccb40eaf6507be",
+      "rank_md5": "04f6af7abdc916d14e3e2eea9ba8a1af"
+    },
+    {
+      "case_id": "persius-test-1505",
+      "row_index": 1505,
+      "gold": "yes",
+      "text_sha256": "3847f3b57536f50af2f7281dd482c34ed214c98cbb2fa6bbb6c13c492d62d294",
+      "rank_md5": "04fda61626fc6c0950ae934465b9e81c"
+    },
+    {
+      "case_id": "persius-test-2189",
+      "row_index": 2189,
+      "gold": "no",
+      "text_sha256": "a3b732a4b5e821f270eb3dbabe1ce598cf2296e459dc4c9ca9e5b8f930ba80e7",
+      "rank_md5": "0507e5dc96b69be5ee17ef43a9ca8cf9"
+    },
+    {
+      "case_id": "persius-test-5312",
+      "row_index": 5312,
+      "gold": "no",
+      "text_sha256": "cc24add67196ead276af15556520cb96c035538bfee7484e3d07d5c5b1b67065",
+      "rank_md5": "05084cd4c949f963f6493cddb8f99e2a"
+    },
+    {
+      "case_id": "persius-test-3703",
+      "row_index": 3703,
+      "gold": "yes",
+      "text_sha256": "160f9f2d5df097e2a1f28a30c3280acb4415b5caf35a9c36d46bf4fe0b3db6af",
+      "rank_md5": "050e2c96ac305af7fe661796181cfd63"
+    },
+    {
+      "case_id": "persius-test-169",
+      "row_index": 169,
+      "gold": "yes",
+      "text_sha256": "73bcf5e202c0956b1743722e93461fd579a7a9dd0718736235ef2ab59eef5ecf",
+      "rank_md5": "051dd56bf2b4a16c69137793142f70d9"
+    },
+    {
+      "case_id": "persius-test-7164",
+      "row_index": 7164,
+      "gold": "no",
+      "text_sha256": "6656b6918f2732411c9dcb93c2aaebaea0f36193158a58ec469f071d32636fdb",
+      "rank_md5": "05227c41aca3d1221e26865372513ecd"
+    },
+    {
+      "case_id": "persius-test-3344",
+      "row_index": 3344,
+      "gold": "yes",
+      "text_sha256": "48210172180c25357db6f234843cd7deda909530bdbee109199ede75ec37fe77",
+      "rank_md5": "052f1571f115d7b68a04dcd7c53c5b10"
+    },
+    {
+      "case_id": "persius-test-4173",
+      "row_index": 4173,
+      "gold": "yes",
+      "text_sha256": "9dc028db1d7b0632e7b60ec98815fe52a47a580db6b0233a4a7dd4b893c6a14d",
+      "rank_md5": "0533bf26400196ad4aff7d8405487183"
+    },
+    {
+      "case_id": "persius-test-4483",
+      "row_index": 4483,
+      "gold": "no",
+      "text_sha256": "48678958064546a8b716cb1011175c9d6b852a6a4224f7a62e1c8a959d72cd3e",
+      "rank_md5": "0534d49249f6b366e340e2f2794442da"
+    },
+    {
+      "case_id": "persius-test-649",
+      "row_index": 649,
+      "gold": "yes",
+      "text_sha256": "40a89ce848227cfa43e0d74e977c12ba46655cfbeccbf7490bbea4a7dfa2df15",
+      "rank_md5": "05359e4504bb31c58ca4f65d704a7230"
+    },
+    {
+      "case_id": "persius-test-5529",
+      "row_index": 5529,
+      "gold": "no",
+      "text_sha256": "60410ae1c01210b4a4127d5fd1f52b1bd4f90b4a303ea2e56a09aa7a3f64eea6",
+      "rank_md5": "0539219b344ab9c4ba51794b4cdb9c34"
+    },
+    {
+      "case_id": "persius-test-9680",
+      "row_index": 9680,
+      "gold": "no",
+      "text_sha256": "ff12b8b1a9ee389a004940ffa829b1fd3ec2915749ada165365aa7488ca0021f",
+      "rank_md5": "055ad252f07cf2c2d2a22727001197ca"
+    },
+    {
+      "case_id": "persius-test-7708",
+      "row_index": 7708,
+      "gold": "yes",
+      "text_sha256": "06e8cd55b0841073103b2edecd095fdf20fa77ee728de91edde5bd13c06f95b8",
+      "rank_md5": "055be1f78c52613948ceb753a158cea3"
+    },
+    {
+      "case_id": "persius-test-257",
+      "row_index": 257,
+      "gold": "yes",
+      "text_sha256": "5905b77b0fc8353798bc7f254e1bc4d52b5658f8a2d1a971aec50b283239aa46",
+      "rank_md5": "055c6d0179d87cb1aae7955dc4fc0dab"
+    },
+    {
+      "case_id": "persius-test-838",
+      "row_index": 838,
+      "gold": "yes",
+      "text_sha256": "8f97bc7cf85eebf89fc8a10d650cd821e3b8861da63083a378f6e63fe430bd4a",
+      "rank_md5": "05629bf44abc7f15ad5298dfd9102a6c"
+    },
+    {
+      "case_id": "persius-test-7029",
+      "row_index": 7029,
+      "gold": "yes",
+      "text_sha256": "0ee4e3f5bad2885fafdfb32170493c2615c02276ad31d559fc64aa2572a374e3",
+      "rank_md5": "0562aef3897e3ec03307394dbc0aa57a"
+    },
+    {
+      "case_id": "persius-test-246",
+      "row_index": 246,
+      "gold": "no",
+      "text_sha256": "36ca3d386a0ab74ad94fab7cbf5c5c656be1d8c4fa22e12a28a20826cac1cdf4",
+      "rank_md5": "056d05ba362cf95aec86edcefb39b88b"
+    },
+    {
+      "case_id": "persius-test-6018",
+      "row_index": 6018,
+      "gold": "no",
+      "text_sha256": "007dca0e70cb13a79c9fee96939a15ceb0cb167ea8d8bf167e528bdfe9fbf492",
+      "rank_md5": "057286d4e49c2eeb2657bec734206ace"
+    },
+    {
+      "case_id": "persius-test-475",
+      "row_index": 475,
+      "gold": "yes",
+      "text_sha256": "ac75aafe5733e8b87c0be8f7b6b3a35f6e7fb41d40da6e8c5a3e53fd3e48e87b",
+      "rank_md5": "057899db64a8d50eaf0ed5e151027e0b"
+    },
+    {
+      "case_id": "persius-test-3249",
+      "row_index": 3249,
+      "gold": "yes",
+      "text_sha256": "91184ce0cfb8e65fa4d59c1a49f144f1ac604cc669b40dc3fdd5da7445d12589",
+      "rank_md5": "057bf7f754e79d9ca5db80dbb7635cdd"
+    },
+    {
+      "case_id": "persius-test-9804",
+      "row_index": 9804,
+      "gold": "no",
+      "text_sha256": "b7c3850403b18d3fb6ecd700ae6b9f7df3a5b46c1b8aa60dafbff35cd1a6b348",
+      "rank_md5": "0585e2f8a48ad3afac4e42568b1117d0"
+    },
+    {
+      "case_id": "persius-test-7669",
+      "row_index": 7669,
+      "gold": "no",
+      "text_sha256": "43dc1c307655297d3c045dd14f65e2630655665f817f1a5659397a4d85b30690",
+      "rank_md5": "058cec4fa8c1ef54eefc9e008f166fb9"
+    },
+    {
+      "case_id": "persius-test-3252",
+      "row_index": 3252,
+      "gold": "yes",
+      "text_sha256": "62eb1dd2825287610c2a02447e91929aa4426f1a7318ce8eca80104bdfb96603",
+      "rank_md5": "058e9ba9d616c9864d559cb8712f54a8"
+    },
+    {
+      "case_id": "persius-test-2607",
+      "row_index": 2607,
+      "gold": "no",
+      "text_sha256": "aa8c1b3867f27bfcfc965754b8a1f6223bd5c51b4bfb8b48a275a11d24fcb035",
+      "rank_md5": "0593bda8a4a395e0a005662281866a6a"
+    },
+    {
+      "case_id": "persius-test-5234",
+      "row_index": 5234,
+      "gold": "yes",
+      "text_sha256": "d3382fd1260e4a69dc6bf8603e266cad2d0a4bcc6fbfbd132aa1eb0c240dee48",
+      "rank_md5": "05c17a326fd6dff719c510051cd9c294"
+    },
+    {
+      "case_id": "persius-test-525",
+      "row_index": 525,
+      "gold": "yes",
+      "text_sha256": "e01bfc99092e5541b885570fe36c11714d8317eac4e8df2a7d5b786a1642c7fa",
+      "rank_md5": "05ccb0702c7b1ae3f8f14a03f088f853"
+    },
+    {
+      "case_id": "persius-test-8874",
+      "row_index": 8874,
+      "gold": "yes",
+      "text_sha256": "a27e45a9afd86061b0aeb61fc0b276fa417c5f5aa49d5ea34e5971ef5a04b2e6",
+      "rank_md5": "05d05df438696174fbf66574a1fc473a"
+    },
+    {
+      "case_id": "persius-test-9497",
+      "row_index": 9497,
+      "gold": "yes",
+      "text_sha256": "15af7f7823684bab5707e28625169fe25f50c22798faaf6b3257d3b9d6c47514",
+      "rank_md5": "05ecf53dd427da20985025d4a401bc76"
+    },
+    {
+      "case_id": "persius-test-6762",
+      "row_index": 6762,
+      "gold": "yes",
+      "text_sha256": "a94d3220f4d77492f89a609e0df853575d6d40619e54dc7efeca4f3bca1adb52",
+      "rank_md5": "05f9a8c5cf2242c7dfc05859e987b308"
+    },
+    {
+      "case_id": "persius-test-6602",
+      "row_index": 6602,
+      "gold": "yes",
+      "text_sha256": "cbfea02e18833216303c431742c80387219a5d2795936eca2a313580c49ad37d",
+      "rank_md5": "060faf8d9574d3d4660f086e4bf2eab7"
+    },
+    {
+      "case_id": "persius-test-4296",
+      "row_index": 4296,
+      "gold": "yes",
+      "text_sha256": "86e4494b4322f205467266229a6a007f3ad73262b4648ccbef81513b88e23ad6",
+      "rank_md5": "061230cfa5599e0a5c3e079ee7e69c85"
+    },
+    {
+      "case_id": "persius-test-9527",
+      "row_index": 9527,
+      "gold": "yes",
+      "text_sha256": "d225ff4b5c1305ea439b1652e2553ed23701ab1d9db0d00bacc7cd7f8a5c62e5",
+      "rank_md5": "061939023a159a73397400f81ebd779f"
+    },
+    {
+      "case_id": "persius-test-8622",
+      "row_index": 8622,
+      "gold": "yes",
+      "text_sha256": "4de51a16baba9f19d5b76eeff69ead21da3f207d99b95c34c03b6071d6764752",
+      "rank_md5": "0635b7ef2c066933fd52095894fb0fab"
+    },
+    {
+      "case_id": "persius-test-5861",
+      "row_index": 5861,
+      "gold": "yes",
+      "text_sha256": "2c71815bb92f74795041379cc5a20cb8a6145170ce5f7a2f4032c48f1d01f9fb",
+      "rank_md5": "063e03d91a660d1bbdf85485efc638da"
+    },
+    {
+      "case_id": "persius-test-6936",
+      "row_index": 6936,
+      "gold": "yes",
+      "text_sha256": "64d8939ce5b78f7c58cb9edb13d12c5118196ec2e15588193d6c274bc1fd7070",
+      "rank_md5": "06460cc55ae6539d8fd6edad6c3f15e2"
+    },
+    {
+      "case_id": "persius-test-9213",
+      "row_index": 9213,
+      "gold": "yes",
+      "text_sha256": "6c4efbf6aa84333e382fa266da47ed269860a2c7223736e15cf9006bf55131eb",
+      "rank_md5": "0654cce0eeda15cb7a7739ac6e03e116"
+    },
+    {
+      "case_id": "persius-test-5306",
+      "row_index": 5306,
+      "gold": "yes",
+      "text_sha256": "645698eeea740fc83cfbd6ac18d18085a8fda067f8ded10baedbc13a543c5066",
+      "rank_md5": "0667301b20a3023d75ad6771b38cb8e5"
+    },
+    {
+      "case_id": "persius-test-7818",
+      "row_index": 7818,
+      "gold": "yes",
+      "text_sha256": "16a934bc0424d02cf7e51ecbc4eda8aefe16ccea30d5953043ea42397cb124bc",
+      "rank_md5": "067f79651bca365f36272447e954b664"
+    }
+  ],
+  "frozen_at": "2026-11-14T11:09:36Z",
+  "note": "Prefix of frozen stratified test sample. Gold is the label used to keep the classes balanced, not a model outcome."
+}

@@ -1,0 +1,13 @@
+{
+  "value": 6736.77,
+  "n": 100,
+  "source_run": "hard_test_gpt-subset",
+  "simulated": false,
+  "computed_at": "2026-11-14T12:45:54Z",
+  "caught_cents": 673677,
+  "gold_overcharge_cents": 673677,
+  "priced_lines": 3101,
+  "catch_rate": 1.0,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100-id subset. HARD-TEST-0002 and HARD-TEST-0004 are the earlier packed calls, reused rather than bought again."
+}

@@ -1,0 +1,299 @@
+{
+ "computed_at": "2026-11-14T10:19:03Z",
+ "split": "development",
+ "columns": {
+  "gpt": {
+   "n": 370,
+   "whole_case": 1.0,
+   "whole_k": 370,
+   "whole_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "decision": 1.0,
+   "decision_k": 370,
+   "decision_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "per_fact": 1.0,
+   "n_facts": 1446,
+   "scope": 1.0,
+   "missing_info": 1.0,
+   "evidence": 1.0,
+   "p50_ms": 9418.91274601221,
+   "p95_ms": 45165.17259500688,
+   "cost_total": 3.0793675,
+   "cost_per_1000": 8.322614864864864,
+   "calls_per_case": 1.0,
+   "escalated_qs": 0,
+   "flagged_cases": 0,
+   "errors": 0,
+   "by_decision": {
+    "criteria_unmet": {
+     "acc": 1.0,
+     "n": 122
+    },
+    "incomplete": {
+     "acc": 1.0,
+     "n": 125
+    },
+    "not_applicable": {
+     "acc": 1.0,
+     "n": 90
+    },
+    "criteria_met": {
+     "acc": 1.0,
+     "n": 33
+    }
+   },
+   "cost_per_1k_list": 6.25552972972973
+  },
+  "drex": {
+   "n": 370,
+   "whole_case": 1.0,
+   "whole_k": 370,
+   "whole_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "decision": 1.0,
+   "decision_k": 370,
+   "decision_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "per_fact": 1.0,
+   "n_facts": 1446,
+   "scope": 1.0,
+   "missing_info": 1.0,
+   "evidence": 1.0,
+   "p50_ms": 400.03063599579036,
+   "p95_ms": 1490.2999350451864,
+   "cost_total": 0.02062671,
+   "cost_per_1000": 0.05574786486486486,
+   "calls_per_case": 1.0,
+   "escalated_qs": 0,
+   "flagged_cases": 0,
+   "errors": 0,
+   "by_decision": {
+    "criteria_unmet": {
+     "acc": 1.0,
+     "n": 122
+    },
+    "incomplete": {
+     "acc": 1.0,
+     "n": 125
+    },
+    "criteria_met": {
+     "acc": 1.0,
+     "n": 33
+    },
+    "not_applicable": {
+     "acc": 1.0,
+     "n": 90
+    }
+   },
+   "vs_gpt_cost_ratio_list": 112.21110880019161
+  },
+  "drex_supp": {
+   "n": 748,
+   "whole_case": 1.0,
+   "whole_k": 748,
+   "whole_ci": [
+    0.994890413087012,
+    1.0
+   ],
+   "decision": 1.0,
+   "decision_k": 748,
+   "decision_ci": [
+    0.994890413087012,
+    1.0
+   ],
+   "per_fact": 1.0,
+   "n_facts": 3328,
+   "scope": 1.0,
+   "missing_info": 1.0,
+   "evidence": 1.0,
+   "p50_ms": 414.04580301605165,
+   "p95_ms": 2566.143569012638,
+   "cost_total": 0.04781283,
+   "cost_per_1000": 0.06392089572192514,
+   "calls_per_case": 1.0,
+   "escalated_qs": 0,
+   "flagged_cases": 0,
+   "errors": 0,
+   "by_decision": {
+    "criteria_met": {
+     "acc": 1.0,
+     "n": 374
+    },
+    "criteria_unmet": {
+     "acc": 1.0,
+     "n": 374
+    }
+   }
+  },
+  "hybrid": {
+   "n": 370,
+   "whole_case": 1.0,
+   "whole_k": 370,
+   "whole_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "decision": 1.0,
+   "decision_k": 370,
+   "decision_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "per_fact": 1.0,
+   "n_facts": 1446,
+   "scope": 1.0,
+   "missing_info": 1.0,
+   "evidence": 1.0,
+   "p50_ms": 400.03063599579036,
+   "p95_ms": 1490.2999350451864,
+   "cost_total": 0.02062671,
+   "cost_per_1000": 0.05574786486486486,
+   "calls_per_case": 1.0,
+   "escalated_qs": 0,
+   "flagged_cases": 0,
+   "errors": 0,
+   "by_decision": {
+    "criteria_unmet": {
+     "acc": 1.0,
+     "n": 122
+    },
+    "not_applicable": {
+     "acc": 1.0,
+     "n": 90
+    },
+    "incomplete": {
+     "acc": 1.0,
+     "n": 125
+    },
+    "criteria_met": {
+     "acc": 1.0,
+     "n": 33
+    }
+   },
+   "cost_per_1k_list": 0.05574786486486484
+  },
+  "checked": {
+   "n": 370,
+   "whole_case": 1.0,
+   "whole_k": 370,
+   "whole_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "decision": 1.0,
+   "decision_k": 370,
+   "decision_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "per_fact": 1.0,
+   "n_facts": 1446,
+   "scope": 1.0,
+   "missing_info": 1.0,
+   "evidence": 1.0,
+   "p50_ms": 10116.075348982122,
+   "p95_ms": 45713.16404797835,
+   "cost_total": 3.09999421,
+   "cost_per_1000": 8.37836272972973,
+   "calls_per_case": 2.0,
+   "escalated_qs": 0,
+   "flagged_cases": 0,
+   "errors": 0,
+   "by_decision": {
+    "criteria_unmet": {
+     "acc": 1.0,
+     "n": 122
+    },
+    "not_applicable": {
+     "acc": 1.0,
+     "n": 90
+    },
+    "incomplete": {
+     "acc": 1.0,
+     "n": 125
+    },
+    "criteria_met": {
+     "acc": 1.0,
+     "n": 33
+    }
+   },
+   "cost_per_1k_list": 6.311277594594601
+  },
+  "drexfin": {
+   "n": 370,
+   "whole_case": 1.0,
+   "whole_k": 370,
+   "whole_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "decision": 1.0,
+   "decision_k": 370,
+   "decision_ci": [
+    0.9897239900535413,
+    0.9999999999999998
+   ],
+   "per_fact": 1.0,
+   "n_facts": 1446,
+   "scope": 1.0,
+   "missing_info": 1.0,
+   "evidence": 1.0,
+   "p50_ms": 292.1454710303806,
+   "p95_ms": 427.2335100104101,
+   "cost_total": 0.02062671,
+   "cost_per_1000": 0.05574786486486486,
+   "calls_per_case": 1.0,
+   "escalated_qs": 0,
+   "flagged_cases": 0,
+   "errors": 0,
+   "by_decision": {
+    "criteria_unmet": {
+     "acc": 1.0,
+     "n": 122
+    },
+    "not_applicable": {
+     "acc": 1.0,
+     "n": 90
+    },
+    "incomplete": {
+     "acc": 1.0,
+     "n": 125
+    },
+    "criteria_met": {
+     "acc": 1.0,
+     "n": 33
+    }
+   }
+  }
+ },
+ "smart_uses": {
+  "deciding_record": {
+   "n": 80,
+   "agreement": 1.0,
+   "agree_k": 80,
+   "calls_per_case": 5.525,
+   "seconds_per_case": 6.470000000000001,
+   "cost_total": 0.026175209999999997,
+   "by_gold_kind": {
+    "criteria_unmet|agree": 20,
+    "absent|agree": 26,
+    "criteria_met|agree": 8,
+    "joint_unmet|agree": 6,
+    "scope|agree": 20
+   }
+  }
+ },
+ "spend": {
+  "router_usd": 3.0794,
+  "nace_usd": 0.1359
+ }
+}

@@ -1,0 +1,11 @@
+{
+  "value": 56.55,
+  "n": 7,
+  "source_run": "hard_dev_hybrid",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:52:33Z",
+  "stored_value": 78.76928571428572,
+  "list_cost_usd": 0.39585,
+  "stored_cost_usd": 0.551385,
+  "note": "Recomputed from recorded tokens at $2 input and $10 output per 1M. stored_value is the earlier $2.50/$15 estimate."
+}

@@ -1,0 +1,246 @@
+{
+  "status": "complete",
+  "note": "",
+  "computed_at": "2026-11-14T09:58:07Z",
+  "n_done": 2211,
+  "n_scored": 2211,
+  "n_agree": 1991,
+  "agreement": 0.900497512437811,
+  "agreement_by_kind": {
+    "joint_unmet": {
+      "n": 134,
+      "n_agree": 110
+    },
+    "absent": {
+      "n": 739,
+      "n_agree": 738
+    },
+    "criteria_met": {
+      "n": 243,
+      "n_agree": 196
+    },
+    "scope": {
+      "n": 536,
+      "n_agree": 536
+    },
+    "criteria_unmet": {
+      "n": 559,
+      "n_agree": 411
+    }
+  },
+  "simulated": false,
+  "total_cost_usd": 0.64711535,
+  "stuck": {
+    "n_stuck": 1435,
+    "reasons": [
+      {
+        "criterion": "Demonstrate continued documented compliance",
+        "role": "unknown",
+        "n": 65,
+        "pct_of_stuck": 0.04529616724738676
+      },
+      {
+        "criterion": "Demonstrate continued documented compliance",
+        "role": "unmet",
+        "n": 48,
+        "pct_of_stuck": 0.033449477351916376
+      },
+      {
+        "criterion": "Patient continues to meet all initial approval criteria",
+        "role": "unknown",
+        "n": 25,
+        "pct_of_stuck": 0.017421602787456445
+      },
+      {
+        "criterion": "Patient continues to meet all initial approval criteria",
+        "role": "unmet",
+        "n": 19,
+        "pct_of_stuck": 0.0132404181184669
+      },
+      {
+        "criterion": "The patient must be within the age range as recommended by the FDA label and indication",
+        "role": "unknown",
+        "n": 15,
+        "pct_of_stuck": 0.010452961672473868
+      },
+      {
+        "criterion": "The patient must be within the age range as recommended by the FDA label and indication",
+        "role": "unmet",
+        "n": 12,
+        "pct_of_stuck": 0.008362369337979094
+      },
+      {
+        "criterion": "The beneficiary does not meet approval criteria or have a diagnosis supported in the official Compendia OR The prescriber is requesting a dose > 50 mg twice daily OR The beneficiary has moderate or severe hepatic impairment OR The beneficiary requires either a strong CYP3A inhibitor or strong CYP3A inducer and a dose modification may be needed for use with a moderate CYP3A inhibitor or moderate CYP3A inducer OR The beneficiary has two non-missense variants OR The beneficiary has seen no benefit",
+        "role": "unknown",
+        "n": 8,
+        "pct_of_stuck": 0.005574912891986063
+      },
+      {
+        "criterion": "Allergy to the preferred medications OR Contraindication or drug to drug interaction with the preferred medications OR History of unacceptable side effects OR Medical necessity of lower strength dosages for post-operative pain relief OR Therapeutic failure with a one-week trial with one preferred medication",
+        "role": "unknown",
+        "n": 7,
+        "pct_of_stuck": 0.004878048780487805
+      },
+      {
+        "criterion": "Diagnosis of amyotrophic lateral sclerosis (ALS)",
+        "role": "unknown",
+        "n": 7,
+        "pct_of_stuck": 0.004878048780487805
+      },
+      {
+        "criterion": "Patient is 18 years of age or older",
+        "role": "unknown",
+        "n": 7,
+        "pct_of_stuck": 0.004878048780487805
+      },
+      {
+        "criterion": "Patient must continue to meet initial approval criteria",
+        "role": "unknown",
+        "n": 7,
+        "pct_of_stuck": 0.004878048780487805
+      },
+      {
+        "criterion": "Children\u2019s Hospital of Philadelphia Infant Test of Neuromuscular Disorders (CHOP- INTEND) OR Motor Function Measure Score (MFM-32) OR Revised Upper Limb Module (RULM) OR Hammersmith Infant Neurological Examination Module 2 (HINE-2) OR Hammersmith Functional Motor Scale Expanded (HFMSE) OR Bayley Scales of Infant and Toddler Development, Third Addition (BSID-III or Bayley-III)",
+        "role": "unknown",
+        "n": 6,
+        "pct_of_stuck": 0.004181184668989547
+      },
+      {
+        "criterion": "Patient met initial review criteria",
+        "role": "unknown",
+        "n": 6,
+        "pct_of_stuck": 0.004181184668989547
+      },
+      {
+        "criterion": "Patient met initial review criteria",
+        "role": "unmet",
+        "n": 6,
+        "pct_of_stuck": 0.004181184668989547
+      },
+      {
+        "criterion": "Dosing is appropriate as per labeling or is supported by compendia",
+        "role": "unknown",
+        "n": 6,
+        "pct_of_stuck": 0.004181184668989547
+      }
+    ]
+  },
+  "documents": {
+    "method": "counterfactual_fact_true",
+    "counterfactual": true,
+    "simulated": false,
+    "note": "Each figure is the code decision if that one recorded fact were true and every other recorded fact stayed as Drex answered it. It is not a second model call.",
+    "n_stuck_considered": 1435,
+    "n_need_more_than_one_document": 439,
+    "n_patients_one_document_would_approve": 996,
+    "ranked": [
+      {
+        "criterion": "Demonstrate continued documented compliance",
+        "patients": 48
+      },
+      {
+        "criterion": "Allergy to the preferred medications",
+        "patients": 20
+      },
+      {
+        "criterion": "Contraindication or drug to drug interaction with the preferred medications",
+        "patients": 20
+      },
+      {
+        "criterion": "History of unacceptable side effects",
+        "patients": 20
+      },
+      {
+        "criterion": "Patient continues to meet all initial approval criteria",
+        "patients": 18
+      },
+      {
+        "criterion": "The patient must be within the age range as recommended by the FDA label and indication",
+        "patients": 14
+      },
+      {
+        "criterion": "A positive sputum test for eosinophilic phenotype asthma with sputum eosinophil level \u2265 3%",
+        "patients": 11
+      },
+      {
+        "criterion": "Claims data that reflect a continual reliance on oral corticosteroid therapy in the last 90 days",
+        "patients": 11
+      }
+    ],
+    "bundles": [
+      {
+        "n_documents": 1,
+        "patients": 48,
+        "criteria": [
+          "Demonstrate continued documented compliance"
+        ],
+        "label": "counterfactual"
+      },
+      {
+        "n_documents": 3,
+        "patients": 86,
+        "criteria": [
+          "Demonstrate continued documented compliance",
+          "History of unacceptable side effects",
+          "Patient continues to meet all initial approval criteria"
+        ],
+        "label": "counterfactual"
+      },
+      {
+        "n_documents": 5,
+        "patients": 111,
+        "criteria": [
+          "Demonstrate continued documented compliance",
+          "History of unacceptable side effects",
+          "Patient continues to meet all initial approval criteria",
+          "The patient must be within the age range as recommended by the FDA label and indication",
+          "Claims data that reflect a continual reliance on oral corticosteroid therapy in the last 90 days"
+        ],
+        "label": "counterfactual"
+      }
+    ],
+    "greedy": [
+      {
+        "criterion": "Demonstrate continued documented compliance",
+        "additional_patients": 48,
+        "cumulative_patients": 48
+      },
+      {
+        "criterion": "History of unacceptable side effects",
+        "additional_patients": 20,
+        "cumulative_patients": 68
+      },
+      {
+        "criterion": "Patient continues to meet all initial approval criteria",
+        "additional_patients": 18,
+        "cumulative_patients": 86
+      },
+      {
+        "criterion": "The patient must be within the age range as recommended by the FDA label and indication",
+        "additional_patients": 14,
+        "cumulative_patients": 100
+      },
+      {
+        "criterion": "Claims data that reflect a continual reliance on oral corticosteroid therapy in the last 90 days",
+        "additional_patients": 11,
+        "cumulative_patients": 111
+      },
+      {
+        "criterion": "The prescriber is requesting a dose > 50 mg twice daily",
+        "additional_patients": 8,
+        "cumulative_patients": 119
+      },
+      {
+        "criterion": "Revised Upper Limb Module (RULM)",
+        "additional_patients": 7,
+        "cumulative_patients": 126
+      },
+      {
+        "criterion": "Approvable for postmenopausal woman with a diagnosis of advanced hormone receptor-positive, HER2-negative breast cancer in combination with exemestane (Aromasin) after failure of treatment with letrozole (Femara) or anastrozole (Arimidex)",
+        "additional_patients": 7,
+        "cumulative_patients": 133
+      }
+    ]
+  },
+  "stuck_source": "queue"
+}

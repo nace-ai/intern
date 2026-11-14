@@ -1,0 +1,7 @@
+{
+  "value": 0.59,
+  "n": 100,
+  "source_run": "data/runs/ladder_pa_openai__gpt-5.4-mini.jsonl",
+  "simulated": false,
+  "computed_at": "2026-11-14T14:15:25Z"
+}

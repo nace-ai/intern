@@ -1,0 +1,11 @@
+{
+  "value": 14822.99,
+  "n": 100,
+  "source_run": "hard_test_drex-finance-subset",
+  "simulated": false,
+  "computed_at": "2026-11-14T13:49:01Z",
+  "wrongly_disputed_cents": 1482299,
+  "priced_lines": 3101,
+  "added_after_first_results": true,
+  "note": "Added after the first results. Scored from recorded answers. No new model call. Frozen 100 ids from the recorded 300-case answers. No new model call."
+}

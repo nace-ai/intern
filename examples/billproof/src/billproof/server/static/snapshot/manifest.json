@@ -1,0 +1,4117 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "method": "GET",
+      "path": "/api/cc/policies",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "cc/policies.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cc/presets",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "cc/presets.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cc/queue/stream",
+      "query": "full=1&speed=500",
+      "status": 200,
+      "kind": "sse",
+      "file": "cc/queue/stream__full-1_speed-500.sse.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/cc/summary",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "cc/summary.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/demo/numbers",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "demo/numbers.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/intern/session/20261114T185657Z",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "intern/session/20261114T185657Z.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/intern/session/20261114T195537Z",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "intern/session/20261114T195537Z.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/intern/sessions",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "intern/sessions.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa-browser",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "pa-browser.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D1",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D1/page/packet/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D1/page/packet/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D1/page/policy/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D1/page/policy/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D2",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D2/page/packet/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D2/page/packet/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D2/page/policy/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D2/page/policy/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D3",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D3/page/packet/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D3/page/packet/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D3/page/policy/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D3/page/policy/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D4",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D4/page/packet/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D4/page/packet/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D4/page/policy/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D4/page/policy/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D5",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D5/page/packet/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D5/page/packet/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/PA-D5/page/policy/1.png",
+      "query": "",
+      "status": 200,
+      "kind": "binary",
+      "content_type": "image/png",
+      "file": "pa/PA-D5/page/policy/1.png"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pa/cases",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/cases.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-all_ruled_out",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-all_ruled_out.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-future_date",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-future_date.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-historical_date",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-historical_date.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-nothing_documented",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-nothing_documented.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_queue/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/dial",
+      "query": "",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_queue/dial.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/dial",
+      "query": "escalate=deepinfra",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_queue/dial__escalate-deepinfra.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_queue/dial",
+      "query": "escalate=qwen",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_queue/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-all_ruled_out",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-all_ruled_out.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-future_date",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-future_date.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-historical_date",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-historical_date.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-nothing_documented",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-nothing_documented.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_rule_change/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/dial",
+      "query": "",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_rule_change/dial.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/dial",
+      "query": "escalate=deepinfra",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_rule_change/dial__escalate-deepinfra.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_rule_change/dial",
+      "query": "escalate=qwen",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_rule_change/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-all_ruled_out",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-all_ruled_out.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_chronic_respiratory_disease_arising_pe__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_persistent_fetal_circulation_last_365__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-diagnosis_pulmonary_heart_disease_last_365__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-future_date",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-future_date.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-historical_date",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-historical_date.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-nothing_documented",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/case/pa1-ar-medicaid-pa-criteria-148819a05a549d16-nothing_documented.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/cc_what_decides/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/dial",
+      "query": "",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_what_decides/dial.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/dial",
+      "query": "escalate=deepinfra",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_what_decides/dial__escalate-deepinfra.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/cc_what_decides/dial",
+      "query": "escalate=qwen",
+      "status": 404,
+      "kind": "json",
+      "file": "results/cc_what_decides/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/full_chain.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/case/PA-D1",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/full_chain/case/PA-D1.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/case/PA-D2",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/full_chain/case/PA-D2.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/case/PA-D3",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/full_chain/case/PA-D3.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/case/PA-D4",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/full_chain/case/PA-D4.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/case/PA-D5",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/full_chain/case/PA-D5.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/full_chain/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/dial",
+      "query": "",
+      "status": 404,
+      "kind": "json",
+      "file": "results/full_chain/dial.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/dial",
+      "query": "escalate=deepinfra",
+      "status": 404,
+      "kind": "json",
+      "file": "results/full_chain/dial__escalate-deepinfra.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/full_chain/dial",
+      "query": "escalate=qwen",
+      "status": 404,
+      "kind": "json",
+      "file": "results/full_chain/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0002",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0002.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0004",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0004.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0008",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0008.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0009",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0009.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0010",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0010.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0012",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0012.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0016",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0016.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0018",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0018.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0019",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0019.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/case/HARD-TEST-0023",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/case/HARD-TEST-0023.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.5",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.5.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.51",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.51.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.52",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.52.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.53",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.53.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.54",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.54.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.55",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.55.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.56",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.56.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.57",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.57.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.58",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.58.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.59",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.59.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.6",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.6.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.61",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.61.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.62",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.62.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.63",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.63.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.64",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.64.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.65",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.65.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.66",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.66.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.67",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.67.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.68",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.68.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.69",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.69.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.7",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.7.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.71",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.71.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.72",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.72.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.73",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.73.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.74",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.74.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.75",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.75.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.76",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.76.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.77",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.77.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.78",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.78.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.79",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.79.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.8",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.8.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.81",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.81.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.82",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.82.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.83",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.83.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.84",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.84.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.85",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.85.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.86",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.86.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.87",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.87.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.88",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.88.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.89",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.89.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.9",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.9.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.91",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.91.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.92",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.92.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.93",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.93.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.94",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.94.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.95",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.95.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.96",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.96.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.97",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.97.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.98",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.98.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=0.99",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-0.99.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/hard/dial",
+      "query": "escalate=qwen&t=1",
+      "status": 200,
+      "kind": "json",
+      "file": "results/hard/dial__escalate-qwen_t-1.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0002",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0002.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0004",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0004.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0008",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0008.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0009",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0009.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0010",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0010.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0012",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0012.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0016",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0016.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0018",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0018.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0019",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0019.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/case/HARD-TEST-0023",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/case/HARD-TEST-0023.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/ladder/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/dial",
+      "query": "",
+      "status": 404,
+      "kind": "json",
+      "file": "results/ladder/dial.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/dial",
+      "query": "escalate=deepinfra",
+      "status": 404,
+      "kind": "json",
+      "file": "results/ladder/dial__escalate-deepinfra.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/ladder/dial",
+      "query": "escalate=qwen",
+      "status": 404,
+      "kind": "json",
+      "file": "results/ladder/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-determined_least_one_f508del_mutation_cftr__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-determined_least_one_f508del_mutation_cftr__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-documented",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-documented.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-documented_baseline_liver_function_tests_alt__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-documented_baseline_liver_function_tests_alt__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-documented_baseline_liver_function_tests_alt__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-documented_baseline_liver_function_tests_alt__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-future_date",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-future_date.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-nothing_documented",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-nothing_documented.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-within_age_range_recommended_food_drug__missing",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-within_age_range_recommended_food_drug__missing.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-within_age_range_recommended_food_drug__opposite",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-within_age_range_recommended_food_drug__opposite.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-wrong_payer",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-wrong_payer.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-wrong_payer_with_gap",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/case/pa1-wv-medicaid-pa-criteria-000284089af44596-wrong_payer_with_gap.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.5",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.5.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.51",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.51.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.52",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.52.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.53",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.53.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.54",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.54.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.55",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.55.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.56",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.56.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.57",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.57.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.58",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.58.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.59",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.59.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.6",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.6.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.61",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.61.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.62",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.62.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.63",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.63.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.64",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.64.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.65",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.65.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.66",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.66.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.67",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.67.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.68",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.68.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.69",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.69.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.7",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.7.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.71",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.71.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.72",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.72.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.73",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.73.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.74",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.74.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.75",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.75.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.76",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.76.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.77",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.77.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.78",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.78.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.79",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.79.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.8",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.8.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.81",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.81.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.82",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.82.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.83",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.83.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.84",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.84.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.85",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.85.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.86",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.86.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.87",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.87.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.88",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.88.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.89",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.89.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.9",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.9.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.91",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.91.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.92",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.92.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.93",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.93.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.94",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.94.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.95",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.95.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.96",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.96.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.97",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.97.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.98",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.98.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=0.99",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-0.99.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/pa_criteria_gym/dial",
+      "query": "escalate=qwen&t=1",
+      "status": 200,
+      "kind": "json",
+      "file": "results/pa_criteria_gym/dial__escalate-qwen_t-1.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-1049",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-1049.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-107",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-107.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-1107",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-1107.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-1117",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-1117.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-1120",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-1120.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-125",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-125.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-1262",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-1262.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-1280",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-1280.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-1286",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-1286.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/case/persius-test-1298",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/case/persius-test-1298.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.5",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.5.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.51",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.51.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.52",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.52.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.53",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.53.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.54",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.54.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.55",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.55.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.56",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.56.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.57",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.57.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.58",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.58.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.59",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.59.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.6",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.6.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.61",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.61.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.62",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.62.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.63",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.63.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.64",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.64.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.65",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.65.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.66",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.66.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.67",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.67.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.68",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.68.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.69",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.69.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.7",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.7.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.71",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.71.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.72",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.72.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.73",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.73.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.74",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.74.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.75",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.75.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.76",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.76.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.77",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.77.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.78",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.78.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.79",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.79.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.8",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.8.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.81",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.81.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.82",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.82.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.83",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.83.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.84",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.84.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.85",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.85.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.86",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.86.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.87",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.87.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.88",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.88.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.89",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.89.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.9",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.9.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.91",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.91.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.92",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.92.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.93",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.93.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.94",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.94.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.95",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.95.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.96",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.96.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.97",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.97.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.98",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.98.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=0.99",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-0.99.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius/dial",
+      "query": "escalate=qwen&t=1",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius/dial__escalate-qwen_t-1.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-1049",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-1049.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-107",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-107.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-1107",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-1107.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-1117",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-1117.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-1120",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-1120.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-125",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-125.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-1262",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-1262.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-1280",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-1280.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-1286",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-1286.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/case/persius-test-1298",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/case/persius-test-1298.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/persius_combo/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/dial",
+      "query": "",
+      "status": 404,
+      "kind": "json",
+      "file": "results/persius_combo/dial.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/dial",
+      "query": "escalate=deepinfra",
+      "status": 404,
+      "kind": "json",
+      "file": "results/persius_combo/dial__escalate-deepinfra.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/persius_combo/dial",
+      "query": "escalate=qwen",
+      "status": 404,
+      "kind": "json",
+      "file": "results/persius_combo/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/summary",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/summary.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0061",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0061.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0062",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0062.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0063",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0063.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0064",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0064.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0065",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0065.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0066",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0066.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0067",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0067.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0068",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0068.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0069",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0069.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/case/SYN-0070",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/case/SYN-0070.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/cases",
+      "query": "offset=0&limit=50",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/cases__offset-0_limit-50.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "escalate=deepinfra",
+      "status": 404,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__escalate-deepinfra.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "escalate=qwen",
+      "status": 404,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__escalate-qwen.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.5",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.5.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.51",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.51.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.52",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.52.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.53",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.53.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.54",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.54.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.55",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.55.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.56",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.56.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.57",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.57.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.58",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.58.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.59",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.59.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.6",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.6.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.61",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.61.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.62",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.62.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.63",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.63.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.64",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.64.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.65",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.65.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.66",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.66.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.67",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.67.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.68",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.68.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.69",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.69.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.7",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.7.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.71",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.71.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.72",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.72.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.73",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.73.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.74",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.74.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.75",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.75.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.76",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.76.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.77",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.77.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.78",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.78.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.79",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.79.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.8",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.8.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.81",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.81.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.82",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.82.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.83",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.83.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.84",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.84.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.85",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.85.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.86",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.86.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.87",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.87.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.88",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.88.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.89",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.89.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.9",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.9.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.91",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.91.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.92",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.92.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.93",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.93.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.94",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.94.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.95",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.95.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.96",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.96.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.97",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.97.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.98",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.98.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=0.99",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-0.99.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/results/synthetic_v1/dial",
+      "query": "t=1",
+      "status": 200,
+      "kind": "json",
+      "file": "results/synthetic_v1/dial__t-1.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D3",
+        "policy_id": "AR-20261018-b1945e2bfc",
+        "connective": "OR",
+        "off": []
+      },
+      "body_sha256": "0e2416759d34f74adbd91131045ebbe96a40f783aa8ca61fac23a2b24c2abe49",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__0e2416759d34.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D3",
+        "policy_id": "AR-20261018-b1945e2bfc",
+        "connective": "AND",
+        "off": []
+      },
+      "body_sha256": "1531bfc5e1432c29703740f712177b22df02fc40dcf28e59039725d45f61a410",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__1531bfc5e143.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D4",
+        "policy_id": "MI-20261012-269b8c4ab5",
+        "connective": "AND",
+        "off": []
+      },
+      "body_sha256": "64275e0d848ccd5d21acd24317423b41b45cae4c87577120c17c98b9e85518c8",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__64275e0d848c.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D2",
+        "policy_id": "MI-20261012-4371b79aa0",
+        "connective": "AND",
+        "off": []
+      },
+      "body_sha256": "6d168dc83b9e07335d90c4b55c7fb6b75e81267e2171e8cb47469043ca2acdd9",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__6d168dc83b9e.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D1",
+        "policy_id": "MI-20261012-3128700529",
+        "connective": "OR",
+        "off": []
+      },
+      "body_sha256": "74c2216031d8f1e0ee506aa585b8ea5e38683f69f7f6fcf42adfe852d5ca685a",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__74c2216031d8.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D1",
+        "policy_id": "MI-20261012-3128700529",
+        "connective": "AND",
+        "off": []
+      },
+      "body_sha256": "94e079977400fe72237563dc5ee251db1350c1745e7a2137838f680d7bc1bf49",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__94e079977400.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D4",
+        "policy_id": "MI-20261012-269b8c4ab5",
+        "connective": "OR",
+        "off": []
+      },
+      "body_sha256": "9b76fc7eb7f93c699f93f8a5eae226f31e20fcf76e04c6673049007ec614ccfb",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__9b76fc7eb7f9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D5",
+        "policy_id": "AR-20261018-148819a05a",
+        "connective": "AND",
+        "off": []
+      },
+      "body_sha256": "ae63c421a273a363cc5947e5a104aaff39266b05aa48d56e5d93287537fc8a15",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__ae63c421a273.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D5",
+        "policy_id": "AR-20261018-148819a05a",
+        "connective": "OR",
+        "off": []
+      },
+      "body_sha256": "b0c1f415b76525e60939abcb285e898d701e8bb1b6636028261579c046999bab",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__b0c1f415b765.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "",
+      "body": {
+        "source": "pa_whatif",
+        "case": "PA-D2",
+        "policy_id": "MI-20261012-4371b79aa0",
+        "connective": "OR",
+        "off": []
+      },
+      "body_sha256": "d60b91a2ab6dc08b2476a2ed2914b5497d95c0cd08d96a9a96638462e454e04d",
+      "status": 400,
+      "kind": "json",
+      "file": "cc/what_if__d60b91a2ab6d.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "stream=1",
+      "body": {
+        "preset": "drug_policy_or_to_and"
+      },
+      "body_sha256": "09fce6588efe35ae7eff3c7457dd27e94d3a5ba2f615cb0267ca6c32f5ed0e66",
+      "status": 200,
+      "kind": "sse",
+      "file": "cc/what_if__stream-1__09fce6588efe.sse.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "stream=1",
+      "body": {
+        "preset": "arkansas_not_documented_as_not_met"
+      },
+      "body_sha256": "ba56165f2a9aef1e0617080cadcee9a292b1325c07e3e5cff2b042f15d3fa281",
+      "status": 200,
+      "kind": "sse",
+      "file": "cc/what_if__stream-1__ba56165f2a9a.sse.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/cc/what_if",
+      "query": "stream=1",
+      "body": {
+        "preset": "policy_year_rollover"
+      },
+      "body_sha256": "e10f6cd975502e10288c0e52a54b3aeb8d40f9705cc2c83c336a2c96790ad422",
+      "status": 200,
+      "kind": "sse",
+      "file": "cc/what_if__stream-1__e10f6cd97550.sse.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "met"
+        }
+      },
+      "body_sha256": "1df66a2abe76d2eee07fbe467e8824c43000a8e1220f127bf77bc642bd4c5568",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__1df66a2abe76.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "not_met"
+        }
+      },
+      "body_sha256": "2d97f6b9935794be70742cb38033e7ddbea03d9b496f607369eda0eda1ec05b8",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__2d97f6b99357.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "missing"
+        }
+      },
+      "body_sha256": "3645916113e0eff904d641024746a850181275eba758dd72ca3b9a3dc2864812",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__3645916113e0.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "missing"
+        }
+      },
+      "body_sha256": "385e0adcf687a98545d489180f22dd6e90c962678f1ff89de50998faf4e041e9",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__385e0adcf687.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {},
+      "body_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__44136fa355b3.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "connective": "AND"
+      },
+      "body_sha256": "4743428974fd3b3b200ecc317f276f59888055cbff5c78c803bdd7ddc1debe56",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__4743428974fd.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "connective": "OR"
+      },
+      "body_sha256": "63f327eac419df54199419ee8c1d564f01be80660bf0e485361b42aeeb006617",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__63f327eac419.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "removed"
+        }
+      },
+      "body_sha256": "7b916fc35b5820c8d8f8a6e46dc1bd5366d9a7f2d5a3f641481c5fc2b09837a9",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__7b916fc35b58.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "met"
+        }
+      },
+      "body_sha256": "9ac43c42e587c8794b3c5d8b9e100e85afa8c5a2fe8fdfcfaf06f6c05a075fb4",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__9ac43c42e587.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "met"
+        }
+      },
+      "body_sha256": "9fc316091cb8743c220adcd124972f874603abc93ebebbc2119380fe5e20e344",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__9fc316091cb8.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "not_met"
+        }
+      },
+      "body_sha256": "c0e8ba4f8966e934931be7e98c8fe6dbad9a6f603ca3e1f8aa80848e9ab8ef93",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__c0e8ba4f8966.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "not_met"
+        }
+      },
+      "body_sha256": "c797b21d57e93f04bc203c520ad453acbc99df36561d6e1b75a74ed7240e76d3",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__c797b21d57e9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "missing"
+        }
+      },
+      "body_sha256": "df968d4096b96b8f6b913259c8ad89b4bc3d1dd0cf0a214451dcb884707f6a5c",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__df968d4096b9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "removed"
+        }
+      },
+      "body_sha256": "efaf506bf531169a7fdc2eb251eb2367fab7815f4799a16b5c5660c40dcaf306",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__efaf506bf531.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D1/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "removed"
+        }
+      },
+      "body_sha256": "f7b1ed4e0c06993e2d28184df665661fb05b0148c049d558283bcebef62a3035",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D1/whatif__f7b1ed4e0c06.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "met"
+        }
+      },
+      "body_sha256": "1df66a2abe76d2eee07fbe467e8824c43000a8e1220f127bf77bc642bd4c5568",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__1df66a2abe76.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "not_met"
+        }
+      },
+      "body_sha256": "2d97f6b9935794be70742cb38033e7ddbea03d9b496f607369eda0eda1ec05b8",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__2d97f6b99357.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "missing"
+        }
+      },
+      "body_sha256": "3645916113e0eff904d641024746a850181275eba758dd72ca3b9a3dc2864812",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__3645916113e0.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "missing"
+        }
+      },
+      "body_sha256": "385e0adcf687a98545d489180f22dd6e90c962678f1ff89de50998faf4e041e9",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__385e0adcf687.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {},
+      "body_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__44136fa355b3.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "connective": "AND"
+      },
+      "body_sha256": "4743428974fd3b3b200ecc317f276f59888055cbff5c78c803bdd7ddc1debe56",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__4743428974fd.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "connective": "OR"
+      },
+      "body_sha256": "63f327eac419df54199419ee8c1d564f01be80660bf0e485361b42aeeb006617",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__63f327eac419.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "met"
+        }
+      },
+      "body_sha256": "9ac43c42e587c8794b3c5d8b9e100e85afa8c5a2fe8fdfcfaf06f6c05a075fb4",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__9ac43c42e587.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "not_met"
+        }
+      },
+      "body_sha256": "c797b21d57e93f04bc203c520ad453acbc99df36561d6e1b75a74ed7240e76d3",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__c797b21d57e9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "removed"
+        }
+      },
+      "body_sha256": "efaf506bf531169a7fdc2eb251eb2367fab7815f4799a16b5c5660c40dcaf306",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__efaf506bf531.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D2/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "removed"
+        }
+      },
+      "body_sha256": "f7b1ed4e0c06993e2d28184df665661fb05b0148c049d558283bcebef62a3035",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D2/whatif__f7b1ed4e0c06.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "met"
+        }
+      },
+      "body_sha256": "1df66a2abe76d2eee07fbe467e8824c43000a8e1220f127bf77bc642bd4c5568",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__1df66a2abe76.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "not_met"
+        }
+      },
+      "body_sha256": "2d97f6b9935794be70742cb38033e7ddbea03d9b496f607369eda0eda1ec05b8",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__2d97f6b99357.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "missing"
+        }
+      },
+      "body_sha256": "3645916113e0eff904d641024746a850181275eba758dd72ca3b9a3dc2864812",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__3645916113e0.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "missing"
+        }
+      },
+      "body_sha256": "385e0adcf687a98545d489180f22dd6e90c962678f1ff89de50998faf4e041e9",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__385e0adcf687.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {},
+      "body_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__44136fa355b3.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "connective": "AND"
+      },
+      "body_sha256": "4743428974fd3b3b200ecc317f276f59888055cbff5c78c803bdd7ddc1debe56",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__4743428974fd.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "connective": "OR"
+      },
+      "body_sha256": "63f327eac419df54199419ee8c1d564f01be80660bf0e485361b42aeeb006617",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__63f327eac419.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "met"
+        }
+      },
+      "body_sha256": "9ac43c42e587c8794b3c5d8b9e100e85afa8c5a2fe8fdfcfaf06f6c05a075fb4",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__9ac43c42e587.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "not_met"
+        }
+      },
+      "body_sha256": "c797b21d57e93f04bc203c520ad453acbc99df36561d6e1b75a74ed7240e76d3",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__c797b21d57e9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "removed"
+        }
+      },
+      "body_sha256": "efaf506bf531169a7fdc2eb251eb2367fab7815f4799a16b5c5660c40dcaf306",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__efaf506bf531.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D3/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "removed"
+        }
+      },
+      "body_sha256": "f7b1ed4e0c06993e2d28184df665661fb05b0148c049d558283bcebef62a3035",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D3/whatif__f7b1ed4e0c06.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R4": "removed"
+        }
+      },
+      "body_sha256": "04eb8deaae34ae276d7eb61193d435dd03b0b5f576e4441c548b3ee2f798305d",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__04eb8deaae34.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R4": "not_met"
+        }
+      },
+      "body_sha256": "07196d8b5e8003aa5651eabf3aabe87333eb6764f39f08b4f860445c9c282b74",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__07196d8b5e80.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "met"
+        }
+      },
+      "body_sha256": "1df66a2abe76d2eee07fbe467e8824c43000a8e1220f127bf77bc642bd4c5568",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__1df66a2abe76.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "not_met"
+        }
+      },
+      "body_sha256": "2d97f6b9935794be70742cb38033e7ddbea03d9b496f607369eda0eda1ec05b8",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__2d97f6b99357.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "missing"
+        }
+      },
+      "body_sha256": "3645916113e0eff904d641024746a850181275eba758dd72ca3b9a3dc2864812",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__3645916113e0.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "missing"
+        }
+      },
+      "body_sha256": "385e0adcf687a98545d489180f22dd6e90c962678f1ff89de50998faf4e041e9",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__385e0adcf687.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {},
+      "body_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__44136fa355b3.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "connective": "AND"
+      },
+      "body_sha256": "4743428974fd3b3b200ecc317f276f59888055cbff5c78c803bdd7ddc1debe56",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__4743428974fd.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "connective": "OR"
+      },
+      "body_sha256": "63f327eac419df54199419ee8c1d564f01be80660bf0e485361b42aeeb006617",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__63f327eac419.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R4": "met"
+        }
+      },
+      "body_sha256": "726e3f2cd8c98f88e1b294d1de0dcddecf60776a177e3822e14717074267f86e",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__726e3f2cd8c9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "removed"
+        }
+      },
+      "body_sha256": "7b916fc35b5820c8d8f8a6e46dc1bd5366d9a7f2d5a3f641481c5fc2b09837a9",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__7b916fc35b58.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "met"
+        }
+      },
+      "body_sha256": "9ac43c42e587c8794b3c5d8b9e100e85afa8c5a2fe8fdfcfaf06f6c05a075fb4",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__9ac43c42e587.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "met"
+        }
+      },
+      "body_sha256": "9fc316091cb8743c220adcd124972f874603abc93ebebbc2119380fe5e20e344",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__9fc316091cb8.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "not_met"
+        }
+      },
+      "body_sha256": "c0e8ba4f8966e934931be7e98c8fe6dbad9a6f603ca3e1f8aa80848e9ab8ef93",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__c0e8ba4f8966.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "not_met"
+        }
+      },
+      "body_sha256": "c797b21d57e93f04bc203c520ad453acbc99df36561d6e1b75a74ed7240e76d3",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__c797b21d57e9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "missing"
+        }
+      },
+      "body_sha256": "df968d4096b96b8f6b913259c8ad89b4bc3d1dd0cf0a214451dcb884707f6a5c",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__df968d4096b9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "removed"
+        }
+      },
+      "body_sha256": "efaf506bf531169a7fdc2eb251eb2367fab7815f4799a16b5c5660c40dcaf306",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__efaf506bf531.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "removed"
+        }
+      },
+      "body_sha256": "f7b1ed4e0c06993e2d28184df665661fb05b0148c049d558283bcebef62a3035",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__f7b1ed4e0c06.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D4/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R4": "missing"
+        }
+      },
+      "body_sha256": "faaef48e26ad7ef861dc1ede39ed309a841b9e35e7eb5a3c7f1ce1a3265138c3",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D4/whatif__faaef48e26ad.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "met"
+        }
+      },
+      "body_sha256": "1df66a2abe76d2eee07fbe467e8824c43000a8e1220f127bf77bc642bd4c5568",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__1df66a2abe76.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "not_met"
+        }
+      },
+      "body_sha256": "2d97f6b9935794be70742cb38033e7ddbea03d9b496f607369eda0eda1ec05b8",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__2d97f6b99357.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "missing"
+        }
+      },
+      "body_sha256": "3645916113e0eff904d641024746a850181275eba758dd72ca3b9a3dc2864812",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__3645916113e0.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "missing"
+        }
+      },
+      "body_sha256": "385e0adcf687a98545d489180f22dd6e90c962678f1ff89de50998faf4e041e9",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__385e0adcf687.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {},
+      "body_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__44136fa355b3.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "connective": "AND"
+      },
+      "body_sha256": "4743428974fd3b3b200ecc317f276f59888055cbff5c78c803bdd7ddc1debe56",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__4743428974fd.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "connective": "OR"
+      },
+      "body_sha256": "63f327eac419df54199419ee8c1d564f01be80660bf0e485361b42aeeb006617",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__63f327eac419.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "removed"
+        }
+      },
+      "body_sha256": "7b916fc35b5820c8d8f8a6e46dc1bd5366d9a7f2d5a3f641481c5fc2b09837a9",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__7b916fc35b58.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "met"
+        }
+      },
+      "body_sha256": "9ac43c42e587c8794b3c5d8b9e100e85afa8c5a2fe8fdfcfaf06f6c05a075fb4",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__9ac43c42e587.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "met"
+        }
+      },
+      "body_sha256": "9fc316091cb8743c220adcd124972f874603abc93ebebbc2119380fe5e20e344",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__9fc316091cb8.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "not_met"
+        }
+      },
+      "body_sha256": "c0e8ba4f8966e934931be7e98c8fe6dbad9a6f603ca3e1f8aa80848e9ab8ef93",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__c0e8ba4f8966.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "not_met"
+        }
+      },
+      "body_sha256": "c797b21d57e93f04bc203c520ad453acbc99df36561d6e1b75a74ed7240e76d3",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__c797b21d57e9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R3": "missing"
+        }
+      },
+      "body_sha256": "df968d4096b96b8f6b913259c8ad89b4bc3d1dd0cf0a214451dcb884707f6a5c",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__df968d4096b9.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R2": "removed"
+        }
+      },
+      "body_sha256": "efaf506bf531169a7fdc2eb251eb2367fab7815f4799a16b5c5660c40dcaf306",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__efaf506bf531.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pa/PA-D5/whatif",
+      "query": "",
+      "body": {
+        "records": {
+          "R1": "removed"
+        }
+      },
+      "body_sha256": "f7b1ed4e0c06993e2d28184df665661fb05b0148c049d558283bcebef62a3035",
+      "status": 200,
+      "kind": "json",
+      "file": "pa/PA-D5/whatif__f7b1ed4e0c06.json"
+    }
+  ]
+}
