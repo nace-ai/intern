@@ -633,7 +633,7 @@ class Bootstrap:
             )
         if system2.profile.vision:
             vision_line = HOST_VISION_LINE if isinstance(read, ReadTool) and not read.attach_images else VISION_LINE
-            instructions = instructions.model_copy(update={"system": f"{instructions.system}\n{vision_line}"})
+            instructions = instructions.model_copy(update={"system": f"{instructions.system}\n\n{vision_line}"})
         deps = EngineDeps(
             system2=system2,
             tools=tools,

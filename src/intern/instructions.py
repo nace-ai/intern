@@ -43,6 +43,11 @@ class PinnedDoc(BaseModel):
 class Instructions(BaseModel):
     system: str
     pinned: list[PinnedDoc]
+    # Where and when the session runs. Not part of `system`: a provider reads a prompt from its cache only as far as
+    # it is the same as an earlier one, and this line differs by folder and by day. Inside the system prompt it made
+    # every session in a new folder pay for the tools and the prompt again (Anthropic's cache mark sits after it, and
+    # DeepSeek's template puts the tools after it); it is sent with the pinned instructions, after both.
+    environment: str = ""
     # SYSTEM1.md: what System 1 reads after the session in every ask about the run. Never a project's file: a
     # repository anyone can write must not speak for the user to the guard (Claude Code's auto mode reads its allow
     # rules from user settings only, for the same reason).
@@ -96,4 +101,4 @@ class FileInstructions:
                 if path.is_file() and path.resolve() not in seen:
                     seen.add(path.resolve())
                     pinned.append(PinnedDoc(source=str(path), content=path.read_text().strip()))
-        return Instructions(system=f"{base}\n\n{environment_line(cwd)}", pinned=pinned, system1=system1)
+        return Instructions(system=base, environment=environment_line(cwd), pinned=pinned, system1=system1)
