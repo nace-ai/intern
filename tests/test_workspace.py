@@ -100,6 +100,24 @@ def test_documents_become_pages_sections_and_tables(tmp_path: Path):
     assert not (tmp_path / ".decision_workspace" / "derived" / "p.csv.md").exists()
 
 
+def test_a_pdf_keeps_its_running_header_and_footer_once_and_every_page_its_body(tmp_path: Path):
+    pymupdf = pytest.importorskip("pymupdf")
+    doc = pymupdf.open()
+    for n in range(1, 6):
+        page = doc.new_page()
+        page.insert_text((72, 30), "ACME Corp  Annual report 2023", fontsize=9)
+        page.insert_text((72, 80), "Date  Account  Amount", fontsize=11)  # a table's header, on each page it spans
+        page.insert_text((72, 100), f"2023-0{n}-01  4410  {n * 100}.00", fontsize=11)
+        page.insert_text((280, 820), f"Page {n} of 5", fontsize=9)
+    doc.save(tmp_path / "ledger.pdf")
+
+    pdf = build(tmp_path).files["ledger.pdf"]
+    pages = wi.pages_of((tmp_path / ".decision_workspace" / "derived" / "ledger.pdf.md").read_text())
+    assert pages[0].startswith("ACME Corp") and pages[0].endswith("Page 1 of 5")
+    assert pages[2] == "Date Account Amount\n2023-03-01 4410 300.00"
+    assert [c.summary for c in pdf.chunks if c.kind == "page"][1:] == ["Date Account Amount"] * 4
+
+
 def test_a_table_of_any_size_and_a_latin1_export_with_a_title_row_are_indexed(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(wi, "MAX_FILE_BYTES", 100)  # the journal stands in for a gigabyte one
     (tmp_path / "journal.csv").write_text("je,amount\n" + "".join(f"J{n},{n}\n" for n in range(200)))

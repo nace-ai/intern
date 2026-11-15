@@ -14,6 +14,7 @@ import json
 import os
 import re
 import statistics
+from collections import Counter
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
@@ -51,6 +52,14 @@ SCAN_COVER = 0.5
 TILT_MAX = 40
 #: Pages of a PDF without an outline are offered in windows of this many, so a choice has few candidates.
 PAGE_WINDOW = 10
+#: A line in the top or bottom EDGE of a page (a header at half an inch, not a body under a margin of an inch or
+#: three quarters) that is there on RUNNING_SHARE of a PDF's pages, and RUNNING_MIN of them, digits aside, is a
+#: running header or footer: kept on the first page that has it, cut from the rest, where it is every page's first
+#: line (the summary System 1 tells pages apart by). Alternating left and right headers are each on half the pages.
+EDGE = 0.07
+RUNNING_SHARE = 0.4
+RUNNING_MIN = 3
+_DIGITS = re.compile(r"\d+")
 #: Rows of a table its text rendering shows.
 HEAD_ROWS = 20
 #: Tables wider than this get column types only, not ranges and distinct counts.
@@ -246,18 +255,23 @@ class PdfProcessor:
         import pymupdf
 
         pages: list[str] = []
+        edges: list[set[str]] = []  # each page's margin lines, digits aside (none for a scan)
         scanned = recognized = 0
         ocr = PageOcr(path, workspace)
         with pymupdf.open(path) as doc:
             for page in doc:
-                words = page.get_text("words")
-                text = lines([(float(w[0]), float(w[1]), float(w[2]), float(w[3]), str(w[4])) for w in words])
+                found_words = page.get_text("words")
+                words = [(float(w[0]), float(w[1]), float(w[2]), float(w[3]), str(w[4])) for w in found_words]
+                text = lines(words)
+                margins = _margin_lines(words, float(page.rect.height))
                 if len(text.strip()) < OCR_MIN_CHARS:
-                    scanned += 1
+                    scanned, margins = scanned + 1, set()
                     if (found := ocr(page)) is not None:
                         text, recognized = found, recognized + 1
                 pages.append(text)
+                edges.append(margins)
             toc = [(int(level), str(title).strip(), int(page)) for level, title, page in doc.get_toc() if page >= 1]
+        pages = _without_running(pages, edges)
         # shortcut: a long section lists all its pages at one level; window them too when such PDFs show up.
         chunks = _sections(toc, len(pages)) if toc else _page_windows(len(pages))
         for n, text in enumerate(pages, 1):
@@ -273,6 +287,41 @@ class PdfProcessor:
             )
         summary = next((" ".join(text.split())[:160] for text in pages if text.strip()), "")
         return Derivative(unit="page", units=pages, chunks=chunks, summary=summary, note=note, derived=True)
+
+
+def _running_key(line: str) -> str:
+    """A line as it repeats from page to page: its page number and dates aside."""
+    return _DIGITS.sub("#", " ".join(line.split()))
+
+
+def _margin_lines(words: list[Box], height: float) -> set[str]:
+    """The lines of a page's top and bottom margins (`EDGE`), as `_running_key`s."""
+    middle = [((w[1] + w[3]) / 2, w) for w in words]
+    top = [w for y, w in middle if y < height * EDGE]
+    bottom = [w for y, w in middle if y > height * (1 - EDGE)]
+    return {_running_key(line) for band in (top, bottom) for line in lines(band).splitlines() if line.strip()}
+
+
+def _without_running(pages: list[str], edges: list[set[str]]) -> list[str]:
+    """The pages without their running headers and footers (`EDGE`), each kept on the first page that has it. Only a
+    page's first and last lines go, and only those in its own margins."""
+    counts = Counter(key for keys in edges for key in keys)
+    running = {key for key, n in counts.items() if n >= max(RUNNING_MIN, RUNNING_SHARE * len(pages))}
+    if not running:
+        return pages
+    seen: set[str] = set()
+    out = []
+    for text, keys in zip(pages, edges, strict=True):
+        cut = running & keys & seen
+        seen |= running & keys
+        rows = text.splitlines()
+        start, end = 0, len(rows)
+        while start < end and _running_key(rows[start]) in cut:
+            start += 1
+        while end > start and _running_key(rows[end - 1]) in cut:
+            end -= 1
+        out.append("\n".join(rows[start:end]))
+    return out
 
 
 def _sections(toc: list[tuple[int, str, int]], pages: int) -> list[Chunk]:
