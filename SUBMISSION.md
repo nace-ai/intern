@@ -8,7 +8,7 @@ Quorum is an adversarial evaluation lab for invoice-processing agents. The compl
 - [Arena report](projects/quorum/results/arena/report.md) and [experiment notes](projects/quorum/results/arena/NOTES.md)
 - [Separate 95-case benchmark](projects/quorum/backend/BENCHMARK.md)
 - [Seven-slide presentation](projects/quorum/results/presentation/Quorum-Pitch-7-Slides.pptx)
-- [3–4 minute presentation script and judge Q&A](projects/quorum/datasets/scripts/presentation-script.md)
+- [Two-minute presentation script and detailed judge Q&A](projects/quorum/datasets/scripts/presentation-script.md)
 - [Two-minute application demo script](projects/quorum/datasets/scripts/scripted-demo.md)
 
 ## Evidence
