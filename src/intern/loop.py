@@ -255,6 +255,8 @@ class Run:
         """The commands the agent handed over on at the last turn, in a quiet session: the run holds before the next."""
         self._waiting_limit: float | None = None
         """How long that hold lasts at most without news: STATUS_HOLD_S after status checks, else unbounded."""
+        self._waiting_looks = True
+        """Whether System 1's routine looks at what runs end that hold."""
         self.supervisor = Supervisor()
         self.guard = Guard(
             Scope.of(deps.cwd, deps.executor, Path.home(), system_writes=deps.system_writes),
@@ -345,25 +347,27 @@ class Run:
             self.control.waiting = False
             await join_tasks(*waits, cancel=True)
 
-    def _handed_over(self, calls: list[ToolCall]) -> tuple[list[str], float | None]:
+    def _handed_over(self, calls: list[ToolCall]) -> tuple[list[str], float | None, bool]:
         """The commands the agent waits on, when its turn only waited on what still runs: polled (or listed) jobs,
         `bash` calls that went on in the background as waits (`sleep 300`), and, in a held run, status checks of
         what runs (`ps`, `tail` of its log). Waiting is the harness's, not the agent's. With how long to hold at most:
-        STATUS_HOLD_S for a turn with a status check, which may look at a server that never ends; else no limit. Empty
+        STATUS_HOLD_S for a turn with a status check, which may look at a server that never ends; else no limit. And
+        whether System 1's routine looks end the hold: not for a turn of waits only, which end by themselves. Empty
         for any other turn, or when a polled job has ended (the agent has its result to act on)."""
         jobs = self.deps.processes
         if jobs is None or not calls:
-            return [], None
+            return [], None, False
         running = {info.id: info.command for info in jobs.jobs_running()}
         others = [info.command for info in jobs.running() if info.kind != "call"]
         waited: list[str] = []
-        listed = checked = False
+        listed = checked = polled = False
         for call in calls:
             action = call.arguments.get("action")
             if call.name == "process" and action == "poll":
                 if (handle := str(call.arguments.get("handle", ""))) not in running:
-                    return [], None
+                    return [], None, False
                 waited.append(running[handle])
+                polled = True
             elif call.name == "process" and action == "list":
                 listed = True
             elif call.name == "bash" and (command := jobs.waiting_call(call.id)) is not None:
@@ -376,10 +380,10 @@ class Run:
                 waited.extend(others)
                 checked = True
             else:
-                return [], None
+                return [], None, False
         if not waited and listed:
             waited = list(running.values())
-        return list(dict.fromkeys(waited)), STATUS_HOLD_S if checked else None
+        return list(dict.fromkeys(waited)), STATUS_HOLD_S if checked else None, polled or listed or checked
 
     def _requests(self) -> list[str]:
         """What the user asked in this session: their messages only, never the harness's or the model's."""
@@ -539,7 +543,7 @@ class Run:
             if not isinstance(verdict, h.Stop) and self._waiting_on:
                 # The agent handed over: the run holds for news (a job's end, System 1's look, the user) instead.
                 self._waiting_on = []
-                await self._hold(handed_over=True, limit=self._waiting_limit)
+                await self._hold(handed_over=self._waiting_looks, limit=self._waiting_limit)
                 continue
             if isinstance(verdict, h.Stop):
                 # A steering message or a job's end that arrived during the final reply still gets an answer.
@@ -961,7 +965,9 @@ class Run:
             self.final_text = message.text
 
         results = await self._run_tools(message.tool_calls) if message.tool_calls else []
-        waiting_on, limit = self._handed_over(message.tool_calls) if not message.invalid_tool_calls else ([], None)
+        waiting_on, limit, looks = (
+            self._handed_over(message.tool_calls) if not message.invalid_tool_calls else ([], None, False)
+        )
         nudges: list[tuple[str, str]] = []
         if waiting_on and not self._answered and not self._urged and not self.control.hold:
             # It would hand the terminal UI's user the session back without a word since their message: first, once,
@@ -1036,7 +1042,7 @@ class Run:
             self._nudge(text, reason)
         if waiting_on and not nudges:
             self._waiting_on = waiting_on  # quiet: `_turns` holds for news before the next turn
-            self._waiting_limit = limit
+            self._waiting_limit, self._waiting_looks = limit, looks
         return h.Continue()
 
     async def _run_tools(self, calls: list[ToolCall]) -> list[ToolResult]:
