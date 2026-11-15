@@ -963,3 +963,14 @@ Fixes for background jobs; 0.30.0 clients keep working, and nothing a client sen
   to and answer from that. Before, it could answer "I can't tell" about a build whose output went to a log.
 - The terminal UI keeps one line per command for System 1's routine looks, updated at each look, where it added a
   line per look. A finding the agent is told still gets its own line.
+
+### 0.30.2
+
+A security fix; 0.30.1 clients keep working, and nothing a client sends or reads changed shape.
+
+- The harness's own keys are replaced with `[REDACTED]` in every tool's output when they come from the environment
+  or `~/.intern/.env`, as stored `[secrets]` values already were: a model provider's `api_key_env`, System 1's
+  `NACE_API_KEY` or `DREX_API_KEY`, and any variable the config names in a `*_env`, `header_env` or `env_refs`
+  setting. Before, a plain `env` printed System 1's key into the model's context, the journal and `tool_call_update`
+  content. Commands still get these variables, so a project's tests that need one keep working; only their printed
+  values are hidden.
