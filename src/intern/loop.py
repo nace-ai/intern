@@ -103,6 +103,7 @@ from intern.state_edits import parse as parse_state
 from intern.supervise import Supervisor
 from intern.tools.base import Tool, ToolContext, ToolOutput, fail
 from intern.tools.files import EditTool
+from intern.tools.shell import status_check
 
 _SAFE_NAME = re.compile(r"[^A-Za-z0-9_.-]")
 MIN_OUTPUT_TOKENS = 1_024
@@ -119,6 +120,7 @@ REPLY_RETRY_WAITS_S = (5.0, 20.0)
 # minute or two of 429s threw away runs that had hours of budget left.
 REPLY_WAIT_OUT_S = 30.0
 REPLY_WAIT_OUT_WINDOW_S = 1800.0
+STATUS_HOLD_S = 60.0
 
 CUT_OFF_NUDGE = "Your reply was cut off at the output limit. Continue exactly where it stopped."
 BUDGET_NUDGE = (
@@ -251,6 +253,8 @@ class Run:
         """The agent was told, since the user's latest message, to answer what does not depend on a job first."""
         self._waiting_on: list[str] = []
         """The commands the agent handed over on at the last turn, in a quiet session: the run holds before the next."""
+        self._waiting_limit: float | None = None
+        """How long that hold lasts at most without news: STATUS_HOLD_S after status checks, else unbounded."""
         self.supervisor = Supervisor()
         self.guard = Guard(
             Scope.of(deps.cwd, deps.executor, Path.home(), system_writes=deps.system_writes),
@@ -328,35 +332,54 @@ class Run:
     def _moved_running(self) -> bool:
         return self.control.hold and self.deps.processes is not None and bool(self.deps.processes.held_running())
 
-    async def _hold(self, *, handed_over: bool = False) -> None:
-        """Wait for news for the agent (a moved command's end among it) or an abort, the run kept open meanwhile. After
-        a hand-over, System 1's next look at what runs is news too."""
+    async def _hold(self, *, handed_over: bool = False, limit: float | None = None) -> None:
+        """Wait for news for the agent (a moved command's end among it) or an abort, the run kept open meanwhile, for
+        `limit` seconds at most. After a hand-over, System 1's next look at what runs is news too."""
         if self.control.news.is_set() or self.control.abort.is_set():
             return
         self.control.waiting = handed_over
         waits = [asyncio.create_task(self.control.news.wait()), asyncio.create_task(self.control.abort.wait())]
         try:
-            await asyncio.wait(waits, return_when=asyncio.FIRST_COMPLETED)
+            await asyncio.wait(waits, timeout=limit, return_when=asyncio.FIRST_COMPLETED)
         finally:
             self.control.waiting = False
             await join_tasks(*waits, cancel=True)
 
-    def _handed_over(self, calls: list[ToolCall]) -> list[str]:
-        """The commands the agent waits on, when its turn only polled (or listed) jobs that still run: waiting is the
-        harness's, not the agent's. Empty for any other turn, or when a polled job has ended (the agent has
-        its result to act on)."""
+    def _handed_over(self, calls: list[ToolCall]) -> tuple[list[str], float | None]:
+        """The commands the agent waits on, when its turn only waited on what still runs: polled (or listed) jobs,
+        `bash` calls that went on in the background as waits (`sleep 300`), and, in a held run, status checks of
+        what runs (`ps`, `tail` of its log). Waiting is the harness's, not the agent's. With how long to hold at most:
+        STATUS_HOLD_S for a turn with a status check, which may look at a server that never ends; else no limit. Empty
+        for any other turn, or when a polled job has ended (the agent has its result to act on)."""
         jobs = self.deps.processes
-        if jobs is None or not calls or any(c.name != "process" for c in calls):
-            return []
-        actions = [c.arguments.get("action") for c in calls]
-        if any(action not in ("poll", "list") for action in actions):
-            return []
+        if jobs is None or not calls:
+            return [], None
         running = {info.id: info.command for info in jobs.jobs_running()}
-        polled = [str(c.arguments.get("handle", "")) for c in calls if c.arguments.get("action") == "poll"]
-        if not polled:
-            return list(running.values())
-        waited = [running[handle] for handle in polled if handle in running]
-        return waited if len(waited) == len(polled) else []
+        others = [info.command for info in jobs.running() if info.kind != "call"]
+        waited: list[str] = []
+        listed = checked = False
+        for call in calls:
+            action = call.arguments.get("action")
+            if call.name == "process" and action == "poll":
+                if (handle := str(call.arguments.get("handle", ""))) not in running:
+                    return [], None
+                waited.append(running[handle])
+            elif call.name == "process" and action == "list":
+                listed = True
+            elif call.name == "bash" and (command := jobs.waiting_call(call.id)) is not None:
+                waited.append(command)
+            elif (
+                call.name == "bash"
+                and self.control.hold
+                and status_check(str(call.arguments.get("command", "")), others)
+            ):
+                waited.extend(others)
+                checked = True
+            else:
+                return [], None
+        if not waited and listed:
+            waited = list(running.values())
+        return list(dict.fromkeys(waited)), STATUS_HOLD_S if checked else None
 
     def _requests(self) -> list[str]:
         """What the user asked in this session: their messages only, never the harness's or the model's."""
@@ -516,7 +539,7 @@ class Run:
             if not isinstance(verdict, h.Stop) and self._waiting_on:
                 # The agent handed over: the run holds for news (a job's end, System 1's look, the user) instead.
                 self._waiting_on = []
-                await self._hold(handed_over=True)
+                await self._hold(handed_over=True, limit=self._waiting_limit)
                 continue
             if isinstance(verdict, h.Stop):
                 # A steering message or a job's end that arrived during the final reply still gets an answer.
@@ -938,7 +961,7 @@ class Run:
             self.final_text = message.text
 
         results = await self._run_tools(message.tool_calls) if message.tool_calls else []
-        waiting_on = self._handed_over(message.tool_calls) if not message.invalid_tool_calls else []
+        waiting_on, limit = self._handed_over(message.tool_calls) if not message.invalid_tool_calls else ([], None)
         nudges: list[tuple[str, str]] = []
         if waiting_on and not self._answered and not self._urged and not self.control.hold:
             # It would hand the terminal UI's user the session back without a word since their message: first, once,
@@ -1013,6 +1036,7 @@ class Run:
             self._nudge(text, reason)
         if waiting_on and not nudges:
             self._waiting_on = waiting_on  # quiet: `_turns` holds for news before the next turn
+            self._waiting_limit = limit
         return h.Continue()
 
     async def _run_tools(self, calls: list[ToolCall]) -> list[ToolResult]:
