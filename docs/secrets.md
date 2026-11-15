@@ -16,7 +16,8 @@ in `[secrets]`, and the harness does the rest:
 - it is replaced with `[REDACTED]` in what those commands print.
 
 Anything you don't put in the store works as before. `gh`, `npm` and `aws` keep their own logins, and exported
-variables still reach the agent.
+variables still reach the agent. The harness's own keys are redacted from what commands print even when they are
+exported or in `~/.intern/.env`, not stored.
 
 ## One secret
 

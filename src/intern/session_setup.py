@@ -60,6 +60,7 @@ from intern.providers.failover import (
     TargetConfig,
 )
 from intern.runners import LocalRunner, load_runner, runner_names
+from intern.secret_store import MIN_SECRET_CHARS
 from intern.secrets import (
     CommandBinding,
     CommandSecrets,
@@ -711,7 +712,11 @@ async def prepare_session(
             ) from None
     if models.budget is not None:
         deps.decisions.backend = BudgetDecisionBackend(deps.decisions.backend, models.budget)
-    redact = SecretRedactor(list(secret_store.values())).redact if secret_store else deps.redact
+    # The harness's own keys stay in commands' environment (a project's tests may need them), but their values never
+    # reach the model, the journal or a client, however a command prints them (`env`, a test's log, a crash dump).
+    own = [SecretStr(env[name]) for name in harness_only if len(env.get(name, "")) >= MIN_SECRET_CHARS]
+    values = [*(secret_store or {}).values(), *own]
+    redact = SecretRedactor(values).redact if values else deps.redact
     prepared = replace(deps, tools=tools, executor=executor, system2=system2, redact=redact, processes=manager)
     resolver = models.resolve if settings.system2_fallbacks or models.budget is not None else resolve_model
     return PreparedSession(prepared, resources, resolver, models.budget)

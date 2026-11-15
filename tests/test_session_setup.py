@@ -826,6 +826,25 @@ async def test_a_stored_key_the_harness_uses_itself_stays_out_of_the_agents_comm
         assert outputs(session)[0].startswith("[REDACTED]|unset")
 
 
+async def test_the_harness_keys_in_the_environment_reach_commands_but_never_their_output(tmp_path, monkeypatch):
+    # The leak this stops: a plain `env` printed System 1's own key into the model's context and the logs.
+    key = "drex-key-from-the-environment"
+    monkeypatch.setenv("DREX_API_KEY", key)
+    toml = '[capabilities]\ntool_packs = ["base"]\n'
+    replies = [
+        Reply(tool_calls=[("bash", {"command": "env | sort"})]),
+        Reply(tool_calls=[("bash", {"command": 'printf %s "$DREX_API_KEY" | wc -c'})]),
+        Reply(text="done"),
+    ]
+    async with configured(tmp_path, replies, toml, env={"DREX_API_KEY": key}) as (session, model, home, _):
+        await session.run("show me the environment")
+        dump, check = outputs(session)
+        assert "DREX_API_KEY=[REDACTED]" in dump and check.split()[0] == str(len(key))  # still there for commands
+        journal = json.dumps([entry.model_dump(mode="json") for entry in session.deps.journal.entries()])
+        assert key not in journal and key not in json.dumps(model.requests)
+        assert [path for path in home.rglob("*") if path.is_file() and key in path.read_text()] == []
+
+
 async def test_a_stored_secret_is_redacted_from_every_tool_not_only_the_command_that_got_it(tmp_path):
     fetch = tmp_path / "fetch"
     fetch.write_text("#!/bin/sh\nprintf stored-token-value\n")
