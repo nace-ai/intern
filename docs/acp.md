@@ -214,10 +214,11 @@ conversation, models, thinking level, window cap and usage totals) before it run
 
 A toggle switched on whose capability lacks its extra (`browser`, `code-search`, `workspace`, `mcp`) gets it
 installed first, into the environment the harness runs in, with uv's pip or else pip, then the capability's setup
-(`playwright install chromium` for the browser, which downloads Chromium once). The prompt waits for it, and the
-session gets agent message text saying what is being installed. `session/cancel` stops the install, the prompt
-answers `cancelled`, and the change stays pending for the next prompt. An install that fails leaves its toggle off
-as below, with the reason and the command to run by hand.
+(`playwright install chromium` for the browser, which downloads Chromium once). The prompt waits for it. Each install
+is a `tool_call` (kind `other`, title `Install the <extra> extra`, `in_progress`) whose content `tool_call_update`s
+say what is being installed, ending `completed`, or `failed` with the reason. `session/cancel` stops the install,
+the prompt answers `cancelled`, and the change stays pending for the next prompt. An install that fails leaves its
+toggle off as below, with the reason and the command to run by hand.
 
 A toggle switched on that still cannot switch on in this install and environment (the
 [`unavailable`](#model-catalog) reason: a missing search provider, or an extra that could not be installed) stays
@@ -974,3 +975,12 @@ A security fix; 0.30.1 clients keep working, and nothing a client sends or reads
   setting. Before, a plain `env` printed System 1's key into the model's context, the journal and `tool_call_update`
   content. Commands still get these variables, so a project's tests that need one keep working; only their printed
   values are hidden.
+
+### 0.30.3
+
+0.30.2 clients keep working; only how an install shows changed.
+
+- Installing a capability's missing extra when its toggle switches on is shown as a `tool_call` (kind `other`, title
+  `Install the <extra> extra`) instead of agent message text. Its content is what the install says as it goes, and it
+  ends `completed`, or `failed` with the reason (also when `session/cancel` stops it). Before, those lines landed in the
+  agent's reply.

@@ -34,8 +34,11 @@ from acp import (
     SetSessionConfigOptionResponse,
     SetSessionModeResponse,
     run_agent,
+    start_tool_call,
     stdio_streams,
-    update_agent_message_text,
+    text_block,
+    tool_content,
+    update_tool_call,
 )
 from acp.connection import StreamDirection, StreamEvent
 from acp.schema import (
@@ -44,6 +47,7 @@ from acp.schema import (
     ClientCapabilities,
     CloseSessionResponse,
     ConfigOptionUpdate,
+    ContentToolCallContent,
     EmbeddedResourceContentBlock,
     ForkSessionResponse,
     HttpMcpServer,
@@ -761,20 +765,28 @@ class AcpAgent:
         return needs if self._install is not None and needs is not None and needs.installable() else None
 
     async def _run_install(self, live: LiveSession, needs: Needs) -> bool:
-        """Install `needs` as a task `session/cancel` can stop, saying what it does as agent text. False when the
-        prompt was cancelled first; raises InstallFailed."""
+        """Install `needs` as a task `session/cancel` can stop, shown as one tool call whose content is what it says.
+        False when the prompt was cancelled first; raises InstallFailed."""
         assert self._install is not None
         if live.cancelled or self.stopping:
             return False
         run_install = self._install
+        call_id = f"install-{uuid.uuid4().hex}"
+        lines: list[str] = []
+
+        def content() -> list[ContentToolCallContent]:
+            return [tool_content(text_block("\n".join(lines)))] if lines else []
 
         async def say(line: str) -> None:
-            await self._send(live.id, update_agent_message_text(f"{line}\n\n"))
+            lines.append(line)
+            await self._send(live.id, update_tool_call(call_id, content=content()))
 
         async def run() -> None:
             async with self._installs:
                 await run_install(needs, say)
 
+        title = f"Install the {needs.extra} extra"
+        await self._send(live.id, start_tool_call(call_id, title, kind="other", status="in_progress"))
         task = asyncio.ensure_future(run())
         live.installing = task
         try:
@@ -783,8 +795,13 @@ class AcpAgent:
             live.installing = None
             task.cancel()  # a no-op once done; otherwise the prompt itself was cancelled
         if task.cancelled():
+            await self._send(live.id, update_tool_call(call_id, status="failed", content=content()))
             return False
-        task.result()
+        if (error := task.exception()) is not None:
+            lines.append(str(error))
+            await self._send(live.id, update_tool_call(call_id, status="failed", content=content()))
+            raise error
+        await self._send(live.id, update_tool_call(call_id, status="completed", content=content()))
         return True
 
     def _offered(self, toggle_id: str, on: bool) -> bool:

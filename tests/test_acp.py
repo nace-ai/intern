@@ -9,7 +9,7 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 
 import httpx
 import pytest
@@ -1308,7 +1308,21 @@ async def test_a_switch_on_installs_what_its_capability_lacks_before_the_reopen(
         "Installing the code-search extra failed: offline. By hand: uv pip install scipy. "
         "Code search stays off; the other capability changes applied"
     )
-    assert installed == ["browser"] and "Installing the browser extra…" in client.text()
+    assert installed == ["browser"] and "Installing the browser extra…" not in client.text()
+    # Each install is a tool call: what it says is its content, and it ends as the install did.
+    starts = client.of(ToolCallStart)
+    assert [(s.title, s.kind, s.status) for s in starts] == [
+        ("Install the browser extra", "other", "in_progress"),
+        ("Install the browser extra", "other", "in_progress"),
+        ("Install the code-search extra", "other", "in_progress"),
+    ]
+    ends = {u.tool_call_id: u for u in client.of(ToolCallProgress) if u.status is not None}
+    assert [ends[s.tool_call_id].status for s in starts] == ["failed", "completed", "failed"]
+    shown = [cast(TextContentBlock, item.content).text for item in ends[starts[2].tool_call_id].content or []]
+    assert shown == [
+        "Installing the code-search extra…\n"
+        "Installing the code-search extra failed: offline. By hand: uv pip install scipy"
+    ]
     assert len(opener.opened) == 2 and live.capabilities.browser.enabled and not live.capabilities.code_search.enabled
     assert (await agent.prompt(prompt=[text_block("browse")], session_id=sid)).stop_reason == "end_turn"
     await agent.aclose()
