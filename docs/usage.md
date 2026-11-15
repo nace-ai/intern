@@ -92,10 +92,10 @@ System 1 (`--system1`) answers the harness's small typed questions (choice, scor
 required: by default it is a decision model from the console (`drex-latest`, key in `$NACE_API_KEY`). A
 session that cannot set it up, or whose System 1 does not answer when it opens, is refused with the
 reason; there is no heuristic stand-in. An ask System 1 fails mid-run is retried with backoff for up to
-30 minutes, then the run stops with `system1_unavailable`. A model provider that keeps failing with retryable
-errors (rate limits, an overloaded server) is waited out the same way before the run stops with `provider_error`. `--system1 drex-max-v1.1` picks another
-console model; `--system1 decisions:<model>[,<fallback>...]` a decision model on the decisions API
-(OpenRouter: `~typesafe/jev-latest`, `nace-ai/drex-max`, ...; key in `$OPENROUTER_API_KEY`).
+30 minutes, then the run stops with `system1_unavailable`. A model provider that keeps failing with
+retryable errors (rate limits, an overloaded server) is waited out the same way before the run stops with
+`provider_error`. `--system1 drex-max-v1.1` picks another console model;
+`--system1 decisions:<model>[,<fallback>...]` a decision model on the decisions API (OpenRouter: `~typesafe/jev-latest`, `nace-ai/drex-max`, ...; key in `$OPENROUTER_API_KEY`).
 `intern models` lists every choice the console and the decisions API serve. The old names
 `--model`/`-m`, `--decider`, `model =` and `[decider]` still work.
 
