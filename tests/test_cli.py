@@ -181,8 +181,27 @@ def test_prompt_can_come_from_stdin(tmp_path: Path, work: Path):
             "--no-session", "--model", f"vllm/{MODEL}",
             env=env_for(server, tmp_path / "h"), cwd=work, stdin="hi",
         )  # fmt: skip
-        assert server.requests[0]["messages"][-1]["content"] == "hi"
+        assert server.requests[0]["messages"][-1]["content"].endswith("hi")
     assert result.returncode == 0
+
+
+def test_sessions_in_different_folders_send_the_same_tools_and_system_prompt(tmp_path: Path):
+    """A provider reads a prompt from its cache only as far as it matches an earlier one. With the working directory
+    and the date inside the system prompt, a session in a new folder paid for the tools and the prompt again; they
+    are sent after both, with the first message."""
+    sent = []
+    for name in ("alpha-folder", "beta-folder"):
+        (tmp_path / name).mkdir()
+        with FakeOpenAI([Reply(text="ok")]) as server:
+            result = cli(
+                "--no-session", "--model", f"vllm/{MODEL}", "hi",
+                env=env_for(server, tmp_path / "h"), cwd=tmp_path / name,
+            )  # fmt: skip
+            assert result.returncode == 0, result.stderr
+            sent.append(server.requests[0])
+    first, second = sent
+    assert first["messages"][0] == second["messages"][0] and first["tools"] == second["tools"]
+    assert "alpha-folder" in first["messages"][1]["content"] and "beta-folder" in second["messages"][1]["content"]
 
 
 def test_configuration_errors_exit_with_a_usage_code(tmp_path: Path, work: Path):

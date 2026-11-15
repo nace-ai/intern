@@ -336,6 +336,8 @@ def build_view(path: list[Entry], instructions: Instructions, meter: TokenMeter,
         _bounded(f"Instructions from {doc.source}:\n{doc.content}", pinned_limit, doc.source)
         for doc in instructions.pinned
     ]
+    if instructions.environment:  # after the instruction files: those are the same in every folder of a project
+        pinned.append(instructions.environment)
     memory = next((e for e in reversed(path) if isinstance(e, MemoryRecallEntry)), None)
     if memory is not None and memory.text:
         pinned.append(memory.text)
