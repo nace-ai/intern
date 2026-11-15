@@ -613,7 +613,7 @@ look; others keep working, and see one more prompt error.
 - There is no heuristic System 1. `--system1 heuristic` and a `system1` pick of `heuristic` are refused
   with "System 1 is required", and a config with `[system1] backend = "heuristic"` no longer loads. Nothing stands in for an
   answer: not for the supervisor, the guard, compaction's keep verdicts, memory recall or `decision_code`.
-- An ask System 1 fails is retried with backoff for about two minutes; still unanswered, the prompt fails
+- An ask System 1 fails is retried with backoff for up to 30 minutes; still unanswered, the prompt fails
   with [`system1_unavailable`](#stop-reasons-and-errors) (`-32603`). Before, a heuristic answered and, for
   the guard, the call went through unjudged.
 - `session/new` and `session/load` check that System 1 answers (up to 15 s of retries) and fail with

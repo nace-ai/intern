@@ -34,7 +34,7 @@ steward's asks and System 2's its writer's calls, and a line under the conversat
 (2 runs)`). A session of 1,700 journal entries opens in about 2 seconds; drawn whole, one widget at a time,
 it took over 2 minutes. On quit the UI prints the command that resumes the session
 (`intern --session ~/.intern/sessions/<stamp>-<id>.jsonl`). Every session has System 1 (a decision model from the console by default,
-see the README); a run whose System 1 stops answering ends with `system1_unavailable` after about two minutes of retries.
+see the README); a run whose System 1 stops answering ends with `system1_unavailable` after up to 30 minutes of retries.
 
 ## Layout
 

@@ -226,10 +226,12 @@ def _fits(question: Question, answer: Answer) -> bool:
 
 CACHE_SIZE = 500
 # A down System 1 is retried for this long, the wait doubling from the first delay up to the longest, before the
-# ask gives up; a restart or a rate-limit burst clears well within it.
-RETRY_WINDOW_S = 120.0
+# ask gives up. A restart or a rate-limit burst clears in seconds, but outages of System 1's service have lasted
+# tens of minutes, and two minutes ended runs that had hours of budget left; the run waits instead, since nothing
+# may answer in System 1's place.
+RETRY_WINDOW_S = 1800.0
 RETRY_FIRST_S = 1.0
-RETRY_LONGEST_S = 15.0
+RETRY_LONGEST_S = 30.0
 # The check a session opens with: fail at open, not minutes into the first turn.
 CHECK_WINDOW_S = 15.0
 CHECK = NoulQuestion(instructions="Is this a connectivity check?")
