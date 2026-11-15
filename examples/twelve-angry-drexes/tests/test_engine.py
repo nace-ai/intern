@@ -16,7 +16,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from engine import cases, config, drex, intern_runner, keenable, lawstore, lawwiki, mcp_server, ndi, net, replay, roles, server, slack_bridge, speech, trial  # noqa: E402
+from engine import cases, config, drex, intern_runner, keenable, lawstore, lawwiki, linkcheck, mcp_server, ndi, net, replay, roles, server, slack_bridge, speech, trial  # noqa: E402
 
 SECRET_ENV = ("NACE_API_KEY", "DREX_API_KEY", "DEEPINFRA_API_KEY", "TAD_USE_INTERN")
 CASE_IDS = [c["id"] for c in cases.all_cases()]
@@ -27,6 +27,7 @@ class OfflineCase(unittest.TestCase):
 
     def setUp(self) -> None:
         env = {k: v for k, v in os.environ.items() if k not in SECRET_ENV}
+        env["TAD_LINK_CHECK"] = "0"   # link checks ask real sites; the tests that cover them stand in for the network
         for patcher in (mock.patch.dict(os.environ, env, clear=True),
                         mock.patch("engine.net._open", side_effect=AssertionError("network call attempted")),
                         # the local LawWiki store is optional and 890 MB: these tests run as if it were absent
@@ -297,6 +298,75 @@ class TestSupport(OfflineCase):
         with mock.patch("engine.net._open", side_effect=urllib.error.URLError("offline")):
             self.assertIsNone(lawwiki.statute("CA/CIV/99999"))
             self.assertEqual(lawwiki.search("deposit", "CA"), [])
+
+    def test_statute_links_go_to_lawwiki_only_where_it_is_published(self) -> None:
+        self.assertEqual(lawwiki.link("CA/BPC/17200"), "https://www.lawwiki.ai/ca/bpc/17200")
+        self.assertEqual(lawwiki.link("TX/PE/31.03"), "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.31.htm#31.03")   # no Texas pages on LawWiki yet
+        self.assertEqual(lawwiki.link("NY/GBS/198-a"), "https://www.nysenate.gov/legislation/laws/GBS/198-A")
+        self.assertEqual(lawwiki.link("NY/ZZZ/9-b"), "https://www.nysenate.gov/legislation/laws/ZZZ/9-B")                  # no fixture: the rule
+        self.assertEqual(lawwiki.link("TX/XX/1.01"), "https://statutes.capitol.texas.gov/Docs/XX/htm/XX.1.htm#1.01")
+        self.assertEqual(lawwiki.url_for({"jurisdiction": "US", "code": "USC-17", "section": "501"}), "https://www.lawwiki.ai/us/usc-17/501")
+        seen = 0
+        for f in config.STATUTES_DIR.glob("*_*.json"):
+            if f.name.startswith("db_"):
+                continue
+            d = json.loads(f.read_text(encoding="utf-8"))
+            self.assertEqual("lawwiki.ai" in lawwiki.url_for(d), d["jurisdiction"] in lawwiki.PUBLISHED, f.name)
+            if d["jurisdiction"] not in lawwiki.PUBLISHED:   # the rule gives the same address as the record's own source
+                self.assertEqual(lawwiki.official_url(d["jurisdiction"], d["code"], d["section"]), d["source_url"], f.name)
+            seen += 1
+        self.assertGreater(seen, 200)
+        data = (ROOT / "mocks" / "lawwiki-data.js").read_text(encoding="utf-8")   # the screens carry the same addresses
+        self.assertNotIn("lawwiki.ai/tx/", data)
+        self.assertNotIn("lawwiki.ai/ny/", data)
+        self.assertEqual(mcp_server._brief(lawwiki.statute("TX/PE/31.03"), "x")["url"], lawwiki.link("TX/PE/31.03"))
+
+    @staticmethod
+    def _page(url: str, body: bytes = b"<html><title> Tex. Penal Code\n 31.03 </title></html>"):
+        resp = mock.MagicMock()
+        resp.__enter__.return_value = resp
+        resp.status, resp.read.return_value, resp.geturl.return_value = 200, body, url
+        return resp
+
+    def test_link_check_tells_live_dead_and_refused_pages_apart(self) -> None:
+        def opener(req, timeout):
+            u = req.full_url
+            if u.endswith("/ok"):
+                return self._page(u)
+            if u.endswith("/gone"):
+                raise urllib.error.HTTPError(u, 404, "Not Found", {}, None)
+            if u.endswith("/wall"):
+                raise urllib.error.HTTPError(u, 403, "Forbidden", {"cf-mitigated": "challenge"}, None)
+            raise urllib.error.URLError("offline")
+
+        linkcheck.forget()
+        self.addCleanup(linkcheck.forget)
+        with mock.patch("engine.net._open", side_effect=opener) as opened, mock.patch("engine.linkcheck.time.sleep"):
+            rows = linkcheck.check_many(["https://x.test/ok", "https://x.test/gone", "https://x.test/wall", "https://x.test/down", "ftp://x.test/a", "https://x.test/ok"])
+            again = linkcheck.check("https://x.test/gone")                      # a stored result: the site is not asked twice
+            self.assertEqual(opened.call_count, 5)                                # ok, gone, wall, down and its one retry
+        self.assertEqual([r["state"] for r in rows], ["ok", "dead", "unchecked", "dead", "dead"])
+        self.assertEqual((rows[0]["title"], rows[1]["status"], again["status"]), ("Tex. Penal Code 31.03", 404, 404))
+        self.assertIn("bot check: challenge", rows[2]["why"])
+        self.assertEqual(linkcheck.tally(rows), "5 links: 1 ok, 1 not checkable by code, 3 dead")
+
+    def test_slack_drops_the_address_of_a_dead_link_and_keeps_its_label(self) -> None:
+        def opener(req, timeout):
+            if "lawwiki.ai/tx/" in req.full_url:
+                raise urllib.error.HTTPError(req.full_url, 404, "Not Found", {}, None)
+            return self._page(req.full_url)
+
+        linkcheck.forget()
+        self.addCleanup(linkcheck.forget)
+        text = "• <https://www.lawwiki.ai/tx/pe/31.03|Tex. Penal Code § 31.03> and <https://www.lawwiki.ai/ca/civ/1950.5|Cal. Civ. Code § 1950.5>"
+        with mock.patch("engine.net._open", side_effect=opener):
+            out, rows = slack_bridge.checked(text)
+        self.assertEqual(out, "• Tex. Penal Code § 31.03 and <https://www.lawwiki.ai/ca/civ/1950.5|Cal. Civ. Code § 1950.5>")
+        self.assertEqual([(r["state"], r["status"]) for r in rows], [("dead", 404), ("ok", 200)])
+        with mock.patch.dict(os.environ, {"TAD_LINK_CHECK": "1"}), mock.patch("engine.net._open", side_effect=opener):
+            summary, _ = slack_bridge.sample("tx-theft")                         # a whole summary: every link asked, none dead
+        self.assertIn("<https://statutes.capitol.texas.gov/Docs/PE/htm/PE.31.htm#31.03|Tex. Penal Code § 31.03>", summary)
+        self.assertNotIn("lawwiki.ai/tx/", summary)
 
     def test_failed_ndi_call_falls_back_to_stored_fields(self) -> None:
         with mock.patch.dict(os.environ, {"NACE_API_KEY": "test-key"}), \

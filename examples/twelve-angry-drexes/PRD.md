@@ -14,7 +14,7 @@ This block is current. Sections 1 to 17 were written at 11:55; where they differ
 
 | Piece | State |
 |---|---|
-| Engine (`engine/`) | 53 tests pass offline. 7 of 7 cases run live end to end, no failures: about 182 Drex decisions in 28 requests, $0.006 to $0.009 per trial, 10 to 22 s |
+| Engine (`engine/`) | 56 tests pass offline. 7 of 7 cases run live end to end, no failures: about 182 Drex decisions in 28 requests, $0.006 to $0.009 per trial, 10 to 22 s |
 | Legal teams | 9 practice roles in 3 groups (corporate, intellectual property, real estate, consumer, employment, personal injury, family, criminal defense, prosecution). Drex picks the team at intake; the team sets the juror question, the standard of proof, the statute scope and the next-step options |
 | Statutes | Local store built from LawWiki's own snapshots: 400,952 sections (CA, FL, NY, TX, US Code), full-text search in 24 to 61 ms. 227 fixtures; 74 compared with database rows by MD5, all equal |
 | Cases | 7 invented cases in 5 jurisdictions; 6 PDFs and 1 photo as uploads; 1 real ruling (29 pages) |
@@ -141,7 +141,7 @@ Must have for the submission (P0)
 3. The courtroom page shows the transcript, 12 juror probabilities, the running vote, and the trace, updating as events arrive.
 4. Changing a fact re-runs the 12 jurors and shows the vote before and after.
 5. The ledger shows, for any decision: question, distribution, model version, request id, tokens, latency, cost, and the request body. Any decision can be replayed alone.
-6. Statute text comes from the LawWiki public API. Every cited section links to its LawWiki page.
+6. Statute text comes from the LawWiki public API. Every cited section links to its LawWiki page, or to the official source where LawWiki has not published the jurisdiction yet (Texas, New York).
 7. Every surface carries: "Legal information, not legal advice. A simulation, not a prediction."
 8. Cost and latency counters use measured values from the API response; simulated values are labeled.
 

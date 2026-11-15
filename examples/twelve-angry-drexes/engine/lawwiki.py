@@ -57,10 +57,34 @@ def search(q: str, jurisdiction: str | None = None, limit: int = 5, scope: list[
     return [h for h in body if isinstance(h, dict)][:limit] if isinstance(body, list) else []
 
 
+PUBLISHED = frozenset({"CA", "FL", "US"})
+"""Jurisdictions lawwiki.ai publishes. Texas and New York are loaded there but not published yet, so every page of
+theirs answers 404 (checked 2026-11-14 with tools/link_audit.py). Add a jurisdiction here when LawWiki publishes it."""
+
+
+def official_url(jur: str, code: str, sec: str) -> str | None:
+    """Address of a section on the official site LawWiki took the text from, for a record that does not carry one."""
+    if jur == "TX":
+        return f"https://statutes.capitol.texas.gov/Docs/{code.upper()}/htm/{code.upper()}.{sec.split('.')[0]}.htm#{sec}"
+    if jur == "NY":
+        return f"https://www.nysenate.gov/legislation/laws/{code.upper()}/{sec.upper()}"
+    return None
+
+
+def url_for(rec: dict) -> str:
+    """Public page for a statute record: its LawWiki page when LawWiki publishes the jurisdiction, else the official
+    source (the record's own `source_url`), so a link never points at a page LawWiki does not serve."""
+    jur, code, sec = str(rec["jurisdiction"]).upper(), str(rec["code"]), str(rec["section"])
+    lawwiki_page = rec.get("lawwiki_url") or f"https://www.lawwiki.ai/{jur.lower()}/{code.lower()}/{sec.lower()}"
+    if jur in PUBLISHED:
+        return lawwiki_page
+    return rec.get("source_url") or official_url(jur, code, sec) or lawwiki_page
+
+
 def link(key: str) -> str:
-    """Public LawWiki page for a statute key."""
+    """Public page for a statute key (see `url_for`)."""
     rec = _fixture(key)
-    if rec and rec.get("lawwiki_url"):
-        return rec["lawwiki_url"]
-    jur, code, sec = key.lower().split("/")
-    return f"https://www.lawwiki.ai/{jur}/{code}/{sec}"
+    if rec:
+        return url_for(rec)
+    jur, code, sec = key.split("/")
+    return url_for({"jurisdiction": jur, "code": code, "section": sec})

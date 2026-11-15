@@ -43,9 +43,9 @@
   .quick { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 14px; border-top: 1px solid var(--line); }
   .quick .btn { text-align: left; font-size: 13px; }
   .quick .btn[disabled] { opacity: 0.4; cursor: default; }
-  .paper { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; font-size: 13px; }
+  .paper { position: relative; overflow: hidden; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; font-size: 13px; }
   .paper.photo { transform: rotate(-0.6deg); }
-  .pl { display: grid; grid-template-columns: minmax(0, 1fr) auto 36px; gap: 10px; padding: 5px 0; border-bottom: 1px dotted var(--line); align-items: baseline; }
+  .pl { display: grid; grid-template-columns: minmax(0, 1fr) auto 36px; gap: 10px; padding: 5px 0; border-bottom: 1px dotted var(--line); align-items: baseline; min-height: 31px; box-sizing: border-box; }
   .pl span:first-child { color: var(--muted); } .pl span:first-child::first-letter, .ftab td:first-child::first-letter { text-transform: uppercase; }
   .pl mark { background: none; color: var(--text); font-family: var(--mono); padding: 0 3px; border-radius: 2px; transition: background-color 0.3s, box-shadow 0.3s; }
   .pl.hit mark { box-shadow: inset 0 -2px 0 var(--o2); }
@@ -55,6 +55,21 @@
   .steps li { display: grid; grid-template-columns: 62px minmax(0, 1fr) 150px 52px; gap: 8px; align-items: center; padding: 6px 14px; border-bottom: 1px solid var(--line); }
   .steps li:last-child { border-bottom: 0; }
   .steps .src { font-family: var(--mono); } .steps .lat { font: 11px var(--mono); color: var(--dim); text-align: right; }
+  /* A streamed replay: text arrives word by word, cards and the uploaded file fill line by line. */
+  .wait { display: none !important; }
+  .rise { animation: rise 0.3s ease-out; }
+  @keyframes rise { from { opacity: 0; } to { opacity: 1; } }
+  .typing::after { content: ""; display: inline-block; width: 6px; height: 0.9em; margin-left: 3px; vertical-align: -1px; background: var(--muted); animation: caret 0.9s steps(2, jump-none) infinite; }
+  @keyframes caret { from { opacity: 1; } to { opacity: 0.15; } }
+  .pl.blank { align-items: center; }
+  .pl.blank span:first-child, .pl.blank mark { display: block; height: 9px; padding: 0; border-radius: 2px; background: var(--raised); }
+  .pl.blank span:first-child { width: 48%; } .pl.blank:nth-child(odd) span:first-child { width: 36%; } .pl.blank mark { width: 88px; }
+  .pl.fresh { animation: flash 0.9s ease-out; }
+  .paper.scan::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--o2); animation: scan var(--scan, 950ms) linear forwards; }
+  @keyframes scan { from { top: 0; } to { top: 100%; } }
+  .topbar .stats { margin-left: auto; }   /* the numbers keep their side when the status text changes how the bar wraps */
+  .speed { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; } .speed[hidden] { display: none; }
+  .speed select { background: var(--inset, transparent); border: 1px solid var(--edge, var(--line)); border-radius: var(--radius); padding: 5px 6px; }
   @media (max-width: 1100px) { .intake { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 560px) { .steps li { grid-template-columns: 54px minmax(0, 1fr) 52px; } .steps li .res { display: none; } .lawrow { grid-template-columns: minmax(0, 1fr); } }
 </style>
@@ -70,7 +85,7 @@
   ui.content.classList.add("intake");
   ui.content.innerHTML = `
     <section class="panel">
-      <div class="panel-h"><h2># ask-the-jury</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="engine" type="button" hidden>Run on the engine</button><button class="btn" id="intern" type="button" hidden>Run through Intern</button><button class="btn" id="replay" type="button">Replay</button></span></div>
+      <div class="panel-h"><h2># ask-the-jury</h2><span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end"><label class="muted speed" id="pace">Speed <select id="speed"><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label><button class="btn" id="engine" type="button" hidden>Run on the engine</button><button class="btn" id="intern" type="button" hidden>Run through Intern</button><button class="btn" id="replay" type="button">Replay</button></span></div>
       <div class="msgs" id="msgs" aria-live="polite"></div>
       <div class="quick" id="quick"></div>
     </section>
@@ -78,14 +93,55 @@
       <section class="panel"><div class="panel-h"><h2>Uploaded file</h2><span class="chip model" id="via"></span></div><div class="panel-b" id="doc"></div></section>
       <section class="panel"><div class="panel-h"><h2>What Intern did</h2><a class="chip" id="toledger" href="03-trace-ledger.html">Open every decision</a></div><ol class="steps" id="steps"></ol></section>
     </div>`;
-  const $ = (id) => document.getElementById(id);
-  let player = null, run = null, lat = [], cost = 0, mini = null, miniNote = null, trialRow = null, wfRow = null, wfN = 0, state = {};
+  const $ = (id) => document.getElementById(id), box = $("msgs");
+  let run = null, lat = [], cost = 0, mini = null, miniNote = null, trialRow = null, wfRow = null, wfN = 0, state = {};
+
+  /* A replay streams at reading speed: Intern's text arrives word by word, and the cards and the uploaded file fill
+     line by line. Each event is shown at once instead with ?stream=0, with reduced motion, and in a run on the engine
+     or through Intern (those arrive at the engine's own pace). */
+  const STREAM = new URLSearchParams(location.search).get("stream") !== "0" && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const STOP = {};   // thrown inside a run once a newer run has replaced it
+  const WORD = 65;   // milliseconds for one word at 1x
+  let gen = 0;       // the run on screen: Replay, another case or an engine run starts the next one
+  const rate = () => +$("speed").value || 1;
+  function pacer(on) {
+    const g = ++gen;
+    return { on, async wait(ms) { if (!on) return; await new Promise((r) => setTimeout(r, ms / rate())); if (g !== gen) throw STOP; } };
+  }
+  $("pace").hidden = !STREAM;
+
+  /* The thread starts at its first message and follows the newest line. A reader who scrolls up keeps their place;
+     back at the end, it follows again. */
+  let follow = true;
+  box.addEventListener("scroll", () => { follow = box.scrollHeight - box.scrollTop - box.clientHeight < 32; });
+  new MutationObserver(() => { if (follow) box.scrollTop = box.scrollHeight; }).observe(box, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class"] });   // class: a hidden part of a card being shown
 
   function msg(name, initials, tag, html, bot) {
     const m = el("div", "msg" + (bot ? " bot" : ""), `<div class="av">${esc(initials)}</div><div><div class="mh"><b>${esc(name)}</b>${tag ? `<span class="chip">${esc(tag)}</span>` : ""}<span class="role"></span></div><div class="mt">${html}</div></div>`);
-    $("msgs").appendChild(m); $("msgs").scrollTop = $("msgs").scrollHeight; return m;
+    box.appendChild(m); return m;
   }
   const say = (html) => msg("Intern", "IN", "app", html, true).querySelector(".mt");
+  /* Add `html` to a message of Intern's. Streamed: a paragraph or a quote arrives word by word, any other block at once. */
+  async function write(t, html, x) {
+    if (!x.on) { t.insertAdjacentHTML("beforeend", html); return; }
+    for (const n of [...el("div", "", html).children]) {
+      t.appendChild(n);
+      if (n.tagName === "P" || n.classList.contains("quote")) await type(n, x); else { n.classList.add("rise"); await x.wait(260); }
+    }
+  }
+  async function type(p, x) {
+    const plan = [], walk = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+    while (walk.nextNode()) plan.push([walk.currentNode, walk.currentNode.nodeValue.match(/\s*\S+\s*|\s+/g) || []]);
+    plan.forEach(([n]) => { n.nodeValue = ""; });
+    p.querySelectorAll("*").forEach((n) => n.classList.add("wait"));   // a chip or a link appears with its first word
+    p.classList.add("typing");
+    try {
+      for (const [n, words] of plan) {
+        for (let a = n.parentNode; a !== p; a = a.parentNode) a.classList.remove("wait");
+        for (const w of words) { n.nodeValue += w; await x.wait(WORD); }
+      }
+    } finally { p.classList.remove("typing"); p.querySelectorAll(".wait").forEach((n) => n.classList.remove("wait")); }
+  }
   function stats() {
     const s = lat.slice().sort((a, b) => a - b);
     ui.stats([["Drex decisions", lat.length], ["Median latency", lat.length ? fmt.ms(s[Math.floor(s.length / 2)]) : "–"], ["Cost so far", fmt.usd(cost)]]);
@@ -100,72 +156,118 @@
   }
   function setMini(m, id, p) { const b = m.querySelector(`[data-id="${id}"]`); b.classList.toggle("yes", p >= 0.5); b.firstChild.style.height = p * 100 + "%"; }
 
-  function renderDoc(c) {
-    $("via").textContent = c.upload.via;
-    const lines = c.fields.map(([k, v, page]) => `<div class="pl" data-k="${k}"><span>${esc(k.replace(/_/g, " "))}</span><mark>${esc(v)}</mark><span class="pg">p. ${page}</span></div>`).join("");
+  /* The uploaded file. `unread`: the form before NDI has read it: ruled lines without a label, a value or a page. */
+  const line = (k) => $("doc").querySelector(`.pl[data-k="${k}"]`);
+  function renderDoc(c, unread) {
+    $("via").textContent = unread ? "NDI: not read yet" : c.upload.via;
+    const lines = c.fields.map(([k, v, page]) => (unread ? `<div class="pl blank" data-k="${k}"><span></span><mark></mark><span class="pg"></span></div>`
+      : `<div class="pl" data-k="${k}"><span>${esc(k.replace(/_/g, " "))}</span><mark>${esc(v)}</mark><span class="pg">p. ${page}</span></div>`)).join("");
     $("doc").innerHTML = `<div class="paper ${c.upload.kind === "image" ? "photo" : ""}"><div class="mono dim" style="margin-bottom:8px">${esc(c.upload.name)} · ${c.upload.pages} page${c.upload.pages > 1 ? "s" : ""} · ${c.upload.kind === "image" ? "photo taken on a phone" : "PDF"}</div>${lines}</div>
-      <p class="dim" style="font-size:12px;margin:10px 0 0">${c.ruling && c.ruling.real ? "A real published opinion: " + esc(c.ruling.cite) + "." : "An invented document."} Select a field in the thread to see where it was found.</p>`;
+      <p class="dim" id="docnote" style="font-size:12px;margin:10px 0 0"></p>`;
+    docNote(c, unread ? 0 : 2);
   }
+  function docNote(c, stage) {   // 0 not read yet, 1 being read, 2 read
+    $("docnote").textContent = (c.ruling && c.ruling.real ? "A real published opinion: " + c.ruling.cite + "." : "An invented document.")
+      + [" Intern has not read it yet.", " NDI is reading it.", " Select a field in the thread to see where it was found."][stage];
+  }
+  function fill([k, v]) { const n = line(k); n.classList.remove("blank"); n.classList.add("fresh"); n.children[0].textContent = k.replace(/_/g, " "); n.children[1].textContent = v; }
+  function locate([k, , page]) { const n = line(k); n.children[2].textContent = "p. " + page; n.classList.add("hit"); }
   function focusField(k) {
     document.querySelectorAll(".pl").forEach((n) => n.classList.toggle("focus", n.dataset.k === k));
     document.querySelectorAll(".ftab tr").forEach((n) => n.classList.toggle("on", n.dataset.k === k));
   }
 
-  function onEvent(e) {
+  /* Show one event of the run. `x` is the run's pacer: x.on streams it, x.wait(ms) is the time a reader gets. */
+  async function onEvent(e, x) {
     if (e.id.startsWith("intern.") || e.id === "mcp.call") { step(e); return; } // steps of the Intern harness: trace only
-    const c = run.case;
+    const c = run.case, n = c.fields.length, via = (text) => { if (x.on) $("via").textContent = text; };
     if (e.src === "drex") { lat.push(e.ms); cost += e.usd; stats(); }
     const inTrial = e.phase != null;
+    const late = x.on && (e.id === "parse" || e.id === "extract" || e.id === "ground");   // streamed: listed once its work has been shown
     if (e.id === "whatif_liable") { // 60 re-votes: one summary row, not 60
       wfN++; if (!wfRow) { wfRow = step({ src: "drex", text: "", ms: 0 }); wfRow.querySelector(".lat").textContent = ""; }
       wfRow.children[1].textContent = `What moves the vote: ${wfN} re-votes so far (${run.facts.length} facts x 12 jurors)`;
       if (miniNote) miniNote.textContent = "Vote counted. Testing which fact moves it";
-    } else if (!inTrial && e.id !== "verdict" && e.id !== "slack.reply") step(e);
-    if (e.id === "slack.message") say(`<p>Reading <span class="mono">${esc(c.upload.name)}</span>.</p>`);
-    else if (e.id === "image_has_instructions") say(`<p>The photo is legible. It contains no text addressed to me, so I treat it as a document only.</p>`);
-    else if (e.id === "ground") {
-      document.querySelectorAll(".pl").forEach((n) => n.classList.add("hit"));
-      const rows = c.fields.map(([k, v, page, conf]) => `<tr data-k="${k}" tabindex="0"><td>${esc(k.replace(/_/g, " "))}</td><td>${esc(v)}</td><td>p. ${page}</td><td>${fmt.p(conf)}</td></tr>`).join("");
-      const t = say(`<p>Here is what the file says. Each value links to the place it was found.</p><div class="card"><h3>Read from the file by NDI</h3><table class="ftab">${rows}</table></div>`);
-      t.querySelectorAll("tr").forEach((tr) => { tr.onclick = () => focusField(tr.dataset.k); tr.onkeydown = (ev) => { if (ev.key === "Enter") focusField(tr.dataset.k); }; });
+      await x.wait(22); return;
+    }
+    if (!inTrial && !late && e.id !== "verdict" && e.id !== "slack.reply") step(e);
+    if (e.id === "slack.message") {
+      await x.wait(1400);   // time to read the question
+      ui.live(true, "reading the file"); via("NDI: reading the file"); if (x.on) docNote(c, 1);
+      await write(say(""), `<p>Reading <span class="mono">${esc(c.upload.name)}</span>.</p>`, x); await x.wait(400);
+    } else if (e.id === "image_has_instructions") {
+      await write(say(""), `<p>The photo is legible. It contains no text addressed to me, so I treat it as a document only.</p>`, x); await x.wait(450);
+    } else if (e.id === "parse" && x.on) {   // a line sweeps the page while NDI parses it
+      const paper = $("doc").querySelector(".paper"); paper.style.setProperty("--scan", 950 / rate() + "ms"); paper.classList.add("scan");
+      await x.wait(950); paper.classList.remove("scan");
+      via(`NDI parse: ${c.upload.pages} page${c.upload.pages > 1 ? "s" : ""} read`); step(e); await x.wait(250);
+    } else if (e.id === "extract" && x.on) {   // the form fills, one field at a time
+      for (let k = 0; k < n; k++) { fill(c.fields[k]); via(`NDI extract: ${k + 1} of ${n} fields`); await x.wait(320); }
+      step(e); await x.wait(300);
+    } else if (e.id === "ground") {   // each row of the thread's table arrives with its line in the file: page number, underline, both lit
+      const t = say(""); await write(t, `<p>Here is what the file says. Each value links to the place it was found.</p>`, x);
+      const card = el("div", "card", `<h3>Read from the file by NDI</h3><table class="ftab"><tbody></tbody></table>`), rows = card.querySelector("tbody");
+      t.appendChild(card); await x.wait(250);
+      for (let k = 0; k < n; k++) {
+        const [key, v, page, conf] = c.fields[k];
+        const tr = el("tr", x.on ? "rise" : "", `<td>${esc(key.replace(/_/g, " "))}</td><td>${esc(v)}</td><td>p. ${page}</td><td>${fmt.p(conf)}</td>`);
+        tr.dataset.k = key; tr.tabIndex = 0; tr.onclick = () => focusField(key); tr.onkeydown = (ev) => { if (ev.key === "Enter") focusField(key); };
+        rows.appendChild(tr); locate(c.fields[k]);
+        if (x.on) { focusField(key); via(`NDI ground: ${k + 1} of ${n} located`); await x.wait(520); }
+      }
+      if (x.on) { await x.wait(350); focusField(null); via(c.upload.via); docNote(c, 2); step(e); await x.wait(450); }
     } else if (e.id === "asker_role") {
       const top = e.options[e.dist.indexOf(Math.max(...e.dist))];
-      const r = $("msgs").querySelector(".msg .role"); r.innerHTML = `<span class="chip model" title="Drex choice: asker_role">${esc(top)} ${fmt.p(Math.max(...e.dist))}</span>`;
+      const r = box.querySelector(".msg .role"); r.innerHTML = `<span class="chip model" title="Drex choice: asker_role">${esc(top)} ${fmt.p(Math.max(...e.dist))}</span>`;
+      ui.live(true, "choosing the legal team"); await x.wait(380);
     } else if (e.id === "role") {
       const r = e.result, flag = r.detected && r.detected.needs_person ? ' <span class="chip warn" style="white-space:normal">needs a person</span>' : "";
-      say(`<p><span class="chip model" style="white-space:normal" title="Drex choices: practice_group, practice_area">Legal team: ${esc(r.label)} · group ${esc(r.group)} · ${esc(TAD.roleSource(r))}</span>${flag}</p>
-        <p class="dim" style="font-size:12px">The jurors decide ${esc(r.finding)}, ${esc(r.burden)}. I advise the ${esc(r.side.toLowerCase())}. LawWiki is searched in ${esc(r.scope.join(", "))} (${esc(c.jurisdiction)}).</p>`);
+      await write(say(""), `<p><span class="chip model" style="white-space:normal" title="Drex choices: practice_group, practice_area">Legal team: ${esc(r.label)} · group ${esc(r.group)} · ${esc(TAD.roleSource(r))}</span>${flag}</p>
+        <p class="dim" style="font-size:12px">The jurors decide ${esc(r.finding)}, ${esc(r.burden)}. I advise the ${esc(r.side.toLowerCase())}. LawWiki is searched in ${esc(r.scope.join(", "))} (${esc(c.jurisdiction)}).</p>`, x);
+      ui.live(true, "searching the law"); await x.wait(500);
     } else if (e.id === "ruling_on_point") {
-      const d = run.events.find((x) => x.id === "ruling_disposition"), top = d.dist.indexOf(Math.max(...d.dist));
-      say(`<p>The ruling you attached: ${esc(d.options[top].toLowerCase())} (${fmt.p(d.dist[top])}). It bears on your question (${fmt.p(e.p)}), so the jury reads this passage from it.</p><div class="quote">${esc(c.ruling.excerpt)} <span class="dim">${esc(c.ruling.cite)}${c.ruling.real ? ". Real published opinion; text from " + esc(c.ruling.source) + "." : ""}</span></div>`);
+      const d = run.events.find((y) => y.id === "ruling_disposition"), top = d.dist.indexOf(Math.max(...d.dist));
+      await write(say(""), `<p>The ruling you attached: ${esc(d.options[top].toLowerCase())} (${fmt.p(d.dist[top])}). It bears on your question (${fmt.p(e.p)}), so the jury reads this passage from it.</p><div class="quote">${esc(c.ruling.excerpt)} <span class="dim">${esc(c.ruling.cite)}${c.ruling.real ? ". Real published opinion; text from " + esc(c.ruling.source) + "." : ""}</span></div>`, x);
+      await x.wait(600);
     } else if (e.id === "fetch") {
-      const hits = run.events.filter((x) => x.id === "statute_applies");
-      const rows = hits.map((h) => { const s = c.statutes.find((x) => x.key === h.cite); const n = el("div", "lawrow" + (h.p < 0.5 ? " out" : ""), `<div><a href="${s.url}" target="_blank" rel="noopener">${esc(s.citation)}</a><small>${esc(s.title)}</small></div>`); n.appendChild(TAD.pbar(h.p, true)); return n; });
-      const top = c.statutes[0];
-      const t = say(`<p>LawWiki returned ${hits.length} sections for ${c.jurisdiction}. Drex judged each one against your facts.</p><div class="card"><h3>Law that applies</h3><div class="cb"></div></div>`);
-      const cb = t.querySelector(".cb"); rows.forEach((n) => cb.appendChild(n));
-      if (top.excerpt) cb.appendChild(el("div", "quote", esc(top.excerpt) + ` <span class="dim">${esc(top.citation)}</span>`));
+      const hits = run.events.filter((y) => y.id === "statute_applies"), top = c.statutes[0];
+      const t = say(""); await write(t, `<p>LawWiki returned ${hits.length} sections for ${c.jurisdiction}. Drex judged each one against your facts.</p>`, x);
+      const card = el("div", "card", `<h3>Law that applies</h3><div class="cb"></div>`), cb = card.querySelector(".cb"); t.appendChild(card); await x.wait(250);
+      for (const h of hits) {
+        const s = c.statutes.find((y) => y.key === h.cite);
+        const row = el("div", "lawrow" + (h.p < 0.5 ? " out" : "") + (x.on ? " rise" : ""), `<div><a href="${s.url}" target="_blank" rel="noopener">${esc(s.citation)}</a><small>${esc(s.title)}</small></div>`);
+        row.appendChild(TAD.pbar(h.p, true)); cb.appendChild(row); await x.wait(500);
+      }
+      if (top.excerpt) { cb.appendChild(el("div", "quote" + (x.on ? " rise" : ""), esc(top.excerpt) + ` <span class="dim">${esc(top.citation)}</span>`)); await x.wait(700); }
     } else if (e.id === "next_argument" && e.phase === 0) {
-      const t = say(`<p>Seating 12 jurors. Each one reads the same file and law, then votes after every phase.</p>`);
+      const t = say(""); await write(t, `<p>Seating 12 jurors. Each one reads the same file and law, then votes after every phase.</p>`, x);
       mini = makeMini(); miniNote = el("div", "mono dim", "Opening"); t.append(mini, miniNote);
       trialRow = step({ src: "drex", text: "Trial: 4 phases, 12 jurors", ms: 0 }); trialRow.querySelector(".lat").textContent = "";
-      ui.live(true, "trial running");
-    } else if (e.id === "liable") {
+      ui.live(true, "trial running"); await x.wait(500);
+    } else if (e.id === "next_argument" && miniNote) {
+      miniNote.textContent = `${TAD.PHASES[e.phase]} · arguments`; await x.wait(600);
+    } else if (e.id === "speech") {
+      await x.wait(140);
+    } else if (e.id === "liable" && mini) {
       setMini(mini, e.agent, e.p); miniNote.textContent = `${TAD.PHASES[e.phase]} · vote in progress`;
-      trialRow.children[1].textContent = `Trial: phase ${e.phase + 1} of 4, ${lat.length} decisions so far`;
+      trialRow.children[1].textContent = `Trial: phase ${e.phase + 1} of 4, ${lat.length} decisions so far`; await x.wait(120);
     } else if (e.id === "verdict") {
-      miniNote.textContent = "Vote counted. Testing which fact moves it";
+      if (miniNote) miniNote.textContent = "Vote counted. Testing which fact moves it";
+      ui.live(true, "testing what moves the vote"); await x.wait(450);
     } else if (e.id === "next_steps") { // the final bot reply: result, the fact that moves the vote most, the suggested next step, then the disclaimer
-      const v = run.verdict, n = e.result, m = n.moves_most, fd = v.finding || "liable", crime = fd === "guilty"; miniNote.textContent = "All four phases done";
-      say(`<div class="card"><h3>Result of the simulated trial</h3><div class="cb">
+      const v = run.verdict, r = e.result, m = r.moves_most, fd = v.finding || "liable", crime = fd === "guilty"; if (miniNote) miniNote.textContent = "All four phases done";
+      const card = el("div", "card", `<h3>Result of the simulated trial</h3><div class="cb">
         <div class="big">${v.liable} to ${v.notLiable}</div><p><b>${esc(v.label)}.</b> ${crime ? "Verdict level" : "Award level"} the jurors chose most: ${esc(v.tier)}.</p>
         <dl class="kv"><dt>Mean probability of ${esc(fd)}</dt><dd>${fmt.p(v.mean)}</dd><dt>Spread across jurors</dt><dd>${fmt.p(v.sd)}</dd><dt>Jurors near 50/50</dt><dd>${v.undecided}</dd><dt>Decisions sent to a person</dt><dd>${run.totals.flagged} of ${run.totals.decisions}</dd></dl>
         ${m ? `<p style="margin-top:10px"><b>What moves the vote most:</b> ${esc(m.label)}. If it were ${m.on_now ? "not true" : "true"}, ${m.liable_if} of 12 jurors would find the ${esc(c.sides[1].toLowerCase())} ${esc(fd)} (${fmt.d(m.delta)} in the mean).</p>` : ""}
-        <p><b>Suggested next step:</b> ${esc(n.step)} <span class="mono">(${fmt.p(n.p_step)})</span>, for the ${esc(n.for_side.toLowerCase())}.${n.needs_person ? ' <span class="chip warn" style="white-space:normal">send to a person</span>' : ""}${n.proof_gap >= 0.5 ? ` A document the claim depends on may be missing (${fmt.p(n.proof_gap)}).` : ""}</p>
+        <p><b>Suggested next step:</b> ${esc(r.step)} <span class="mono">(${fmt.p(r.p_step)})</span>, for the ${esc(r.for_side.toLowerCase())}.${r.needs_person ? ' <span class="chip warn" style="white-space:normal">send to a person</span>' : ""}${r.proof_gap >= 0.5 ? ` A document the claim depends on may be missing (${fmt.p(r.proof_gap)}).` : ""}</p>
         <p style="margin-top:10px"><a class="btn primary" style="text-decoration:none;display:inline-block" href="02-live-courtroom.html#case=${c.id}">Open the courtroom</a></p>
-        <p class="dim" style="font-size:12px">Legal information, not legal advice. This shows how 12 model jurors vote on the facts you gave. It does not predict a real court.</p></div></div>`);
+        <p class="dim" style="font-size:12px">Legal information, not legal advice. This shows how 12 model jurors vote on the facts you gave. It does not predict a real court.</p></div>`);
+      const parts = x.on ? [...card.querySelector(".cb").children] : [];   // streamed: the card fills one part at a time
+      parts.forEach((p) => p.classList.add("wait")); say("").appendChild(card);
+      for (const p of parts) { p.classList.remove("wait"); p.classList.add("rise"); await x.wait(p.tagName === "DL" ? 900 : 600); }
     } else if (e.id === "slack.reply") { ui.live(false, "done"); quick(true); }
-    $("msgs").scrollTop = $("msgs").scrollHeight;
+    else if (!inTrial) await x.wait(Math.max(300, Math.min(700, e.ms * 1.5)));   // a step of the intake: time to read its line
   }
 
   function quick(enabled) {
@@ -176,7 +278,7 @@
     });
   }
   function whatIf(f, text) {
-    const c = run.case, before = run.verdict; state = { ...state, [f.id]: !f.on };
+    const g = gen, c = run.case, before = run.verdict; state = { ...state, [f.id]: !f.on };
     msg(c.asker.name, c.asker.initials, "", `<p>${esc(text)}</p>`);
     const next = TAD.run(c.id, state); const votes = next.phases[3].votes;
     const rv = next.events.filter((x) => x.phase === 3 && x.src === "drex" && /^J\d/.test(x.agent)); // the 24 decisions of the re-vote, one request
@@ -184,6 +286,7 @@
     const m = makeMini(); t.appendChild(m); run.phases[3].votes.forEach((v) => setMini(m, v.id, v.p));
     quick(false); ui.live(true, "re-voting");
     let k = 0; (function tick() {
+      if (g !== gen) return;   // a newer run replaced this thread
       if (k < votes.length) { setMini(m, votes[k].id, votes[k].p); lat.push(rv[2 * k].ms, rv[2 * k + 1].ms); cost += rv[2 * k].usd + rv[2 * k + 1].usd; stats(); k++; return setTimeout(tick, 110); }
       const v = next.verdict;
       t.appendChild(el("p", "", `The vote moves from <b>${before.liable} to ${before.notLiable}</b> to <b>${v.liable} to ${v.notLiable}</b>. Mean probability goes from ${fmt.p(before.mean)} to ${fmt.p(v.mean)}. ${esc(v.label)}.`));
@@ -192,23 +295,28 @@
   }
 
   let es = null;
-  function begin(live, ledger) {
-    if (player) player.stop(); if (es) { es.close(); es = null; }
-    const c = TAD.CASES.find((x) => x.id === ui.caseId()); state = {}; run = TAD.run(c.id); lat = []; cost = 0; wfRow = null; wfN = 0;
+  function begin(live, ledger, unread) {
+    if (es) { es.close(); es = null; }
+    const c = TAD.CASES.find((y) => y.id === ui.caseId()); state = {}; run = TAD.run(c.id); lat = []; cost = 0; wfRow = null; wfN = 0; mini = miniNote = trialRow = null;
     ui.title(c.title, `${c.asker.who} · ${c.jurisdiction} · ${c.claim}`); ui.live(true, live); stats();
-    $("msgs").innerHTML = ""; $("steps").innerHTML = ""; $("toledger").href = ledger + "#case=" + c.id; renderDoc(c); quick(false);
+    box.innerHTML = ""; follow = true; box.scrollTop = 0; $("steps").innerHTML = ""; $("toledger").href = ledger + "#case=" + c.id; renderDoc(c, unread); quick(false);
     msg(c.asker.name, c.asker.initials, "", `<p>${esc(c.ask)}</p><div class="file">${esc(c.upload.name)} <span class="dim">${c.upload.pages} page${c.upload.pages > 1 ? "s" : ""}</span></div>`);
     return c;
   }
-  function start() { begin("reading the message", "03-trace-ledger.html"); player = TAD.play(run, { onEvent }); }
+  async function start() {
+    const x = pacer(STREAM); begin("reading the message", "03-trace-ledger.html", x.on);
+    box.setAttribute("aria-busy", "true");   // a screen reader hears the finished thread, not each word as it arrives
+    try { for (const e of run.events) await onEvent(e, x); } catch (err) { if (err !== STOP) throw err; return; }
+    box.removeAttribute("aria-busy");
+  }
   /* Served by engine/server.py, the same thread shows a real request: through Intern, or the jury engine directly. */
   function startEngine(viaIntern) {
-    const c = begin(viaIntern ? "Intern is running the request" : "engine running", "03-trace-ledger.html?engine=1");
-    const badge = document.querySelector(".sim-badge"); let labelled = false;
+    const x = pacer(false), c = begin(viaIntern ? "Intern is running the request" : "engine running", "03-trace-ledger.html?engine=1", false);
+    const badge = document.querySelector(".sim-badge"); let labelled = false, queue = Promise.resolve();   // events are shown in the order they arrive
     es = new EventSource(`/api/stream?case=${c.id}` + (viaIntern ? "&harness=intern" : ""));
     es.onmessage = (m) => { const e = JSON.parse(m.data);
       if (!labelled && e.src !== "intern") { labelled = true; badge.textContent = (viaIntern ? "Request run by Intern (Drex is System 1, Qwen is System 2). " : "Engine run. ") + (e.simulated === false ? "Decisions by Drex." : "Simulated decisions: no API key is set."); }
-      onEvent(e); };
+      queue = queue.then(() => onEvent(e, x)).catch((err) => console.error(err)); };
     es.addEventListener("done", (m) => { es.close(); es = null; const d = JSON.parse(m.data || "{}"); if (d.intern && d.intern.reply) say(`<p><b>Intern's answer</b></p><p>${esc(d.intern.reply)}</p>`); ui.live(false, "done"); });
     es.onerror = (m) => { if (es) { es.close(); es = null; } let why = ""; try { why = JSON.parse(m.data).error; } catch (x) { /* a dropped connection has no message */ } if (why) badge.textContent = "Stopped: " + why; ui.live(false, "engine stopped"); };
   }

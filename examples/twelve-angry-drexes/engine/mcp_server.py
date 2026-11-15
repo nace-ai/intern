@@ -77,7 +77,7 @@ def list_roles(_: dict) -> dict:
 
 def _brief(rec: dict, why: str) -> dict:
     return {"key": rec["key"] if "key" in rec else f"{rec['jurisdiction']}/{rec['code']}/{rec['section']}", "citation": rec["citation"],
-            "title": rec.get("title") or "", "url": rec.get("lawwiki_url"), "why": why}
+            "title": rec.get("title") or "", "url": lawwiki.url_for(rec), "why": why}
 
 
 def find_statutes(a: dict) -> dict:
@@ -102,7 +102,7 @@ def get_statute(a: dict) -> dict:
     if not rec:
         raise ValueError(f"no section {a['key']}")
     text = rec.get("text") or ""
-    return {"key": a["key"], "citation": rec["citation"], "title": rec.get("title"), "url": rec.get("lawwiki_url"),
+    return {"key": a["key"], "citation": rec["citation"], "title": rec.get("title"), "url": lawwiki.url_for(rec),
             "source_version": rec.get("source_version"), "chars": len(text), "text": text[:TEXT_LIMIT], "truncated": len(text) > TEXT_LIMIT}
 
 

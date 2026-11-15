@@ -7,7 +7,7 @@ Every number below is from a live run on 2026-11-14 (`runs/20261114-210526-tx-th
 
 ```
 python3 tools/doctor.py                                 # keys, tools, services; every demo path with its command
-python3 -m unittest discover -s tests                   # 53 tests, offline
+python3 -m unittest discover -s tests                   # 56 tests, offline
 python3 -m engine.trial --case tx-theft --estimate      # 28 requests, 182 decisions, under one cent; sends nothing
 python3 tools/mcp_call.py nace list                     # Nace MCP server answers (uvx nace-mcp)
 python3 -m engine.server                                # http://127.0.0.1:8765/02-live-courtroom.html?engine=1#case=tx-theft
@@ -43,7 +43,7 @@ bash tools/setup_demo.sh --slack    # Slack app from the manifest, then the two 
 
 Intern runs the request with Drex as System 1 and Qwen 3.8 27B on DeepInfra as System 2. Its tools are three MCP servers: the jury engine (`engine/mcp_server.py`), Nace's `nace-mcp` (Drex and NDI) and Keenable. The trace ledger (`03-trace-ledger.html?engine=1`) then shows Intern's steps above the trial's 182 decisions.
 
-State: the whole path is tested with a stand-in for the `intern` command (it drives the real jury MCP server). It has not run with Intern itself yet. If Intern stops before the trial, the Slack bridge runs the jury engine directly and says so; on the pages, use "Run on the engine". The first real run should be compared with `intern schema` (saved to `intern/home/event-schema.json` by the setup script): Intern's event names are read tolerantly, not from a pinned schema.
+State: the whole path is tested with a stand-in for the `intern` command (it drives the real jury MCP server). It has also run live with Intern itself: the Slack threads of 2026-11-14 (in the last one Intern called `jury.list_cases` and `jury.run_trial`, 182 Drex decisions). If Intern stops before the trial, the Slack bridge runs the jury engine directly and says so; on the pages, use "Run on the engine". The first real run should be compared with `intern schema` (saved to `intern/home/event-schema.json` by the setup script): Intern's event names are read tolerantly, not from a pinned schema.
 
 ## Say out loud
 

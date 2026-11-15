@@ -21,7 +21,7 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-from . import cases, config, intern_runner, lawwiki, net, trial
+from . import cases, config, intern_runner, lawwiki, linkcheck, net, trial
 
 SETUP = """Slack bridge setup
 1. api.slack.com/apps -> Create New App, then Settings -> Socket Mode -> enable, create an app-level token with scope connections:write.
@@ -91,7 +91,7 @@ JURORS = [f"J{i:02d}" for i in range(1, 13)]
 def _new_state() -> dict:
     return {"facts": [], "fact_src": "", "role": None, "law": [], "web": None, "tally": {}, "votes": [], "word": "liable",
             "result": None, "page": "", "what_if": [], "next": None, "tools": [], "decisions": 0, "usd": 0.0, "ms": 0,
-            "simulated": False, "answer": "", "notes": [], "case": "", "base": None, "final": {}, "revote": {}, "what_if_rows": []}
+            "simulated": False, "answer": "", "notes": [], "case": "", "base": None, "final": {}, "revote": {}, "what_if_rows": [], "links": []}
 
 
 def _collect(st: dict, e: dict, case_id: str) -> None:
@@ -204,6 +204,19 @@ def summary(st: dict) -> str:
             return text[:LIMIT]
 
 
+LINK_RE = re.compile(r"<(https?://[^|>\s]+)\|([^>]*)>")   # a Slack hyperlink: <address|label>
+
+
+def checked(text: str) -> tuple[str, list[dict]]:
+    """Check every hyperlink in a message before it is posted (engine/linkcheck.py). A dead link keeps its label and
+    loses its address, so no reader lands on a missing page. Returns the text and one row per link."""
+    rows = linkcheck.check_many(m.group(1).replace("&amp;", "&") for m in LINK_RE.finditer(text))
+    dead = {r["url"] for r in rows if r["state"] == "dead"}
+    if dead:
+        text = LINK_RE.sub(lambda m: m.group(2) if m.group(1).replace("&amp;", "&") in dead else m.group(0), text)
+    return text, rows
+
+
 SECTION_MAX = 2900   # characters in one section block (Slack allows 3,000)
 VALUE_MAX = 2000     # characters in one button value (Slack's limit)
 BLOCKS_MAX = 50      # blocks in one message (Slack's limit)
@@ -264,6 +277,8 @@ def sample(case_id: str) -> tuple[str, list[dict]]:
     st = _new_state()
     trial.run_trial(case_id, simulate=True, write=False, on_event=lambda e: _collect(st, e, case_id))
     text = summary(st)
+    if config.link_check():
+        text, st["links"] = checked(text)
     return text, blocks(st, text)
 
 
@@ -336,6 +351,9 @@ def handle(event: dict, client, token: str, seen: set) -> None:
 
     def post_summary(st: dict) -> None:   # the text stays as the fallback; a rejected block payload never loses the summary
         text = summary(st)
+        if config.link_check():   # every hyperlink is checked first; a dead one is posted as plain text
+            text, st["links"] = checked(text)
+            print("links before posting: " + linkcheck.tally(st["links"]), file=sys.stderr, flush=True)
         try:
             client.chat_postMessage(channel=ch, thread_ts=thread, text=text, blocks=blocks(st, text))
         except Exception:

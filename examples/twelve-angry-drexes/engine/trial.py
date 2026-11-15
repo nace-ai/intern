@@ -324,7 +324,7 @@ class Trial:
                                f"{len(extra)} added to the case's {len(pinned)}" if hits else
                                f"LawWiki search returned {len(c['statutes'])} sections ({c['jurisdiction']})"),
                          **({"result": [{"key": h["key"], "citation": h["citation"], "title": h["title"], "rank": h["rank"],
-                                         "pinned": h["key"] in pinned} for h in hits]} if hits else {}))
+                                         "pinned": h["key"] in pinned, "url": lawwiki.url_for(h)} for h in hits]} if hits else {}))
         items = [{"qid": f"statute_{k + 1}", "id": "statute_applies", "agent": "Clerk", "type": "noul",
                   "q": f"Does {s['citation']} apply to this dispute?", "cite": s["key"],
                   "hint": {"p": self.hints.extra_statute(s["key"]) if s.get("extra") else self.hints.statute(k)}}

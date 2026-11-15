@@ -167,7 +167,7 @@ button.b.cta { background: var(--ac); border-color: var(--ac); color: var(--bg);
     var w = stage.clientWidth, h = stage.clientHeight, lw = Math.max(w, 760), s = w / lw;
     frame.style.width = lw + "px"; frame.style.height = Math.ceil(h / s) + "px"; frame.style.transform = "scale(" + s + ")";
   }
-  function screenUrl(c) { return c.page + Q + H; }
+  function screenUrl(c) { return c.page + Q + (c.page === S1 ? "&stream=0" : "") + H; }   // the narration is timed to the intake thread shown at once
 
   function go(i) {
     ch = Math.max(0, Math.min(CH.length - 1, i)); t = 0; capI = -1; fired = {}; last = performance.now(); clearTimeout(loadTimer);

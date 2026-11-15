@@ -689,637 +689,637 @@ window.TAD_STATUTES = {
  "NY/BSC/717": {
   "citation": "N.Y. Bus. Corp. Law § 717",
   "title": "Duty of directors",
-  "url": "https://www.lawwiki.ai/ny/bsc/717",
+  "url": "https://www.nysenate.gov/legislation/laws/BSC/717",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 3232
  },
  "NY/CPL/170.30": {
   "citation": "N.Y. Crim. Proc. Law § 170.30",
   "title": "Motion to dismiss information, simplified information, prosecutor's information or misdemeanor complaint",
-  "url": "https://www.lawwiki.ai/ny/cpl/170.30",
+  "url": "https://www.nysenate.gov/legislation/laws/CPL/170.30",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 1994
  },
  "NY/CPL/30.30": {
   "citation": "N.Y. Crim. Proc. Law § 30.30",
   "title": "Speedy trial; time limitations",
-  "url": "https://www.lawwiki.ai/ny/cpl/30.30",
+  "url": "https://www.nysenate.gov/legislation/laws/CPL/30.30",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 16846
  },
  "NY/CPL/710.20": {
   "citation": "N.Y. Crim. Proc. Law § 710.20",
   "title": "Motion to suppress evidence; in general; grounds for",
-  "url": "https://www.lawwiki.ai/ny/cpl/710.20",
+  "url": "https://www.nysenate.gov/legislation/laws/CPL/710.20",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 3118
  },
  "NY/CVP/1411": {
   "citation": "N.Y. C.P.L.R. 1411",
   "title": "Damages recoverable when contributory negligence or assumption of risk is established",
-  "url": "https://www.lawwiki.ai/ny/cvp/1411",
+  "url": "https://www.nysenate.gov/legislation/laws/CVP/1411",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 917
  },
  "NY/CVP/1601": {
   "citation": "N.Y. C.P.L.R. 1601",
   "title": "Limited liability of persons jointly liable",
-  "url": "https://www.lawwiki.ai/ny/cvp/1601",
+  "url": "https://www.nysenate.gov/legislation/laws/CVP/1601",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 1412
  },
  "NY/CVP/214": {
   "citation": "N.Y. C.P.L.R. 214",
   "title": "Actions to be commenced within three years: for non-payment of money collected on execution; for penalty created by statute; to recover chattel; for injury to property; for personal injury; for malpractice other than medical, dental or podiatric malpractice; to annul a marriage on the ground of fraud",
-  "url": "https://www.lawwiki.ai/ny/cvp/214",
+  "url": "https://www.nysenate.gov/legislation/laws/CVP/214",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 1239
  },
  "NY/CVR/50": {
   "citation": "N.Y. Civ. Rights Law § 50",
   "title": "Right of privacy",
-  "url": "https://www.lawwiki.ai/ny/cvr/50",
+  "url": "https://www.nysenate.gov/legislation/laws/CVR/50",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 308
  },
  "NY/CVR/51": {
   "citation": "N.Y. Civ. Rights Law § 51",
   "title": "Action for injunction and for damages",
-  "url": "https://www.lawwiki.ai/ny/cvr/51",
+  "url": "https://www.nysenate.gov/legislation/laws/CVR/51",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 2817
  },
  "NY/DOM/170": {
   "citation": "N.Y. Dom. Rel. Law § 170",
   "title": "Action for divorce",
-  "url": "https://www.lawwiki.ai/ny/dom/170",
+  "url": "https://www.nysenate.gov/legislation/laws/DOM/170",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 3212
  },
  "NY/DOM/236": {
   "citation": "N.Y. Dom. Rel. Law § 236",
   "title": "Special controlling provisions; prior actions or proceedings; new actions or proceedings",
-  "url": "https://www.lawwiki.ai/ny/dom/236",
+  "url": "https://www.nysenate.gov/legislation/laws/DOM/236",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 66398
  },
  "NY/DOM/240": {
   "citation": "N.Y. Dom. Rel. Law § 240",
   "title": "Custody and child support; orders of protection",
-  "url": "https://www.lawwiki.ai/ny/dom/240",
+  "url": "https://www.nysenate.gov/legislation/laws/DOM/240",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 97363
  },
  "NY/EXC/296": {
   "citation": "N.Y. Exec. Law § 296",
   "title": "Unlawful discriminatory practices",
-  "url": "https://www.lawwiki.ai/ny/exc/296",
+  "url": "https://www.nysenate.gov/legislation/laws/EXC/296",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 78363
  },
  "NY/FCT/413": {
   "citation": "N.Y. Fam. Ct. Act § 413",
   "title": "Parents' duty to support child",
-  "url": "https://www.lawwiki.ai/ny/fct/413",
+  "url": "https://www.nysenate.gov/legislation/laws/FCT/413",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 35086
  },
  "NY/FCT/812": {
   "citation": "N.Y. Fam. Ct. Act § 812",
   "title": "Procedures for family offense proceedings",
-  "url": "https://www.lawwiki.ai/ny/fct/812",
+  "url": "https://www.nysenate.gov/legislation/laws/FCT/812",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 11213
  },
  "NY/GBS/198-a": {
   "citation": "N.Y. Gen. Bus. Law § 198-a",
   "title": "Warranties",
-  "url": "https://www.lawwiki.ai/ny/gbs/198-a",
+  "url": "https://www.nysenate.gov/legislation/laws/GBS/198-A",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 30605
  },
  "NY/GBS/349": {
   "citation": "N.Y. Gen. Bus. Law § 349",
   "title": "Unfair, deceptive, or abusive acts and practices unlawful",
-  "url": "https://www.lawwiki.ai/ny/gbs/349",
+  "url": "https://www.nysenate.gov/legislation/laws/GBS/349",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 5294
  },
  "NY/GBS/350": {
   "citation": "N.Y. Gen. Bus. Law § 350",
   "title": "False advertising unlawful",
-  "url": "https://www.lawwiki.ai/ny/gbs/350",
+  "url": "https://www.nysenate.gov/legislation/laws/GBS/350",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 146
  },
  "NY/GBS/360-k": {
   "citation": "N.Y. Gen. Bus. Law § 360-k",
   "title": "Infringement",
-  "url": "https://www.lawwiki.ai/ny/gbs/360-k",
+  "url": "https://www.nysenate.gov/legislation/laws/GBS/360-K",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 1141
  },
  "NY/GBS/360-l": {
   "citation": "N.Y. Gen. Bus. Law § 360-l",
   "title": "Injury to business reputation; dilution",
-  "url": "https://www.lawwiki.ai/ny/gbs/360-l",
+  "url": "https://www.nysenate.gov/legislation/laws/GBS/360-L",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 378
  },
  "NY/GOB/5-701": {
   "citation": "N.Y. Gen. Oblig. Law § 5-701",
   "title": "Agreements required to be in writing",
-  "url": "https://www.lawwiki.ai/ny/gob/5-701",
+  "url": "https://www.nysenate.gov/legislation/laws/GOB/5-701",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 8495
  },
  "NY/GOB/7-103": {
   "citation": "N.Y. Gen. Oblig. Law § 7-103",
   "title": "Money deposited or advanced for use or rental of real property; waiver void; administration expenses",
-  "url": "https://www.lawwiki.ai/ny/gob/7-103",
+  "url": "https://www.nysenate.gov/legislation/laws/GOB/7-103",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 2896
  },
  "NY/GOB/7-108": {
   "citation": "N.Y. Gen. Oblig. Law § 7-108",
   "title": "Deposits made by tenants of non-rent stabilized dwelling units",
-  "url": "https://www.lawwiki.ai/ny/gob/7-108",
+  "url": "https://www.nysenate.gov/legislation/laws/GOB/7-108",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 10700
  },
  "NY/ISC/5102": {
   "citation": "N.Y. Ins. Law § 5102",
   "title": "Definitions",
-  "url": "https://www.lawwiki.ai/ny/isc/5102",
+  "url": "https://www.nysenate.gov/legislation/laws/ISC/5102",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 6716
  },
  "NY/ISC/5104": {
   "citation": "N.Y. Ins. Law § 5104",
   "title": "Causes of action for personal injury",
-  "url": "https://www.lawwiki.ai/ny/isc/5104",
+  "url": "https://www.nysenate.gov/legislation/laws/ISC/5104",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 3337
  },
  "NY/LAB/191": {
   "citation": "N.Y. Lab. Law § 191",
   "title": "Frequency of payments",
-  "url": "https://www.lawwiki.ai/ny/lab/191",
+  "url": "https://www.nysenate.gov/legislation/laws/LAB/191",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 5582
  },
  "NY/LAB/193": {
   "citation": "N.Y. Lab. Law § 193",
   "title": "Deductions from wages",
-  "url": "https://www.lawwiki.ai/ny/lab/193",
+  "url": "https://www.nysenate.gov/legislation/laws/LAB/193",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 9290
  },
  "NY/LAB/198": {
   "citation": "N.Y. Lab. Law § 198",
   "title": "Costs, remedies",
-  "url": "https://www.lawwiki.ai/ny/lab/198",
+  "url": "https://www.nysenate.gov/legislation/laws/LAB/198",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 9105
  },
  "NY/LAB/215": {
   "citation": "N.Y. Lab. Law § 215",
   "title": "Penalties and civil action; prohibited retaliation",
-  "url": "https://www.lawwiki.ai/ny/lab/215",
+  "url": "https://www.nysenate.gov/legislation/laws/LAB/215",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 6070
  },
  "NY/LAB/740": {
   "citation": "N.Y. Lab. Law § 740",
   "title": "Retaliatory action by employers; prohibition",
-  "url": "https://www.lawwiki.ai/ny/lab/740",
+  "url": "https://www.nysenate.gov/legislation/laws/LAB/740",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 7300
  },
  "NY/PEN/120.00": {
   "citation": "N.Y. Penal Law § 120.00",
   "title": "Assault in the third degree",
-  "url": "https://www.lawwiki.ai/ny/pen/120.00",
+  "url": "https://www.nysenate.gov/legislation/laws/PEN/120.00",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 420
  },
  "NY/PEN/140.20": {
   "citation": "N.Y. Penal Law § 140.20",
   "title": "Burglary in the third degree",
-  "url": "https://www.lawwiki.ai/ny/pen/140.20",
+  "url": "https://www.nysenate.gov/legislation/laws/PEN/140.20",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 200
  },
  "NY/PEN/155.25": {
   "citation": "N.Y. Penal Law § 155.25",
   "title": "Petit larceny",
-  "url": "https://www.lawwiki.ai/ny/pen/155.25",
+  "url": "https://www.nysenate.gov/legislation/laws/PEN/155.25",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 100
  },
  "NY/PEN/155.30": {
   "citation": "N.Y. Penal Law § 155.30",
   "title": "Grand Larceny in the fourth degree",
-  "url": "https://www.lawwiki.ai/ny/pen/155.30",
+  "url": "https://www.nysenate.gov/legislation/laws/PEN/155.30",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 2639
  },
  "NY/PEN/35.15": {
   "citation": "N.Y. Penal Law § 35.15",
   "title": "Justification; use of physical force in defense of a person",
-  "url": "https://www.lawwiki.ai/ny/pen/35.15",
+  "url": "https://www.nysenate.gov/legislation/laws/PEN/35.15",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 2115
  },
  "NY/RPA/711": {
   "citation": "N.Y. Real Prop. Acts. Law § 711",
   "title": "Grounds where landlord-tenant relationship exists",
-  "url": "https://www.lawwiki.ai/ny/rpa/711",
+  "url": "https://www.nysenate.gov/legislation/laws/RPA/711",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 6749
  },
  "NY/RPP/235-b": {
   "citation": "N.Y. Real Prop. Law § 235-b",
   "title": "Warranty of habitability",
-  "url": "https://www.lawwiki.ai/ny/rpp/235-b",
+  "url": "https://www.nysenate.gov/legislation/laws/RPP/235-B",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 2170
  },
  "NY/UCC/2-314": {
   "citation": "N.Y. U.C.C. Law § 2-314",
   "title": "Implied Warranty: Merchantability; Usage of Trade",
-  "url": "https://www.lawwiki.ai/ny/ucc/2-314",
+  "url": "https://www.nysenate.gov/legislation/laws/UCC/2-314",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 1063
  },
  "NY/UCC/2-508": {
   "citation": "N.Y. U.C.C. Law § 2-508",
   "title": "Cure by Seller of Improper Tender or Delivery; Replacement",
-  "url": "https://www.lawwiki.ai/ny/ucc/2-508",
+  "url": "https://www.nysenate.gov/legislation/laws/UCC/2-508",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 537
  },
  "NY/UCC/2-601": {
   "citation": "N.Y. U.C.C. Law § 2-601",
   "title": "Buyer's Rights on Improper Delivery",
-  "url": "https://www.lawwiki.ai/ny/ucc/2-601",
+  "url": "https://www.nysenate.gov/legislation/laws/UCC/2-601",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 419
  },
  "NY/UCC/2-602": {
   "citation": "N.Y. U.C.C. Law § 2-602",
   "title": "Manner and Effect of Rightful Rejection",
-  "url": "https://www.lawwiki.ai/ny/ucc/2-602",
+  "url": "https://www.nysenate.gov/legislation/laws/UCC/2-602",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 994
  },
  "NY/UCC/2-607": {
   "citation": "N.Y. U.C.C. Law § 2-607",
   "title": "Effect of Acceptance; Notice of Breach; Burden of Establishing Breach After Acceptance; Notice of Claim or Litigation to Person Answerable Over",
-  "url": "https://www.lawwiki.ai/ny/ucc/2-607",
+  "url": "https://www.nysenate.gov/legislation/laws/UCC/2-607",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 2146
  },
  "NY/UCC/2-714": {
   "citation": "N.Y. U.C.C. Law § 2-714",
   "title": "Buyer's Damages for Breach in Regard to Accepted Goods",
-  "url": "https://www.lawwiki.ai/ny/ucc/2-714",
+  "url": "https://www.nysenate.gov/legislation/laws/UCC/2-714",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 673
  },
  "NY/UCC/2-725": {
   "citation": "N.Y. U.C.C. Law § 2-725",
   "title": "Statute of Limitations in Contracts for Sale",
-  "url": "https://www.lawwiki.ai/ny/ucc/2-725",
+  "url": "https://www.nysenate.gov/legislation/laws/UCC/2-725",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 1249
  },
  "NY/VAT/1129": {
   "citation": "N.Y. Veh. & Traf. Law § 1129",
   "title": "Following too closely",
-  "url": "https://www.lawwiki.ai/ny/vat/1129",
+  "url": "https://www.nysenate.gov/legislation/laws/VAT/1129",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 1132
  },
  "NY/VAT/1192": {
   "citation": "N.Y. Veh. & Traf. Law § 1192",
   "title": "Operating a motor vehicle while under the influence of alcohol or drugs",
-  "url": "https://www.lawwiki.ai/ny/vat/1192",
+  "url": "https://www.nysenate.gov/legislation/laws/VAT/1192",
   "source_version": "OpenLeg 2026-10-22",
   "chars": 15730
  },
  "TX/BC/16.102": {
   "citation": "Tex. Bus. & Com. Code § 16.102",
   "title": "Infringement of Registered Mark",
-  "url": "https://www.lawwiki.ai/tx/bc/16.102",
+  "url": "https://statutes.capitol.texas.gov/Docs/BC/htm/BC.16.htm#16.102",
   "source_version": "TLC through 2026-10-16",
   "chars": 2056
  },
  "TX/BC/16.103": {
   "citation": "Tex. Bus. & Com. Code § 16.103",
   "title": "Injury to Business Reputation; Dilution",
-  "url": "https://www.lawwiki.ai/tx/bc/16.103",
+  "url": "https://statutes.capitol.texas.gov/Docs/BC/htm/BC.16.htm#16.103",
   "source_version": "TLC through 2026-10-16",
   "chars": 2284
  },
  "TX/BC/17.46": {
   "citation": "Tex. Bus. & Com. Code § 17.46",
   "title": "Deceptive Trade Practices Unlawful",
-  "url": "https://www.lawwiki.ai/tx/bc/17.46",
+  "url": "https://statutes.capitol.texas.gov/Docs/BC/htm/BC.17.htm#17.46",
   "source_version": "TLC through 2026-10-16",
   "chars": 10933
  },
  "TX/BC/17.50": {
   "citation": "Tex. Bus. & Com. Code § 17.50",
   "title": "Relief for Consumers",
-  "url": "https://www.lawwiki.ai/tx/bc/17.50",
+  "url": "https://statutes.capitol.texas.gov/Docs/BC/htm/BC.17.htm#17.50",
   "source_version": "TLC through 2026-10-16",
   "chars": 3761
  },
  "TX/BC/2.314": {
   "citation": "Tex. Bus. & Com. Code § 2.314",
   "title": "Implied Warranty: Merchantability; Usage of Trade",
-  "url": "https://www.lawwiki.ai/tx/bc/2.314",
+  "url": "https://statutes.capitol.texas.gov/Docs/BC/htm/BC.2.htm#2.314",
   "source_version": "TLC through 2026-10-16",
   "chars": 1061
  },
  "TX/BC/2.601": {
   "citation": "Tex. Bus. & Com. Code § 2.601",
   "title": "Buyer's Rights on Improper Delivery",
-  "url": "https://www.lawwiki.ai/tx/bc/2.601",
+  "url": "https://statutes.capitol.texas.gov/Docs/BC/htm/BC.2.htm#2.601",
   "source_version": "TLC through 2026-10-16",
   "chars": 416
  },
  "TX/BC/2.607": {
   "citation": "Tex. Bus. & Com. Code § 2.607",
   "title": "Effect of Acceptance; Notice of Breach; Burden of Establishing Breach After Acceptance; Notice of Claim or Litigation to Person Answerable over",
-  "url": "https://www.lawwiki.ai/tx/bc/2.607",
+  "url": "https://statutes.capitol.texas.gov/Docs/BC/htm/BC.2.htm#2.607",
   "source_version": "TLC through 2026-10-16",
   "chars": 2143
  },
  "TX/BO/21.223": {
   "citation": "Tex. Bus. Orgs. Code § 21.223",
   "title": "Limitation of Liability for Obligations",
-  "url": "https://www.lawwiki.ai/tx/bo/21.223",
+  "url": "https://statutes.capitol.texas.gov/Docs/BO/htm/BO.21.htm#21.223",
   "source_version": "TLC through 2026-10-16",
   "chars": 1665
  },
  "TX/CP/134A.002": {
   "citation": "Tex. Civ. Prac. & Rem. Code § 134A.002",
   "title": "Definitions",
-  "url": "https://www.lawwiki.ai/tx/cp/134A.002",
+  "url": "https://statutes.capitol.texas.gov/Docs/CP/htm/CP.134A.htm#134A.002",
   "source_version": "TLC through 2026-10-16",
   "chars": 3543
  },
  "TX/CP/134A.004": {
   "citation": "Tex. Civ. Prac. & Rem. Code § 134A.004",
   "title": "Damages",
-  "url": "https://www.lawwiki.ai/tx/cp/134A.004",
+  "url": "https://statutes.capitol.texas.gov/Docs/CP/htm/CP.134A.htm#134A.004",
   "source_version": "TLC through 2026-10-16",
   "chars": 728
  },
  "TX/CP/16.003": {
   "citation": "Tex. Civ. Prac. & Rem. Code § 16.003",
   "title": "Two-Year Limitations Period",
-  "url": "https://www.lawwiki.ai/tx/cp/16.003",
+  "url": "https://statutes.capitol.texas.gov/Docs/CP/htm/CP.16.htm#16.003",
   "source_version": "TLC through 2026-10-16",
   "chars": 585
  },
  "TX/CP/33.001": {
   "citation": "Tex. Civ. Prac. & Rem. Code § 33.001",
   "title": "Proportionate Responsibility",
-  "url": "https://www.lawwiki.ai/tx/cp/33.001",
+  "url": "https://statutes.capitol.texas.gov/Docs/CP/htm/CP.33.htm#33.001",
   "source_version": "TLC through 2026-10-16",
   "chars": 142
  },
  "TX/CP/33.003": {
   "citation": "Tex. Civ. Prac. & Rem. Code § 33.003",
   "title": "Determination of Percentage of Responsibility",
-  "url": "https://www.lawwiki.ai/tx/cp/33.003",
+  "url": "https://statutes.capitol.texas.gov/Docs/CP/htm/CP.33.htm#33.003",
   "source_version": "TLC through 2026-10-16",
   "chars": 785
  },
  "TX/CP/38.001": {
   "citation": "Tex. Civ. Prac. & Rem. Code § 38.001",
   "title": "Recovery of Attorney's Fees",
-  "url": "https://www.lawwiki.ai/tx/cp/38.001",
+  "url": "https://statutes.capitol.texas.gov/Docs/CP/htm/CP.38.htm#38.001",
   "source_version": "TLC through 2026-10-16",
   "chars": 661
  },
  "TX/CP/41.003": {
   "citation": "Tex. Civ. Prac. & Rem. Code § 41.003",
   "title": "Standards for Recovery of Exemplary Damages",
-  "url": "https://www.lawwiki.ai/tx/cp/41.003",
+  "url": "https://statutes.capitol.texas.gov/Docs/CP/htm/CP.41.htm#41.003",
   "source_version": "TLC through 2026-10-16",
   "chars": 1368
  },
  "TX/CP/41.008": {
   "citation": "Tex. Civ. Prac. & Rem. Code § 41.008",
   "title": "Limitation on Amount of Recovery",
-  "url": "https://www.lawwiki.ai/tx/cp/41.008",
+  "url": "https://statutes.capitol.texas.gov/Docs/CP/htm/CP.41.htm#41.008",
   "source_version": "TLC through 2026-10-16",
   "chars": 2238
  },
  "TX/CR/38.04": {
   "citation": "Tex. Code Crim. Proc. art. 38.04",
   "title": "Jury Are Judges of Facts",
-  "url": "https://www.lawwiki.ai/tx/cr/38.04",
+  "url": "https://statutes.capitol.texas.gov/Docs/CR/htm/CR.38.htm#38.04",
   "source_version": "TLC through 2026-10-16",
   "chars": 384
  },
  "TX/CR/38.23": {
   "citation": "Tex. Code Crim. Proc. art. 38.23",
   "title": "Evidence Not to Be Used",
-  "url": "https://www.lawwiki.ai/tx/cr/38.23",
+  "url": "https://statutes.capitol.texas.gov/Docs/CR/htm/CR.38.htm#38.23",
   "source_version": "TLC through 2026-10-16",
   "chars": 831
  },
  "TX/FA/153.002": {
   "citation": "Tex. Fam. Code § 153.002",
   "title": "Best Interest of Child; Rebuttable Presumption in Suit Between Parent and Nonparent",
-  "url": "https://www.lawwiki.ai/tx/fa/153.002",
+  "url": "https://statutes.capitol.texas.gov/Docs/FA/htm/FA.153.htm#153.002",
   "source_version": "TLC through 2026-10-16",
   "chars": 1106
  },
  "TX/FA/154.125": {
   "citation": "Tex. Fam. Code § 154.125",
   "title": "Application of Guidelines to Net Resources",
-  "url": "https://www.lawwiki.ai/tx/fa/154.125",
+  "url": "https://statutes.capitol.texas.gov/Docs/FA/htm/FA.154.htm#154.125",
   "source_version": "TLC through 2026-10-16",
   "chars": 2159
  },
  "TX/FA/6.001": {
   "citation": "Tex. Fam. Code § 6.001",
   "title": "Insupportability",
-  "url": "https://www.lawwiki.ai/tx/fa/6.001",
+  "url": "https://statutes.capitol.texas.gov/Docs/FA/htm/FA.6.htm#6.001",
   "source_version": "TLC through 2026-10-16",
   "chars": 310
  },
  "TX/FA/7.001": {
   "citation": "Tex. Fam. Code § 7.001",
   "title": "General Rule of Property Division",
-  "url": "https://www.lawwiki.ai/tx/fa/7.001",
+  "url": "https://statutes.capitol.texas.gov/Docs/FA/htm/FA.7.htm#7.001",
   "source_version": "TLC through 2026-10-16",
   "chars": 228
  },
  "TX/FA/85.001": {
   "citation": "Tex. Fam. Code § 85.001",
   "title": "Required Findings and Orders",
-  "url": "https://www.lawwiki.ai/tx/fa/85.001",
+  "url": "https://statutes.capitol.texas.gov/Docs/FA/htm/FA.85.htm#85.001",
   "source_version": "TLC through 2026-10-16",
   "chars": 942
  },
  "TX/FI/392.301": {
   "citation": "Tex. Fin. Code § 392.301",
   "title": "Threats or Coercion",
-  "url": "https://www.lawwiki.ai/tx/fi/392.301",
+  "url": "https://statutes.capitol.texas.gov/Docs/FI/htm/FI.392.htm#392.301",
   "source_version": "TLC through 2026-10-16",
   "chars": 1788
  },
  "TX/LA/21.051": {
   "citation": "Tex. Lab. Code § 21.051",
   "title": "Discrimination by Employer",
-  "url": "https://www.lawwiki.ai/tx/la/21.051",
+  "url": "https://statutes.capitol.texas.gov/Docs/LA/htm/LA.21.htm#21.051",
   "source_version": "TLC through 2026-10-16",
   "chars": 601
  },
  "TX/LA/21.055": {
   "citation": "Tex. Lab. Code § 21.055",
   "title": "Retaliation",
-  "url": "https://www.lawwiki.ai/tx/la/21.055",
+  "url": "https://statutes.capitol.texas.gov/Docs/LA/htm/LA.21.htm#21.055",
   "source_version": "TLC through 2026-10-16",
   "chars": 400
  },
  "TX/LA/451.001": {
   "citation": "Tex. Lab. Code § 451.001",
   "title": "Discrimination Against Employees Prohibited",
-  "url": "https://www.lawwiki.ai/tx/la/451.001",
+  "url": "https://statutes.capitol.texas.gov/Docs/LA/htm/LA.451.htm#451.001",
   "source_version": "TLC through 2026-10-16",
   "chars": 381
  },
  "TX/LA/61.014": {
   "citation": "Tex. Lab. Code § 61.014",
   "title": "Payment After Termination of Employment",
-  "url": "https://www.lawwiki.ai/tx/la/61.014",
+  "url": "https://statutes.capitol.texas.gov/Docs/LA/htm/LA.61.htm#61.014",
   "source_version": "TLC through 2026-10-16",
   "chars": 295
  },
  "TX/LA/62.051": {
   "citation": "Tex. Lab. Code § 62.051",
   "title": "Minimum Wage",
-  "url": "https://www.lawwiki.ai/tx/la/62.051",
+  "url": "https://statutes.capitol.texas.gov/Docs/LA/htm/LA.62.htm#62.051",
   "source_version": "TLC through 2026-10-16",
   "chars": 176
  },
  "TX/PE/12.35": {
   "citation": "Tex. Penal Code § 12.35",
   "title": "State Jail Felony Punishment",
-  "url": "https://www.lawwiki.ai/tx/pe/12.35",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.12.htm#12.35",
   "source_version": "TLC through 2026-10-16",
   "chars": 1104
  },
  "TX/PE/2.01": {
   "citation": "Tex. Penal Code § 2.01",
   "title": "Proof Beyond a Reasonable Doubt",
-  "url": "https://www.lawwiki.ai/tx/pe/2.01",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.2.htm#2.01",
   "source_version": "TLC through 2026-10-16",
   "chars": 308
  },
  "TX/PE/22.01": {
   "citation": "Tex. Penal Code § 22.01",
   "title": "Assault",
-  "url": "https://www.lawwiki.ai/tx/pe/22.01",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.22.htm#22.01",
   "source_version": "TLC through 2026-10-16",
   "chars": 10584
  },
  "TX/PE/31.03": {
   "citation": "Tex. Penal Code § 31.03",
   "title": "Theft",
-  "url": "https://www.lawwiki.ai/tx/pe/31.03",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.31.htm#31.03",
   "source_version": "TLC through 2026-10-16",
   "chars": 16134
  },
  "TX/PE/31.04": {
   "citation": "Tex. Penal Code § 31.04",
   "title": "Theft of Service",
-  "url": "https://www.lawwiki.ai/tx/pe/31.04",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.31.htm#31.04",
   "source_version": "TLC through 2026-10-16",
   "chars": 7481
  },
  "TX/PE/31.08": {
   "citation": "Tex. Penal Code § 31.08",
   "title": "Value",
-  "url": "https://www.lawwiki.ai/tx/pe/31.08",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.31.htm#31.08",
   "source_version": "TLC through 2026-10-16",
   "chars": 1922
  },
  "TX/PE/49.04": {
   "citation": "Tex. Penal Code § 49.04",
   "title": "Driving While Intoxicated",
-  "url": "https://www.lawwiki.ai/tx/pe/49.04",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.49.htm#49.04",
   "source_version": "TLC through 2026-10-16",
   "chars": 1223
  },
  "TX/PE/6.03": {
   "citation": "Tex. Penal Code § 6.03",
   "title": "Definitions of Culpable Mental States",
-  "url": "https://www.lawwiki.ai/tx/pe/6.03",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.6.htm#6.03",
   "source_version": "TLC through 2026-10-16",
   "chars": 1594
  },
  "TX/PE/8.02": {
   "citation": "Tex. Penal Code § 8.02",
   "title": "Mistake of Fact",
-  "url": "https://www.lawwiki.ai/tx/pe/8.02",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.8.htm#8.02",
   "source_version": "TLC through 2026-10-16",
   "chars": 424
  },
  "TX/PE/9.31": {
   "citation": "Tex. Penal Code § 9.31",
   "title": "Self-Defense",
-  "url": "https://www.lawwiki.ai/tx/pe/9.31",
+  "url": "https://statutes.capitol.texas.gov/Docs/PE/htm/PE.9.htm#9.31",
   "source_version": "TLC through 2026-10-16",
   "chars": 3405
  },
  "TX/PR/24.005": {
   "citation": "Tex. Prop. Code § 24.005",
   "title": "Notice Required Before Filing Certain Eviction Suits",
-  "url": "https://www.lawwiki.ai/tx/pr/24.005",
+  "url": "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.24.htm#24.005",
   "source_version": "TLC through 2026-10-16",
   "chars": 5604
  },
  "TX/PR/92.0081": {
   "citation": "Tex. Prop. Code § 92.0081",
   "title": "Removal of Property and Exclusion of Residential Tenant",
-  "url": "https://www.lawwiki.ai/tx/pr/92.0081",
+  "url": "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.92.htm#92.0081",
   "source_version": "TLC through 2026-10-16",
   "chars": 5197
  },
  "TX/PR/92.052": {
   "citation": "Tex. Prop. Code § 92.052",
   "title": "Landlord's Duty to Repair or Remedy",
-  "url": "https://www.lawwiki.ai/tx/pr/92.052",
+  "url": "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.92.htm#92.052",
   "source_version": "TLC through 2026-10-16",
   "chars": 1240
  },
  "TX/PR/92.103": {
   "citation": "Tex. Prop. Code § 92.103",
   "title": "Obligation to Refund",
-  "url": "https://www.lawwiki.ai/tx/pr/92.103",
+  "url": "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.92.htm#92.103",
   "source_version": "TLC through 2026-10-16",
   "chars": 542
  },
  "TX/PR/92.109": {
   "citation": "Tex. Prop. Code § 92.109",
   "title": "Liability of Landlord",
-  "url": "https://www.lawwiki.ai/tx/pr/92.109",
+  "url": "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.92.htm#92.109",
   "source_version": "TLC through 2026-10-16",
   "chars": 1069
  },
  "TX/TN/545.062": {
   "citation": "Tex. Transp. Code § 545.062",
   "title": "Following Distance",
-  "url": "https://www.lawwiki.ai/tx/tn/545.062",
+  "url": "https://statutes.capitol.texas.gov/Docs/TN/htm/TN.545.htm#545.062",
   "source_version": "TLC through 2026-10-16",
   "chars": 1588
  },

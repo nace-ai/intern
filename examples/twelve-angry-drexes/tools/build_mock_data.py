@@ -6,7 +6,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from engine import roles  # noqa: E402
+from engine import lawwiki, roles  # noqa: E402
 
 out = {}
 for f in sorted((ROOT / "data" / "statutes").glob("*_*.json")):
@@ -14,7 +14,7 @@ for f in sorted((ROOT / "data" / "statutes").glob("*_*.json")):
         continue
     d = json.loads(f.read_text())
     key = f"{d['jurisdiction']}/{d['code']}/{d['section']}"
-    out[key] = {"citation": d["citation"], "title": d["title"], "url": d["lawwiki_url"],
+    out[key] = {"citation": d["citation"], "title": d["title"], "url": lawwiki.url_for(d),
                 "source_version": d["source_version"], "chars": len(d["text"] or "")}
 # practice-area roles (engine/roles.py), so the mocks ask the same intake questions and next-step options
 role_table = {"groups": roles.GROUPS, "roles": {rid: {k: r[k] for k in ("label", "team", "lens", "finding", "burden", "side", "next_steps")}

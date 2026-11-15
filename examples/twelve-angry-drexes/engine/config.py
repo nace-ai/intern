@@ -123,6 +123,11 @@ def env_key(*names: str) -> str | None:
 PUBLIC_SITE = "https://twelve-angry-drexes.vercel.app"   # the public demo site
 
 
+def link_check() -> bool:
+    """Whether a message's hyperlinks are checked before it is posted (on unless TAD_LINK_CHECK=0)."""
+    return os.environ.get("TAD_LINK_CHECK", "1") != "0"
+
+
 def public_url() -> str:
     """Base URL of the courtroom page that Slack and MCP replies link to: TAD_PUBLIC_URL when set, else the public demo site.
     The local server's address (http://127.0.0.1:8765) opens only on the machine that runs it, so it is not the default."""

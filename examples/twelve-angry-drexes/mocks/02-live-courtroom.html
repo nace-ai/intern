@@ -155,7 +155,7 @@
     trace(e); counters();
     const k = e.phase == null ? -1 : e.phase;
     if (k !== lastPhase && e.id !== "verdict" && e.id !== "slack.reply" && !POST.includes(e.id)) { lastPhase = k; head(k < 0 ? "Before the trial" : TAD.PHASES[k]); if (k >= 0) { phaseUI(k); awards = {}; } }
-    if (e.id === "search" && Array.isArray(e.result)) e.result.forEach((r) => { found[r.key] = { citation: r.citation || r.key, title: r.title || "", url: r.url || "https://www.lawwiki.ai/" + String(r.key).toLowerCase() }; }); // sections the engine found in the store
+    if (e.id === "search" && Array.isArray(e.result)) e.result.forEach((r) => { found[r.key] = { citation: r.citation || r.key, title: r.title || "", url: r.url || (window.TAD_STATUTES[r.key] || {}).url || "#" }; }); // sections the engine found in the store
     if (e.id === "statute_applies") {
       const s = c.statutes.find((x) => x.key === e.cite) || found[e.cite] || (window.TAD_STATUTES || {})[e.cite] || { citation: e.cite, title: "", url: "#" };
       const row = el("div", "law" + (e.p < 0.5 ? " out" : ""), `<div><a href="${s.url}" target="_blank" rel="noopener">${esc(s.citation)}</a><small>${esc(s.title)}</small></div>`); row.appendChild(TAD.pbar(e.p, true)); $("law").appendChild(row);
