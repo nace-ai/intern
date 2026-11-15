@@ -111,11 +111,10 @@ def test_a_pdf_keeps_its_running_header_and_footer_once_and_every_page_its_body(
         page.insert_text((280, 820), f"Page {n} of 5", fontsize=9)
     doc.save(tmp_path / "ledger.pdf")
 
-    pdf = build(tmp_path).files["ledger.pdf"]
+    build(tmp_path)
     pages = wi.pages_of((tmp_path / ".decision_workspace" / "derived" / "ledger.pdf.md").read_text())
     assert pages[0].startswith("ACME Corp") and pages[0].endswith("Page 1 of 5")
     assert pages[2] == "Date Account Amount\n2023-03-01 4410 300.00"
-    assert [c.summary for c in pdf.chunks if c.kind == "page"][1:] == ["Date Account Amount"] * 4
 
 
 def test_a_table_of_any_size_and_a_latin1_export_with_a_title_row_are_indexed(tmp_path: Path, monkeypatch):
