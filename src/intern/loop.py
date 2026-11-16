@@ -352,15 +352,16 @@ class Run:
         `bash` calls that went on in the background as waits (`sleep 300`), and, in a held run, status checks of
         what runs (`ps`, `tail` of its log). Waiting is the harness's, not the agent's. With how long to hold at most:
         STATUS_HOLD_S for a turn with a status check, which may look at a server that never ends; else no limit. And
-        whether System 1's routine looks end the hold: not for a turn of waits only, which end by themselves. Empty
-        for any other turn, or when a polled job has ended (the agent has its result to act on)."""
+        whether System 1's routine looks end the hold: not for a turn of waits that all end by themselves (`sleep`),
+        but for `tail -f` or `watch`, which end only at their timeout_s. Empty for any other turn, or when a polled job
+        has ended (the agent has its result to act on)."""
         jobs = self.deps.processes
         if jobs is None or not calls:
             return [], None, False
         running = {info.id: info.command for info in jobs.jobs_running()}
         others = [info.command for info in jobs.running() if info.kind != "call"]
         waited: list[str] = []
-        listed = checked = polled = False
+        listed = checked = polled = endless = False
         for call in calls:
             action = call.arguments.get("action")
             if call.name == "process" and action == "poll":
@@ -370,10 +371,13 @@ class Run:
                 polled = True
             elif call.name == "process" and action == "list":
                 listed = True
-            elif call.name == "bash" and (command := jobs.waiting_call(call.id)) is not None:
-                waited.append(command)
+            elif call.name == "bash" and (wait := jobs.waiting_call(call.id)) is not None:
+                waited.append(wait[0])
+                endless = endless or not wait[1]
             elif (
                 call.name == "bash"
+                # Only in a held run: in the terminal UI a hand-over ends the run and gives the user the session,
+                # which a `ps` the agent acts on next would not warrant; its user can steer a loop of them.
                 and self.control.hold
                 and status_check(str(call.arguments.get("command", "")), others)
             ):
@@ -383,7 +387,8 @@ class Run:
                 return [], None, False
         if not waited and listed:
             waited = list(running.values())
-        return list(dict.fromkeys(waited)), STATUS_HOLD_S if checked else None, polled or listed or checked
+        looks = polled or listed or checked or endless
+        return list(dict.fromkeys(waited)), STATUS_HOLD_S if checked else None, looks
 
     def _requests(self) -> list[str]:
         """What the user asked in this session: their messages only, never the harness's or the model's."""

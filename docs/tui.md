@@ -181,7 +181,7 @@ waited on gets an amber `⚑` line of its own, and the agent is told. A command 
 (``⇢ `./ci.sh` went on in the background: System 1 judged it waits (0.88)``, or the timer, a stuck finding, a rule,
 your message), and System 1's row of the status bar lists the jobs it watches, each with its run time, its verdict at
 the latest look and the next look (`⧗ ./ci.sh 40s · waiting as expected · next look 20s`). When the agent only polls a
-running job it hands the session back (``⏸ Waiting on `./ci.sh`: you get the result when it ends; …``); the job's end
+running job, or only waits (a `sleep 300` that went on in the background), it hands the session back (``⏸ Waiting on `./ci.sh`: you get the result when it ends; …``); the job's end
 brings it back. With code search on,
 the index build (before a run's first turn in a git repository, else on `decision_code`'s first call) shows as a live meter
 (`⌁ Indexing the working directory for decision_code ━━━━━━──── 1,234 of 5,712 files`, from the engine's

@@ -55,6 +55,23 @@ def obvious_wait(command: str) -> str | None:
     return None
 
 
+def wait_ends(command: str) -> bool:
+    """Whether `command`, a wait by `obvious_wait`, ends by itself: a `sleep` or a CI watch, not `tail -f` or
+    `watch`."""
+    why = obvious_wait(command)
+    return why is not None and not why.endswith("does not end")
+
+
+def _log_names(command: str) -> set[str]:
+    """What `command` names that a check of it might read: its paths, the files it sends output to (`> train.log`,
+    `>> out`, `tee run.log`), and their last parts."""
+    paths = set(re.findall(r"[\w.~-]*/[\w./~-]+", command))
+    targets = {
+        t for t in re.findall(r"(?:>>?|\btee(?:\s+-a)?)\s*([^\s;&|<>]+)", command) if t != "/dev/null" and t[0] != "&"
+    }
+    return paths | targets | {t.rsplit("/", 1)[-1] for t in targets}
+
+
 PROCESS_STATUS = frozenset({"ps", "pgrep", "pidof", "jobs", "top", "nvidia-smi", "free", "uptime"})
 READS = frozenset(
     {
@@ -109,7 +126,7 @@ def status_check(command: str, running: list[str]) -> bool:
             return False  # `&`, `<`, and whatever else starts or feeds something
         else:
             parts[-1].append(token)
-    named = {t for c in running for t in re.findall(r"[\w.~-]*/[\w./~-]+", c)}
+    named = {name for c in running for name in _log_names(c)}
     about = False
     for words in parts:
         if not words:
@@ -319,6 +336,7 @@ class BashTool(Tool):
                     capture if captures else None,
                     held=kind != "serves",
                     waits=kind in ("rule", "waits"),
+                    ends=kind == "rule" and wait_ends(args.command),
                     note=why,
                     lift=deadline.lift,
                 )

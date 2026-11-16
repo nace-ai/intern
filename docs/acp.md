@@ -1024,3 +1024,16 @@ A System 1 fix; 0.30.5 clients keep working.
   session grew past about 10K tokens, and the run stopped with `system1_unavailable`. `[system1].max_state_tokens`
   stays the most any model is sent, and models with a larger window, `drex-*` and Jev among them, are unchanged.
 - `models --json` gives a `window` for the decisions API's System 1 entries too, from its listing.
+
+### 0.30.7
+
+Fewer turns while a job runs; 0.30.6 clients keep working, and nothing a client sends or reads changed shape.
+
+- A turn that only waits on what runs holds the prompt until there is news, as a turn that only polls a job does:
+  a `bash` wait that went on in the background (`sleep 300`, `tail -f`, `watch`, a CI watch) and, in a held prompt,
+  a check that only reads how a job is doing (`ps`, `tail -n 20 train.log`). Before, a model that waited with
+  `sleep` and checked with `ps` took a turn every second or two, each sending the whole session again. A `sleep`
+  now costs one turn; a check holds 60 s at most. A wait that does not end by itself (`tail -f`, `watch`) still
+  gets System 1's routine looks, so it never holds the prompt until its timeout.
+- The note a command gets when it goes on in the background tells the model to wait with `process poll` rather than
+  `sleep`, `ps` or `tail`.
