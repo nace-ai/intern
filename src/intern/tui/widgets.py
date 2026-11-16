@@ -86,7 +86,7 @@ ENDED = re.compile(
     re.S,
 )
 """A process's line in an end notice: the command, which may run over lines, and what became of it."""
-CD_FIRST = re.compile(r"""^cd (?:"[^"]*"|'[^']*'|\S+) && """)
+CD = re.compile(r"""^cd (?:"[^"]*"|'[^']*'|\S+) && """)
 OUTPUT_CHARS = 3_000
 FLUSH_S = 0.08
 METER_WIDTH = 10
@@ -179,7 +179,7 @@ def brief(command: str, cells: int = BRIEF_CELLS) -> str:
     """A command in a few words, for a line that is about something else (System 1's look at it, its end): its first
     line, without the `cd … &&` an agent puts before it, `…` for what is left out."""
     lines = command.strip().splitlines()
-    first = CD_FIRST.sub("", " ".join(lines[0].split())) if lines else ""
+    first = CD.sub("", " ".join(lines[0].split())) if lines else ""
     return clip(first + (" …" if len(lines) > 1 and not first.endswith("…") else ""), cells)
 
 
@@ -237,8 +237,6 @@ def process_result(content: str) -> tuple[str, str]:
 def call_title(name: str, arguments: JsonObject) -> str:
     """The tool and the argument that says what the call is about: its path, command, pattern, query, url."""
     subject = next((arguments[k] for k in TITLE_ARGUMENTS if isinstance(arguments.get(k), str)), None)
-    if name == "process":
-        subject = process_subject(arguments) or subject
     if subject is None:
         subject = json.dumps(arguments) if arguments else ""
     text = str(subject).strip()

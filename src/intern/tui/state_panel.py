@@ -49,12 +49,14 @@ from intern.tui.theme import (
     S_WARN,
 )
 from intern.tui.widgets import (
+    CD,
     Following,
     Part,
     clip,
     fit_path,
     flow,
     meter,
+    process_subject,
     short_path,
     stacked,
     tokens_text,
@@ -80,7 +82,6 @@ FAILED = re.compile(
     r"\b[1-9]\d* (?:failed|errors?|problems?)\b|\bFound [1-9]|\b[1-9]\d* files? would be reformatted", re.I
 )
 OMITTED = re.compile(r"^\[… (\d+) chars omitted …\]$")
-CD = re.compile(r"^cd \S+ && ")
 EMPTY = "System 1's State is the session as it reads it: it shows here from the first prompt."
 
 
@@ -119,8 +120,10 @@ def subject(call: CutCall, cwd: Path | None) -> tuple[str, str]:
     """What a call was about, as (a muted lead, the rest): `$` and the command for bash, else its path or the
     argument that names what it is about."""
     arguments = call.input
-    if isinstance(command := arguments.get("command"), str):
+    if isinstance(command := arguments.get("command"), str) and command:
         return "$ ", CD.sub("", first_line(command))  # where it ran says little: the working tree, mostly
+    if call.tool == "process" and (about := process_subject(arguments)):
+        return "", about  # `poll 1cf1caa9`: the action, and enough of the handle to tell two jobs apart
     if isinstance(pattern := arguments.get("pattern"), str):
         where = arguments.get("path")
         return "", f"{pattern} in {short_path(where, cwd)}" if isinstance(where, str) else pattern
