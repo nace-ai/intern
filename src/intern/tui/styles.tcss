@@ -94,16 +94,12 @@ Screen {
     margin: 1 0;
 }
 
-#welcome-wordmark, #welcome-tagline, #welcome-tips, #welcome-mascot, #welcome-where, #welcome-side {
+#welcome-wordmark, #welcome-tips, #welcome-mascot, #welcome-where, #welcome-side {
     height: auto;
 }
 
 #welcome-wordmark {
     margin: 0 1;
-}
-
-#welcome-tagline {
-    margin: 1 1 0 1;
 }
 
 #welcome-frame {
@@ -113,6 +109,7 @@ Screen {
     border: round $brand;
     border-title-color: $brand;
     border-title-style: bold;
+    border-title-align: center;
 }
 
 #welcome-side {
@@ -137,7 +134,7 @@ Screen {
     margin: 0;
 }
 
-#welcome.compact #welcome-wordmark, #welcome.compact #welcome-tagline, #welcome.compact #welcome-side {
+#welcome.compact #welcome-wordmark, #welcome.compact #welcome-side {
     display: none;
 }
 

@@ -6,28 +6,31 @@
     ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██║╚██╗██║
     ██║██║ ╚████║   ██║   ███████╗██║  ██║██║ ╚████║
     ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
-    Your intern, with a brain in two parts: ...
-    ╭─ Intern 0.30.7 · thinking, fast and slow ──────────────────────────────────────────────╮
-    │  (the mascot)       System 2  thinking slow   anthropic/claude-haiku-5-5 · thinking high │
-    │                     The agent model. It does the work: ...                             │
-    │                     System 1  thinking fast   drex-max · console                       │
-    │                     ◆ watch   ▣ guard   ⌕ search   ⟲ compaction, a line each           │
-    │  ~/work/parser      State  fast and slow                                               │
-    │  session 2026...    ● base tools  ● memory  ○ web search ...                           │
-    ╰────────────────────────────────────────────────────────────────────────────────────────╯
+    ╭──────────────────────── Intern v0.34.1 · thinking, fast and slow ────────────────────────╮
+    │  (the mascot,       Intern's brain has two parts. Its System 2, the agent model, thinks  │
+    │   glancing and      slow and does the work ... Its System 1 ... watches each turn ...    │
+    │   blinking)         System 2  thinking slow   anthropic/claude-haiku-5-5 · thinking high │
+    │                     System 1  thinking fast   drex-max · console                         │
+    │                     ◆ watch   ▣ guard   ⌕ search   ⟲ compaction, a line each             │
+    │  ~/work/parser      State  fast and slow   what System 1 judges from                     │
+    │  session 2026...    ● base tools  ● memory  ○ web search ...   9 tools                   │
+    ╰──────────────────────────────────────────────────────────────────────────────────────────╯
     Describe a task to begin.   /help commands   /system2 model   /caps capabilities ...
 
-The wordmark in the mascot's violets, one a row; in a frame, the mascot and beside it the two systems, each under
-its panel's tab: which model it is, what it does, and System 1's four jobs behind the glyphs its panel lists them
-under, so the page is also the panel's legend; the State, which System 1 judges from; then what the session has
-switched on, where it works and its journal. It is the transcript's
-first block, so what is said before the first prompt (a session that cannot open, `/help`) shows under it, and it
-goes when the conversation begins. A terminal too small to hold all of it gets the frame alone, a line a job.
+The wordmark in the mascot's violets, one a row. In a frame, the mascot as the README draws it, moving as it does
+there (`Mascot`), over where the session works and its journal; beside it, what Intern is in a paragraph, then the
+two systems, each under its panel's tab with the model it is on, and System 1's four jobs behind the glyphs its
+panel lists them under, so the page is also the panel's legend; the State, which System 1 judges from; then what
+the session has switched on. It is the transcript's first block, so what is said before the first prompt (a session
+that cannot open, `/help`) shows under it, and it goes when the conversation begins. A terminal too small to hold all
+of it gets the frame alone, a line a job.
 """
 
 from __future__ import annotations
 
+import functools
 import textwrap
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -52,7 +55,7 @@ from intern.tui.theme import (
     S_TAB,
     WORDMARK,
 )
-from intern.tui.widgets import MASCOT, Part, clip, fit_path, flow, short_path, stacked, system1_parts
+from intern.tui.widgets import Part, clip, fit_path, flow, short_path, stacked, system1_parts
 
 ART = (
     "██╗███╗   ██╗████████╗███████╗██████╗ ███╗   ██╗",
@@ -66,23 +69,28 @@ ART = (
 SHADES = tuple(MASCOT_COLOURS[pixel] for pixel in "986543")
 SHADOW = MASCOT_COLOURS["3"]
 """The letters' edges, in the mascot's deepest violet."""
-TAGLINE = (
-    "Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast and watches "
-    "every turn."
+TITLE = f"{WORDMARK} v{__version__} · thinking, fast and slow"
+ABOUT = (
+    "Intern's brain has two parts. Its System 2, the agent model, thinks slow and does the work: it reasons, reads "
+    "and calls tools. Its System 1, a second and faster model, thinks fast and watches each turn: it nudges your "
+    "intern when it goes in circles, checks risky tool calls before they run, and decides what your intern keeps in "
+    "mind when its context fills up."
 )
-TITLE = f"{WORDMARK} {__version__} · thinking, fast and slow"
-SYSTEM2 = "The agent model. It does the work: it reasons, reads, calls tools and writes the answer."
-SYSTEM1 = "A decision model. It answers in a fraction of a second, with a probability, and judges what System 2 does:"
+"""What Intern is, as the README says it."""
+ABOUT_SHORT = (
+    "Intern's brain has two parts: System 2 thinks slow and does the work, System 1 thinks fast and watches each turn."
+)
+"""The same for a small terminal."""
 JOBS: tuple[tuple[Kind, str], ...] = (
-    ("watch", "each turn: is the work advancing, or re-reading and retrying? Three stuck turns in a row get a nudge"),
+    ("watch", "each turn: advancing, or re-reading and retrying? Three stuck turns in a row get a nudge"),
     ("guard", "a risky tool call before it runs: what it would do, and whether you asked for it"),
-    ("search", "decision_code and decision_files, switched on with /caps: the places that answer a question"),
+    ("search", "decision_code and decision_files, on with /caps: the places that answer a question"),
     ("compaction", "the files read, when the context fills: the ones still being worked on are kept"),
 )
 """System 1's jobs, each behind its glyph on the System 1 panel."""
 GUARD: dict[GuardMode, str] = {
-    "off": 'off. [guard] mode = "full" in the config has System 1 judge a risky tool call before it runs',
-    "rules": 'fixed rules only: they refuse the clearly dangerous calls. [guard] mode = "full" adds System 1\'s say',
+    "off": 'off: [guard] mode = "full" in the config has System 1 judge risky calls before they run',
+    "rules": 'fixed rules only, for the clearly dangerous. [guard] mode = "full" adds System 1\'s say',
 }
 """What the guard's line says when `[guard] mode` leaves System 1 out of it."""
 STATE = (
@@ -97,17 +105,30 @@ HINTS = (
     ("Shift+Tab", "thinking"),
     ("/dark", "look"),
 )
-MASCOT_WIDTH = 2 * len(MASCOT[0])
+SPRITES = Path(__file__).with_name("mascot.png")
+"""The mascot's frames, side by side, `SPRITE` pixels square each: `docs/assets/mascot.svg` drawn at its animation's
+poses and scaled down, a pixel kept where the body covers two fifths of it. The eyes at rest, glancing left, glancing
+right and shut (`EYES`); then the same four with the body breathed in, a pixel shorter."""
+SPRITE = 28
+EYES = ("rest", "left", "right", "shut")
+LOOP_S = 8.0
+"""The mascot's loop, as the SVG's: it glances left, then right, and blinks twice."""
+BREATH_S = 4.0
+TICK_S = 0.08
+"""How often the mascot looks at the clock: a blink is two of these."""
+MASCOT_WIDTH = SPRITE
 SIDE_WIDTH = MASCOT_WIDTH + 4
 """The mascot's column, with the gap after it."""
-SIDE_ROWS = len(MASCOT) + 3
+SIDE_ROWS = SPRITE // 2 + 3
 """The mascot, a row of air and where the session works."""
 FRAME = 6
 """The frame's border and padding, across."""
 TEXT_WIDTH = 60
 """The narrowest the systems' column reads well beside the mascot."""
-CHROME_ROWS = 19
-"""The rows of the roomy page around the frame's inside: the wordmark, the tagline, the frame's edges, the tips."""
+TEXT_MAX = 104
+"""The widest a line of it runs: on a wide terminal the frame is wider than a paragraph reads."""
+CHROME_ROWS = 16
+"""The rows of the roomy page around the frame's inside: the wordmark, the frame's edges, the tips."""
 PROMPT_ROWS = 3
 
 
@@ -128,17 +149,89 @@ class Opening:
     guard: GuardMode = "full"
 
 
+def merged(cells: list[tuple[str, str]]) -> list[Part]:
+    """Cells of (text, style) as parts, neighbours in one style joined: a row of pixels is a few runs."""
+    parts: list[tuple[str, str]] = []
+    for text, style in cells:
+        if parts and parts[-1][1] == style:
+            parts[-1] = (parts[-1][0] + text, style)
+        else:
+            parts.append((text, style))
+    return [(text, style) if style else text for text, style in parts]
+
+
 def wordmark() -> Content:
-    """The block letters, lighter at the top as the mascot's top face is lit, their edges in its deepest shade."""
+    """The block letters, lighter at the top as the mascot's top face is lit, their edges in its deepest shade. A
+    letter's cells are coloured, not drawn: a terminal that sets its lines apart leaves gaps around a block glyph,
+    and none in a cell's background."""
     rows: list[list[Part]] = []
     for row, shade in zip(ART, SHADES, strict=True):
-        rows.append([(cell, shade if cell == "█" else SHADOW) if cell != " " else " " for cell in row])
+        rows.append(merged([(" ", f"on {shade}") if cell == "█" else (cell, SHADOW * (cell != " ")) for cell in row]))
     return stacked(rows)
 
 
-def mascot() -> Content:
-    """The mascot at twice the masthead's size: a pixel two cells wide and one tall, so it stays square."""
-    return stacked([[("██", MASCOT_COLOURS[pixel]) if pixel != "." else "  " for pixel in row] for row in MASCOT])
+@functools.cache
+def poses() -> tuple[Content, ...]:
+    """The mascot in each of its poses (`SPRITES`), two pixels to a cell, one over the other: a cell whose two are
+    one colour is that colour, else a half block over the other's."""
+    from PIL import Image
+
+    def colour(pixel: tuple[int, ...]) -> str:
+        return f"#{pixel[0]:02x}{pixel[1]:02x}{pixel[2]:02x}" if pixel[3] else ""
+
+    drawn: list[Content] = []
+    with Image.open(SPRITES) as sheet:
+        pixels = sheet.convert("RGBA")
+    for left in range(0, pixels.width, SPRITE):
+        rows: list[list[Part]] = []
+        for y in range(0, SPRITE, 2):
+            cells: list[tuple[str, str]] = []
+            for x in range(left, left + SPRITE):
+                top, bottom = colour(pixels.getpixel((x, y))), colour(pixels.getpixel((x, y + 1)))  # pyright: ignore[reportArgumentType]
+                if top == bottom:
+                    cells.append((" ", f"on {top}" if top else ""))
+                elif top:
+                    cells.append(("▀", f"{top} on {bottom}" if bottom else top))
+                else:
+                    cells.append(("▄", bottom))
+            rows.append(merged(cells))
+        drawn.append(stacked(rows))
+    return tuple(drawn)
+
+
+def pose_at(seconds: float) -> int:
+    """Which pose the mascot is in, `seconds` into its life, as the README's moves: its eyes glance left, then right,
+    and blink twice, each loop; its body breathes in and out all along."""
+    at = seconds % LOOP_S / LOOP_S
+    if 0.165 <= at < 0.365:
+        eyes = "left"
+    elif 0.485 <= at < 0.665:
+        eyes = "right"
+    elif 0.85 <= at < 0.87 or 0.905 <= at < 0.925:
+        eyes = "shut"
+    else:
+        eyes = "rest"
+    breathed_in = 0.25 <= seconds % BREATH_S / BREATH_S < 0.75
+    return EYES.index(eyes) + len(EYES) * breathed_in
+
+
+class Mascot(Static):
+    """The mascot, alive as the README's is. Still where motion is switched off (`TEXTUAL_ANIMATIONS=none`)."""
+
+    def __init__(self) -> None:
+        super().__init__(poses()[0], id="welcome-mascot")
+        self._pose = 0
+        self._born = time.monotonic()
+
+    def on_mount(self) -> None:
+        if self.app.animation_level != "none":
+            self.set_interval(TICK_S, self._tick)
+
+    def _tick(self) -> None:
+        pose = pose_at(time.monotonic() - self._born)
+        if pose != self._pose:
+            self._pose = pose
+            self.update(poses()[pose])
 
 
 def where(o: Opening, width: int) -> list[list[Part]]:
@@ -156,22 +249,23 @@ def paragraph(text: str, width: int, style: str = S_MUTED) -> list[list[Part]]:
 
 
 def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
-    """The two systems, each under its panel's tab: the model, what it does; System 1's jobs, a glyph each; then
-    the capabilities. `roomy`, a job wraps under itself and the State has its lines too; else a job is one line,
-    and where the session works comes last, there being no mascot to put it under."""
+    """What Intern is, then the two systems, each under its panel's tab with its model; System 1's jobs, a glyph
+    each; then the capabilities. `roomy`, a job wraps under itself and the State has its line too; else a job is one
+    line, and where the session works comes last, there being no mascot to put it under."""
+    width = min(width, TEXT_MAX)
     model1, served = system1_parts(o.system1)
     thinking = f" · thinking {o.thinking}" if o.thinking else ""
     lines: list[list[Part]] = [
-        [(" System 2 ", S_TAB), ("  thinking slow   ", S_MUTED), (o.system2, S_HEAD), (thinking, S_MUTED)],
-        *paragraph(SYSTEM2, width),
+        *paragraph(ABOUT if roomy else ABOUT_SHORT, width, S_INK),
         [],
+        [(" System 2 ", S_TAB), ("  thinking slow   ", S_MUTED), (o.system2, S_HEAD), (thinking, S_MUTED)],
+        *([[]] * roomy),
         [
             (" System 1 ", S_TAB),
             ("  thinking fast   ", S_MUTED),
             (model1, S_HEAD),
             (f" · {served}" * bool(served), S_MUTED),
         ],
-        *paragraph(SYSTEM1, width),
     ]
     for job, does in JOBS:
         idle = job == "guard" and o.guard != "full"
@@ -210,11 +304,10 @@ class Welcome(Vertical):
 
     def compose(self) -> ComposeResult:
         yield Static(wordmark(), id="welcome-wordmark")
-        yield Static(Content.styled(TAGLINE, S_MUTED), id="welcome-tagline")
         with Horizontal(id="welcome-frame") as frame:
             frame.border_title = TITLE
             with Vertical(id="welcome-side"):
-                yield Static(mascot(), id="welcome-mascot")
+                yield Mascot()
                 yield Static(id="welcome-where")
             yield Static(id="welcome-systems")
         yield Static(id="welcome-tips")

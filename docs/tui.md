@@ -48,47 +48,48 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
  ██║██║ ╚████║   ██║   ███████╗██║  ██║██║ ╚████║
  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
 
- Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast and watches
- every turn.
-
-╭─ Intern 0.30.7 · thinking, fast and slow ──────────────────────────────────────────────────────────────────╮
-│                                                                                                            │
-│         ████             ▐System 2▌ thinking slow   anthropic/claude-haiku-5-5 · thinking high             │
-│       ████████           The agent model. It does the work: it reasons, reads, calls tools and writes      │
-│   ██████████████         the answer.                                                                       │
-│  ████  ██  ██  ███                                                                                         │
-│  ███    █   █  ████      ▐System 1▌ thinking fast   drex-max · console                                     │
-│   █████████████████      A decision model. It answers in a fraction of a second, with a probability,       │
-│    ██████████████        and judges what System 2 does:                                                    │
-│      ██████████          ◆ watch       each turn: is the work advancing, or re-reading and retrying?       │
-│        ██████                          Three stuck turns in a row get a nudge                              │
-│          ██              ▣ guard       a risky tool call before it runs: what it would do, and whether     │
-│                                        you asked for it                                                    │
-│  ~/work/parser           ⌕ search      decision_code and decision_files, switched on with /caps: the       │
-│  session 20261108-21…                  places that answer a question                                       │
-│                          ⟲ compaction  the files read, when the context fills: the ones still being        │
-│                                        worked on are kept                                                  │
-│                                                                                                            │
-│                          ▐State▌ fast and slow                                                             │
-│                          What System 1 judges from: the session as it reads it, your requests as the       │
-│                          goal and then the history, cut to fit its window.                                 │
-│                                                                                                            │
-│                          ● base tools  ○ web search  ○ web read  ○ browser  ● code search  ○ workspace     │
-│                          ● memory  27 tools                                                                │
-│                                                                                                            │
-╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────────────────── Intern v0.34.1 · thinking, fast and slow ──────────────────────────────────╮
+│                                                                                                              │
+│             ▄▄▄▄              Intern's brain has two parts. Its System 2, the agent model, thinks slow and   │
+│         ▄▄████████▄           does the work: it reasons, reads and calls tools. Its System 1, a second and   │
+│      ▄▄██████████▄▄▄█▄        faster model, thinks fast and watches each turn: it nudges your intern when    │
+│    ▄███████████▄▀▄██▄▀█▄      it goes in circles, checks risky tool calls before they run, and decides       │
+│   ██████████▄▄▄█ ████ ███▄    what your intern keeps in mind when its context fills up.                      │
+│   ████████▄▀▄██▄▀▄▄▄▄▀█████                                                                                  │
+│  █████████ ████ ███████████   ▐System 2▌ thinking slow   anthropic/claude-haiku-5-5 · thinking high          │
+│  ██████████▄▄▄▄████████████                                                                                  │
+│  █████████████████████████    ▐System 1▌ thinking fast   drex-max · console                                  │
+│   ████████████████████████    ◆ watch       each turn: advancing, or re-reading and retrying? Three          │
+│    ▀████████████████████▀                   stuck turns in a row get a nudge                                 │
+│      ▀████████████████▀       ▣ guard       off: [guard] mode = "full" in the config has System 1            │
+│        ▀███████████▀▀                       judge risky calls before they run                                │
+│          ▀▀████▀▀             ⌕ search      decision_code and decision_files, on with /caps: the             │
+│                                             places that answer a question                                    │
+│  ~/work/parser                ⟲ compaction  the files read, when the context fills: the ones still           │
+│  session 20261108-21…                       being worked on are kept                                         │
+│                                                                                                              │
+│                               ▐State▌ fast and slow                                                          │
+│                               What System 1 judges from: the session as it reads it, your requests as the    │
+│                               goal and then the history, cut to fit its window.                              │
+│                                                                                                              │
+│                               ● base tools  ○ web search  ○ web read  ○ browser  ● code search               │
+│                               ○ workspace  ● memory  27 tools                                                │
+│                                                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 
  Describe a task to begin.   /help commands   /system2 model   /caps capabilities   Shift+Tab thinking   /dark look
 ```
-
-The wordmark in block letters, a row for each of the mascot's violets, lightest at the top as its top face is lit;
-then, in a frame, the mascot at twice the masthead's size and beside it the two systems, each under the tab its
-panel has: the model the session opened on, what the system does, and System 1's four jobs behind the glyphs its
-panel lists them under, so the page is also that panel's legend (the guard's line says so when `[guard] mode` is
-`off` or `rules`). Then the State, what the session has switched on (`●` on, `○` off: `/caps` changes them) and how
-many tools that comes to; under the mascot, the working directory and the session's journal. The last line says what
-to do and the keys worth knowing first; while the session is opening, or when it could not open, it says that
-instead.
+The wordmark in block letters, a row for each of the mascot's violets, lightest at the top as its top face is lit.
+Then a frame. In it the mascot, drawn from the README's (`tui/mascot.png`: `docs/assets/mascot.svg` at its
+animation's poses, 28 pixels square, two to a cell) and moving as that one does: every eight seconds its eyes glance
+left, then right, and blink twice, and it breathes all along; `TEXTUAL_ANIMATIONS=none` holds it still. Under it,
+the working directory and the session's journal. Beside it, what Intern is, in the README's paragraph; then the two
+systems, each under the tab its panel has, with the model the session opened on, and System 1's four jobs behind the
+glyphs its panel lists them under, so the page is also that panel's legend (the guard's line says so when `[guard]
+mode` is `off` or `rules`). Then the State, what the session has switched on (`●` on, `○` off: `/caps` changes them)
+and how many tools that comes to. The last line says what to do and the keys worth knowing first; while the session
+is opening, or when it could not open, it says that instead. A letter's cells and the mascot's are coloured rather
+than drawn with block glyphs where they can be, so a terminal that sets its lines apart shows no gaps in them.
 
 The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It
 follows the session, so a `/system2` or `/caps` pick made before the first prompt shows on it, and whatever is

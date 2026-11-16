@@ -487,6 +487,7 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(tm
         # The two systems, each on the model the session opened with, and what System 1 is asked for.
         assert "System 2   thinking slow   fake/model" in said and "System 1   thinking fast   drex-latest" in said
         assert all(job in said for job in ("◆ watch", "▣ guard", "⌕ search", "⟲ compaction"))
+        assert "Intern's brain has two parts" in said  # what it is, in a paragraph
         assert "● base tools" in said and "Describe a task to begin." in said
         # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
         # nothing under the prompt, and the panels it stands in for are away.
