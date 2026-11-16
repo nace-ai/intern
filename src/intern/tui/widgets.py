@@ -54,7 +54,10 @@ from intern.tui.ledger import (
 )
 from intern.tui.outline import EMPHASIS, LIST_ITEM, QUOTE, Outline, Status, parse_state, plain
 from intern.tui.theme import (
+    CARD,
+    MASCOT_BODY,
     MASCOT_COLOURS,
+    PAPER,
     S_BAD,
     S_BAD_BOLD,
     S_BOX,
@@ -94,54 +97,131 @@ FILLED, TRACK = "━", "─"
 PIP_ON, PIP_OFF = "▰", "▱"
 """The thinking box's meter: a pip per level the model takes, filled up to the one in force."""
 MASCOT = (
-    ".......99.....",
-    "......9999....",
-    "....9999999...",
-    "..6999999KK9..",
-    "..668KK8KWWK8.",
-    "..66KWWKKWWK88",
-    ".666KWWK8KK844",
-    ".6666KK888844.",
-    ".666666684444.",
-    "..5555554444..",
-    "...555533333..",
-    "....555333....",
-    ".....5533.....",
-    "......53......",
+    ".......##.....",
+    ".....#####....",
+    "...########...",
+    "..#######KK#..",
+    ".####KK#KWWK#.",
+    ".###KWWKKWWK##",
+    ".###KWWK#KK###",
+    "#####KK######.",
+    "#############.",
+    ".###########..",
+    "..##########..",
+    "...#######....",
+    "....#####.....",
+    ".....##.......",
 )
-"""The mascot, a character per pixel (`theme.MASCOT_COLOURS`, `.` the page): the Nace cube tilted as in the Nace logo,
-its top face lit, round glasses on the top face with the right lens a pixel higher, as the face lies in perspective.
-Fourteen pixels tall so it stands seven rows, the masthead's height. A pixel is a cell wide and half a cell tall,
-so it is square on screen."""
+"""The mascot, a character per pixel (`#` its body, `theme.MASCOT_BODY`; the rest `theme.MASCOT_COLOURS`; `.` the
+page): the README's cube in outline, tilted as in the Nace logo, lighter at the top as that one is, with no edge
+between its faces (under the glasses one reads as a mouth); round glasses with the right lens a pixel higher, as the
+top face lies in perspective. Fourteen pixels
+tall so it stands seven rows, the masthead's height. A pixel is a cell wide and half a cell tall, so it is square on
+screen. The glasses are drawn by hand: at this size the README's scaled down are a smudge."""
+EYES = ("rest", "left", "right", "shut")
+"""The mascot's poses: its eyes at rest, glancing left, glancing right and shut."""
+LOOK = ("WW", "W9", "9W", "99")
+"""`MASCOT`'s eye in each pose, a lens being two pixels across: its white, or the lens where it has left."""
+ART = (
+    "██ ███  ██ ████████ ███████ ██████  ███  ██",
+    "██ ████ ██    ██    ██      ██   ██ ████ ██",
+    "██ ██ ████    ██    █████   ██████  ██ ████",
+    "██ ██  ███    ██    ██      ██   ██ ██  ███",
+    "██ ██   ██    ██    ███████ ██   ██ ██   ██",
+)
+"""The wordmark in block letters, a row for each of the mascot's violets (`SHADES`): the entering page's, and the
+masthead's on a wide terminal."""
+SHADES = tuple(MASCOT_COLOURS[pixel] for pixel in "98654")
+SHADOW = "#3b2470"
+"""The letters' shadow, a pixel down and to the right: a violet deeper than any of the mascot's, which reads on both
+pages."""
+LOOP_S = 8.0
+"""The mascot's loop, as the README's: it glances left, then right, and blinks twice."""
 FLASH_S = 1.5
-HINT = (("/help", "commands"),)
-"""The masthead's last row: the rest, the commands and the keys, is in /help."""
 LABEL_WIDTH = 10
 """The masthead's label column: `System 2` and room after it."""
+LETTERS_WIDTH = len(MASCOT[0]) + 3 + len(ART[0]) + 1 + 4
+"""The mark, the block letters and the air after each: what the masthead's table needs beside it to stand with the
+letters."""
 COLUMN_GAP = 3
 SEP = "  ·  "
 
 
-@functools.cache
-def mark() -> list[Content]:
-    """The mark, one `Content` per row for laying the masthead's text beside it: the mascot, two pixels to a cell,
-    the upper one the half block's colour and the lower its background; where a pixel is the page, it is left out."""
-    rows: list[Content] = []
-    for upper, lower in zip(MASCOT[::2], MASCOT[1::2], strict=True):
-        cells: list[Part] = []
+Part = str | tuple[str, str]
+
+
+def merged(cells: list[tuple[str, str]]) -> list[Part]:
+    """Cells of (text, style) as parts, neighbours in one style joined: a row of pixels is a few runs."""
+    parts: list[tuple[str, str]] = []
+    for text, style in cells:
+        if parts and parts[-1][1] == style:
+            parts[-1] = (parts[-1][0] + text, style)
+        else:
+            parts.append((text, style))
+    return [(text, style) if style else text for text, style in parts]
+
+
+def pixels(grid: list[list[str]], page: str) -> list[list[Part]]:
+    """A grid of pixel colours (`""` where the page shows) as rows of cells, two pixels to a cell, one over the
+    other: the upper is the cell's background and the lower a lower half block on it, in `page`'s colour where the
+    page shows under a pixel. Never an upper half block: a terminal draws a cell's background exactly and a glyph
+    where its font puts it, and macOS Terminal, which sets its lines apart, starts an upper half block short of the
+    cell's top (the gap shows whatever is behind) while a lower one ends at the cell's bottom."""
+    rows: list[list[Part]] = []
+    for upper, lower in zip(grid[::2], grid[1::2], strict=True):
+        cells: list[tuple[str, str]] = []
         for top, bottom in zip(upper, lower, strict=True):
-            above, below = MASCOT_COLOURS.get(top), MASCOT_COLOURS.get(bottom)
-            if above and below:
-                cells.append(("▀", f"{above} on {below}"))
-            elif above or below:
-                cells.append(("▀" if above else "▄", above or below or ""))
+            if top == bottom:
+                cells.append((" ", f"on {top}" if top else ""))
             else:
-                cells.append(" ")
-        rows.append(Content.assemble(*cells))
+                cells.append(("▄", f"{bottom or page} on {top}" if top else bottom))
+        rows.append(merged(cells))
     return rows
 
 
-Part = str | tuple[str, str]
+@functools.cache
+def wordmark(scale: int = 1, page: str = PAPER) -> list[Content]:
+    """The block letters, one `Content` per row, lighter at the top as the mascot is, with a shadow a pixel down and
+    to the right. A letter's row is two pixels tall, so the shadow is as thin under it as beside it. `scale` 2 draws
+    it twice the size, for a terminal with the room; `page` is what it stands on."""
+    width, height = (len(ART[0]) + 1) * scale, (2 * len(ART) + 2) * scale
+    grid = [[""] * width for _ in range(height)]
+    for row, (line, shade) in enumerate(zip(ART, SHADES, strict=True)):
+        for column, cell in enumerate(line):
+            if cell == "█":
+                for y in range(2 * row * scale, 2 * (row + 1) * scale):
+                    grid[y][column * scale : (column + 1) * scale] = [shade] * scale
+    for y in range(height - 1, scale - 1, -1):
+        for x in range(width - 1, scale - 1, -1):
+            if not grid[y][x] and grid[y - scale][x - scale] not in ("", SHADOW):
+                grid[y][x] = SHADOW
+    return [Content.assemble(*row) for row in pixels(grid, page)]
+
+
+def pose_at(seconds: float) -> int:
+    """Which pose the mascot is in, `seconds` into its life, as the README's moves: its eyes glance left, then right,
+    and blink twice, each loop. It does not breathe as that one does: a breath is less than a cell."""
+    at = seconds % LOOP_S / LOOP_S
+    if 0.165 <= at < 0.365:
+        return EYES.index("left")
+    if 0.485 <= at < 0.665:
+        return EYES.index("right")
+    if 0.85 <= at < 0.87 or 0.905 <= at < 0.925:
+        return EYES.index("shut")
+    return EYES.index("rest")
+
+
+@functools.cache
+def mark(pose: int = 0) -> list[Content]:
+    """The mark, one `Content` per row for laying the masthead's text beside it: the mascot (`pixels`) on the
+    masthead's card, its eyes in a pose (`EYES`)."""
+    colours = MASCOT_COLOURS | {".": ""}
+    grid = [
+        [colours.get(pixel, body) for pixel in row.replace(LOOK[0], LOOK[pose])]
+        for row, body in zip(MASCOT, MASCOT_BODY, strict=True)
+    ]
+    return [Content.assemble(*row) for row in pixels(grid, CARD)]
+
 
 STEP_GLYPH: dict[Status, tuple[str, str]] = {
     "done": ("✓", S_OK),
@@ -324,18 +404,10 @@ def joined(parts: list[Part]) -> list[Part]:
     return out
 
 
-def key_hints(pairs: tuple[tuple[str, str], ...]) -> list[Part]:
-    """Keys in ink, each followed by what it does, muted; spaced, not dotted, so the keys stand out."""
-    out: list[Part] = []
-    for key, action in pairs:
-        out += ["   "] if out else []
-        out += [(key, S_INK), (f" {action}", S_MUTED)]
-    return out
-
-
 class StatusBar(Static):
-    """The masthead: the mark, and beside it the wordmark on its top row, `/help` on its bottom row, and between
-    them a table: System 2 and System 1, a label column, then the model in a column of its own, then the rest:
+    """The masthead: the mark, the wordmark in the entering page's block letters where the terminal is wide enough
+    for them (else in type, over the table), then the version and under it a table: System 2 and
+    System 1, a label column, then the model in a column of its own, then the rest:
     the thinking level in its box, where System 1 is served; then each system's cost, in a column. At the end of
     System 2's row, the run: a spinner while one is in progress, the context in use as a share of the window, and
     what needs attention."""
@@ -363,13 +435,19 @@ class StatusBar(Static):
         self._flash = ""
         self._flash_timer: Timer | None = None
         self._frame = 0
+        self._pose = 0
+        self._born = time.monotonic()
 
     def on_mount(self) -> None:
         self.set_interval(SPIN_S, self._spin)
 
     def _spin(self) -> None:
-        if self.running:
-            self._frame += 1
+        """The spinner's next frame while a run is in progress, and the mark's eyes, alive as the entering page's
+        are; still where motion is switched off (`TEXTUAL_ANIMATIONS=none`)."""
+        pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
+        if self.running or pose != self._pose:
+            self._frame += self.running
+            self._pose = pose
             self.refresh_line()
 
     def flash(self, text: str) -> None:
@@ -416,17 +494,24 @@ class StatusBar(Static):
             run.append((self._flash, S_OK))
         elif self.note:
             run.append((self.note, S_BAD))
-        rows: list[list[Part]] = [
-            [(WORDMARK, S_WORDMARK), (f"  {__version__}", S_MUTED)],
-            [],
+        table = [
             table_row("System 2", (self.system2, S_INK), thinking, cost2, [state, " ", *joined(run)]),
             table_row("System 1", (model1, S_INK), where, cost1, [(self.watching, S_MUTED)] if self.watching else []),
-            [],
-            [],
-            key_hints(HINT),
         ]
-        lines = [Content.assemble(cube, "   ", *row) for cube, row in zip(mark(), rows, strict=True)]
+        # With the room, the entering page's block letters between the mark and the table; else the name in type.
+        letters = wordmark(page=CARD)
+        beside = [Content(" " * letters[0].cell_length), *letters]
+        name: list[Part] = [(WORDMARK.upper(), S_WORDMARK), "  "]
+        wide = max(Content.assemble(*row).cell_length for row in table) + LETTERS_WIDTH <= self.size.width
+        rows: list[list[Part]] = [[], [*([] if wide else name), (f"v{__version__}", S_MUTED)], [], *table, [], []]
+        lines = [
+            Content.assemble(cube, "   ", *([word, "    "] if wide else []), *row)
+            for cube, word, row in zip(mark(self._pose), beside, rows, strict=True)
+        ]
         self.update(Content("\n").join(lines))
+
+    def on_resize(self) -> None:
+        self.refresh_line()
 
 
 NEWLINE_KEYS = ("shift+enter", "ctrl+j")

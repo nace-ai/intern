@@ -57,8 +57,26 @@ MASCOT_COLOURS = {
     "K": "#1c1c1a",
     "W": "#ffffff",
 }
-"""The mascot's pixels (`widgets.MASCOT`): the cube's three faces, each a little darker lower down, the top `9` and
-`8`, the left `6` and `5`, the right, in shadow, `4` and `3`; the glasses' frames, `K`; the eyes, `W`."""
+"""The mascot's colours: its violets from the lightest, `9`, down (the wordmark's rows, and `9` a lens of the
+mark's glasses with the eye gone from it); the glasses' frames, `K`; the eyes, `W`."""
+MASCOT_BODY = (
+    "#b88bff",
+    "#b281ff",
+    "#ac78ff",
+    "#a66eff",
+    "#a064ff",
+    "#9a5cfe",
+    "#975af8",
+    "#9357f2",
+    "#9055ec",
+    "#8c53e6",
+    "#8851e1",
+    "#854fdb",
+    "#814dd5",
+    "#7e4bcf",
+)
+"""The mark's body (`widgets.MASCOT`'s `#`), a colour for each row of pixels: the README cube's own gradient, top to
+bottom, in steps too small to read as bands."""
 
 PAPER = "$background"
 CARD = "$surface"

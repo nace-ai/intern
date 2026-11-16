@@ -12,8 +12,8 @@
     │ anthropic/claude-haiku-5-5           │    (the mascot,    │ drex-max                             │
     │ thinking high · 9 tools              │     glancing       │ console                              │
     │                                      │     and blinking)  │                                      │
-    │ ● base tools   files and the shell   │                    │ ◆ watch       nudges it out of ...   │
-    │ ○ web search   searches the web ...  │                    │ ▣ guard  ⌕ search  ⟲ compaction      │
+    │ ● base tools   files and the shell   │                    │ ● watch       nudges it out of ...   │
+    │ ○ web search   searches the web ...  │                    │ ● guard  ○ search  ● compaction      │
     ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
@@ -21,8 +21,8 @@
 
 Intern is a brain in two parts, and the page is drawn as one: the mascot, the README's with its eyes moving as they
 do there (`Mascot`), between its two systems, each a card with the model it is on. System 2's card has what the
-session has switched on, each capability in a few words; System 1's has its four jobs, behind the glyphs its panel
-lists them under, so the page is also that panel's legend, and what it judges from. Above them the wordmark, in the
+session has switched on, each capability in a few words; System 1's has its four jobs, each on or off as a
+capability is, and what it judges from. Above them the wordmark, in the
 mascot's violets, and what Intern is, in the README's paragraph; under them where the session works, then what to do
 next. All of it centred, and a third of the way down a tall terminal.
 
@@ -49,10 +49,10 @@ from textual.widgets import Static
 from intern import __version__
 from intern.guard import GuardMode
 from intern.tui.ledger import Kind
-from intern.tui.system1_panel import GLYPH
 from intern.tui.theme import (
     BRAND,
-    MASCOT_COLOURS,
+    DARK,
+    LIGHT,
     S_BAD,
     S_HEAD,
     S_INK,
@@ -62,20 +62,21 @@ from intern.tui.theme import (
     S_TAB,
     WORDMARK,
 )
-from intern.tui.widgets import Part, clip, fit_path, flow, short_path, stacked, system1_parts
-
-ART = (
-    "██ ███  ██ ████████ ███████ ██████  ███  ██",
-    "██ ████ ██    ██    ██      ██   ██ ████ ██",
-    "██ ██ ████    ██    █████   ██████  ██ ████",
-    "██ ██  ███    ██    ██      ██   ██ ██  ███",
-    "██ ██   ██    ██    ███████ ██   ██ ██   ██",
+from intern.tui.widgets import (
+    ART,
+    EYES,
+    Part,
+    clip,
+    fit_path,
+    flow,
+    pixels,
+    pose_at,
+    short_path,
+    stacked,
+    system1_parts,
+    wordmark,
 )
-"""The wordmark in block letters, a row for each of the mascot's violets (`SHADES`)."""
-SHADES = tuple(MASCOT_COLOURS[pixel] for pixel in "98654")
-SHADOW = "#3b2470"
-"""The letters' shadow, a pixel down and to the right: a violet deeper than any of the mascot's, which reads on both
-pages."""
+
 TITLE = f"{WORDMARK} v{__version__} · thinking, fast and slow"
 ABOUT = (
     "Intern's brain has two parts. Its System 2, the agent model, thinks slow and does the work: it reasons, reads "
@@ -94,7 +95,9 @@ JOBS: tuple[tuple[Kind, str], ...] = (
     ("search", "finds the places to read"),
     ("compaction", "keeps what still matters"),
 )
-"""System 1's jobs, each behind its glyph on the System 1 panel, in the words the paragraph has for them."""
+"""System 1's jobs, in the words the paragraph has for them."""
+SEARCHES = ("cap.code-search", "cap.workspace")
+"""The capabilities System 1 does the searching for."""
 GUARD: dict[GuardMode, str] = {"off": "off · [guard] mode", "rules": "fixed rules only"}
 """What the guard's line says when `[guard] mode` leaves System 1 out of it."""
 STATE = (
@@ -124,18 +127,15 @@ HINTS = (
     ("/dark", "look"),
 )
 SPRITES = Path(__file__).with_name("mascot.png")
-"""The mascot's frames, side by side, each `SPRITE_COLUMNS` by `SPRITE_ROWS`, a pixel a whole cell: a terminal draws
-a cell's background exactly, and a half block only as well as its font does (Terminal.app leaves gaps around them).
-The cube is `docs/assets/mascot.svg`'s, scaled down, a colour a row; the glasses are drawn by hand for cells twice as
-tall as wide, a stroke two cells across and one down, with the eyes at rest, glancing left, glancing right and shut
-(`EYES`)."""
+"""The mascot's poses, side by side, one for each of `EYES`: `docs/assets/mascot.svg` without the shadow under it,
+as a browser draws it 160 pixels wide with its eyes at rest, glancing left, glancing right and shut. `poses` scales
+them to the cells."""
 SPRITE_COLUMNS, SPRITE_ROWS = 32, 16
-EYES = ("rest", "left", "right", "shut")
-LOOP_S = 8.0
-"""The mascot's loop, as the SVG's: it glances left, then right, and blinks twice."""
+"""The mascot in cells, two pixels to a cell down: as wide in pixels as it is tall."""
+BIG_COLUMNS, BIG_ROWS = 40, 20
+"""The same on a wide page with the room for it."""
 TICK_S = 0.08
 """How often the mascot looks at the clock: a blink is two of these."""
-MASCOT_ROWS = SPRITE_ROWS
 ABOUT_WIDTH = 100
 """The widest the paragraph runs: a wide terminal is wider than a line reads."""
 CARD_WIDTH = 44
@@ -156,7 +156,7 @@ WORDMARK_ROWS = len(ART) + 1
 """The rows a terminal too short for a page gets back when the page goes without its wordmark."""
 SIDE_WIDTH = SPRITE_COLUMNS + 4
 """The mascot's column in the frame, with the gap after it."""
-SIDE_ROWS = MASCOT_ROWS + 3
+SIDE_ROWS = SPRITE_ROWS + 3
 """The mascot, a row of air and where the session works."""
 FRAME = 6
 """The frame's border and padding, across."""
@@ -189,84 +189,24 @@ class Opening:
     guard: GuardMode = "full"
 
 
-def merged(cells: list[tuple[str, str]]) -> list[Part]:
-    """Cells of (text, style) as parts, neighbours in one style joined: a row of pixels is a few runs."""
-    parts: list[tuple[str, str]] = []
-    for text, style in cells:
-        if parts and parts[-1][1] == style:
-            parts[-1] = (parts[-1][0] + text, style)
-        else:
-            parts.append((text, style))
-    return [(text, style) if style else text for text, style in parts]
-
-
-def pixels(grid: list[list[str]]) -> Content:
-    """A grid of pixel colours (`""` where there is none) as text, two pixels to a cell, one over the other. A cell
-    whose two are one colour is that colour, with no glyph: a terminal that sets its lines apart leaves gaps around a
-    block glyph, and none in a cell's background. Else it is a half block over the other's."""
-    rows: list[list[Part]] = []
-    for upper, lower in zip(grid[::2], grid[1::2], strict=True):
-        cells: list[tuple[str, str]] = []
-        for top, bottom in zip(upper, lower, strict=True):
-            if top == bottom:
-                cells.append((" ", f"on {top}" if top else ""))
-            elif top:
-                cells.append(("▀", f"{top} on {bottom}" if bottom else top))
-            else:
-                cells.append(("▄", bottom))
-        rows.append(merged(cells))
-    return stacked(rows)
-
-
 @functools.cache
-def wordmark(scale: int = 1) -> Content:
-    """The block letters, lighter at the top as the mascot's top face is lit, with a shadow a pixel down and to the
-    right. A letter's row is two pixels tall, so the shadow is as thin under it as beside it. `scale` 2 draws it
-    twice the size, for a terminal with the room."""
-    width, height = (len(ART[0]) + 1) * scale, (2 * len(ART) + 2) * scale
-    grid = [[""] * width for _ in range(height)]
-    for row, (line, shade) in enumerate(zip(ART, SHADES, strict=True)):
-        for column, cell in enumerate(line):
-            if cell == "█":
-                for y in range(2 * row * scale, 2 * (row + 1) * scale):
-                    grid[y][column * scale : (column + 1) * scale] = [shade] * scale
-    for y in range(height - 1, scale - 1, -1):
-        for x in range(width - 1, scale - 1, -1):
-            if not grid[y][x] and grid[y - scale][x - scale] not in ("", SHADOW):
-                grid[y][x] = SHADOW
-    return pixels(grid)
-
-
-@functools.cache
-def poses() -> tuple[Content, ...]:
-    """The mascot in each of its poses (`SPRITES`), every cell one colour."""
-    from PIL import Image
+def poses(columns: int, rows: int, page: str) -> tuple[Content, ...]:
+    """The mascot in each of its poses (`SPRITES`), `columns` cells by `rows`, on a page of the colour `page`: two
+    pixels to a cell, each the mean of what it covers of the drawing, so the cube's edge is a blend with the page and
+    not a step."""
+    from PIL import Image, ImageColor
 
     with Image.open(SPRITES) as sheet:
-        image = sheet.convert("RGBA")
-
-    def colour(x: int, y: int) -> str:
-        red, green, blue, alpha = image.getpixel((x, y))  # pyright: ignore[reportGeneralTypeIssues]
-        return f"#{red:02x}{green:02x}{blue:02x}" if alpha else ""
-
-    return tuple(
-        # A row of cells is the same pixel over itself: `pixels` then draws no half block.
-        pixels([[colour(x, y) for x in range(left, left + SPRITE_COLUMNS)] for y in range(SPRITE_ROWS) for _ in "12"])
-        for left in range(0, image.width, SPRITE_COLUMNS)
-    )
-
-
-def pose_at(seconds: float) -> int:
-    """Which pose the mascot is in, `seconds` into its life, as the README's moves: its eyes glance left, then right,
-    and blink twice, each loop. It does not breathe as that one does: a breath is less than a cell."""
-    at = seconds % LOOP_S / LOOP_S
-    if 0.165 <= at < 0.365:
-        return EYES.index("left")
-    if 0.485 <= at < 0.665:
-        return EYES.index("right")
-    if 0.85 <= at < 0.87 or 0.905 <= at < 0.925:
-        return EYES.index("shut")
-    return EYES.index("rest")
+        paper = Image.new("RGBA", sheet.size, page)
+        paper.alpha_composite(sheet.convert("RGBA"))
+    blank, width = bytes(ImageColor.getrgb(page)[:3]), paper.width // len(EYES)
+    drawn: list[Content] = []
+    for left in range(0, paper.width, width):
+        pose = paper.crop((left, 0, left + width, paper.height)).convert("RGB")
+        data = pose.resize((columns, 2 * rows), Image.Resampling.BOX).tobytes()
+        colours = ["" if data[at : at + 3] == blank else f"#{data[at : at + 3].hex()}" for at in range(0, len(data), 3)]
+        drawn.append(stacked(pixels([colours[at : at + columns] for at in range(0, len(colours), columns)], page)))
+    return tuple(drawn)
 
 
 class Mascot(Static):
@@ -274,19 +214,27 @@ class Mascot(Static):
     (`TEXTUAL_ANIMATIONS=none`)."""
 
     def __init__(self) -> None:
-        super().__init__(poses()[0], id="welcome-mascot")
-        self._pose = 0
+        super().__init__(id="welcome-mascot")
+        self._cells = (SPRITE_COLUMNS, SPRITE_ROWS)
+        self._shown: object = None
         self._born = time.monotonic()
 
     def on_mount(self) -> None:
-        if self.app.animation_level != "none":
-            self.set_interval(TICK_S, self._tick)
+        self._tick()
+        self.set_interval(TICK_S, self._tick)
+
+    def fit(self, columns: int, rows: int) -> None:
+        """Stand `columns` cells by `rows`."""
+        self._cells = (columns, rows)
+        self._tick()
 
     def _tick(self) -> None:
-        pose = pose_at(time.monotonic() - self._born)
-        if pose != self._pose:
-            self._pose = pose
-            self.update(poses()[pose], layout=False)  # every pose is the same size
+        """Draw the mascot again when its pose, its size or the page under it (`/dark`) is another."""
+        pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
+        page = (DARK if self.app.current_theme.dark else LIGHT)["paper"]
+        if self._shown != (shown := (*self._cells, page, pose)):
+            self._shown = shown
+            self.update(poses(*self._cells, page)[pose])
 
 
 def where(o: Opening, width: int) -> list[list[Part]]:
@@ -304,12 +252,15 @@ def paragraph(text: str, width: int, style: str = S_MUTED) -> list[list[Part]]:
 
 
 def jobs(o: Opening, width: int, *, wrap: bool = True) -> list[list[Part]]:
-    """System 1's jobs, a glyph and a name each, then what it is asked: wrapped under itself, or cut to the line."""
+    """System 1's jobs, each on (`●`) or off (`○`) as a capability is, then what it is asked: wrapped under itself,
+    or cut to the line. The guard is off when `[guard] mode` leaves System 1 out of it, and the search while neither
+    capability it searches for is on."""
+    searches = any(on for toggle, _, on in o.capabilities if toggle in SEARCHES)
     lines: list[list[Part]] = []
     for job, does in JOBS:
         idle = job == "guard" and o.guard != "full"
         does = GUARD[o.guard] if idle else does
-        head: list[Part] = [(GLYPH[job], S_MUTED if idle else BRAND), (f" {job}".ljust(JOB_WIDTH - 1), S_INK)]
+        head = switch(job.ljust(JOB_WIDTH - 2), not idle and (job != "search" or searches))
         room = max(12, width - JOB_WIDTH)
         said = textwrap.wrap(does, room) if wrap else [clip(does, room)]
         lines.append([*head, (said[0], S_MUTED)])
@@ -340,16 +291,27 @@ def capabilities(o: Opening, width: int) -> list[list[Part]]:
     return lines
 
 
+def model(ref: str, width: int) -> list[list[Part]]:
+    """A model's name whole, on as many lines as it takes: the card is where a pick of it shows. A line ends after
+    a slash where one is in reach."""
+    lines: list[list[Part]] = []
+    while len(ref) > width:
+        cut = ref.rfind("/", 0, width) + 1 or width
+        lines.append([(ref[:cut], S_HEAD)])
+        ref = ref[cut:]
+    return [*lines, [(ref, S_HEAD)]]
+
+
 def system2(o: Opening, width: int) -> list[list[Part]]:
     """System 2's card: the model it is on, how hard it thinks and how many tools it has, then what they are."""
     facts = " · ".join(fact for fact in (f"thinking {o.thinking}" * bool(o.thinking), f"{o.tools} tools") if fact)
-    return [[(clip(o.system2, width), S_HEAD)], [(facts, S_MUTED)], [], *capabilities(o, width)]
+    return [*model(o.system2, width), [(facts, S_MUTED)], [], *capabilities(o, width)]
 
 
 def system1(o: Opening, width: int) -> list[list[Part]]:
     """System 1's card: the model it is on and where it is served, its jobs, then what it judges from."""
-    model, served = system1_parts(o.system1)
-    head: list[list[Part]] = [[(clip(model, width), S_HEAD)], [(served or "the decision model", S_MUTED)], []]
+    name, served = system1_parts(o.system1)
+    head: list[list[Part]] = [*model(name, width), [(served or "the decision model", S_MUTED)], []]
     return [*head, *jobs(o, width), [], *paragraph(STATE_SHORT, width)]
 
 
@@ -398,7 +360,7 @@ class Welcome(Vertical):
     def compose(self) -> ComposeResult:
         # Each in a `Center`: a container centres its children as one block, and these are centred one by one.
         with Center():
-            yield Static(wordmark(), id="welcome-wordmark")
+            yield Static(id="welcome-wordmark")
         with Center():
             yield Static(Content.styled(TITLE, f"bold {BRAND}"), id="welcome-title")
         with Center():
@@ -444,7 +406,13 @@ class Welcome(Vertical):
         text = systems(o, inside - SIDE_WIDTH, roomy=True)
         cards = [system2(o, CARD_WIDTH - CARD_EDGES), system1(o, CARD_WIDTH - CARD_EDGES)]
         card_rows = max(len(card) for card in cards) + CARD_EDGE_ROWS  # the cards are one height
-        tall = max(MASCOT_ROWS, card_rows)
+        # The larger mascot where the wide page holds it and its wordmark whole.
+        big = (
+            width >= HERO_WIDTH + BIG_COLUMNS - SPRITE_COLUMNS
+            and HERO_ROWS + len(about) + max(BIG_ROWS, card_rows) <= room
+        )
+        mascot_columns, mascot_rows = (BIG_COLUMNS, BIG_ROWS) if big else (SPRITE_COLUMNS, SPRITE_ROWS)
+        tall = max(mascot_rows, card_rows)
         hero = HERO_ROWS + len(about) + tall
         framed = FRAMED_ROWS + len(about) + max(SIDE_ROWS, text.plain.count("\n") + 1)
         if width >= HERO_WIDTH and hero - WORDMARK_ROWS <= room:
@@ -459,7 +427,7 @@ class Welcome(Vertical):
         for name in ("hero", "framed", "compact"):
             self.set_class(name == look, name)
         self.set_class(short, "short")
-        self.query_one("#welcome-wordmark", Static).update(wordmark(2 if grand else 1))
+        self.query_one("#welcome-wordmark", Static).update(Content("\n").join(wordmark(2 if grand else 1)))
         self.styles.margin = (1 + max(0, room - needs) // RISE, 0, 1, 0) if look != "compact" else (0, 0, 0, 0)
         self.query_one("#welcome-about", Static).update(stacked(about))
         self.query_one("#welcome-where", Static).update(stacked(where(o, SPRITE_COLUMNS)))
@@ -474,4 +442,6 @@ class Welcome(Vertical):
         # On the wide page the cards stand as tall as each other, and they and the mascot at each other's middle.
         left.styles.height = right.styles.height = card_rows if look == "hero" else "auto"
         left.styles.margin = right.styles.margin = ((tall - card_rows) // 2 if look == "hero" else 0, 0, 0, 0)
-        self.query_one(Mascot).styles.margin = ((tall - MASCOT_ROWS) // 2 if look == "hero" else 0, 0, 0, 0)
+        mascot = self.query_one(Mascot)
+        mascot.fit(mascot_columns, mascot_rows)
+        mascot.styles.margin = ((tall - mascot_rows) // 2 if look == "hero" else 0, 0, 0, 0)
