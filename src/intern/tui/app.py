@@ -501,6 +501,7 @@ class HarnessApp(App[None]):
             journal=session.deps.journal.path if session is not None else None,
             capabilities=[(toggle.name.lower(), toggle.on) for toggle in toggles],
             tools=len(session.deps.tools) if session is not None else 0,
+            guard=session.deps.guard_mode if session is not None else "full",
         )
 
     def _jobs_strip(self) -> None:

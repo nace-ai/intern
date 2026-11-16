@@ -84,10 +84,11 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
 The wordmark in block letters, a row for each of the mascot's violets, lightest at the top as its top face is lit;
 then, in a frame, the mascot at twice the masthead's size and beside it the two systems, each under the tab its
 panel has: the model the session opened on, what the system does, and System 1's four jobs behind the glyphs its
-panel lists them under, so the page is also that panel's legend. Then the State, what the session has switched on
-(`●` on, `○` off: `/caps` changes them) and how many tools that comes to; under the mascot, the working directory
-and the session's journal. The last line says what to do and the keys worth knowing first; while the session is
-opening, or when it could not open, it says that instead.
+panel lists them under, so the page is also that panel's legend (the guard's line says so when `[guard] mode` is
+`off` or `rules`). Then the State, what the session has switched on (`●` on, `○` off: `/caps` changes them) and how
+many tools that comes to; under the mascot, the working directory and the session's journal. The last line says what
+to do and the keys worth knowing first; while the session is opening, or when it could not open, it says that
+instead.
 
 The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It
 follows the session, so a `/system2` or `/caps` pick made before the first prompt shows on it, and whatever is
@@ -139,7 +140,7 @@ comes back to the page.
 │                                                   │ 24.0k of 24.6k tokens · 98%  ━━━━━━━━━━━━━━━━  │
 │                                                   │ █ 15 whole   ▆ 10 abridged   62.9k uncut       │
 │                                                   │ inputs ≤ 60 chars                              │
-│                                                   │ ─ GOAL ─────────────────────────────────────── │
+│                                                   │ ─ USER INPUTS ──────────────────────────────── │
 │                                                   │ › Find why tests/test_parser.py fails and fix… │
 │                                                   │ › Also keep the old API working                │
 │                                                   │ ─ HISTORY ──────────────────────────────────── │
@@ -340,8 +341,8 @@ loop: a long session's takes a tenth of a second) and on resume:
   `10 messages, each read whole` while none is cut, and once the cut wears some down a count of each way a message
   was kept (`█` whole, `▆` abridged, `▄` collapsed, `▂` one line, `▁` left out), what the history would take uncut
   and what tool inputs were cut to;
-- `GOAL`: a line per request, shaded as the transcript's prompts; on a panel under 22 rows it is not drawn, as
-  the history has the requests too;
+- `USER INPUTS`: a line per request you typed, shaded as the transcript's prompts: what System 1 reads as the
+  goal; on a panel under 22 rows it is not drawn, as the history has the requests too;
 - `RUNNING`: a line per command still running, with how long it has run; not drawn while nothing runs;
 - `HISTORY`, oldest first, following the end: a row per prompt (`›`), harness message (`⚑`), reply and call
   (`✓` or `✗`, the tool or `$` and the command, what it was about, a check's tally in green or red). A message

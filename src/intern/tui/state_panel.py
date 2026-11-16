@@ -8,7 +8,7 @@ under a titled rule each:
 - the budget: the tokens the cut takes against it, as a share and a meter; then how the messages are read, in
   words while every one is read whole, and once the cut wears some down a count of each way a message was kept
   (and what the history would take uncut);
-- the goal, a line per request;
+- the goal, a line per request, under `USER INPUTS`: what you typed, which is what System 1 reads as the goal;
 - what runs, a line per command with how long it has run;
 - the history: a row per prompt, reply and call (`✓`/`✗`, the tool, what it was about, a check's tally in green
   or red). A message read whole has nothing before it; one the cut wore down has the legend's glyph for how it
@@ -230,7 +230,7 @@ class StatePanel(Vertical, can_focus=False):
         # The "and" of Kahneman's title, where the two systems meet: what System 1 sees of System 2's work.
         yield Static(Content.assemble((" State ", S_TAB), ("  fast and slow", S_MUTED)), id="state-header")
         yield Static(id="cut-budget")
-        for name, title in (("cut-goal", "GOAL"), ("cut-running", "RUNNING")):
+        for name, title in (("cut-goal", "USER INPUTS"), ("cut-running", "RUNNING")):
             section = Static(id=name, classes="titled")
             section.border_title = title
             section.display = False  # until there is a goal, or something runs

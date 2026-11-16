@@ -37,6 +37,7 @@ from textual.content import Content
 from textual.widgets import Static
 
 from intern import __version__
+from intern.guard import GuardMode
 from intern.tui.ledger import Kind
 from intern.tui.system1_panel import GLYPH
 from intern.tui.theme import (
@@ -79,6 +80,11 @@ JOBS: tuple[tuple[Kind, str], ...] = (
     ("compaction", "the files read, when the context fills: the ones still being worked on are kept"),
 )
 """System 1's jobs, each behind its glyph on the System 1 panel."""
+GUARD: dict[GuardMode, str] = {
+    "off": 'off. [guard] mode = "full" in the config has System 1 judge a risky tool call before it runs',
+    "rules": 'fixed rules only: they refuse the clearly dangerous calls. [guard] mode = "full" adds System 1\'s say',
+}
+"""What the guard's line says when `[guard] mode` leaves System 1 out of it."""
 STATE = (
     "What System 1 judges from: the session as it reads it, your requests as the goal and then the history, cut "
     "to fit its window."
@@ -119,6 +125,7 @@ class Opening:
     capabilities: list[tuple[str, bool]] = field(default_factory=list)
     """Each capability's name and whether it is on."""
     tools: int = 0
+    guard: GuardMode = "full"
 
 
 def wordmark() -> Content:
@@ -167,7 +174,9 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
         *paragraph(SYSTEM1, width),
     ]
     for job, does in JOBS:
-        head: list[Part] = [(GLYPH[job], BRAND), (f" {job}".ljust(JOB_WIDTH - 1), S_INK)]
+        idle = job == "guard" and o.guard != "full"
+        does = GUARD[o.guard] if idle else does
+        head: list[Part] = [(GLYPH[job], S_MUTED if idle else BRAND), (f" {job}".ljust(JOB_WIDTH - 1), S_INK)]
         said = textwrap.wrap(does, max(20, width - JOB_WIDTH)) if roomy else [clip(does, width - JOB_WIDTH)]
         lines.append([*head, (said[0], S_MUTED)])
         lines += [[" " * JOB_WIDTH, (line, S_MUTED)] for line in said[1:]]
