@@ -67,6 +67,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `secrets` | session setting | secret references for commands (bindings, `inject`); the top-level [`[secrets]`](secrets.md) store is separate | none |
 | `session_budget` | session setting | one model-call budget for the session | none |
 | `system2_fallbacks` | session setting | System 2 models to fall back to | none |
+| `model_retries` | session setting | whether a System 2 call that fails with a retryable error is made again ([below](#model-retries)) | `true` |
 
 Each value is overridden, lowest first, by:
 
@@ -443,6 +444,23 @@ reasoning effort/replay, compatibility flags and vision settings must match.
 Setup refuses incompatible profiles instead of guessing request conversions.
 Fallback buffers a complete response, so it trades live token streaming for a
 boundary that does not concatenate failed partial replies with a backup answer.
+
+### Model retries
+
+A System 2 call that fails with a retryable error (HTTP 429, 5xx, an overloaded server or rate limit reported in the
+stream, a dropped connection) is made again: by the provider after 2, 8 and 20 s while none of the
+reply has arrived, then by the run after 5 and 20 s and every 30 s until 30 minutes have passed since the first
+failure. Behind a gateway or broker that retries itself, those multiply with its own. Turn them off:
+
+```toml
+[capabilities]
+model_retries = false
+```
+
+Each System 2 call, State writes for compaction included, is then made once. The first retryable failure ends the
+run with `provider_error` and the provider's error as its detail (`HTTP 529 from anthropic: ...`). Errors that are
+not retryable fail at once either way. Models in `system2_fallbacks` are still tried in order: that is a choice of
+model, not a retry. System 1's asks keep their own retries; the harness does not run without System 1.
 
 Native System 1 model fallback remains under the existing `[system1]` settings:
 

@@ -47,7 +47,6 @@ from intern.providers.base import (
 )
 from intern.providers.repair import parse_arguments
 
-RETRY_WAITS_S = (2.0, 8.0, 20.0)
 RETRYABLE_STATUS = frozenset({408, 409, 425, 429, 500, 502, 503, 504})
 RETRYABLE_ERRORS = frozenset({"server_error", "rate_limit_exceeded"})
 _INCOMPLETE_STOPS: dict[str, StopKind] = {"max_output_tokens": "length", "content_filter": "error"}
@@ -182,7 +181,9 @@ class OpenAIResponsesProvider:
         timeout = httpx.Timeout(connect=15.0, read=300.0, write=60.0, pool=15.0)
         started = time.monotonic()
         async with httpx.AsyncClient(timeout=timeout, transport=self._transport) as client:
-            attempts = retrying(lambda: self._attempt(client, body, started), RETRY_WAITS_S, self.endpoint.provider)
+            attempts = retrying(
+                lambda: self._attempt(client, body, started), request.retries.provider_waits_s, self.endpoint.provider
+            )
             async for item in attempts:
                 yield item
 
