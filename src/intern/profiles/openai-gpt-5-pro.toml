@@ -1,0 +1,8 @@
+# GPT-5 Pro: a 400K context and 272K output (https://developers.openai.com/api/docs/models/gpt-5-pro, read
+# 2026-11-15). OpenAI gives no input limit; it took 231K and refused 271K, measured 2026-11-15. A 272K window keeps
+# a request under 85% of it, 231.2K.
+
+match = ["openai/gpt-5-pro*"]
+window = 272000
+max_output_tokens = 272000
+vision = true

@@ -630,6 +630,8 @@ class Thinking(Static):
         parts: list[Part] = [(mark, S_INK), (label, S_MUTED)]
         if self.expanded and self.text.strip():
             parts.append(("\n" + bounded(self.text.strip(), EXPANDED_CHARS), S_MUTED_ITALIC))
+        elif self.expanded and self.done:  # a model with its thinking display omitted sends signed blocks, no text
+            parts.append(("\n(the model kept its thinking hidden)", S_MUTED_ITALIC))
         self.update(Content.assemble(*parts))
 
 

@@ -997,3 +997,19 @@ changed shape.
   request) still fail at once, and a cancel ends the wait. Before, a rate limit held for about a minute ended the run.
 - An ask System 1 fails is retried with backoff (at most 30 s apart) for up to 30 minutes before the prompt fails with
   [`system1_unavailable`](#stop-reasons-and-errors); before, about two minutes.
+
+### 0.30.5
+
+Model fixes; 0.30.4 clients keep working, and nothing a client sends or reads changed shape.
+
+- OpenAI's GPT-5 and GPT-6 models get their real window. OpenAI's model listing gives none, so they ran in the 32K
+  default: now 1.05M for GPT-6, 5.6, 5.5 and 5.4 (and Pro), and 272K, the most input they take, for GPT-5, 5.1, 5.2,
+  5.3 Codex, 5.4 mini and nano, and GPT-5 Pro. `models --json` reports these windows.
+- Qwen3.8 Max on Fireworks gets its 262,144-token window, where it ran in the 32K default: Fireworks' listing gives
+  none for it.
+- Claude Opus 4.5, Sonnet 4.5 and Haiku 4.5 work again: they refuse adaptive thinking, which every request asked for,
+  and now think on a fixed budget.
+- Every Claude model sends its thinking as a summary, where those without a profile (Fable 5.x, Opus 4.6 to 5,
+  Sonnet 4.6 and 5) had it hidden: `agent_thought_chunk` updates now carry their reasoning, which arrived empty.
+  They also run at high effort by default, as the Claude 5.5 models do.
+- In the terminal UI, a model's thinking that was hidden says so when opened, where it showed nothing.
