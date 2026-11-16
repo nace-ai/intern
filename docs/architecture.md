@@ -257,7 +257,7 @@ System 1's probabilities.
 | `session_cut.py` | System 1's State: the session cut to System 1's window by code, rebuilt for every ask. |
 | `guard.py` | The tool-call guard: fixed rules over a tokenized shell command or a tool's path, and the System 1 ask for calls that can do harm. |
 | `hooks.py` | The eight hooks, extension ordering, fail-open handling, verdict types. |
-| `tools/` | Typed tools that declare their effects and return failures as data with a `next_action`. The `base` pack: read, write, edit, bash, grep, find. |
+| `tools/` | Typed tools that declare their effects and return failures as data with a `next_action`. The `base` pack: read, write, edit, bash, grep, find. A tool ends its own work at `ctx.abort` and answers with what it has (bash stops its command and says what it printed); one with nothing to finish sets `cancel_on_abort` and the loop cancels its call at the abort (grep, find, the searches, sql). |
 | `executor.py` | Where commands run: the `Executor` protocol, local process groups with head-and-tail capture, and the workspace mount a sandboxed executor gives. |
 | `processes.py` | The session's job manager, wherever its commands can run in the background: the `process` tool's jobs, and a record of every command running in the session (a `bash` call while it runs, a process group a finished command left running), each start and end a journaled `process` event. See [processes](capabilities/processes.md). |
 | `runners/` | Where commands run, chosen by name: the `Runner` interface (`base.py`), `local`, `docker` (`docker.py`) and `opensandbox` (`opensandbox.py`, the `opensandbox` extra), or one a package registers under `intern.runners`. See [runners](capabilities/runners.md). |
