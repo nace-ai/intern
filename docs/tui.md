@@ -268,8 +268,11 @@ hands the session back (``⏸ Waiting on `./ci.sh`: you get the result when it e
 back. With code search on, the index build (before a run's first turn in a git repository, else on `decision_code`'s
 first call) shows as a live meter (`⌁ Indexing the working directory for decision_code ━━━━━━──── 1,234 of 5,712
 files`, from the engine's `indexing` events) that settles into `⌁ Indexed 5,712 files for decision_code in 6.1s`;
-the masthead counts along. A folder outside the working directory that `decision_code`'s scope named is indexed the
-same way, the line naming it.
+the masthead counts along. Before each later message the index is brought up to date with the files: when the agent
+or you changed some, the line says how many it read again (`⌁ Refreshed 3 changed files for decision_code in 0.2s`);
+when there was nothing to read (a file was only removed, or another session in the same folder had already refreshed
+the index, which is then used as it is) there is no line. A folder outside the working directory that
+`decision_code`'s scope named is indexed the same way, the line naming it.
 
 **The search panel.** Each `decision_code` call draws its search live right under the call, in the transcript,
 between the call and its output: the code-search extension's own view ([extension views](#extension-views)).

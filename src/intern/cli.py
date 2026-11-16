@@ -130,10 +130,11 @@ def _text_sink(event: Event) -> None:
             print(f"[window: {message}]", file=sys.stderr)
         case ToolCallEnd(status=status, content=content) if status != "ok":
             print(f"  {status}: {content.strip().splitlines()[-1] if content.strip() else ''}", file=sys.stderr)
-        case Indexing(name=name, done=done, total=total, finished=finished, duration_ms=duration_ms):
+        case Indexing(name=name, done=done, total=total, finished=finished, duration_ms=duration_ms, read=read):
             # The build's own stderr bar is off when it reports as events; this is the same bar, from them.
             if finished:
-                print(f"\r[{name}: indexed {total} files in {(duration_ms or 0) / 1000:.1f}s]", file=sys.stderr)
+                did = f"refreshed {read} of {total}" if read is not None and read < total else f"indexed {total}"
+                print(f"\r[{name}: {did} files in {(duration_ms or 0) / 1000:.1f}s]", file=sys.stderr)
             elif sys.stderr.isatty():
                 share = done / total if total else 0.0
                 sys.stderr.write(f"\r{name}: indexing {share:4.0%} {done}/{total}")

@@ -91,6 +91,9 @@ class Store:
         self.root: Path | None = None
         """The root searched when the agent names no other: the working directory until the index tool builds one."""
         self.indexes: dict[Path, Index] = {}
+        self.saved: dict[Path, int | None] = {}
+        """When each open index's file was last written, as this store loaded or built it: another session in the same
+        folder may refresh it since, and that index is taken up rather than rebuilt from this store's older copy."""
         self.fresh: set[Path] = set()
         """Roots whose index was checked against their files since the last tool that may have changed files."""
         self.too_many: set[Path] = set()
@@ -143,8 +146,8 @@ class Store:
 
     def _progress(self, root: Path) -> tuple[Callable[[int, int], None], Callable[[bool], None]]:
         """How a build reports: `indexing` events on the run's loop when there is a sink (a few a second, and one
-        with `finished` when it built), else the bar on stderr. Returns the callback and what to call when the build
-        ends, with whether it built."""
+        with `finished` and the files read when it built and read any), else the bar on stderr. Returns the callback
+        and what to call when the build ends, with whether it built."""
         from intern.locate import index as wi
 
         emit, loop = self.emit, self._loop
@@ -154,6 +157,7 @@ class Store:
 
         started = time.perf_counter()
         last = [0.0, 0, 0]  # when last sent, done, total
+        kept: list[int] = []  # files kept unchanged: `done` counts on from them, so the first call gives it
 
         def send(done: int, total: int, finished: bool) -> None:
             event = Indexing(
@@ -163,18 +167,23 @@ class Store:
                 total=total,
                 finished=finished,
                 duration_ms=round((time.perf_counter() - started) * 1000) if finished else None,
+                read=done - kept[0] if finished else None,
             )
             loop.call_soon_threadsafe(emit, event)
 
         def progress(done: int, total: int) -> None:
             now = time.perf_counter()
+            if not kept:
+                kept.append(done - 1)
             last[1], last[2] = done, total
             if now - last[0] >= wi.REDRAW_S or done == 1:
                 last[0] = now
                 send(done, total, False)
 
         def ended(built: bool) -> None:
-            if built:  # a failed build is not reported as one that finished (with 0 files, when it never began)
+            # Only a build that read a file says it finished: a failed one never began, and a refresh that only
+            # dropped removed files has nothing to show (it would read "Indexed 0 files").
+            if built and kept:
                 send(last[1], last[2], True)
 
         return progress, ended
@@ -186,8 +195,9 @@ class Store:
         if root in self.too_many:
             raise TooManyFiles(root)
         index = self.indexes.get(root)
-        if index is None:
-            index = wi.load(self.home(root))
+        if index is None or (root not in self.fresh and self._written(root) != self.saved.get(root)):
+            index = wi.load(self.home(root)) or index  # another session's refresh, else what this store has
+            self.saved[root] = self._written(root)
             self.fresh.discard(root)
         if index is None and not (build or self.auto):
             raise NoIndex(root)
@@ -200,6 +210,7 @@ class Store:
                     index = wi.build(
                         root, self.home(root), processors=self.processors, report=report, progress=progress
                     )
+                    self.saved[root] = self._written(root)
                     built = True
                 except TooManyFiles:
                     self.too_many.add(root)
@@ -212,6 +223,13 @@ class Store:
         if build:
             self.root = root
         return index
+
+    def _written(self, root: Path) -> int | None:
+        """When the index file of ``root`` was last written, None when there is none."""
+        try:
+            return (self.home(root) / INDEX_FILE).stat().st_mtime_ns
+        except OSError:
+            return None
 
     def place(self, scope: str | None, cwd: Path) -> tuple[Path | None, str | None]:
         """The root to search and the scope within it, for a ``scope`` the agent gave relative to ``cwd`` or absolute.

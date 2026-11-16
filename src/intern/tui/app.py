@@ -895,7 +895,9 @@ class HarnessApp(App[None]):
                 self.status.activity = "⟲ writing the summary"
             case State():
                 self.status.activity = ""
-            case Indexing(name=name, root=root, done=done, total=total, finished=finished, duration_ms=duration_ms):
+            case Indexing(
+                name=name, root=root, done=done, total=total, finished=finished, duration_ms=duration_ms, read=read
+            ):
                 key = f"index:{self.run_count}:{name}:{root}"
                 tool = "decision_code" if name == "code-search" else name
                 # Another folder the agent searched (decision_code's scope) is named; the working directory is not.
@@ -905,7 +907,11 @@ class HarnessApp(App[None]):
                     self.status.activity = ""
                     secs = (duration_ms or 0) / 1000
                     of = "" if here else f" of {root}"
-                    line = Content.assemble(("⌁ Indexed", S_INK), f" {total:,} files{of} for {tool} in {secs:.1f}s")
+                    if read is not None and read < total:  # a refresh: the rest were kept as they were
+                        files = f"{read:,} changed file{'s' if read != 1 else ''}"
+                        line = Content.assemble(("⌁ Refreshed", S_INK), f" {files}{of} for {tool} in {secs:.1f}s")
+                    else:
+                        line = Content.assemble(("⌁ Indexed", S_INK), f" {total:,} files{of} for {tool} in {secs:.1f}s")
                 else:
                     self.status.activity = f"{tool} indexing {done:,} of {total:,} files"
                     share = done / total if total else 0.0
