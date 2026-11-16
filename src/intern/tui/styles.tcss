@@ -88,23 +88,58 @@ Screen {
     scrollbar-size-vertical: 1;
 }
 
-/* The entering page (welcome.py): the wordmark, then the mascot and the two systems in a frame. */
+/* The entering page (welcome.py): centred; on a wide terminal the mascot between its two systems (hero), on a
+   narrower one all of it in a frame (framed), on a small one the frame alone (compact). */
 #welcome {
     height: auto;
-    margin: 1 0;
 }
 
-#welcome-wordmark, #welcome-tips, #welcome-mascot, #welcome-where, #welcome-side {
+#welcome-wordmark, #welcome-title, #welcome-about, #welcome-foot, #welcome-tips {
+    width: auto;
     height: auto;
 }
 
-#welcome-wordmark {
-    margin: 0 1;
-}
-
-#welcome-frame {
-    height: auto;
+#welcome-title, #welcome-about, #welcome-row, #welcome-foot, #welcome-tips {
     margin-top: 1;
+}
+
+#welcome-row, #welcome-side, #welcome-mascot, #welcome-where, #welcome .card {
+    height: auto;
+}
+
+#welcome-mascot {
+    width: 28;
+}
+
+/* hero */
+#welcome.hero #welcome-row {
+    width: auto;
+    align-vertical: middle;
+}
+
+#welcome.hero .card {
+    width: 44;
+    height: 11;
+    margin-top: 1;
+    padding: 1 2;
+    border: round $brand 45%;
+    border-title-color: $brand;
+    border-title-style: bold;
+}
+
+#welcome.hero #welcome-side {
+    width: 34;
+    padding: 0 3;
+}
+
+#welcome.hero #welcome-where, #welcome.short #welcome-wordmark {
+    display: none;
+}
+
+/* framed, and compact */
+#welcome.framed #welcome-row, #welcome.compact #welcome-row {
+    width: 100%;
+    max-width: 124;
     padding: 1 2;
     border: round $brand;
     border-title-color: $brand;
@@ -112,33 +147,25 @@ Screen {
     border-title-align: center;
 }
 
-#welcome-side {
+#welcome.framed #welcome-side {
     width: 32;
 }
 
-#welcome-where {
+#welcome.framed #welcome-where {
     margin-top: 1;
 }
 
-#welcome-systems {
+#welcome.framed #welcome-system1, #welcome.compact #welcome-system1 {
     width: 1fr;
-    height: auto;
 }
 
-#welcome-tips {
-    margin: 1 1 0 1;
-}
-
-/* A small terminal: the frame alone. */
-#welcome.compact {
-    margin: 0;
-}
-
-#welcome.compact #welcome-wordmark, #welcome.compact #welcome-side {
+#welcome.framed #welcome-system2, #welcome.framed #welcome-title, #welcome.framed #welcome-foot,
+#welcome.compact #welcome-system2, #welcome.compact #welcome-title, #welcome.compact #welcome-foot,
+#welcome.compact #welcome-wordmark, #welcome.compact #welcome-about, #welcome.compact #welcome-side {
     display: none;
 }
 
-#welcome.compact #welcome-frame {
+#welcome.compact #welcome-row {
     margin-top: 0;
     padding: 0 1;
 }

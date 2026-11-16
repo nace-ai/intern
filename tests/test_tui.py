@@ -476,16 +476,19 @@ def state_screen(app: HarnessApp) -> StateScreen:
     return screen
 
 
-@pytest.mark.parametrize("size", [SIZE, (80, 24)])
-async def test_the_entering_page_has_the_screen_until_the_conversation_begins(tmp_path: Path, size: tuple[int, int]):
+@pytest.mark.parametrize(("size", "look"), [(SIZE, "hero"), ((110, 46), "framed"), ((80, 24), "compact")])
+async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
+    tmp_path: Path, size: tuple[int, int], look: str
+):
     app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")], system1=FakeDecision()))
     async with app.run_test(size=size) as pilot:
         await wait_for(lambda: app.session is not None)
         await pilot.pause()
         page = app.query_one(Welcome)
+        assert page.has_class(look)  # the mascot between its two systems, all of it in a frame, or the frame alone
         said = "\n".join(plain(part) for part in page.query(Static) if part.display)
         # The two systems, each on the model the session opened with, and what System 1 is asked for.
-        assert "System 2   thinking slow   fake/model" in said and "System 1   thinking fast   drex-latest" in said
+        assert "fake/model" in said and "drex-latest" in said
         assert all(job in said for job in ("◆ watch", "▣ guard", "⌕ search", "⟲ compaction"))
         assert "Intern's brain has two parts" in said  # what it is, in a paragraph
         assert "● base tools" in said and "Describe a task to begin." in said
