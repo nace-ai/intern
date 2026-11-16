@@ -19,7 +19,7 @@ from typing import Any, Literal
 
 import httpx
 
-from intern.events import WindowInfo
+from intern.events import WindowFallback, WindowInfo
 from intern.models.profile import Profile
 from intern.models.registry import Endpoint
 from intern.providers.openai_compat import RETRYABLE_STATUS
@@ -46,6 +46,8 @@ class ModelLimits:
     """The most output tokens one reply may have, when the provider's listing says."""
     vision: bool | None = None
     """Whether the model takes images, when the provider's listing says."""
+    lookup_error: str | None = None
+    """Why no source gave the window, when the default is used."""
 
 
 def _output_cap(item: dict[str, Any]) -> int | None:
@@ -153,15 +155,28 @@ async def advertised_limits(
             ("llama.cpp", _from_llamacpp_props),
         ]
         sees: bool | None = None  # a listing may say what the model takes without its window (Fireworks')
+        failures: list[str] = []
         for source, lookup in lookups:
             try:
                 window, max_output, vision = await _retried(lookup, client, endpoint)
-            except (httpx.HTTPError, ValueError):
+            except (httpx.HTTPError, ValueError) as error:
+                failures.append(f"{source}: {_failure(error)}")
                 continue
             sees = vision if sees is None else sees
             if window:
                 return ModelLimits(window, source, max_output, sees)
-    return ModelLimits(DEFAULT_WINDOW, "default", vision=sees)
+            failures.append(f"{source}: no window for this model")
+    return ModelLimits(DEFAULT_WINDOW, "default", vision=sees, lookup_error="; ".join(failures))
+
+
+def _failure(error: Exception) -> str:
+    if isinstance(error, httpx.HTTPStatusError):
+        return f"HTTP {error.response.status_code}"
+    if isinstance(error, httpx.TimeoutException):
+        return f"no answer in {LOOKUP_TIMEOUT_S:g}s"
+    if isinstance(error, ValueError):
+        return "unreadable answer"
+    return str(error) or type(error).__name__
 
 
 async def advertised_window(
@@ -178,7 +193,9 @@ def bound_output(profile: Profile, max_output: int | None) -> None:
         profile.max_output_tokens = max_output
 
 
-def working_window(advertised: int, source: WindowSource, profile: Profile, user_cap: int | None) -> WindowInfo:
+def working_window(
+    advertised: int, source: WindowSource, profile: Profile, user_cap: int | None, lookup_error: str | None = None
+) -> WindowInfo:
     working = min(limit for limit in (advertised, profile.effective_window, user_cap) if limit)
     return WindowInfo(
         advertised=advertised,
@@ -186,9 +203,26 @@ def working_window(advertised: int, source: WindowSource, profile: Profile, user
         effective=profile.effective_window,
         user_cap=user_cap,
         working=working,
+        lookup_error=lookup_error if source == "default" else None,
     )
 
 
 def recapped(window: WindowInfo, profile: Profile, user_cap: int | None) -> WindowInfo:
     """`window` under another user cap. The advertised window is kept, so no provider is asked again."""
-    return working_window(window.advertised, window.advertised_source, profile, user_cap)
+    return working_window(window.advertised, window.advertised_source, profile, user_cap, window.lookup_error)
+
+
+def window_fallback(model: str, window: WindowInfo) -> WindowFallback | None:
+    """The warning for a model that runs at the default window, else None."""
+    if window.advertised_source != "default":
+        return None
+    reason = window.lookup_error or "no source gives it"
+    return WindowFallback(
+        model=model,
+        window=window.advertised,
+        reason=reason,
+        message=(
+            f"{model}: its window could not be looked up ({reason}), so it runs at {window.advertised:,} tokens and "
+            "its replies are capped to a share of that. Set `window` in a profile for it."
+        ),
+    )
