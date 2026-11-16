@@ -59,10 +59,10 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
 │  anthropic/claude-haiku-5-5              │       ▄▄███████████▄          │  drex-max                                │
 │  thinking high · 27 tools                │     ▄████████▄▀▀▀▀▄██▄▄       │  console                                 │
 │                                          │    ██████▄▄▄▄█ ██ █████▄      │                                          │
-│  ● base tools   files and the shell      │   ██████ ██ █▀▄▄▄▄▀███████    │  ◆ watch       nudges it out of circles  │
-│  ○ web search   searches the web         │   ██████▄▀▀▀▀▄████████████    │  ▣ guard       off · [guard] mode        │
-│  ○ web read     reads a page as text     │  █████████████████████████    │  ⌕ search      finds the places to read  │
-│  ○ browser      opens and clicks pages   │   ███████████████████████     │  ⟲ compaction  keeps what still matters  │
+│  ● base tools   files and the shell      │   ██████ ██ █▀▄▄▄▄▀███████    │  ● watch       nudges it out of circles  │
+│  ○ web search   searches the web         │   ██████▄▀▀▀▀▄████████████    │  ○ guard       off · [guard] mode        │
+│  ○ web read     reads a page as text     │  █████████████████████████    │  ● search      finds the places to read  │
+│  ○ browser      opens and clicks pages   │   ███████████████████████     │  ● compaction  keeps what still matters  │
 │  ● code search  System 1 searches code   │    ▀███████████████████▀      │                                          │
 │  ○ workspace    System 1 searches docs   │      ▀███████████████▀        │  Judges from the State: your requests    │
 │  ● memory       notes across sessions    │        ▀▀█████████▀▀          │  and the history, cut to fit.            │
@@ -78,9 +78,9 @@ Intern is a brain in two parts, and the page is drawn as one: the mascot between
 the model the session opened on. System 2's card has how hard it thinks, how many tools it has and what the session
 has switched on (`●` on, `○` off: `/caps` changes them), each capability with what it is in a few words; `code
 search` and `workspace` say that System 1 does the searching. System 1's card has where it is served, its four jobs,
-behind the glyphs its panel lists them under, so the page is also that panel's legend (the guard's line says so when
-`[guard] mode` is `off` or `rules`), and what it judges from, the State. Above them the wordmark in block letters, a
-row for each of the mascot's violets, lightest at the top as its top face is lit, and what Intern is, in the
+each on (`●`) or off (`○`) as a capability is (the guard is off, and its line says so, when `[guard] mode` is `off`
+or `rules`; the search while neither `code search` nor `workspace` is on), and what it judges from, the State. Above them the wordmark in block letters, a
+row for each of the mascot's violets, lightest at the top as the mascot is, and what Intern is, in the
 README's paragraph; under them the working directory and the session's journal, then what to do and the keys worth
 knowing first (while the session is opening, or when it could not open, that line says so instead). All of it is
 centred, and stands a third of the way down a tall terminal.
@@ -109,7 +109,8 @@ the session, so a `/system2` or `/caps` pick made before the first prompt shows 
 changes its line on the page, and the two lines a switch gets in a conversation (`… reopening the session…`,
 `Session reopened · …`) are not written under it; a model picked there shows on its system's card, its name whole
 on as many lines as it takes, and the line a pick gets in a conversation (`System 2 → …`) is not written either,
-unless it has more to say (the thinking level chosen is not one the model takes). Whatever else is said before the first prompt (`/help`, a session
+unless it has more to say (the thinking level chosen is not one the model takes); nor is a thinking level's
+(`Thinking → …`), which System 2's card has. Whatever else is said before the first prompt (`/help`, a session
 that could not open, a switch that failed) is under it. A task on the command line, `--session` and `/reload` go
 straight to the conversation; `/clear` comes back to the page.
 
@@ -117,7 +118,7 @@ straight to the conversation; `/clear` comes back to the page.
 
 ```
            ▄▄██▄
-      ▄▄██████████▄        Intern  0.25.0
+      ▄▄██████████▄        INTERN  v0.25.0
  ▄▄▄██▀▀▀█████▀▀▀████▄
   ███  ██ ███  ██ ██▀      System 2  anthropic/claude-haiku-5-5    thinking high   ▰▰▰▱▱    price unknown   ⠸ 11% of 131.1k
   ▀███▄▄▄█████▄▄▄███       System 1  nace-ai/drex-max             decisions API             $0.0312
@@ -179,7 +180,8 @@ straight to the conversation; `/clear` comes back to the page.
 near-black text, a warm gray for what is secondary; the mascot's violet for what is Intern's own (the wordmark, the
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
 cursors); green only for what went right, amber for what needs a look, red for what went wrong. The mark is the
-mascot, the violet cube in round glasses at the top of the README, its three faces lit from the top, in its own
+mascot, the violet cube in round glasses at the top of the README, in outline, lighter at the top as that one is and with
+no edge between its faces (under the glasses one reads as a mouth), in its own
 colours in both looks, fourteen cells by seven,
 in the masthead: drawn by hand, a pixel the upper or lower half of a cell, so it is square on screen and
 each cell can take two of the mascot's colours (`widgets.MASCOT`; the README's cube scaled to this size is a smudge), its eyes glancing and blinking as the
@@ -191,7 +193,8 @@ the "and" of Kahneman's title, where the two systems meet, since the State is wh
 panel's name on it as a tab, paper on the mascot's violet. Text the mouse selects takes a shade
 of the page.
 
-**Masthead.** Beside the mark, at its middle, the wordmark and version and, a blank row under them, a table:
+**Masthead.** Beside the mark, the wordmark: in the entering page's block letters where the terminal is wide enough
+for them and the table beside them, else `INTERN` in type over the table. Then the version and, a blank row under it, a table:
 System 2 (the model, then the thinking level) and System 1 (the model, then where it is served), the
 labels in one column, the models in the next, the rest in a third. At the end of System 2's row, the run:
 a spinner while one is in progress (`○` when none is), the latest request's tokens as a share of the

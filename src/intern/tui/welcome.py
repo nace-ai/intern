@@ -12,8 +12,8 @@
     │ anthropic/claude-haiku-5-5           │    (the mascot,    │ drex-max                             │
     │ thinking high · 9 tools              │     glancing       │ console                              │
     │                                      │     and blinking)  │                                      │
-    │ ● base tools   files and the shell   │                    │ ◆ watch       nudges it out of ...   │
-    │ ○ web search   searches the web ...  │                    │ ▣ guard  ⌕ search  ⟲ compaction      │
+    │ ● base tools   files and the shell   │                    │ ● watch       nudges it out of ...   │
+    │ ○ web search   searches the web ...  │                    │ ● guard  ○ search  ● compaction      │
     ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
@@ -21,8 +21,8 @@
 
 Intern is a brain in two parts, and the page is drawn as one: the mascot, the README's with its eyes moving as they
 do there (`Mascot`), between its two systems, each a card with the model it is on. System 2's card has what the
-session has switched on, each capability in a few words; System 1's has its four jobs, behind the glyphs its panel
-lists them under, so the page is also that panel's legend, and what it judges from. Above them the wordmark, in the
+session has switched on, each capability in a few words; System 1's has its four jobs, each on or off as a
+capability is, and what it judges from. Above them the wordmark, in the
 mascot's violets, and what Intern is, in the README's paragraph; under them where the session works, then what to do
 next. All of it centred, and a third of the way down a tall terminal.
 
@@ -49,13 +49,10 @@ from textual.widgets import Static
 from intern import __version__
 from intern.guard import GuardMode
 from intern.tui.ledger import Kind
-from intern.tui.system1_panel import GLYPH
 from intern.tui.theme import (
     BRAND,
     DARK,
     LIGHT,
-    MASCOT_COLOURS,
-    PAPER,
     S_BAD,
     S_HEAD,
     S_INK,
@@ -66,6 +63,7 @@ from intern.tui.theme import (
     WORDMARK,
 )
 from intern.tui.widgets import (
+    ART,
     EYES,
     Part,
     clip,
@@ -76,20 +74,9 @@ from intern.tui.widgets import (
     short_path,
     stacked,
     system1_parts,
+    wordmark,
 )
 
-ART = (
-    "██ ███  ██ ████████ ███████ ██████  ███  ██",
-    "██ ████ ██    ██    ██      ██   ██ ████ ██",
-    "██ ██ ████    ██    █████   ██████  ██ ████",
-    "██ ██  ███    ██    ██      ██   ██ ██  ███",
-    "██ ██   ██    ██    ███████ ██   ██ ██   ██",
-)
-"""The wordmark in block letters, a row for each of the mascot's violets (`SHADES`)."""
-SHADES = tuple(MASCOT_COLOURS[pixel] for pixel in "98654")
-SHADOW = "#3b2470"
-"""The letters' shadow, a pixel down and to the right: a violet deeper than any of the mascot's, which reads on both
-pages."""
 TITLE = f"{WORDMARK} v{__version__} · thinking, fast and slow"
 ABOUT = (
     "Intern's brain has two parts. Its System 2, the agent model, thinks slow and does the work: it reasons, reads "
@@ -108,7 +95,9 @@ JOBS: tuple[tuple[Kind, str], ...] = (
     ("search", "finds the places to read"),
     ("compaction", "keeps what still matters"),
 )
-"""System 1's jobs, each behind its glyph on the System 1 panel, in the words the paragraph has for them."""
+"""System 1's jobs, in the words the paragraph has for them."""
+SEARCHES = ("cap.code-search", "cap.workspace")
+"""The capabilities System 1 does the searching for."""
 GUARD: dict[GuardMode, str] = {"off": "off · [guard] mode", "rules": "fixed rules only"}
 """What the guard's line says when `[guard] mode` leaves System 1 out of it."""
 STATE = (
@@ -201,25 +190,6 @@ class Opening:
 
 
 @functools.cache
-def wordmark(scale: int = 1) -> Content:
-    """The block letters, lighter at the top as the mascot's top face is lit, with a shadow a pixel down and to the
-    right. A letter's row is two pixels tall, so the shadow is as thin under it as beside it. `scale` 2 draws it
-    twice the size, for a terminal with the room."""
-    width, height = (len(ART[0]) + 1) * scale, (2 * len(ART) + 2) * scale
-    grid = [[""] * width for _ in range(height)]
-    for row, (line, shade) in enumerate(zip(ART, SHADES, strict=True)):
-        for column, cell in enumerate(line):
-            if cell == "█":
-                for y in range(2 * row * scale, 2 * (row + 1) * scale):
-                    grid[y][column * scale : (column + 1) * scale] = [shade] * scale
-    for y in range(height - 1, scale - 1, -1):
-        for x in range(width - 1, scale - 1, -1):
-            if not grid[y][x] and grid[y - scale][x - scale] not in ("", SHADOW):
-                grid[y][x] = SHADOW
-    return stacked(pixels(grid, PAPER))
-
-
-@functools.cache
 def poses(columns: int, rows: int, page: str) -> tuple[Content, ...]:
     """The mascot in each of its poses (`SPRITES`), `columns` cells by `rows`, on a page of the colour `page`: two
     pixels to a cell, each the mean of what it covers of the drawing, so the cube's edge is a blend with the page and
@@ -282,12 +252,15 @@ def paragraph(text: str, width: int, style: str = S_MUTED) -> list[list[Part]]:
 
 
 def jobs(o: Opening, width: int, *, wrap: bool = True) -> list[list[Part]]:
-    """System 1's jobs, a glyph and a name each, then what it is asked: wrapped under itself, or cut to the line."""
+    """System 1's jobs, each on (`●`) or off (`○`) as a capability is, then what it is asked: wrapped under itself,
+    or cut to the line. The guard is off when `[guard] mode` leaves System 1 out of it, and the search while neither
+    capability it searches for is on."""
+    searches = any(on for toggle, _, on in o.capabilities if toggle in SEARCHES)
     lines: list[list[Part]] = []
     for job, does in JOBS:
         idle = job == "guard" and o.guard != "full"
         does = GUARD[o.guard] if idle else does
-        head: list[Part] = [(GLYPH[job], S_MUTED if idle else BRAND), (f" {job}".ljust(JOB_WIDTH - 1), S_INK)]
+        head = switch(job.ljust(JOB_WIDTH - 2), not idle and (job != "search" or searches))
         room = max(12, width - JOB_WIDTH)
         said = textwrap.wrap(does, room) if wrap else [clip(does, room)]
         lines.append([*head, (said[0], S_MUTED)])
@@ -387,7 +360,7 @@ class Welcome(Vertical):
     def compose(self) -> ComposeResult:
         # Each in a `Center`: a container centres its children as one block, and these are centred one by one.
         with Center():
-            yield Static(wordmark(), id="welcome-wordmark")
+            yield Static(id="welcome-wordmark")
         with Center():
             yield Static(Content.styled(TITLE, f"bold {BRAND}"), id="welcome-title")
         with Center():
@@ -454,7 +427,7 @@ class Welcome(Vertical):
         for name in ("hero", "framed", "compact"):
             self.set_class(name == look, name)
         self.set_class(short, "short")
-        self.query_one("#welcome-wordmark", Static).update(wordmark(2 if grand else 1))
+        self.query_one("#welcome-wordmark", Static).update(Content("\n").join(wordmark(2 if grand else 1)))
         self.styles.margin = (1 + max(0, room - needs) // RISE, 0, 1, 0) if look != "compact" else (0, 0, 0, 0)
         self.query_one("#welcome-about", Static).update(stacked(about))
         self.query_one("#welcome-where", Static).update(stacked(where(o, SPRITE_COLUMNS)))

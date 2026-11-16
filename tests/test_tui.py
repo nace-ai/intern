@@ -490,7 +490,8 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         said = "\n".join(plain(part) for part in page.query(Static) if part.display)
         # The two systems, each on the model the session opened with, and what System 1 is asked for.
         assert "fake/model" in said and "drex-latest" in said
-        assert all(job in said for job in ("◆ watch", "▣ guard", "⌕ search", "⟲ compaction"))
+        # Each on or off, as a capability is: the search is off while neither capability it searches for is on.
+        assert all(job in said for job in ("● watch", "● guard", "○ search", "● compaction"))
         assert "Intern's brain has two parts" in said  # what it is, in a paragraph
         assert "● base tools" in said and "Describe a task to begin." in said
         if look != "compact":  # with the room, what each capability is, and which of them System 1 searches for
@@ -1039,7 +1040,8 @@ async def test_the_thinking_level_shows_cycles_on_shift_tab_is_set_in_the_picker
         await pilot.press("shift+tab")
         await pilot.pause()
         assert first.deps.system2.profile.reasoning_effort == "low" and "thinking low" in plain(status)
-        assert "Thinking → low" in transcript_text(app)
+        # The entering page has the level on System 2's card: it gets no line under the page.
+        assert "thinking low" in transcript_text(app) and "Thinking →" not in transcript_text(app)
         await send(app, pilot, "/thinking high")
         assert first.deps.system2.profile.reasoning_effort == "high" and "thinking high" in plain(status)
         await send(app, pilot, "/thinking")

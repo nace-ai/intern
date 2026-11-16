@@ -12,7 +12,7 @@ from intern.locate.trace import Ranked
 from intern.messages import UserMessage
 from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, Ledger, RuleRefusal, TurnJudgement
 from intern.tui.system1_panel import feed, usage
-from intern.tui.theme import MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_RULE
+from intern.tui.theme import MASCOT_BODY, MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_RULE
 from intern.tui.widgets import (
     CARD_LINES,
     FILLED,
@@ -68,10 +68,10 @@ def levels(style: str) -> list[int]:
 
 
 def test_the_mark_draws_the_mascot_two_pixels_to_a_cell_in_its_own_colours_with_the_page_around_it():
-    assert {pixel for row in MASCOT for pixel in row} <= {*MASCOT_COLOURS, "."}  # no pixel drawn as the page by a typo
+    assert {pixel for row in MASCOT for pixel in row} <= {*MASCOT_COLOURS, "#", "."}  # none the page by a typo
     rows = mark()
     assert len(rows) == 7  # the masthead's height
-    pixel = {colour: name for name, colour in MASCOT_COLOURS.items()}
+    pixel = {colour: name for name, colour in MASCOT_COLOURS.items()} | dict.fromkeys(MASCOT_BODY, "#")
     drawn: list[str] = []
     for row in rows:
         styles = [""] * len(row.plain)
@@ -99,7 +99,7 @@ def test_the_masthead_lines_up_the_models_the_run_and_each_systems_cost_in_colum
     content = status.content
     assert isinstance(content, Content)
     rows = content.plain.splitlines()
-    assert len(rows) == 7 and "Intern" in rows[1]
+    assert len(rows) == 7 and "INTERN" in rows[1]
     sys2, sys1 = rows[3], rows[4]
     assert sys2.index("System 2") == sys1.index("System 1")
     assert sys2.index("anthropic/") == sys1.index("drex-max-v1.1")

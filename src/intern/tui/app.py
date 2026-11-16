@@ -1586,7 +1586,8 @@ class HarnessApp(App[None]):
         self._apply_thinking(binding, level)
         self.pending.thinking = level
         self._refresh_status()
-        await self.transcript.notice(f"Thinking → {level}", "ok")
+        if not self.query(Welcome):  # the entering page has the level on System 2's card
+            await self.transcript.notice(f"Thinking → {level}", "ok")
 
     async def action_cycle_thinking(self) -> None:
         """Shift+Tab: the next level round, from the model's own to low."""
