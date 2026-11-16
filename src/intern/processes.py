@@ -129,6 +129,9 @@ class _Job:
     """The moved call's capture file, read as it grows; the job removes it when it ends."""
     held: bool = False
     """A moved call whose result the run that moved it waits for (not one that serves, which does not end)."""
+    waits: bool = False
+    """A moved call that only waits (a long `sleep`, `tail -f`, or one System 1 judged waits): a turn of nothing else
+    hands the waiting over to the harness."""
     note: str | None = None
     """Why it went on in the background, for a moved `bash` call (`ProcessInfo.note`)."""
     lift: Callable[[], None] | None = None
@@ -177,6 +180,8 @@ class ProcessManager:
         self._sink: Callable[[ProcessEvent], None] | None = None
         self._calls: dict[str, ProcessInfo] = {}
         """`bash` calls that are running, by call id."""
+        self._moved_from: dict[str, str] = {}
+        """The job each moved `bash` call went on as, by call id."""
         self._groups: dict[int, ProcessInfo] = {}
         """Process groups finished commands left running, by group id, watched until they are empty."""
         self._watcher: asyncio.Task[None] | None = None
@@ -281,6 +286,7 @@ class ProcessManager:
         capture: Path | None,
         *,
         held: bool = True,
+        waits: bool = False,
         note: str | None = None,
         lift: Callable[[], None] | None = None,
     ) -> ProcessSnapshot:
@@ -302,12 +308,14 @@ class ProcessManager:
             moved=execution,
             capture=capture,
             held=held,
+            waits=waits,
             note=note,
             lift=lift,
         )
         if not held and lift is not None:
             lift()
         self._jobs[job.handle] = job
+        self._moved_from[call_id] = job.handle
         self._report("started", self._info(job))
         job.task = asyncio.create_task(self._supervise_moved(job))
         return self._snapshot(job, None)
@@ -738,6 +746,12 @@ class ProcessManager:
         """Whether `handle` names a job of this manager's that still runs."""
         job = self._jobs.get(handle)
         return job is not None and not job.done.is_set()
+
+    def waiting_call(self, call_id: str) -> str | None:
+        """The command of the `bash` call `call_id`, shown as the agent sees it, when it went on in the background as a
+        wait and still runs; None otherwise."""
+        job = self._jobs.get(self._moved_from.get(call_id, ""))
+        return _shown(job.command) if job is not None and job.waits and not job.done.is_set() else None
 
     def jobs_running(self) -> list[ProcessInfo]:
         """The jobs that still run (not foreground calls, nor what commands left running)."""

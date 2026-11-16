@@ -7,6 +7,7 @@ import asyncio
 import contextlib
 import hashlib
 import re
+import shlex
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import ClassVar, Literal
@@ -52,6 +53,74 @@ def obvious_wait(command: str) -> str | None:
     if re.search(r"\bgh\s+run\s+watch\b", text) or re.search(r"\bgh\s+pr\s+checks\b.*--watch\b", text):
         return "a CI watch is a wait"
     return None
+
+
+PROCESS_STATUS = frozenset({"ps", "pgrep", "pidof", "jobs", "top", "nvidia-smi", "free", "uptime"})
+READS = frozenset(
+    {
+        "tail",
+        "head",
+        "cat",
+        "wc",
+        "grep",
+        "egrep",
+        "ls",
+        "du",
+        "df",
+        "stat",
+        "date",
+        "echo",
+        "sleep",
+        "sort",
+        "uniq",
+        "cut",
+        "tr",
+        "awk",
+        "true",
+    }
+)
+
+
+def status_check(command: str, running: list[str]) -> bool:
+    """Whether `command` only looks at how the commands in `running` are doing: every part of it a process listing
+    or a read (no `tail -f`, `sed -i`, nor output to a file), and at least one part a process listing or a read of a
+    path one of them names (its log)."""
+    text = re.sub(r"^(\s*cd\s+\S+\s*(&&|;))+", "", command).strip()
+    if not running or not text or "`" in text or "$(" in text:
+        return False
+    lexer = shlex.shlex(text, posix=True, punctuation_chars=";&|<>")
+    lexer.whitespace_split = True
+    try:
+        tokens = list(lexer)
+    except ValueError:
+        return False
+    parts: list[list[str]] = [[]]
+    rest = iter(tokens)
+    for token in rest:
+        if token in ("|", "||", "&&", ";"):
+            parts.append([])
+        elif token in (">", ">>", "&>", "2>", ">|"):
+            if next(rest, "") != "/dev/null":
+                return False
+        elif token == ">&":
+            if not next(rest, "").isdigit():
+                return False
+        elif set(token) <= set(";&|<>"):
+            return False  # `&`, `<`, and whatever else starts or feeds something
+        else:
+            parts[-1].append(token)
+    named = {t for c in running for t in re.findall(r"[\w.~-]*/[\w./~-]+", c)}
+    about = False
+    for words in parts:
+        if not words:
+            continue
+        program = words[0].rsplit("/", 1)[-1]
+        if program not in PROCESS_STATUS | READS or (
+            program == "tail" and any(re.match(r"-\S*[fF]", w) for w in words)
+        ):
+            return False
+        about = about or program in PROCESS_STATUS or any(w in named for w in words[1:])
+    return about
 
 
 async def _moves(
@@ -150,15 +219,21 @@ def _moved(
             so_far = ""
     # A command that works keeps the timeout_s the agent gave a call it expected to block on: say so, so its deadline
     # surprises no one. One that serves is freed of it.
-    stops = (
-        "It serves, so its timeout_s no longer applies: it runs until it is stopped or the session closes"
-        if serves
-        else f"It is still stopped at its timeout_s, {duration_text(timeout_s)} after it started"
-    )
-    head = (
-        f"[Running in the background as job {snapshot.handle} ({why}). {stops}. You are told when it ends: do other "
-        "work, or end your turn. Read its output with process poll; stop it with process terminate.]"
-    )
+    if serves:
+        head = (
+            f"[Running in the background as job {snapshot.handle} ({why}). It serves, so its timeout_s no longer "
+            "applies: it runs until it is stopped or the session closes. You are told when it ends: do other work, or "
+            "end your turn. Read its output with process poll; stop it with process terminate.]"
+        )
+    else:
+        # Told only "end your turn", a model takes that for giving up the task and checks on the job every turn instead.
+        head = (
+            f"[Running in the background as job {snapshot.handle} ({why}). It is still stopped at its timeout_s, "
+            f"{duration_text(timeout_s)} after it started. To wait for it, call process poll on it: the harness waits "
+            "and you take your next turn when it ends, with its result, or when System 1 has news of it; the task "
+            "goes on. Do not check on it with "
+            "sleep, ps or tail. Do other work meanwhile if you have some; stop it with process terminate.]"
+        )
     return ToolOutput(content=f"{head}\n{so_far or '(no output yet)'}")
 
 
@@ -243,6 +318,7 @@ class BashTool(Tool):
                     execution,
                     capture if captures else None,
                     held=kind != "serves",
+                    waits=kind in ("rule", "waits"),
                     note=why,
                     lift=deadline.lift,
                 )
