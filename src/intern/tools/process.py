@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from intern.executor import JobExecutor, LocalExecutor
 from intern.processes import OutputFilter, ProcessManager
+from intern.providers.base import ToolSpec
 from intern.secrets import SecretAccessDenied, SecretExecutor
 from intern.tools.base import Tool, ToolContext, ToolOutput, fail
 
@@ -31,13 +32,25 @@ class ProcessArgs(BaseModel):
 class ProcessTool(Tool):
     name = "process"
     description = (
-        "Run a command in the background where this session runs commands. start returns a handle (not a PID), or "
-        "the result if it ends within 3 s; poll reads new output (pass next_cursor as cursor) and state; write feeds "
-        "only a job started with stdin: true; terminate stops it; list shows your jobs. Jobs stop at timeout_s. poll "
-        "never waits: you are told when a job ends, and a turn that only polls running jobs ends your turn until then."
+        "Background jobs. start runs command and returns a handle (not a PID), or the result if it ends within 3 s. "
+        "poll returns new output and state (pass next_cursor as cursor) and never waits. write feeds a job started "
+        "with stdin: true. terminate stops a job; list shows yours. Jobs stop at timeout_s (default 300). You are "
+        "told when a job ends, and a turn that only polls ends your turn until then."
     )
     Args = ProcessArgs
     effects = frozenset({"read", "write", "exec", "network"})
+
+    def spec(self) -> ToolSpec:
+        """The schema without what only validation needs (length limits, bounds, defaults, `null` unions): on eight
+        parameters that was about 100 tokens of every request. The checks still run when a call is parsed."""
+        schema: dict[str, Any] = self.Args.model_json_schema()
+        properties: dict[str, Any] = {}
+        for name, field in schema["properties"].items():
+            options: list[dict[str, Any]] = field.get("anyOf", [field])
+            kept = next(option for option in options if option.get("type") != "null")
+            properties[name] = {key: kept[key] for key in ("type", "enum") if key in kept}
+        parameters = {"type": "object", "properties": properties, "required": schema["required"]}
+        return ToolSpec(name=self.name, description=self.description, parameters=parameters)
 
     def __init__(self, manager: ProcessManager | None = None) -> None:
         self.manager = manager or ProcessManager()
