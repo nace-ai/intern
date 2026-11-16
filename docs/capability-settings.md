@@ -62,7 +62,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `mcp` | switch setting | one `cap.mcp.<namespace>` switch per listed connection | none listed |
 | `search` | capability option | options of the `web-search` pack | no backend |
 | `reader` | capability option | options of the `web-read` pack | built-in limits |
-| `process` | session setting | the session's job manager, behind the `process` tool in `base`: running jobs, records and log bytes kept, and when a long `bash` command goes on in the background (`move_after_s`) | built-in limits; 30 s |
+| `process` | session setting | the session's job manager, behind the `process` tool in `base`: running jobs, records and log bytes kept, when a long `bash` command goes on in the background (`move_after_s`), and when a silent command is stopped (`idle_stop_s`, `idle_stop_jobs`) | built-in limits; 30 s; never; jobs too |
 | `runner` | session setting | where commands run; `/runner` and the ACP `runner` option pick it per session | `local` |
 | `secrets` | session setting | secret references for commands (bindings, `inject`); the top-level [`[secrets]`](secrets.md) store is separate | none |
 | `session_budget` | session setting | one model-call budget for the session | none |
@@ -165,6 +165,8 @@ max_running = 4
 max_records = 64
 max_log_bytes = 65536
 move_after_s = 30   # a bash command still running after this long goes on in the background; 0 never
+idle_stop_s = 0     # stop a command that writes nothing for this long (600 is Prime's); 0 never
+idle_stop_jobs = true  # idle_stop_s stops process jobs too, not only bash commands
 ```
 
 The Session owns this manager and terminates its owned jobs on close. Jobs also

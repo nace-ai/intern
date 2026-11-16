@@ -300,8 +300,11 @@ class ToolGuard(_EventBase):
 
 
 ProcessKind = Literal["call", "job", "left_running"]
-ProcessState = Literal["running", "exited", "timed_out", "terminated", "aborted", "out_of_memory", "moved"]
-"""`moved`: a `bash` call that went on as a background job; the job's record goes on from there."""
+ProcessState = Literal[
+    "running", "exited", "timed_out", "idle_stopped", "terminated", "aborted", "out_of_memory", "moved"
+]
+"""`moved`: a `bash` call that went on as a background job; the job's record goes on from there. `idle_stopped`: it
+wrote nothing for the session's `idle_stop_s` and was stopped."""
 
 
 class ProcessInfo(BaseModel):
@@ -322,6 +325,9 @@ class ProcessInfo(BaseModel):
         default=None,
         description="Why a `bash` call went on in the background, on the call (state `moved`) and on its job: "
         "System 1's judgment and its probability, the timer, a stuck finding, or a rule.",
+    )
+    quiet_s: int | None = Field(
+        default=None, description="For a command stopped `idle_stopped`: the seconds it had written nothing."
     )
 
 

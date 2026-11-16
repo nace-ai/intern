@@ -8,14 +8,22 @@ import os
 import re
 import shlex
 import tempfile
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
 from pydantic import BaseModel, Field, SecretStr
 
-from intern.executor import CapturingExecutor, ExecResult, Executor, WorkspaceMount, mount_of, run_command
+from intern.executor import (
+    CapturingExecutor,
+    ExecResult,
+    Executor,
+    WorkspaceMount,
+    mount_of,
+    observes_output,
+    run_command,
+)
 from intern.mcp_credentials import CredentialCommand, run_credential_command
 
 #: The most a secret command may print: room for a PEM key or a service-account JSON.
@@ -227,6 +235,10 @@ class SecretExecutor:
         return isinstance(self.executor, CapturingExecutor) and self.executor.output_capture
 
     @property
+    def output_observed(self) -> bool:
+        return observes_output(self.executor)
+
+    @property
     def mount(self) -> WorkspaceMount | None:
         return mount_of(self.executor)
 
@@ -265,6 +277,7 @@ class SecretExecutor:
         abort=None,
         env: Mapping[str, str] | None = None,
         capture_path: Path | None = None,
+        on_output: Callable[[], None] | None = None,
     ) -> ExecResult:
         prepared = await self.prepare(command, env=env)
         redactor = prepared.redactor
@@ -279,6 +292,7 @@ class SecretExecutor:
                 abort=abort,
                 env=prepared.env,
                 capture_path=path,
+                on_output=on_output,
             )
 
         try:

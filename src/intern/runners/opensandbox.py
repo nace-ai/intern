@@ -21,7 +21,7 @@ import re
 import shlex
 import tarfile
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import timedelta
 from importlib.util import find_spec
 from pathlib import Path, PurePosixPath
@@ -209,6 +209,8 @@ class OpenSandboxExecutor:
         self._own_sent = 0
         """The newest `.intern-resources/` mtime (ns) already in the sandbox."""
 
+    output_observed = True
+
     @property
     def mount(self) -> WorkspaceMount:
         return WorkspaceMount(self.workspace, PurePosixPath(self.options.sandbox_path))
@@ -389,6 +391,7 @@ class OpenSandboxExecutor:
         max_output_bytes: int,
         abort: asyncio.Event | None = None,
         env: Mapping[str, str] | None = None,
+        on_output: Callable[[], None] | None = None,
     ) -> ExecResult:
         started = time.monotonic()
         sandbox = await self._sandbox_ready()
@@ -398,6 +401,8 @@ class OpenSandboxExecutor:
         execution_id: list[str] = []
 
         async def output(message: Any) -> None:
+            if on_output is not None:
+                on_output()
             buffer.add(message.text.encode())
 
         async def init(event: Any) -> None:
