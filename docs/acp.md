@@ -1080,3 +1080,18 @@ shape.
   `intern.holds.hold()`. Commands run by a session with `idle_stop_s` on the `local` runner are given
   `INTERN_HOLD_SOCKET` and `INTERN_PROCESS_ID`; any client can hold over that socket. See
   [processes](capabilities/processes.md#holding-a-command-while-it-waits-on-a-call).
+
+### 0.34.1
+
+A cancel no longer waits for the tool that is running; 0.34.0 clients keep working, and nothing a client sends or reads
+changed shape.
+
+- `session/cancel` (Esc in the terminal UI, `abort` over JSON-RPC) ends the prompt at once while `find`, `grep`,
+  `memory_search`, a `decision_code` or `decision_files` search, `index`, `sql` or `sql_export` runs. Before, these
+  did not watch the abort and were waited for: a `find` or `grep` over a large folder held the prompt for up to its
+  60 s, a search or a query for as long as it took. Such a call now ends `failed` with `the run was aborted while
+  this call ran`, ripgrep is stopped and the query interrupted. `bash`, `process`, the web tools, the browser and
+  MCP tools stop themselves as before. A tool of an extension's own is waited for unless it sets `cancel_on_abort`.
+- An index being built when the cancel comes is not cut: it finishes in the background and is kept, and the next
+  search or `index` call waits for it instead of building beside it. Its `indexing` events (`-p --json`, JSON-RPC)
+  can therefore arrive after the run's `run_end`.

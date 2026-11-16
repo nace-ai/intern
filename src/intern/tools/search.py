@@ -40,9 +40,12 @@ async def _run(argv: list[str], cwd: Path) -> tuple[int, str]:
     try:
         stdout, stderr = await asyncio.wait_for(process.communicate(), SEARCH_TIMEOUT_S)
     except TimeoutError:
-        process.kill()
-        await process.wait()
         return -1, "search timed out"
+    finally:
+        # Also reached on cancellation, when the run is aborted: never leave ripgrep walking behind a dead call.
+        if process.returncode is None:
+            process.kill()
+            await process.wait()
     code = process.returncode if process.returncode is not None else -1
     return code, (stdout if code in (0, 1) else stderr).decode(errors="replace")
 
@@ -77,6 +80,7 @@ class GrepTool(Tool):
     description = "Search file contents with a regular expression. Returns path:line:text for each match."
     Args = GrepArgs
     effects: ClassVar[frozenset[Effect]] = frozenset({"read"})
+    cancel_on_abort = True
 
     async def run(self, args: GrepArgs, ctx: ToolContext) -> ToolOutput:
         root = ctx.resolve(args.path)
@@ -141,6 +145,7 @@ class MemorySearchTool(Tool):
     )
     Args = MemorySearchArgs
     effects: ClassVar[frozenset[Effect]] = frozenset({"read"})
+    cancel_on_abort = True
 
     def __init__(self, drive: Path) -> None:
         self.folder = drive / MEMORY_SESSIONS
@@ -198,6 +203,7 @@ class FindTool(Tool):
     description = "Find files by name with a glob pattern. Returns matching paths, sorted."
     Args = FindArgs
     effects: ClassVar[frozenset[Effect]] = frozenset({"read"})
+    cancel_on_abort = True
 
     async def run(self, args: FindArgs, ctx: ToolContext) -> ToolOutput:
         root = ctx.resolve(args.path)

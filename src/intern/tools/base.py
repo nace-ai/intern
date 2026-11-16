@@ -97,6 +97,10 @@ class Tool(ABC):
     description: ClassVar[str]
     Args: ClassVar[type[BaseModel]]
     effects: ClassVar[frozenset[Effect]]
+    cancel_on_abort: ClassVar[bool] = False
+    """An aborted run cancels this call there and then: it does not watch `ctx.abort`, and has nothing to finish that a
+    cancellation would cut short (a search). Any other tool is waited for, so it must end its own work at the abort and
+    answer with what it has, as bash stops its command and says what it printed."""
 
     def spec(self) -> ToolSpec:
         return ToolSpec(

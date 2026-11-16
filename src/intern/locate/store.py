@@ -22,7 +22,7 @@ import asyncio
 import subprocess
 import sys
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Coroutine
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
@@ -101,6 +101,7 @@ class Store:
         runs without one)."""
         self._lock = asyncio.Lock()
         self._loop: asyncio.AbstractEventLoop | None = None
+        self._working: set[asyncio.Task[Index]] = set()
 
     def home(self, root: Path) -> Path:
         return moved_home(root, self.folder, self.moved_from)
@@ -112,15 +113,33 @@ class Store:
         """The index of ``root``, by default the store's root (``cwd`` until an index tool or a build names another),
         refreshed first when files changed. Raises ImportError without the extra, NoIndex when there is none and the
         store does not build on its own."""
-        async with self._lock:
-            self._loop = asyncio.get_running_loop()
-            return await asyncio.to_thread(self._ensure, root or self.root or cwd, False)
+
+        async def work() -> Index:
+            async with self._lock:
+                self._loop = asyncio.get_running_loop()
+                return await asyncio.to_thread(self._ensure, root or self.root or cwd, False)
+
+        return await self._kept(work())
 
     async def build(self, root: Path) -> Index:
         """Build or refresh the index of ``root``, which becomes the store's root."""
-        async with self._lock:
-            self._loop = asyncio.get_running_loop()
-            return await asyncio.to_thread(self._ensure, root, True)
+
+        async def work() -> Index:
+            async with self._lock:
+                self._loop = asyncio.get_running_loop()
+                return await asyncio.to_thread(self._ensure, root, True)
+
+        return await self._kept(work())
+
+    async def _kept(self, work: Coroutine[object, object, Index]) -> Index:
+        """The work's result. A caller that is cancelled (its run was aborted) stops waiting, and the work goes on: a
+        build is a thread, which nothing stops, so it ends and its index is kept, and it holds the lock until then, so
+        the next caller waits for it and never builds beside it into the same folder."""
+        task = asyncio.create_task(work)
+        self._working.add(task)
+        task.add_done_callback(self._working.discard)
+        task.add_done_callback(lambda t: t.cancelled() or t.exception())  # an error nobody waited for is not a warning
+        return await asyncio.shield(task)
 
     def _progress(self, root: Path) -> tuple[Callable[[int, int], None], Callable[[bool], None]]:
         """How a build reports: `indexing` events on the run's loop when there is a sink (a few a second, and one
@@ -244,6 +263,7 @@ class IndexTool(Tool):
     description = "Build or refresh the index of a folder, so it can be searched."
     Args = IndexArgs
     effects: ClassVar[frozenset[Effect]] = frozenset({"write"})
+    cancel_on_abort = True
 
     def __init__(self, store: Store) -> None:
         self.store = store
@@ -277,6 +297,7 @@ class DecisionSearch(Tool):
     )
     Args = SearchArgs
     effects: ClassVar[frozenset[Effect]] = frozenset({"read"})
+    cancel_on_abort = True
     trace: ClassVar[bool] = False
     """Send each search as it runs to the run's sink, as `search_trace` extension events of the store's name
     (`locate/trace.py`), for the extension's view to draw. The result is the same either way."""

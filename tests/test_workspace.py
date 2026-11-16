@@ -266,6 +266,21 @@ async def test_a_query_over_its_time_is_stopped_and_the_session_goes_on(tmp_path
     ] == "| 10 |"
 
 
+async def test_a_query_cancelled_with_its_run_is_stopped_and_the_session_goes_on(tmp_path: Path):
+    """Esc during a long query: it does not go on behind the prompt, holding the session the next query needs."""
+    (tmp_path / "je.csv").write_text("je,amount\nJ1,10\n")
+    build(tmp_path)
+    sql = Workspace().tools()[2]
+    endless = "select sum(a.range * b.range) from range(1000000000) a, range(1000) b"
+    running = asyncio.create_task(sql.run(sql.Args(query=endless, timeout_s=600), ctx(tmp_path)))
+    await asyncio.sleep(0.5)
+    running.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await asyncio.wait_for(running, 10)
+    after = await asyncio.wait_for(sql.run(sql.Args(query="select sum(amount) from je"), ctx(tmp_path)), 10)
+    assert after.content.splitlines()[2] == "| 10 |"
+
+
 async def test_a_failed_query_shows_duckdbs_whole_error_and_lists_tables_only_when_it_cannot_name_one(tmp_path: Path):
     (tmp_path / "ledger").mkdir()
     (tmp_path / "ledger" / "accounts.csv").write_text("account_number,account_type\n101000,Asset\n")

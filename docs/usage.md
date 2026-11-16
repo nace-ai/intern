@@ -43,6 +43,11 @@ Stopping it: Ctrl-C (SIGINT) aborts the run in `-p`. SIGTERM or SIGHUP, in `-p` 
 `acp`, ends the run as an abort does: the command it is running is stopped with everything it started, `run_end` says
 `aborted`, and the process exits with 128 + the signal (143 for SIGTERM). Only SIGKILL leaves commands running.
 
+An abort (Esc in the terminal UI, `session/cancel`, `abort`) does not wait for the tool that is running: a `find`, a
+`grep`, a search or a query is dropped there and then, and its result says the run was aborted. One thing goes on,
+an index being built for `decision_code` or `decision_files`: it finishes behind the prompt and is kept, and the next
+search waits for it.
+
 ## Models
 
 A model is `provider/model`. Everything after the first slash is sent to the provider as is.

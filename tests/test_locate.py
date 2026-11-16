@@ -3,6 +3,7 @@ that knows the answers proves the plumbing; the 15-question gold set is tests/da
 
 from __future__ import annotations
 
+import asyncio
 import io
 import json
 import os
@@ -10,6 +11,7 @@ import re
 import shutil
 import subprocess
 import textwrap
+import threading
 from collections.abc import Callable
 from pathlib import Path
 from typing import ClassVar
@@ -35,6 +37,7 @@ from intern.locate import tree
 from intern.locate.lexical import Lexical
 from intern.locate.processors import Derivative, KeyedProcessor, MarkdownProcessor, PythonProcessor
 from intern.locate.search import NONE, TRACE_RANKED, Left, Questions, search, survivors
+from intern.locate.store import Store
 from intern.locate.trace import PHASES, SearchNode, SearchTrace
 
 REPO = Path(__file__).resolve().parents[1]
@@ -192,6 +195,34 @@ class Stops:
             raise KeyboardInterrupt
         Stops.seen.append(path.name)
         return Derivative(unit="line", units=[path.read_text()])
+
+
+async def test_a_build_goes_on_when_its_caller_is_cancelled_and_the_next_caller_waits_for_it(tmp_path: Path):
+    """Esc during an index build: the caller stops waiting, and nothing builds into the folder beside the build."""
+    store = Store(lambda root, home: [], "code-search", "", ".intern")
+    inside, most, entered, release = 0, 0, threading.Event(), threading.Event()
+
+    def building(root: Path, build: bool) -> wi.Index:
+        nonlocal inside, most
+        inside += 1
+        most = max(most, inside)
+        entered.set()
+        release.wait(10)
+        inside -= 1
+        return wi.Index()
+
+    store._ensure = building  # pyright: ignore[reportPrivateUsage]
+    first = asyncio.create_task(store.build(tmp_path))
+    await asyncio.to_thread(entered.wait, 10)
+    first.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await first
+    second = asyncio.create_task(store.ready(tmp_path))
+    await asyncio.sleep(0.2)
+    assert not second.done() and most == 1  # it waits for the build still running
+    release.set()
+    await asyncio.wait_for(second, 10)
+    assert most == 1
 
 
 def test_an_interrupted_build_resumes_from_what_it_saved(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
