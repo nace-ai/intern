@@ -42,7 +42,7 @@ changed (`uv run pytest tests/test_<area>.py`). CI runs the full suite on every 
   `config.toml`. Behind it is an extension, a tool pack, an MCP connection or the browser. The code calls a
   switch a toggle.
 - **Capability-backed extension**: an extension behind a capability (code search, the workspace, memory, the
-  guard). It is not itself a capability; the capability is the switch in front of it.
+  guard, the tool-result guard). It is not itself a capability; the capability is the switch in front of it.
 - **Fixed extension**: an extension chosen for the whole session by the profile's `extensions` list or
   `--extension`, with no switch during the session.
 - **Capability settings**: the `[capabilities]` table. Each top-level key is a switch setting, an option of one

@@ -1304,14 +1304,14 @@ class HarnessApp(App[None]):
         ]
 
     def _capability_key(self, word: str) -> str | None:
-        """A typed capability name as a row id: `web-read`, `browser`, `workspace`, `memory`, `guard` or an MCP
-        namespace."""
+        """A typed capability name as a row id: `web-read`, `browser`, `workspace`, `memory`, `guard`,
+        `tool-result-guard` or an MCP namespace."""
         word = word.lower().replace("_", "-")
         if word in capability_toggles.PACKS:
             return f"cap.{word}"
         if word == "code-search":
             return "cap.code-search"
-        if word in ("browser", "workspace", "memory", "guard"):
+        if word in ("browser", "workspace", "memory", "guard", "tool-result-guard"):
             return f"cap.{word}"
         if any(entry.namespace == word.removeprefix("mcp:") for entry in self._capabilities_at_start.mcp):
             return f"{capability_toggles.MCP_PREFIX}{word.removeprefix('mcp:')}"

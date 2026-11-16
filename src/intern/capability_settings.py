@@ -150,6 +150,16 @@ class GuardConfig(_Settings):
     refused."""
 
 
+class ToolResultGuardConfig(_Settings):
+    """The tool-result screen (the tool-result-guard extension): System 1 removes instructions addressed to the agent
+    from what tools return; the only way to turn it on."""
+
+    enabled: bool = False
+    screen: Literal["outside", "all"] = "outside"
+    """`outside`: what comes from a tool that reaches the network without running a command (`web_read`, `web_search`,
+    the browser) and from MCP tools; `all`: every result but the agent's own writes, at one System 1 ask each."""
+
+
 class MemoryConfig(_Settings):
     """Recall from a memory drive, a git checkout of main, and steward each session into it when it closes."""
 
@@ -372,6 +382,7 @@ class CapabilitySettings(_Settings):
     memory: MemoryConfig = Field(default_factory=MemoryConfig)
     workspace: WorkspaceConfig = Field(default_factory=WorkspaceConfig)
     guard: GuardConfig = Field(default_factory=GuardConfig)
+    tool_result_guard: ToolResultGuardConfig = Field(default_factory=ToolResultGuardConfig)
     runner: RunnerConfig = Field(default_factory=RunnerConfig)
     secrets: SecretsConfig = Field(default_factory=SecretsConfig)
     mcp: list[McpConfig] = Field(default_factory=list, max_length=32)

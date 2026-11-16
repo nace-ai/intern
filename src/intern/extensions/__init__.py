@@ -1,10 +1,10 @@
 """Packaged extensions. Two kinds (CONTRIBUTING, "Extensions and capabilities"):
 
 Fixed extensions, chosen for the whole session by a profile's `extensions` list or `--extension`, are in
-`REGISTRY`: `tool-result-guard` (screens tool output for indirect prompt injection, docs/tool-result-guard.md). Any
-`module:Class` can also be loaded that way, for experiments. The first pack (write-guard, read-before-edit,
-loop-detector, tool-output-halflife, decision-triage, output-bounding, reasoning-policy, quality-monitor) lands after
-the bare engine has its baseline, one extension per change, each with its ablation.
+`REGISTRY`, which has none packaged yet. Any `module:Class` can also be loaded that way, for experiments. The
+first pack (write-guard, read-before-edit, loop-detector, tool-output-halflife, decision-triage, output-bounding,
+reasoning-policy, quality-monitor) lands after the bare engine has its baseline, one extension per change, each with
+its ablation.
 
 Extensions behind a capability are not in the registry: their capability's switch turns them on, and
 `config.CAPABILITY_EXTENSIONS` refuses them when named as an extension. Code search (`code_search/`:
@@ -16,7 +16,6 @@ the drive write guard, reminders and `memory_search`) by `[capabilities.memory]`
 
 from __future__ import annotations
 
-from intern.extensions.tool_result_guard import ToolResultGuard
 from intern.hooks import Extension
 
-REGISTRY: dict[str, type[Extension]] = {ToolResultGuard.name: ToolResultGuard}
+REGISTRY: dict[str, type[Extension]] = {}

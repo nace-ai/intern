@@ -117,9 +117,13 @@ BRIEFS = {
     "cap.workspace": "System 1 searches docs",
     "cap.memory": "notes across sessions",
     "cap.guard": "System 1 checks calls",
+    "cap.tool-result-guard": "System 1 checks output",
 }
 """Each capability in a few words, by its toggle's id (`capability_toggles`); the ones System 1 does the work of
 say so."""
+NAMES = {"cap.tool-result-guard": "result guard"}
+"""A shorter name on the card for a capability whose own (`Toggle.name`, what clients show) would not fit beside the
+others."""
 MCP_BRIEF = "remote tools"
 JOB_WIDTH = 14
 SETUP_NOTE = "Not connected yet: /setup connects your models"
@@ -289,15 +293,16 @@ def switches(o: Opening, width: int) -> list[list[Part]]:
     """What the session has switched on (`●`) and not (`○`), run together, then how many tools that comes to."""
     if not o.capabilities:
         return []
-    items = [switch(name, on) for _, name, on in o.capabilities]
+    items = [switch(NAMES.get(toggle, name), on) for toggle, name, on in o.capabilities]
     return flow([*items, [(f"{o.tools} tools", S_MUTED)]], width, gap=2)
 
 
 def capabilities(o: Opening, width: int) -> list[list[Part]]:
     """The same, a line each, with what the capability is in a few words."""
-    column = min(max((len(name) for _, name, _ in o.capabilities), default=0), width // 3) + 4
+    named = [(toggle, NAMES.get(toggle, name), on) for toggle, name, on in o.capabilities]
+    column = min(max((len(name) for _, name, _ in named), default=0), width // 3) + 4
     lines: list[list[Part]] = []
-    for toggle, name, on in o.capabilities:
+    for toggle, name, on in named:
         brief = BRIEFS.get(toggle, MCP_BRIEF if toggle.startswith("cap.mcp.") else "")
         mark, label = switch(clip(name, column - 4), on)
         lines.append([mark, label, " " * (column - 1 - cell_len(label[0])), (clip(brief, width - column), S_MUTED)])
