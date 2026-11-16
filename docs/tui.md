@@ -54,19 +54,20 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
             each turn: it nudges your intern when it goes in circles, checks risky tool calls before they run,
             and decides what your intern keeps in mind when its context fills up.
 
-                                                         ▄▄▄
-╭─ System 2 · thinking slow ───────────────╮          ▄▄█████▄▄            ╭─ System 1 · thinking fast ───────────────╮
-│                                          │       ▄▄███████████▄          │                                          │
-│  anthropic/claude-haiku-5-5              │     ▄████████▄▀▀▀▀▄██▄▄       │  drex-max                                │
-│  thinking high                           │    ██████▄▄▄▄█ ██ █████▄      │  console                                 │
-│                                          │   ██████ ██ █▀▄▄▄▄▀███████    │                                          │
-│  ● base tools  ○ web search  ○ web read  │   ██████▄▀▀▀▀▄████████████    │  ◆ watch       nudges it out of circles  │
-│  ○ browser  ● code search  ○ workspace   │  █████████████████████████    │  ▣ guard       off · [guard] mode        │
-│  ● memory  27 tools                      │   ███████████████████████     │  ⌕ search      finds the places to read  │
-│                                          │    ▀███████████████████▀      │  ⟲ compaction  keeps what still matters  │
-╰──────────────────────────────────────────╯      ▀███████████████▀        ╰──────────────────────────────────────────╯
-                                                    ▀▀█████████▀▀
-                                                       ▀▀███▀
+╭─ System 2 · thinking slow ───────────────╮             ▄▄▄               ╭─ System 1 · thinking fast ───────────────╮
+│                                          │          ▄▄█████▄▄            │                                          │
+│  anthropic/claude-haiku-5-5              │       ▄▄███████████▄          │  drex-max                                │
+│  thinking high · 27 tools                │     ▄████████▄▀▀▀▀▄██▄▄       │  console                                 │
+│                                          │    ██████▄▄▄▄█ ██ █████▄      │                                          │
+│  ● base tools   files and the shell      │   ██████ ██ █▀▄▄▄▄▀███████    │  ◆ watch       nudges it out of circles  │
+│  ○ web search   searches the web         │   ██████▄▀▀▀▀▄████████████    │  ▣ guard       off · [guard] mode        │
+│  ○ web read     reads a page as text     │  █████████████████████████    │  ⌕ search      finds the places to read  │
+│  ○ browser      opens and clicks pages   │   ███████████████████████     │  ⟲ compaction  keeps what still matters  │
+│  ● code search  System 1 searches code   │    ▀███████████████████▀      │                                          │
+│  ○ workspace    System 1 searches docs   │      ▀███████████████▀        │  Judges from the State: your requests    │
+│  ● memory       notes across sessions    │        ▀▀█████████▀▀          │  and the history, cut to fit.            │
+│                                          │           ▀▀███▀              │                                          │
+╰──────────────────────────────────────────╯                               ╰──────────────────────────────────────────╯
 
                                     ~/work/parser  ·  session 20261108-21…
 
@@ -74,14 +75,15 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
 ```
 
 Intern is a brain in two parts, and the page is drawn as one: the mascot between its two systems, each a card with
-the model the session opened on. System 2's card has how hard it thinks and what the session has switched on (`●`
-on, `○` off: `/caps` changes them) with how many tools that comes to; System 1's has where it is served and its four
-jobs, behind the glyphs its panel lists them under, so the page is also that panel's legend (the guard's line says
-so when `[guard] mode` is `off` or `rules`). Above them the wordmark in block letters, a row for each of the
-mascot's violets, lightest at the top as its top face is lit, and what Intern is, in the README's paragraph; under
-them the working directory and the session's journal, then what to do and the keys worth knowing first (while the
-session is opening, or when it could not open, that line says so instead). All of it is centred, and stands a third
-of the way down a tall terminal.
+the model the session opened on. System 2's card has how hard it thinks, how many tools it has and what the session
+has switched on (`●` on, `○` off: `/caps` changes them), each capability with what it is in a few words; `code
+search` and `workspace` say that System 1 does the searching. System 1's card has where it is served, its four jobs,
+behind the glyphs its panel lists them under, so the page is also that panel's legend (the guard's line says so when
+`[guard] mode` is `off` or `rules`), and what it judges from, the State. Above them the wordmark in block letters, a
+row for each of the mascot's violets, lightest at the top as its top face is lit, and what Intern is, in the
+README's paragraph; under them the working directory and the session's journal, then what to do and the keys worth
+knowing first (while the session is opening, or when it could not open, that line says so instead). All of it is
+centred, and stands a third of the way down a tall terminal.
 
 The mascot is the README's (`tui/mascot.png`: `docs/assets/mascot.svg` at its animation's poses, 28 pixels square,
 two to a cell, each pixel the cube, a glasses frame or an eye rather than a blend) and moves as that one does: every
@@ -91,10 +93,11 @@ wherever a cell is one colour, so a terminal that sets its lines apart shows no 
 
 The page fits the terminal, and is fitted again when the terminal's size changes. From 126 columns it is the page
 above (`hero`), its wordmark twice the size from 160 columns when there are the rows for it. From 104 columns the
-mascot and both systems are in one frame under the wordmark and the paragraph (`framed`), System 1's jobs under its
-model, then a line on the State. Either goes without its wordmark on a terminal too short for it (under 36 rows, or
-41 framed). Smaller than that (under 30 rows, or 35 framed, or 104 columns) it is the frame alone, a line a job
-(`compact`), so nothing of the first screen starts above its top.
+mascot and both systems are in one frame under the wordmark and the paragraph (`framed`), System 2's capabilities
+and System 1's jobs each under its model, then a line on the State. Either goes without its wordmark on a terminal
+too short for it (under 36 rows, or about 44 framed). Smaller than that (under 30 rows, or about 37 framed, or 104
+columns) it is the frame alone, a line a job and the capabilities by name (`compact`), so nothing of the first
+screen starts above its top.
 
 The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It follows
 the session, so a `/system2` or `/caps` pick made before the first prompt shows on it, and whatever is said before

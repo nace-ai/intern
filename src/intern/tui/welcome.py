@@ -40,6 +40,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from rich.cells import cell_len
 from textual.app import ComposeResult
 from textual.containers import Center, Horizontal, Vertical
 from textual.content import Content
@@ -100,6 +101,20 @@ STATE = (
     "What System 1 judges from: the session as it reads it, your requests as the goal and then the history, cut "
     "to fit its window."
 )
+STATE_SHORT = "Judges from the State: your requests and the history, cut to fit."
+"""The same on System 1's card."""
+BRIEFS = {
+    "cap.base": "files and the shell",
+    "cap.web-search": "searches the web",
+    "cap.web-read": "reads a page as text",
+    "cap.browser": "opens and clicks pages",
+    "cap.code-search": "System 1 searches code",
+    "cap.workspace": "System 1 searches docs",
+    "cap.memory": "notes across sessions",
+}
+"""Each capability in a few words, by its toggle's id (`capability_toggles`); the two System 1 does the searching
+for say so."""
+MCP_BRIEF = "remote tools"
 JOB_WIDTH = 14
 HINTS = (
     ("/help", "commands"),
@@ -128,6 +143,8 @@ ABOUT_WIDTH = 100
 CARD_WIDTH = 44
 """A system's card on the wide page, its border and padding (`CARD_EDGES`) included."""
 CARD_EDGES = 6
+CARD_EDGE_ROWS = 4
+"""A card's border and padding, down."""
 SIDE_GAP = 3
 """The air between the mascot and a card."""
 HERO_WIDTH = 2 * CARD_WIDTH + 2 * SIDE_GAP + SPRITE
@@ -168,8 +185,8 @@ class Opening:
     """Why there is no session, while there is none: it is opening, or it could not open."""
     cwd: Path | None = None
     journal: Path | None = None
-    capabilities: list[tuple[str, bool]] = field(default_factory=list)
-    """Each capability's name and whether it is on."""
+    capabilities: list[tuple[str, str, bool]] = field(default_factory=list)
+    """Each capability's toggle id, its name and whether it is on."""
     tools: int = 0
     guard: GuardMode = "full"
 
@@ -303,38 +320,53 @@ def jobs(o: Opening, width: int, *, wrap: bool = True) -> list[list[Part]]:
     return lines
 
 
+def switch(name: str, on: bool) -> list[Part]:
+    return [("●", S_OK) if on else ("○", S_MUTED), (f" {name}", S_INK if on else S_MUTED)]
+
+
 def switches(o: Opening, width: int) -> list[list[Part]]:
-    """What the session has switched on (`●`) and not (`○`), then how many tools that comes to."""
+    """What the session has switched on (`●`) and not (`○`), run together, then how many tools that comes to."""
     if not o.capabilities:
         return []
-    items: list[list[Part]] = [
-        [("●", S_OK) if on else ("○", S_MUTED), (f" {name}", S_INK if on else S_MUTED)] for name, on in o.capabilities
-    ]
+    items = [switch(name, on) for _, name, on in o.capabilities]
     return flow([*items, [(f"{o.tools} tools", S_MUTED)]], width, gap=2)
 
 
-def system2(o: Opening, width: int) -> Content:
-    """System 2's card: the model it is on and how hard it thinks, then what it has to work with."""
-    thinking = f"thinking {o.thinking}" if o.thinking else "the agent model"
-    return stacked([[(clip(o.system2, width), S_HEAD)], [(thinking, S_MUTED)], [], *switches(o, width)])
+def capabilities(o: Opening, width: int) -> list[list[Part]]:
+    """The same, a line each, with what the capability is in a few words."""
+    column = min(max((len(name) for _, name, _ in o.capabilities), default=0), width // 3) + 4
+    lines: list[list[Part]] = []
+    for toggle, name, on in o.capabilities:
+        brief = BRIEFS.get(toggle, MCP_BRIEF if toggle.startswith("cap.mcp.") else "")
+        mark, label = switch(clip(name, column - 4), on)
+        lines.append([mark, label, " " * (column - 1 - cell_len(label[0])), (clip(brief, width - column), S_MUTED)])
+    return lines
 
 
-def system1(o: Opening, width: int) -> Content:
-    """System 1's card: the model it is on and where it is served, then its jobs."""
+def system2(o: Opening, width: int) -> list[list[Part]]:
+    """System 2's card: the model it is on, how hard it thinks and how many tools it has, then what they are."""
+    facts = " · ".join(fact for fact in (f"thinking {o.thinking}" * bool(o.thinking), f"{o.tools} tools") if fact)
+    return [[(clip(o.system2, width), S_HEAD)], [(facts, S_MUTED)], [], *capabilities(o, width)]
+
+
+def system1(o: Opening, width: int) -> list[list[Part]]:
+    """System 1's card: the model it is on and where it is served, its jobs, then what it judges from."""
     model, served = system1_parts(o.system1)
-    return stacked([[(clip(model, width), S_HEAD)], [(served or "the decision model", S_MUTED)], [], *jobs(o, width)])
+    head: list[list[Part]] = [[(clip(model, width), S_HEAD)], [(served or "the decision model", S_MUTED)], []]
+    return [*head, *jobs(o, width), [], *paragraph(STATE_SHORT, width)]
 
 
 def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     """The two systems in one column, each under its panel's tab with its model; System 1's jobs; then the
-    capabilities. `roomy`, the State has its lines too; else what Intern is comes first, in a line or two, a job is
-    one line, and where the session works comes last, there being no mascot to put it under."""
+    capabilities. `roomy`, the State has its lines too and a capability its few words; else what Intern is comes
+    first, in a line or two, a job is one line, the capabilities run together, and where the session works comes
+    last, there being no mascot to put it under."""
     model1, served = system1_parts(o.system1)
     thinking = f" · thinking {o.thinking}" if o.thinking else ""
     lines: list[list[Part]] = [
         *([] if roomy else [*paragraph(ABOUT_SHORT, width, S_INK), []]),
         [(" System 2 ", S_TAB), ("  thinking slow   ", S_MUTED), (o.system2, S_HEAD), (thinking, S_MUTED)],
-        *([[]] * roomy),
+        *([*capabilities(o, width), [(f"{o.tools} tools", S_MUTED)] * bool(o.capabilities), []] if roomy else []),
         [
             (" System 1 ", S_TAB),
             ("  thinking fast   ", S_MUTED),
@@ -345,10 +377,8 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     ]
     if roomy:
         lines += [[], [(" State ", S_TAB), ("  fast and slow", S_MUTED)], *paragraph(STATE, width)]
-    if o.capabilities:
-        lines += [[], *switches(o, width)]
-    if not roomy:
-        lines += where(o, width)
+    else:
+        lines += [[], *switches(o, width), *where(o, width)]
     return stacked(lines)
 
 
@@ -415,7 +445,9 @@ class Welcome(Vertical):
         about = paragraph(ABOUT, min(width - 2, ABOUT_WIDTH), S_INK)
         inside = min(width, FRAME_MAX) - FRAME
         text = systems(o, inside - SIDE_WIDTH, roomy=True)
-        hero = HERO_ROWS + len(about)
+        cards = [system2(o, CARD_WIDTH - CARD_EDGES), system1(o, CARD_WIDTH - CARD_EDGES)]
+        tall = max(MASCOT_ROWS, *(len(card) + CARD_EDGE_ROWS for card in cards))  # the cards are one height
+        hero = HERO_ROWS + len(about) + tall - MASCOT_ROWS
         framed = FRAMED_ROWS + len(about) + max(SIDE_ROWS, text.plain.count("\n") + 1)
         if width >= HERO_WIDTH and hero - WORDMARK_ROWS <= room:
             look, needs = "hero", hero
@@ -436,11 +468,11 @@ class Welcome(Vertical):
         foot: list[Part] = [part for line in where(o, FOOT_WIDTH) for part in (*line, ("  ·  ", S_MUTED))][:-1]
         self.query_one("#welcome-foot", Static).update(Content.assemble(*foot))
         self.query_one("#welcome-tips", Static).update(tips(o, min(width, FRAME_MAX) - 2))
-        card = CARD_WIDTH - CARD_EDGES
-        self.query_one("#welcome-system2", Static).update(system2(o, card))
-        if look == "hero":
-            self.query_one("#welcome-system1", Static).update(system1(o, card))
-        else:
-            self.query_one("#welcome-system1", Static).update(
-                text if look == "framed" else systems(o, width - 4, roomy=False)
-            )
+        left, right = self.query_one("#welcome-system2", Static), self.query_one("#welcome-system1", Static)
+        left.update(stacked(cards[0]))
+        right.update(
+            stacked(cards[1]) if look == "hero" else text if look == "framed" else systems(o, width - 4, roomy=False)
+        )
+        # On the wide page the cards stand as tall as each other, and the mascot at their middle.
+        left.styles.height = right.styles.height = tall if look == "hero" else "auto"
+        self.query_one(Mascot).styles.margin = ((tall - MASCOT_ROWS) // 2 if look == "hero" else 0, 0, 0, 0)

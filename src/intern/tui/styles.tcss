@@ -119,8 +119,6 @@ Screen {
 
 #welcome.hero .card {
     width: 44;
-    height: 11;
-    margin-top: 1;
     padding: 1 2;
     border: round $brand 45%;
     border-title-color: $brand;
