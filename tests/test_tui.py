@@ -609,7 +609,8 @@ async def test_a_prompt_while_a_run_is_in_progress_steers_it(tmp_path: Path):
         started.set()
         if any(getattr(m, "content", "") == "stop after this" for m in request.messages):
             return Turn(text="Stopping as asked.")
-        return Turn(tool_calls=[("bash", {"command": "sleep 0.3"})])
+        # Long enough for the prompt below to land first: at 0.3 a slow runner took the steer before the assert.
+        return Turn(tool_calls=[("bash", {"command": "sleep 1"})])
 
     app = HarnessApp(make_opener(tmp_path, script))
     async with app.run_test(size=SIZE) as pilot:
