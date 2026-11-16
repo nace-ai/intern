@@ -1166,7 +1166,7 @@ async def test_clear_starts_over_on_a_fresh_journal_with_the_models_kept(tmp_pat
         assert app.run_count == 0 and app.query_one(StatusBar).context == 0
         assert app.query_one(StatePanel).cut is None
         assert "› hello" not in panel_text(app)
-        assert "hello" not in system1_text(app) and "◆" not in system1_text(app)
+        assert "hello" not in system1_text(app) and "━" not in system1_text(app)
         await send(app, pilot, "hello again")
         await wait_for(lambda: app.run_count == 1 and app.session is not None and not app.session.running)
         await pilot.pause()

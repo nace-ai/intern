@@ -207,21 +207,25 @@ def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_
     cut = Compaction(turn=6, method="state", tokens_before=14_000, tokens_after=6_000, turns_compacted=6, summary="")
     ledger.observe(cut.model_copy(update={"kept": 1}))
     text = feed(ledger.runs, 60).plain
-    rows = [line for line in text.splitlines() if line[:1] in "◆▣⌕⟲"]
-    # A row a judgement, in the order they came, behind its kind's glyph.
+    rows = [line for line in text.splitlines()[1:] if line[:1] != " " or line.startswith("  " + FILLED)]
+    # A row a judgement, in the order they came. A watched turn starts with its bar and the gutter before it is
+    # empty; a guarded call's sign is how it went, the one thing in the gutter that is coloured.
     assert text.splitlines()[0] == "› Fix the parser"
-    assert "".join(row[0] for row in rows) == "◆◆◆▣▣▣⌕⌕⟲"
+    assert "".join(row[0] for row in rows) == "   ✓✗✗⌕⌕⟲"
     # The watch, in a line: what System 1 weighed as one bar, each answer its share of the cells, so a call made at
     # 0.80 is seen to have been one of three; then its call, what it weighed most against it as far as the line holds
     # them, and what the loop did. Each in a word short enough for the line, not the name System 1 is asked with.
-    assert rows[0] == "◆ " + FILLED * 12 + " retrying 0.80  moving 0.05  strike 1/3"
+    assert rows[0] == "  " + FILLED * 12 + " retrying 0.80  moving 0.05  strike 1/3"
     assert "strike 3/3" in rows[2] and "stuck nudge sent" in text
     weighed = shares({"retrying": 0.8, "advancing": 0.05, "re_investigating": 0.05})
     # Of twelve cells: the 0.90 it gave answers is eleven of them, and the cell left is a hairline.
     assert [(len(cells), style) for cells, style in weighed] == [(10, S_WARN), (1, S_OK), (1, S_RULE)]
     assert shares({"advancing": 0.5}, 4) == [(FILLED * 2, S_OK), (TRACK * 2, S_RULE)]
-    # The guard: the call, allowed or refused, and who refused it and why.
-    assert "✓ $ pytest -q" in rows[3] and "✗ $ sudo make install" in rows[4] and "✗ $ git push --force" in rows[5]
+    # The guard: the call, allowed or refused, and who refused it and why. One allowed as routine is a line, its
+    # risk at the row's end; what it would do and whether it was asked for are a refused or risky call's.
+    assert rows[3].startswith("✓ $ pytest -q ") and rows[3].endswith(" risk 0.00") and "routine" not in text
+    assert len(rows[3]) == 60 and "✗ $ sudo make install" in rows[4]
+    assert "✗ $ git push --force" in rows[5]
     assert "a fixed rule, not System 1 · privilege" in text and "it runs sudo" in text
     assert "rewrites shared history 0.96" in text and "System 1 judged that it rewrites history" in text
     # A search: the question, what it took and the place it ranked first; one still running says so.
@@ -232,7 +236,7 @@ def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_
     assert "2 reads judged · 1 kept · 1 cut" in rows[8] and "14.0k → 6.0k −57%" in text and "✓ src/a.py" in text
     # Above the feed, what the asks came to, by kind: the feed's legend.
     said = usage(ledger.usage, 60).plain
-    assert said.startswith("7 asks · ") and "◆ watch 3" in said and "▣ guard 2" in said and "⟲ compaction 2" in said
+    assert said.startswith("7 asks · ") and "━ watch 3" in said and "✓ guard 2" in said and "⟲ compaction 2" in said
 
 
 def test_a_background_commands_lines_say_system_1s_judgement_and_how_it_stands_not_the_command_again():
@@ -242,11 +246,11 @@ def test_a_background_commands_lines_say_system_1s_judgement_and_how_it_stands_n
         id="j1", command=command, elapsed_s=120, verdict="waiting_as_expected", probabilities=waits, told=False
     )
     alone = look_card(looked, named=False).plain.replace(NBSP, " ")
-    assert alone == "⧗ System 1 · at 2m 00s   waiting as expected 0.93   progressing 0.05"  # the judgement alone
+    assert alone == "» System 1 · at 2m 00s   waiting as expected 0.93   progressing 0.05"  # the judgement alone
     stalled = looked.model_copy(update={"verdict": "stalled", "probabilities": {"stalled": 0.7}, "told": True})
     # With several running, which one: what it runs, in a few words, not the `cd` before it nor its later lines.
     named = look_card(stalled, named=True).plain.replace(NBSP, " ")
-    assert named == "⧗ System 1 · python3 - <<'EOF' … at 2m 00s   stalled 0.70   → told the agent"
+    assert named == "» System 1 · python3 - <<'EOF' … at 2m 00s   stalled 0.70   → told the agent"
 
     # A poll reads as how the job stands and what it printed, not the JSON the agent gets.
     snapshot = {

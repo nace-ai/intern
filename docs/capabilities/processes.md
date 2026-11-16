@@ -111,7 +111,7 @@ ten hours costs about 25. Its verdicts: `progressing`, `waiting_as_expected` (a 
 server, as meant), `stalled`, `failing`, `ready` (a server or watcher that is up while the agent
 waits on it as if it would end) and `unclear`. Each look is a `process_check` event; the terminal UI
 keeps a card a command, updated at each look, with System 1's judgement and not the command again
-(`⧗ System 1 · at 4m 00s   progressing 0.88`). Commands at
+(`» System 1 · at 4m 00s   progressing 0.88`). Commands at
 P(stalled) + P(failing) + P(ready) of 0.6 or more are told to the agent as one harness message
 (`nudge`, reason `process_check`), with how long each has run, how long it has written nothing and
 its last line: at the run's next turn, keeping only the latest look, or between runs as

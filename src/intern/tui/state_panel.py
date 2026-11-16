@@ -11,9 +11,10 @@ a blank row apart:
 - the goal, a line per request: what you typed, which is what System 1 reads as the goal;
 - what runs, a line per command with how long it has run;
 - the history: a row per prompt, reply and call (`✓`/`✗`, the tool, what it was about, a check's tally in green
-  or red). A message read whole has nothing before it; one the cut wore down has the legend's glyph for how it
-  was kept, runs left out fold into one row, and a line marks where System 2's own context starts after a
-  compaction. It follows the end as the session grows.
+  or red). Once the cut wears messages down, a rail runs before the rows: heavy by a message read whole, thinner
+  and more broken the less of it was kept (the legend's strokes), with a gap where a run was left out, which is
+  one row. A line marks where System 2's own context starts after a compaction. It follows the end as the session
+  grows.
 
 System 2's summary, the State it writes at a compaction and continues from, is not System 1's and is not here: the
 compaction's card in the transcript shows it. `/state` opens System 1's State in full.
@@ -50,6 +51,7 @@ from intern.tui.theme import (
 )
 from intern.tui.widgets import (
     CD,
+    JOB,
     Following,
     Part,
     clip,
@@ -63,7 +65,10 @@ from intern.tui.widgets import (
 )
 
 KEPT_ORDER: tuple[Kept, ...] = ("whole", "abridged", "collapsed", "line", "left_out")
-KEPT_GLYPH: dict[Kept, str] = {"whole": "█", "abridged": "▆", "collapsed": "▄", "line": "▂", "left_out": "▁"}
+KEPT_GLYPH: dict[Kept, str] = {"whole": "┃", "abridged": "│", "collapsed": "╎", "line": "┊", "left_out": "┄"}
+"""How a message was kept, as the rail before its rows: one line down the history, heavy where System 1 reads a
+message whole and thinner and more broken the more the cut wore it down, with a gap where messages were left out.
+Box-drawing strokes, which every terminal font has and joins from row to row."""
 KEPT_LABEL: dict[Kept, str] = {
     "whole": "whole",
     "abridged": "abridged",
@@ -178,12 +183,12 @@ def left_out_row(run: list[CutMessage]) -> list[Part]:
     said = f"{len(run)} message{'s' if len(run) != 1 else ''} left out"
     if calls:
         said += f" · {calls} call{'s' if calls != 1 else ''}"
-    return [("  ┄ ", S_MUTED), (said, S_MUTED_ITALIC)]
+    return [(f"  {KEPT_GLYPH['left_out']} ", S_MUTED), (said, S_MUTED_ITALIC)]
 
 
 def history(view: CutView, width: int, cwd: Path | None = None, system2_from: int | None = None) -> Content:
     """The history as rows, oldest first; once the cut wears a message down, each row behind a rail: the legend's
-    glyph for how its message was kept, nothing for one read whole."""
+    stroke for how its message was kept, and a gap by the row that stands for a run left out."""
     width = max(MIN_WIDTH, width)
     rows: list[list[Part]] = []
     railed = any(m.kept != "whole" for m in view.messages)
@@ -195,7 +200,7 @@ def history(view: CutView, width: int, cwd: Path | None = None, system2_from: in
     run: list[CutMessage] = []
     for m in [*view.messages, None]:
         if run and (m is None or m.kept != "left_out" or m.index == system2_from):
-            add((KEPT_GLYPH["left_out"], S_MUTED), left_out_row(run))
+            add(" ", left_out_row(run))
             run = []
         if m is None:
             break
@@ -207,7 +212,7 @@ def history(view: CutView, width: int, cwd: Path | None = None, system2_from: in
             continue
         if m.role == "user" and rows:
             rows.append([])
-        rail: Part = " " if m.kept == "whole" else (KEPT_GLYPH[m.kept], S_MUTED)
+        rail: Part = (KEPT_GLYPH[m.kept], S_MUTED)
         for body in message_rows(m, room, cwd):
             add(rail, body)
     if len(rows) > HISTORY_ROWS:
@@ -289,9 +294,8 @@ class StatePanel(Vertical, can_focus=False):
         rows = []
         for p in processes:
             took = duration_text(p.elapsed_s) + (f", quiet {duration_text(p.quiet_s)}" if p.quiet_s is not None else "")
-            rows.append(
-                Content.assemble(("⧗ ", S_MUTED), clip(p.command, max(room - len(took) - 4, 8)), (f"  {took}", S_MUTED))
-            )
+            command = clip(p.command, max(room - len(took) - 4, 8))
+            rows.append(Content.assemble((f"{JOB} ", S_MUTED), command, (f"  {took}", S_MUTED)))
         running.update(Content("\n").join(rows))
 
     async def clear(self) -> None:

@@ -93,6 +93,9 @@ CD = re.compile(r"""^cd (?:"[^"]*"|'[^']*'|\S+) && """)
 OUTPUT_CHARS = 3_000
 FLUSH_S = 0.08
 METER_WIDTH = 10
+JOB = "»"
+"""Before a command that goes on running, wherever one is listed: a character every font has at a cell's width (an
+hourglass comes from a fallback font, wider and in its own colour)."""
 FILLED, TRACK = "━", "─"
 PIP_ON, PIP_OFF = "▰", "▱"
 """The thinking box's meter: a pip per level the model takes, filled up to the one in force."""
@@ -1285,7 +1288,7 @@ def look_card(v: ProcessVerdict, *, named: bool) -> Content:
         levels += [GAP, *said(other, S_MUTED, S_MUTED)]
     meta = (f"{brief(v.command, 32)} " if named else "") + f"at {duration_text(v.elapsed_s)}"
     outcome: list[Part] = [("told the agent", S_WARN_BOLD)] if v.told else []
-    return Content.assemble(("⧗ ", S_MUTED), card("System 1", meta, levels, outcome))
+    return Content.assemble((f"{JOB} ", S_MUTED), card("System 1", meta, levels, outcome))
 
 
 def guard_card(g: GuardJudgement) -> Content:
