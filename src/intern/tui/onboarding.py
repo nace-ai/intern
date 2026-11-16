@@ -137,7 +137,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
     def compose(self) -> ComposeResult:
         with Vertical(id="setup"):
             with Center():
-                yield Static(wordmark(), id="setup-wordmark")
+                yield Static(Content("\n").join(wordmark()), id="setup-wordmark")
             with Center():
                 yield Static(id="setup-stages")
             with Center(), Vertical(id="setup-card"):

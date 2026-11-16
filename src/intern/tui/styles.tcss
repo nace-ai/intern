@@ -108,7 +108,7 @@ Screen {
 }
 
 #welcome-mascot {
-    width: 32;
+    width: auto;
 }
 
 /* hero */
@@ -126,7 +126,7 @@ Screen {
 }
 
 #welcome.hero #welcome-side {
-    width: 38;
+    width: auto;
     padding: 0 3;
 }
 

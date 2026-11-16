@@ -1628,12 +1628,14 @@ class HarnessApp(App[None]):
         except (ConfigError, ValueError, KeyError, SessionBusy) as e:
             await self.transcript.notice(f"Cannot set {role} to {ref}: {e}", "error")
             return
-        level = ""
+        level = lacking = ""
         if role == "system2" and binding is not None:
             lacking = self._keep_thinking(binding)
             if binding.takes_effort:
                 level = f" · thinking {binding.profile.reasoning_effort or THINKING_DEFAULT}{lacking}"
         self._refresh_status()
+        if self.query(Welcome) and not lacking:
+            return  # The entering page has each system's model on its card: the pick needs no line of its own.
         if role == "system2" and binding is not None:
             window = tokens_text(binding.window.working)
             await self.transcript.notice(f"System 2 → {binding.ref} (working window {window} tokens){level}", "ok")
@@ -1687,7 +1689,8 @@ class HarnessApp(App[None]):
         self._apply_thinking(binding, level)
         self.pending.thinking = level
         self._refresh_status()
-        await self.transcript.notice(f"Thinking → {level}", "ok")
+        if not self.query(Welcome):  # the entering page has the level on System 2's card
+            await self.transcript.notice(f"Thinking → {level}", "ok")
 
     async def action_cycle_thinking(self) -> None:
         """Shift+Tab: the next level round, from the model's own to low."""
