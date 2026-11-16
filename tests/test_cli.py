@@ -70,7 +70,7 @@ def test_headless_json_run_does_the_task_and_streams_typed_events(tmp_path: Path
 def test_text_mode_prints_the_answer_and_saves_a_resumable_session(tmp_path: Path, work: Path):
     home = tmp_path / "home"
     with FakeOpenAI([Reply(text="Four.")]) as server:
-        result = cli("--system2", f"vllm/{MODEL}", "what is 2+2", env=env_for(server, home), cwd=work)
+        result = cli("--no-memory", "--system2", f"vllm/{MODEL}", "what is 2+2", env=env_for(server, home), cwd=work)
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "Four."
     sessions = list((home / "sessions").glob("*.jsonl"))

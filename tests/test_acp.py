@@ -513,7 +513,7 @@ async def test_the_server_opens_sessions_when_the_configured_model_has_no_key(tm
         env |= {"VLLM_BASE_URL": server.url, **server.system1_env}
         async with spawn_agent_process(
             lambda _agent: client,  # pyright: ignore[reportArgumentType, reportReturnType]
-            sys.executable, "-m", "intern", "acp", "--no-context-files",
+            sys.executable, "-m", "intern", "acp", "--no-context-files", "--no-memory",
             env=env, cwd=work,
         ) as (conn, process):  # fmt: skip
             await conn.initialize(protocol_version=1)
@@ -573,6 +573,7 @@ async def test_the_server_process_speaks_acp_over_stdio(tmp_path: Path, work: Pa
             "intern",
             "acp",
             "--no-context-files",
+            "--no-memory",
             "--system2",
             f"vllm/{MODEL}",
             env=env,
@@ -1446,7 +1447,7 @@ def test_requests_sent_before_stdin_closes_are_all_answered(tmp_path: Path, work
         env = {**os.environ, "VLLM_BASE_URL": server.url, "INTERN_HOME": str(tmp_path / "home")}
         env |= server.system1_env
         process = subprocess.Popen(
-            [sys.executable, "-m", "intern", "acp", "--no-context-files", "--system2", f"vllm/{MODEL}"],
+            [sys.executable, "-m", "intern", "acp", "--no-context-files", "--no-memory", "--system2", f"vllm/{MODEL}"],
             env=env, cwd=work, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True,
         )  # fmt: skip
         stdin, stdout = process.stdin, process.stdout
