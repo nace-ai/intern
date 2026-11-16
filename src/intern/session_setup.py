@@ -51,6 +51,7 @@ from intern.models.catalog import RunnerInfo
 from intern.models.registry import ConfigError
 from intern.needs import Needs
 from intern.processes import ProcessManager
+from intern.providers.base import NO_RETRIES, RetryPolicy
 from intern.providers.failover import (
     BudgetPolicy,
     BudgetProvider,
@@ -717,6 +718,9 @@ async def prepare_session(
     own = [SecretStr(env[name]) for name in harness_only if len(env.get(name, "")) >= MIN_SECRET_CHARS]
     values = [*(secret_store or {}).values(), *own]
     redact = SecretRedactor(values).redact if values else deps.redact
-    prepared = replace(deps, tools=tools, executor=executor, system2=system2, redact=redact, processes=manager)
+    retries = RetryPolicy() if settings.model_retries else NO_RETRIES
+    prepared = replace(
+        deps, tools=tools, executor=executor, system2=system2, redact=redact, processes=manager, retries=retries
+    )
     resolver = models.resolve if settings.system2_fallbacks or models.budget is not None else resolve_model
     return PreparedSession(prepared, resources, resolver, models.budget)

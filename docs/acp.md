@@ -1059,3 +1059,13 @@ A silent command can be stopped; 0.31.0 clients keep working, and nothing change
   how to keep a long silent command alive. See [processes](capabilities/processes.md#a-silent-command-is-stopped).
 - The `process` event of a stopped command has state `idle_stopped` and `quiet_s`, the seconds it had written
   nothing. `-p --json` and JSON-RPC carry it; ACP sends nothing for `process` events, as before.
+
+### 0.33.0
+
+A setting to turn model retries off; 0.32.0 clients keep working, and nothing a client sends or reads changed shape.
+
+- `[capabilities] model_retries = false` makes each System 2 call once, for a client whose own gateway retries. The
+  first retryable failure (HTTP 429, 5xx, an overloaded server, a dropped connection) ends the prompt with
+  [`provider_error`](#stop-reasons-and-errors), where before the provider retried after 2, 8 and 20 s and the
+  reply was requested again for up to 30 minutes. `system2_fallbacks` are still tried. The default, `true`, keeps
+  the retries. See [model retries](capability-settings.md#model-retries).
