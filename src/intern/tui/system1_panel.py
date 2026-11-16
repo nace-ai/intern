@@ -2,21 +2,22 @@
 
 System 1 is asked for different things, and each reads its own way (`ledger.py` gathers them from the events):
 
-- `◆` a turn it watched, in a line: what it weighed as one bar, each answer its share of it; its call and the
+- a turn it watched, in a line: what it weighed as one bar, each answer its share of it; its call and the
   probability; then what the loop did about it (a stuck strike, a nudge) and, once the request looks met, the
   wrap-up verdict;
-- `▣` a tool call the guard asked about: the call, allowed or refused, what it would do, P(any risk) and P(the user
-  asked for it), and the reason when refused. A fixed rule's refusal is listed too, as the rule it is: no model was
-  asked;
+- `✓` or `✗` a tool call the guard asked about, allowed or refused. One it found routine is a line, the call and
+  P(any risk); any other also says what it would do, P(any risk) and P(the user asked for it), and the reason when
+  refused. A fixed rule's refusal is listed too, as the rule it is: no model was asked;
 - `⌕` a search, `decision_code` or `decision_files`: the question, the asks the walk took and the cards it judged,
   and the places it ranked first;
 - `⟲` a compaction: the reads being cut that System 1 judged, how many it kept and which, and what the cut did to
   the context;
-- `⧗` a command that went on running and each look at it; `·` whatever else was asked for a turn.
+- `»` a command that went on running and each look at it; `·` whatever else was asked for a turn.
 
 Above the feed, the session's asks: how many System 1 answered, how long one took, how many the cache answered, and
-the count by kind, which is also the legend of the feed's glyphs. A run starts with its prompt; the feed follows its
-end as the session grows.
+the count by kind, each behind the sign its rows start with. The signs are muted, and only a guard's is coloured:
+what stands out in the feed is how a judgement went, not what kind it was. A run starts with its prompt; the feed
+follows its end as the session grows.
 """
 
 from __future__ import annotations
@@ -47,7 +48,6 @@ from intern.tui.ledger import (
     Usage,
 )
 from intern.tui.theme import (
-    BRAND,
     S_BAD,
     S_BAD_BOLD,
     S_HEAD,
@@ -61,7 +61,9 @@ from intern.tui.theme import (
     S_WARN_BOLD,
 )
 from intern.tui.widgets import (
+    CD,
     FILLED,
+    JOB,
     MODE_STYLE,
     TRACK,
     Following,
@@ -80,17 +82,19 @@ from intern.tui.widgets import (
     turn_notes,
 )
 
-GLYPH: dict[Kind, str] = {
-    "watch": "◆",
-    "guard": "▣",
+SIGN: dict[Kind, str] = {
+    "watch": FILLED,
+    "guard": "✓",
     "search": "⌕",
     "compaction": "⟲",
-    "jobs": "⧗",
+    "jobs": JOB,
     "memory": "◇",
     "other": "·",
 }
+"""What a kind's rows start with, as the count by kind shows it. A watched turn starts with its bar and a guarded
+call with its tick or cross, so neither has a sign of its own in the gutter."""
 GUTTER = 2
-"""A row's glyph: `◆ `."""
+"""A row's sign: `⌕ `; empty before a watched turn, whose bar says what it is."""
 BAR = 12
 """A watched turn's bar, in cells: what System 1 weighed, each answer its share of them."""
 FEED_ROWS = 400
@@ -113,7 +117,7 @@ def seconds(ms: int) -> str:
 
 def usage(used: Usage, width: int) -> Content:
     """The session's asks in a line (answered, the time one took, cached, failed), then the count by kind, each
-    with the glyph its rows have."""
+    with the sign its rows start with."""
     if not used.total and not used.cached and not used.failed:
         return Content("")
     asks = used.total
@@ -125,7 +129,7 @@ def usage(used: Usage, width: int) -> Content:
     if used.failed:
         head += [(" · ", S_MUTED), (f"{used.failed:,} failed and retried", S_WARN)]
     kinds: list[list[Part]] = [
-        [(GLYPH[kind], BRAND), (f" {kind} ", S_MUTED), (f"{used.asks[kind]:,}", S_INK)]
+        [(SIGN[kind], S_MUTED), (f" {kind} ", S_MUTED), (f"{used.asks[kind]:,}", S_INK)]
         for kind in KINDS
         if used.asks[kind]
     ]
@@ -194,36 +198,49 @@ def watch_lines(j: TurnJudgement, room: int) -> list[list[Part]]:
 
 def subject_title(subject: str) -> str:
     """The guard's subject (`bash {"command": "git push"}`, its JSON cut at 120 characters) as the call reads in
-    the transcript: `$ git push`."""
+    the transcript, without the `cd … &&` an agent puts before a command: `$ git push`."""
     name, _, raw = subject.partition(" ")
     try:
         arguments = json.loads(raw)
     except ValueError:
         arguments = None
     if isinstance(arguments, dict):
-        return tool_header(name, arguments)
+        title = tool_header(name, arguments)
+        return "$ " + CD.sub("", title[2:]) if title.startswith("$ ") else title
     _, _, value = raw.partition('": "')  # cut short: its first argument's value, as far as it goes
     text = (value or raw).replace('\\"', '"').replace("\\n", " ")
-    return f"$ {text}" if name == "bash" else f"{name} {text}"
+    return f"$ {CD.sub('', text)}" if name == "bash" else f"{name} {text}"
 
 
-def call_line(title: str, refused: bool, room: int) -> list[Part]:
-    mark: Part = ("✗ ", S_BAD_BOLD) if refused else ("✓ ", S_OK)
+def verdict_sign(refused: bool) -> Part:
+    """A guarded call's sign, the one in the gutter that is coloured: allowed or refused."""
+    return ("✗", S_BAD_BOLD) if refused else ("✓", S_OK)
+
+
+def call_line(title: str, room: int, right: str = "") -> list[Part]:
+    """The call's first line, with `right` muted at the row's end."""
     line = title.strip().splitlines()[0] if title.strip() else ""
-    return [mark, (clip(line, room - 2), S_INK)]
+    if not right:
+        return [(clip(line, room), S_INK)]
+    line = clip(line, max(8, room - cell_len(right) - 2))
+    return [(line, S_INK), " " * max(2, room - cell_len(line) - cell_len(right)), (right, S_MUTED)]
 
 
 def guard_lines(g: GuardJudgement, room: int) -> list[list[Part]]:
-    """A call System 1 judged: the call, what it would do, P(any risk) and P(asked), past its threshold in red."""
+    """A call System 1 judged. One it allowed as routine is a line, the call and P(any risk) at its end: most are,
+    and a feed of them reads as a list of commands with a column of risks. Any other has under it what the call
+    would do, P(any risk) and P(asked), past its threshold in red, and the reason when it was refused."""
     risky = g.risk >= RISK_THRESHOLD
     unasked = risky and g.asked < ASKED_THRESHOLD
+    if g.kind == "routine" and not risky and not g.refused:
+        return [call_line(subject_title(g.subject), room, f"risk {g.risk:.2f}")]
     kind_style = S_MUTED if g.kind == "routine" else S_WARN if g.kind == "unclear" else S_BAD
     facts: list[list[Part]] = [
         [(f"{g.kind.replace('_', ' ')} {g.probabilities.get(g.kind, 0.0):.2f}", kind_style)],
         [("risk ", S_MUTED), (f"{g.risk:.2f}", S_BAD_BOLD if risky else S_MUTED)],
         [("asked ", S_MUTED), (f"{g.asked:.2f}", S_BAD_BOLD if unasked else S_MUTED)],
     ]
-    lines = [call_line(subject_title(g.subject), g.refused, room), *flow(facts, room)]
+    lines = [call_line(subject_title(g.subject), room), *flow(facts, room)]
     return lines + wrapped(g.reason, room, S_BAD) if g.refused else lines
 
 
@@ -231,7 +248,7 @@ def rule_lines(r: RuleRefusal, room: int) -> list[list[Part]]:
     """A call a fixed rule refused: no model was asked, and the row says so."""
     title = tool_header(r.name, r.arguments) if r.arguments else r.name
     said = f"a fixed rule, not System 1 · {r.rule.replace('_', ' ')}"
-    return [call_line(title, True, room), [(clip(said, room), S_MUTED)], *wrapped(r.reason, room, S_BAD)]
+    return [call_line(title, room), [(clip(said, room), S_MUTED)], *wrapped(r.reason, room, S_BAD)]
 
 
 def search_lines(s: SearchJudgement, room: int, cwd: Path | None) -> list[list[Part]]:
@@ -301,25 +318,25 @@ def other_lines(o: OtherJudgement, room: int) -> list[list[Part]]:
     return [[(clip(about, max(8, room - size - 2)), S_MUTED), "  ", *answer]]
 
 
-def row_lines(row: Row, room: int, cwd: Path | None = None) -> tuple[Kind, list[list[Part]]]:
-    """A row's kind and its lines, without the gutter."""
+def row_lines(row: Row, room: int, cwd: Path | None = None) -> tuple[Part, list[list[Part]]]:
+    """A row's sign for the gutter, and its lines without it."""
     match row:
         case TurnJudgement():
-            return "watch", watch_lines(row, room)
+            return " ", watch_lines(row, room)
         case GuardJudgement():
-            return "guard", guard_lines(row, room)
+            return verdict_sign(row.refused), guard_lines(row, room)
         case RuleRefusal():
-            return "guard", rule_lines(row, room)
+            return verdict_sign(True), rule_lines(row, room)
         case SearchJudgement():
-            return "search", search_lines(row, room, cwd)
+            return (SIGN["search"], S_MUTED), search_lines(row, room, cwd)
         case CompactionJudgement():
-            return "compaction", compaction_lines(row, room, cwd)
+            return (SIGN["compaction"], S_MUTED), compaction_lines(row, room, cwd)
         case OtherJudgement():
-            return row.kind, other_lines(row, room)
+            return (SIGN[row.kind], S_MUTED), other_lines(row, room)
 
 
 def feed(runs: list[RunLedger], width: int, cwd: Path | None = None) -> Content:
-    """The session's rows, oldest first: each run under its prompt, each row behind its kind's glyph."""
+    """The session's rows, oldest first: each run under its prompt, each row behind its sign."""
     width = max(MIN_WIDTH, width)
     room = width - GUTTER
     lines: list[list[Part]] = []
@@ -331,8 +348,8 @@ def feed(runs: list[RunLedger], width: int, cwd: Path | None = None) -> Content:
         if run.prompt:
             lines.append([("› ", S_HEAD), (clip(" ".join(run.prompt.split()), width - 2), S_HEAD)])
         for row in run.feed:
-            kind, body = row_lines(row, room, cwd)
-            lines.append([(GLYPH[kind], BRAND), " ", *body[0]])
+            sign, body = row_lines(row, room, cwd)
+            lines.append([sign, " ", *body[0]])
             lines += [[" " * GUTTER, *line] for line in body[1:]]
     if len(lines) > FEED_ROWS:
         hidden = len(lines) - FEED_ROWS

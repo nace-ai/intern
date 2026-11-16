@@ -128,46 +128,46 @@ straight to the conversation; `/clear` comes back to the page.
       ▀▀████▀▀▀
 ╭─▐System 2▌ thinking slow ─────────────────────────╮╭─▐System 1▌ thinking fast ──────────────────────╮
 │ › Find why tests/test_parser.py fails and fix it  ││ 131 asks · 0.4s each · 12 cached               │
-│ ▸ Thought for 3.4s                                ││ ◆ watch 22   ▣ guard 8   ⌕ search 97           │
+│ ▸ Thought for 3.4s                                ││ ━ watch 22   ✓ guard 8   ⌕ search 97           │
 │ Let me look at the failing test first.            ││ ⟲ compaction 4                                 │
 │                                                   ││                                                │
 │ $ pytest -q tests/test_parser.py                  ││ › Find why tests/test_parser.py fails and fix… │
-│ … (31 earlier lines, click or ctrl+o to expand)   ││ ▣ ✓ $ pytest -q tests/test_parser.py           │
-│ FAILED tests/test_parser.py::test_dates           ││   routine 0.92   risk 0.07   asked 0.90        │
-│ 1 failed, 41 passed in 0.52s                      ││ ◆ ━━━━━━━━━━━─ moving 0.78  done 0.12          │
-│ Took 2.1s                                         ││ ⌕ decision_code  97 asks · 291 judged          │
-│                                                   ││   where are ISO weeks parsed?                  │
-│ ▎ System 1 · 0.6s   moving 0.78                   ││   → src/parser.py  0.93                        │
-│ ▎ done 0.12   circling 0.06                       ││ ◆ ━━━━━━━━━━━━ circling 0.81  moving 0.11      │
-│                                                   ││   strike 3/3  stuck nudge sent                 │
-│ decision_code where are ISO weeks parsed?         ││ ▣ ✗ $ git push --force origin main             │
-│ 1. src/parser.py · def parse_date · lines 40-71   ││   rewrites shared history 0.96                 │
-│ Took 3.2s                                         ││   risk 0.96   asked 0.02                       │
-│                                                   ││   System 1 judged that it rewrites history     │
-│ $ git push --force origin main                    ││   that others share and that the user did not  │
-│ ✗ System 1 refused   rewrites shared history 0.96 ││   ask for it                                   │
-│ risk 0.96   asked 0.02   0.4s                     ││ ⟲ 4 reads judged · 2 kept · 2 cut              │
-│ System 1 judged that it rewrites history that…    ││   14.1k → 6.2k −56% · 6 turns cut to a summary │
-│                                                   ││   ✓ src/parser.py  0.91                        │
+│ … (31 earlier lines, click or ctrl+o to expand)   ││ ✓ $ pytest -q tests/test_parser.py   risk 0.07 │
+│ FAILED tests/test_parser.py::test_dates           ││   ━━━━━━━━━━━─ moving 0.78  done 0.12          │
+│ 1 failed, 41 passed in 0.52s                      ││ ⌕ decision_code  97 asks · 291 judged          │
+│ Took 2.1s                                         ││   where are ISO weeks parsed?                  │
+│                                                   ││   → src/parser.py  0.93                        │
+│ ▎ System 1 · 0.6s   moving 0.78                   ││   ━━━━━━━━━━━━ circling 0.81  moving 0.11      │
+│ ▎ done 0.12   circling 0.06                       ││   strike 3/3  stuck nudge sent                 │
+│                                                   ││ ✗ $ git push --force origin main               │
+│ decision_code where are ISO weeks parsed?         ││   rewrites shared history 0.96                 │
+│ 1. src/parser.py · def parse_date · lines 40-71   ││   risk 0.96   asked 0.02                       │
+│ Took 3.2s                                         ││   System 1 judged that it rewrites history     │
+│                                                   ││   that others share and that the user did not  │
+│ $ git push --force origin main                    ││   ask for it                                   │
+│ ✗ System 1 refused   rewrites shared history 0.96 ││ ⟲ 4 reads judged · 2 kept · 2 cut              │
+│ risk 0.96   asked 0.02   0.4s                     ││   14.1k → 6.2k −56% · 6 turns cut to a summary │
+│ System 1 judged that it rewrites history that…    ││   ✓ src/parser.py  0.91                        │
+│                                                   ││                                                │
 │ refused · 0.0s                                    │╰────────────────────────────────────────────────╯
 │                                                   │╭─▐State▌ fast and slow ─────────────────────────╮
 │ ⟲ Compaction · turn 12 · 6 turns cut to a summary ││ 24.0k of 24.6k tokens · 98%  ━━━━━━━━━━━━━━━━  │
-│  Context ━━━━━━━━╌╌╌╌╌╌╌╌╌╌───  14.1k → 6.2k −56% ││ █ 15 whole   ▆ 10 abridged   62.9k uncut       │
+│  Context ━━━━━━━━╌╌╌╌╌╌╌╌╌╌───  14.1k → 6.2k −56% ││ ┃ 15 whole   │ 10 abridged   62.9k uncut       │
 │                                                   ││ inputs ≤ 60 chars                              │
 │                                                   ││                                                │
 │                                                   ││ ▌ › Find why tests/test_parser.py fails and f… │
 │                                                   ││ ▌ › Also keep the old API working              │
 │                                                   ││                                                │
-│                                                   ││     ✓ $ pytest tests/test_parser.py  12 passed │
-│                                                   ││     The parser handles %V now.                 │
-│                                                   ││   › Also keep the old API working              │
-│                                                   ││ ▆   I'll check the callers of the old name.    │
-│                                                   ││     ✓ grep parse_date_legacy in .              │
-│                                                   ││     ✓ edit src/api.py                          │
-│                                                   ││     ✓ $ pytest -q          58 passed in 1.31s  │
-╰───────────────────────────────────────────────────╯│     ✗ $ git push --force origin main           │
-╭───────────────────────────────────────────────────╮│     ✓ $ git push origin fix-iso-weeks          │
-│ Describe the task… (/help for commands)           ││     Fixed: parse_date handles ISO weeks (%V)…  │
+│                                                   ││ ┃   ✓ $ pytest tests/test_parser.py  12 passed │
+│                                                   ││ ┃   The parser handles %V now.                 │
+│                                                   ││                                                │
+│                                                   ││ ┃ › Also keep the old API working              │
+│                                                   ││ │   I'll check the callers of the old name.    │
+│                                                   ││ │   ✓ grep parse_date_legacy in .              │
+│                                                   ││ │   ✓ edit src/api.py                          │
+╰───────────────────────────────────────────────────╯│ │   ✓ $ pytest -q          58 passed in 1.31s  │
+╭───────────────────────────────────────────────────╮│ ┃   ✗ $ git push --force origin main           │
+│ Describe the task… (/help for commands)           ││ ┃   ✓ $ git push origin fix-iso-weeks          │
 ╰───────────────────────────────────────────────────╯╰────────────────────────────────────────────────╯
 ```
 
@@ -255,13 +255,13 @@ the agent is told at its next turn, and the transcript shows each one's line (``
 code 0, after 4m 05s``); between runs, that end starts a run by itself, so the agent reports it without being asked.
 While commands run, System 1 looks at them now and then (30 s, 1, 2, 4, 8 and 16 minutes into each, then every 30
 minutes). Each look is a card as System 1's others are, its judgement and not the command again: how long the
-command had run, what System 1 found with its probability and what it weighed most against that (`⧗ System 1 · at 4m
+command had run, what System 1 found with its probability and what it weighed most against that (`» System 1 · at 4m
 00s   progressing 0.88   waiting as expected 0.10`). A command has one card, which each look updates; a look that
 finds it stalled, failing or waited on stays as a card of its own with an amber rail and `→ told the agent`. The
 card names the command only when several run. A command that goes on in the background says why (``⇢ `./ci.sh` went
 on in the background: System 1 judged it waits (0.88)``, or the timer, a stuck finding, a rule, your message), and
 System 1's row of the status bar lists the jobs it watches, each with its run time, its verdict at the latest look
-and the next look (`⧗ ./ci.sh 40s · waiting as expected · next look 20s`). A `process` call reads as what it did and
+and the next look (`» ./ci.sh 40s · waiting as expected · next look 20s`). A `process` call reads as what it did and
 how the job stands (`process poll 1cf1caa9`, then `running · 32s` and the output it read), not as the JSON the agent
 gets. When the agent only polls a running job, or only waits (a `sleep 300` that went on in the background), it
 hands the session back (``⏸ Waiting on `./ci.sh`: you get the result when it ends; …``); the job's end brings it
@@ -361,16 +361,16 @@ loop: a long session's takes a tenth of a second) and on resume:
 
 - the budget: the tokens the cut takes of its budget, as a share and a meter; then how the messages are read:
   `10 messages, each read whole` while none is cut, and once the cut wears some down a count of each way a message
-  was kept (`█` whole, `▆` abridged, `▄` collapsed, `▂` one line, `▁` left out), what the history would take uncut
+  was kept (`┃` whole, `│` abridged, `╎` collapsed, `┊` one line, `┄` left out), what the history would take uncut
   and what tool inputs were cut to;
 - the goal: a line per request you typed, shaded as the transcript's prompts are: what System 1 reads as the
   goal; on a panel under 22 rows it is not drawn, as the history has the requests too;
-- what runs: a line per command still running (`⧗`), with how long it has run; not drawn while nothing runs;
+- what runs: a line per command still running (`»`), with how long it has run; not drawn while nothing runs;
 - the history, oldest first, following the end: a row per prompt (`›`), harness message (`⚑`), reply and call
-  (`✓` or `✗`, the tool or `$` and the command, what it was about, a check's tally in green or red). A message
-  read whole has nothing before it; once the cut wears one down, its rows stand behind the glyph for how it was
-  kept, so what System 1 no longer reads in full is what stands out; runs left out are one row, and a rule marks
-  where System 2's context starts. The newest 400 rows are drawn.
+  (`✓` or `✗`, the tool or `$` and the command, what it was about, a check's tally in green or red). Once the
+  cut wears messages down, a rail runs before the rows, the legend's stroke for how each message was kept: heavy
+  by one read whole, thinner and more broken the less of it System 1 reads, and a gap by the one row that stands
+  for a run left out; a rule marks where System 2's context starts. The newest 400 rows are drawn.
 
 The parts stand a blank row apart, with no name over any: what each holds says what it is.
 
@@ -379,30 +379,33 @@ System 1 reads, so it is not here: each compaction's card in the transcript show
 State in full, as the exact text it is given (its JSON laid out).
 
 **System 1 panel.** Every judgement System 1 made in the session, as a feed (`tui/system1_panel.py`, from
-`tui/ledger.py`). System 1 is asked for different things, and each kind reads its own way, behind its glyph, in the
+`tui/ledger.py`). System 1 is asked for different things, and each kind reads its own way, in the
 order they came, each run under its prompt:
 
-- `◆` **watch**: what the supervisor (`supervise.py`) answered at a turn's end, in a line: one bar of twelve cells,
+- **watch**: what the supervisor (`supervise.py`) answered at a turn's end, in a line: one bar of twelve cells,
   each mode it weighed taking its share of them in its own colour, so a call is seen to have been one of several;
   the mode it called and its probability; the modes it weighed most against that one, muted, as far as the line
   holds them; then what the loop did about it (`strike 2/3`, `stuck nudge sent`) and, once the request looks met,
   the wrap-up verdict. A mode is said in a word short enough for the line: `moving` (the supervisor's `advancing`),
   `circling` (`re_investigating`), `retrying`, `off-plan`, `done` (`finished`), `unclear`. The names System 1 is
   asked with are the supervisor's own.
-- `▣` **guard**: a tool call System 1 judged before it ran: the call, `✓` allowed or `✗` refused, what it would
-  do (routine, one of the risks, or unclear), `risk` and `asked`, and the reason when it was refused. A call a
-  fixed rule refused is listed too, as `a fixed rule, not System 1` and the rule: no model was asked.
+- `✓` or `✗` **guard**: a tool call System 1 judged before it ran, allowed or refused, without the `cd … &&`
+  before a command. One it allowed as routine is a line, the call and its `risk` at the row's end; any other has
+  under it what the call would do (one of the risks, or unclear), `risk` and `asked`, and the reason when it was
+  refused. A call a fixed rule refused is listed too, as `a fixed rule, not System 1` and the rule: no model was
+  asked.
 - `⌕` **search**: a `decision_code` or `decision_files` call, which is System 1 walking an index: the tool, the
   asks the walk took and the cards it judged, the question, then the three places it ranked first with their
   scores (`→` the best, and where in the file). While it runs the row says `searching…` and counts. The search's
   own view in the transcript has the walk in full.
 - `⟲` **compaction**: the reads being cut that System 1 judged, how many it kept and how many it cut, what the cut
   did to the context (`14.1k → 6.2k −56%`), and the reads it kept, each with P(still being worked on).
-- `⧗` a command that went on running and each look at it, `◇` memory's asks made for a turn, `·` anything else.
+- `»` a command that went on running and each look at it, `◇` memory's asks made for a turn, `·` anything else.
 
 Above the feed, what the asks came to: how many System 1 answered, how long one took, how many the cache answered
-and how many failed and were retried; then the count by kind, each behind its glyph, so the line is also the feed's
-legend. A search's asks are counted there (`⌕ search 97`) and stand as one row. The feed follows its end as the
+and how many failed and were retried; then the count by kind, each behind the sign its rows start with (a watched turn's bar, a guarded call's tick), so
+the line is also the feed's legend. The signs are muted and only a guard's tick or cross is coloured, so what
+stands out in the feed is how a judgement went. A search's asks are counted there (`⌕ search 97`) and stand as one row. The feed follows its end as the
 session grows; the newest 400 lines are drawn. System 2's context is the masthead's.
 
 The feed comes from the event stream alone (`decision`, `tool_call_start`, `tool_call_end`, `tool_guard`, `nudge`,

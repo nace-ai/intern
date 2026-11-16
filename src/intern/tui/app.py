@@ -115,6 +115,7 @@ from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_INK, S_MUTED, S_OK, S_WA
 from intern.tui.views import ViewHost, Views
 from intern.tui.welcome import SETUP_NOTE, Opening, Welcome
 from intern.tui.widgets import (
+    JOB,
     Prompt,
     StatusBar,
     Transcript,
@@ -549,7 +550,7 @@ class HarnessApp(App[None]):
         for job in jobs[:2]:
             verdict = job.verdict.replace("_", " ") if job.verdict else "not looked at yet"
             look = f" · next look {duration_text(round(job.next_look_s))}" if job.next_look_s is not None else ""
-            parts.append(f"⧗ {brief(job.command, 28)} {duration_text(job.elapsed_s)} · {verdict}{look}")
+            parts.append(f"{JOB} {brief(job.command, 28)} {duration_text(job.elapsed_s)} · {verdict}{look}")
         if len(jobs) > 2:
             parts.append(f"+{len(jobs) - 2} more")
         text = "   ".join(parts)
