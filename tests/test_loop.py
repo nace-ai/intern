@@ -35,7 +35,7 @@ from intern.messages import (
     UserMessage,
 )
 from intern.models.profile import Profile
-from intern.providers.base import ProviderRequest
+from intern.providers.base import ProviderRequest, RetryPolicy
 from intern.providers.fake import FakeProvider, Turn
 from intern.session import Session
 
@@ -171,9 +171,9 @@ async def test_a_small_advertised_window_still_bounds_the_reply(make_harness):
     assert harness.provider.requests[0].max_output_tokens == int(16_384 * 0.15)
 
 
-async def test_a_reply_that_fails_with_a_retryable_error_is_requested_again(make_harness, monkeypatch):
-    monkeypatch.setattr(loop, "REPLY_RETRY_WAITS_S", (0.0, 0.0))
+async def test_a_reply_that_fails_with_a_retryable_error_is_requested_again(make_harness):
     harness = make_harness([Turn(error="stream broke", retryable=True), Turn(text="done")])
+    harness.deps.retries = RetryPolicy(reply_waits_s=(0.0, 0.0))
     outcome = await harness.run()
     assert outcome.reason == "completed" and outcome.final_text == "done"
     assert len(harness.provider.requests) == 2

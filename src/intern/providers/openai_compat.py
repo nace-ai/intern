@@ -48,7 +48,6 @@ from intern.providers.repair import (
     split_unopened_think,
 )
 
-RETRY_WAITS_S = (2.0, 8.0, 20.0)
 MAX_RETRY_AFTER_S = 60.0
 RETRYABLE_STATUS = frozenset({408, 409, 425, 429, 500, 502, 503, 504, 529})
 _STOP_KINDS: dict[str, StopKind] = {
@@ -206,7 +205,9 @@ class OpenAICompatProvider:
         started = time.monotonic()
         async with httpx.AsyncClient(timeout=timeout, transport=self._transport) as client:
             attempts = retrying(
-                lambda: self._attempt(client, body, request, started), RETRY_WAITS_S, self.endpoint.provider
+                lambda: self._attempt(client, body, request, started),
+                request.retries.provider_waits_s,
+                self.endpoint.provider,
             )
             async for item in attempts:
                 yield item

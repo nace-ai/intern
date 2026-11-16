@@ -10,8 +10,7 @@ import pytest
 
 from intern.messages import AssistantMessage, SystemMessage, ToolCall, ToolResult, ToolResultMessage, UserMessage
 from intern.models.registry import resolve_endpoint
-from intern.providers import openai_responses
-from intern.providers.base import Completed, ProviderError, ProviderRequest, ReasoningChunk, ToolSpec
+from intern.providers.base import NO_RETRIES, Completed, ProviderError, ProviderRequest, ReasoningChunk, ToolSpec
 from intern.providers.openai_responses import OpenAIResponsesProvider, wire_input
 
 REF = "openai/gpt-6.1-sol"
@@ -114,11 +113,10 @@ async def test_a_reply_cut_at_the_output_cap_is_a_length_stop():
     assert (message.text, message.stop) == ("half", "length")
 
 
-async def test_failed_and_cut_streams_are_errors(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr(openai_responses, "RETRY_WAITS_S", ())
+async def test_failed_and_cut_streams_are_errors():
     failed = sse(completed("failed", error={"code": "invalid_prompt", "message": "bad input"}))
     with pytest.raises(ProviderError, match="bad input"):
-        await collect(provider(lambda r: httpx.Response(200, content=failed)), request())
+        await collect(provider(lambda r: httpx.Response(200, content=failed)), request(retries=NO_RETRIES))
     cut = sse({"type": "response.output_text.delta", "delta": "half"})
     with pytest.raises(ProviderError, match="ended before the reply finished"):
-        await collect(provider(lambda r: httpx.Response(200, content=cut)), request())
+        await collect(provider(lambda r: httpx.Response(200, content=cut)), request(retries=NO_RETRIES))

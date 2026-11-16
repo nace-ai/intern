@@ -54,7 +54,6 @@ API_VERSION = "2023-06-01"
 # Lets the request set `thinking.block_binding`.
 THINKING_BINDING_BETA = "thinking-binding-controls-2026-08-01"
 DROP_STALE_THINKING = {"prefix_mismatch_behavior": "drop_block"}
-RETRY_WAITS_S = (2.0, 8.0, 20.0)
 RETRYABLE_STATUS = frozenset({408, 409, 425, 429, 500, 502, 503, 504, 529})
 RETRYABLE_ERRORS = frozenset({"overloaded_error", "api_error", "rate_limit_error"})
 CACHE = {"type": "ephemeral"}
@@ -252,7 +251,9 @@ class AnthropicProvider:
         timeout = httpx.Timeout(connect=15.0, read=300.0, write=60.0, pool=15.0)
         started = time.monotonic()
         async with httpx.AsyncClient(timeout=timeout, transport=self._transport) as client:
-            attempts = retrying(lambda: self._attempt(client, body, started), RETRY_WAITS_S, self.endpoint.provider)
+            attempts = retrying(
+                lambda: self._attempt(client, body, started), request.retries.provider_waits_s, self.endpoint.provider
+            )
             async for item in attempts:
                 yield item
 

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Literal, Protocol
 
 import httpx
-from pydantic import BaseModel, Field, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
 from intern.messages import AssistantMessage, ImagePart, Message
 from intern.models.profile import Compat, Sampling
@@ -20,6 +20,27 @@ class ToolSpec(BaseModel):
     name: str
     description: str
     parameters: dict[str, JsonValue]
+
+
+class RetryPolicy(BaseModel):
+    """How a model call that fails with a retryable error (a rate limit, an overloaded server, a dropped connection)
+    is made again.
+
+    The provider makes the request again after each of `provider_waits_s` while nothing of the reply has arrived.
+    The run then requests the reply again after each of `reply_waits_s`, which also covers a stream that broke
+    partway, and after those every `wait_out_s` until `wait_out_window_s` has passed since the first failure: ending
+    the run after a minute or two of 429s threw away runs that had hours of budget left."""
+
+    model_config = ConfigDict(frozen=True)
+
+    provider_waits_s: tuple[float, ...] = (2.0, 8.0, 20.0)
+    reply_waits_s: tuple[float, ...] = (5.0, 20.0)
+    wait_out_s: float = 30.0
+    wait_out_window_s: float = 1800.0
+
+
+NO_RETRIES = RetryPolicy(provider_waits_s=(), reply_waits_s=(), wait_out_window_s=0.0)
+"""Every call made once, for a client whose own gateway retries (`model_retries = false`)."""
 
 
 class ProviderRequest(BaseModel):
@@ -34,6 +55,7 @@ class ProviderRequest(BaseModel):
     reasoning_replay: bool = False
     compat: Compat = Field(default_factory=Compat)
     session_id: str | None = None
+    retries: RetryPolicy = Field(default_factory=RetryPolicy)
 
 
 class TextChunk(BaseModel):

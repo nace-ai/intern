@@ -363,6 +363,9 @@ class CapabilitySettings(_Settings):
     mcp: list[McpConfig] = Field(default_factory=list, max_length=32)
     session_budget: SessionBudgetConfig | None = None
     system2_fallbacks: list[ModelRef] = Field(default_factory=list, max_length=7)
+    model_retries: bool = True
+    """False makes each System 2 call once: a retryable failure ends the run with `provider_error`, for a client
+    whose own gateway retries. Fallbacks in `system2_fallbacks` are still tried."""
 
     @model_validator(mode="before")
     @classmethod

@@ -11,8 +11,15 @@ import pytest
 from intern.messages import AssistantMessage, ToolCall, UserMessage
 from intern.models.profile import Compat
 from intern.models.registry import resolve_endpoint
-from intern.providers import openai_compat
-from intern.providers.base import Completed, ProviderError, ProviderRequest, ReasoningChunk, TextChunk
+from intern.providers.base import (
+    NO_RETRIES,
+    Completed,
+    ProviderError,
+    ProviderRequest,
+    ReasoningChunk,
+    RetryPolicy,
+    TextChunk,
+)
 from intern.providers.openai_compat import OpenAICompatProvider
 
 
@@ -77,11 +84,10 @@ async def test_line_separator_characters_inside_data_lines_are_kept():
     assert message.text == "a\u2028b\u0085c"
 
 
-async def test_a_stream_cut_before_the_reply_finished_is_an_error(monkeypatch):
-    monkeypatch.setattr(openai_compat, "RETRY_WAITS_S", ())
+async def test_a_stream_cut_before_the_reply_finished_is_an_error():
     body = f"data: {json.dumps(delta(content='half a rep'))}\n\n".encode()
     with pytest.raises(ProviderError, match="ended before the reply finished"):
-        await collect(provider(lambda r: httpx.Response(200, content=body)), request())
+        await collect(provider(lambda r: httpx.Response(200, content=body)), request(retries=NO_RETRIES))
 
 
 async def test_text_tool_call_ids_are_unique_across_replies():
@@ -142,8 +148,7 @@ async def test_non_streaming_mode():
     assert message.usage.cost_usd == pytest.approx(0.0001)
 
 
-async def test_retryable_errors_are_retried_before_anything_streams(monkeypatch):
-    monkeypatch.setattr(openai_compat, "RETRY_WAITS_S", (0.0, 0.0))
+async def test_retryable_errors_are_retried_before_anything_streams():
     attempts: list[int] = []
 
     def handler(r: httpx.Request) -> httpx.Response:
@@ -152,7 +157,7 @@ async def test_retryable_errors_are_retried_before_anything_streams(monkeypatch)
             return httpx.Response(429, text="rate limited")
         return httpx.Response(200, content=sse(delta(content="ok"), delta(finish_reason="stop")))
 
-    _, message = await collect(provider(handler), request())
+    _, message = await collect(provider(handler), request(retries=RetryPolicy(provider_waits_s=(0.0, 0.0))))
     assert message.text == "ok"
     assert len(attempts) == 3
 
