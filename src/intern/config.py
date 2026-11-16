@@ -276,6 +276,13 @@ def load_user_config(home: Path) -> UserConfig:
         raise ConfigError(f"{path} is invalid: {e}") from e
 
 
+class System1Unconfigured(ConfigError):
+    """System 1 has no key to run on: the setup screen can connect one."""
+
+    system2: str = ""
+    """The System 2 the session would have run on, which works; set when a session could not open."""
+
+
 class System2Unavailable(ConfigError):
     """No System 2 could be bound: none is configured, or the one asked for cannot run (e.g. its key is missing)."""
 
@@ -472,7 +479,7 @@ class Bootstrap:
                 raise ConfigError("system1 backend console needs system1.model or system1.models")
             url, key = self._console(cfg)
             if not key:
-                raise ConfigError(
+                raise System1Unconfigured(
                     f"System 1 ({models[0]} from the console) needs a key in ${cfg.console_key_env} (or "
                     f"${DECISION_KEY_ENV}); or set [system1] in {self.home / CONFIG_FILE}, or pass --system1 "
                     "decisions:<model>"
@@ -483,7 +490,7 @@ class Bootstrap:
             raise ConfigError("system1 backend decisions-api needs system1.model")
         key = self.env.get(cfg.api_key_env)
         if not key:
-            raise ConfigError(f"the decisions API needs a key in ${cfg.api_key_env}")
+            raise System1Unconfigured(f"the decisions API needs a key in ${cfg.api_key_env}")
         return DecisionsApiBackend(cfg.base_url, SecretStr(key), models, timeout_s=cfg.timeout_s)
 
     def system1_choice(self) -> str:
@@ -607,7 +614,11 @@ class Bootstrap:
             # Last, so its drive write guard sees the arguments other extensions replaced.
             extensions.append(Memory(memory))
         hooks = Hooks(extensions, emit)
-        system1 = self._system1()
+        try:
+            system1 = self._system1()
+        except System1Unconfigured as e:
+            e.system2 = system2.ref
+            raise
         cfg = self.config.system1
         decisions = DecisionClient(
             system1,

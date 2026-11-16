@@ -33,6 +33,11 @@ its context fills up.
 uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
 ```
 
+Then run `intern`. The first time, it opens on a short setup that explains what Intern is and connects both of its
+models: pick a provider for System 2 (Anthropic, OpenAI, OpenRouter, Gemini, xAI, DeepSeek, Mistral, Groq and 15
+more, or a model on your machine), paste a key (or sign in to OpenRouter in the browser), and pick System 1, Drex Max
+on OpenRouter by default. Keys go to your system keychain; `/setup` brings the screen back any time.
+
 Your intern runs on two models:
 
 - **System 2** does the work. It can be any chat model: OpenRouter, Fireworks, Together, DeepInfra, Groq, OpenAI,

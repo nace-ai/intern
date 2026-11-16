@@ -1108,3 +1108,16 @@ Additive; 0.34.1 clients keep working.
 - Before falling back, a listing call that times out, is rate-limited or fails on the server is tried twice more,
   after 1 s and 3 s. A refusal such as 404 is not retried. A host that does not answer the listing is not asked for
   llama.cpp's `/props` as well, so it holds the start for about 19 s at most.
+
+### 0.36.0
+
+Additive; 0.35.0 clients keep working, and nothing a client sends or reads changed shape.
+
+- Twelve more System 2 providers, each OpenAI-compatible, by `provider/model` and the key variable it reads:
+  `gemini` (`GEMINI_API_KEY`), `xai` (`XAI_API_KEY`), `deepseek` (`DEEPSEEK_API_KEY`), `mistral`
+  (`MISTRAL_API_KEY`), `moonshot` (`MOONSHOT_API_KEY`), `zai` (`ZAI_API_KEY`), `minimax` (`MINIMAX_API_KEY`),
+  `huggingface` (`HF_TOKEN`), `vercel` (`AI_GATEWAY_API_KEY`), `requesty` (`REQUESTY_API_KEY`), `nebius`
+  (`NEBIUS_API_KEY`) and `sambanova` (`SAMBANOVA_API_KEY`). `models --json` and the `model` option list their models
+  when their key is set; like the others, these keys are the harness's own and never reach the agent's commands.
+- The terminal UI's first launch opens on a setup screen (`/setup`) that saves `system2`, `[system1]` and the keys.
+  ACP clients are unaffected: a session that cannot open still fails with the reason, as before.

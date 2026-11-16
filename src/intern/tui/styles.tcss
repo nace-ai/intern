@@ -344,3 +344,80 @@ ModelPicker, StateScreen {
     height: auto;
     margin-bottom: 1;
 }
+
+/* the setup screen (onboarding.py) */
+OnboardingScreen {
+    background: $background;
+    align: center middle;
+}
+
+#setup {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+}
+
+#setup-wordmark, #setup-stages, #setup-keys {
+    width: auto;
+    height: auto;
+}
+
+#setup-stages {
+    margin: 1 0 1 0;
+}
+
+#setup-card {
+    width: 100;
+    max-width: 96%;
+    height: auto;
+    max-height: 100%;
+    border: round $brand 45%;
+    background: $surface;
+    padding: 1 2;
+}
+
+#setup-intro {
+    height: auto;
+}
+
+#setup-intro #welcome-mascot {
+    margin: 0 3 0 0;
+}
+
+#setup-about {
+    width: 1fr;
+    height: auto;
+}
+
+#setup-title, #setup-body, #setup-status {
+    height: auto;
+}
+
+#setup-body {
+    margin: 0 0 1 0;
+}
+
+#setup-status {
+    margin: 1 0 0 0;
+}
+
+#setup-filter, #setup-input {
+    margin: 0 0 1 0;
+    background: $surface;
+    border: solid $rule;
+}
+
+#setup-filter:focus, #setup-input:focus {
+    border: solid $brand;
+}
+
+#setup-options {
+    height: auto;
+    max-height: 20;
+    background: $surface;
+    border: none;
+}
+
+#setup-keys {
+    margin: 1 0 0 0;
+}

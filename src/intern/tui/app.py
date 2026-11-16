@@ -26,6 +26,7 @@ from multiprocessing import resource_tracker
 from pathlib import Path
 from typing import ClassVar
 
+import httpx
 from pydantic import TypeAdapter
 from textual import events, on
 from textual.actions import SkipAction
@@ -41,7 +42,15 @@ from textual.widgets import Input, Static, TextArea
 
 from intern import capability_toggles, names, secrets_commands
 from intern.capability_settings import CapabilitySettings
-from intern.config import KNOWN_SYSTEM2, Bootstrap, Options, System2Unavailable, home_dir, process_env
+from intern.config import (
+    KNOWN_SYSTEM2,
+    Bootstrap,
+    Options,
+    System1Unconfigured,
+    System2Unavailable,
+    home_dir,
+    process_env,
+)
 from intern.events import (
     Compaction,
     ContextBudget,
@@ -98,12 +107,13 @@ from intern.tui.ledger import (
     RunLedger,
     TurnJudgement,
 )
+from intern.tui.onboarding import Onboarded, OnboardingScreen
 from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm
 from intern.tui.state_panel import StatePanel, system2_start
 from intern.tui.system1_panel import System1Panel
 from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_INK, S_MUTED, S_OK, S_WARN
 from intern.tui.views import ViewHost, Views
-from intern.tui.welcome import Opening, Welcome
+from intern.tui.welcome import SETUP_NOTE, Opening, Welcome
 from intern.tui.widgets import (
     Prompt,
     StatusBar,
@@ -146,6 +156,17 @@ class Models:
     """The dark look, picked with /dark."""
 
 
+@dataclass(frozen=True)
+class SetupHooks:
+    """What the setup screen needs from `main`: the keys set now, to tell which are already there, and where to
+    put the keys it is given so this process's sessions use them at once."""
+
+    env: Callable[[], Mapping[str, str]]
+    configured: Callable[[Mapping[str, str]], None]
+    transport: httpx.AsyncBaseTransport | None = None
+    """What the screen checks keys over; None for the network."""
+
+
 PICKS = TypeAdapter(Models)
 RESUME_TURNS = 30
 """The turns a resumed session shows; the earlier ones are in its journal and their work in the State."""
@@ -171,6 +192,8 @@ COMMANDS: dict[str, str] = {
     "directly; the session reopens on its journal",
     "/secrets": "keys kept in the OS keychain or a password manager, with whether each loads; Enter on one replaces "
     "it; /secrets set <NAME> stores one, /secrets remove <NAME> deletes one; new sessions use them",
+    "/setup": "connect your models: walks through System 2's provider, its key and model, then System 1's; saves "
+    "them to config.toml and the keychain and reopens the session on them",
     "/thinking": "the thinking level, low to max as the model takes it, for models that take one (also Shift+Tab; "
     "←→ in the /system2 picker)",
     "/compact": "compact the conversation now, as a run does near the window's limit: the older turns cut to "
@@ -251,7 +274,7 @@ def _short(path: Path) -> str:
     return "~" + text[len(home) :] if text.startswith(home + os.sep) else text
 
 
-ALIASES = ("/capabilities", "/exit")
+ALIASES = ("/capabilities", "/exit", "/login", "/connect")
 COMMAND = re.compile(r"/[a-z0-9]+(?:\s|$)", re.IGNORECASE)
 """A prompt that is a command: a slash and a word, then a space or the end; `/var/folders/...` is a path."""
 
@@ -354,6 +377,7 @@ class HarnessApp(App[None]):
         reloaded: bool = False,
         install: Installer | None = None,
         welcome: bool = True,
+        setup: SetupHooks | None = None,
     ) -> None:
         super().__init__()
         # Before the stylesheet is read: it names the theme's own variables ($rule, $wash, $muted).
@@ -371,6 +395,9 @@ class HarnessApp(App[None]):
         self._install = install
         """What `/caps` installs a capability's missing extra with before switching it on; None installs nothing, and
         the session that cannot open on the pick says what is missing."""
+        self._setup = setup
+        """The setup screen's hooks; None runs without it: a session that cannot open says why, as before."""
+        self._setting_up = False
         self._installing = False
         self._resuming = False
         self._replaying = False
@@ -546,6 +573,12 @@ class HarnessApp(App[None]):
             if models.system2 is None and default:
                 self.pending.system2 = default  # /system2 changes it, config.toml keeps one
                 return await self._open_with(self.pending)
+            if self._setup is not None:
+                # Nothing to run on yet: setup connects it, rather than an error to read.
+                self.status.note = SETUP_NOTE
+                self._refresh_status()
+                self._open_setup()
+                return False
             await self.transcript.notice(f"Cannot open a session: {e}", "error")
             await self.transcript.notice(
                 f"No provider key found for a default. /system2 picks a model (a typed provider/model is accepted) "
@@ -554,8 +587,26 @@ class HarnessApp(App[None]):
             )
             self._refresh_status()
             return False
+        except System1Unconfigured as e:
+            self._opening = False
+            if self._setup is not None:
+                self.status.note = SETUP_NOTE
+                self._refresh_status()
+                self._open_setup("system1", e.system2)
+                return False
+            await self.transcript.notice(f"Cannot open a session: {e}", "error")
+            await self.transcript.notice("Connect System 1 with /setup, or pick one with /system1.", "warn")
+            self._refresh_status()
+            return False
         except ConfigError as e:
             self._opening = False
+            if self._setup is not None:
+                await self.transcript.notice(f"The session could not open: {e}", "warn")
+                await self.transcript.notice(
+                    "/setup reconnects your models, or /system2 and /system1 pick others: either reopens it.", "ok"
+                )
+                self._refresh_status()
+                return False
             await self.transcript.notice(f"Cannot open a session: {e}", "error")
             await self.transcript.notice(
                 "Fix the configuration (export the key it names), or pick with /system1 or /system2: a pick "
@@ -742,7 +793,9 @@ class HarnessApp(App[None]):
             self.status.system2 = self.pending.system2 or "none"
             self.status.system1 = self.pending.system1 or "none"
             self.status.thinking = ""
-            self.status.note = "opening the session…" if self._opening else "no session"
+            self.status.note = (
+                "opening the session…" if self._opening else SETUP_NOTE if self._setup is not None else "no session"
+            )
         self.status.refresh_line()
         for page in self.query(Welcome):
             page.show(self._welcome(page.opening))
@@ -1068,6 +1121,8 @@ class HarnessApp(App[None]):
                 await self._runner(rest)
             case "/secrets":
                 await self._secrets(rest)
+            case "/setup" | "/login" | "/connect":
+                await self._setup_command()
             case "/thinking":
                 await self._thinking(rest)
             case "/compact":
@@ -1090,6 +1145,54 @@ class HarnessApp(App[None]):
                 await self.action_quit()
             case _:
                 await self.transcript.notice(f"Unknown command {name}; /help lists them.", "warn")
+
+    # -- setup -----------------------------------------------------------------------------------------------
+
+    def _open_setup(self, start: str = "welcome", system2: str = "") -> None:
+        """The setup screen (`tui/onboarding.py`), once at a time; what it saves opens the session."""
+        if self._setup is None or self._setting_up:
+            return
+        self._setting_up = True
+        screen = OnboardingScreen(
+            home=self._secrets_home(),
+            env=self._setup.env(),
+            start="system1" if start == "system1" else "welcome",
+            system2=system2,
+            transport=self._setup.transport,
+        )
+        self.push_screen(screen, callback=self._set_up)
+
+    def _set_up(self, done: Onboarded | None) -> None:
+        self._setting_up = False
+        self.run_worker(self._after_setup(done), group="set-model", exit_on_error=False)
+
+    async def _after_setup(self, done: Onboarded | None) -> None:
+        if done is None:
+            if self.session is None:
+                await self.transcript.notice(
+                    "No models connected yet. Type /setup whenever you're ready: it takes about a minute.", "ok"
+                )
+            return
+        assert self._setup is not None
+        self._setup.configured(done.setup.keys)
+        before = Models(**vars(self.pending))
+        self.pending.system2, self.pending.system1 = done.setup.system2, done.setup.system1_choice
+        if self._load_catalog is not None:
+            self.run_worker(self._fetch_catalog(), name="catalog", exit_on_error=False)
+        if self.session is None:
+            if await self._open_with(self.pending) and self._first_prompt:
+                prompt, self._first_prompt = self._first_prompt, None
+                await self._submit(prompt)
+            return
+        await self._reopen(f"System 2 {done.setup.system2} · System 1 {done.setup.system1_choice}", before)
+
+    async def _setup_command(self) -> None:
+        if self._setup is None:
+            await self.transcript.notice("Setup is not available here; set the models in config.toml.", "warn")
+            return
+        if await self._busy():
+            return
+        self._open_setup()
 
     # -- secrets ---------------------------------------------------------------------------------------------
 
@@ -1664,6 +1767,18 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
     picks = PICKS.validate_json(reloaded) if reloaded else Models()
     environment = process_env() if env is None else dict(env)
     bootstrap = Bootstrap(options, environment)
+    current = [bootstrap]
+    """The Bootstrap the catalog and the default are read from, made again once setup adds keys."""
+
+    def configured(keys: Mapping[str, str]) -> None:
+        environment.update(keys)
+        current[0] = Bootstrap(options, environment)
+
+    async def catalog() -> Catalog:
+        return await current[0].catalog()
+
+    async def known_system2() -> str | None:
+        return await current[0].known_system2()
 
     async def open_session(emit: EventSink, picks: Models) -> Session:
         opened = options
@@ -1685,16 +1800,17 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
     app = HarnessApp(
         open_session,
         welcome=options.session_file is None,  # a journal to resume goes straight to its conversation
-        catalog=bootstrap.catalog,
+        catalog=catalog,
         system1_choices=system1_choices((), (), bootstrap.config.system1.models),
         first_prompt=None if reloaded else prompt,  # sent before the reload; its journal has it
-        default_system2=bootstrap.known_system2,
+        default_system2=known_system2,
         capabilities=bootstrap.capability_settings(),
         memory=bootstrap.memory_path(),
         home=bootstrap.home,
         picks=picks,
         reloaded=reloaded is not None,
         install=install,
+        setup=SetupHooks(env=lambda: environment, configured=configured),
     )
     # Index builds and OCR run in spawned worker processes. The first spawn starts multiprocessing's resource tracker
     # with sys.stderr's descriptor, which is -1 while the app runs (Textual's capture), and fails ("bad value(s) in

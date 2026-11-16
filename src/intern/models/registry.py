@@ -79,6 +79,43 @@ PROVIDERS: dict[str, ProviderSpec] = {
         base_url_env="ANTHROPIC_BASE_URL",
         api="anthropic",
     ),
+    # OpenAI-compatible APIs the setup screen offers (`onboarding.SYSTEM2_PROVIDERS`).
+    "gemini": ProviderSpec(
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai",
+        api_key_env="GEMINI_API_KEY",
+        base_url_env="GEMINI_BASE_URL",
+    ),
+    "xai": ProviderSpec(base_url="https://api.x.ai/v1", api_key_env="XAI_API_KEY", base_url_env="XAI_BASE_URL"),
+    "deepseek": ProviderSpec(
+        base_url="https://api.deepseek.com/v1", api_key_env="DEEPSEEK_API_KEY", base_url_env="DEEPSEEK_BASE_URL"
+    ),
+    "mistral": ProviderSpec(
+        base_url="https://api.mistral.ai/v1", api_key_env="MISTRAL_API_KEY", base_url_env="MISTRAL_BASE_URL"
+    ),
+    "moonshot": ProviderSpec(
+        base_url="https://api.moonshot.ai/v1", api_key_env="MOONSHOT_API_KEY", base_url_env="MOONSHOT_BASE_URL"
+    ),
+    "zai": ProviderSpec(
+        base_url="https://api.z.ai/api/paas/v4", api_key_env="ZAI_API_KEY", base_url_env="ZAI_BASE_URL"
+    ),
+    "minimax": ProviderSpec(
+        base_url="https://api.minimax.io/v1", api_key_env="MINIMAX_API_KEY", base_url_env="MINIMAX_BASE_URL"
+    ),
+    "huggingface": ProviderSpec(
+        base_url="https://router.huggingface.co/v1", api_key_env="HF_TOKEN", base_url_env="HUGGINGFACE_BASE_URL"
+    ),
+    "vercel": ProviderSpec(
+        base_url="https://ai-gateway.vercel.sh/v1", api_key_env="AI_GATEWAY_API_KEY", base_url_env="AI_GATEWAY_BASE_URL"
+    ),
+    "requesty": ProviderSpec(
+        base_url="https://router.requesty.ai/v1", api_key_env="REQUESTY_API_KEY", base_url_env="REQUESTY_BASE_URL"
+    ),
+    "nebius": ProviderSpec(
+        base_url="https://api.studio.nebius.com/v1", api_key_env="NEBIUS_API_KEY", base_url_env="NEBIUS_BASE_URL"
+    ),
+    "sambanova": ProviderSpec(
+        base_url="https://api.sambanova.ai/v1", api_key_env="SAMBANOVA_API_KEY", base_url_env="SAMBANOVA_BASE_URL"
+    ),
     "ollama": ProviderSpec(base_url="http://localhost:11434/v1", base_url_env="OLLAMA_BASE_URL"),
     "llamacpp": ProviderSpec(base_url="http://localhost:8080/v1", base_url_env="LLAMACPP_BASE_URL"),
     "lmstudio": ProviderSpec(base_url="http://localhost:1234/v1", base_url_env="LMSTUDIO_BASE_URL"),

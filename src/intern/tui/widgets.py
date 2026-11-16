@@ -415,7 +415,7 @@ class StatusBar(Static):
         if self._flash:
             run.append((self._flash, S_OK))
         elif self.note:
-            run.append((self.note, S_BAD))
+            run.append((self.note, S_MUTED if self.note.startswith("Not connected yet") else S_BAD))
         rows: list[list[Part]] = [
             [(WORDMARK, S_WORDMARK), (f"  {__version__}", S_MUTED)],
             [],
