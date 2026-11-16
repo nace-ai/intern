@@ -990,6 +990,8 @@ class Run:
                 )
             )
             waiting_on = []
+        if message.stop != "length":
+            self.continuations = 0
         if message.invalid_tool_calls:
             lines = [
                 f"Your call to {c.name or 'a tool'} was not run: {c.error}. "
