@@ -65,7 +65,7 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
-from intern.guard import NEXT_ACTION, Guard, Scope
+from intern.guard import NEXT_ACTION, Guard, GuardMode, Scope
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
@@ -186,6 +186,7 @@ class EngineDeps:
     """Replaces every stored secret's value with `[REDACTED]`; applied to each tool's output before the model,
     the journal, clients or a spill file see it, and to a run's end detail. None when no secret is stored."""
     system_writes: bool = False
+    guard_mode: GuardMode = "full"
     processes: ProcessManager | None = None
     """The session's job manager (`processes.py`): the `process` tool's jobs, and a record of every command running in
     the session. None when the executor runs no background jobs, or for a session built without setup."""
@@ -266,6 +267,7 @@ class Run:
             deps.emit,
             self._system1_state,
             guided=bool(deps.instructions.system1),
+            mode=deps.guard_mode,
         )
 
     # -- helpers --------------------------------------------------------------------------------

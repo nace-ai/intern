@@ -4,6 +4,9 @@ Every call passes the guard after the extensions' `tool_call` hooks (so it judge
 before the tool runs. A blocked call returns a refused tool result naming what was blocked and why, and the
 run goes on; the model is told to find a safer way or stop and say so.
 
+`[guard] mode` sets how much of this runs: `full` (the default) both layers, `rules` the fixed rules only, `off`
+nothing, so no call is refused.
+
 Fixed rules are code, never a model, and apply whether or not System 1 is configured. They are few and
 precise, because a fixed rule cannot be argued with: each one names an action that is destructive or
 exfiltrating in ordinary development, taken from what other harnesses refuse by code (the rule list in
@@ -162,6 +165,7 @@ FILE_READERS = frozenset({"read", "grep"})
 FILE_WRITERS = frozenset({"write", "edit"})
 
 Layer = Literal["rule", "system1"]
+GuardMode = Literal["full", "rules", "off"]  # rules then System 1; the rules alone; no check
 
 
 class RuleHit(BaseModel):
@@ -1348,8 +1352,10 @@ class Guard:
         session: Callable[[], str],
         *,
         guided: bool = False,
+        mode: GuardMode = "full",
     ) -> None:
         self.scope = scope
+        self.mode = mode
         self.session = session  # the session cut as it stands, as System 1's other asks see it
         self.asked = ASKED_GUIDED if guided else ASKED  # guided: the user's SYSTEM1.md ends the session
         self.executor = executor
@@ -1362,8 +1368,10 @@ class Guard:
     async def check(
         self, tool: Tool, call_id: str, arguments: JsonObject, *, requests: list[str], turn: int
     ) -> Block | None:
+        if self.mode == "off":
+            return None
         block = await self._rules(tool, arguments)
-        if block is None and self._judged(tool, arguments):
+        if block is None and self.mode == "full" and self._judged(tool, arguments):
             block = await self._judge(tool, arguments, requests, turn)
         if block is None:
             if not tool.read_only:

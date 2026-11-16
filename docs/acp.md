@@ -1037,3 +1037,12 @@ Fewer turns while a job runs; 0.30.6 clients keep working, and nothing a client 
   gets System 1's routine looks, so it never holds the prompt until its timeout.
 - The note a command gets when it goes on in the background tells the model to wait with `process poll` rather than
   `sleep`, `ps` or `tail`.
+
+### 0.31.0
+
+Additive; 0.30.7 clients keep working, and nothing a client sends or reads changed shape.
+
+- The tool-call guard can be turned down in `~/.intern/config.toml` with `[guard] mode`: `full` (the default, as
+  before) runs the fixed rules and System 1's judgement, `rules` runs the fixed rules only, `off` checks no call.
+  With `rules`, no `tool_guard` event has layer `system1` and no `decision` event has purpose `guard`; with `off`,
+  no call ends `stopped_by_guard`. System 1 is still required.
