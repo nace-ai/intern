@@ -132,6 +132,8 @@ class _Job:
     waits: bool = False
     """A moved call that only waits (a long `sleep`, `tail -f`, or one System 1 judged waits): a turn of nothing else
     hands the waiting over to the harness."""
+    ends: bool = False
+    """A wait that ends by itself (a `sleep`, a CI watch), so nothing but its end need bring the agent back."""
     note: str | None = None
     """Why it went on in the background, for a moved `bash` call (`ProcessInfo.note`)."""
     lift: Callable[[], None] | None = None
@@ -287,6 +289,7 @@ class ProcessManager:
         *,
         held: bool = True,
         waits: bool = False,
+        ends: bool = False,
         note: str | None = None,
         lift: Callable[[], None] | None = None,
     ) -> ProcessSnapshot:
@@ -309,6 +312,7 @@ class ProcessManager:
             capture=capture,
             held=held,
             waits=waits,
+            ends=ends,
             note=note,
             lift=lift,
         )
@@ -747,11 +751,13 @@ class ProcessManager:
         job = self._jobs.get(handle)
         return job is not None and not job.done.is_set()
 
-    def waiting_call(self, call_id: str) -> str | None:
-        """The command of the `bash` call `call_id`, shown as the agent sees it, when it went on in the background as a
-        wait and still runs; None otherwise."""
+    def waiting_call(self, call_id: str) -> tuple[str, bool] | None:
+        """The command of the `bash` call `call_id`, shown as the agent sees it, and whether it ends by itself, when it
+        went on in the background as a wait and still runs; None otherwise."""
         job = self._jobs.get(self._moved_from.get(call_id, ""))
-        return _shown(job.command) if job is not None and job.waits and not job.done.is_set() else None
+        if job is None or not job.waits or job.done.is_set():
+            return None
+        return _shown(job.command), job.ends
 
     def jobs_running(self) -> list[ProcessInfo]:
         """The jobs that still run (not foreground calls, nor what commands left running)."""

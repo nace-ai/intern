@@ -64,8 +64,17 @@ since the last turn are one message.
 The agent never waits on a background job; the harness does. `process poll` reads a
 job's output and state and returns at once: it has no `wait_s`. `process start` waits up to 3 s:
 a job that ends by then comes back with its result, as a `bash` call would, so a quick command
-costs one turn rather than a start and a poll (agents run 1–3 s repro scripts as jobs). A turn whose only calls are polls
-(or a list) of jobs that still run is the agent handing over:
+costs one turn rather than a start and a poll (agents run 1–3 s repro scripts as jobs). A turn whose only calls wait
+on what still runs is the agent handing over. Those calls are:
+
+- polls (or a list) of jobs that still run;
+- `bash` calls that went on in the background as waits: a long `sleep`, `tail -f`, `watch`, a CI watch, or one
+  System 1 judged waits (`until [ -f done ]; do sleep 5; done`);
+- in a quiet session only, status checks of what runs: commands that only read, at least one part a process listing
+  (`ps`, `pgrep`, `nvidia-smi`…) or a read of a file a running command names or writes to (`tail -n 20 train.log`
+  for a job started with `> train.log`). Nothing that writes, starts something, or runs `$( )`.
+
+What happens then:
 
 - In the terminal UI (`wake`) the run ends with reason `waiting` and the transcript says
   ``⏸ Waiting on `./ci.sh`: you get the result when it ends; System 1 looks at it meanwhile.`` You
@@ -74,7 +83,10 @@ costs one turn rather than a start and a poll (agents run 1–3 s repro scripts 
   finding, a message from the user, or System 1's next scheduled look at what runs. A look that
   found nothing to tell is news here (`nudge`, reason `process_look`), so a job that never ends, a
   server, brings the agent back at 30 s, 1, 2, 4… minutes instead of holding the run until its
-  timeout.
+  timeout. Two exceptions. A turn of waits that all end by themselves (`sleep`, a CI watch) is not
+  brought back by a look that found nothing: only by an end, a finding or the user, so a `sleep 300`
+  costs one turn. A turn with a status check holds 60 s at most (`STATUS_HOLD_S`), since what it
+  checks may be a server.
 
 In the terminal UI, before it hands over, the agent owes the user a word: the first time it would
 hand over without having written to the user since their latest message, it is told instead
