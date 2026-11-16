@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import json
 import re
 
 from textual.content import Content
 
-from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, RuleRefusal, TurnJudgement
+from intern.events import Compaction, MessageEvent, Nudge, ProcessVerdict, ToolCallStart, ToolGuard
+from intern.locate.trace import Ranked
+from intern.messages import UserMessage
+from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, Ledger, RuleRefusal, TurnJudgement
+from intern.tui.system1_panel import feed, usage
 from intern.tui.theme import MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_RULE
 from intern.tui.widgets import (
     CARD_LINES,
@@ -19,15 +24,21 @@ from intern.tui.widgets import (
     StatusBar,
     compaction_card,
     cost_text,
+    ended_lines,
     guard_card,
     level,
+    look_card,
     mark,
     meter,
+    process_result,
     rule_card,
     settled,
     supervisor_card,
     thinking_box,
+    tool_header,
 )
+
+from .test_tui_logic import guard, keep, run_start, search, supervise, trace
 
 LEVEL = re.compile(r"#([0-9a-f]{2})[0-9a-f]{4}")
 
@@ -169,3 +180,92 @@ def test_a_compaction_card_lands_each_read_as_judged_then_settles_with_the_kept_
     reads = [line for line in lines if ".py" in line]
     assert "kept.py" in reads[0] and len(reads) == CARD_LINES and "3 more" in lines[-1]
     assert sum(".py" in line for line in compaction_card(c, expanded=True).plain.splitlines()) == len(c.verdicts)
+
+
+def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_its_own_words():
+    ledger = Ledger()
+    ledger.observe(run_start("r1"))
+    ledger.observe(MessageEvent(entry_id="e1", message=UserMessage(content="Fix the parser")))
+    for turn in (1, 2, 3):
+        ledger.observe(supervise(turn, "retrying"))
+    ledger.observe(Nudge(turn=3, reason="stuck_gate", text="A review of your last 3 turns found no progress"))
+    ledger.observe(guard(4, 'bash {"command": "pytest -q"}', "routine", 0.9))
+    ledger.observe(ToolCallStart(turn=4, call_id="c4", name="bash", arguments={"command": "sudo make install"}))
+    ledger.observe(ToolGuard(turn=4, call_id="c4", name="bash", layer="rule", rule="privilege", reason="it runs sudo"))
+    ledger.observe(guard(5, 'bash {"command": "git push --force"}', "rewrites_shared_history", 0.02))
+    refused = "System 1 judged that it rewrites history and that the user did not ask for it"
+    ledger.observe(ToolGuard(turn=5, call_id="c5", name="bash", layer="system1", rule="r", reason=refused))
+    search(ledger, "s1", "decision_code", "where are retries capped?")
+    found = [Ranked(path="src/retry.py", score=0.93, where="def backoff")]
+    ledger.observe(trace("code-search", "a1", "where are retries capped?", asks=12, found=found))
+    search(ledger, "s2", "decision_files", "what did the theft cost?")
+    ledger.observe(keep(6, "src/a.py", "working_on"))
+    ledger.observe(keep(6, "src/b.py", "done_with"))
+    cut = Compaction(turn=6, method="state", tokens_before=14_000, tokens_after=6_000, turns_compacted=6, summary="")
+    ledger.observe(cut.model_copy(update={"kept": 1}))
+    text = feed(ledger.runs, 60).plain
+    rows = [line for line in text.splitlines() if line[:1] in "◆▣⌕⟲"]
+    # A row a judgement, in the order they came, behind its kind's glyph and its turn.
+    assert text.splitlines()[0] == "› Fix the parser"
+    assert [row[:6] for row in rows] == [
+        "◆   1 ",
+        "◆   2 ",
+        "◆   3 ",
+        "▣   4 ",
+        "▣   4 ",
+        "▣   5 ",
+        "⌕   4 ",
+        "⌕   4 ",
+        "⟲   6 ",
+    ]
+    # The watch: what the turn was doing, how sure, and what the loop did about it; under it, what System 1 weighed
+    # most against that, so a call made at 0.80 is seen to have been one of three.
+    assert "retrying" in rows[2] and "0.80" in rows[2] and "strike 3/3" in rows[2] and "stuck nudge sent" in text
+    assert text.splitlines()[text.splitlines().index(rows[0]) + 1].strip() == "advancing 0.05  re-investigating 0.05"
+    # The guard: the call, allowed or refused, and who refused it and why.
+    assert "✓ $ pytest -q" in rows[3] and "✗ $ sudo make install" in rows[4] and "✗ $ git push --force" in rows[5]
+    assert "a fixed rule, not System 1 · privilege" in text and "it runs sudo" in text
+    assert "rewrites shared history 0.96" in text and "System 1 judged that it rewrites history" in text
+    # A search: the question, what it took and the place it ranked first; one still running says so.
+    assert "decision_code  12 asks · 36 judged" in rows[6] and "where are retries capped?" in text
+    assert "→ src/retry.py  0.93" in text and "def backoff" in text
+    assert "decision_files  searching…" in rows[7]
+    # A compaction: the reads judged, the ones kept, and what the cut did to the context.
+    assert "2 reads judged · 1 kept · 1 cut" in rows[8] and "14.0k → 6.0k −57%" in text and "✓ src/a.py" in text
+    # Above the feed, what the asks came to, by kind: the feed's legend.
+    said = usage(ledger.usage, 60).plain
+    assert said.startswith("7 asks · ") and "◆ watch 3" in said and "▣ guard 2" in said and "⟲ compaction 2" in said
+
+
+def test_a_background_commands_lines_say_system_1s_judgement_and_how_it_stands_not_the_command_again():
+    command = "cd /srv/app && python3 - <<'EOF'\nimport build\nbuild.everything()\nEOF"
+    waits = {"waiting_as_expected": 0.93, "progressing": 0.05, "stalled": 0.02}
+    looked = ProcessVerdict(
+        id="j1", command=command, elapsed_s=120, verdict="waiting_as_expected", probabilities=waits, told=False
+    )
+    alone = look_card(looked, named=False).plain.replace(NBSP, " ")
+    assert alone == "⧗ System 1 · at 2m 00s   waiting as expected 0.93   progressing 0.05"  # the judgement alone
+    stalled = looked.model_copy(update={"verdict": "stalled", "probabilities": {"stalled": 0.7}, "told": True})
+    # With several running, which one: what it runs, in a few words, not the `cd` before it nor its later lines.
+    named = look_card(stalled, named=True).plain.replace(NBSP, " ")
+    assert named == "⧗ System 1 · python3 - <<'EOF' … at 2m 00s   stalled 0.70   → told the agent"
+
+    # A poll reads as how the job stands and what it printed, not the JSON the agent gets.
+    snapshot = {
+        "handle": "1cf1caa90bbb40ad",
+        "command": command,
+        "state": "running",
+        "exit_code": None,
+        "elapsed_s": 32,
+    }
+    polled = json.dumps({**snapshot, "output": "12 passed\n", "cursor": 0, "next_cursor": 10, "omitted_bytes": 0})
+    assert tool_header("process", {"action": "poll", "handle": "1cf1caa90bbb40ad"}) == "process poll 1cf1caa9"
+    assert process_result(polled) == ("running · 32s", "12 passed\n")
+    refused = "Error: no job has that handle\nNext: Poll/list an owned handle."
+    assert process_result(refused) == ("", refused)  # an error is the tool's own words
+
+    # Its end, from the notice the agent gets: the command is over several lines there, and the output is quoted.
+    notice = (
+        f"Background job 1cf1caa9 (`{command}`) ended: exited, exit code 0, after 3m 02s.\nThe end of its output:\nok"
+    )
+    assert ended_lines(notice) == ["`python3 - <<'EOF' …` ended: exited, exit code 0, after 3m 02s"]

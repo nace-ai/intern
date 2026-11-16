@@ -29,7 +29,6 @@ LIGHT = {
     "amber": "#b7791f",
     "red": "#b23a3a",
     "select": "#dedcd3",
-    "dim": "#d3d1c6",
     "brand": "#7c4ad2",
 }
 DARK = {
@@ -44,7 +43,6 @@ DARK = {
     "amber": "#d4973a",
     "red": "#d9625f",
     "select": "#3a3a31",
-    "dim": "#45443a",
     "brand": "#bd98ff",
 }
 """`select`: text the mouse selected, a shade of the page, not ink at half strength. `brand`: the mascot's violet,
@@ -74,8 +72,6 @@ AMBER = "$warning"
 RED = "$error"
 SELECT = "$select"
 BRAND = "$brand"
-DIM = "$dim"
-"""Between the rule and the muted gray: what System 1's chart draws that is not the turn's verdict."""
 # Content styles, by role, so widgets never name a colour.
 S_INK = INK
 S_RULE = RULE
@@ -121,7 +117,6 @@ def make_theme(name: str, c: dict[str, str], *, dark: bool) -> Theme:
             "wash": c["wash"],
             "muted": c["muted"],
             "select": c["select"],
-            "dim": c["dim"],
             "brand": c["brand"],
             "block-cursor-background": c["brand"],
             "block-cursor-foreground": c["paper"],

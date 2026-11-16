@@ -1,5 +1,5 @@
-"""The TUI's widgets: the status bar, the transcript and its blocks, and the System 1 panel (`state_panel.py` has
-the State panel).
+"""The TUI's widgets: the status bar, the transcript and its blocks, System 1's cards in it (`system1_panel.py`
+has the System 1 panel, `state_panel.py` the State panel, `welcome.py` the entering page).
 
 Text from the model goes through `Content` as plain text, never through markup, so a `[` in a command or a
 reply cannot style the screen.
@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import ClassVar
 from urllib.parse import unquote
 
+from rich.cells import cell_len, set_cell_size
 from textual import events
 from textual.actions import SkipAction
 from textual.app import ComposeResult
@@ -38,18 +39,17 @@ from textual.widgets.markdown import MarkdownStream
 from textual.widgets.text_area import Selection
 
 from intern import __version__
-from intern.events import ToolCallEnd, ToolCallStart
+from intern.events import ProcessVerdict, ToolCallEnd, ToolCallStart
 from intern.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.messages import JsonObject
+from intern.processes import ENDED_LINES, duration_text
 from intern.supervise import STRIKES
 from intern.tools.images import IMAGE_SUFFIXES
-from intern.tui.chart import render_chart
 from intern.tui.ledger import (
     CompactionJudgement,
     GuardJudgement,
     KeepVerdict,
     RuleRefusal,
-    RunLedger,
     TurnJudgement,
 )
 from intern.tui.outline import EMPHASIS, LIST_ITEM, QUOTE, Outline, Status, parse_state, plain
@@ -76,12 +76,21 @@ from intern.tui.theme import (
 
 TITLE_ARGUMENTS = ("path", "command", "pattern", "query", "url", "question")
 TITLE_CHARS = 72
+BRIEF_CELLS = 44
+"""A command named in passing: enough to know it by."""
+HANDLE_CHARS = 8
+"""A job's handle, as far as a reader needs it to tell two jobs apart."""
+ENDED = re.compile(
+    r"Background job \S+ \(`(?P<job>.*?)`\) (?P<fate>ended: [^\n]*|is from before [^\n]*)"
+    r"|A process the command `(?P<left>.*?)` left running \(process group \d+\) (?P<gone>ended after [^;\n]*)",
+    re.S,
+)
+"""A process's line in an end notice: the command, which may run over lines, and what became of it."""
+CD = re.compile(r"""^cd (?:"[^"]*"|'[^']*'|\S+) && """)
 OUTPUT_CHARS = 3_000
 FLUSH_S = 0.08
 METER_WIDTH = 10
 FILLED, TRACK = "━", "─"
-PANEL_WIDTH = 50
-"""What the System 1 panel draws in before it is laid out: the side panel less its border and padding."""
 PIP_ON, PIP_OFF = "▰", "▱"
 """The thinking box's meter: a pip per level the model takes, filled up to the one in force."""
 MASCOT = (
@@ -166,6 +175,65 @@ def tokens_text(n: int) -> str:
     return f"{n / 1000:.1f}k" if n >= 1000 else str(n)
 
 
+def brief(command: str, cells: int = BRIEF_CELLS) -> str:
+    """A command in a few words, for a line that is about something else (System 1's look at it, its end): its first
+    line, without the `cd … &&` an agent puts before it, `…` for what is left out."""
+    lines = command.strip().splitlines()
+    first = CD.sub("", " ".join(lines[0].split())) if lines else ""
+    return clip(first + (" …" if len(lines) > 1 and not first.endswith("…") else ""), cells)
+
+
+def ended_lines(text: str) -> list[str]:
+    """Each process an end notice tells the agent of (`ProcessManager.end_notice`), in a few words with how it ended:
+    not the whole command, nor the output the notice quotes."""
+    lines = [
+        f"`{brief(m['job'])}` {m['fate'].rstrip('.')}"
+        if m["job"] is not None
+        else f"A process `{brief(m['left'])}` left running {m['gone']}"
+        for m in ENDED.finditer(text)
+    ]
+    # A notice worded otherwise is shown as it was, by its lines: never dropped.
+    return lines or [line for line in text.splitlines() if line.startswith(ENDED_LINES)]
+
+
+def process_subject(arguments: JsonObject) -> str | None:
+    """What a `process` call is about: `start` and its command, else the action and the start of the job's handle
+    (the whole handle is the agent's business). None when it is not that call's arguments."""
+    action, command, handle = arguments.get("action"), arguments.get("command"), arguments.get("handle")
+    if not isinstance(action, str):
+        return None
+    if action == "start" and isinstance(command, str):
+        return f"start {command.strip()}"
+    return f"{action} {handle[:HANDLE_CHARS]}".strip() if isinstance(handle, str) else action
+
+
+def process_result(content: str) -> tuple[str, str]:
+    """A `process` call's result as a reader wants it: how the job stands (`running · 32s`) and the output the call
+    read, not the JSON the agent gets (the handle, the command again, the cursors). `list`: a line a job. A result
+    that is not a job's (an error) is left as it is."""
+    try:
+        data = json.loads(content)
+    except ValueError:
+        return "", content
+
+    def stands(job: dict[str, object]) -> str:
+        code, took = job.get("exit_code"), job.get("elapsed_s")
+        state = str(job.get("state", "")).replace("_", " ") + (f", exit code {code}" if code is not None else "")
+        return f"{state} · {duration_text(took)}" if isinstance(took, int) else state
+
+    if isinstance(data, list):
+        jobs = [job for job in data if isinstance(job, dict)]  # pyright: ignore[reportUnknownVariableType]
+        return f"{len(jobs)} job{'s' if len(jobs) != 1 else ''}", "\n".join(
+            f"{str(job.get('handle', ''))[:HANDLE_CHARS]}  {stands(job)}  {brief(str(job.get('command', '')))}"
+            for job in jobs
+        )
+    if not isinstance(data, dict) or "state" not in data:
+        return "", content
+    left = data.get("omitted_bytes")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
+    more = f" · {left:,} bytes of output left out" if isinstance(left, int) and left else ""
+    return stands(data) + more, str(data.get("output") or "")  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
+
+
 def call_title(name: str, arguments: JsonObject) -> str:
     """The tool and the argument that says what the call is about: its path, command, pattern, query, url."""
     subject = next((arguments[k] for k in TITLE_ARGUMENTS if isinstance(arguments.get(k), str)), None)
@@ -185,6 +253,34 @@ def bounded(text: str, limit: int = OUTPUT_CHARS) -> str:
 
 def styled(text: str, style: str = "") -> Part:
     return (text, style) if style else text
+
+
+def clip(text: str, cells: int) -> str:
+    """`text` in at most `cells` cells, `…` where it was cut."""
+    if cell_len(text) <= cells:
+        return text
+    return set_cell_size(text, max(0, cells - 1)) + "…" if cells > 0 else ""
+
+
+def flow(items: list[list[Part]], width: int, gap: int = 3) -> list[list[Part]]:
+    """Items on as few lines of `width` cells as hold them, `gap` apart: laid out by hand, since wrapping would
+    break inside an item."""
+    lines: list[list[Part]] = []
+    used = 0
+    for item in items:
+        size = Content.assemble(*item).cell_length
+        if lines and used + gap + size <= width:
+            lines[-1] += [" " * gap, *item]
+            used += gap + size
+        else:
+            lines.append(list(item))
+            used = size
+    return lines
+
+
+def stacked(lines: list[list[Part]]) -> Content:
+    """Lines of parts as one text."""
+    return Content("\n").join(Content.assemble(*line) for line in lines)
 
 
 # -- the status bar -----------------------------------------------------------------------------------------
@@ -661,6 +757,8 @@ def tool_header(name: str, arguments: JsonObject) -> str:
     if name == "bash" and isinstance(command := arguments.get("command"), str):
         return bounded(f"$ {command.strip()}", HEADER_CHARS)
     subject = next((arguments[k] for k in TITLE_ARGUMENTS if isinstance(arguments.get(k), str)), None)
+    if name == "process":
+        subject = process_subject(arguments) or subject
     if subject is None:
         subject = json.dumps(arguments) if arguments else ""
     return bounded(f"{name} {str(subject).strip()}".strip(), HEADER_CHARS)
@@ -687,6 +785,8 @@ class ToolBlock(Vertical):
         self.head = Static(Content(self.title), classes="head")
         self.out = Static(Content.assemble(("running…", S_MUTED)), classes="out")
         self.content_text = ""
+        self.lead = ""
+        """A line above the output that is not the tool's own words: how a `process` call's job stands."""
         self.status = "running"
         self.duration_ms = 0
         self.expanded = False
@@ -738,6 +838,8 @@ class ToolBlock(Vertical):
     def end(self, event: ToolCallEnd) -> None:
         self._stop_clock()
         self.content_text = event.content
+        if self.name_ == "process":
+            self.lead, self.content_text = process_result(event.content)
         self.status = event.status
         self.duration_ms = event.duration_ms
         self.set_class(event.status != "ok", "failed")
@@ -753,8 +855,8 @@ class ToolBlock(Vertical):
             self.toggle()
 
     def render_output(self) -> None:
-        parts: list[Part] = []
         text = self.content_text.rstrip("\n")
+        parts: list[Part] = [(self.lead + "\n" * bool(text), S_INK)]
         if self.expanded:
             parts.append((bounded(text, EXPANDED_CHARS), S_MUTED))
         else:
@@ -769,7 +871,7 @@ class ToolBlock(Vertical):
             if self.status == "ok"
             else f"{self.status} · {self.duration_ms / 1000:.1f}s"
         )
-        parts.append(("\n" if text else "", ""))
+        parts.append(("\n" if text or self.lead else "", ""))
         parts.append((took, S_BAD if self.status != "ok" else S_MUTED))
         self.out.update(Content.assemble(*(p for p in parts if p[0])))
 
@@ -1001,13 +1103,22 @@ SPIN_S = 0.1
 # -- the System 1 panel -------------------------------------------------------------------------------------
 
 
+WRAP_WORDS = {"done_polishing": "done, now polishing", "done_unsaved": "done, not yet saved", "unclear": "unclear"}
+"""The wrap-up verdicts worth a note; `working`, the usual one, has none."""
+
+
 def turn_notes(j: TurnJudgement) -> list[Part]:
-    """What the loop did with the verdict: a stuck strike's count, a nudge."""
+    """What the loop did with the verdict: a stuck strike's count, a nudge; and the turn's other verdict, whether
+    the request is met, once it is anything but still being worked on."""
     notes: list[Part] = []
     if j.strikes:
         notes.append((f"strike {j.strikes}/{STRIKES}", S_WARN))
     if j.nudged:
         notes.append(("stuck nudge sent", S_WARN_BOLD))
+    if words := WRAP_WORDS.get(j.wrap):
+        notes.append((f"request {words} {j.wrap_probability:.2f}", S_MUTED))
+    if j.wrapped:
+        notes.append(("wrap-up nudge sent", S_WARN_BOLD))
     if j.cached:
         notes.append(("cached", S_MUTED))
     return notes
@@ -1023,6 +1134,12 @@ CARD_MODES = 3
 """The modes on the supervisor's card: its call, and the two it weighed most against it."""
 
 
+def runners_up(probabilities: dict[str, float], answer: str, most: int = CARD_MODES - 1) -> list[str]:
+    """What System 1 weighed most against its answer, likeliest first: none that rounds to 0.00."""
+    others = (other for other, p in probabilities.items() if other != answer and p >= 0.005)
+    return sorted(others, key=lambda other: -probabilities[other])[:most]
+
+
 def level(label: str, p: float, style: str, number: str = S_INK) -> list[Part]:
     """`advancing 0.92`, `risk 0.68`: the words the System 1 panel uses, and the probability. The space inside is
     non-breaking, so a wrapped card breaks between levels, never inside one."""
@@ -1031,7 +1148,7 @@ def level(label: str, p: float, style: str, number: str = S_INK) -> list[Part]:
 
 def card(label: str, meta: str, levels: list[Part], outcome: list[Part]) -> Content:
     """A card's line: its label, muted, with the call's own facts (how long
-    System 1 took, whether it was cached); then each answer and its probability, as System 1's chart draws them; then,
+    System 1 took, whether it was cached); then each answer and its probability, as System 1's panel says them; then,
     after an arrow, what came of them, so a result does not read as one more option."""
     parts: list[Part] = [(label, S_HEAD_MUTED)]
     if meta:
@@ -1051,13 +1168,36 @@ def supervisor_card(j: TurnJudgement) -> Content:
     """System 1's call at a turn's end, as a card at the turn boundary: the mode in its colour and its probability,
     the next likeliest muted (up to CARD_MODES in all, none that rounds to 0.00), then what followed."""
     levels = level(mode_label(j.mode), j.confidence, MODE_STYLE.get(j.mode, S_INK))
-    others = sorted(
-        (m for m, p in j.probabilities.items() if m != j.mode and p >= 0.005), key=lambda m: -j.probabilities[m]
-    )
-    for mode in others[: CARD_MODES - 1]:
+    for mode in runners_up(j.probabilities, j.mode):
         levels += [GAP, *level(mode_label(mode), j.probabilities[mode], S_MUTED, S_MUTED)]
     outcome = [note for note in turn_notes(j) if note[0] != "cached"]  # the call's own fact, with its time
     return card("System 1", seconds(j.duration_ms, j.cached), levels, outcome)
+
+
+LOOK_STYLE = {
+    "progressing": S_OK,
+    "waiting_as_expected": S_INK,
+    "ready": S_WARN,
+    "stalled": S_WARN,
+    "failing": S_BAD,
+}
+
+
+def look_card(v: ProcessVerdict, *, named: bool) -> Content:
+    """System 1's look at a command running in the background, as its other cards read: how long the command had run,
+    what System 1 found in its colour with its probability, what it weighed most against that, and whether the agent
+    was told. The judgement, not the command: `named`, when several run, says which in a few words."""
+
+    def said(verdict: str, style: str, number: str) -> list[Part]:
+        label, p = verdict.replace("_", " "), v.probabilities.get(verdict)
+        return [(label, style)] if p is None else level(label, p, style, number)
+
+    levels = said(v.verdict, LOOK_STYLE.get(v.verdict, S_MUTED), S_INK)
+    for other in runners_up(v.probabilities, v.verdict, 1):  # one, not two: the line also says when, and what came
+        levels += [GAP, *said(other, S_MUTED, S_MUTED)]
+    meta = (f"{brief(v.command, 32)} " if named else "") + f"at {duration_text(v.elapsed_s)}"
+    outcome: list[Part] = [("told the agent", S_WARN_BOLD)] if v.told else []
+    return Content.assemble(("⧗ ", S_MUTED), card("System 1", meta, levels, outcome))
 
 
 def guard_card(g: GuardJudgement) -> Content:
@@ -1393,36 +1533,3 @@ class CompactionCard(Vertical):
                 await self.summary.mount_all(outline_widgets(parse_state(self.c.summary)))
             self.summary.display = self.expanded and bool(self.summary.children)
             self._draw()
-
-
-class LedgerPanel(Vertical, can_focus=False):
-    """System 1's panel: a chart of the session, what the supervisor answered at each turn (`chart.py`)."""
-
-    def __init__(self) -> None:
-        super().__init__(id="ledger")
-        self._runs: list[RunLedger] = []
-        self._window = 0
-
-    def compose(self) -> ComposeResult:
-        yield Static(Content.assemble((" System 1 ", S_TAB), ("  thinking fast", S_MUTED)), id="ledger-header")
-        yield Static(id="ledger-chart")
-
-    def show(self, runs: list[RunLedger], window: int) -> None:
-        """The session's runs, System 2's working window."""
-        self._runs, self._window = runs, window
-        self._draw()
-
-    def clear(self) -> None:
-        self._runs = []
-        self._draw()
-
-    def on_resize(self) -> None:
-        self._draw()
-
-    def _draw(self) -> None:
-        chart = self.query_one("#ledger-chart", Static)
-        if not self._runs:
-            chart.update("")
-            return
-        width, height = chart.content_size.width or PANEL_WIDTH, self.content_size.height - 2
-        chart.update(render_chart(self._runs, self._window, width, height))

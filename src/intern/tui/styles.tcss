@@ -32,14 +32,14 @@ Screen {
     border-left: solid $rule;
 }
 
-#ledger {
-    height: 2fr;
+#system1 {
+    height: 3fr;
     padding: 0 1;
     border-bottom: solid $rule;
 }
 
 #state {
-    height: 3fr;
+    height: 2fr;
     padding: 0 1;
 }
 
@@ -56,44 +56,116 @@ Screen {
     border: solid $brand;
 }
 
-#transcript-header, #state-header, #ledger-header {
+#transcript-header, #state-header, #system1-header {
     dock: top;
     height: 1;
     background: $select;
 }
 
-/* The State panel (state_panel.py): the strip and the goal stay put, the history scrolls. */
-#cut-top {
+/* A side panel's section: its name on a hairline, what it holds under it. */
+.titled {
+    height: auto;
+    margin-top: 1;
+    border-top: solid $rule;
+    border-title-color: $muted;
+    border-title-style: bold;
+}
+
+/* The System 1 panel (system1_panel.py): what the asks came to stays put, the judgements scroll. */
+#system1-usage {
     height: auto;
     margin-top: 1;
 }
 
-#cut-strip, #cut-legend, #cut-goal, #cut-running {
+/* The State panel (state_panel.py): the budget, the goal and what runs stay put, the history scrolls. */
+#cut-budget {
     height: auto;
-}
-
-/* What runs as System 1 reads it, under the goal. */
-#cut-running {
     margin-top: 1;
-    padding: 0 1;
 }
 
-/* The goal, a line per request: as the transcript shows the user's message, a purple bar on a shade. */
-#cut-goal {
-    margin-top: 1;
-    padding: 0 1;
-    background: $select;
-    border-left: outer $brand;
-}
-
-#cut-history {
+#system1-feed, #cut-history {
     height: 1fr;
-    margin-top: 1;
     scrollbar-size-vertical: 1;
 }
 
-#ledger-chart {
+/* The entering page (welcome.py): centred; on a wide terminal the mascot between its two systems (hero), on a
+   narrower one all of it in a frame (framed), on a small one the frame alone (compact). */
+#welcome {
+    height: auto;
+}
+
+#welcome-wordmark, #welcome-title, #welcome-about, #welcome-foot, #welcome-tips {
+    width: auto;
+    height: auto;
+}
+
+#welcome-title, #welcome-about, #welcome-row, #welcome-foot, #welcome-tips {
     margin-top: 1;
+}
+
+#welcome-row, #welcome-side, #welcome-mascot, #welcome-where, #welcome .card {
+    height: auto;
+}
+
+#welcome-mascot {
+    width: 32;
+}
+
+/* hero */
+#welcome.hero #welcome-row {
+    width: auto;
+    align-vertical: middle;
+}
+
+#welcome.hero .card {
+    width: 44;
+    padding: 1 2;
+    border: round $brand 45%;
+    border-title-color: $brand;
+    border-title-style: bold;
+}
+
+#welcome.hero #welcome-side {
+    width: 38;
+    padding: 0 3;
+}
+
+#welcome.hero #welcome-where, #welcome.short #welcome-wordmark {
+    display: none;
+}
+
+/* framed, and compact */
+#welcome.framed #welcome-row, #welcome.compact #welcome-row {
+    width: 100%;
+    max-width: 124;
+    padding: 1 2;
+    border: round $brand;
+    border-title-color: $brand;
+    border-title-style: bold;
+    border-title-align: center;
+}
+
+#welcome.framed #welcome-side {
+    width: 36;
+}
+
+#welcome.framed #welcome-where {
+    margin-top: 1;
+}
+
+#welcome.framed #welcome-system1, #welcome.compact #welcome-system1 {
+    width: 1fr;
+}
+
+#welcome.framed #welcome-system2, #welcome.framed #welcome-title, #welcome.framed #welcome-foot,
+#welcome.compact #welcome-system2, #welcome.compact #welcome-title, #welcome.compact #welcome-foot,
+#welcome.compact #welcome-wordmark, #welcome.compact #welcome-about, #welcome.compact #welcome-side {
+    display: none;
+}
+
+#welcome.compact #welcome-row {
+    margin-top: 0;
+    padding: 0 1;
 }
 
 .section {
@@ -152,6 +224,11 @@ Screen {
 
 .decision.refused {
     border-left: wide $error;
+}
+
+/* System 1's look at a background command that it told the agent of. */
+.decision.told {
+    border-left: wide $warning;
 }
 
 /* A compaction's card, open: the summary System 2 continues from, under what the card says. */

@@ -1,12 +1,13 @@
-"""System 1's decisions as a ledger the TUI shows: one judgement per turn, one per compaction, one per tool call
-the guard asked about, per run.
+"""System 1's decisions as a ledger the TUI shows: one judgement per turn, one per tool call the guard asked about,
+one per search (`decision_code`, `decision_files`), one per compaction, and one for every other ask a turn made, per
+run, in the order they came (`RunLedger.feed`); and what all of System 1's asks came to, by kind (`Ledger.usage`).
 
 Built from the event stream alone (`run_start`, `decision`, `state_writing`, `state_delta`, `state`, `nudge`,
-`compaction`, `tool_guard`), the
+`compaction`, `tool_guard`, `process_check`, a search's calls and its `search_trace`s), the
 way the stream is meant to be audited: a stuck strike, a dropped read, a State written or a refused call can be
 followed from it. Stuck strikes are counted the way `supervise.py` counts them, from its constants, so the row
 that earned a nudge says so; the guard's verdict is read the way `guard.py` reads it, from its thresholds.
-Asks for other purposes (code search) are only counted; showing them is a follow-up.
+A search's own asks (a card an ask, hundreds a search) are counted, and the search is one row.
 """
 
 from __future__ import annotations
@@ -14,28 +15,58 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from typing import Literal
+
+from pydantic import ValidationError
 
 from intern.events import (
     Compaction,
-    ContextBudget,
     Decision,
     Event,
+    ExtensionEvent,
+    MessageEvent,
     Nudge,
+    ProcessCheck,
     RunStart,
     State,
     StateDelta,
     StateWriting,
+    ToolCallEnd,
+    ToolCallStart,
     ToolGuard,
 )
 from intern.evidence import WORKING
 from intern.guard import ASKED_THRESHOLD, RISK_THRESHOLD, RISKS
-from intern.messages import JsonObject
+from intern.locate.trace import KIND as SEARCH_TRACE
+from intern.locate.trace import SearchTrace
+from intern.messages import JsonObject, UserMessage
 from intern.supervise import MAX_NUDGES, STRIKES, STUCK, is_strike
 
-SUPERVISE = "supervise"
-KEEP = "keep"
-GUARD = "guard"
 WORKING_ON = "working_on"
+SEARCH_TOOLS = ("decision_code", "decision_files")
+"""The tools that are System 1 searching: a row each on its panel."""
+TOP = 3
+"""The places a search's row keeps, best first."""
+Kind = Literal["watch", "guard", "search", "compaction", "jobs", "memory", "other"]
+KINDS: tuple[Kind, ...] = ("watch", "guard", "search", "compaction", "jobs", "memory", "other")
+"""What System 1 is asked for, in the order its panel counts them."""
+
+
+def kind_of(purpose: str) -> Kind:
+    """What an ask was for, from the purpose its caller gave it."""
+    if purpose in ("supervise", "wrap_up"):
+        return "watch"
+    if purpose in ("guard", "workspace_table_load"):
+        return "guard"
+    if purpose == "keep":
+        return "compaction"
+    if purpose.startswith("workspace."):
+        return "search"
+    if purpose in ("background", "processes"):
+        return "jobs"
+    return "memory" if purpose.startswith(("memory_", "steward_")) else "other"
+
+
 REASONS = tuple(WORKING.criteria)
 """System 1's choices for a read being cut, in the question's order: kept, then the two reasons to cut it."""
 
@@ -55,6 +86,11 @@ class TurnJudgement:
     """Consecutive stuck verdicts, this one included; None once the run's nudges are spent."""
     nudged: bool = False
     """A stuck nudge went into the next request."""
+    wrap: str = ""
+    """The same turn's second ask, whether the request is met: working, done_polishing, done_unsaved or unclear."""
+    wrap_probability: float = 0.0
+    wrapped: bool = False
+    """The wrap-up nudge went into the next request."""
 
     @property
     def stuck(self) -> bool:
@@ -123,6 +159,57 @@ class RuleRefusal:
     name: str
     rule: str
     reason: str
+    arguments: JsonObject | None = None
+    """The call's, when the ledger saw it start."""
+
+
+@dataclass
+class Found:
+    """A place a search ranked: its path, where in it (a symbol and its lines, a page), its score."""
+
+    path: str
+    where: str
+    score: float
+
+
+@dataclass
+class SearchJudgement:
+    """One `decision_code` or `decision_files` call: System 1 walking an index, a card an ask. The call gives the
+    question; its traces, while it runs, what the walk came to. A resumed session has only the call."""
+
+    turn: int
+    call_id: str
+    tool: str
+    question: str
+    scope: str | None = None
+    search: str | None = None
+    """The trace's id for this search, once its first trace came."""
+    asks: int = 0
+    judged: int = 0
+    cost_usd: float = 0.0
+    elapsed_ms: int = 0
+    found: list[Found] = field(default_factory=list)
+    """Its best places, once it ranked them."""
+    status: str | None = None
+    """How the call ended: ok, error or refused; None while it runs."""
+
+
+@dataclass
+class OtherJudgement:
+    """An ask with no row of its own kind, in one line: what a command that went on running is (`background`), a
+    look at a running command (`processes`), whatever else an extension asked for a turn."""
+
+    turn: int | None
+    purpose: str
+    subject: str
+    choice: str
+    probability: float
+    told: bool = False
+    """The verdict was told to the agent."""
+
+    @property
+    def kind(self) -> Kind:
+        return kind_of(self.purpose)
 
 
 @dataclass
@@ -163,35 +250,51 @@ class CompactionJudgement:
         return dict(sorted(by_reason.items(), key=lambda kv: order.get(kv[0], len(order))))
 
 
-PanelRow = TurnJudgement | CompactionJudgement
-"""What the System 1 panel lists, turn by turn."""
-Row = PanelRow | GuardJudgement | RuleRefusal
-"""What `observe` returns: a panel row, or a guard verdict that goes under its tool call in the transcript."""
+Row = TurnJudgement | GuardJudgement | RuleRefusal | SearchJudgement | CompactionJudgement | OtherJudgement
+"""What the System 1 panel lists, and what `observe` returns: the row an event made or changed."""
+
+
+@dataclass
+class Usage:
+    """What System 1 was asked over the session: the asks it answered by kind, and what they took."""
+
+    asks: Counter[Kind] = field(default_factory=Counter)
+    cached: int = 0
+    """Answers that came from the cache: no ask was sent."""
+    failed: int = 0
+    """Attempts System 1 did not answer; each was retried."""
+    duration_ms: int = 0
+    """The time the answered asks took, together."""
+
+    @property
+    def total(self) -> int:
+        return sum(self.asks.values())
 
 
 @dataclass
 class RunLedger:
     run_id: str
+    prompt: str = ""
+    """What the user asked for: the run's first message."""
+    feed: list[Row] = field(default_factory=list)
+    """Every row of the run, in the order System 1 was first asked for it."""
     turns: dict[int, TurnJudgement] = field(default_factory=dict)
     compactions: dict[int, CompactionJudgement] = field(default_factory=dict)
     guards: list[GuardJudgement] = field(default_factory=list)
     refusals: int = 0
     """Calls the guard refused, by a rule or on System 1's judgement."""
-    other_asks: Counter[str] = field(default_factory=Counter)
     strikes: int = 0
     nudges: int = 0
-    context: dict[int, int] = field(default_factory=dict)
-    """System 2's request at each turn, in tokens: measured as it is sent, or on resume the reply's prompt."""
-
-    def rows(self) -> list[PanelRow]:
-        """Turn and compaction rows in turn order, a compaction after its turn's judgement."""
-        rows: list[PanelRow] = [*self.turns.values(), *self.compactions.values()]
-        return sorted(rows, key=lambda r: (r.turn, isinstance(r, CompactionJudgement)))
+    wraps: dict[int, tuple[str, float]] = field(default_factory=dict)
+    """Each turn's wrap-up verdict, which may come before the turn's judgement: the two are asked together."""
+    calls: dict[str, JsonObject] = field(default_factory=dict)
+    """The arguments of the calls in progress, by call id: a refusal names its call."""
 
 
 @dataclass
 class Ledger:
     runs: list[RunLedger] = field(default_factory=list)
+    usage: Usage = field(default_factory=Usage)
 
     @property
     def current(self) -> RunLedger:
@@ -204,22 +307,37 @@ class Ledger:
         match event:
             case RunStart(run_id=run_id):
                 self.runs.append(RunLedger(run_id=run_id))
-            case ContextBudget(turn=turn, tokens=tokens):
-                self.current.context[turn] = tokens
-            case Decision(ok=False):
-                pass  # a failed attempt, retried; the answer that follows is the one shown
-            case Decision(purpose="supervise", turn=int() as turn, answers=dict() as answers):
-                return self._supervised(turn, event, answers)
-            case Decision(purpose="keep", turn=int() as turn, subject=str() as path, answers=dict() as answers):
-                choice, probabilities = _choice(answers.get("w"))
-                verdict = KeepVerdict(path, choice, probabilities, cached=event.cached)
-                compaction = self._compaction(turn)
-                compaction.verdicts = [v for v in compaction.verdicts if v.path != path] + [verdict]
-                return compaction
-            case Decision(purpose="guard", turn=int() as turn, subject=str() as subject, answers=dict() as answers):
-                return self._guarded(turn, subject, event, answers)
-            case Decision(purpose=purpose):
-                self.current.other_asks[purpose] += 1
+            case MessageEvent(message=UserMessage(content=content, source="user")):
+                self.current.prompt = self.current.prompt or content
+            case Decision():
+                return self._asked(event)
+            case ToolCallStart(turn=turn, call_id=call_id, name=name, arguments=arguments):
+                self.current.calls[call_id] = arguments
+                if name in SEARCH_TOOLS:
+                    question, scope = arguments.get("question"), arguments.get("scope")
+                    search = SearchJudgement(
+                        turn=turn,
+                        call_id=call_id,
+                        tool=name,
+                        question=question if isinstance(question, str) else "",
+                        scope=scope if isinstance(scope, str) else None,
+                    )
+                    self.current.feed.append(search)
+                    return search
+            case ToolCallEnd(call_id=call_id, status=status, duration_ms=duration_ms):
+                self.current.calls.pop(call_id, None)
+                for row in self.current.feed:
+                    if isinstance(row, SearchJudgement) and row.call_id == call_id:
+                        row.status, row.elapsed_ms = status, row.elapsed_ms or duration_ms
+                        return row
+            case ExtensionEvent(kind=kind, data=data) if kind == SEARCH_TRACE:
+                return self._searched(data)
+            case ProcessCheck(turn=turn, verdicts=verdicts):
+                for v in verdicts:
+                    look = OtherJudgement(
+                        turn, "processes", v.command, v.verdict, v.probabilities.get(v.verdict, 1.0), told=v.told
+                    )
+                    self.current.feed.append(look)
             case ToolGuard(layer="system1", reason=reason):
                 self.current.refusals += 1
                 if (judged := self.current.guards[-1:]) and not judged[0].refused:  # the one just asked about
@@ -228,7 +346,9 @@ class Ledger:
                     return judged[0]
             case ToolGuard(layer="rule", turn=turn, call_id=call_id, name=name, rule=rule, reason=reason):
                 self.current.refusals += 1
-                return RuleRefusal(turn=turn, call_id=call_id, name=name, rule=rule, reason=reason)
+                refusal = RuleRefusal(turn, call_id, name, rule, reason, arguments=self.current.calls.get(call_id))
+                self.current.feed.append(refusal)
+                return refusal
             case StateWriting(turn=turn):
                 compaction = self._compaction(turn)
                 compaction.writing, compaction.draft = True, ""
@@ -239,9 +359,10 @@ class Ledger:
                 compaction = self._compaction(turn)
                 compaction.state_written, compaction.writing, compaction.draft = True, False, ""
                 return compaction
-            case Nudge(reason="stuck_gate", turn=turn):
+            case Nudge(reason="stuck_gate" | "wrap_up" as reason, turn=turn):
                 if judgement := self.current.turns.get(turn):
-                    judgement.nudged = True
+                    judgement.nudged |= reason == "stuck_gate"
+                    judgement.wrapped |= reason == "wrap_up"
                     return judgement
             case Compaction(turn=turn):
                 compaction = self._compaction(turn)
@@ -256,8 +377,75 @@ class Ledger:
                 pass
         return None
 
+    def _asked(self, event: Decision) -> Row | None:
+        """One attempt at an ask: counted, and its row when a turn made it. A failed attempt is retried, and the
+        answer that follows is the one shown."""
+        purpose, turn, answers = event.purpose, event.turn, event.answers
+        if not event.ok:
+            self.usage.failed += 1
+            return None
+        if event.cached:
+            self.usage.cached += 1
+        else:
+            self.usage.asks[kind_of(purpose)] += 1
+            self.usage.duration_ms += event.duration_ms
+        run = self.current
+        if turn is None or answers is None:
+            return None  # a tool's own ask (a search's, the recall's): counted, and the tool's row shows it
+        if purpose == "supervise":
+            return self._supervised(turn, event, answers)
+        if purpose == "wrap_up":
+            choice, probabilities = _choice(answers.get("wrap"))
+            run.wraps[turn] = wrap = (choice, probabilities.get(choice, 0.0))
+            if judgement := run.turns.get(turn):
+                judgement.wrap, judgement.wrap_probability = wrap
+            return judgement
+        if purpose == "keep":
+            if event.subject is None:
+                return None
+            choice, probabilities = _choice(answers.get("w"))
+            verdict = KeepVerdict(event.subject, choice, probabilities, cached=event.cached)
+            compaction = self._compaction(turn)
+            compaction.verdicts = [v for v in compaction.verdicts if v.path != verdict.path] + [verdict]
+            return compaction
+        if purpose == "guard":
+            return self._guarded(turn, event.subject or "", event, answers) if event.subject is not None else None
+        if purpose == "processes":
+            return None  # the `process_check` that follows names each command with its verdict
+        choice, probability = _first(answers)
+        other = OtherJudgement(turn, purpose, event.subject or "", choice, probability)
+        run.feed.append(other)
+        return other
+
+    def _searched(self, data: JsonObject) -> SearchJudgement | None:
+        """A search's trace, onto the row of the call it belongs to: the one with its id, else the earliest call
+        still running that asked its question (searches of one turn run side by side)."""
+        try:
+            trace = SearchTrace.model_validate(data)
+        except ValidationError:
+            return None
+        rows = [r for r in self.current.feed if isinstance(r, SearchJudgement)]
+        waiting = [r for r in rows if r.search is None and r.status is None]
+        row = (
+            next((r for r in rows if r.search == trace.search), None)
+            or next((r for r in waiting if r.question == trace.question), None)
+            or next(iter(waiting), None)
+        )
+        if row is None:
+            return None
+        row.search = trace.search
+        row.asks, row.judged, row.cost_usd = trace.asks, trace.judged, trace.cost_usd
+        row.elapsed_ms = trace.elapsed_ms or row.elapsed_ms
+        if trace.ranking:  # the last trace's: the files in their final order, each with its best place
+            row.found = [Found(r.path, r.where, r.score) for r in trace.ranking[:TOP]]
+        return row
+
     def _compaction(self, turn: int) -> CompactionJudgement:
-        return self.current.compactions.setdefault(turn, CompactionJudgement(turn=turn))
+        run = self.current
+        if turn not in run.compactions:
+            run.compactions[turn] = CompactionJudgement(turn=turn)
+            run.feed.append(run.compactions[turn])
+        return run.compactions[turn]
 
     def _guarded(self, turn: int, subject: str, event: Decision, answers: Mapping[str, JsonObject]) -> GuardJudgement:
         kind, probabilities = _choice(answers.get("risk"))
@@ -276,6 +464,7 @@ class Ledger:
             cost_usd=event.cost_usd,
         )
         self.current.guards.append(judgement)
+        self.current.feed.append(judgement)
         return judgement
 
     def _supervised(self, turn: int, event: Decision, answers: Mapping[str, JsonObject]) -> TurnJudgement:
@@ -297,12 +486,27 @@ class Ledger:
             if run.strikes >= STRIKES:
                 run.strikes = 0
                 run.nudges += 1
+        if wrap := run.wraps.get(turn):
+            judgement.wrap, judgement.wrap_probability = wrap
+        if (before := run.turns.get(turn)) is not None and before in run.feed:
+            run.feed[run.feed.index(before)] = judgement
+        else:
+            run.feed.append(judgement)
         run.turns[turn] = judgement
         return judgement
 
 
 def _number(value: object) -> float:
     return float(value) if isinstance(value, int | float) and not isinstance(value, bool) else 0.0
+
+
+def _first(answers: Mapping[str, JsonObject]) -> tuple[str, float]:
+    """An ask's first answer in one line's worth: a choice and its probability, or a noul's probability alone."""
+    answer = next(iter(answers.values()), None)
+    if isinstance(answer, dict) and "noul" in answer:
+        return "", _number(answer["noul"])
+    choice, probabilities = _choice(answer)
+    return choice, probabilities.get(choice, 1.0 if choice != "?" else 0.0)
 
 
 def _choice(answer: object) -> tuple[str, dict[str, float]]:
