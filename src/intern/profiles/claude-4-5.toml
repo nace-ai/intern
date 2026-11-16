@@ -1,0 +1,14 @@
+# Claude Opus 4.5, Sonnet 4.5 and Haiku 4.5. Window and output cap as the Models API reports them (200K in, 64K
+# out). They reject adaptive thinking, so they think on a fixed budget; Sonnet and Haiku 4.5 take no effort level.
+
+match = ["anthropic/claude-opus-4-5*", "anthropic/claude-sonnet-4-5*", "anthropic/claude-haiku-4-5*"]
+window = 200000
+max_output_tokens = 64000
+vision = true
+
+# shortcut: a fixed budget, which a reply cap under 10K (a window capped below about 67K) is refused for; size it
+# from the reply cap if anyone runs these that small.
+[compat.extra_body.thinking]
+type = "enabled"
+budget_tokens = 10000
+display = "summarized"

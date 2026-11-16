@@ -151,6 +151,12 @@ def test_every_claude_and_gpt_model_with_a_packaged_profile_has_a_price():
     assert all(ref.split("/")[0] in ("anthropic", "openai", "fireworks") for ref in prices())  # the rest report theirs
 
 
+def test_every_priced_openai_model_has_a_window_from_its_profile():
+    # OpenAI's listing gives no window, so a GPT model without one would run in the 32K default.
+    for ref in (ref for ref in prices() if ref.startswith("openai/")):
+        assert load_profile(ref).window, ref
+
+
 def test_the_claude_5_5_profiles_cap_the_reply_at_what_the_api_allows():
     for ref in ("anthropic/claude-opus-5-5", "anthropic/claude-sonnet-5-5", "anthropic/claude-haiku-5-5"):
         profile = load_profile(ref)

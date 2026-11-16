@@ -1,0 +1,8 @@
+# Qwen3.8 Max on Fireworks serverless. Fireworks' listing gives no window for it (its model API says 0), so it ran
+# in the 32K default. Its server refuses a longer prompt with "model maximum context length: 262141", three under
+# the window as it reports every model (gpt-oss-120b: 131069 of the listing's 131072), so the window is 262,144
+# (2026-11-15). A profile window means the listing is not read, so vision comes from here: it lists image input.
+
+match = ["fireworks/accounts/fireworks/models/qwen3p8-max*"]
+window = 262144
+vision = true

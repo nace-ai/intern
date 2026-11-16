@@ -1,0 +1,11 @@
+# Every Claude model without a profile of its own (Fable 5.x, Opus 4.6 to 5, Sonnet 4.6 and 5, and those still to
+# come). Anthropic's Models API gives each one's window, output cap and whether it takes images, so this sets none.
+
+match = ["anthropic/claude-*"]
+# They think adaptively, with their thinking hidden unless asked for: summarized thinking shows the reasoning in
+# the journal at no extra cost. High effort is what pi and Claude Code run them at.
+reasoning_effort = "high"
+
+[compat.extra_body.thinking]
+type = "adaptive"
+display = "summarized"
