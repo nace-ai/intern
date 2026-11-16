@@ -137,6 +137,19 @@ class WorkspaceConfig(_Settings):
     enabled: bool = False
 
 
+class GuardConfig(_Settings):
+    """The tool-call guard (the guard extension): checks each tool call before it runs; the only way to turn it on."""
+
+    enabled: bool = False
+    system1: bool = True
+    """System 1 judges the calls the fixed rules let through that can still do harm; false runs the fixed rules alone,
+    and no call waits for System 1."""
+    system_writes: Literal["refuse", "allow"] = "refuse"
+    """Writes to system files (/etc, /usr, ...): refused by a fixed rule, or left to System 1's judgement. `allow` is
+    for a disposable machine, such as a container the agent runs in as root; deleting a system directory stays
+    refused."""
+
+
 class MemoryConfig(_Settings):
     """Recall from a memory drive, a git checkout of main, and steward each session into it when it closes."""
 
@@ -358,6 +371,7 @@ class CapabilitySettings(_Settings):
     code_search: CodeSearchConfig = Field(default_factory=CodeSearchConfig)
     memory: MemoryConfig = Field(default_factory=MemoryConfig)
     workspace: WorkspaceConfig = Field(default_factory=WorkspaceConfig)
+    guard: GuardConfig = Field(default_factory=GuardConfig)
     runner: RunnerConfig = Field(default_factory=RunnerConfig)
     secrets: SecretsConfig = Field(default_factory=SecretsConfig)
     mcp: list[McpConfig] = Field(default_factory=list, max_length=32)

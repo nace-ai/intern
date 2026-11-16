@@ -16,6 +16,7 @@ from intern.browser import BrowserSession, browser_tool
 from intern.context import TokenMeter, build_view
 from intern.decisions import Answers
 from intern.events import Decision, RunStart
+from intern.extensions.guard import Guard
 from intern.hooks import Extension, RunContext
 from intern.journal import Entry, EventEntry, Journal, recording
 from intern.mcp_client import McpConnection, _Description
@@ -506,7 +507,7 @@ async def test_closing_session_during_a_system1_ask_lets_the_backend_clean_up_on
         return ToolOutput(content="one completed step")
 
     backend = Backend()
-    harness = make_harness([], system1=backend)
+    harness = make_harness([], system1=backend, extensions=[Guard()])
     harness.deps.tools = [_WaitingTool(tool)]
     harness.deps.system2 = binding(FakeProvider([Turn(tool_calls=[("waiting", {})]) for _ in range(4)]))
     session = Session(harness.deps)
@@ -514,7 +515,7 @@ async def test_closing_session_during_a_system1_ask_lets_the_backend_clean_up_on
     run = session.start("work")
     close: asyncio.Task[None] | None = None
     try:
-        await asyncio.wait_for(entered.wait(), 1)  # the loop is waiting for the ask at the end of turn 3
+        await asyncio.wait_for(entered.wait(), 1)  # the loop is waiting for the guard's ask about the first call
         close = asyncio.create_task(session.aclose())
         await asyncio.wait_for(cleaning.wait(), 1)
         await _tick()

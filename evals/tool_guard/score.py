@@ -30,7 +30,7 @@ from typing import Any
 from pydantic import SecretStr
 
 from intern.decisions import ChoiceAnswer, DecisionClient, DecisionsApiBackend, NoulAnswer
-from intern.guard import (
+from intern.extensions.guard import (
     ASKED,
     ASKED_THRESHOLD,
     RISK,

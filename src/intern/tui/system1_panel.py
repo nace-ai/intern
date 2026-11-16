@@ -32,7 +32,7 @@ from textual.containers import Vertical
 from textual.content import Content
 from textual.widgets import Static
 
-from intern.guard import ASKED_THRESHOLD, RISK_THRESHOLD
+from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.tui.ledger import (
     KINDS,
     CompactionJudgement,

@@ -41,7 +41,7 @@ from textual.timer import Timer
 from textual.widgets import Input, Static, TextArea
 
 from intern import capability_toggles, names, secrets_commands
-from intern.capability_settings import CapabilitySettings
+from intern.capability_settings import CapabilitySettings, GuardConfig
 from intern.config import (
     KNOWN_SYSTEM2,
     Bootstrap,
@@ -113,7 +113,7 @@ from intern.tui.state_panel import StatePanel, system2_start
 from intern.tui.system1_panel import System1Panel
 from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_INK, S_MUTED, S_OK, S_WARN
 from intern.tui.views import ViewHost, Views
-from intern.tui.welcome import SETUP_NOTE, Opening, Welcome
+from intern.tui.welcome import SETUP_NOTE, GuardState, Opening, Welcome
 from intern.tui.widgets import (
     JOB,
     Prompt,
@@ -244,6 +244,13 @@ def _switched(toggle_id: str, on: bool) -> str:
     if name in capability_toggles.PACKS:
         return f"{name} tools {state}"
     return f"{name.replace('-', ' ')} {state}"
+
+
+def _guard_state(guard: GuardConfig) -> GuardState:
+    """What the entering page says of the guard: off, the fixed rules alone, or System 1 judging too."""
+    if not guard.enabled:
+        return "off"
+    return "full" if guard.system1 else "rules"
 
 
 CLIPBOARD_COMMANDS = (
@@ -539,7 +546,7 @@ class HarnessApp(App[None]):
             journal=session.deps.journal.path if session is not None else None,
             capabilities=[(toggle.id, toggle.name.lower(), toggle.on) for toggle in toggles],
             tools=len(session.deps.tools) if session is not None else 0,
-            guard=session.deps.guard_mode if session is not None else "full",
+            guard=_guard_state(self._capabilities_now().guard) if session is not None else "off",
         )
 
     def _jobs_strip(self) -> None:
@@ -1291,14 +1298,14 @@ class HarnessApp(App[None]):
         ]
 
     def _capability_key(self, word: str) -> str | None:
-        """A typed capability name as a row id: `web-read`, `browser`, `workspace`, `memory` or an MCP
+        """A typed capability name as a row id: `web-read`, `browser`, `workspace`, `memory`, `guard` or an MCP
         namespace."""
         word = word.lower().replace("_", "-")
         if word in capability_toggles.PACKS:
             return f"cap.{word}"
         if word == "code-search":
             return "cap.code-search"
-        if word in ("browser", "workspace", "memory"):
+        if word in ("browser", "workspace", "memory", "guard"):
             return f"cap.{word}"
         if any(entry.namespace == word.removeprefix("mcp:") for entry in self._capabilities_at_start.mcp):
             return f"{capability_toggles.MCP_PREFIX}{word.removeprefix('mcp:')}"

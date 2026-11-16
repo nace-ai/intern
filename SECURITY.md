@@ -12,7 +12,7 @@ Say what you found, how to reproduce it (the command, the task and the models), 
 
 In scope:
 
-- **The tool-call guard** (`src/intern/guard.py`): a command its fixed rules should refuse but let through,
+- **The tool-call guard** (`src/intern/extensions/guard.py`, the `cap.guard` capability): a command its fixed rules should refuse but let through,
   or a way to hide a dangerous call from the rules or from System 1's judgement. The rules and what each one
   refuses are listed in [docs/architecture.md](docs/architecture.md#system-2-and-system-1).
 - **Secrets**: a key from the environment, `~/.intern/.env` or the [secrets store](docs/secrets.md) that

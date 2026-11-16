@@ -16,7 +16,7 @@ import httpx
 import pytest
 
 from intern.capability_settings import McpConfig
-from intern.guard import Scope, rule_hits
+from intern.extensions.guard import Scope, rule_hits
 from intern.mcp_commands import mcp_main
 from intern.mcp_oauth import OAuthStore, login, store_path
 from intern.models.registry import ConfigError

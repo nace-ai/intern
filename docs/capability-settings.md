@@ -59,6 +59,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `code_search` | switch setting | `cap.code-search`: the code-search extension | off |
 | `workspace` | switch setting | `cap.workspace`: the workspace extension | off |
 | `memory` | switch setting | `cap.memory`: the memory extension, its drive and steward | on |
+| `guard` | switch setting | `cap.guard`: the tool-call guard extension, and its options (`system1`, `system_writes`) | off |
 | `mcp` | switch setting | one `cap.mcp.<namespace>` switch per listed connection | none listed |
 | `search` | capability option | options of the `web-search` pack | no backend |
 | `reader` | capability option | options of the `web-read` pack | built-in limits |
@@ -345,6 +346,27 @@ tree walk and a BM25 first stage over its passages, judged together, then one SA
 search: in a repository with a folder of documents, the code index is `.intern/index.json` at the
 root and the documents' index `.decision_workspace/` in their folder. `intern index --documents
 [folder]` builds it ahead of time.
+
+## Guard
+
+The tool-call guard checks each tool call before it runs: fixed rules refuse what is destructive or exfiltrating
+(`sudo`, `rm -rf ~`, a force push, reading credentials, ...), then System 1 judges the other calls that can do
+harm against the session, what the user asked and their `SYSTEM1.md`. It is off by default; turn it on with
+`/caps guard`, the ACP `cap.guard` option, or:
+
+```toml
+[capabilities.guard]
+enabled = true
+system1 = true             # the default; false runs the fixed rules alone, and no call waits for System 1
+system_writes = "refuse"   # the default; "allow" in a disposable container leaves /etc, /usr writes to System 1
+```
+
+This setting is the only way to turn the guard on; `--extension guard`, a profile's `extensions` list and
+`module:Class` are refused with a pointer to it, and `--no-extensions` does not switch it off. It needs no extra.
+Its hook runs after every other extension's, memory's included, so it judges the arguments the tool will get. The
+top-level `[guard]` table of 0.31.0 to 0.36.0 is gone: a config that still has it is refused with where its keys
+went (`mode = "full"` is `enabled = true`, `mode = "rules"` is `enabled = true` with `system1 = false`). See
+[usage](usage.md) and the rules in [architecture](architecture.md#system-2-and-system-1).
 
 ## Runner (where commands run)
 

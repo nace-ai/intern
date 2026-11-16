@@ -40,7 +40,7 @@ from textual.widgets.text_area import Selection
 
 from intern import __version__
 from intern.events import ProcessVerdict, ToolCallEnd, ToolCallStart
-from intern.guard import ASKED_THRESHOLD, RISK_THRESHOLD
+from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.messages import JsonObject
 from intern.processes import ENDED_LINES, duration_text
 from intern.supervise import STRIKES

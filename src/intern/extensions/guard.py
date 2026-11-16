@@ -1,11 +1,11 @@
 """The tool-call guard: fixed rules refuse the clearly dangerous, System 1 judges the rest that can do harm.
 
-Every call passes the guard after the extensions' `tool_call` hooks (so it judges the final arguments) and
-before the tool runs. A blocked call returns a refused tool result naming what was blocked and why, and the
-run goes on; the model is told to find a safer way or stop and say so.
-
-`[guard] mode` sets how much of this runs: `off` (the default in a user's config) nothing, so no call is refused,
-`rules` the fixed rules only, `full` both layers.
+A capability, off by default: `[capabilities.guard] enabled = true`, `/caps guard` or the ACP `cap.guard` option
+turn it on (`session_setup.capability_extensions`), never an extension name. Its `tool_call` hook runs after every
+other extension's, memory's included, so it judges the arguments the tool will get and cannot undo another's
+refusal. A blocked call returns a refused tool result naming what was blocked and why, and the run goes on; the
+model is told to find a safer way or stop and say so. `[capabilities.guard] system1 = false` runs the fixed rules
+alone.
 
 Fixed rules are code, never a model, and apply whether or not System 1 is configured. They are few and
 precise, because a fixed rule cannot be argued with: each one names an action that is destructive or
@@ -70,20 +70,22 @@ import os
 import posixpath
 import re
 import shlex
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
-from typing import Literal
+from typing import ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
 from intern import names
 from intern.context import bound_output
-from intern.decisions import Answer, ChoiceAnswer, ChoiceQuestion, DecisionClient, NoulAnswer, NoulQuestion
-from intern.events import EventSink, ToolGuard
+from intern.decisions import Answer, ChoiceAnswer, ChoiceQuestion, NoulAnswer, NoulQuestion, Question
+from intern.events import ToolGuard
 from intern.executor import Executor, mount_of
-from intern.messages import JsonObject
-from intern.tools.base import Tool
+from intern.hooks import Extension, Refuse, RunContext, Stop, ToolCallDecision
+from intern.journal import Journal, MessageEntry
+from intern.messages import JsonObject, ToolCall, UserMessage
+from intern.tools.base import Tool, ToolOutput
 
 # On the labeled set drex-max separates routine calls (P(any risk) 0.39 at most) from unrequested risky ones (0.87
 # or more); drex-latest overlaps between 0.53 and 0.64, where 0.6 misses least. Unrequested risky calls score
@@ -165,7 +167,6 @@ FILE_READERS = frozenset({"read", "grep"})
 FILE_WRITERS = frozenset({"write", "edit"})
 
 Layer = Literal["rule", "system1"]
-GuardMode = Literal["full", "rules", "off"]  # rules then System 1; the rules alone; no check
 
 
 class RuleHit(BaseModel):
@@ -1339,49 +1340,48 @@ def verdict(answers: dict[str, Answer]) -> Block | None:
     )
 
 
-class Guard:
-    """One run's guard: checks each call before it runs and counts what it blocked."""
+class Guard(Extension):
+    """The guard behind `cap.guard`: checks each call before it runs, and counts what it refused in the run."""
 
-    def __init__(
-        self,
-        scope: Scope,
-        executor: Executor,
-        cwd: Path,
-        decisions: DecisionClient,
-        emit: EventSink,
-        session: Callable[[], str],
-        *,
-        guided: bool = False,
-        mode: GuardMode = "full",
-    ) -> None:
-        self.scope = scope
-        self.mode = mode
-        self.session = session  # the session cut as it stands, as System 1's other asks see it
-        self.asked = ASKED_GUIDED if guided else ASKED  # guided: the user's SYSTEM1.md ends the session
-        self.executor = executor
-        self.cwd = cwd
-        self.decisions = decisions
-        self.emit = emit
+    name: ClassVar[str] = "guard"
+
+    def __init__(self, *, system1: bool = True, system_writes: bool = False) -> None:
+        self.system1 = system1  # False: the fixed rules alone, no call waits for System 1
+        self.system_writes = system_writes
+        self.scope: Scope | None = None
         self.consecutive = 0
         self.total = 0
 
-    async def check(
-        self, tool: Tool, call_id: str, arguments: JsonObject, *, requests: list[str], turn: int
-    ) -> Block | None:
-        if self.mode == "off":
+    async def before_agent_start(self, ctx: RunContext) -> None:
+        self.scope = self._scope(ctx)
+        self.consecutive = self.total = 0  # the refusals that stop a run are counted in that run
+
+    async def tool_call(self, call: ToolCall, ctx: RunContext) -> ToolCallDecision | None:
+        tool = ctx.tools.get(call.name)
+        if tool is None or isinstance(tool.parse(call.arguments), ToolOutput):
+            return None  # it cannot run: the loop says why
+        block = await self.check(tool, call.id, call.arguments, ctx)
+        if block is None:
             return None
-        block = await self._rules(tool, arguments)
-        if block is None and self.mode == "full" and self._judged(tool, arguments):
-            block = await self._judge(tool, arguments, requests, turn)
+        if (why := self.exhausted()) is not None:
+            return Stop(reason="stopped_by_guard", detail=why)
+        return Refuse(reason=f"the guard refused this call: {block.reason}", next_action=NEXT_ACTION)
+
+    async def check(self, tool: Tool, call_id: str, arguments: JsonObject, ctx: RunContext) -> Block | None:
+        """The call's block, if a fixed rule or System 1 refuses it; each refusal is a `tool_guard` event."""
+        scope = self.scope = self.scope or self._scope(ctx)
+        block = await self._rules(tool, arguments, scope, ctx)
+        if block is None and self.system1 and self._judged(tool, arguments, scope):
+            block = await self._judge(tool, arguments, scope, ctx)
         if block is None:
             if not tool.read_only:
                 self.consecutive = 0
             return None
         self.consecutive += 1
         self.total += 1
-        self.emit(
+        ctx.emit(
             ToolGuard(
-                turn=turn,
+                turn=ctx.turn,
                 call_id=call_id,
                 name=tool.name,
                 layer=block.layer,
@@ -1401,21 +1401,25 @@ class Guard:
             return f"the guard refused {self.total} tool calls in this run"
         return None
 
-    def _judged(self, tool: Tool, arguments: JsonObject) -> bool:
+    def _scope(self, ctx: RunContext) -> Scope:
+        """Where the run's tools see the working directory: inside a sandbox's mount, or on this machine."""
+        return Scope.of(Path(ctx.cwd), ctx.executor, Path.home(), system_writes=self.system_writes)
+
+    def _judged(self, tool: Tool, arguments: JsonObject, scope: Scope) -> bool:
         try:
-            return needs_judgement(tool, arguments, self.scope)
+            return needs_judgement(tool, arguments, scope)
         except Exception:  # a command the parser cannot follow is judged
             return True
 
-    async def _rules(self, tool: Tool, arguments: JsonObject) -> Block | None:
+    async def _rules(self, tool: Tool, arguments: JsonObject, scope: Scope, ctx: RunContext) -> Block | None:
         try:
-            hits = rule_hits(tool.name, arguments, self.scope)
+            hits = rule_hits(tool.name, arguments, scope)
         except Exception:  # a parser bug must not take the tool away; System 1 still judges the call
             return None
         for hit in hits:
             reason = hit.reason
             if hit.probe is not None:
-                found = await self._probe(hit.probe)
+                found = await _probe(hit.probe, ctx)
                 if found is None:
                     continue
                 lines = found.splitlines()
@@ -1423,33 +1427,21 @@ class Guard:
             return Block(layer="rule", rule=hit.rule, reason=reason)
         return None
 
-    async def _probe(self, command: str) -> str | None:
-        """What a confirming command printed; None when it printed nothing or could not tell."""
-        try:
-            result = await self.executor.run(
-                command, cwd=self.cwd, timeout_s=PROBE_TIMEOUT_S, max_output_bytes=PROBE_OUTPUT_BYTES
-            )
-        except Exception:
-            return None
-        if result.exit_code != 0 or result.timed_out or result.aborted:
-            return None
-        return result.output.strip() or None
-
-    async def _scripts(self, tool: Tool, arguments: JsonObject) -> dict[str, str]:
+    async def _scripts(self, tool: Tool, arguments: JsonObject, scope: Scope, ctx: RunContext) -> dict[str, str]:
         """What is in each script the call runs, read where the call runs (a sandbox's files are its own): the
         code it will run, which its arguments only name."""
         command = _shell_text(tool.name, arguments)
         try:
-            paths = scripts_run(command, self.scope) if command is not None else []
+            paths = scripts_run(command, scope) if command is not None else []
         except Exception:  # a command the parser cannot follow is judged on its words
             return {}
         shown: dict[str, str] = {}
         for path in paths:
             quoted = shlex.quote(str(path))
             try:
-                result = await self.executor.run(
+                result = await ctx.executor.run(
                     f"test -f {quoted} && head -c {SCRIPT_CHARS + 1} {quoted}",
-                    cwd=self.cwd,
+                    cwd=Path(ctx.cwd),
                     timeout_s=PROBE_TIMEOUT_S,
                     max_output_bytes=PROBE_OUTPUT_BYTES,
                 )
@@ -1464,12 +1456,34 @@ class Guard:
                 shown[str(path)] = text if len(text) <= SCRIPT_CHARS else text[:SCRIPT_CHARS] + "\n[... the rest cut]"
         return shown
 
-    async def _judge(self, tool: Tool, arguments: JsonObject, requests: list[str], turn: int) -> Block | None:
-        scripts = await self._scripts(tool, arguments)
-        state = judgement_state(tool, arguments, requests, self.scope, scripts, self.session())
+    async def _judge(self, tool: Tool, arguments: JsonObject, scope: Scope, ctx: RunContext) -> Block | None:
+        scripts = await self._scripts(tool, arguments, scope, ctx)
+        state = judgement_state(tool, arguments, user_requests(ctx.journal), scope, scripts, ctx.state())
         subject = f"{tool.name} {json.dumps(arguments, ensure_ascii=False)[:120]}"
+        asked = ASKED_GUIDED if ctx.guided else ASKED  # guided: the user's SYSTEM1.md ends the session
         # Unanswered, the call is never let through: System1Unavailable stops the run before it runs.
-        answers = await self.decisions.ask(
-            "guard", state, {"risk": RISK, "asked": self.asked}, turn=turn, subject=subject
-        )
+        questions: dict[str, Question] = {"risk": RISK, "asked": asked}
+        answers = await ctx.decisions.ask("guard", state, questions, turn=ctx.turn, subject=subject)
         return verdict(answers)
+
+
+async def _probe(command: str, ctx: RunContext) -> str | None:
+    """What a confirming command printed; None when it printed nothing or could not tell."""
+    try:
+        result = await ctx.executor.run(
+            command, cwd=Path(ctx.cwd), timeout_s=PROBE_TIMEOUT_S, max_output_bytes=PROBE_OUTPUT_BYTES
+        )
+    except Exception:
+        return None
+    if result.exit_code != 0 or result.timed_out or result.aborted:
+        return None
+    return result.output.strip() or None
+
+
+def user_requests(journal: Journal) -> list[str]:
+    """What the user asked in this session: their messages only, never the harness's or the model's."""
+    return [
+        entry.message.content
+        for entry in journal.active_path()
+        if isinstance(entry, MessageEntry) and isinstance(entry.message, UserMessage) and entry.message.source == "user"
+    ]

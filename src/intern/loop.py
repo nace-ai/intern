@@ -65,7 +65,6 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
-from intern.guard import NEXT_ACTION, Guard, GuardMode, Scope
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
@@ -184,8 +183,6 @@ class EngineDeps:
     redact: Callable[[str], str] | None = None
     """Replaces every stored secret's value with `[REDACTED]`; applied to each tool's output before the model,
     the journal, clients or a spill file see it, and to a run's end detail. None when no secret is stored."""
-    system_writes: bool = False
-    guard_mode: GuardMode = "full"
     processes: ProcessManager | None = None
     """The session's job manager (`processes.py`): the `process` tool's jobs, and a record of every command running in
     the session. None when the executor runs no background jobs, or for a session built without setup."""
@@ -260,16 +257,6 @@ class Run:
         self._waiting_looks = True
         """Whether System 1's routine looks at what runs end that hold."""
         self.supervisor = Supervisor()
-        self.guard = Guard(
-            Scope.of(deps.cwd, deps.executor, Path.home(), system_writes=deps.system_writes),
-            deps.executor,
-            deps.cwd,
-            deps.decisions,
-            deps.emit,
-            self._system1_state,
-            guided=bool(deps.instructions.system1),
-            mode=deps.guard_mode,
-        )
 
     # -- helpers --------------------------------------------------------------------------------
 
@@ -293,6 +280,9 @@ class Run:
             decisions=self.deps.decisions,
             emit=self.deps.emit,
             state=self._system1_state,
+            guided=bool(self.deps.instructions.system1),
+            tools={tool.name: tool for tool in self.deps.tools},
+            executor=self.deps.executor,
         )
 
     def _system1_state(self) -> str:
@@ -1150,9 +1140,13 @@ class Run:
         if self.control.abort.is_set():
             return fail("the run was aborted before this call ran", "Stop.").model_copy(update={"status": "refused"})
         for extension in self.deps.hooks.extensions:
-            decision = await self.deps.hooks.invoke(
-                "tool_call", extension, lambda e, c=call: e.tool_call(c, self._ctx())
+            # Abortable: a hook may wait on System 1 (the guard does), and Esc frees the prompt whatever runs.
+            decision = await self._abortable(
+                self.deps.hooks.invoke("tool_call", extension, lambda e, c=call: e.tool_call(c, self._ctx()))
             )
+            if self.control.abort.is_set():
+                aborted = fail("the run was aborted before this call ran", "Stop.")
+                return aborted.model_copy(update={"status": "refused"})
             match decision:
                 case h.ReplaceArguments(arguments=arguments):
                     call = call.model_copy(update={"arguments": arguments})
@@ -1175,17 +1169,6 @@ class Run:
         parsed = tool.parse(call.arguments)
         if isinstance(parsed, ToolOutput):
             return parsed
-        # After the hooks, so the guard judges the arguments the tool will get; it cannot undo a hook's refusal.
-        block = await self._abortable(
-            self.guard.check(tool, call.id, call.arguments, requests=self._requests(), turn=self.turn)
-        )
-        if self.control.abort.is_set():
-            return fail("the run was aborted before this call ran", "Stop.").model_copy(update={"status": "refused"})
-        if block is not None:
-            if self._pending_stop is None and (why := self.guard.exhausted()):
-                self._pending_stop = h.Stop(reason="stopped_by_guard", detail=why)
-            refused = fail(f"the guard refused this call: {block.reason}", NEXT_ACTION)
-            return refused.model_copy(update={"status": "refused"})
         limit = self._tool_result_chars()
         ctx = ToolContext(
             cwd=self.deps.cwd,

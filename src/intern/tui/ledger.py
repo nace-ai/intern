@@ -6,7 +6,7 @@ Built from the event stream alone (`run_start`, `decision`, `state_writing`, `st
 `compaction`, `tool_guard`, `process_check`, a search's calls and its `search_trace`s), the
 way the stream is meant to be audited: a stuck strike, a dropped read, a State written or a refused call can be
 followed from it. Stuck strikes are counted the way `supervise.py` counts them, from its constants, so the row
-that earned a nudge says so; the guard's verdict is read the way `guard.py` reads it, from its thresholds.
+that earned a nudge says so; the guard's verdict is read the way the guard extension reads it, from its thresholds.
 A search's own asks (a card an ask, hundreds a search) are counted, and the search is one row.
 """
 
@@ -36,7 +36,7 @@ from intern.events import (
     ToolGuard,
 )
 from intern.evidence import WORKING
-from intern.guard import ASKED_THRESHOLD, RISK_THRESHOLD, RISKS
+from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD, RISKS
 from intern.locate.trace import KIND as SEARCH_TRACE
 from intern.locate.trace import SearchTrace
 from intern.messages import JsonObject, UserMessage

