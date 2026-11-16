@@ -111,9 +111,10 @@ Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared,
 
 - **Supervision.** After every turn, your intern's System 1 checks whether it is advancing, retrying or re-reading
   what it already found. Three stuck turns in a row get a nudge. [How it is judged](docs/architecture.md#system-2-and-system-1)
-- **Tool-call guard.** Fixed rules refuse `rm -rf ~`, force-pushes, piping a download into a shell, reading your
-  credentials or your intern's keys file (`~/.intern/.env`) and sending `.env` files; System 1 judges the rest
-  against what you asked for. A refused call does not end the run.
+- **Tool-call guard.** Off by default; turn it on with `[guard] mode = "full"`. Fixed rules then refuse `rm -rf ~`,
+  force-pushes, piping a download into a shell, reading your credentials or your intern's keys file
+  (`~/.intern/.env`) and sending `.env` files; System 1 judges the rest against what you asked for. A refused call
+  does not end the run.
   [Rules](docs/architecture.md#system-2-and-system-1)
 - **Compaction that keeps the State honest.** State writes are edits, not rewrites, and a number the run never
   showed is sent back to the writer or blanked. [Below](#compaction)
@@ -226,9 +227,9 @@ prints the event JSON Schema.
 
 ## What Intern does not do
 
-- **It is not a sandbox.** Commands run with your user's permissions. The guard refuses the clearly dangerous
-  and System 1 judges the rest, but run untrusted work in the [Docker workspace](docs/capabilities/docker-workspace.md)
-  or another container.
+- **It is not a sandbox.** Commands run with your user's permissions, and the guard is off unless you turn it on.
+  With it on, it refuses the clearly dangerous and System 1 judges the rest, but run untrusted work in the
+  [Docker workspace](docs/capabilities/docker-workspace.md) or another container.
 - **It does not work without its System 1.** Your intern's System 1 is a hosted decision model. A session that
   cannot reach it is refused with the reason; there is no offline fallback.
 - **It does not start sub-agents.** Your intern works on one task at a time, alone.
