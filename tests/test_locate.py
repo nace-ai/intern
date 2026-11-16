@@ -789,6 +789,47 @@ async def test_a_scope_under_a_folder_too_big_to_index_is_searched_on_its_own(
     assert unscoped.status == "error" and "more than 5 files" in unscoped.content and "scope" in unscoped.content
 
 
+async def test_a_scope_whose_folder_was_indexed_in_an_earlier_run_uses_that_index(tmp_path: Path, make_harness):
+    """A folder indexed in one run is searched in the next by a scope naming it (or a folder in it), with no index
+    at the working directory and no index call first, and with the files changed between the runs."""
+    from intern.locate.store import IndexTool, Locate
+    from intern.providers.fake import Turn
+    from intern.tools.base import Tool
+
+    from .support import Needle
+
+    class Docs(Locate):
+        name = "docs"
+        folder = ".intern/docs"
+        auto = False
+        processors = staticmethod(wi.default_processors)
+        asks = ASKS
+
+        def tools(self) -> list[Tool]:
+            return [IndexTool(self.store), *super().tools()]
+
+    first = make_harness([Turn(tool_calls=[("index", {"path": "papers"})]), Turn(text="done")], extensions=[Docs()])
+    (first.cwd / "papers" / "2024").mkdir(parents=True)
+    (first.cwd / "papers" / "2024" / "a.md").write_text("# A\n\nThe needle is here.\n")
+    (first.cwd / "code.py").write_text("x = 1\n")
+    await first.run("index the papers")
+    (first.cwd / "papers" / "2024" / "a.md").write_text("# A\n\nNothing here now.\n")
+    (first.cwd / "papers" / "2024" / "b.md").write_text("# B\n\nThe needle moved here.\n")
+    second = make_harness(
+        [
+            Turn(tool_calls=[("decision_search", {"question": "where is the needle", "scope": "papers"})]),
+            Turn(tool_calls=[("decision_search", {"question": "where is the needle", "scope": "papers/2024"})]),
+            Turn(text="done"),
+        ],
+        extensions=[Docs()],
+        system1=Needle("needle"),
+    )
+    await second.run("find the needle")
+    for end in [e for e in second.recorder.of(ToolCallEnd)][:2]:
+        assert end.status == "ok" and end.content.splitlines()[1] == "1. papers/2024/b.md  B (1-3)  [1.00]"
+    assert not (second.cwd / ".intern").exists()  # nothing built at the working directory
+
+
 async def test_a_traced_search_reports_each_node_after_its_parent_and_ranks_exactly_as_without(repo_index):
     root, index = repo_index
     case = QUESTIONS[0]
