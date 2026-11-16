@@ -1106,4 +1106,5 @@ Additive; 0.34.1 clients keep working.
   when the session opens and when the model is switched (event `window_fallback`, with `model`, `window`, `reason`
   and `message`). `run_start.window` has a new `lookup_error` field with the same reason, null otherwise.
 - Before falling back, a listing call that times out, is rate-limited or fails on the server is tried twice more,
-  after 1 s and 3 s. A refusal such as 404 is not retried.
+  after 1 s and 3 s. A refusal such as 404 is not retried. A host that does not answer the listing is not asked for
+  llama.cpp's `/props` as well, so it holds the start for about 19 s at most.

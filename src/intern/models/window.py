@@ -161,6 +161,8 @@ async def advertised_limits(
                 window, max_output, vision = await _retried(lookup, client, endpoint)
             except (httpx.HTTPError, ValueError) as error:
                 failures.append(f"{source}: {_failure(error)}")
+                if isinstance(error, httpx.TransportError):
+                    break  # both sources are the same host; one that does not answer would hold the start twice
                 continue
             sees = vision if sees is None else sees
             if window:
