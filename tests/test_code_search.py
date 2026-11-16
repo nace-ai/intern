@@ -44,6 +44,52 @@ def repo(tmp_path: Path) -> Path:
 
 
 @pytest.mark.usefixtures("repo")
+async def test_a_message_reports_a_refresh_only_when_it_read_files_and_never_rebuilds_another_sessions_index(
+    make_harness,
+):
+    """Before each message the index is brought up to date. A refresh that reads nothing (another session in the same
+    folder refreshed it, or a file was only removed) shows no line, so no "Indexed 0 files", and the first does
+    not rebuild at all; one that reads a changed file says so, not that it indexed every file again."""
+    harness = make_harness(
+        [
+            Turn(text="built"),
+            Turn(tool_calls=[("bash", {"command": "rm pkg/b.py"})]),
+            Turn(text="removed"),
+            Turn(tool_calls=[("write", {"path": "pkg/a.py", "content": "def alpha():\n    return 2\n"})]),
+            Turn(text="edited"),
+            Turn(text="refreshed"),
+        ],
+        extensions=[CodeSearch()],
+    )
+    (harness.cwd / "pkg").mkdir()
+    for name in "abc":
+        (harness.cwd / "pkg" / f"{name}.py").write_text(f"def {name}():\n    return 1\n")
+    await harness.run("index it")
+    saved = harness.cwd / ".intern" / wi.INDEX_FILE
+
+    def finished_since(start: int) -> list[Indexing]:
+        return [e for e in harness.recorder.events[start:] if isinstance(e, Indexing) and e.finished]
+
+    (harness.cwd / "pkg" / "c.py").write_text("def c():\n    return 3\n")  # another session edits, and refreshes
+    wi.build(harness.cwd, harness.cwd / ".intern", processors=CodeSearch.processors, report=lambda line: None)
+    written = saved.stat().st_mtime_ns
+    start = len(harness.recorder.events)
+    await harness.run("remove b")
+    assert not [e for e in harness.recorder.events[start:] if isinstance(e, Indexing)]
+    assert saved.stat().st_mtime_ns == written  # taken up as it was, not rebuilt from this session's copy
+
+    start = len(harness.recorder.events)
+    await harness.run("edit a")  # starts with b.py gone: dropped from the index, nothing read
+    assert finished_since(start) == []
+    assert "pkg/b.py" not in (wi.load(harness.cwd / ".intern") or wi.Index()).files
+
+    start = len(harness.recorder.events)
+    await harness.run("go on")  # starts with a.py changed
+    (refresh,) = finished_since(start)
+    assert (refresh.read, refresh.total) == (1, 2)
+
+
+@pytest.mark.usefixtures("repo")
 async def test_the_index_is_built_before_the_run_and_refreshed_after_an_edit(make_harness):
     harness = make_harness(
         [

@@ -1137,3 +1137,16 @@ The tool-call guard is a capability; 0.36.0 clients keep working, and nothing a 
 - With the guard on, events are as before: `tool_guard` for each refusal, `decision` with purpose `guard`, and a run
   stopped by repeated refusals ends `stopped_by_guard`. `--extension guard` or a profile's `extensions = ["guard"]`
   is refused with a pointer to the capability.
+
+### 0.37.1
+
+A fix to how an index refresh is reported; 0.37.0 clients keep working, and nothing they read changed shape.
+
+- Before each message, code search brings its index up to date. A refresh that read no file (a file was only removed,
+  or another session in the same folder had already refreshed the index) sent a finished `indexing` event with
+  `done` and `total` 0, which the terminal UI showed as `Indexed 0 files`. It now sends no `indexing` event. An index
+  another session refreshed is taken up as it is, rather than rebuilt from this session's older copy.
+- A finished `indexing` event has a new optional field, `read`: the files that build read, new or changed. `total` is
+  still every file in the index, so a refresh that read 1 of 259 says `read: 1, total: 259`; the terminal UI shows
+  `⌁ Refreshed 1 changed file for decision_code`, and `-p` prints `refreshed 1 of 259 files`. A first build has
+  `read` equal to `total`. Clients that ignore unknown fields need no change.

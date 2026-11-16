@@ -251,7 +251,8 @@ class StateDelta(_EventBase):
 
 class Indexing(_EventBase):
     """A search index (code search's, before a run's first turn) is being built or refreshed: `done` of `total`
-    files so far, a few times a second, and once more with `finished` and how long it took."""
+    files so far, a few times a second, and once more with `finished`, how long it took and how many files it read.
+    A refresh that reads no file (it only drops files that were removed) sends none."""
 
     type: Literal["indexing"] = "indexing"
     name: str = Field(description="The store: `code-search`.")
@@ -260,6 +261,11 @@ class Indexing(_EventBase):
     total: int
     finished: bool = False
     duration_ms: int | None = None
+    read: int | None = Field(
+        default=None,
+        description="With `finished`: the files this build read, new or changed; the rest of `total` were unchanged "
+        "and kept from the saved index. Equal to `total` for a first build.",
+    )
 
 
 class ExtensionEvent(_EventBase):
