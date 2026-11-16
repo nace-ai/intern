@@ -119,6 +119,8 @@ BRIEFS = {
 for say so."""
 MCP_BRIEF = "remote tools"
 JOB_WIDTH = 14
+SETUP_NOTE = "Not connected yet: /setup connects your models"
+"""What the page and the masthead say while no models are set up: a way on, not an error."""
 HINTS = (
     ("/help", "commands"),
     ("/system2", "model"),
@@ -344,7 +346,8 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
 def tips(o: Opening, width: int) -> Content:
     """What to do next, then the keys worth knowing first; while there is no session, why."""
     waiting = o.note.endswith("…")
-    lead: Part = (o.note, S_MUTED_ITALIC if waiting else S_BAD) if o.note else ("Describe a task to begin.", S_HEAD)
+    style = S_MUTED_ITALIC if waiting else S_HEAD if o.note == SETUP_NOTE else S_BAD
+    lead: Part = (o.note, style) if o.note else ("Describe a task to begin.", S_HEAD)
     return stacked(flow([[lead], *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in HINTS)], width))
 
 

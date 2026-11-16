@@ -493,7 +493,7 @@ class StatusBar(Static):
         if self._flash:
             run.append((self._flash, S_OK))
         elif self.note:
-            run.append((self.note, S_BAD))
+            run.append((self.note, S_MUTED if self.note.startswith("Not connected yet") else S_BAD))
         table = [
             table_row("System 2", (self.system2, S_INK), thinking, cost2, [state, " ", *joined(run)]),
             table_row("System 1", (model1, S_INK), where, cost1, [(self.watching, S_MUTED)] if self.watching else []),
