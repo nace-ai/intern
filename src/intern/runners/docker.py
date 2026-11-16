@@ -9,7 +9,7 @@ import re
 import shlex
 import signal
 import uuid
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from pathlib import Path, PurePosixPath
 from typing import Literal
 
@@ -21,6 +21,7 @@ from intern.executor import (
     Executor,
     LocalExecutor,
     WorkspaceMount,
+    observes_output,
     run_command,
 )
 from intern.runners.base import Runner
@@ -70,6 +71,10 @@ class DockerExecutor:
     def output_capture(self) -> bool:
         return isinstance(self.launcher, CapturingExecutor) and self.launcher.output_capture
 
+    @property
+    def output_observed(self) -> bool:
+        return observes_output(self.launcher)
+
     async def run(
         self,
         command: str,
@@ -80,6 +85,7 @@ class DockerExecutor:
         abort: asyncio.Event | None = None,
         env: Mapping[str, str] | None = None,
         capture_path: Path | None = None,
+        on_output: Callable[[], None] | None = None,
     ) -> ExecResult:
         relative = (await asyncio.to_thread(cwd.resolve)).relative_to(self.workspace)
         name = "harness-" + uuid.uuid4().hex
@@ -96,6 +102,7 @@ class DockerExecutor:
                 abort=abort,
                 env=launch_env,
                 capture_path=capture_path,
+                on_output=on_output,
             )
         finally:
             # Killing the docker client does not prove the container stopped.

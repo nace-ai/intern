@@ -1048,3 +1048,14 @@ shape.
   the old behaviour sets `mode = "full"`.
 - With `off`, no call is refused, so no `tool_guard` event comes, no `decision` event has purpose `guard`, and no run
   stops with `stopped_by_guard`; with `rules`, no `tool_guard` event has layer `system1`. System 1 is still required.
+
+### 0.32.0
+
+A silent command can be stopped; 0.31.0 clients keep working, and nothing changes until it is turned on.
+
+- `[capabilities.process] idle_stop_s` stops a command that writes nothing for that many seconds (0, the default,
+  stops none; 600 is what Prime does): a `bash` call, one that went on in the background, and a `process` job unless
+  `idle_stop_jobs = false`. Servers, watchers and long `sleep`s are left alone. The agent is told why it stopped and
+  how to keep a long silent command alive. See [processes](capabilities/processes.md#a-silent-command-is-stopped).
+- The `process` event of a stopped command has state `idle_stopped` and `quiet_s`, the seconds it had written
+  nothing. `-p --json` and JSON-RPC carry it; ACP sends nothing for `process` events, as before.

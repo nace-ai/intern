@@ -154,6 +154,23 @@ arrives through its capture file, which the job reads as it grows and removes at
 command secrets, the redacted output comes at the end). The `bash` description says a long command
 goes on in the background; a session that never moves one says how to leave one running instead.
 
+## A silent command is stopped
+
+With `[capabilities.process] idle_stop_s` set (0, the default, stops none), a command that writes nothing for that
+long is stopped, as its `timeout_s` would stop it: a `bash` call, one that went on in the background, and a `process`
+job unless `idle_stop_jobs = false`. Any byte it writes, to stdout or stderr, starts its silence again. Output is
+counted as it arrives from the executor, before secret redaction, so a command with command secrets is not taken for
+silent while its published output waits for its end. Left alone, since their silence is what they do: a job that
+serves (moved as one, or found up and `ready` by System 1's look), a wait that ends by itself (a `sleep` of 10 s or
+more, a CI watch), and what a command left running, whose output is not read. An executor that cannot report output
+as it arrives has none of its `bash` calls stopped. A look of the watch's that comes 30 s late (the event loop was
+blocked, or the machine paused) counts every command's silence from then, since output could not be read meanwhile.
+
+A stopped command's state is `idle_stopped`, and its `process` event's `quiet_s` says how long it had written nothing.
+A `bash` call fails with ``the command was stopped after it wrote nothing for 10m 00s`` and is told to make the command
+print progress (`python -u`, a `--progress` flag) or start it with the `process` tool; a job's end notice says the
+same. `-p --json` and JSON-RPC stream the event; ACP sends nothing for it.
+
 ## Lifetime and limits
 
 For applications, use `async with ProcessManager() as jobs` or call
