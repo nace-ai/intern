@@ -1,10 +1,10 @@
 """The app: one harness Session driven from a prompt line, with its events on screen.
 
 Layout: the status bar (both models, turn, context, cost); the transcript on the left, a compaction's card in it
-with the summary System 2 continues from; on the right the State panel (the session as System 1 reads it) over the
-System 1 panel (one row per turn: the supervisor's verdict and what the loop did about it; one per compaction:
-keep or cut, read by read, while the transcript's card shows what it did to the context); the prompt line at the
-bottom. Enter sends a prompt, or steers the run in progress. Slash commands:
+with the summary System 2 continues from; on the right the System 1 panel (every judgement System 1 made, a row
+each: a turn it watched, a call it guarded, a search it walked, a compaction's reads it sorted) over the State panel
+(the session as System 1 reads it); the prompt line at the bottom. Until the first prompt, the entering page takes
+their place (`welcome.py`). Enter sends a prompt, or steers the run in progress. Slash commands:
 /system2, /system1, /state, /thinking, /abort, /panels, /help, /quit.
 """
 
@@ -98,15 +98,17 @@ from intern.tui.ledger import (
     TurnJudgement,
 )
 from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm
-from intern.tui.state_panel import StatePanel, clip, system2_start
+from intern.tui.state_panel import StatePanel, system2_start
+from intern.tui.system1_panel import System1Panel
 from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_INK, S_MUTED, S_OK, S_WARN
 from intern.tui.views import ViewHost, Views
+from intern.tui.welcome import Opening, Welcome
 from intern.tui.widgets import (
-    LedgerPanel,
     Prompt,
     StatusBar,
     Transcript,
     attachments,
+    clip,
     guard_card,
     images_in,
     meter,
@@ -143,12 +145,16 @@ class Models:
 
 PICKS = TypeAdapter(Models)
 RESUME_TURNS = 30
-CUT_SOON_S = 0.5
 """The turns a resumed session shows; the earlier ones are in its journal and their work in the State."""
+CUT_SOON_S = 0.5
+FEED_SOON_S = 0.1
+"""How long System 1's panel waits to redraw: a search asks hundreds of times in a few seconds."""
 Opener = Callable[[EventSink, Models], Awaitable[Session]]
 Installer = Callable[[Needs, Say], Awaitable[None]]
 """Installs what a capability needs and this environment lacks, saying what it does (`needs.install`)."""
 
+ENTERING_HIDES = ("#status", "#side", "#transcript-header")
+"""What the entering page takes the place of."""
 ADD_SECRET = "+add"
 """The /secrets row that adds an entry; no secret can have this name."""
 
@@ -344,6 +350,7 @@ class HarnessApp(App[None]):
         picks: Models | None = None,
         reloaded: bool = False,
         install: Installer | None = None,
+        welcome: bool = True,
     ) -> None:
         super().__init__()
         # Before the stylesheet is read: it names the theme's own variables ($rule, $wash, $muted).
@@ -375,6 +382,8 @@ class HarnessApp(App[None]):
         """The session's journal, kept on quit so `main` can say how to resume it."""
         self._system1_choices = list(system1_choices or [])
         self._first_prompt = first_prompt
+        self._entering = welcome and first_prompt is None and not reloaded
+        """The entering page is up, in place of the masthead and the side panels: until the conversation begins."""
         self.session: Session | None = None
         self.catalog: Catalog | None = None
         self.ledger = Ledger()
@@ -382,6 +391,7 @@ class HarnessApp(App[None]):
         self.run_spent = (0.0, 0.0)
         """System 2's and System 1's cost counted on the masthead as the run went; its end tops them up to its total."""
         self._cut_timer: Timer | None = None
+        self._feed_timer: Timer | None = None
         self._opening = True
         self._run_task: asyncio.Task[RunOutcome] | None = None
         self._queued: list[tuple[str, Static]] = []
@@ -394,7 +404,7 @@ class HarnessApp(App[None]):
         with Horizontal(id="body"):
             yield Transcript()
             with Vertical(id="side"):  # System 1 above the State
-                yield LedgerPanel()
+                yield System1Panel()
                 yield StatePanel(id="state")
         yield Prompt(
             placeholder="Describe the task… (/help for commands; Shift+Enter or Ctrl+J for a new line)",
@@ -436,8 +446,8 @@ class HarnessApp(App[None]):
         return self.session.deps.cwd.resolve() if self.session is not None else None
 
     @property
-    def ledger_panel(self) -> LedgerPanel:
-        return self.query_one(LedgerPanel)
+    def system1_panel(self) -> System1Panel:
+        return self.query_one(System1Panel)
 
     # -- opening ---------------------------------------------------------------------------------------------
 
@@ -448,8 +458,10 @@ class HarnessApp(App[None]):
             self._driver.write(ERASE_SCREEN)
         self._width = event.size.width
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         self.query_one("#prompt", Prompt).focus()
+        if self._entering:
+            await self._enter()
         # A closed terminal window (SIGHUP) or a kill quits as /quit does, so the session closes and its steward starts.
         if os.name == "posix":
             loop = asyncio.get_running_loop()
@@ -457,6 +469,39 @@ class HarnessApp(App[None]):
                 loop.add_signal_handler(sig, lambda: self.run_worker(self.action_quit(), exit_on_error=False))
         self.run_worker(self._start(), name="open-session", exit_on_error=False)
         self.set_interval(1.0, self._jobs_strip)
+
+    async def _enter(self) -> None:
+        """The entering page (`welcome.py`): the transcript's first block, with the masthead and the side panels
+        put away, so it has the screen."""
+        self._entering = True
+        for name in ENTERING_HIDES:
+            self.query_one(name).display = False
+        await self.transcript.mount(Welcome(self._welcome()))
+
+    async def _begin(self) -> None:
+        """The conversation begins (a prompt, a resumed journal): the entering page goes, and the masthead and the
+        side panels come back."""
+        if not self._entering:
+            return
+        self._entering = False
+        for name in ENTERING_HIDES:
+            self.query_one(name).display = True
+        await self.query(Welcome).remove()
+
+    def _welcome(self) -> Opening:
+        """What the entering page says of the session: the masthead's models, and what the session has."""
+        session, status = self.session, self.status
+        toggles = self._toggles(self._capabilities_now()) if session is not None else []
+        return Opening(
+            system2=status.system2,
+            system1=status.system1,
+            thinking=status.thinking,
+            note=status.note,
+            cwd=self._cwd,
+            journal=session.deps.journal.path if session is not None else None,
+            capabilities=[(toggle.name.lower(), toggle.on) for toggle in toggles],
+            tools=len(session.deps.tools) if session is not None else 0,
+        )
 
     def _jobs_strip(self) -> None:
         """System 1's row of the status bar: the background jobs it watches, each with its run time, its verdict at
@@ -532,7 +577,7 @@ class HarnessApp(App[None]):
             finally:
                 self._replaying = False
             await self._steward_spend(journal.path)
-        self.state_panel.cwd = self._cwd
+        self.state_panel.cwd = self.system1_panel.cwd = self._cwd
         self._cut_now()
         await self.views.load(session.deps.hooks.extensions)
         self._refresh_status()
@@ -599,14 +644,18 @@ class HarnessApp(App[None]):
         replies = [
             i for i, e in enumerate(entries) if isinstance(e, MessageEntry) and isinstance(e.message, AssistantMessage)
         ]
+        if any(isinstance(e, MessageEntry) for e in entries):
+            await self._begin()
         start = replies[-RESUME_TURNS] if len(replies) > RESUME_TURNS else 0
         run_id, nudge, summary = None, None, ""
         for i, entry in enumerate(entries):
             drawn = i >= start
             if isinstance(entry, MessageEntry) and entry.run_id is not None and entry.run_id != run_id:
-                run_id = entry.run_id  # a run began: its own ledger
+                run_id = entry.run_id  # a run began: its own ledger, under the prompt that began it
                 self.run_count += 1
-                self.ledger.runs.append(RunLedger(run_id=run_id))
+                first = entry.message
+                asked = first.content if isinstance(first, UserMessage) and first.source == "user" else ""
+                self.ledger.runs.append(RunLedger(run_id=run_id, prompt=asked))
             match entry:
                 case EventEntry(event=event):
                     if isinstance(event, Compaction):  # the summary is its entry's, just before it
@@ -620,22 +669,36 @@ class HarnessApp(App[None]):
                 case MessageEntry(message=AssistantMessage(usage=usage) as reply):
                     self._spend(usage)
                     self.status.context = usage.input_tokens + usage.output_tokens  # the next request's size, nearly
-                    context = self.ledger.current.context  # this turn's request, for the chart: a reply per turn
-                    context[max(context, default=0) + 1] = usage.input_tokens
+                    calls = [
+                        ToolCallStart(turn=0, call_id=call.id, name=call.name, arguments=call.arguments)
+                        for call in reply.tool_calls
+                    ]
+                    for start_call in calls:
+                        self.ledger.observe(start_call)  # a search's row on System 1's panel, a refusal's call
                     if not drawn:
                         continue
                     if reply.reasoning:
                         await self.transcript.reasoning(reply.reasoning, live=False)
                     if reply.text:
                         await self.transcript.text(reply.text)
-                    for call in reply.tool_calls:
-                        start_call = ToolCallStart(turn=0, call_id=call.id, name=call.name, arguments=call.arguments)
+                    for start_call in calls:
                         await self.transcript.tool_start(start_call, live=False)
                     await self.transcript.finish_reply()
                 case CompactionEntry(summary=text):
                     summary = text
                 case MemoryRecallEntry(cost_usd=cost):
                     self._spend(system1=cost)
+                case MessageEntry(message=ToolResultMessage(result=result)) if not drawn:
+                    self.ledger.observe(
+                        ToolCallEnd(
+                            turn=0,
+                            call_id=result.call_id,
+                            name=result.tool_name,
+                            status=result.status,
+                            content="",
+                            duration_ms=result.duration_ms,
+                        )
+                    )
                 case _ if not drawn:
                     continue
                 case MessageEntry(message=UserMessage(content=content, source="user")):
@@ -652,9 +715,10 @@ class HarnessApp(App[None]):
                         content=result.content,
                         duration_ms=result.duration_ms,
                     )
+                    self.ledger.observe(end)
                     self.transcript.tool_end(end)
         self.call_after_refresh(self.transcript.scroll_end, animate=False)  # at the end, where the session left off
-        self._chart()
+        self._feed()
 
     def _refresh_status(self) -> None:
         if self.session is not None:
@@ -672,7 +736,8 @@ class HarnessApp(App[None]):
             self.status.thinking = ""
             self.status.note = "opening the session…" if self._opening else "no session"
         self.status.refresh_line()
-        self._chart()  # the context's share is of the window, which a model switch or a resume sets
+        for page in self.query(Welcome):
+            page.show(self._welcome())
 
     # -- events ----------------------------------------------------------------------------------------------
 
@@ -695,6 +760,8 @@ class HarnessApp(App[None]):
         """What an event changes, drawn or not: the ledger, each system's cost (as it is spent, so the masthead's
         move during a run and come back on resume), the context after a compaction."""
         row = self.ledger.observe(event)
+        if row is not None or isinstance(event, Decision | ProcessCheck):
+            self._feed_soon()
         match event:
             case MessageEvent(message=AssistantMessage(usage=usage)) | State(usage=Usage() as usage):
                 self._spend(usage)
@@ -706,9 +773,17 @@ class HarnessApp(App[None]):
                 pass
         return row
 
-    def _chart(self) -> None:
-        """System 1's panel on the session so far."""
-        self.ledger_panel.show(self.ledger.runs, self.status.window)
+    def _feed_soon(self) -> None:
+        """System 1's panel redrawn, at most every FEED_SOON_S."""
+        if self._feed_timer is None:
+            self._feed_timer = self.set_timer(FEED_SOON_S, self._feed)
+
+    def _feed(self) -> None:
+        """System 1's panel on the ledger as it stands."""
+        if self._feed_timer is not None:
+            self._feed_timer.stop()
+        self._feed_timer = None
+        self.system1_panel.show(self.ledger)
 
     async def _handle(self, event: Event) -> None:
         """One event, live or replayed from the journal."""
@@ -719,12 +794,12 @@ class HarnessApp(App[None]):
         run = self.run_count  # the run the event's rows and markers belong to
         match event:
             case RunStart():
+                await self._begin()
                 self.run_count += 1
                 self.run_spent = (0.0, 0.0)
                 self.status.running = True
                 if self.session is not None and any(tool.name == "decision_code" for tool in self.session.deps.tools):
                     self.status.activity = "decision_code indexing the working directory"  # before the first turn
-                self._chart()
             case MessageEvent(message=UserMessage(content=content, source="user")):
                 await self._delivered(content)
             case TurnStart():
@@ -740,8 +815,7 @@ class HarnessApp(App[None]):
                 transcript.tool_end(event)
             case ContextBudget(tokens=tokens, working_window=window):
                 self.status.context, self.status.window = tokens, window
-                self._chart()
-            case Decision(purpose="supervise") if isinstance(row, TurnJudgement):
+            case Decision(purpose="supervise" | "wrap_up") if isinstance(row, TurnJudgement):
                 await self._show_verdict(row)
             case Decision(purpose="guard") if isinstance(row, GuardJudgement):
                 await self._show_guard(row)
@@ -846,11 +920,9 @@ class HarnessApp(App[None]):
             case _:
                 pass
         if isinstance(row, CompactionJudgement):
-            # In the transcript: the context it cut and the reads System 1 kept; on System 1's chart, a line.
+            # In the transcript: the context it cut and the reads System 1 kept; on System 1's panel, a row.
             key = f"compaction:{run}:{row.turn}"
             await transcript.compaction(row, key, self.status.window, self._cwd, live=not self._replaying)
-        if isinstance(row, TurnJudgement | CompactionJudgement):
-            self._chart()
         self.status.refresh_line()
 
     async def _show_verdict(self, j: TurnJudgement) -> None:
@@ -899,6 +971,7 @@ class HarnessApp(App[None]):
                 return
             self._queued.append((text, await self.transcript.user(text, queued=True)))
             return
+        await self._begin()
         await self.transcript.user(text)
         try:
             self._run_task = session.start(text)
@@ -1346,7 +1419,8 @@ class HarnessApp(App[None]):
         self.status.activity = ""
         await self.transcript.clear()
         await self.state_panel.clear()
-        self.ledger_panel.clear()
+        self._feed()
+        await self._enter()
         self._refresh_status()
 
     # -- models ----------------------------------------------------------------------------------------------
@@ -1594,6 +1668,7 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
 
     app = HarnessApp(
         open_session,
+        welcome=options.session_file is None,  # a journal to resume goes straight to its conversation
         catalog=bootstrap.catalog,
         system1_choices=system1_choices((), (), bootstrap.config.system1.models),
         first_prompt=None if reloaded else prompt,  # sent before the reload; its journal has it

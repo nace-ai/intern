@@ -1,5 +1,5 @@
-"""The TUI's widgets: the status bar, the transcript and its blocks, and the System 1 panel (`state_panel.py` has
-the State panel).
+"""The TUI's widgets: the status bar, the transcript and its blocks, System 1's cards in it (`system1_panel.py`
+has the System 1 panel, `state_panel.py` the State panel, `welcome.py` the entering page).
 
 Text from the model goes through `Content` as plain text, never through markup, so a `[` in a command or a
 reply cannot style the screen.
@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import ClassVar
 from urllib.parse import unquote
 
+from rich.cells import cell_len, set_cell_size
 from textual import events
 from textual.actions import SkipAction
 from textual.app import ComposeResult
@@ -43,13 +44,11 @@ from intern.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.messages import JsonObject
 from intern.supervise import STRIKES
 from intern.tools.images import IMAGE_SUFFIXES
-from intern.tui.chart import render_chart
 from intern.tui.ledger import (
     CompactionJudgement,
     GuardJudgement,
     KeepVerdict,
     RuleRefusal,
-    RunLedger,
     TurnJudgement,
 )
 from intern.tui.outline import EMPHASIS, LIST_ITEM, QUOTE, Outline, Status, parse_state, plain
@@ -80,8 +79,6 @@ OUTPUT_CHARS = 3_000
 FLUSH_S = 0.08
 METER_WIDTH = 10
 FILLED, TRACK = "━", "─"
-PANEL_WIDTH = 50
-"""What the System 1 panel draws in before it is laid out: the side panel less its border and padding."""
 PIP_ON, PIP_OFF = "▰", "▱"
 """The thinking box's meter: a pip per level the model takes, filled up to the one in force."""
 MASCOT = (
@@ -185,6 +182,34 @@ def bounded(text: str, limit: int = OUTPUT_CHARS) -> str:
 
 def styled(text: str, style: str = "") -> Part:
     return (text, style) if style else text
+
+
+def clip(text: str, cells: int) -> str:
+    """`text` in at most `cells` cells, `…` where it was cut."""
+    if cell_len(text) <= cells:
+        return text
+    return set_cell_size(text, max(0, cells - 1)) + "…" if cells > 0 else ""
+
+
+def flow(items: list[list[Part]], width: int, gap: int = 3) -> list[list[Part]]:
+    """Items on as few lines of `width` cells as hold them, `gap` apart: laid out by hand, since wrapping would
+    break inside an item."""
+    lines: list[list[Part]] = []
+    used = 0
+    for item in items:
+        size = Content.assemble(*item).cell_length
+        if lines and used + gap + size <= width:
+            lines[-1] += [" " * gap, *item]
+            used += gap + size
+        else:
+            lines.append(list(item))
+            used = size
+    return lines
+
+
+def stacked(lines: list[list[Part]]) -> Content:
+    """Lines of parts as one text."""
+    return Content("\n").join(Content.assemble(*line) for line in lines)
 
 
 # -- the status bar -----------------------------------------------------------------------------------------
@@ -1001,13 +1026,22 @@ SPIN_S = 0.1
 # -- the System 1 panel -------------------------------------------------------------------------------------
 
 
+WRAP_WORDS = {"done_polishing": "done, now polishing", "done_unsaved": "done, not yet saved", "unclear": "unclear"}
+"""The wrap-up verdicts worth a note; `working`, the usual one, has none."""
+
+
 def turn_notes(j: TurnJudgement) -> list[Part]:
-    """What the loop did with the verdict: a stuck strike's count, a nudge."""
+    """What the loop did with the verdict: a stuck strike's count, a nudge; and the turn's other verdict, whether
+    the request is met, once it is anything but still being worked on."""
     notes: list[Part] = []
     if j.strikes:
         notes.append((f"strike {j.strikes}/{STRIKES}", S_WARN))
     if j.nudged:
         notes.append(("stuck nudge sent", S_WARN_BOLD))
+    if words := WRAP_WORDS.get(j.wrap):
+        notes.append((f"request {words} {j.wrap_probability:.2f}", S_MUTED))
+    if j.wrapped:
+        notes.append(("wrap-up nudge sent", S_WARN_BOLD))
     if j.cached:
         notes.append(("cached", S_MUTED))
     return notes
@@ -1031,7 +1065,7 @@ def level(label: str, p: float, style: str, number: str = S_INK) -> list[Part]:
 
 def card(label: str, meta: str, levels: list[Part], outcome: list[Part]) -> Content:
     """A card's line: its label, muted, with the call's own facts (how long
-    System 1 took, whether it was cached); then each answer and its probability, as System 1's chart draws them; then,
+    System 1 took, whether it was cached); then each answer and its probability, as System 1's panel says them; then,
     after an arrow, what came of them, so a result does not read as one more option."""
     parts: list[Part] = [(label, S_HEAD_MUTED)]
     if meta:
@@ -1393,36 +1427,3 @@ class CompactionCard(Vertical):
                 await self.summary.mount_all(outline_widgets(parse_state(self.c.summary)))
             self.summary.display = self.expanded and bool(self.summary.children)
             self._draw()
-
-
-class LedgerPanel(Vertical, can_focus=False):
-    """System 1's panel: a chart of the session, what the supervisor answered at each turn (`chart.py`)."""
-
-    def __init__(self) -> None:
-        super().__init__(id="ledger")
-        self._runs: list[RunLedger] = []
-        self._window = 0
-
-    def compose(self) -> ComposeResult:
-        yield Static(Content.assemble((" System 1 ", S_TAB), ("  thinking fast", S_MUTED)), id="ledger-header")
-        yield Static(id="ledger-chart")
-
-    def show(self, runs: list[RunLedger], window: int) -> None:
-        """The session's runs, System 2's working window."""
-        self._runs, self._window = runs, window
-        self._draw()
-
-    def clear(self) -> None:
-        self._runs = []
-        self._draw()
-
-    def on_resize(self) -> None:
-        self._draw()
-
-    def _draw(self) -> None:
-        chart = self.query_one("#ledger-chart", Static)
-        if not self._runs:
-            chart.update("")
-            return
-        width, height = chart.content_size.width or PANEL_WIDTH, self.content_size.height - 2
-        chart.update(render_chart(self._runs, self._window, width, height))

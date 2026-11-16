@@ -72,6 +72,7 @@ from intern.tui.app import (
 )
 from intern.tui.pickers import Choice, ModelPicker, ranked
 from intern.tui.state_panel import StatePanel
+from intern.tui.welcome import Welcome
 from intern.tui.widgets import (
     CompactionCard,
     Prompt,
@@ -240,9 +241,10 @@ async def test_a_prompt_runs_and_the_reply_tool_calls_and_system_1_rows_show(tmp
         assert "hi" in plain(app.query_one(Transcript).query(ToolBlock).first().out)  # the output under the call
         assert "It printed" in "".join(m.source for m in app.query_one(Transcript).query(".reply"))  # pyright: ignore[reportAttributeAccessIssue]
         # System 1 was asked at the third turn (the first the supervisor reviews): its card is in the transcript at
-        # the turn boundary, and the run is charted on its panel.
+        # the turn boundary, and the judgement is a row on its panel, under the prompt it was made for.
         assert decider.asks >= 1 and 3 in app.ledger.current.turns
-        assert " turns · 1 prompt" in plain(app.query_one("#ledger-chart", Static))
+        judged = system1_text(app)
+        assert judged.index("› say hi") < judged.index("◆   3  advancing") and " asks · " in judged
         assert "s   advancing 0.80" in text
         assert "completed · 4 turns" in text
         assert not status.running
@@ -474,8 +476,37 @@ def state_screen(app: HarnessApp) -> StateScreen:
     return screen
 
 
+@pytest.mark.parametrize("size", [SIZE, (80, 24)])
+async def test_the_entering_page_has_the_screen_until_the_conversation_begins(tmp_path: Path, size: tuple[int, int]):
+    app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")], system1=FakeDecision()))
+    async with app.run_test(size=size) as pilot:
+        await wait_for(lambda: app.session is not None)
+        await pilot.pause()
+        page = app.query_one(Welcome)
+        said = "\n".join(plain(part) for part in page.query(Static) if part.display)
+        # The two systems, each on the model the session opened with, and what System 1 is asked for.
+        assert "System 2   thinking slow   fake/model" in said and "System 1   thinking fast   drex-latest" in said
+        assert all(job in said for job in ("◆ watch", "▣ guard", "⌕ search", "⟲ compaction"))
+        assert "● base tools" in said and "Describe a task to begin." in said
+        # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
+        # nothing under the prompt, and the panels it stands in for are away.
+        assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y
+        assert not app.query_one("#side").display and not app.query_one(StatusBar).display
+        await send(app, pilot, "hello")
+        await wait_for(lambda: app.run_count == 1 and app.session is not None and not app.session.running)
+        await pilot.pause()
+        assert not app.query(Welcome) and app.query_one("#side").display and app.query_one(StatusBar).display
+        assert "› hello" in transcript_text(app)
+        await app.action_quit()
+
+
 def panel_text(app: HarnessApp) -> str:
     return "\n".join(plain(w) for w in app.query_one(StatePanel).query(Static))
+
+
+def system1_text(app: HarnessApp) -> str:
+    """What System 1's asks came to, then its judgements."""
+    return "\n".join(plain(app.query_one(name, Static)) for name in ("#system1-usage", "#system1-rows"))
 
 
 async def test_the_state_panel_draws_what_system_1_reads_and_state_opens_it_in_full(tmp_path: Path):
@@ -492,7 +523,8 @@ async def test_the_state_panel_draws_what_system_1_reads_and_state_opens_it_in_f
         budget = int(session.deps.decisions.max_state_tokens * STATE_SHARE)
         assert cut.text == session_cut(session.deps.journal.active_path(), budget)  # what System 1 is given
         text = panel_text(app)
-        assert "› say hi" in text and "✓ $ echo hi" in text and "It printed hi." in text and "3 whole" in text
+        assert "› say hi" in text and "✓ $ echo hi" in text and "It printed hi." in text
+        assert "3 messages, each read whole" in text
         await send(app, pilot, "/state")
         assert json.loads(state_screen(app).query_one("#state-cut", TextArea).text) == json.loads(cut.text)
         await pilot.press("escape")
@@ -696,12 +728,12 @@ async def test_a_resumed_journal_brings_back_system_1s_panel_cards_and_each_syst
         await send(first, pilot, "say hi")
         await wait_for(lambda: first._run_task is not None and first._run_task.done())  # pyright: ignore[reportPrivateUsage]
         await pilot.pause()
-        live = plain(first.query_one("#ledger-chart", Static))
+        live = system1_text(first)
         status = first.query_one(StatusBar)
         costs = (status.cost2, status.cost1, status.unpriced)
         masthead = plain(status)
         await first.action_quit()
-    assert " turns · 1 prompt" in live and 3 in first.ledger.current.turns, live
+    assert "◆   3  advancing" in live and 3 in first.ledger.current.turns, live
     # Each System 1 ask counted once, as it was asked and not again at the run's end; the fake System 2 reports
     # tokens but no price, so its cost is not known rather than $0.
     assert decider.asks >= 1 and costs == (0.0, pytest.approx(decider.asks * 0.0001), True)
@@ -710,7 +742,8 @@ async def test_a_resumed_journal_brings_back_system_1s_panel_cards_and_each_syst
     async with second.run_test(size=SIZE) as pilot:
         await wait_for(lambda: second.session is not None)
         await pilot.pause()
-        assert plain(second.query_one("#ledger-chart", Static)) == live  # the chart as it was
+        assert system1_text(second) == live  # its judgements and what they came to, as they were
+        assert not second.query(Welcome)  # a conversation resumed opens on itself, not on the entering page
         status = second.query_one(StatusBar)
         assert (status.cost2, status.cost1, status.unpriced) == costs  # the costs as they were
         text = transcript_text(second)
@@ -1116,7 +1149,7 @@ async def test_clear_starts_over_on_a_fresh_journal_with_the_models_kept(tmp_pat
         assert app.run_count == 0 and app.query_one(StatusBar).context == 0
         assert app.query_one(StatePanel).cut is None
         assert "› hello" not in panel_text(app)
-        assert not plain(app.query_one("#ledger-chart", Static))
+        assert "hello" not in system1_text(app) and "◆" not in system1_text(app)
         await send(app, pilot, "hello again")
         await wait_for(lambda: app.run_count == 1 and app.session is not None and not app.session.running)
         await pilot.pause()

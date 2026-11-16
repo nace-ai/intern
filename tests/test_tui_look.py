@@ -6,7 +6,11 @@ import re
 
 from textual.content import Content
 
-from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, RuleRefusal, TurnJudgement
+from intern.events import Compaction, MessageEvent, Nudge, ToolCallStart, ToolGuard
+from intern.locate.trace import Ranked
+from intern.messages import UserMessage
+from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, Ledger, RuleRefusal, TurnJudgement
+from intern.tui.system1_panel import feed, usage
 from intern.tui.theme import MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_RULE
 from intern.tui.widgets import (
     CARD_LINES,
@@ -28,6 +32,8 @@ from intern.tui.widgets import (
     supervisor_card,
     thinking_box,
 )
+
+from .test_tui_logic import guard, keep, run_start, search, supervise, trace
 
 LEVEL = re.compile(r"#([0-9a-f]{2})[0-9a-f]{4}")
 
@@ -169,3 +175,56 @@ def test_a_compaction_card_lands_each_read_as_judged_then_settles_with_the_kept_
     reads = [line for line in lines if ".py" in line]
     assert "kept.py" in reads[0] and len(reads) == CARD_LINES and "3 more" in lines[-1]
     assert sum(".py" in line for line in compaction_card(c, expanded=True).plain.splitlines()) == len(c.verdicts)
+
+
+def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_its_own_words():
+    ledger = Ledger()
+    ledger.observe(run_start("r1"))
+    ledger.observe(MessageEvent(entry_id="e1", message=UserMessage(content="Fix the parser")))
+    for turn in (1, 2, 3):
+        ledger.observe(supervise(turn, "retrying"))
+    ledger.observe(Nudge(turn=3, reason="stuck_gate", text="A review of your last 3 turns found no progress"))
+    ledger.observe(guard(4, 'bash {"command": "pytest -q"}', "routine", 0.9))
+    ledger.observe(ToolCallStart(turn=4, call_id="c4", name="bash", arguments={"command": "sudo make install"}))
+    ledger.observe(ToolGuard(turn=4, call_id="c4", name="bash", layer="rule", rule="privilege", reason="it runs sudo"))
+    ledger.observe(guard(5, 'bash {"command": "git push --force"}', "rewrites_shared_history", 0.02))
+    refused = "System 1 judged that it rewrites history and that the user did not ask for it"
+    ledger.observe(ToolGuard(turn=5, call_id="c5", name="bash", layer="system1", rule="r", reason=refused))
+    search(ledger, "s1", "decision_code", "where are retries capped?")
+    found = [Ranked(path="src/retry.py", score=0.93, where="def backoff")]
+    ledger.observe(trace("code-search", "a1", "where are retries capped?", asks=12, found=found))
+    search(ledger, "s2", "decision_files", "what did the theft cost?")
+    ledger.observe(keep(6, "src/a.py", "working_on"))
+    ledger.observe(keep(6, "src/b.py", "done_with"))
+    cut = Compaction(turn=6, method="state", tokens_before=14_000, tokens_after=6_000, turns_compacted=6, summary="")
+    ledger.observe(cut.model_copy(update={"kept": 1}))
+    text = feed(ledger.runs, 60).plain
+    rows = [line for line in text.splitlines() if line[:1] in "◆▣⌕⟲"]
+    # A row a judgement, in the order they came, behind its kind's glyph and its turn.
+    assert text.splitlines()[0] == "› Fix the parser"
+    assert [row[:6] for row in rows] == [
+        "◆   1 ",
+        "◆   2 ",
+        "◆   3 ",
+        "▣   4 ",
+        "▣   4 ",
+        "▣   5 ",
+        "⌕   4 ",
+        "⌕   4 ",
+        "⟲   6 ",
+    ]
+    # The watch: what the turn was doing, how sure, and what the loop did about it.
+    assert "retrying" in rows[2] and "0.80" in rows[2] and "strike 3/3" in rows[2] and "stuck nudge sent" in text
+    # The guard: the call, allowed or refused, and who refused it and why.
+    assert "✓ $ pytest -q" in rows[3] and "✗ $ sudo make install" in rows[4] and "✗ $ git push --force" in rows[5]
+    assert "a fixed rule, not System 1 · privilege" in text and "it runs sudo" in text
+    assert "rewrites shared history 0.96" in text and "System 1 judged that it rewrites history" in text
+    # A search: the question, what it took and the place it ranked first; one still running says so.
+    assert "decision_code  12 asks · 36 judged" in rows[6] and "where are retries capped?" in text
+    assert "→ src/retry.py  0.93" in text and "def backoff" in text
+    assert "decision_files  searching…" in rows[7]
+    # A compaction: the reads judged, the ones kept, and what the cut did to the context.
+    assert "2 reads judged · 1 kept · 1 cut" in rows[8] and "14.0k → 6.0k −57%" in text and "✓ src/a.py" in text
+    # Above the feed, what the asks came to, by kind: the feed's legend.
+    said = usage(ledger.usage, 60).plain
+    assert said.startswith("7 asks · ") and "◆ watch 3" in said and "▣ guard 2" in said and "⟲ compaction 2" in said

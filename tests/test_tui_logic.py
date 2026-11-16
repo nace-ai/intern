@@ -4,11 +4,30 @@ from __future__ import annotations
 
 import pytest
 
-from intern.events import Compaction, Decision, Nudge, RunStart, State, ToolGuard, WindowInfo
+from intern.events import (
+    Compaction,
+    Decision,
+    ExtensionEvent,
+    Nudge,
+    RunStart,
+    State,
+    ToolCallEnd,
+    ToolCallStart,
+    ToolGuard,
+    WindowInfo,
+)
 from intern.guard import RISK_THRESHOLD
+from intern.locate.trace import KIND, Ranked, SearchTrace
 from intern.messages import JsonObject
 from intern.supervise import STRIKES
-from intern.tui.ledger import CompactionJudgement, GuardJudgement, Ledger, RuleRefusal, TurnJudgement
+from intern.tui.ledger import (
+    CompactionJudgement,
+    GuardJudgement,
+    Ledger,
+    RuleRefusal,
+    SearchJudgement,
+    TurnJudgement,
+)
 from intern.tui.outline import parse_state, step_status
 
 SAMPLE_STATE = """\
@@ -98,7 +117,7 @@ def test_the_ledger_follows_the_guard_call_by_call():
     row = ledger.observe(rule)
     assert isinstance(row, RuleRefusal) and (row.call_id, row.rule, row.reason) == ("c4", "force_push", "a force push")
     assert ledger.current.refusals == 2 and len(ledger.current.guards) == 2
-    assert ledger.current.rows() == []  # the guard's verdicts go under their calls, not on the panel
+    assert ledger.current.feed == [allowed, judged, row]  # each call the guard ruled on, in the order they came
 
 
 def keep(turn: int, path: str, choice: str) -> Decision:
@@ -114,6 +133,42 @@ def keep(turn: int, path: str, choice: str) -> Decision:
         subject=path,
         answers={"w": {"choice": choice, "probabilities": {choice: 0.71}}},
     )
+
+
+def search(ledger: Ledger, call_id: str, tool: str, question: str) -> SearchJudgement:
+    row = ledger.observe(ToolCallStart(turn=4, call_id=call_id, name=tool, arguments={"question": question}))
+    assert isinstance(row, SearchJudgement)
+    return row
+
+
+def trace(extension: str, search_id: str, question: str, *, asks: int, found: list[Ranked] | None = None):
+    said = SearchTrace(
+        search=search_id, question=question, phase="compare", asks=asks, judged=3 * asks, ranking=found or []
+    )
+    return ExtensionEvent.of(extension, KIND, said)
+
+
+def test_the_ledger_gives_each_search_a_row_and_tells_side_by_side_searches_apart():
+    ledger = Ledger()
+    ledger.observe(run_start("r1"))
+    code = search(ledger, "c1", "decision_code", "where are retries capped?")
+    files = search(ledger, "c2", "decision_files", "what did the theft cost?")
+    assert ledger.current.feed == [code, files] and code.found == [] and code.status is None  # still searching
+    # Both run in one turn: a trace goes to the call that asked its question, then to the search it named.
+    assert ledger.observe(trace("workspace", "b2", "what did the theft cost?", asks=4)) is files
+    assert ledger.observe(trace("code-search", "a1", "where are retries capped?", asks=9)) is code
+    found = [Ranked(path="src/retry.py", score=0.93, where="def backoff"), Ranked(path="src/http.py", score=0.4)]
+    assert ledger.observe(trace("code-search", "a1", "where are retries capped?", asks=12, found=found)) is code
+    assert (code.asks, code.judged, files.asks) == (12, 36, 4)
+    assert [(f.path, f.where, f.score) for f in code.found] == [
+        ("src/retry.py", "def backoff", 0.93),
+        ("src/http.py", "", 0.4),
+    ]
+    done = ToolCallEnd(turn=4, call_id="c1", name="decision_code", status="ok", content="1. retry.py", duration_ms=900)
+    assert ledger.observe(done) is code and code.status == "ok" and files.status is None
+    # What is not a trace changes nothing: a search still shows, as its question.
+    assert ledger.observe(ExtensionEvent(extension="workspace", kind=KIND, data={"phase": "?"})) is None
+    assert files.found == [] and files.question == "what did the theft cost?"
 
 
 # The State outline
@@ -197,7 +252,7 @@ def test_the_ledger_follows_the_supervisor_turn_by_turn_and_what_the_loop_did():
     assert ledger.observe(supervise(3, "finished")) is ledger.current.turns[3]
 
 
-def test_the_ledger_groups_keep_verdicts_by_compaction_and_only_counts_other_asks():
+def test_the_ledger_groups_keep_verdicts_by_compaction_and_only_counts_a_tools_own_asks():
     ledger = Ledger()
     ledger.observe(run_start("r1"))
     row = ledger.observe(keep(9, "src/a.py", "working_on"))
@@ -215,9 +270,13 @@ def test_the_ledger_groups_keep_verdicts_by_compaction_and_only_counts_other_ask
         ("src/a.py", "working_on", True),
         ("src/b.py", "done_with", False),
     ]
-    other = Decision(purpose="locate.files", backend="d", questions=4, ok=True, cached=False, cost_usd=0, duration_ms=1)
-    assert ledger.observe(other) is None and ledger.current.other_asks == {"locate.files": 1}
+    # A search's own ask belongs to no turn: it is counted with the searches, and the search's row stands for it.
+    own = Decision(
+        purpose="workspace.files", backend="d", questions=4, ok=True, cached=False, cost_usd=0, duration_ms=1
+    )
+    assert ledger.observe(own) is None and ledger.usage.asks["search"] == 1 and ledger.usage.asks["compaction"] == 3
     ledger.observe(supervise(9, "advancing"))
-    assert [type(r).__name__ for r in ledger.current.rows()] == ["TurnJudgement", "CompactionJudgement"]
+    assert [type(r).__name__ for r in ledger.current.feed] == ["CompactionJudgement", "TurnJudgement"]
+    assert ledger.usage.total == 5
     # An event about a turn the ledger never saw changes nothing.
     assert ledger.observe(Nudge(turn=99, reason="stuck_gate", text="x")) is None

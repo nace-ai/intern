@@ -36,6 +36,66 @@ it took over 2 minutes. On quit the UI prints the command that resumes the sessi
 (`intern --session ~/.intern/sessions/<stamp>-<id>.jsonl`). Every session has System 1 (a decision model from the console by default,
 see the README); a run whose System 1 stops answering ends with `system1_unavailable` after up to 30 minutes of retries.
 
+## Entering page
+
+What `intern` opens on, until the conversation begins (`tui/welcome.py`):
+
+```
+ ██╗███╗   ██╗████████╗███████╗██████╗ ███╗   ██╗
+ ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗████╗  ██║
+ ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝██╔██╗ ██║
+ ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██║╚██╗██║
+ ██║██║ ╚████║   ██║   ███████╗██║  ██║██║ ╚████║
+ ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
+
+ Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast and watches
+ every turn.
+
+╭─ Intern 0.30.7 · thinking, fast and slow ──────────────────────────────────────────────────────────────────╮
+│                                                                                                            │
+│         ████             ▐System 2▌ thinking slow   anthropic/claude-haiku-5-5 · thinking high             │
+│       ████████           The agent model. It does the work: it reasons, reads, calls tools and writes      │
+│   ██████████████         the answer.                                                                       │
+│  ████  ██  ██  ███                                                                                         │
+│  ███    █   █  ████      ▐System 1▌ thinking fast   drex-max · console                                     │
+│   █████████████████      A decision model. It answers in a fraction of a second, with a probability,       │
+│    ██████████████        and judges what System 2 does:                                                    │
+│      ██████████          ◆ watch       each turn: is the work advancing, or re-reading and retrying?       │
+│        ██████                          Three stuck turns in a row get a nudge                              │
+│          ██              ▣ guard       a risky tool call before it runs: what it would do, and whether     │
+│                                        you asked for it                                                    │
+│  ~/work/parser           ⌕ search      decision_code and decision_files, switched on with /caps: the       │
+│  session 20261108-21…                  places that answer a question                                       │
+│                          ⟲ compaction  the files read, when the context fills: the ones still being        │
+│                                        worked on are kept                                                  │
+│                                                                                                            │
+│                          ▐State▌ fast and slow                                                             │
+│                          What System 1 judges from: the session as it reads it, your requests as the       │
+│                          goal and then the history, cut to fit its window.                                 │
+│                                                                                                            │
+│                          ● base tools  ○ web search  ○ web read  ○ browser  ● code search  ○ workspace     │
+│                          ● memory  27 tools                                                                │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+ Describe a task to begin.   /help commands   /system2 model   /caps capabilities   Shift+Tab thinking   /dark look
+```
+
+The wordmark in block letters, a row for each of the mascot's violets, lightest at the top as its top face is lit;
+then, in a frame, the mascot at twice the masthead's size and beside it the two systems, each under the tab its
+panel has: the model the session opened on, what the system does, and System 1's four jobs behind the glyphs its
+panel lists them under, so the page is also that panel's legend. Then the State, what the session has switched on
+(`●` on, `○` off: `/caps` changes them) and how many tools that comes to; under the mascot, the working directory
+and the session's journal. The last line says what to do and the keys worth knowing first; while the session is
+opening, or when it could not open, it says that instead.
+
+The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It
+follows the session, so a `/system2` or `/caps` pick made before the first prompt shows on it, and whatever is
+said before then (`/help`, a session that could not open) is under it. A terminal too small to hold all of it
+(under about 100 columns or 40 rows) gets the frame alone, a line a job, so nothing of the first screen starts
+above its top. A task on the command line, `--session` and `/reload` go straight to the conversation; `/clear`
+comes back to the page.
+
 ## Layout
 
 ```
@@ -47,53 +107,52 @@ see the README); a run whose System 1 stops answering ends with `system1_unavail
     ▀██████████████▀
       ▀▀████▀▀▀            /help commands
 ┌───────────────────────────────────────────────────┬────────────────────────────────────────────────┐
-│▐System 2▌ thinking slow ░░░░░░░░░░░░░░░░░░░░░░░░░│▐System 1▌ thinking fast ░░░░░░░░░░░░░░░░░░░░░░░░│
-│ › Find why tests/test_parser.py fails and fix it  │ 22 turns · 2 prompts                           │
-│ ▸ Thought for 3.4s                                │                                                │
-│ Let me look at the failing test first.            │ watch ━ off-plan 0.01  ━ stuck 0.05            │
-│                                                   │       ━ finished 0.70  ━ advancing 0.24        │
-│ $ pytest -q tests/test_parser.py                  │ 1 ┤⣀⠤⠤⠤⠤⠤⡄       ⡤⠤⠤⠤⠤⣀⣀⣀⣀⣀⡀   ⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⡀     │
-│ … (31 earlier lines, click or ctrl+o to expand)   │   │      ⢣ ⡖⠒⠒⠒⡆⢠⠃         ⢣  ⢠⠃         ⢣     │
-│ FAILED tests/test_parser.py::test_dates           │   │      ⢸⢰⠁   ⢱⢸          ⢸⢀⢇⢸          ⠸⡀⡖⠒⠂ │
-│ 1 failed, 41 passed in 0.52s                      │   │       ⡿    ⠸⡇           ⣿⢸⡇           ⣿    │
-│ Took 2.1s                                         │   │       ⣧    ⢠⡇           ⣿⢸⡇           ⣿    │
-│                                                   │   │      ⢰⢹    ⢸⢱          ⢠⠻⡸⢣          ⢀⠟⡄   │
-│ ▎ System 1 · 0.6s   advancing 0.78                │   │      ⡸ ⣇⣀⣀⣀⡇⠸⡀         ⢸ ⠃⢸          ⢸ ⠉⠉⠁ │
-│ ▎ finished 0.12   re-investigating 0.06           │ 0 ┤      ⠇       ⠇         ⠇   ⠇         ⠇     │
-│                                                   │ guard ━ risk 0.00  ━ asked 0.90                │
-│                                                   │       ✗ refused 1 of 8                         │
-│ $ git push --force origin main                    │ 1 ┤  ⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⢄    ⢠✗   ⡤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠄       │
-│ ✗ System 1 refused   rewrites shared history 0.96 │   │              ⠈⠢⡀ ⡰⠁⠈⢆ ⡜                    │
-│ risk 0.96   asked 0.02   0.4s                     │   │                ⢑⡜   ⠈⡞                     │
-│ System 1 judged that it rewrites history that…    │   │               ⢠⠊⠈⢆  ⡜⠘⡄                    │
-│                                                   │ 0 ┤              ⡰⠁   ⠱⡜  ⠘⡄                   │
-│ refused · 0.0s                                    │   └────────────────────────────────────────────│
-│                                                   │    1       5         10        15        20    │
-│ ⟲ Compaction · turn 12 · 6 turns cut to a summary │                                                │
+│▐System 2▌ thinking slow ░░░░░░░░░░░░░░░░░░░░░░░░░░│▐System 1▌ thinking fast ░░░░░░░░░░░░░░░░░░░░░░░│
+│ › Find why tests/test_parser.py fails and fix it  │ 131 asks · 0.4s each · 12 cached               │
+│ ▸ Thought for 3.4s                                │ ◆ watch 22   ▣ guard 8   ⌕ search 97           │
+│ Let me look at the failing test first.            │ ⟲ compaction 4                                 │
+│                                                   │ ─ JUDGEMENTS ───────────────────────────────── │
+│ $ pytest -q tests/test_parser.py                  │ › Find why tests/test_parser.py fails and fix… │
+│ … (31 earlier lines, click or ctrl+o to expand)   │ ▣   1  ✓ $ pytest -q tests/test_parser.py      │
+│ FAILED tests/test_parser.py::test_dates           │        routine 0.92   risk 0.07   asked 0.90   │
+│ 1 failed, 41 passed in 0.52s                      │ ◆   3  advancing        0.78  ━━━━━━──         │
+│ Took 2.1s                                         │ ⌕   4  decision_code  97 asks · 291 judged     │
+│                                                   │        where are ISO weeks parsed?             │
+│ ▎ System 1 · 0.6s   advancing 0.78                │        → src/parser.py  0.93                   │
+│ ▎ finished 0.12   re-investigating 0.06           │          def parse_date · lines 40-71          │
+│                                                   │ ◆   9  re-investigating 0.81  ━━━━━━──         │
+│ decision_code where are ISO weeks parsed?         │        strike 3/3 · stuck nudge sent           │
+│ 1. src/parser.py · def parse_date · lines 40-71   │ ▣  11  ✗ $ git push --force origin main        │
+│ Took 3.2s                                         │        rewrites shared history 0.96            │
+│                                                   │        risk 0.96   asked 0.02                  │
+│ $ git push --force origin main                    │        System 1 judged that it rewrites        │
+│ ✗ System 1 refused   rewrites shared history 0.96 │        history that others share and that the  │
+│ risk 0.96   asked 0.02   0.4s                     │        user did not ask for it                 │
+│ System 1 judged that it rewrites history that…    │ ⟲  12  4 reads judged · 2 kept · 2 cut         │
+│                                                   │        14.1k → 6.2k −56% · 6 turns cut to a    │
+│ refused · 0.0s                                    │        summary                                 │
+│                                                   │        ✓ src/parser.py  0.91                   │
+│ ⟲ Compaction · turn 12 · 6 turns cut to a summary │        ✓ tests/test_parser.py  0.74            │
 │  Context ━━━━━━━━╌╌╌╌╌╌╌╌╌╌───  14.1k → 6.2k −56% ├────────────────────────────────────────────────┤
 │                                                   │▐State▌ fast and slow ░░░░░░░░░░░░░░░░░░░░░░░░░░│
 │                                                   │                                                │
-│                                                   │ ████▆▆▆▆▆▆▆▆▆██▆▆▆▆▆▆▆▆▆██████████████████████ │
-│                                                   │ 24.0k of 24.6k tokens  ·  62.9k uncut  ━━━━━━━ │
-│                                                   │ █ 15 whole   ▆ 10 abridged   inputs ≤ 60 chars │
-│                                                   │                                                │
-│                                                   │ ▌ › Find why tests/test_parser.py fails and…   │
-│                                                   │ ▌ › Also keep the old API working              │
-│                                                   │                                                │
-│                                                   │                                                │
-│                                                   │ █   ✓ edit src/parser.py                       │
-│                                                   │ █   ✓ $ pytest tests/test_parser.py  12 passed │
-│                                                   │ █   The parser handles %V now.                 │
-│                                                   │ █ › Also keep the old API working              │
-│                                                   │ █   I'll check the callers of the old name.    │
-│                                                   │ █   ✓ grep parse_date_legacy in .              │
-│                                                   │ █   Keeping it as an alias.                    │
-│                                                   │ █   ✓ edit src/api.py                          │
-│                                                   │ █   ✓ $ pytest -q          58 passed in 1.31s  │
-│                                                   │ █   Pushing.                                   │
-│                                                   │ █   ✗ $ git push --force origin main           │
-│                                                   │ █   ✓ $ git push origin fix-iso-weeks          │
-│                                                   │ █   Fixed: parse_date handles ISO weeks (%V)…  │
+│                                                   │ 24.0k of 24.6k tokens · 98%  ━━━━━━━━━━━━━━━━  │
+│                                                   │ █ 15 whole   ▆ 10 abridged   62.9k uncut       │
+│                                                   │ inputs ≤ 60 chars                              │
+│                                                   │ ─ GOAL ─────────────────────────────────────── │
+│                                                   │ › Find why tests/test_parser.py fails and fix… │
+│                                                   │ › Also keep the old API working                │
+│                                                   │ ─ HISTORY ──────────────────────────────────── │
+│                                                   │     ✓ $ pytest tests/test_parser.py  12 passed │
+│                                                   │     The parser handles %V now.                 │
+│                                                   │   › Also keep the old API working              │
+│                                                   │ ▆   I'll check the callers of the old name.    │
+│                                                   │     ✓ grep parse_date_legacy in .              │
+│                                                   │     ✓ edit src/api.py                          │
+│                                                   │     ✓ $ pytest -q          58 passed in 1.31s  │
+│                                                   │     ✗ $ git push --force origin main           │
+│                                                   │     ✓ $ git push origin fix-iso-weeks          │
+│                                                   │     Fixed: parse_date handles ISO weeks (%V)…  │
 ├───────────────────────────────────────────────────┴────────────────────────────────────────────────┤
 │ Describe the task… (/help for commands)                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────────────┘
@@ -104,7 +163,7 @@ near-black text, a warm gray for what is secondary; the mascot's violet for what
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
 cursors); green only for what went right, amber for what needs a look, red for what went wrong. The mark is the
 mascot, the violet cube in round glasses at the top of the README, its three faces lit from the top, in its own
-colours in both looks, fourteen cells by seven, once,
+colours in both looks, fourteen cells by seven,
 in the masthead: drawn in half blocks, a pixel the upper or lower half of a cell, so it is square on screen and
 each cell can take two of the mascot's colours (`widgets.MASCOT`), and nothing on the page says it twice: the
 System 2 panel opens on its heading alone. The panels are headed after Kahneman's two systems: System 2 `thinking slow` (it reasons and
@@ -277,51 +336,55 @@ shortening old calls to one line and at last leaving out the oldest (`session_cu
 The panel draws that cut, built the same way from the journal half a second after messages land (off the event
 loop: a long session's takes a tenth of a second) and on resume:
 
-- the strip: the whole session in one gray row, oldest left, each cell a stretch of messages as tall as
-  System 1 reads them, a full block whole and the floor left out, so where the cut wore the session down shows
-  at a glance; it is not drawn until the cut wears something down, as a row of full blocks says only what the
-  legend does;
-- the tokens the cut takes of its budget, with a meter, and what the history would take uncut when that differs; then how many
-  messages were kept each way (`█` whole, `▆` abridged, `▄` collapsed, `▂` one line, `▁` left out) and what tool
-  inputs were cut to;
-- the goal, a line per request, shaded as the transcript's prompts; on a panel under 22 rows it is not drawn, as
+- the budget: the tokens the cut takes of its budget, as a share and a meter; then how the messages are read:
+  `10 messages, each read whole` while none is cut, and once the cut wears some down a count of each way a message
+  was kept (`█` whole, `▆` abridged, `▄` collapsed, `▂` one line, `▁` left out), what the history would take uncut
+  and what tool inputs were cut to;
+- `GOAL`: a line per request, shaded as the transcript's prompts; on a panel under 22 rows it is not drawn, as
   the history has the requests too;
-- the history, oldest first, following the end: a row per prompt (`›`), harness message (`⚑`), reply and call
-  (`✓` or `✗`, the tool or `$` and the command, what it was about, a check's tally in green or red), each behind a
-  rail in its message's glyph; runs left out are one row, and a rule marks where System 2's context starts.
-  The newest 400 rows are drawn.
+- `RUNNING`: a line per command still running, with how long it has run; not drawn while nothing runs;
+- `HISTORY`, oldest first, following the end: a row per prompt (`›`), harness message (`⚑`), reply and call
+  (`✓` or `✗`, the tool or `$` and the command, what it was about, a check's tally in green or red). A message
+  read whole has nothing before it; once the cut wears one down, its rows stand behind the glyph for how it was
+  kept, so what System 1 no longer reads in full is what stands out; runs left out are one row, and a rule marks
+  where System 2's context starts. The newest 400 rows are drawn.
+
+Each section is under a hairline rule with its name on it.
 
 The panel is System 1's alone. The summary System 2 writes at a compaction is System 2's own context, not what
 System 1 reads, so it is not here: each compaction's card in the transcript shows it. `/state` opens System 1's
 State in full, as the exact text it is given (its JSON laid out).
 
-**System 1 panel.** A chart of the session (`tui/chart.py`): two line plots, drawn in braille (two dots
-across and four down in a cell), on one turn axis. The transcript's cards say each turn in full; this says how
-the work went.
+**System 1 panel.** Every judgement System 1 made in the session, as a feed (`tui/system1_panel.py`, from
+`tui/ledger.py`). System 1 is asked for different things, and each kind reads its own way, behind its glyph and its
+turn, in the order they came, each run under its prompt:
 
-- **watch**: what the supervisor (`supervise.py`) answered at each turn's end, a point a turn: P(advancing)
-  green, P(stuck) amber (re-investigating and retrying together: either way the work is not moving on),
-  P(off-plan) red and P(finished) in ink, which rises where a prompt's work is done, so advancing's drop there
-  reads as an end, not as stuck.
-- **guard**: at the turns where System 1 judged a tool call, P(risk) amber and P(the user asked for it) of the
-  turn's riskiest call, joined across the turns between. A refused call is a red `✗` on its point.
+- `◆` **watch**: what the supervisor (`supervise.py`) answered at a turn's end: the mode in its colour, its
+  probability as a number and a meter, then what the loop did about it (`strike 2/3`, `stuck nudge sent`) and, once
+  the request looks met, the wrap-up verdict.
+- `▣` **guard**: a tool call System 1 judged before it ran: the call, `✓` allowed or `✗` refused, what it would
+  do (routine, one of the risks, or unclear), `risk` and `asked`, and the reason when it was refused. A call a
+  fixed rule refused is listed too, as `a fixed rule, not System 1` and the rule: no model was asked.
+- `⌕` **search**: a `decision_code` or `decision_files` call, which is System 1 walking an index: the tool, the
+  asks the walk took and the cards it judged, the question, then the three places it ranked first with their
+  scores (`→` the best, and where in the file). While it runs the row says `searching…` and counts. The search's
+  own view in the transcript has the walk in full.
+- `⟲` **compaction**: the reads being cut that System 1 judged, how many it kept and how many it cut, what the cut
+  did to the context (`14.1k → 6.2k −56%`), and the reads it kept, each with P(still being worked on).
+- `⧗` a command that went on running and each look at it, `◇` memory's asks made for a turn, `·` anything else.
 
-A line under 0.1 is not drawn, so the floor stays clean and a line that shows means something; there are no
-threshold lines. Where lines cross in a cell the more alarming one shows (off-plan, then stuck, finished,
-advancing; risk over asked). Each plot's legend gives each line's latest value, the current verdict's in bold,
-and the guard's says how many calls it refused of those it judged. Above the plots: the turns and the prompts.
-Under the axis, its turn numbers. The plots run on across prompts: a short session takes up to two
-cells a turn, growing to the right; once the turns outnumber the dots across, a point takes a few turns (the
-line above says how many), the watch lines their mean and the guard its riskiest call, so a risky call
-is never averaged away. The chart fits the panel's height and never loses its axis: the watch plot and the
-axis come first, then, while they fit, the guard's plot and a spacer; rows left over make the
-plots taller, the larger share to the watch. System 2's context is the masthead's.
+Above the feed, what the asks came to: how many System 1 answered, how long one took, how many the cache answered
+and how many failed and were retried; then the count by kind, each behind its glyph, so the line is also the feed's
+legend. A search's asks are counted there (`⌕ search 97`) and stand as one row. The feed follows its end as the
+session grows; the newest 400 lines are drawn. System 2's context is the masthead's.
 
-The chart comes from the event stream alone (`decision`, `state`, `nudge`, `compaction`, `tool_guard`), so
-what it shows is what `intern -p --json` would print. The journal
-keeps those events where they happened (`event` entries), and each reply's prompt size, so a resumed session
-(`--session`, `/reload`) draws the same chart; the System 1 cards and the compaction cards in the transcript
-come back as they were for the turns it shows. A journal from before the events were kept resumes with no chart.
+The feed comes from the event stream alone (`decision`, `tool_call_start`, `tool_call_end`, `tool_guard`, `nudge`,
+`state`, `compaction`, `process_check`, and a search's `search_trace` extension events), so what it shows is what
+`intern -p --json` would print. The journal keeps those events where they happened (`event` entries), so a resumed
+session (`--session`, `/reload`) lists the same judgements; the System 1 cards and the compaction cards in the
+transcript come back as they were for the turns it shows. Extension events are not journaled, so a resumed search
+is its question alone, without the places it found. A journal from before the events were kept resumes with an
+empty feed.
 
 ## Extension views
 

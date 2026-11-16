@@ -2,17 +2,18 @@
 
 System 1 is asked about the session as one text, rebuilt from the journal for every ask and fitted to its budget:
 the user's latest requests as the goal, then the history, oldest first, each message whole, abridged, collapsed,
-its calls shortened to one line, or left out. The panel draws that text as the reader would want it:
+its calls shortened to one line, or left out. The panel draws that text as the reader would want it, a section
+under a titled rule each:
 
-- the strip, one row for the whole session, oldest left: each cell a stretch of messages, as tall as System 1
-  reads them (whole is a full block, left out the floor), so where the cut wore the session down shows at a
-  glance. Until the cut wears something down, every message is read whole and the legend says so: there is no strip;
-- the tokens the cut takes against its budget, what the history would take uncut, and a legend that counts each
-  way a message was kept;
-- the goal, a shaded block per request;
+- the budget: the tokens the cut takes against it, as a share and a meter; then how the messages are read, in
+  words while every one is read whole, and once the cut wears some down a count of each way a message was kept
+  (and what the history would take uncut);
+- the goal, a line per request;
+- what runs, a line per command with how long it has run;
 - the history: a row per prompt, reply and call (`✓`/`✗`, the tool, what it was about, a check's tally in green
-  or red), a rail on the left in the strip's glyph for how the message was kept, runs left out folded into one
-  row, and the point System 2's own context starts after a compaction. It follows the end as the session grows.
+  or red). A message read whole has nothing before it; one the cut wore down has the legend's glyph for how it
+  was kept, runs left out fold into one row, and a line marks where System 2's own context starts after a
+  compaction. It follows the end as the session grows.
 
 System 2's summary, the State it writes at a compaction and continues from, is not System 1's and is not here: the
 compaction's card in the transcript shows it. `/state` opens System 1's State in full.
@@ -25,7 +26,7 @@ from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
 
-from rich.cells import cell_len, set_cell_size
+from rich.cells import cell_len
 from textual.app import ComposeResult
 from textual.containers import Vertical
 from textual.content import Content
@@ -36,6 +37,7 @@ from intern.messages import AssistantMessage, UserMessage
 from intern.processes import duration_text
 from intern.session_cut import INPUT_CHARS, CutCall, CutMessage, CutView, Kept
 from intern.tui.theme import (
+    BRAND,
     S_BAD,
     S_HEAD,
     S_INK,
@@ -49,9 +51,12 @@ from intern.tui.theme import (
 from intern.tui.widgets import (
     Following,
     Part,
+    clip,
     fit_path,
+    flow,
     meter,
     short_path,
+    stacked,
     tokens_text,
 )
 
@@ -64,9 +69,8 @@ KEPT_LABEL: dict[Kept, str] = {
     "line": "one line",
     "left_out": "left out",
 }
-LEVEL: dict[Kept, int] = {"whole": 8, "abridged": 6, "collapsed": 4, "line": 2, "left_out": 0}
-"""In eighths of the strip's row: the legend's glyphs."""
-EIGHTHS = " ▁▂▃▄▅▆▇█"
+S_PROMPT = f"bold {BRAND}"
+"""A request's `›`, as the prompt line's own colour."""
 HISTORY_ROWS = 400
 """The newest rows drawn; a long session's older ones are in `/state`."""
 MIN_WIDTH = 24
@@ -80,58 +84,32 @@ CD = re.compile(r"^cd \S+ && ")
 EMPTY = "System 1's State is the session as it reads it: it shows here from the first prompt."
 
 
-def clip(text: str, cells: int) -> str:
-    """`text` in at most `cells` cells, `…` where it was cut."""
-    if cell_len(text) <= cells:
-        return text
-    return set_cell_size(text, max(0, cells - 1)) + "…" if cells > 0 else ""
-
-
 def first_line(text: str) -> str:
     return next((line.strip() for line in text.splitlines() if line.strip()), "")
 
 
-# -- the strip and the legend -------------------------------------------------------------------------------
+# -- the budget ---------------------------------------------------------------------------------------------
 
 
-def strip(messages: Sequence[CutMessage], width: int) -> Content:
-    """The strip: `width` cells over the session, each as tall as System 1 reads the messages
-    in it, on average, in gray so it maps the session without outweighing it. None while every message is whole:
-    it would be a solid bar that says only what the legend does."""
-    n = len(messages)
-    if all(m.kept == "whole" for m in messages):
-        return Content("")
-    cells: list[Part] = []
-    for c in range(width):
-        lo = c * n // width
-        part = messages[lo : max(lo + 1, (c + 1) * n // width)]
-        level = round(sum(LEVEL[m.kept] for m in part) / len(part))
-        cells.append((EIGHTHS[level] if level else "▁", S_MUTED))  # left out: the floor
-    return Content.assemble(*cells)
-
-
-def legend(view: CutView, width: int) -> Content:
-    """The tokens against the budget and a meter of them; then how many messages were kept each way."""
+def budget(view: CutView, width: int) -> Content:
+    """The tokens the cut takes against its budget, as a share and a meter; then how the messages are read: in
+    words while each is read whole, else a count of each way one was kept and what the history would take uncut."""
+    share = view.tokens / max(view.budget, 1)
     used = f"{tokens_text(view.tokens)} of {tokens_text(view.budget)} tokens"
-    whole = tokens_text(view.whole_tokens)
-    uncut = f"  ·  {whole} uncut" if whole != tokens_text(view.tokens) else ""
-    bar = max(4, width - cell_len(used + uncut) - 2)
-    parts: list[Part] = [(used, S_INK), (uncut, S_MUTED), "  ", *meter(view.tokens / max(view.budget, 1), S_INK, bar)]
+    said = f" · {share:.0%}"
+    bar = max(4, width - cell_len(used + said) - 2)
+    head: list[Part] = [(used, S_INK), (said, S_MUTED), "  ", *meter(share, S_INK, bar)]
     counts = Counter(m.kept for m in view.messages)
-    items: list[list[Part]] = [
-        [(KEPT_GLYPH[k], S_MUTED), f" {counts[k]} ", (KEPT_LABEL[k], S_MUTED)] for k in KEPT_ORDER if counts[k]
-    ]
+    n = len(view.messages)
+    if counts["whole"] == n:
+        items: list[list[Part]] = [[(f"{n} message{'s' if n != 1 else ''}, each read whole", S_MUTED)]]
+    else:
+        items = [[(KEPT_GLYPH[k], S_MUTED), f" {counts[k]} ", (KEPT_LABEL[k], S_MUTED)] for k in KEPT_ORDER]
+        items = [item for k, item in zip(KEPT_ORDER, items, strict=True) if counts[k]]
+        items.append([(f"{tokens_text(view.whole_tokens)} uncut", S_MUTED)])
     if view.input_chars < INPUT_CHARS[0]:
         items.append([(f"inputs ≤ {view.input_chars} chars", S_MUTED)])
-    line = 0  # the legend's items wrapped by hand: wrapping breaks at a non-breaking space too
-    for item in items:
-        size = Content.assemble(*item).cell_length
-        if line and line + 3 + size > width:
-            parts.append("\n")
-            line = 0
-        parts += (["   "] if line else ["\n"] if not parts or parts[-1] != "\n" else []) + item
-        line += (3 if line else 0) + size
-    return Content.assemble(*parts)
+    return stacked([head, *flow(items, width)])
 
 
 # -- the history --------------------------------------------------------------------------------------------
@@ -183,7 +161,7 @@ def message_rows(m: CutMessage, width: int, cwd: Path | None) -> list[list[Part]
             if line
             else []
         )
-    lead: Part = ("› ", S_HEAD) if m.role == "user" else ("⚑ ", S_WARN) if m.role == "harness" else "  "
+    lead: Part = ("› ", S_PROMPT) if m.role == "user" else ("⚑ ", S_WARN) if m.role == "harness" else "  "
     if text:
         rows.append([lead, *text])
     elif m.role != "assistant":
@@ -201,12 +179,15 @@ def left_out_row(run: list[CutMessage]) -> list[Part]:
 
 
 def history(view: CutView, width: int, cwd: Path | None = None, system2_from: int | None = None) -> Content:
-    """The history as rows, oldest first, each behind a rail in its message's strip glyph."""
+    """The history as rows, oldest first; once the cut wears a message down, each row behind a rail: the legend's
+    glyph for how its message was kept, nothing for one read whole."""
     width = max(MIN_WIDTH, width)
     rows: list[list[Part]] = []
+    railed = any(m.kept != "whole" for m in view.messages)
+    room = width - 2 if railed else width
 
     def add(rail: Part, body: list[Part]) -> None:
-        rows.append([rail, " ", *body])
+        rows.append([rail, " ", *body] if railed else body)
 
     run: list[CutMessage] = []
     for m in [*view.messages, None]:
@@ -217,19 +198,19 @@ def history(view: CutView, width: int, cwd: Path | None = None, system2_from: in
             break
         if m.index == system2_from:
             said = "⟲ System 2 reads on from here "
-            add(" ", [(said, S_MUTED), ("╌" * max(0, width - 2 - cell_len(said)), S_RULE)])
+            add(" ", [(said, S_MUTED), ("╌" * max(0, room - cell_len(said)), S_RULE)])
         if m.kept == "left_out":
             run.append(m)
             continue
         if m.role == "user" and rows:
             rows.append([])
-        rail = (KEPT_GLYPH[m.kept], S_MUTED)
-        for body in message_rows(m, width - 2, cwd):
+        rail: Part = " " if m.kept == "whole" else (KEPT_GLYPH[m.kept], S_MUTED)
+        for body in message_rows(m, room, cwd):
             add(rail, body)
     if len(rows) > HISTORY_ROWS:
         hidden = len(rows) - HISTORY_ROWS
         rows = [[(f"… {hidden:,} earlier rows: /state has the whole of it", S_MUTED_ITALIC)], *rows[-HISTORY_ROWS:]]
-    return Content("\n").join(Content.assemble(*row) for row in rows)
+    return stacked(rows)
 
 
 # -- the panel ----------------------------------------------------------------------------------------------
@@ -248,12 +229,15 @@ class StatePanel(Vertical, can_focus=False):
     def compose(self) -> ComposeResult:
         # The "and" of Kahneman's title, where the two systems meet: what System 1 sees of System 2's work.
         yield Static(Content.assemble((" State ", S_TAB), ("  fast and slow", S_MUTED)), id="state-header")
-        with Vertical(id="cut-top"):
-            yield Static(id="cut-strip")
-            yield Static(id="cut-legend")
-            yield Static(id="cut-goal")
-            yield Static(id="cut-running")
-        with Following(id="cut-history"):
+        yield Static(id="cut-budget")
+        for name, title in (("cut-goal", "GOAL"), ("cut-running", "RUNNING")):
+            section = Static(id=name, classes="titled")
+            section.border_title = title
+            section.display = False  # until there is a goal, or something runs
+            yield section
+        history = Following(id="cut-history", classes="titled")
+        history.border_title = "HISTORY"
+        with history:
             yield Static(Content.styled(EMPTY, S_MUTED), id="cut-lines")
 
     # -- System 1's -------------------------------------------------------------------------------------------
@@ -281,21 +265,18 @@ class StatePanel(Vertical, can_focus=False):
         scroll = self.query_one("#cut-history", Following)
         width = max(MIN_WIDTH, scroll.scrollable_content_region.width - 1)
         start = next((m.index for m in cut.messages if self._system2_from and m.entry_id == self._system2_from), None)
-        drawn = strip(cut.messages, self._width)
-        self.query_one("#cut-strip", Static).display = bool(drawn.plain)
-        self.query_one("#cut-strip", Static).update(drawn)
-        self.query_one("#cut-legend", Static).update(legend(cut, self._width))
+        self.query_one("#cut-budget", Static).update(budget(cut, self._width))
         self._draw_goal()
         self._draw_running()
         self.query_one("#cut-lines", Static).update(history(cut, width, self.cwd, start))
 
     def _draw_goal(self) -> None:
-        """The goal: the user's latest requests, a line each, newest last, shaded as the transcript's prompts."""
+        """The goal: the user's latest requests, a line each, newest last."""
         goal = self.query_one("#cut-goal", Static)
         requests = self.cut.goal if self.cut else []
         goal.display = bool(requests) and self.size.height >= GOAL_HEIGHT
-        room = self._width - 4
-        lines = [Content.assemble(("› ", S_HEAD), clip(" ".join(text.split()), room - 2)) for text in requests]
+        room = self._width - 2
+        lines = [Content.assemble(("› ", S_PROMPT), (clip(" ".join(text.split()), room), S_HEAD)) for text in requests]
         goal.update(Content("\n").join(lines))
 
     def _draw_running(self) -> None:
@@ -317,8 +298,8 @@ class StatePanel(Vertical, can_focus=False):
         """Back to none yet."""
         self.cut, self._system2_from = None, None
         self._draw_goal()
-        for name in ("#cut-strip", "#cut-legend"):
-            self.query_one(name, Static).update("")
+        self._draw_running()
+        self.query_one("#cut-budget", Static).update("")
         self.query_one("#cut-lines", Static).update(Content.styled(EMPTY, S_MUTED))
         self.query_one("#cut-history", Following).anchor()
 
