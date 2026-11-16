@@ -54,6 +54,7 @@ from intern.tui.ledger import (
 )
 from intern.tui.outline import EMPHASIS, LIST_ITEM, QUOTE, Outline, Status, parse_state, plain
 from intern.tui.theme import (
+    CARD,
     MASCOT_COLOURS,
     S_BAD,
     S_BAD_BOLD,
@@ -112,36 +113,72 @@ MASCOT = (
 """The mascot, a character per pixel (`theme.MASCOT_COLOURS`, `.` the page): the Nace cube tilted as in the Nace logo,
 its top face lit, round glasses on the top face with the right lens a pixel higher, as the face lies in perspective.
 Fourteen pixels tall so it stands seven rows, the masthead's height. A pixel is a cell wide and half a cell tall,
-so it is square on screen."""
+so it is square on screen. Drawn by hand: at this size the README's cube scaled down is a smudge."""
+EYES = ("rest", "left", "right", "shut")
+"""The mascot's poses: its eyes at rest, glancing left, glancing right and shut."""
+LOOK = ("WW", "W8", "8W", "88")
+"""`MASCOT`'s eye in each pose, a lens being two pixels across: its white, or the lens where it has left."""
+LOOP_S = 8.0
+"""The mascot's loop, as the README's: it glances left, then right, and blinks twice."""
 FLASH_S = 1.5
-HINT = (("/help", "commands"),)
-"""The masthead's last row: the rest, the commands and the keys, is in /help."""
 LABEL_WIDTH = 10
 """The masthead's label column: `System 2` and room after it."""
 COLUMN_GAP = 3
 SEP = "  ·  "
 
 
-@functools.cache
-def mark() -> list[Content]:
-    """The mark, one `Content` per row for laying the masthead's text beside it: the mascot, two pixels to a cell,
-    the upper one the half block's colour and the lower its background; where a pixel is the page, it is left out."""
-    rows: list[Content] = []
-    for upper, lower in zip(MASCOT[::2], MASCOT[1::2], strict=True):
-        cells: list[Part] = []
+Part = str | tuple[str, str]
+
+
+def merged(cells: list[tuple[str, str]]) -> list[Part]:
+    """Cells of (text, style) as parts, neighbours in one style joined: a row of pixels is a few runs."""
+    parts: list[tuple[str, str]] = []
+    for text, style in cells:
+        if parts and parts[-1][1] == style:
+            parts[-1] = (parts[-1][0] + text, style)
+        else:
+            parts.append((text, style))
+    return [(text, style) if style else text for text, style in parts]
+
+
+def pixels(grid: list[list[str]], page: str) -> list[list[Part]]:
+    """A grid of pixel colours (`""` where the page shows) as rows of cells, two pixels to a cell, one over the
+    other: the upper is the cell's background and the lower a lower half block on it, in `page`'s colour where the
+    page shows under a pixel. Never an upper half block: a terminal draws a cell's background exactly and a glyph
+    where its font puts it, and macOS Terminal, which sets its lines apart, starts an upper half block short of the
+    cell's top (the gap shows whatever is behind) while a lower one ends at the cell's bottom."""
+    rows: list[list[Part]] = []
+    for upper, lower in zip(grid[::2], grid[1::2], strict=True):
+        cells: list[tuple[str, str]] = []
         for top, bottom in zip(upper, lower, strict=True):
-            above, below = MASCOT_COLOURS.get(top), MASCOT_COLOURS.get(bottom)
-            if above and below:
-                cells.append(("▀", f"{above} on {below}"))
-            elif above or below:
-                cells.append(("▀" if above else "▄", above or below or ""))
+            if top == bottom:
+                cells.append((" ", f"on {top}" if top else ""))
             else:
-                cells.append(" ")
-        rows.append(Content.assemble(*cells))
+                cells.append(("▄", f"{bottom or page} on {top}" if top else bottom))
+        rows.append(merged(cells))
     return rows
 
 
-Part = str | tuple[str, str]
+def pose_at(seconds: float) -> int:
+    """Which pose the mascot is in, `seconds` into its life, as the README's moves: its eyes glance left, then right,
+    and blink twice, each loop. It does not breathe as that one does: a breath is less than a cell."""
+    at = seconds % LOOP_S / LOOP_S
+    if 0.165 <= at < 0.365:
+        return EYES.index("left")
+    if 0.485 <= at < 0.665:
+        return EYES.index("right")
+    if 0.85 <= at < 0.87 or 0.905 <= at < 0.925:
+        return EYES.index("shut")
+    return EYES.index("rest")
+
+
+@functools.cache
+def mark(pose: int = 0) -> list[Content]:
+    """The mark, one `Content` per row for laying the masthead's text beside it: the mascot (`pixels`) on the
+    masthead's card, its eyes in a pose (`EYES`)."""
+    grid = [[MASCOT_COLOURS.get(pixel, "") for pixel in row.replace(LOOK[0], LOOK[pose])] for row in MASCOT]
+    return [Content.assemble(*row) for row in pixels(grid, CARD)]
+
 
 STEP_GLYPH: dict[Status, tuple[str, str]] = {
     "done": ("✓", S_OK),
@@ -324,18 +361,9 @@ def joined(parts: list[Part]) -> list[Part]:
     return out
 
 
-def key_hints(pairs: tuple[tuple[str, str], ...]) -> list[Part]:
-    """Keys in ink, each followed by what it does, muted; spaced, not dotted, so the keys stand out."""
-    out: list[Part] = []
-    for key, action in pairs:
-        out += ["   "] if out else []
-        out += [(key, S_INK), (f" {action}", S_MUTED)]
-    return out
-
-
 class StatusBar(Static):
-    """The masthead: the mark, and beside it the wordmark on its top row, `/help` on its bottom row, and between
-    them a table: System 2 and System 1, a label column, then the model in a column of its own, then the rest:
+    """The masthead: the mark, and beside it, at its middle, the wordmark and under it a table: System 2 and
+    System 1, a label column, then the model in a column of its own, then the rest:
     the thinking level in its box, where System 1 is served; then each system's cost, in a column. At the end of
     System 2's row, the run: a spinner while one is in progress, the context in use as a share of the window, and
     what needs attention."""
@@ -363,13 +391,19 @@ class StatusBar(Static):
         self._flash = ""
         self._flash_timer: Timer | None = None
         self._frame = 0
+        self._pose = 0
+        self._born = time.monotonic()
 
     def on_mount(self) -> None:
         self.set_interval(SPIN_S, self._spin)
 
     def _spin(self) -> None:
-        if self.running:
-            self._frame += 1
+        """The spinner's next frame while a run is in progress, and the mark's eyes, alive as the entering page's
+        are; still where motion is switched off (`TEXTUAL_ANIMATIONS=none`)."""
+        pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
+        if self.running or pose != self._pose:
+            self._frame += self.running
+            self._pose = pose
             self.refresh_line()
 
     def flash(self, text: str) -> None:
@@ -417,15 +451,15 @@ class StatusBar(Static):
         elif self.note:
             run.append((self.note, S_BAD))
         rows: list[list[Part]] = [
+            [],
             [(WORDMARK, S_WORDMARK), (f"  {__version__}", S_MUTED)],
             [],
             table_row("System 2", (self.system2, S_INK), thinking, cost2, [state, " ", *joined(run)]),
             table_row("System 1", (model1, S_INK), where, cost1, [(self.watching, S_MUTED)] if self.watching else []),
             [],
             [],
-            key_hints(HINT),
         ]
-        lines = [Content.assemble(cube, "   ", *row) for cube, row in zip(mark(), rows, strict=True)]
+        lines = [Content.assemble(cube, "   ", *row) for cube, row in zip(mark(self._pose), rows, strict=True)]
         self.update(Content("\n").join(lines))
 
 

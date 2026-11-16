@@ -79,8 +79,11 @@ def test_the_mark_draws_the_mascot_two_pixels_to_a_cell_in_its_own_colours_with_
             styles[span.start : span.end] = [str(span.style)] * (span.end - span.start)
         upper = lower = ""
         for glyph, style in zip(row.plain, styles, strict=True):
-            fg, _, bg = style.partition(" on ")
-            top, bottom = (fg, bg) if glyph == "▀" else (bg, fg) if glyph == "▄" else ("", "")
+            # The upper pixel is the cell's background, the lower a lower half block on it: never an upper half
+            # block, which macOS Terminal starts short of the cell's top.
+            assert glyph in " ▄"
+            fg, on, bg = style.rpartition("on ")
+            top, bottom = ((bg, fg.strip()) if on else ("", bg)) if glyph == "▄" else (bg, bg)
             upper, lower = upper + pixel.get(top, "."), lower + pixel.get(bottom, ".")
         drawn += [upper, lower]
     assert drawn == list(MASCOT)
@@ -96,8 +99,8 @@ def test_the_masthead_lines_up_the_models_the_run_and_each_systems_cost_in_colum
     content = status.content
     assert isinstance(content, Content)
     rows = content.plain.splitlines()
-    assert len(rows) == 7 and "Intern" in rows[0] and rows[6].endswith("   /help commands")
-    sys2, sys1 = rows[2], rows[3]
+    assert len(rows) == 7 and "Intern" in rows[1]
+    sys2, sys1 = rows[3], rows[4]
     assert sys2.index("System 2") == sys1.index("System 1")
     assert sys2.index("anthropic/") == sys1.index("drex-max-v1.1")
     assert sys2.index(" thinking xhigh") == sys1.index("console")

@@ -52,7 +52,10 @@ from intern.tui.ledger import Kind
 from intern.tui.system1_panel import GLYPH
 from intern.tui.theme import (
     BRAND,
+    DARK,
+    LIGHT,
     MASCOT_COLOURS,
+    PAPER,
     S_BAD,
     S_HEAD,
     S_INK,
@@ -62,7 +65,18 @@ from intern.tui.theme import (
     S_TAB,
     WORDMARK,
 )
-from intern.tui.widgets import Part, clip, fit_path, flow, short_path, stacked, system1_parts
+from intern.tui.widgets import (
+    EYES,
+    Part,
+    clip,
+    fit_path,
+    flow,
+    pixels,
+    pose_at,
+    short_path,
+    stacked,
+    system1_parts,
+)
 
 ART = (
     "██ ███  ██ ████████ ███████ ██████  ███  ██",
@@ -124,18 +138,15 @@ HINTS = (
     ("/dark", "look"),
 )
 SPRITES = Path(__file__).with_name("mascot.png")
-"""The mascot's frames, side by side, each `SPRITE_COLUMNS` by `SPRITE_ROWS`, a pixel a whole cell: a terminal draws
-a cell's background exactly, and a half block only as well as its font does (Terminal.app leaves gaps around them).
-The cube is `docs/assets/mascot.svg`'s, scaled down, a colour a row; the glasses are drawn by hand for cells twice as
-tall as wide, a stroke two cells across and one down, with the eyes at rest, glancing left, glancing right and shut
-(`EYES`)."""
+"""The mascot's poses, side by side, one for each of `EYES`: `docs/assets/mascot.svg` without the shadow under it,
+as a browser draws it 160 pixels wide with its eyes at rest, glancing left, glancing right and shut. `poses` scales
+them to the cells."""
 SPRITE_COLUMNS, SPRITE_ROWS = 32, 16
-EYES = ("rest", "left", "right", "shut")
-LOOP_S = 8.0
-"""The mascot's loop, as the SVG's: it glances left, then right, and blinks twice."""
+"""The mascot in cells, two pixels to a cell down: as wide in pixels as it is tall."""
+BIG_COLUMNS, BIG_ROWS = 40, 20
+"""The same on a wide page with the room for it."""
 TICK_S = 0.08
 """How often the mascot looks at the clock: a blink is two of these."""
-MASCOT_ROWS = SPRITE_ROWS
 ABOUT_WIDTH = 100
 """The widest the paragraph runs: a wide terminal is wider than a line reads."""
 CARD_WIDTH = 44
@@ -156,7 +167,7 @@ WORDMARK_ROWS = len(ART) + 1
 """The rows a terminal too short for a page gets back when the page goes without its wordmark."""
 SIDE_WIDTH = SPRITE_COLUMNS + 4
 """The mascot's column in the frame, with the gap after it."""
-SIDE_ROWS = MASCOT_ROWS + 3
+SIDE_ROWS = SPRITE_ROWS + 3
 """The mascot, a row of air and where the session works."""
 FRAME = 6
 """The frame's border and padding, across."""
@@ -189,35 +200,6 @@ class Opening:
     guard: GuardMode = "full"
 
 
-def merged(cells: list[tuple[str, str]]) -> list[Part]:
-    """Cells of (text, style) as parts, neighbours in one style joined: a row of pixels is a few runs."""
-    parts: list[tuple[str, str]] = []
-    for text, style in cells:
-        if parts and parts[-1][1] == style:
-            parts[-1] = (parts[-1][0] + text, style)
-        else:
-            parts.append((text, style))
-    return [(text, style) if style else text for text, style in parts]
-
-
-def pixels(grid: list[list[str]]) -> Content:
-    """A grid of pixel colours (`""` where there is none) as text, two pixels to a cell, one over the other. A cell
-    whose two are one colour is that colour, with no glyph: a terminal that sets its lines apart leaves gaps around a
-    block glyph, and none in a cell's background. Else it is a half block over the other's."""
-    rows: list[list[Part]] = []
-    for upper, lower in zip(grid[::2], grid[1::2], strict=True):
-        cells: list[tuple[str, str]] = []
-        for top, bottom in zip(upper, lower, strict=True):
-            if top == bottom:
-                cells.append((" ", f"on {top}" if top else ""))
-            elif top:
-                cells.append(("▀", f"{top} on {bottom}" if bottom else top))
-            else:
-                cells.append(("▄", bottom))
-        rows.append(merged(cells))
-    return stacked(rows)
-
-
 @functools.cache
 def wordmark(scale: int = 1) -> Content:
     """The block letters, lighter at the top as the mascot's top face is lit, with a shadow a pixel down and to the
@@ -234,39 +216,27 @@ def wordmark(scale: int = 1) -> Content:
         for x in range(width - 1, scale - 1, -1):
             if not grid[y][x] and grid[y - scale][x - scale] not in ("", SHADOW):
                 grid[y][x] = SHADOW
-    return pixels(grid)
+    return stacked(pixels(grid, PAPER))
 
 
 @functools.cache
-def poses() -> tuple[Content, ...]:
-    """The mascot in each of its poses (`SPRITES`), every cell one colour."""
-    from PIL import Image
+def poses(columns: int, rows: int, page: str) -> tuple[Content, ...]:
+    """The mascot in each of its poses (`SPRITES`), `columns` cells by `rows`, on a page of the colour `page`: two
+    pixels to a cell, each the mean of what it covers of the drawing, so the cube's edge is a blend with the page and
+    not a step."""
+    from PIL import Image, ImageColor
 
     with Image.open(SPRITES) as sheet:
-        image = sheet.convert("RGBA")
-
-    def colour(x: int, y: int) -> str:
-        red, green, blue, alpha = image.getpixel((x, y))  # pyright: ignore[reportGeneralTypeIssues]
-        return f"#{red:02x}{green:02x}{blue:02x}" if alpha else ""
-
-    return tuple(
-        # A row of cells is the same pixel over itself: `pixels` then draws no half block.
-        pixels([[colour(x, y) for x in range(left, left + SPRITE_COLUMNS)] for y in range(SPRITE_ROWS) for _ in "12"])
-        for left in range(0, image.width, SPRITE_COLUMNS)
-    )
-
-
-def pose_at(seconds: float) -> int:
-    """Which pose the mascot is in, `seconds` into its life, as the README's moves: its eyes glance left, then right,
-    and blink twice, each loop. It does not breathe as that one does: a breath is less than a cell."""
-    at = seconds % LOOP_S / LOOP_S
-    if 0.165 <= at < 0.365:
-        return EYES.index("left")
-    if 0.485 <= at < 0.665:
-        return EYES.index("right")
-    if 0.85 <= at < 0.87 or 0.905 <= at < 0.925:
-        return EYES.index("shut")
-    return EYES.index("rest")
+        paper = Image.new("RGBA", sheet.size, page)
+        paper.alpha_composite(sheet.convert("RGBA"))
+    blank, width = bytes(ImageColor.getrgb(page)[:3]), paper.width // len(EYES)
+    drawn: list[Content] = []
+    for left in range(0, paper.width, width):
+        pose = paper.crop((left, 0, left + width, paper.height)).convert("RGB")
+        data = pose.resize((columns, 2 * rows), Image.Resampling.BOX).tobytes()
+        colours = ["" if data[at : at + 3] == blank else f"#{data[at : at + 3].hex()}" for at in range(0, len(data), 3)]
+        drawn.append(stacked(pixels([colours[at : at + columns] for at in range(0, len(colours), columns)], page)))
+    return tuple(drawn)
 
 
 class Mascot(Static):
@@ -274,19 +244,27 @@ class Mascot(Static):
     (`TEXTUAL_ANIMATIONS=none`)."""
 
     def __init__(self) -> None:
-        super().__init__(poses()[0], id="welcome-mascot")
-        self._pose = 0
+        super().__init__(id="welcome-mascot")
+        self._cells = (SPRITE_COLUMNS, SPRITE_ROWS)
+        self._shown: object = None
         self._born = time.monotonic()
 
     def on_mount(self) -> None:
-        if self.app.animation_level != "none":
-            self.set_interval(TICK_S, self._tick)
+        self._tick()
+        self.set_interval(TICK_S, self._tick)
+
+    def fit(self, columns: int, rows: int) -> None:
+        """Stand `columns` cells by `rows`."""
+        self._cells = (columns, rows)
+        self._tick()
 
     def _tick(self) -> None:
-        pose = pose_at(time.monotonic() - self._born)
-        if pose != self._pose:
-            self._pose = pose
-            self.update(poses()[pose], layout=False)  # every pose is the same size
+        """Draw the mascot again when its pose, its size or the page under it (`/dark`) is another."""
+        pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
+        page = (DARK if self.app.current_theme.dark else LIGHT)["paper"]
+        if self._shown != (shown := (*self._cells, page, pose)):
+            self._shown = shown
+            self.update(poses(*self._cells, page)[pose])
 
 
 def where(o: Opening, width: int) -> list[list[Part]]:
@@ -444,7 +422,13 @@ class Welcome(Vertical):
         text = systems(o, inside - SIDE_WIDTH, roomy=True)
         cards = [system2(o, CARD_WIDTH - CARD_EDGES), system1(o, CARD_WIDTH - CARD_EDGES)]
         card_rows = max(len(card) for card in cards) + CARD_EDGE_ROWS  # the cards are one height
-        tall = max(MASCOT_ROWS, card_rows)
+        # The larger mascot where the wide page holds it and its wordmark whole.
+        big = (
+            width >= HERO_WIDTH + BIG_COLUMNS - SPRITE_COLUMNS
+            and HERO_ROWS + len(about) + max(BIG_ROWS, card_rows) <= room
+        )
+        mascot_columns, mascot_rows = (BIG_COLUMNS, BIG_ROWS) if big else (SPRITE_COLUMNS, SPRITE_ROWS)
+        tall = max(mascot_rows, card_rows)
         hero = HERO_ROWS + len(about) + tall
         framed = FRAMED_ROWS + len(about) + max(SIDE_ROWS, text.plain.count("\n") + 1)
         if width >= HERO_WIDTH and hero - WORDMARK_ROWS <= room:
@@ -474,4 +458,6 @@ class Welcome(Vertical):
         # On the wide page the cards stand as tall as each other, and they and the mascot at each other's middle.
         left.styles.height = right.styles.height = card_rows if look == "hero" else "auto"
         left.styles.margin = right.styles.margin = ((tall - card_rows) // 2 if look == "hero" else 0, 0, 0, 0)
-        self.query_one(Mascot).styles.margin = ((tall - MASCOT_ROWS) // 2 if look == "hero" else 0, 0, 0, 0)
+        mascot = self.query_one(Mascot)
+        mascot.fit(mascot_columns, mascot_rows)
+        mascot.styles.margin = ((tall - mascot_rows) // 2 if look == "hero" else 0, 0, 0, 0)
