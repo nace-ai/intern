@@ -1045,4 +1045,5 @@ Additive; 0.30.7 clients keep working, and nothing a client sends or reads chang
 - The tool-call guard can be turned down in `~/.intern/config.toml` with `[guard] mode`: `full` (the default, as
   before) runs the fixed rules and System 1's judgement, `rules` runs the fixed rules only, `off` checks no call.
   With `rules`, no `tool_guard` event has layer `system1` and no `decision` event has purpose `guard`; with `off`,
-  no call ends `stopped_by_guard`. System 1 is still required.
+  no call is refused, so no `tool_guard` event comes and no run stops with `stopped_by_guard`. System 1 is still
+  required.
