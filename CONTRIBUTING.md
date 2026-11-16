@@ -7,7 +7,8 @@ uv sync
 uv run pytest
 ```
 
-Before pushing: `uv run ruff check && uv run ruff format --check && uv run pyright && uv run pytest`.
+Before pushing: `uv run ruff check && uv run ruff format --check && uv run pyright`, and the tests for what you
+changed (`uv run pytest tests/test_<area>.py`). CI runs the full suite on every PR.
 
 ## Rules
 
