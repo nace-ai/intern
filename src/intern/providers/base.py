@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
-from collections.abc import AsyncIterator
+import contextlib
+from collections.abc import AsyncGenerator, AsyncIterator, Callable, Sequence
 from pathlib import Path
 from typing import Literal, Protocol
 
@@ -68,6 +70,29 @@ class Provider(Protocol):
     """Streams one reply. The last item is always `Completed`; failures raise `ProviderError`."""
 
     def stream(self, request: ProviderRequest) -> AsyncIterator[StreamItem]: ...
+
+
+async def retrying(
+    attempt: Callable[[], AsyncGenerator[StreamItem]], waits_s: Sequence[float], provider: str
+) -> AsyncIterator[StreamItem]:
+    """The items of one `attempt()`, made again after each of `waits_s` while it fails with a retryable error before
+    yielding anything. Once an item is out the reply cannot be taken back, so a later failure raises at once; a
+    network error is raised as a retryable `ProviderError`."""
+    for wait in (*waits_s, None):
+        emitted = False
+        try:
+            async with contextlib.aclosing(attempt()) as items:
+                async for item in items:
+                    emitted = True
+                    yield item
+            return
+        except (ProviderError, *TRANSIENT_ERRORS) as error:
+            retryable = not isinstance(error, ProviderError) or error.retryable
+            if emitted or not retryable or wait is None:
+                if isinstance(error, ProviderError):
+                    raise
+                raise ProviderError(f"{type(error).__name__} from {provider}: {error}", retryable=True) from error
+        await asyncio.sleep(wait)
 
 
 async def sse_lines(response: httpx.Response) -> AsyncIterator[str]:
