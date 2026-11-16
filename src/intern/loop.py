@@ -116,6 +116,12 @@ MAX_FINISH_REOPENS = 2
 STATUS_HOLD_S = 60.0
 
 CUT_OFF_NUDGE = "Your reply was cut off at the output limit. Continue exactly where it stopped."
+# A reply that was all reasoning has nothing to continue; "continue" makes the model reason to the limit again.
+REASONING_CUT_OFF_NUDGE = (
+    "Your reasoning used the whole output limit, so no answer or tool call came out. Do not reason it through "
+    "again: take the next step now, with brief reasoning before the call. Write a large file in parts, e.g. "
+    "several edits instead of one write."
+)
 BUDGET_NUDGE = (
     "You have no turns left and cannot call tools any more. Reply to the user now: say what is done, what is "
     "not done, and what they should check or do themselves. Do not claim anything you did not do."
@@ -1004,7 +1010,8 @@ class Run:
         elif message.stop == "length" and not message.tool_calls:
             if self.continuations < self.binding.profile.max_continuations:
                 self.continuations += 1
-                nudges.append((CUT_OFF_NUDGE, "output_limit"))
+                only_reasoning = not message.text.strip() and bool(message.reasoning or message.reasoning_blocks)
+                nudges.append((REASONING_CUT_OFF_NUDGE if only_reasoning else CUT_OFF_NUDGE, "output_limit"))
 
         verdict: h.Verdict
         if self._pending_stop is not None:
