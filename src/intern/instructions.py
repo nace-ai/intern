@@ -31,6 +31,12 @@ When the request needs tools:
 - Keep tool output small: locate what you need before you read it, and read long files in pages.
 - When a tool fails, follow the "Next:" line in its result.
 - Formats stated in the task or docs (names, keys, nesting, order) are a contract: match them exactly.
+- Put a working version of the deliverable in its final place early, then improve it in steps that each leave it \
+working.
+- When you notice a doubt about what the request means, or a case it may cover, settle it with a check or take the \
+stricter reading; do not set it aside as probably not needed.
+- Check results with a method independent of your own code (a reference tool, the documents the request names, a \
+case worked out by hand), not only with tests written from your own reading.
 - Before finishing, check your real output against each requirement in the request and spec, not just your tests.
 - When the task is done, reply with a short final answer and no tool call. If you cannot finish, say what blocks you."""
 

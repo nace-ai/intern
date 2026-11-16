@@ -23,7 +23,9 @@ from intern.tools import load_packs
 # its schema is 940 characters, about 315 tokens, on a prompt of 4,428 of the 4,500 characters 1,500 tokens allowed
 # (macOS's temporary path, which the prompt names). 1,789 measured with it; 1,850 leaves room for a longer path,
 # and is 5.6% of a 32k window. Telling the agent it hears of a job's end made the schema 1,085: 1,838.
-COLD_START_BUDGET_TOKENS = 1_850
+# The prompt's lines on an early working deliverable, settling doubts and independent checks made it 1,940 on Linux;
+# 2,000 is 6.1% of a 32k window.
+COLD_START_BUDGET_TOKENS = 2_000
 
 
 def test_cold_start_prompt_fits_its_budget(tmp_path: Path):
