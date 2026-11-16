@@ -30,6 +30,7 @@ intern -p --system2 fireworks/accounts/fireworks/models/nemotron-lightning-3p5-3
 | JSON-RPC server over stdio | `intern rpc --system2 M` |
 | Agent Client Protocol server (t3code, Zed; needs `[acp]`, see [acp.md](acp.md)) | `intern acp` |
 | Event JSON Schema | `intern schema` |
+| Keep the command it runs in from `idle_stop_s` while `cmd` runs | `intern hold [--reason TEXT] -- cmd...` |
 
 Useful flags: `--window N` caps the working window, `--max-turns N` sets the turn budget,
 `--no-session` keeps the journal in memory, `--session FILE` resumes one, `--no-context-files`

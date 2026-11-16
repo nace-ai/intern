@@ -331,8 +331,9 @@ class BashTool(Tool):
         # The session records the call as running for as long as it runs, and what it leaves running after.
         processes, call_id = ctx.processes, ctx.call_id or uuid4().hex
         deadline = _Deadline(ctx.abort, args.timeout_s)
-        on_output = None
+        on_output, env = None, None
         if processes is not None:
+            env = processes.hold_env(call_id) or None
             # Only silence that can be seen is stopped for; a wait that ends by itself (a `sleep`) is silent by design.
             watched = observes_output(ctx.executor) and not wait_ends(args.command)
             processes.begin_call(call_id, args.command, deadline.idle if watched else None)
@@ -346,6 +347,7 @@ class BashTool(Tool):
                     timeout_s=SERVES_MAX_S,  # the executor's backstop; `deadline` holds the call's timeout_s
                     max_output_bytes=max(ctx.max_output_chars * CAPTURE_FACTOR, 1 << 20),
                     abort=deadline.stop,
+                    env=env,
                     capture_path=capture if captures else None,
                     on_output=on_output,
                 )
