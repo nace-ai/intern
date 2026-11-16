@@ -33,7 +33,7 @@ from intern import names
 from intern.context import ContextView
 from intern.decisions import DecisionClient
 from intern.events import EventSink, ExtensionEvent, Indexing
-from intern.locate.index import TooManyFiles
+from intern.locate.index import INDEX_FILE, TooManyFiles
 from intern.messages import ToolCall, ToolResult
 from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail
 
@@ -219,19 +219,24 @@ class Store:
         was asked about, the root is the git work tree holding it (else the folder itself), indexed on first use and
         kept in its own home like any index. Under a root too big to index (a home folder holding the repository
         asked about) it is searched as elsewhere, in its own work tree, or the folder itself when that tree is the
-        big root or holds it. Raises FileNotFoundError for a path that does not exist, here or elsewhere: searched,
-        it would read as a folder the index has nothing in."""
+        big root or holds it. Where the root has no index and a folder from the scope up to the root has one (built in
+        an earlier run), that folder is the root: its index is used, refreshed if stale, not rebuilt at the root.
+        Raises FileNotFoundError for a path that does not exist, here or elsewhere: searched, it would read as a
+        folder the index has nothing in."""
         if not scope:
             return None, None
         base = (self.root or cwd).resolve()
         target = (cwd / scope).resolve()
         if not target.exists():
             raise FileNotFoundError(scope)
+        folder = target if target.is_dir() else target.parent
         inside = target.is_relative_to(base)
+        if inside and not self.indexed(base) and (own := self.indexed_from(folder, base)) is not None:
+            within = target.relative_to(own).as_posix()
+            return own, None if within == "." else within
         if inside and base not in self.too_many:
             within = target.relative_to(base).as_posix()
             return None, None if within == "." else within
-        folder = target if target.is_dir() else target.parent
         try:
             git = subprocess.run(
                 ["git", "rev-parse", "--show-toplevel"], cwd=folder, capture_output=True, text=True, timeout=30
@@ -242,6 +247,18 @@ class Store:
         root = folder if top is None or (inside and base.is_relative_to(top)) else top
         within = target.relative_to(root).as_posix()
         return root, None if within == "." else within
+
+    def indexed(self, root: Path) -> bool:
+        """Whether ``root`` has an index: open in this run, or saved in its home by an earlier one."""
+        return root in self.indexes or (self.home(root) / INDEX_FILE).is_file()
+
+    def indexed_from(self, folder: Path, base: Path) -> Path | None:
+        """The nearest folder from ``folder`` up to ``base`` (not ``base`` itself) that has an index, if any."""
+        while folder != base and folder.is_relative_to(base):
+            if self.indexed(folder):
+                return folder
+            folder = folder.parent
+        return None
 
 
 class SearchArgs(BaseModel):
