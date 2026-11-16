@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import re
 
 from textual.content import Content
 
-from intern.events import Compaction, MessageEvent, Nudge, ToolCallStart, ToolGuard
+from intern.events import Compaction, MessageEvent, Nudge, ProcessVerdict, ToolCallStart, ToolGuard
 from intern.locate.trace import Ranked
 from intern.messages import UserMessage
 from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, Ledger, RuleRefusal, TurnJudgement
@@ -23,14 +24,18 @@ from intern.tui.widgets import (
     StatusBar,
     compaction_card,
     cost_text,
+    ended_lines,
     guard_card,
     level,
+    look_card,
     mark,
     meter,
+    process_result,
     rule_card,
     settled,
     supervisor_card,
     thinking_box,
+    tool_header,
 )
 
 from .test_tui_logic import guard, keep, run_start, search, supervise, trace
@@ -228,3 +233,37 @@ def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_
     # Above the feed, what the asks came to, by kind: the feed's legend.
     said = usage(ledger.usage, 60).plain
     assert said.startswith("7 asks · ") and "◆ watch 3" in said and "▣ guard 2" in said and "⟲ compaction 2" in said
+
+
+def test_a_background_commands_lines_say_system_1s_judgement_and_how_it_stands_not_the_command_again():
+    command = "cd /srv/app && python3 - <<'EOF'\nimport build\nbuild.everything()\nEOF"
+    waits = {"waiting_as_expected": 0.93, "progressing": 0.05, "stalled": 0.02}
+    looked = ProcessVerdict(
+        id="j1", command=command, elapsed_s=120, verdict="waiting_as_expected", probabilities=waits, told=False
+    )
+    alone = look_card(looked, named=False).plain.replace(NBSP, " ")
+    assert alone == "⧗ System 1 · at 2m 00s   waiting as expected 0.93   progressing 0.05"  # the judgement alone
+    stalled = looked.model_copy(update={"verdict": "stalled", "probabilities": {"stalled": 0.7}, "told": True})
+    # With several running, which one: what it runs, in a few words, not the `cd` before it nor its later lines.
+    named = look_card(stalled, named=True).plain.replace(NBSP, " ")
+    assert named == "⧗ System 1 · python3 - <<'EOF' … at 2m 00s   stalled 0.70   → told the agent"
+
+    # A poll reads as how the job stands and what it printed, not the JSON the agent gets.
+    snapshot = {
+        "handle": "1cf1caa90bbb40ad",
+        "command": command,
+        "state": "running",
+        "exit_code": None,
+        "elapsed_s": 32,
+    }
+    polled = json.dumps({**snapshot, "output": "12 passed\n", "cursor": 0, "next_cursor": 10, "omitted_bytes": 0})
+    assert tool_header("process", {"action": "poll", "handle": "1cf1caa90bbb40ad"}) == "process poll 1cf1caa9"
+    assert process_result(polled) == ("running · 32s", "12 passed\n")
+    refused = "Error: no job has that handle\nNext: Poll/list an owned handle."
+    assert process_result(refused) == ("", refused)  # an error is the tool's own words
+
+    # Its end, from the notice the agent gets: the command is over several lines there, and the output is quoted.
+    notice = (
+        f"Background job 1cf1caa9 (`{command}`) ended: exited, exit code 0, after 3m 02s.\nThe end of its output:\nok"
+    )
+    assert ended_lines(notice) == ["`python3 - <<'EOF' …` ended: exited, exit code 0, after 3m 02s"]

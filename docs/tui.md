@@ -231,23 +231,29 @@ one shaded block each), and every read; another folds them. A compaction stopped
 extension's veto) says `⟲ Compaction stopped · nothing was cut`. A resumed session's compactions are drawn
 settled, with the summary their journal entries keep.
 
-The harness's other notes are muted one-liners at turn boundaries: receipts for big test output (`⌁`), nudges (`⚑`) and the run's end (`■`, with how many calls the
-guard refused). When a background job ends, or a process a command left running, the agent is told at its next turn,
-and the transcript shows each one's line (`⚑ Background job … ended: exited, exit code 0, after 4m 05s.`); between
-runs, that end starts a run by itself, so the agent reports it without being asked. While commands run,
-System 1 looks at them now and then (30 s, 1, 2, 4, 8 and 16 minutes into each, then every 30 minutes); each command has a
-line that each look updates (``⧗ System 1 · `npm test` at 4m 00s: progressing``), and one it finds stalled, failing or
-waited on gets an amber `⚑` line of its own, and the agent is told. A command that goes on in the background says why
-(``⇢ `./ci.sh` went on in the background: System 1 judged it waits (0.88)``, or the timer, a stuck finding, a rule,
-your message), and System 1's row of the status bar lists the jobs it watches, each with its run time, its verdict at
-the latest look and the next look (`⧗ ./ci.sh 40s · waiting as expected · next look 20s`). When the agent only polls a
-running job, or only waits (a `sleep 300` that went on in the background), it hands the session back
-(``⏸ Waiting on `./ci.sh`: you get the result when it ends; …``); the job's end brings it back. With code search on,
-the index build (before a run's first turn in a git repository, else on `decision_code`'s first call) shows as a live meter
-(`⌁ Indexing the working directory for decision_code ━━━━━━──── 1,234 of 5,712 files`, from the engine's
-`indexing` events) that settles into `⌁ Indexed 5,712 files for decision_code in 6.1s`; the masthead counts
-along. A folder outside the working directory that `decision_code`'s scope named is indexed the same way, the line
-naming it.
+The harness's other notes are muted one-liners at turn boundaries: receipts for big test output (`⌁`), nudges (`⚑`)
+and the run's end (`■`, with how many calls the guard refused). A command that runs in the background is named in
+full once, on its call; every later line names it in a few words: what it runs, without the `cd … &&` before it or
+the lines after its first (`python3 - <<'EOF' …`). When a background job ends, or a process a command left running,
+the agent is told at its next turn, and the transcript shows each one's line (``⚑ `npm test` ended: exited, exit
+code 0, after 4m 05s``); between runs, that end starts a run by itself, so the agent reports it without being asked.
+While commands run, System 1 looks at them now and then (30 s, 1, 2, 4, 8 and 16 minutes into each, then every 30
+minutes). Each look is a card as System 1's others are, its judgement and not the command again: how long the
+command had run, what System 1 found with its probability and what it weighed most against that (`⧗ System 1 · at 4m
+00s   progressing 0.88   waiting as expected 0.10`). A command has one card, which each look updates; a look that
+finds it stalled, failing or waited on stays as a card of its own with an amber rail and `→ told the agent`. The
+card names the command only when several run. A command that goes on in the background says why (``⇢ `./ci.sh` went
+on in the background: System 1 judged it waits (0.88)``, or the timer, a stuck finding, a rule, your message), and
+System 1's row of the status bar lists the jobs it watches, each with its run time, its verdict at the latest look
+and the next look (`⧗ ./ci.sh 40s · waiting as expected · next look 20s`). A `process` call reads as what it did and
+how the job stands (`process poll 1cf1caa9`, then `running · 32s` and the output it read), not as the JSON the agent
+gets. When the agent only polls a running job, or only waits (a `sleep 300` that went on in the background), it
+hands the session back (``⏸ Waiting on `./ci.sh`: you get the result when it ends; …``); the job's end brings it
+back. With code search on, the index build (before a run's first turn in a git repository, else on `decision_code`'s
+first call) shows as a live meter (`⌁ Indexing the working directory for decision_code ━━━━━━──── 1,234 of 5,712
+files`, from the engine's `indexing` events) that settles into `⌁ Indexed 5,712 files for decision_code in 6.1s`;
+the masthead counts along. A folder outside the working directory that `decision_code`'s scope named is indexed the
+same way, the line naming it.
 
 **The search panel.** Each `decision_code` call draws its search live right under the call, in the transcript,
 between the call and its output: the code-search extension's own view ([extension views](#extension-views)).

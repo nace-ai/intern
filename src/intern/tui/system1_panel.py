@@ -62,6 +62,7 @@ from intern.tui.widgets import (
     MODE_STYLE,
     Following,
     Part,
+    brief,
     clip,
     fit_path,
     flow,
@@ -267,7 +268,8 @@ def other_lines(o: OtherJudgement, room: int) -> list[list[Part]]:
         answer.append(("  ⚑ told", S_WARN))
     size = Content.assemble(*answer).cell_length
     first = o.subject.strip().splitlines()[0] if o.subject.strip() else ""
-    about = f"$ {first}" if first and o.kind == "jobs" else first or o.purpose.replace("_", " ")
+    # A command by what it runs, not the `cd` before it: the row is as wide as a few words.
+    about = f"$ {brief(o.subject, room)}" if first and o.kind == "jobs" else first or o.purpose.replace("_", " ")
     return [[(clip(about, max(8, room - size - 2)), S_MUTED), "  ", *answer]]
 
 

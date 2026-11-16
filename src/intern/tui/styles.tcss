@@ -204,6 +204,11 @@ Screen {
     border-left: wide $error;
 }
 
+/* System 1's look at a background command that it told the agent of. */
+.decision.told {
+    border-left: wide $warning;
+}
+
 /* A compaction's card, open: the summary System 2 continues from, under what the card says. */
 .compaction-summary {
     height: auto;

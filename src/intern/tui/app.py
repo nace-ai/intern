@@ -84,7 +84,7 @@ from intern.models.catalog import DECISIONS_PREFIX, Catalog, ModelInfo, RunnerIn
 from intern.models.profile import EFFORT_LEVELS
 from intern.models.registry import ConfigError, Role
 from intern.needs import InstallFailed, Needs, Say, install
-from intern.processes import ENDED_LINES, duration_text
+from intern.processes import duration_text
 from intern.session import Session, SessionBusy
 from intern.session_cut import STATE_SHARE, CutView, cut_view
 from intern.session_setup import capability_needs, runner_choices, runner_config, runner_problem
@@ -108,9 +108,11 @@ from intern.tui.widgets import (
     StatusBar,
     Transcript,
     attachments,
-    clip,
+    brief,
+    ended_lines,
     guard_card,
     images_in,
+    look_card,
     meter,
     rule_card,
     supervisor_card,
@@ -512,7 +514,7 @@ class HarnessApp(App[None]):
         for job in jobs[:2]:
             verdict = job.verdict.replace("_", " ") if job.verdict else "not looked at yet"
             look = f" · next look {duration_text(round(job.next_look_s))}" if job.next_look_s is not None else ""
-            parts.append(f"⧗ {clip(job.command, 28)} {duration_text(job.elapsed_s)} · {verdict}{look}")
+            parts.append(f"⧗ {brief(job.command, 28)} {duration_text(job.elapsed_s)} · {verdict}{look}")
         if len(jobs) > 2:
             parts.append(f"+{len(jobs) - 2} more")
         text = "   ".join(parts)
@@ -846,13 +848,14 @@ class HarnessApp(App[None]):
                     )
                 await transcript.marker(line, key=key)
             case ProcessCheck(verdicts=verdicts):
-                # System 1's look at what runs, as it happens: the "are you stuck?" a user no longer has to ask.
+                # System 1's look at what runs, as it happens: the "are you stuck?" a user no longer has to ask. Its
+                # judgement, as its other cards read, not the command again: that is named only when several run.
                 for v in verdicts:
-                    said = f"System 1 · `{v.command}` at {duration_text(v.elapsed_s)}: {v.verdict.replace('_', ' ')}"
+                    line = look_card(v, named=len(verdicts) > 1)
                     if v.told:
-                        await transcript.notice(f"⚑ {said}", "warn")
+                        await transcript.marker(line, classes="decision told")
                     else:  # a routine look updates its command's line: one line a command, not one a look
-                        await transcript.marker(Content(f"⧗ {said}"), key=f"look:{v.id}", classes="notice info")
+                        await transcript.marker(line, key=f"look:{v.id}", classes="decision")
             case Nudge(reason="process_check" | "process_look"):
                 pass  # the check above already showed what the agent is told
             case Nudge(reason="process_waiting"):
@@ -861,10 +864,10 @@ class HarnessApp(App[None]):
                 action="ended", process=ProcessInfo(kind="call", state="moved", command=command, note=note)
             ):
                 # Why a command the agent ran went on in the background: System 1, the timer, a rule, your message.
-                await transcript.notice(f"⇢ `{command}` went on in the background: {note or 'moved'}")
+                await transcript.notice(f"⇢ `{brief(command)}` went on in the background: {note or 'moved'}")
             case Nudge(reason="process_ended", text=text):
-                # What the agent is told: each process's line, not the output it quotes.
-                for line in (line for line in text.splitlines() if line.startswith(ENDED_LINES)):
+                # What the agent is told: each process in a few words and how it ended, not the output it quotes.
+                for line in ended_lines(text):
                     await transcript.notice(f"⚑ {line}")
             case Nudge(reason=reason, text=text):
                 await transcript.notice(f"⚑ Nudge ({reason}): {text}", "warn")
@@ -908,7 +911,8 @@ class HarnessApp(App[None]):
                     line += f" · the guard refused {refusals} call{'s' if refusals > 1 else ''}"
                 if reason == "waiting":
                     # The agent handed over: you have the session; its job's end, or System 1, brings it back.
-                    waited = (detail or "").removeprefix("waiting on ")
+                    commands = (detail or "").removeprefix("waiting on ").strip("`").split("`, `")
+                    waited = ", ".join(f"`{brief(command)}`" for command in commands)
                     await transcript.marker(
                         Content.assemble(
                             ("⏸ ", S_INK),

@@ -39,9 +39,10 @@ from textual.widgets.markdown import MarkdownStream
 from textual.widgets.text_area import Selection
 
 from intern import __version__
-from intern.events import ToolCallEnd, ToolCallStart
+from intern.events import ProcessVerdict, ToolCallEnd, ToolCallStart
 from intern.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.messages import JsonObject
+from intern.processes import ENDED_LINES, duration_text
 from intern.supervise import STRIKES
 from intern.tools.images import IMAGE_SUFFIXES
 from intern.tui.ledger import (
@@ -75,6 +76,17 @@ from intern.tui.theme import (
 
 TITLE_ARGUMENTS = ("path", "command", "pattern", "query", "url", "question")
 TITLE_CHARS = 72
+BRIEF_CELLS = 44
+"""A command named in passing: enough to know it by."""
+HANDLE_CHARS = 8
+"""A job's handle, as far as a reader needs it to tell two jobs apart."""
+ENDED = re.compile(
+    r"Background job \S+ \(`(?P<job>.*?)`\) (?P<fate>ended: [^\n]*|is from before [^\n]*)"
+    r"|A process the command `(?P<left>.*?)` left running \(process group \d+\) (?P<gone>ended after [^;\n]*)",
+    re.S,
+)
+"""A process's line in an end notice: the command, which may run over lines, and what became of it."""
+CD_FIRST = re.compile(r"""^cd (?:"[^"]*"|'[^']*'|\S+) && """)
 OUTPUT_CHARS = 3_000
 FLUSH_S = 0.08
 METER_WIDTH = 10
@@ -163,9 +175,70 @@ def tokens_text(n: int) -> str:
     return f"{n / 1000:.1f}k" if n >= 1000 else str(n)
 
 
+def brief(command: str, cells: int = BRIEF_CELLS) -> str:
+    """A command in a few words, for a line that is about something else (System 1's look at it, its end): its first
+    line, without the `cd … &&` an agent puts before it, `…` for what is left out."""
+    lines = command.strip().splitlines()
+    first = CD_FIRST.sub("", " ".join(lines[0].split())) if lines else ""
+    return clip(first + (" …" if len(lines) > 1 and not first.endswith("…") else ""), cells)
+
+
+def ended_lines(text: str) -> list[str]:
+    """Each process an end notice tells the agent of (`ProcessManager.end_notice`), in a few words with how it ended:
+    not the whole command, nor the output the notice quotes."""
+    lines = [
+        f"`{brief(m['job'])}` {m['fate'].rstrip('.')}"
+        if m["job"] is not None
+        else f"A process `{brief(m['left'])}` left running {m['gone']}"
+        for m in ENDED.finditer(text)
+    ]
+    # A notice worded otherwise is shown as it was, by its lines: never dropped.
+    return lines or [line for line in text.splitlines() if line.startswith(ENDED_LINES)]
+
+
+def process_subject(arguments: JsonObject) -> str | None:
+    """What a `process` call is about: `start` and its command, else the action and the start of the job's handle
+    (the whole handle is the agent's business). None when it is not that call's arguments."""
+    action, command, handle = arguments.get("action"), arguments.get("command"), arguments.get("handle")
+    if not isinstance(action, str):
+        return None
+    if action == "start" and isinstance(command, str):
+        return f"start {command.strip()}"
+    return f"{action} {handle[:HANDLE_CHARS]}".strip() if isinstance(handle, str) else action
+
+
+def process_result(content: str) -> tuple[str, str]:
+    """A `process` call's result as a reader wants it: how the job stands (`running · 32s`) and the output the call
+    read, not the JSON the agent gets (the handle, the command again, the cursors). `list`: a line a job. A result
+    that is not a job's (an error) is left as it is."""
+    try:
+        data = json.loads(content)
+    except ValueError:
+        return "", content
+
+    def stands(job: dict[str, object]) -> str:
+        code, took = job.get("exit_code"), job.get("elapsed_s")
+        state = str(job.get("state", "")).replace("_", " ") + (f", exit code {code}" if code is not None else "")
+        return f"{state} · {duration_text(took)}" if isinstance(took, int) else state
+
+    if isinstance(data, list):
+        jobs = [job for job in data if isinstance(job, dict)]  # pyright: ignore[reportUnknownVariableType]
+        return f"{len(jobs)} job{'s' if len(jobs) != 1 else ''}", "\n".join(
+            f"{str(job.get('handle', ''))[:HANDLE_CHARS]}  {stands(job)}  {brief(str(job.get('command', '')))}"
+            for job in jobs
+        )
+    if not isinstance(data, dict) or "state" not in data:
+        return "", content
+    left = data.get("omitted_bytes")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
+    more = f" · {left:,} bytes of output left out" if isinstance(left, int) and left else ""
+    return stands(data) + more, str(data.get("output") or "")  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
+
+
 def call_title(name: str, arguments: JsonObject) -> str:
     """The tool and the argument that says what the call is about: its path, command, pattern, query, url."""
     subject = next((arguments[k] for k in TITLE_ARGUMENTS if isinstance(arguments.get(k), str)), None)
+    if name == "process":
+        subject = process_subject(arguments) or subject
     if subject is None:
         subject = json.dumps(arguments) if arguments else ""
     text = str(subject).strip()
@@ -686,6 +759,8 @@ def tool_header(name: str, arguments: JsonObject) -> str:
     if name == "bash" and isinstance(command := arguments.get("command"), str):
         return bounded(f"$ {command.strip()}", HEADER_CHARS)
     subject = next((arguments[k] for k in TITLE_ARGUMENTS if isinstance(arguments.get(k), str)), None)
+    if name == "process":
+        subject = process_subject(arguments) or subject
     if subject is None:
         subject = json.dumps(arguments) if arguments else ""
     return bounded(f"{name} {str(subject).strip()}".strip(), HEADER_CHARS)
@@ -712,6 +787,8 @@ class ToolBlock(Vertical):
         self.head = Static(Content(self.title), classes="head")
         self.out = Static(Content.assemble(("running…", S_MUTED)), classes="out")
         self.content_text = ""
+        self.lead = ""
+        """A line above the output that is not the tool's own words: how a `process` call's job stands."""
         self.status = "running"
         self.duration_ms = 0
         self.expanded = False
@@ -763,6 +840,8 @@ class ToolBlock(Vertical):
     def end(self, event: ToolCallEnd) -> None:
         self._stop_clock()
         self.content_text = event.content
+        if self.name_ == "process":
+            self.lead, self.content_text = process_result(event.content)
         self.status = event.status
         self.duration_ms = event.duration_ms
         self.set_class(event.status != "ok", "failed")
@@ -778,8 +857,8 @@ class ToolBlock(Vertical):
             self.toggle()
 
     def render_output(self) -> None:
-        parts: list[Part] = []
         text = self.content_text.rstrip("\n")
+        parts: list[Part] = [(self.lead + "\n" * bool(text), S_INK)]
         if self.expanded:
             parts.append((bounded(text, EXPANDED_CHARS), S_MUTED))
         else:
@@ -794,7 +873,7 @@ class ToolBlock(Vertical):
             if self.status == "ok"
             else f"{self.status} · {self.duration_ms / 1000:.1f}s"
         )
-        parts.append(("\n" if text else "", ""))
+        parts.append(("\n" if text or self.lead else "", ""))
         parts.append((took, S_BAD if self.status != "ok" else S_MUTED))
         self.out.update(Content.assemble(*(p for p in parts if p[0])))
 
@@ -1092,6 +1171,35 @@ def supervisor_card(j: TurnJudgement) -> Content:
         levels += [GAP, *level(mode_label(mode), j.probabilities[mode], S_MUTED, S_MUTED)]
     outcome = [note for note in turn_notes(j) if note[0] != "cached"]  # the call's own fact, with its time
     return card("System 1", seconds(j.duration_ms, j.cached), levels, outcome)
+
+
+LOOK_STYLE = {
+    "progressing": S_OK,
+    "waiting_as_expected": S_INK,
+    "ready": S_WARN,
+    "stalled": S_WARN,
+    "failing": S_BAD,
+}
+
+
+def look_card(v: ProcessVerdict, *, named: bool) -> Content:
+    """System 1's look at a command running in the background, as its other cards read: how long the command had run,
+    what System 1 found in its colour with its probability, what it weighed most against that, and whether the agent
+    was told. The judgement, not the command: `named`, when several run, says which in a few words."""
+
+    def said(verdict: str, style: str, number: str) -> list[Part]:
+        label, p = verdict.replace("_", " "), v.probabilities.get(verdict)
+        return [(label, style)] if p is None else level(label, p, style, number)
+
+    levels = said(v.verdict, LOOK_STYLE.get(v.verdict, S_MUTED), S_INK)
+    others = sorted(
+        (m for m, p in v.probabilities.items() if m != v.verdict and p >= 0.005), key=lambda m: -v.probabilities[m]
+    )
+    if others:  # one runner-up, not two: the line also says when it looked, and what came of it
+        levels += [GAP, *said(others[0], S_MUTED, S_MUTED)]
+    meta = (f"{brief(v.command, 32)} " if named else "") + f"at {duration_text(v.elapsed_s)}"
+    outcome: list[Part] = [("told the agent", S_WARN_BOLD)] if v.told else []
+    return Content.assemble(("⧗ ", S_MUTED), card("System 1", meta, levels, outcome))
 
 
 def guard_card(g: GuardJudgement) -> Content:
