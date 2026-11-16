@@ -244,8 +244,8 @@ async def test_a_prompt_runs_and_the_reply_tool_calls_and_system_1_rows_show(tmp
         # the turn boundary, and the judgement is a row on its panel, under the prompt it was made for.
         assert decider.asks >= 1 and 3 in app.ledger.current.turns
         judged = system1_text(app)
-        assert judged.index("› say hi") < judged.index("◆   3  advancing") and " asks · " in judged
-        assert "s   advancing 0.80" in text
+        assert judged.index("› say hi") < judged.index(" moving 0.80") and " asks · " in judged
+        assert "s   moving 0.80" in text
         assert "completed · 4 turns" in text
         assert not status.running
         await app.action_quit()
@@ -748,7 +748,7 @@ async def test_a_resumed_journal_brings_back_system_1s_panel_cards_and_each_syst
         costs = (status.cost2, status.cost1, status.unpriced)
         masthead = plain(status)
         await first.action_quit()
-    assert "◆   3  advancing" in live and 3 in first.ledger.current.turns, live
+    assert " moving 0.80" in live and 3 in first.ledger.current.turns, live
     # Each System 1 ask counted once, as it was asked and not again at the run's end; the fake System 2 reports
     # tokens but no price, so its cost is not known rather than $0.
     assert decider.asks >= 1 and costs == (0.0, pytest.approx(decider.asks * 0.0001), True)
