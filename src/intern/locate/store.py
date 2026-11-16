@@ -198,15 +198,18 @@ class Store:
         """The root to search and the scope within it, for a ``scope`` the agent gave relative to ``cwd`` or absolute.
         Under the store's root it is a scope there (root None: the default); elsewhere, another repository the agent
         was asked about, the root is the git work tree holding it (else the folder itself), indexed on first use and
-        kept in its own home like any index. Raises FileNotFoundError for a path that does not exist, here or
-        elsewhere: searched, it would read as a folder the index has nothing in."""
+        kept in its own home like any index. Under a root too big to index (a home folder holding the repository
+        asked about) it is searched as elsewhere, in its own work tree, or the folder itself when that tree is the
+        big root or holds it. Raises FileNotFoundError for a path that does not exist, here or elsewhere: searched,
+        it would read as a folder the index has nothing in."""
         if not scope:
             return None, None
         base = (self.root or cwd).resolve()
         target = (cwd / scope).resolve()
         if not target.exists():
             raise FileNotFoundError(scope)
-        if target.is_relative_to(base):
+        inside = target.is_relative_to(base)
+        if inside and base not in self.too_many:
             within = target.relative_to(base).as_posix()
             return None, None if within == "." else within
         folder = target if target.is_dir() else target.parent
@@ -216,7 +219,8 @@ class Store:
             )
         except (OSError, subprocess.TimeoutExpired):
             git = None
-        root = Path(git.stdout.strip()).resolve() if git is not None and git.returncode == 0 else folder
+        top = Path(git.stdout.strip()).resolve() if git is not None and git.returncode == 0 else None
+        root = folder if top is None or (inside and base.is_relative_to(top)) else top
         within = target.relative_to(root).as_posix()
         return root, None if within == "." else within
 
@@ -319,13 +323,21 @@ class DecisionSearch(Tool):
         except FileNotFoundError:
             return fail(f"{args.scope} does not exist", "give a folder or file that exists, or no scope.")
         try:
-            index = await self.store.ready(ctx.cwd, elsewhere)
+            try:
+                index = await self.store.ready(ctx.cwd, elsewhere)
+            except TooManyFiles:
+                if not args.scope or elsewhere is not None:
+                    raise
+                # The root holding the scope just proved too big: the scope is searched on its own (`place`).
+                elsewhere, scope = await asyncio.to_thread(self.store.place, args.scope, ctx.cwd)
+                index = await self.store.ready(ctx.cwd, elsewhere)
         except ImportError as e:
             return fail(f"the index needs {e.name}", f"{self.store.install}; meanwhile use grep and find.")
         except NoIndex as e:
             return fail(f"no index under {_relative(e.args[0], ctx.cwd)}", "build one with the index tool first.")
         except TooManyFiles as e:
-            return fail(f"{self.name} cannot index this folder: {e}", "use grep and find.")
+            smaller = "" if args.scope else "give a scope with fewer files under it, or "
+            return fail(f"{self.name} cannot index this folder: {e}", f"{smaller}use grep and find.")
         root = elsewhere or self.store.root or ctx.cwd
         before = decisions.usage.model_copy()
         result = await self.search(index, root, args.question, decisions, scope)

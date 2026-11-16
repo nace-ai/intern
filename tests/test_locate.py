@@ -3,6 +3,7 @@ that knows the answers proves the plumbing; the 15-question gold set is tests/da
 
 from __future__ import annotations
 
+import asyncio
 import io
 import json
 import os
@@ -719,6 +720,43 @@ async def test_an_extension_whose_index_the_agent_builds_waits_for_the_index_too
     assert not (harness.cwd / ".intern").exists()  # nothing was built at the root on its own
     heads = [r.messages[1].content for r in harness.provider.requests]
     assert "docs are searchable once indexed" in heads[0] and "group ." not in heads[0]  # a note, no map yet
+
+
+async def test_a_scope_under_a_folder_too_big_to_index_is_searched_on_its_own(
+    tmp_path: Path, make_harness, monkeypatch: pytest.MonkeyPatch
+):
+    """Run from a home folder past MAX_FILES, `decision_code` with a scope searches the repository (or the plain
+    folder) it names, instead of failing on the home folder holding it."""
+    from intern.extensions.code_search import CodeSearch
+    from intern.providers.fake import Turn
+
+    from .support import Needle
+
+    monkeypatch.setattr(wi, "MAX_FILES", 5)
+    harness = make_harness(
+        [
+            Turn(tool_calls=[("decision_code", {"question": "where is the needle", "scope": "nace/intern/src"})]),
+            Turn(tool_calls=[("decision_code", {"question": "where is the needle", "scope": "notes"})]),
+            Turn(tool_calls=[("decision_code", {"question": "where is the needle"})]),
+            Turn(text="done"),
+        ],
+        extensions=[CodeSearch()],
+        system1=Needle("needle"),
+    )
+    for n in range(6):
+        (harness.cwd / f"other{n}.py").write_text(f"x = {n}\n")
+    repo = harness.cwd / "nace" / "intern"
+    (repo / "src").mkdir(parents=True)
+    await asyncio.to_thread(subprocess.run, ["git", "init", "-q", str(repo)], check=True)
+    (repo / "src" / "a.md").write_text("# A\n\nThe needle is here.\n")
+    (harness.cwd / "notes").mkdir()
+    (harness.cwd / "notes" / "b.md").write_text("# B\n\nAnother needle.\n")
+    await harness.run("find the needle")
+    in_repo, in_folder, unscoped = [e for e in harness.recorder.of(ToolCallEnd)][:3]
+    assert in_repo.status == "ok" and "1. nace/intern/src/a.md  A (1-3)" in in_repo.content
+    assert (repo / ".intern" / "index.json").exists()  # the repository's own index, at its top
+    assert in_folder.status == "ok" and "1. notes/b.md  B (1-3)" in in_folder.content
+    assert unscoped.status == "error" and "more than 5 files" in unscoped.content and "scope" in unscoped.content
 
 
 async def test_a_traced_search_reports_each_node_after_its_parent_and_ranks_exactly_as_without(repo_index):
