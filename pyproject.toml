@@ -71,6 +71,8 @@ dev = [
 ]
 
 [tool.ruff]
+# Quorum is an independent submitted application with its own validation commands.
+extend-exclude = ["projects/quorum"]
 line-length = 120
 target-version = "py312"
 src = ["src", "tests"]
