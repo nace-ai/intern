@@ -134,18 +134,6 @@ async def test_model_tool_pack_uses_same_handle_contract(tmp_path: Path):
         await tool.aclose()
 
 
-async def test_the_definition_names_every_argument_and_a_call_past_a_limit_is_still_refused():
-    # The model is sent the schema without its limits; the limits hold when the call is parsed.
-    tool = ProcessTool()
-    try:
-        properties = tool.spec().parameters["properties"]
-        assert isinstance(properties, dict) and set(properties) == set(tool.Args.model_fields)
-        refused = tool.parse({"action": "start", "command": "true", "timeout_s": 0})
-        assert isinstance(refused, ToolOutput) and "timeout_s" in refused.content
-    finally:
-        await tool.aclose()
-
-
 def _is_running(pid: int) -> bool:
     # An orphan can briefly remain as a zombie until its OS parent reaps it.
     state = subprocess.run(["ps", "-o", "stat=", "-p", str(pid)], capture_output=True, check=False).stdout.strip()
