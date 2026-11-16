@@ -60,6 +60,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `workspace` | switch setting | `cap.workspace`: the workspace extension | off |
 | `memory` | switch setting | `cap.memory`: the memory extension, its drive and steward | on |
 | `guard` | switch setting | `cap.guard`: the tool-call guard extension, and its options (`system1`, `system_writes`) | off |
+| `tool_result_guard` | switch setting | `cap.tool-result-guard`: the tool-result guard extension, and what it screens (`screen`) | off |
 | `mcp` | switch setting | one `cap.mcp.<namespace>` switch per listed connection | none listed |
 | `search` | capability option | options of the `web-search` pack | no backend |
 | `reader` | capability option | options of the `web-read` pack | built-in limits |
@@ -367,6 +368,20 @@ Its hook runs after every other extension's, memory's included, so it judges the
 top-level `[guard]` table of 0.31.0 to 0.36.0 is gone: a config that still has it is refused with where its keys
 went (`mode = "full"` is `enabled = true`, `mode = "rules"` is `enabled = true` with `system1 = false`). See
 [usage](usage.md) and the rules in [architecture](architecture.md#system-2-and-system-1).
+
+## Tool-result guard
+
+The tool-call guard checks a call before it runs; the tool-result guard screens what a tool returns before the agent
+sees it, and System 1 removes the parts addressed to the agent (indirect prompt injection). Off by default; turn it on
+with `/caps tool-result-guard`, the ACP `cap.tool-result-guard` option, or:
+
+```toml
+[capabilities.tool_result_guard]
+enabled = true
+screen = "outside"   # the default: web, browser and MCP output; "all": every result but the agent's own writes
+```
+
+It is a separate switch from the guard: either can be on alone. See [tool-result guard](capabilities/tool-result-guard.md).
 
 ## Runner (where commands run)
 

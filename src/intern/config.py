@@ -39,6 +39,7 @@ from intern.extensions.code_search import CodeSearch
 from intern.extensions.guard import Guard
 from intern.extensions.memory import Memory
 from intern.extensions.memory.reminders import MemoryActions
+from intern.extensions.tool_result_guard import ToolResultGuard
 from intern.extensions.workspace.extension import Workspace
 from intern.hooks import Extension, Hooks, build_extension, resolve_extension
 from intern.instructions import FileInstructions
@@ -329,12 +330,18 @@ CAPABILITY_EXTENSIONS: dict[str, CapabilityExtension] = {
         "the guard is turned on by its capability, not loaded as an extension: "
         f"set [capabilities.guard] enabled = true in {CONFIG_FILE}, or switch it with /caps",
     ),
+    ToolResultGuard.name: CapabilityExtension(
+        ToolResultGuard,
+        "cap.tool-result-guard",
+        "the tool-result guard is turned on by its capability, not loaded as an extension: "
+        f"set [capabilities.tool_result_guard] enabled = true in {CONFIG_FILE}, or switch it with /caps",
+    ),
 }
 
 
 def _extension(name: str) -> Extension:
     """A profile's or `--extension`'s extension. Extensions behind a capability (code search, the workspace,
-    memory, the guard) are refused by name or by class before they are built: their capability turns them on."""
+    memory, the guards) are refused by name or by class before they are built: their capability turns them on."""
     if name in CAPABILITY_EXTENSIONS:
         raise ConfigError(CAPABILITY_EXTENSIONS[name].message)
     cls = resolve_extension(name, REGISTRY)
