@@ -339,7 +339,8 @@ async def test_capabilities_are_listed_and_a_switch_reopens_the_session_on_its_j
         return await inner(emit, picks)
 
     settings = CapabilitySettings(tool_packs=["base", "web-read"])
-    app = HarnessApp(recording, capabilities=settings, memory=tmp_path / "drive")
+    # In a conversation: on the entering page a switch shows on the page itself, with no line of its own.
+    app = HarnessApp(recording, capabilities=settings, memory=tmp_path / "drive", welcome=False)
     async with app.run_test(size=SIZE) as pilot:
         await wait_for(lambda: app.session is not None)
         first = app.session
@@ -498,6 +499,11 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         # nothing under the prompt, and the panels it stands in for are away.
         assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y
         assert not app.query_one("#side").display and not app.query_one(StatusBar).display
+        # A capability switched from here shows on the page, which lists them: nothing is said of it under the page.
+        assert "○ web search" in said
+        await send(app, pilot, "/caps web-search")
+        await wait_for(lambda: "● web search" in "\n".join(plain(part) for part in page.query(Static)))
+        assert app.query(Welcome) and "reopen" not in transcript_text(app)
         await send(app, pilot, "hello")
         await wait_for(lambda: app.run_count == 1 and app.session is not None and not app.session.running)
         await pilot.pause()

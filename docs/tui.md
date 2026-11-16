@@ -85,23 +85,26 @@ README's paragraph; under them the working directory and the session's journal, 
 knowing first (while the session is opening, or when it could not open, that line says so instead). All of it is
 centred, and stands a third of the way down a tall terminal.
 
-The mascot is the README's (`tui/mascot.png`: `docs/assets/mascot.svg` at its animation's poses, 28 pixels square,
-two to a cell, each pixel the cube, a glasses frame or an eye rather than a blend) and moves as that one does: every
-eight seconds its eyes glance left, then right, and blink twice, and it breathes all along;
-`TEXTUAL_ANIMATIONS=none` holds it still. The wordmark and the mascot are coloured cells rather than block glyphs
-wherever a cell is one colour, so a terminal that sets its lines apart shows no gaps in them.
+The mascot is the README's cube (`tui/mascot.png`: `docs/assets/mascot.svg` scaled to 32 cells by 16, a colour a
+row) with its glasses drawn by hand for cells twice as tall as wide, and its eyes move as that one's do: every eight
+seconds they glance left, then right, and blink twice; `TEXTUAL_ANIMATIONS=none` holds them still. A pixel of it is
+a whole cell, coloured, with no glyph: a terminal draws a cell's background exactly and a half block only as well as
+its font does (macOS Terminal leaves gaps around them), which is also why it does not breathe as the README's does,
+a breath being less than a cell. The wordmark is coloured cells too, but for the half-cell edge of its shadow.
 
-The page fits the terminal, and is fitted again when the terminal's size changes. From 126 columns it is the page
-above (`hero`), its wordmark twice the size from 160 columns when there are the rows for it. From 104 columns the
+The page fits the terminal, and is fitted again when the terminal's size changes. From 130 columns it is the page
+above (`hero`), its wordmark twice the size from 160 columns when there are the rows for it. From 108 columns the
 mascot and both systems are in one frame under the wordmark and the paragraph (`framed`), System 2's capabilities
 and System 1's jobs each under its model, then a line on the State. Either goes without its wordmark on a terminal
-too short for it (under 36 rows, or about 44 framed). Smaller than that (under 30 rows, or about 37 framed, or 104
+too short for it (under 38 rows, or about 44 framed). Smaller than that (under 32 rows, or about 37 framed, or 108
 columns) it is the frame alone, a line a job and the capabilities by name (`compact`), so nothing of the first
 screen starts above its top.
 
 The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It follows
-the session, so a `/system2` or `/caps` pick made before the first prompt shows on it, and whatever is said before
-then (`/help`, a session that could not open) is under it. A task on the command line, `--session` and `/reload` go
+the session, so a `/system2` or `/caps` pick made before the first prompt shows on it: a capability switched there
+changes its line on the page, and the two lines a switch gets in a conversation (`… reopening the session…`,
+`Session reopened · …`) are not written under it. Whatever else is said before the first prompt (`/help`, a session
+that could not open, a switch that failed) is under it. A task on the command line, `--session` and `/reload` go
 straight to the conversation; `/clear` comes back to the page.
 
 ## Layout

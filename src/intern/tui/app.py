@@ -21,7 +21,7 @@ import signal
 import subprocess
 import sys
 from collections.abc import Awaitable, Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from multiprocessing import resource_tracker
 from pathlib import Path
 from typing import ClassVar
@@ -490,9 +490,13 @@ class HarnessApp(App[None]):
             self.query_one(name).display = True
         await self.query(Welcome).remove()
 
-    def _welcome(self) -> Opening:
-        """What the entering page says of the session: the masthead's models, and what the session has."""
+    def _welcome(self, shown: Opening | None = None) -> Opening:
+        """What the entering page says of the session: the masthead's models, and what the session has. While
+        the session reopens (a capability was switched), what the page `shown` of it stays, so the page holds
+        still."""
         session, status = self.session, self.status
+        if session is None and shown is not None:
+            return replace(shown, system2=status.system2, system1=status.system1, note=status.note)
         toggles = self._toggles(self._capabilities_now()) if session is not None else []
         return Opening(
             system2=status.system2,
@@ -740,7 +744,7 @@ class HarnessApp(App[None]):
             self.status.note = "opening the session…" if self._opening else "no session"
         self.status.refresh_line()
         for page in self.query(Welcome):
-            page.show(self._welcome())
+            page.show(self._welcome(page.opening))
 
     # -- events ----------------------------------------------------------------------------------------------
 
@@ -1280,7 +1284,8 @@ class HarnessApp(App[None]):
             return
         before = Models(**vars(self.pending))
         self.pending.capabilities = caps
-        await self._reopen(note, before)
+        # The entering page lists the capabilities, so a switch shows there: it needs no line of its own.
+        await self._reopen(note, before, shown=bool(self.query(Welcome)))
 
     async def _install_needs(self, key: str) -> bool:
         """Install what the capability behind `key` needs and this environment lacks: its extra's packages, then its
@@ -1313,13 +1318,15 @@ class HarnessApp(App[None]):
             return True
         return False
 
-    async def _reopen(self, note: str, before: Models) -> None:
+    async def _reopen(self, note: str, before: Models, *, shown: bool = False) -> None:
         """Open the session again on the picks made so far and on the same journal, keeping the screen. When
-        it cannot open on them, the reason is shown and the session comes back on the picks as they were."""
+        it cannot open on them, the reason is shown and the session comes back on the picks as they were. `shown`:
+        the screen shows the change itself, so only a failure is said."""
         session = self.session
         if await self._busy():
             return
-        await self.transcript.notice(f"{note}; reopening the session…", "ok")
+        if not shown:
+            await self.transcript.notice(f"{note}; reopening the session…", "ok")
         if session is not None:
             before.session_file = self.pending.session_file = session.deps.journal.path
             self.session = None
@@ -1328,7 +1335,8 @@ class HarnessApp(App[None]):
             await self.views.close()
             await session.aclose()
         if await self._resume():
-            await self._reopened(note)
+            if not shown:
+                await self._reopened(note)
             return
         if session is None:
             return

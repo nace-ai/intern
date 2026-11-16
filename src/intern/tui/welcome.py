@@ -10,21 +10,21 @@
 
     ╭─ System 2 · thinking slow ───────────╮                    ╭─ System 1 · thinking fast ───────────╮
     │ anthropic/claude-haiku-5-5           │    (the mascot,    │ drex-max                             │
-    │ thinking high                        │     glancing,      │ console                              │
-    │                                      │     blinking,      │                                      │
-    │ ● base tools  ○ web search  ...      │     breathing)     │ ◆ watch       is each turn ...       │
-    │ 9 tools                              │                    │ ▣ guard  ⌕ search  ⟲ compaction      │
+    │ thinking high · 9 tools              │     glancing       │ console                              │
+    │                                      │     and blinking)  │                                      │
+    │ ● base tools   files and the shell   │                    │ ◆ watch       nudges it out of ...   │
+    │ ○ web search   searches the web ...  │                    │ ▣ guard  ⌕ search  ⟲ compaction      │
     ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
             Describe a task to begin.   /help commands   /system2 model   /caps capabilities ...
 
-Intern is a brain in two parts, and the page is drawn as one: the mascot, as the README draws it and moving as it
-does there (`Mascot`), between its two systems, each a card with the model it is on. System 2's card has what the
-session has switched on; System 1's has its four jobs, behind the glyphs its panel lists them under, so the page is
-also that panel's legend. Above them the wordmark, in the mascot's violets, and what Intern is, in the README's
-paragraph; under them where the session works, then what to do next. All of it centred, and a third of the way down
-a tall terminal.
+Intern is a brain in two parts, and the page is drawn as one: the mascot, the README's with its eyes moving as they
+do there (`Mascot`), between its two systems, each a card with the model it is on. System 2's card has what the
+session has switched on, each capability in a few words; System 1's has its four jobs, behind the glyphs its panel
+lists them under, so the page is also that panel's legend, and what it judges from. Above them the wordmark, in the
+mascot's violets, and what Intern is, in the README's paragraph; under them where the session works, then what to do
+next. All of it centred, and a third of the way down a tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the mascot and both systems in one frame
 (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is the transcript's first block, so
@@ -124,20 +124,18 @@ HINTS = (
     ("/dark", "look"),
 )
 SPRITES = Path(__file__).with_name("mascot.png")
-"""The mascot's frames, side by side, `SPRITE` pixels square each: `docs/assets/mascot.svg` drawn at its animation's
-poses and scaled down. A pixel is one thing, not a blend of what it covers: the cube where it covers half of it, a
-glasses frame where one covers a third, an eye where one covers half. The cube's colour is in bands a cell tall, so
-a cell of it needs no glyph; the glasses sit a pixel in from the edge they all but touch, where a frame would read
-as a bite out of the cube. The eyes at rest, glancing left, glancing right and shut (`EYES`); then the same four
-breathed in: a pixel shorter, the foot where it was."""
-SPRITE = 28
+"""The mascot's frames, side by side, each `SPRITE_COLUMNS` by `SPRITE_ROWS`, a pixel a whole cell: a terminal draws
+a cell's background exactly, and a half block only as well as its font does (Terminal.app leaves gaps around them).
+The cube is `docs/assets/mascot.svg`'s, scaled down, a colour a row; the glasses are drawn by hand for cells twice as
+tall as wide, a stroke two cells across and one down, with the eyes at rest, glancing left, glancing right and shut
+(`EYES`)."""
+SPRITE_COLUMNS, SPRITE_ROWS = 32, 16
 EYES = ("rest", "left", "right", "shut")
 LOOP_S = 8.0
 """The mascot's loop, as the SVG's: it glances left, then right, and blinks twice."""
-BREATH_S = 4.0
 TICK_S = 0.08
 """How often the mascot looks at the clock: a blink is two of these."""
-MASCOT_ROWS = SPRITE // 2
+MASCOT_ROWS = SPRITE_ROWS
 ABOUT_WIDTH = 100
 """The widest the paragraph runs: a wide terminal is wider than a line reads."""
 CARD_WIDTH = 44
@@ -147,16 +145,16 @@ CARD_EDGE_ROWS = 4
 """A card's border and padding, down."""
 SIDE_GAP = 3
 """The air between the mascot and a card."""
-HERO_WIDTH = 2 * CARD_WIDTH + 2 * SIDE_GAP + SPRITE
+HERO_WIDTH = 2 * CARD_WIDTH + 2 * SIDE_GAP + SPRITE_COLUMNS
 GRAND_WIDTH = 160
 """From this width on, and with the rows for it, the wide page's wordmark is twice the size."""
 FOOT_WIDTH = 48
 """The widest where the session works, and its journal, each run under the mascot on the wide page."""
-HERO_ROWS = 29
-"""The wide page's rows around its paragraph: the wordmark and its title, the mascot, where, the tips, the margins."""
+HERO_ROWS = 15
+"""The wide page's rows around its paragraph and its cards: the wordmark and its title, where, the tips, the margins."""
 WORDMARK_ROWS = len(ART) + 1
 """The rows a terminal too short for a page gets back when the page goes without its wordmark."""
-SIDE_WIDTH = SPRITE + 4
+SIDE_WIDTH = SPRITE_COLUMNS + 4
 """The mascot's column in the frame, with the gap after it."""
 SIDE_ROWS = MASCOT_ROWS + 3
 """The mascot, a row of air and where the session works."""
@@ -241,7 +239,7 @@ def wordmark(scale: int = 1) -> Content:
 
 @functools.cache
 def poses() -> tuple[Content, ...]:
-    """The mascot in each of its poses (`SPRITES`)."""
+    """The mascot in each of its poses (`SPRITES`), every cell one colour."""
     from PIL import Image
 
     with Image.open(SPRITES) as sheet:
@@ -252,29 +250,28 @@ def poses() -> tuple[Content, ...]:
         return f"#{red:02x}{green:02x}{blue:02x}" if alpha else ""
 
     return tuple(
-        pixels([[colour(x, y) for x in range(left, left + SPRITE)] for y in range(SPRITE)])
-        for left in range(0, image.width, SPRITE)
+        # A row of cells is the same pixel over itself: `pixels` then draws no half block.
+        pixels([[colour(x, y) for x in range(left, left + SPRITE_COLUMNS)] for y in range(SPRITE_ROWS) for _ in "12"])
+        for left in range(0, image.width, SPRITE_COLUMNS)
     )
 
 
 def pose_at(seconds: float) -> int:
     """Which pose the mascot is in, `seconds` into its life, as the README's moves: its eyes glance left, then right,
-    and blink twice, each loop; its body breathes in and out all along."""
+    and blink twice, each loop. It does not breathe as that one does: a breath is less than a cell."""
     at = seconds % LOOP_S / LOOP_S
     if 0.165 <= at < 0.365:
-        eyes = "left"
-    elif 0.485 <= at < 0.665:
-        eyes = "right"
-    elif 0.85 <= at < 0.87 or 0.905 <= at < 0.925:
-        eyes = "shut"
-    else:
-        eyes = "rest"
-    breathed_in = 0.25 <= seconds % BREATH_S / BREATH_S < 0.75
-    return EYES.index(eyes) + len(EYES) * breathed_in
+        return EYES.index("left")
+    if 0.485 <= at < 0.665:
+        return EYES.index("right")
+    if 0.85 <= at < 0.87 or 0.905 <= at < 0.925:
+        return EYES.index("shut")
+    return EYES.index("rest")
 
 
 class Mascot(Static):
-    """The mascot, alive as the README's is. Still where motion is switched off (`TEXTUAL_ANIMATIONS=none`)."""
+    """The mascot, its eyes alive as the README's are. Still where motion is switched off
+    (`TEXTUAL_ANIMATIONS=none`)."""
 
     def __init__(self) -> None:
         super().__init__(poses()[0], id="welcome-mascot")
@@ -446,8 +443,9 @@ class Welcome(Vertical):
         inside = min(width, FRAME_MAX) - FRAME
         text = systems(o, inside - SIDE_WIDTH, roomy=True)
         cards = [system2(o, CARD_WIDTH - CARD_EDGES), system1(o, CARD_WIDTH - CARD_EDGES)]
-        tall = max(MASCOT_ROWS, *(len(card) + CARD_EDGE_ROWS for card in cards))  # the cards are one height
-        hero = HERO_ROWS + len(about) + tall - MASCOT_ROWS
+        card_rows = max(len(card) for card in cards) + CARD_EDGE_ROWS  # the cards are one height
+        tall = max(MASCOT_ROWS, card_rows)
+        hero = HERO_ROWS + len(about) + tall
         framed = FRAMED_ROWS + len(about) + max(SIDE_ROWS, text.plain.count("\n") + 1)
         if width >= HERO_WIDTH and hero - WORDMARK_ROWS <= room:
             look, needs = "hero", hero
@@ -464,7 +462,7 @@ class Welcome(Vertical):
         self.query_one("#welcome-wordmark", Static).update(wordmark(2 if grand else 1))
         self.styles.margin = (1 + max(0, room - needs) // RISE, 0, 1, 0) if look != "compact" else (0, 0, 0, 0)
         self.query_one("#welcome-about", Static).update(stacked(about))
-        self.query_one("#welcome-where", Static).update(stacked(where(o, SPRITE)))
+        self.query_one("#welcome-where", Static).update(stacked(where(o, SPRITE_COLUMNS)))
         foot: list[Part] = [part for line in where(o, FOOT_WIDTH) for part in (*line, ("  ·  ", S_MUTED))][:-1]
         self.query_one("#welcome-foot", Static).update(Content.assemble(*foot))
         self.query_one("#welcome-tips", Static).update(tips(o, min(width, FRAME_MAX) - 2))
@@ -473,6 +471,7 @@ class Welcome(Vertical):
         right.update(
             stacked(cards[1]) if look == "hero" else text if look == "framed" else systems(o, width - 4, roomy=False)
         )
-        # On the wide page the cards stand as tall as each other, and the mascot at their middle.
-        left.styles.height = right.styles.height = tall if look == "hero" else "auto"
+        # On the wide page the cards stand as tall as each other, and they and the mascot at each other's middle.
+        left.styles.height = right.styles.height = card_rows if look == "hero" else "auto"
+        left.styles.margin = right.styles.margin = ((tall - card_rows) // 2 if look == "hero" else 0, 0, 0, 0)
         self.query_one(Mascot).styles.margin = ((tall - MASCOT_ROWS) // 2 if look == "hero" else 0, 0, 0, 0)
