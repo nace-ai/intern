@@ -122,6 +122,18 @@ REASONING_CUT_OFF_NUDGE = (
     "again: take the next step now, with brief reasoning before the call. Write a large file in parts, e.g. "
     "several edits instead of one write."
 )
+# Sent once, at a run's first final answer after its first turn. A model that checks its work checks its own reading of
+# the request, and a doubt it noted on the way is often dropped rather than settled; the final answer then reads as
+# fully verified either way.
+FINISH_CHECK_NUDGE = (
+    "Before you finish, check the work against the request, not against your own reading of it. Re-read the request "
+    "and every document or file it points to, and go through each thing it asks for, including what it implies "
+    "(edge cases, formats, the exact names and values it gives). For each, find the tool result on the real output "
+    "that shows it holds. Where your notes chose one reading, set a case aside, or said probably, I assume or not "
+    "needed, check that choice now with a method that does not reuse your implementation's logic. Fix what fails, "
+    "keeping what already works. Then give your final answer, and say what you could not verify. If everything "
+    "holds, give it again as it was."
+)
 BUDGET_NUDGE = (
     "You have no turns left and cannot call tools any more. Reply to the user now: say what is done, what is "
     "not done, and what they should check or do themselves. Do not claim anything you did not do."
@@ -260,6 +272,8 @@ class Run:
         self._waiting_looks = True
         """Whether System 1's routine looks at what runs end that hold."""
         self.supervisor = Supervisor()
+        self.finish_checked = False
+        """Whether this run's first final answer was sent back with FINISH_CHECK_NUDGE."""
         self.guard = Guard(
             Scope.of(deps.cwd, deps.executor, Path.home(), system_writes=deps.system_writes),
             deps.executor,
@@ -1041,6 +1055,14 @@ class Run:
             )
             if nudge:
                 nudges.append(nudge)
+        elif (
+            verdict == h.Stop(reason="completed")
+            and self.binding.profile.finish_check
+            and self.turn > 1
+            and not self.finish_checked
+        ):
+            self.finish_checked = True
+            nudges.append((FINISH_CHECK_NUDGE, "finish_check"))
 
         info = h.TurnInfo(turn=self.turn, message=message, results=results)
         for _, hook_verdict in await self.deps.hooks.call("turn_end", lambda e: e.turn_end(info, self._ctx())):

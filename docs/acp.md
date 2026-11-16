@@ -1121,3 +1121,13 @@ Additive; 0.35.0 clients keep working, and nothing a client sends or reads chang
   when their key is set; like the others, these keys are the harness's own and never reach the agent's commands.
 - The terminal UI's first launch opens on a setup screen (`/setup`) that saves `system2`, `[system1]` and the keys.
   ACP clients are unaffected: a session that cannot open still fails with the reason, as before.
+
+### 0.37.0
+
+Additive; 0.36.0 clients keep working.
+
+- Where the model's profile sets `finish_check` (the packaged one for DeepSeek V4 Flash on Fireworks does), a prompt
+  that takes more than one turn (one that used tools) no longer ends at the agent's first final answer. That answer
+  stays in the transcript, and a `nudge` event with `reason` `finish_check` asks the agent to check the work against
+  the request; the prompt ends at the answer after that check, at most once per prompt. A client that treats the
+  first final answer as the end should wait for the prompt response instead.

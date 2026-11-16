@@ -114,6 +114,13 @@ further change on a copy and replace the original only once its check passes, so
 working whenever the run ends (an agent that had its tests green at a third of its time limit broke the
 file by polishing it and was killed with it broken).
 
+Where the model's profile sets `finish_check`, a final answer after a run's first turn does not end it the first
+time: it goes back once with a finish check (`finish_check`), which asks System 2 to re-read the request and what it
+points to, find the real output that shows each part holds, settle with an independent method any reading its notes
+chose or case they set aside, and then give its final answer again with what it could not verify. A model that
+checks its work checks its own reading of the request, and a doubt it noted on the way is often dropped rather than
+settled.
+
 Turns end; a command may not. System 1 also watches what runs (`process_watch.py`): while any command runs,
 in a run or between runs, it is asked about each one at its ages of 30 s, 1, 2, 4, 8 and 16 minutes, then every 30
 minutes, one ask over its cut (which lists them, `processes`) covering every command running. Each gets one choice:
