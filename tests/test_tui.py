@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -496,7 +497,8 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         assert "Intern's brain has two parts" in said  # what it is, in a paragraph
         assert "● base tools" in said and "Describe a task to begin." in said
         if look != "compact":  # with the room, what each capability is, and which of them System 1 searches for
-            assert "base tools   files and the shell" in said and "code search  System 1 searches code" in said
+            assert re.search(r"base tools +files and the shell", said)
+            assert re.search(r"code search +System 1 searches code", said)
         # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
         # nothing under the prompt, and the panels it stands in for are away.
         assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y

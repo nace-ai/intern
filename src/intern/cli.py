@@ -79,7 +79,7 @@ def _parser() -> argparse.ArgumentParser:
         "--no-extensions",
         action="store_true",
         help="Load none of the profile's extensions; each --extension still adds one. Capabilities, including those"
-        " backed by an extension (code search, workspace, memory, guard), are not affected.",
+        " backed by an extension (code search, workspace, memory, the guards), are not affected.",
     )
     parser.add_argument(
         "--extension", action="append", default=[], help="Extra extension: a name or module:Class. Repeatable."

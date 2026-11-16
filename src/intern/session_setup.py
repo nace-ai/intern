@@ -37,6 +37,7 @@ from intern.decision_failover import BudgetDecisionBackend
 from intern.executor import ClosableExecutor, Executor, JobExecutor, LocalExecutor, mount_of, shell_env
 from intern.extensions.code_search import CodeSearch
 from intern.extensions.guard import Guard
+from intern.extensions.tool_result_guard import ToolResultGuard
 from intern.extensions.workspace.extension import Workspace
 from intern.holds import HoldServer
 from intern.hooks import Extension
@@ -403,10 +404,10 @@ async def _first_credentials(plans: list[_McpPlan]) -> dict[str, SecretStr]:
 
 def capability_extensions(settings: CapabilitySettings, memory: Extension | None = None) -> list[Extension]:
     """Extensions a capability setting turns on, in the order they run: code search, the workspace, `memory` (built
-    with its drive by the caller), then the guard. Each loads only this way, never by extension name; an extra one
-    needs is checked here, so a run fails before it starts, not at the first tool. Memory runs after the others so
-    its drive write guard sees the arguments they replaced, and the guard last, so it judges the arguments the tool
-    will get."""
+    with its drive by the caller), the tool-result guard, then the guard. Each loads only this way, never by extension
+    name; an extra one needs is checked here, so a run fails before it starts, not at the first tool. Memory runs
+    after the others so its drive write guard sees the arguments they replaced, and the guard last, so it judges the
+    arguments the tool will get."""
     extensions: list[Extension] = []
     for extension, enabled in ((CodeSearch, settings.code_search.enabled), (Workspace, settings.workspace.enabled)):
         if enabled:
@@ -414,6 +415,8 @@ def capability_extensions(settings: CapabilitySettings, memory: Extension | None
             extensions.append(extension())
     if memory is not None:
         extensions.append(memory)
+    if (screen := settings.tool_result_guard).enabled:
+        extensions.append(ToolResultGuard(screen=screen.screen))
     if (guard := settings.guard).enabled:
         extensions.append(Guard(system1=guard.system1, system_writes=guard.system_writes == "allow"))
     return extensions

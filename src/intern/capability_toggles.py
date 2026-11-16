@@ -1,7 +1,7 @@
 """The capabilities a user can switch on and off while a session runs: the TUI's `/caps` rows and the ACP `cap.*`
 options are both these toggles. Behind a toggle is a tool pack, the browser, an MCP connection or an extension
-(code search, the workspace, memory, the guard). Fixed extensions have no toggle: the profile and `--extension`
-choose them. See CONTRIBUTING, "Extensions and capabilities"."""
+(code search, the workspace, memory, the guard, the tool-result guard). Fixed extensions have no toggle: the profile
+and `--extension` choose them. See CONTRIBUTING, "Extensions and capabilities"."""
 
 from __future__ import annotations
 
@@ -32,6 +32,7 @@ CODE_SEARCH_NOTE = "decision_code: System 1 searches the repository for where so
 WORKSPACE_NOTE = "index_files, decision_files, sql, read: a folder of PDFs, Word files and workbooks the agent indexes"
 MEMORY_NOTE = "a git repository of pages the agent recalls from at the start and adds to"
 GUARD_NOTE = "checks each tool call before it runs: fixed rules refuse the destructive, System 1 judges the rest"
+TOOL_RESULT_GUARD_NOTE = "System 1 removes instructions addressed to the agent from web, browser and MCP output"
 
 
 class Toggle(BaseModel):
@@ -54,8 +55,9 @@ def toggles(
     caps: CapabilitySettings, at_start: CapabilitySettings, profile_packs: Sequence[str], *, base: bool = False
 ) -> list[Toggle]:
     """One toggle per capability in capability order: the tool packs (`base` only when asked), the browser, code
-    search, the workspace, memory, the guard, each MCP connection `at_start` (the configured settings) names, so one
-    switched off is still listed. Where commands run is no toggle: it is the session's runner (`intern.runners`)."""
+    search, the workspace, memory, the guard, the tool-result guard, each MCP connection `at_start` (the configured
+    settings) names, so one switched off is still listed. Where commands run is no toggle: it is the session's runner
+    (`intern.runners`)."""
     packs = packs_in_force(caps, profile_packs)
     rows = [
         Toggle(
@@ -82,6 +84,13 @@ def toggles(
         ),
         Toggle(id=f"{PREFIX}memory", name="Memory", label="memory drive", note=MEMORY_NOTE, on=caps.memory.enabled),
         Toggle(id=f"{PREFIX}guard", name="Guard", label="guard · System 1", note=GUARD_NOTE, on=caps.guard.enabled),
+        Toggle(
+            id=f"{PREFIX}tool-result-guard",
+            name="Tool-result guard",
+            label="tool-result guard · System 1",
+            note=TOOL_RESULT_GUARD_NOTE,
+            on=caps.tool_result_guard.enabled,
+        ),
     ]
     for entry in at_start.mcp:
         names = list(entry.remote_tools)
@@ -126,6 +135,9 @@ def flip(
             return caps.model_copy(update={"memory": caps.memory.model_copy(update={"enabled": on})})
         case "cap.guard":
             return caps.model_copy(update={"guard": caps.guard.model_copy(update={"enabled": on})})
+        case "cap.tool-result-guard":
+            screen = caps.tool_result_guard.model_copy(update={"enabled": on})
+            return caps.model_copy(update={"tool_result_guard": screen})
         case _:
             raise KeyError(f"no capability toggle {toggle_id!r}")
 

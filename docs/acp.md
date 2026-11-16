@@ -181,8 +181,8 @@ key, or options that only `config.toml` can give. `models --json` gives the same
 After the options above, every session (unbound ones too) advertises one boolean option per capability
 a user can switch on or off: the same list as the terminal UI's `/caps`, without the `base` pack.
 Fixed extensions (a `module:Class`) have no toggle: the profile and `--extension`
-choose them for the whole session. Extensions behind a capability (code search, the workspace, memory, the guard)
-are switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#extensions-and-capabilities)).
+choose them for the whole session. Extensions behind a capability (code search, the workspace, memory, the guard,
+the tool-result guard) are switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#extensions-and-capabilities)).
 
 | `id` | Turns on | Listed |
 |---|---|---|
@@ -193,6 +193,7 @@ are switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#exte
 | `cap.workspace` | `[capabilities.workspace] enabled` | always |
 | `cap.memory` | `[capabilities.memory] enabled` | always |
 | `cap.guard` | `[capabilities.guard] enabled` | always |
+| `cap.tool-result-guard` | `[capabilities.tool_result_guard] enabled` | always |
 | `cap.mcp.<namespace>` | that `[[capabilities.mcp]]` connection | for each connection config.toml names |
 
 A toggle that cannot switch on in this install and environment, even after the install below, is left out unless
@@ -1137,3 +1138,13 @@ The tool-call guard is a capability; 0.36.0 clients keep working, and nothing a 
 - With the guard on, events are as before: `tool_guard` for each refusal, `decision` with purpose `guard`, and a run
   stopped by repeated refusals ends `stopped_by_guard`. `--extension guard` or a profile's `extensions = ["guard"]`
   is refused with a pointer to the capability.
+
+### 0.38.0
+
+Additive; 0.37.0 clients keep working, and nothing a client sends or reads changed shape.
+
+- Sessions offer one more boolean option, `cap.tool-result-guard` ("Tool-result guard"), off unless
+  `[capabilities.tool_result_guard] enabled = true`; `models --json` lists it too. With it on, System 1 screens what
+  web, browser and MCP tools return (`screen = "all"`: every result but the agent's own writes) and replaces the
+  chunks addressed to the agent in the result's text. Each screen is an `extension` event (`tool-result-guard`, kind
+  `screen`) naming the removed chunks, and its ask a `decision` event with purpose `tool_result_guard`.
