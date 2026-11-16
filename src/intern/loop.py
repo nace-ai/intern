@@ -1191,7 +1191,11 @@ class Run:
             call_id=call.id,
         )
         try:
-            return await tool.run(parsed, ctx)
+            if not tool.cancel_on_abort:  # it watches the abort itself, and answers with what it has
+                return await tool.run(parsed, ctx)
+            # Esc frees the prompt whatever runs: a tool that does not watch the abort is cancelled at it.
+            output = await self._abortable(tool.run(parsed, ctx))
+            return fail("the run was aborted while this call ran", "Stop.") if output is None else output
         except System1Unavailable:
             raise
         except Exception as e:

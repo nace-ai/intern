@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from contextlib import suppress
+from pathlib import Path
 
 import pytest
 
@@ -38,6 +40,7 @@ from intern.models.profile import Profile
 from intern.providers.base import ProviderRequest, RetryPolicy
 from intern.providers.fake import FakeProvider, Turn
 from intern.session import Session
+from intern.tools import search
 
 from .support import GreetTool, WithTools, is_state_write
 
@@ -220,6 +223,29 @@ async def test_abort_stops_a_run_waiting_on_a_slow_tool(make_harness):
     control.abort.set()
     outcome = await asyncio.wait_for(task, 10)
     assert outcome.reason == "aborted"
+
+
+async def test_abort_stops_a_tool_that_does_not_watch_it_and_the_search_it_started(
+    make_harness, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    """Esc while `find` walks a home folder: the run ends at once, not at the search's 60 s, and ripgrep with it."""
+    pid_file = tmp_path / "rg.pid"
+    walking = tmp_path / "rg"
+    walking.write_text(f"#!/bin/sh\necho $$ > '{pid_file}'\nexec sleep 30\n")
+    walking.chmod(0o755)
+    monkeypatch.setattr(search, "_ripgrep", lambda: str(walking))
+    harness = make_harness([Turn(tool_calls=[("find", {"pattern": "*.py"})])])
+    control = RunControl()
+    task = asyncio.create_task(harness.run(control=control))
+    async with asyncio.timeout(10):
+        while not (pid_file.exists() and pid_file.read_text().strip()):  # noqa: ASYNC110 - another process
+            await asyncio.sleep(0.02)
+    control.abort.set()
+    outcome = await asyncio.wait_for(task, 5)
+    assert outcome.reason == "aborted"
+    assert [e.status for e in harness.recorder.of(ToolCallEnd)] == ["error"]
+    with pytest.raises(ProcessLookupError):
+        os.kill(int(pid_file.read_text()), 0)
 
 
 async def test_steering_messages_join_before_the_next_model_call(make_harness):

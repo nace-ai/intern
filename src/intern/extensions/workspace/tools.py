@@ -84,6 +84,7 @@ class Sql(Tool):
     )
     Args = SqlArgs
     effects: ClassVar[frozenset[Effect]] = frozenset({"read"})
+    cancel_on_abort = True
 
     def __init__(self, store: Store) -> None:
         self.store = store
@@ -115,6 +116,11 @@ class Sql(Tool):
             running = asyncio.ensure_future(asyncio.to_thread(work))
             try:
                 return await asyncio.wait_for(asyncio.shield(running), timeout_s)
+            except asyncio.CancelledError:
+                # The run was aborted: stop the query too, or it would go on beside the next one on this session.
+                session.con.interrupt()
+                await asyncio.gather(running, return_exceptions=True)
+                raise
             except TimeoutError:
                 session.con.interrupt()  # the thread's query raises InterruptException and the thread ends
                 await asyncio.gather(running, return_exceptions=True)
@@ -174,6 +180,7 @@ class SqlExport(Tool):
     )
     Args = SqlExportArgs
     effects: ClassVar[frozenset[Effect]] = frozenset({"write"})
+    cancel_on_abort = True
 
     def __init__(self, sql: Sql) -> None:
         self.sql = sql
