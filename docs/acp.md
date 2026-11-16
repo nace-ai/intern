@@ -1040,10 +1040,11 @@ Fewer turns while a job runs; 0.30.6 clients keep working, and nothing a client 
 
 ### 0.31.0
 
-Additive; 0.30.7 clients keep working, and nothing a client sends or reads changed shape.
+The tool-call guard is off by default; 0.30.7 clients keep working, and nothing a client sends or reads changed
+shape.
 
-- The tool-call guard can be turned down in `~/.intern/config.toml` with `[guard] mode`: `full` (the default, as
-  before) runs the fixed rules and System 1's judgement, `rules` runs the fixed rules only, `off` checks no call.
-  With `rules`, no `tool_guard` event has layer `system1` and no `decision` event has purpose `guard`; with `off`,
-  no call is refused, so no `tool_guard` event comes and no run stops with `stopped_by_guard`. System 1 is still
-  required.
+- `[guard] mode` in `~/.intern/config.toml` sets it: `off` (the new default) checks no call, `rules` runs the fixed
+  rules only, `full` runs the fixed rules and System 1's judgement, as every session did before. A user who wants
+  the old behaviour sets `mode = "full"`.
+- With `off`, no call is refused, so no `tool_guard` event comes, no `decision` event has purpose `guard`, and no run
+  stops with `stopped_by_guard`; with `rules`, no `tool_guard` event has layer `system1`. System 1 is still required.

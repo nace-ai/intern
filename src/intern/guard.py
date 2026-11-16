@@ -4,8 +4,8 @@ Every call passes the guard after the extensions' `tool_call` hooks (so it judge
 before the tool runs. A blocked call returns a refused tool result naming what was blocked and why, and the
 run goes on; the model is told to find a safer way or stop and say so.
 
-`[guard] mode` sets how much of this runs: `full` (the default) both layers, `rules` the fixed rules only, `off`
-nothing, so no call is refused.
+`[guard] mode` sets how much of this runs: `off` (the default in a user's config) nothing, so no call is refused,
+`rules` the fixed rules only, `full` both layers.
 
 Fixed rules are code, never a model, and apply whether or not System 1 is configured. They are few and
 precise, because a fixed rule cannot be argued with: each one names an action that is destructive or

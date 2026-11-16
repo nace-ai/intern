@@ -129,8 +129,8 @@ Every tool call passes the guard (`guard.py`) after the extensions' `tool_call` 
 arguments the tool will get, and before the tool runs. A blocked call returns a refused result that names what
 was blocked and why, with the next action "find a safer way, or stop and say so"; the run goes on. Three
 refusals in a row, or twenty in a run, stop it (`stopped_by_guard`), as in Claude Code's auto mode. The guard
-cannot undo a hook's refusal: a refused call never reaches it. It has two layers; `[guard] mode` runs both
-(`full`, the default), the fixed rules only (`rules`) or neither (`off`).
+cannot undo a hook's refusal: a refused call never reaches it. It has two layers; `[guard] mode` runs neither
+(`off`, the default), the fixed rules only (`rules`) or both (`full`).
 
 Fixed rules are code. They apply whether or not System 1 is configured, and to read-only tools too. Each rule
 names an action that is destructive or exfiltrating in ordinary development and never fires on normal work

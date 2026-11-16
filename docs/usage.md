@@ -99,7 +99,11 @@ retryable errors (rate limits, an overloaded server) is waited out the same way 
 `intern models` lists every choice the console and the decisions API serve. The old names
 `--model`/`-m`, `--decider`, `model =` and `[decider]` still work.
 
-**The tool-call guard.** Before a tool runs, fixed rules refuse the clearly dangerous: deleting `/`, `~`,
+**The tool-call guard.** It is off by default: no tool call is checked or refused, not even `sudo` or a force
+push, and text the agent reads (a web page, a file) can talk it into sending your keys out. Turn it on with
+`[guard] mode = "full"`, or `mode = "rules"` for the fixed rules without System 1's judgement. System 1 is
+required either way, for supervision and the other asks. With it on, before a tool runs, fixed rules refuse
+the clearly dangerous: deleting `/`, `~`,
 a parent of the working directory or a `.git`, wiping a disk, piping a download into a shell, force-pushing,
 discarding uncommitted work, reading or sending credentials and `.env` files, `sudo`, and writing into `.git/`,
 credential or shell-startup files. These rules are code and need no model. System 1
@@ -109,10 +113,6 @@ returns a refused result and the run continues. See [architecture](architecture.
 On a disposable machine, such as a container the agent runs in as root, `[guard] system_writes = "allow"`
 lets writes under `/etc`, `/usr` and the other system directories through to System 1's judgement instead
 of refusing them; deleting a system directory stays refused.
-`[guard] mode = "rules"` keeps the fixed rules and skips System 1's judgement; `mode = "off"` checks no call,
-so nothing is refused, not even `sudo` or a force push. Keep `off` for a disposable machine: without the guard,
-text the agent reads (a web page, a file) can talk it into sending your keys out. System 1 is still required
-either way, for supervision and the other asks.
 
 ## Configuration
 
@@ -142,7 +142,7 @@ base_url = "http://gpu-box:8000/v1"
 memory_share = 0.5         # the default: a shell command holding more than half the machine's memory is stopped
 
 [guard]
-mode = "full"              # the default; "rules": the fixed rules only; "off": no call is checked
+mode = "off"               # the default: no call is checked; "rules": the fixed rules only; "full": rules and System 1
 system_writes = "refuse"   # the default; "allow" in a disposable container leaves /etc, /usr writes to System 1
 ```
 

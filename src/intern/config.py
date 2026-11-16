@@ -138,9 +138,9 @@ class CommandsConfig(BaseModel):
 
 class GuardConfig(BaseModel):
     mode: GuardMode = Field(
-        default="full",
-        description="`full`: fixed rules refuse the clearly dangerous and System 1 judges the rest that can do harm; "
-        "`rules`: the fixed rules only; `off`: no tool call is checked or refused. System 1 stays required either way.",
+        default="off",
+        description="`off`: no tool call is checked or refused; `rules`: fixed rules refuse the clearly dangerous; "
+        "`full`: the fixed rules, then System 1 judges the rest that can do harm. System 1 stays required either way.",
     )
     system_writes: Literal["refuse", "allow"] = Field(
         default="refuse",
