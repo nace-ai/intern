@@ -116,7 +116,8 @@ Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared,
 
 - **Supervision.** After every turn, your intern's System 1 checks whether it is advancing, retrying or re-reading
   what it already found. Three stuck turns in a row get a nudge. [How it is judged](docs/architecture.md#system-2-and-system-1)
-- **Tool-call guard.** Off by default; turn it on with `[guard] mode = "full"`. Fixed rules then refuse `rm -rf ~`,
+- **Tool-call guard.** A capability, off by default; turn it on with `/caps guard` or
+  `[capabilities.guard] enabled = true`. Fixed rules then refuse `rm -rf ~`,
   force-pushes, piping a download into a shell, reading your credentials or your intern's keys file
   (`~/.intern/.env`) and sending `.env` files; System 1 judges the rest against what you asked for. A refused call
   does not end the run.

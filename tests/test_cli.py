@@ -16,6 +16,7 @@ import pytest
 from intern.config import load_user_config
 from intern.events import event_adapter
 from intern.journal import Journal
+from intern.models.registry import ConfigError
 
 from .fake_openai import MODEL, FakeOpenAI, Reply
 
@@ -242,6 +243,13 @@ def test_config_reads_system2_and_system1_under_new_and_old_keys(tmp_path: Path,
     (tmp_path / "config.toml").write_text(toml)
     config = load_user_config(tmp_path)
     assert (config.system2, config.system1.backend, config.system1.model) == ("vllm/a", "decisions-api", "decider")
+
+
+def test_a_config_with_the_old_guard_table_is_refused_rather_than_left_unguarded(tmp_path: Path):
+    """`[guard] mode = "full"` once turned the guard on; read as nothing, it would leave the user unguarded."""
+    (tmp_path / "config.toml").write_text('[guard]\nmode = "full"\n')
+    with pytest.raises(ConfigError, match=r"\[capabilities\.guard\] enabled = true"):
+        load_user_config(tmp_path)
 
 
 def test_schema_command_prints_the_event_schema(tmp_path: Path, work: Path):

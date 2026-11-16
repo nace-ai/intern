@@ -14,7 +14,7 @@ extension, the TUI only hosts it (`intern.tui.views`).
 from __future__ import annotations
 
 import importlib
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Literal
 
@@ -30,6 +30,7 @@ from intern.needs import Needs
 if TYPE_CHECKING:
     from intern.context import ContextView
     from intern.decisions import DecisionClient
+    from intern.executor import Executor
     from intern.journal import Journal
     from intern.models.profile import Profile
     from intern.providers.base import ProviderRequest
@@ -129,6 +130,12 @@ class RunContext:
     # The session as System 1 should see it (`session_cut`: the user's requests and the whole session, cut to fit): pass
     # it as `state` to `decisions.ask`, so every System 1 question reads the same picture.
     state: Callable[[], str]
+    guided: bool
+    """The user keeps a SYSTEM1.md, which `state()` ends with: their word on what is normal in their work."""
+    tools: Mapping[str, Tool]
+    """The session's tools by name: what a call names, with its effects and how its arguments parse."""
+    executor: Executor
+    """Where the session's commands run (this machine, or a runner's sandbox), as its tools reach it."""
 
 
 class Extension:

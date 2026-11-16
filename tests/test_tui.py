@@ -490,8 +490,9 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         said = "\n".join(plain(part) for part in page.query(Static) if part.display)
         # The two systems, each on the model the session opened with, and what System 1 is asked for.
         assert "fake/model" in said and "drex-latest" in said
-        # Each on or off, as a capability is: the search is off while neither capability it searches for is on.
-        assert all(job in said for job in ("● watch", "● guard", "○ search", "● compaction"))
+        # Each on or off, as a capability is: the search is off while neither capability it searches for is on, and
+        # the guard while its capability is off, as it is by default.
+        assert all(job in said for job in ("● watch", "○ guard", "○ search", "● compaction"))
         assert "Intern's brain has two parts" in said  # what it is, in a paragraph
         assert "● base tools" in said and "Describe a task to begin." in said
         if look != "compact":  # with the room, what each capability is, and which of them System 1 searches for

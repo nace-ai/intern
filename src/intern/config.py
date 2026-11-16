@@ -36,10 +36,10 @@ from intern.events import EventSink, MemoryMount, SecretUnavailable
 from intern.executor import LocalExecutor, physical_memory
 from intern.extensions import REGISTRY
 from intern.extensions.code_search import CodeSearch
+from intern.extensions.guard import Guard
 from intern.extensions.memory import Memory
 from intern.extensions.memory.reminders import MemoryActions
 from intern.extensions.workspace.extension import Workspace
-from intern.guard import GuardMode
 from intern.hooks import Extension, Hooks, build_extension, resolve_extension
 from intern.instructions import FileInstructions
 from intern.journal import Journal
@@ -136,20 +136,6 @@ class CommandsConfig(BaseModel):
     )
 
 
-class GuardConfig(BaseModel):
-    mode: GuardMode = Field(
-        default="off",
-        description="`off`: no tool call is checked or refused; `rules`: fixed rules refuse the clearly dangerous; "
-        "`full`: the fixed rules, then System 1 judges the rest that can do harm. System 1 stays required either way.",
-    )
-    system_writes: Literal["refuse", "allow"] = Field(
-        default="refuse",
-        description="Writes to system files (/etc, /usr, ...): refused by a fixed rule, or left to System 1's "
-        "judgement. `allow` is for a disposable machine, such as a container the agent runs in as root; deleting "
-        "a system directory stays refused.",
-    )
-
-
 class UserConfig(BaseModel):
     model_config = ConfigDict(hide_input_in_errors=True)
     # The old keys `model`, `[decider]` and `[memory]` still load, so existing config files keep working.
@@ -160,12 +146,23 @@ class UserConfig(BaseModel):
     commands: CommandsConfig = Field(default_factory=CommandsConfig)
     secrets: dict[str, StoreEntry] = Field(default_factory=dict)
     """Where each stored secret comes from: `"keychain"` or a command; see `secret_store`."""
-    guard: GuardConfig = Field(default_factory=GuardConfig)
 
     @field_validator("secrets", mode="before")
     @classmethod
     def secret_entries(cls, value: Any) -> Any:
         return check_entries(value)
+
+    @model_validator(mode="before")
+    @classmethod
+    def old_guard_table(cls, data: Any) -> Any:
+        """`[guard]` became the guard capability in 0.37.0; say so rather than let a guard the user turned on go."""
+        if isinstance(data, dict) and "guard" in data:
+            raise ValueError(
+                "[guard] is gone: the guard is a capability, off by default. Delete the table; to turn the guard on, "
+                'set [capabilities.guard] enabled = true (mode = "rules" is system1 = false there, and '
+                "system_writes moves with it), or switch it with /caps guard"
+            )
+        return data
 
     @model_validator(mode="before")
     @classmethod
@@ -326,12 +323,18 @@ CAPABILITY_EXTENSIONS: dict[str, CapabilityExtension] = {
         "memory is a capability, on by default, not loaded as an extension: "
         f"switch it with [capabilities.memory] enabled in {CONFIG_FILE}, --memory/--no-memory, or /caps",
     ),
+    Guard.name: CapabilityExtension(
+        Guard,
+        "cap.guard",
+        "the guard is turned on by its capability, not loaded as an extension: "
+        f"set [capabilities.guard] enabled = true in {CONFIG_FILE}, or switch it with /caps",
+    ),
 }
 
 
 def _extension(name: str) -> Extension:
     """A profile's or `--extension`'s extension. Extensions behind a capability (code search, the workspace,
-    memory) are refused by name or by class before they are built: their capability turns them on."""
+    memory, the guard) are refused by name or by class before they are built: their capability turns them on."""
     if name in CAPABILITY_EXTENSIONS:
         raise ConfigError(CAPABILITY_EXTENSIONS[name].message)
     cls = resolve_extension(name, REGISTRY)
@@ -609,10 +612,10 @@ class Bootstrap:
 
         names = [*(system2.profile.extensions if options.extensions else []), *options.extra_extensions]
         fixed_extensions = [_extension(name) for name in names]
-        extensions = [*fixed_extensions, *capability_extensions(capabilities)]
-        if memory is not None:
-            # Last, so its drive write guard sees the arguments other extensions replaced.
-            extensions.append(Memory(memory))
+        extensions = [
+            *fixed_extensions,
+            *capability_extensions(capabilities, Memory(memory) if memory is not None else None),
+        ]
         hooks = Hooks(extensions, emit)
         try:
             system1 = self._system1()
@@ -663,8 +666,6 @@ class Bootstrap:
             cwd=options.cwd,
             spill_dir=self.home / "spill" / journal.session_id,
             emit=emit,
-            system_writes=self.config.guard.system_writes == "allow",
-            guard_mode=self.config.guard.mode,
         )
         if memory is not None:
             emit(MemoryMount(drive=str(memory.root), commit=memory.commit))

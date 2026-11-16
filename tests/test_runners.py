@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 import intern.runners as registry
 from intern.capability_settings import CapabilitySettings
 from intern.executor import ExecResult, Executor, LocalExecutor, WorkspaceMount, mount_of
-from intern.guard import Scope
+from intern.extensions.guard import Scope
 from intern.models.registry import ConfigError
 from intern.runners import DockerRunner, LocalRunner, Runner, load_runner
 from intern.runners.docker import DockerConfig, DockerExecutor

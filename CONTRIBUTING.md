@@ -40,8 +40,8 @@ Before pushing: `uv run ruff check && uv run ruff format --check && uv run pyrig
 - **Capability**: a switch users flip during a session (`/caps`, the ACP `cap.*` options) and can save in
   `config.toml`. Behind it is an extension, a tool pack, an MCP connection or the browser. The code calls a
   switch a toggle.
-- **Capability-backed extension**: an extension behind a capability (code search, the workspace, memory). It is
-  not itself a capability; the capability is the switch in front of it.
+- **Capability-backed extension**: an extension behind a capability (code search, the workspace, memory, the
+  guard). It is not itself a capability; the capability is the switch in front of it.
 - **Fixed extension**: an extension chosen for the whole session by the profile's `extensions` list or
   `--extension`, with no switch during the session.
 - **Capability settings**: the `[capabilities]` table. Each top-level key is a switch setting, an option of one
@@ -66,9 +66,10 @@ Whether users can switch it during a session decides the kind.
     `config.CAPABILITY_EXTENSIONS` (class, switch id, the message shown when it is named as an extension);
   - rows in the `docs/acp.md` `cap.*` table and in [docs/capability-settings.md](docs/capability-settings.md).
 
-  Capability-backed extensions run after fixed extensions. Memory is the one exception to where it is built:
-  `Bootstrap.session` builds it with its drive and runs it last, so its write guard sees other extensions'
-  argument changes.
+  Capability-backed extensions run after fixed extensions, in the order `session_setup.capability_extensions()`
+  gives. Memory is the one exception to where it is built: `Bootstrap.session` builds it with its drive and hands
+  it in. It runs after the others, so its write guard sees their argument changes, and the guard runs last of all,
+  so it judges the arguments the tool will get.
 - **Fixed for the session:** a fixed extension, registered in `extensions.REGISTRY`.
 
 Either way, a new extension or a changed default needs the paired eval run above.

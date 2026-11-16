@@ -60,7 +60,7 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
 │  thinking high · 27 tools                │     ▄████████▄▀▀▀▀▄██▄▄       │  console                                 │
 │                                          │    ██████▄▄▄▄█ ██ █████▄      │                                          │
 │  ● base tools   files and the shell      │   ██████ ██ █▀▄▄▄▄▀███████    │  ● watch       nudges it out of circles  │
-│  ○ web search   searches the web         │   ██████▄▀▀▀▀▄████████████    │  ○ guard       off · [guard] mode        │
+│  ○ web search   searches the web         │   ██████▄▀▀▀▀▄████████████    │  ○ guard       off · /caps guard         │
 │  ○ web read     reads a page as text     │  █████████████████████████    │  ● search      finds the places to read  │
 │  ○ browser      opens and clicks pages   │   ███████████████████████     │  ● compaction  keeps what still matters  │
 │  ● code search  System 1 searches code   │    ▀███████████████████▀      │                                          │
@@ -78,8 +78,8 @@ Intern is a brain in two parts, and the page is drawn as one: the mascot between
 the model the session opened on. System 2's card has how hard it thinks, how many tools it has and what the session
 has switched on (`●` on, `○` off: `/caps` changes them), each capability with what it is in a few words; `code
 search` and `workspace` say that System 1 does the searching. System 1's card has where it is served, its four jobs,
-each on (`●`) or off (`○`) as a capability is (the guard is off, and its line says so, when `[guard] mode` is `off`
-or `rules`; the search while neither `code search` nor `workspace` is on), and what it judges from, the State. Above them the wordmark in block letters, a
+each on (`●`) or off (`○`) as a capability is (the guard is off, and its line says so, when `cap.guard` is off or
+runs the fixed rules alone; the search while neither `code search` nor `workspace` is on), and what it judges from, the State. Above them the wordmark in block letters, a
 row for each of the mascot's violets, lightest at the top as the mascot is, and what Intern is, in the
 README's paragraph; under them the working directory and the session's journal, then what to do and the keys worth
 knowing first (while the session is opening, or when it could not open, that line says so instead). All of it is
@@ -219,7 +219,7 @@ panel's row in brief, in the panel's own lowercase words: `System 1 · 0.6s` (ho
 them, so a result does not read as one more option (`→ strike 1/3`, `→ refused`); the meters are the
 panel's. The supervisor's card comes at the turn boundary: the mode in its colour (`moving 0.78`), the two
 next likeliest muted (`done 0.12   circling 0.06`; none that rounds to 0.00), then what followed
-(a stuck review's strikes, a nudge). The guard (`guard.py`, which checks every tool call before it runs) is not a card but the last line of
+(a stuck review's strikes, a nudge). The guard (`extensions/guard.py`, which checks every tool call before it runs when `cap.guard` is on) is not a card but the last line of
 the call's shaded head, so it reads as part of the call and not as the supervisor: `✓ System 1` (`✗ System 1
 refused`, red), what the call would do (routine, one of the risks, or unclear), `risk` (P(any risk)) and
 `asked` (P(the user asked for it)), muted unless one is past its threshold, how long it took, and the

@@ -39,6 +39,7 @@ import textwrap
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
 
 from rich.cells import cell_len
 from textual.app import ComposeResult
@@ -47,7 +48,6 @@ from textual.content import Content
 from textual.widgets import Static
 
 from intern import __version__
-from intern.guard import GuardMode
 from intern.tui.ledger import Kind
 from intern.tui.theme import (
     BRAND,
@@ -98,8 +98,10 @@ JOBS: tuple[tuple[Kind, str], ...] = (
 """System 1's jobs, in the words the paragraph has for them."""
 SEARCHES = ("cap.code-search", "cap.workspace")
 """The capabilities System 1 does the searching for."""
-GUARD: dict[GuardMode, str] = {"off": "off · [guard] mode", "rules": "fixed rules only"}
-"""What the guard's line says when `[guard] mode` leaves System 1 out of it."""
+GuardState = Literal["off", "rules", "full"]
+"""The guard capability: off, on with the fixed rules alone (`[capabilities.guard] system1 = false`), or on."""
+GUARD: dict[GuardState, str] = {"off": "off · /caps guard", "rules": "fixed rules only"}
+"""What the guard's line says when System 1 does not judge calls."""
 STATE = (
     "What System 1 judges from: the session as it reads it, your requests as the goal and then the history, cut "
     "to fit its window."
@@ -114,9 +116,10 @@ BRIEFS = {
     "cap.code-search": "System 1 searches code",
     "cap.workspace": "System 1 searches docs",
     "cap.memory": "notes across sessions",
+    "cap.guard": "System 1 checks calls",
 }
-"""Each capability in a few words, by its toggle's id (`capability_toggles`); the two System 1 does the searching
-for say so."""
+"""Each capability in a few words, by its toggle's id (`capability_toggles`); the ones System 1 does the work of
+say so."""
 MCP_BRIEF = "remote tools"
 JOB_WIDTH = 14
 SETUP_NOTE = "Not connected yet: /setup connects your models"
@@ -188,7 +191,7 @@ class Opening:
     capabilities: list[tuple[str, str, bool]] = field(default_factory=list)
     """Each capability's toggle id, its name and whether it is on."""
     tools: int = 0
-    guard: GuardMode = "full"
+    guard: GuardState = "off"
 
 
 @functools.cache
@@ -263,7 +266,7 @@ def paragraph(text: str, width: int, style: str = S_MUTED) -> list[list[Part]]:
 
 def jobs(o: Opening, width: int, *, wrap: bool = True) -> list[list[Part]]:
     """System 1's jobs, each on (`●`) or off (`○`) as a capability is, then what it is asked: wrapped under itself,
-    or cut to the line. The guard is off when `[guard] mode` leaves System 1 out of it, and the search while neither
+    or cut to the line. The guard is off unless its capability is on with System 1 judging, and the search while neither
     capability it searches for is on."""
     searches = any(on for toggle, _, on in o.capabilities if toggle in SEARCHES)
     lines: list[list[Part]] = []

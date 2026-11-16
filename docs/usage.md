@@ -108,10 +108,12 @@ instead, for a gateway that retries itself. `--system1 drex-max-v1.1` picks anot
 `intern models` lists every choice the console and the decisions API serve. The old names
 `--model`/`-m`, `--decider`, `model =` and `[decider]` still work.
 
-**The tool-call guard.** It is off by default: no tool call is checked or refused, not even `sudo` or a force
-push, and text the agent reads (a web page, a file) can talk it into sending your keys out. Turn it on with
-`[guard] mode = "full"`, or `mode = "rules"` for the fixed rules without System 1's judgement. System 1 is
-required either way, for supervision and the other asks. With it on, before a tool runs, fixed rules refuse
+**The tool-call guard.** It is a capability, off by default: no tool call is checked or refused, not even `sudo` or
+a force push, and text the agent reads (a web page, a file) can talk it into sending your keys out. Turn it on for
+a session with `/caps guard` (the ACP `cap.guard` option), or for every session with
+[`[capabilities.guard] enabled = true`](capability-settings.md#guard); `system1 = false` there runs the fixed rules
+without System 1's judgement. System 1 is required either way, for supervision and the other asks. With it on,
+before a tool runs, fixed rules refuse
 the clearly dangerous: deleting `/`, `~`,
 a parent of the working directory or a `.git`, wiping a disk, piping a download into a shell, force-pushing,
 discarding uncommitted work, reading or sending credentials and `.env` files, `sudo`, and writing into `.git/`,
@@ -119,8 +121,8 @@ credential or shell-startup files. These rules are code and need no model. Syste
 then judges the other calls that can do harm against the session: what the user asked, what the agent did
 and what came back. A blocked call
 returns a refused result and the run continues. See [architecture](architecture.md#system-2-and-system-1).
-On a disposable machine, such as a container the agent runs in as root, `[guard] system_writes = "allow"`
-lets writes under `/etc`, `/usr` and the other system directories through to System 1's judgement instead
+On a disposable machine, such as a container the agent runs in as root, `[capabilities.guard] system_writes =
+"allow"` lets writes under `/etc`, `/usr` and the other system directories through to System 1's judgement instead
 of refusing them; deleting a system directory stays refused.
 
 ## Configuration
@@ -129,7 +131,7 @@ Everything user-level lives in `$INTERN_HOME` (default `~/.intern`). An empty fo
 gives a fully isolated run. `SYSTEM2.md` there replaces
 System 2's packaged prompt (`SYSTEM.md`, its old name, is still read). `SYSTEM1.md` there is your guidance for System 1: what work is normal for you and what
 you still want to be asked. Every System 1 ask about the session reads it, and the guard counts what it calls
-normal as asked. It is read from there only, never from a project.
+normal as asked when it is on. It is read from there only, never from a project.
 
 ```toml
 # ~/.intern/config.toml
@@ -150,8 +152,9 @@ base_url = "http://gpu-box:8000/v1"
 [commands]
 memory_share = 0.5         # the default: a shell command holding more than half the machine's memory is stopped
 
-[guard]
-mode = "off"               # the default: no call is checked; "rules": the fixed rules only; "full": rules and System 1
+[capabilities.guard]
+enabled = false            # the default: no call is checked; true (or /caps guard) turns the guard on
+system1 = true             # the default: System 1 judges what the fixed rules let through; false: the rules only
 system_writes = "refuse"   # the default; "allow" in a disposable container leaves /etc, /usr writes to System 1
 ```
 

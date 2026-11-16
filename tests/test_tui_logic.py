@@ -16,7 +16,7 @@ from intern.events import (
     ToolGuard,
     WindowInfo,
 )
-from intern.guard import RISK_THRESHOLD
+from intern.extensions.guard import RISK_THRESHOLD
 from intern.locate.trace import KIND, Ranked, SearchTrace
 from intern.messages import JsonObject
 from intern.supervise import STRIKES

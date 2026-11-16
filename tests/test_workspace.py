@@ -372,6 +372,7 @@ async def test_the_memory_drive_guard_keeps_sql_export_out_of_the_drive(tmp_path
         run_id="r", turn=1, cwd=str(tmp_path), profile=Profile(), working_window=32_768, chars_per_token=4.0,
         journal=Journal(str(tmp_path)), decisions=DecisionClient(LoadJudge(), lambda e: None), emit=lambda e: None,
         state=lambda: "task",
+        guided=False, tools={}, executor=LocalExecutor(),
     )  # fmt: skip
 
     def export(path: str) -> ToolCall:
@@ -457,6 +458,7 @@ async def test_a_command_that_loads_a_large_table_in_python_is_refused_with_its_
         run_id="r", turn=3, cwd=str(tmp_path), profile=Profile(), working_window=32_768, chars_per_token=4.0,
         journal=Journal(str(tmp_path)),
         decisions=ws.store.decisions, emit=lambda e: None, state=lambda: "task",
+        guided=False, tools={}, executor=LocalExecutor(),
     )  # fmt: skip
 
     async def check(command: str) -> h.ToolCallDecision | None:

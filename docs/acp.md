@@ -181,8 +181,8 @@ key, or options that only `config.toml` can give. `models --json` gives the same
 After the options above, every session (unbound ones too) advertises one boolean option per capability
 a user can switch on or off: the same list as the terminal UI's `/caps`, without the `base` pack.
 Fixed extensions (a `module:Class`) have no toggle: the profile and `--extension`
-choose them for the whole session. Extensions behind a capability (code search, the workspace, memory) are
-switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#extensions-and-capabilities)).
+choose them for the whole session. Extensions behind a capability (code search, the workspace, memory, the guard)
+are switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#extensions-and-capabilities)).
 
 | `id` | Turns on | Listed |
 |---|---|---|
@@ -192,6 +192,7 @@ switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#extensio
 | `cap.code-search` | `[capabilities.code_search] enabled` | always |
 | `cap.workspace` | `[capabilities.workspace] enabled` | always |
 | `cap.memory` | `[capabilities.memory] enabled` | always |
+| `cap.guard` | `[capabilities.guard] enabled` | always |
 | `cap.mcp.<namespace>` | that `[[capabilities.mcp]]` connection | for each connection config.toml names |
 
 A toggle that cannot switch on in this install and environment, even after the install below, is left out unless
@@ -1121,3 +1122,18 @@ Additive; 0.35.0 clients keep working, and nothing a client sends or reads chang
   when their key is set; like the others, these keys are the harness's own and never reach the agent's commands.
 - The terminal UI's first launch opens on a setup screen (`/setup`) that saves `system2`, `[system1]` and the keys.
   ACP clients are unaffected: a session that cannot open still fails with the reason, as before.
+
+### 0.37.0
+
+The tool-call guard is a capability; 0.36.0 clients keep working, and nothing a client sends or reads changed shape.
+
+- Sessions offer one more boolean option, `cap.guard` ("Guard"), off unless `[capabilities.guard] enabled = true`.
+  Switching it on makes the next prompt reopen the session with the guard, as every `cap.*` toggle does; a client
+  that shows unknown `cap.*` options by `name` and `description` needs no change. `models --json` lists it too.
+- The `[guard]` table in `~/.intern/config.toml` is gone: a config that still has it is refused, with where its keys
+  went. `mode = "full"` is `[capabilities.guard] enabled = true`, `mode = "rules"` is that with `system1 = false`,
+  and `system_writes` moves into `[capabilities.guard]`. A client whose session fails to open shows that reason,
+  as for any invalid config.
+- With the guard on, events are as before: `tool_guard` for each refusal, `decision` with purpose `guard`, and a run
+  stopped by repeated refusals ends `stopped_by_guard`. `--extension guard` or a profile's `extensions = ["guard"]`
+  is refused with a pointer to the capability.
