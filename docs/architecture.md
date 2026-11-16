@@ -79,7 +79,8 @@ a linter's count) and the output's first 300 characters, where fast-jev gives st
 run, `processes` lists them beside the goal, from the session's job manager rather than the journal: each tool call
 still running, background job and process a command left running, with how long it has run and, for a job, how long
 it has written nothing and its last line (at most 8, oldest first). Like the goal it is never cut to fit. It is
-fitted to three quarters of System 1's `max_state_tokens` (24,576 at the default), estimated as fast-jev does,
+fitted to three quarters of System 1's `max_state_tokens` (24,576 at the default, which is lowered to three
+quarters of the decision model's window when the decisions API lists a smaller one), estimated as fast-jev does,
 in fast-jev's stages, each only when the one before is not enough: inputs cut to 200 then 60 characters, long
 texts cut to head and tail oldest first, old messages collapsed to a note of their size, old calls to one line,
 old messages without calls left out, runs of old call-only messages folded. The first message and the newest

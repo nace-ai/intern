@@ -27,6 +27,7 @@ from pydantic import BaseModel, Field, SecretStr
 from intern.context import INITIAL_CHARS_PER_TOKEN, bound_output
 from intern.events import Decision, EventSink
 from intern.messages import JsonObject, System1Usage
+from intern.models.catalog import DECISIONS_PREFIX, System1Sources, decision_models
 
 
 class ChoiceQuestion(BaseModel):
@@ -92,6 +93,11 @@ MAX_RETRIES = 2
 # Asks in flight at once by default. A code search sends about 140 asks in a few waves, 70 at once at its peak,
 # which queued behind 16 slots; 64 drew no 429s there.
 MAX_CONCURRENCY = 64
+# Of a decision model's listed window, the most max_state_tokens may be. A real ask (a session cut to
+# max_state_tokens, two of the loop's questions) was 0.65 to 0.81 of max_state_tokens in the model's own tokens on
+# Jev, Clef, Liquid d1 and Drex (2026-11-15); at three quarters it fills about 0.6 of the window, which leaves room
+# for SYSTEM1.md, denser text and listings that overstate (joey-1 lists 16,384 and refuses over 16,000).
+WINDOW_STATE_SHARE = 0.75
 # The console refuses (422) a state holding a base64 data URL of any type but text/*, with parameters
 # (`;charset=utf-8`) or not, payload or not, as media sent in the text; a page, stylesheet or notebook the agent
 # writes often has one. The payload means nothing to System 1, so the type and size stand in for it.
@@ -124,6 +130,7 @@ class DecisionsApiBackend:
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self.name = f"decisions-api:{models[0]}"
+        self._base_url = base_url
         self._url = f"{base_url.rstrip('/')}/systemone"
         self._key = api_key
         self._models = models
@@ -144,6 +151,14 @@ class DecisionsApiBackend:
             self._http = httpx.AsyncClient(timeout=timeout, transport=self._transport, limits=limits)
             self._loop = loop
         return self._http
+
+    async def window(self) -> int | None:
+        """The smallest window its endpoint's decision-model listing gives these models (every one is sent the same
+        state); None when it lists none of them, as the console does not."""
+        sources = System1Sources(decisions_url=self._base_url, decisions_key=self._key.get_secret_value())
+        models = await decision_models(sources, self._transport)
+        listed = {m.id.removeprefix(DECISIONS_PREFIX): m.window for m in models}
+        return min((w for m in self._models if (w := listed.get(m))), default=None)
 
     async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
         items = list(questions.items())
@@ -264,6 +279,7 @@ class DecisionClient:
         self.emit = emit
         """Where the `decision` events go; a session journals them on the way (`journal.recording`)."""
         self._timeout_s = timeout_s
+        self._configured_state_tokens = max_state_tokens
         # No meter for System 1; 3 chars per token errs toward sending fewer tokens than the limit.
         self._max_state_tokens = max_state_tokens
         self._max_concurrency = max_concurrency
@@ -286,12 +302,21 @@ class DecisionClient:
             backend,
             self.emit,
             timeout_s=self._timeout_s,
-            max_state_tokens=self._max_state_tokens,
+            max_state_tokens=self._configured_state_tokens,
             max_concurrency=self._max_concurrency,
             retry_window_s=self._retry_window_s,
         )
         client.usage = self.usage
         return client
+
+    async def fit(self) -> None:
+        """Keep the state within the backend's model's window, when its listing gives one: a decision model with
+        a window smaller than the configured state refuses a long one (422), which stops the run."""
+        lookup = getattr(self.backend, "window", None)
+        window = await lookup() if lookup is not None else None
+        if window:
+            self._max_state_tokens = min(self._configured_state_tokens, int(window * WINDOW_STATE_SHARE))
+            self._max_state_chars = int(self._max_state_tokens * INITIAL_CHARS_PER_TOKEN)
 
     async def check(self) -> None:
         """One ask, retried for a short window, so a session whose System 1 cannot be reached fails when it opens.

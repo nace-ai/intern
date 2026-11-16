@@ -1013,3 +1013,14 @@ Model fixes; 0.30.4 clients keep working, and nothing a client sends or reads ch
   Sonnet 4.6 and 5) had it hidden: `agent_thought_chunk` updates now carry their reasoning, which arrived empty.
   They also run at high effort by default, as the Claude 5.5 models do.
 - In the terminal UI, a model's thinking that was hidden says so when opened, where it showed nothing.
+
+### 0.30.6
+
+A System 1 fix; 0.30.5 clients keep working.
+
+- A System 1 on the decisions API whose model has a smaller window than the state it is sent is sent less: no more
+  than three quarters of the window its listing gives, at the start of a session and when it is picked. Before, a
+  model such as `baseten/joey-1` (16K) or `cloudflare/clef-flash` (24K) refused the state with HTTP 422 once the
+  session grew past about 10K tokens, and the run stopped with `system1_unavailable`. `[system1].max_state_tokens`
+  stays the most any model is sent, and models with a larger window, `drex-*` and Jev among them, are unchanged.
+- `models --json` gives a `window` for the decisions API's System 1 entries too, from its listing.

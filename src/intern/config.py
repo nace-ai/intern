@@ -614,6 +614,7 @@ class Bootstrap:
             await decisions.check()
         except System1Unavailable as e:
             raise ConfigError(f"{e}; the harness does not run without System 1") from None
+        await decisions.fit()
 
         journal_path = None
         if options.persist:

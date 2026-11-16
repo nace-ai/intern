@@ -102,6 +102,7 @@ async def _steward_locked(
         max_state_tokens=cfg.max_state_tokens,
         max_concurrency=cfg.max_concurrency,
     )
+    await decisions.fit()
     if merge:
         try:
             with locked(drive, TREE_LOCK):

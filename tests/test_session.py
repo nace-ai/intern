@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import json
 
+import httpx
 import pytest
+from pydantic import SecretStr
 
 from intern.context import requests_section
+from intern.decisions import DecisionsApiBackend, NoulQuestion
 from intern.events import Compaction, State
 from intern.journal import CompactionEntry, MessageEntry, ModelChangeEntry
 from intern.messages import UserMessage
@@ -168,6 +172,32 @@ async def test_set_model_switches_the_next_request_and_is_journaled(make_harness
 
 class Decider(Quiet):
     name = "decider"
+
+
+async def test_a_system1_with_a_small_window_is_sent_a_state_that_fits_it(make_harness):
+    # A decision model refuses (422) a state longer than its window, and a refused ask stops the run.
+    states: list[str] = []
+
+    def api(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/v1/models":
+            listed = [{"id": "small", "context_length": 16_384}, {"id": "large", "context_length": 262_144}]
+            return httpx.Response(200, json={"data": listed})
+        states.append(json.loads(request.content)["state"])
+        return httpx.Response(200, json={"answers": {"ok": {"type": "noul", "noul": 0.5}}})
+
+    def resolve(ref: str) -> DecisionsApiBackend:
+        model = ref.removeprefix("decisions:")
+        return DecisionsApiBackend(
+            "https://windows.test/v1", SecretStr("k"), [model], transport=httpx.MockTransport(api)
+        )
+
+    harness = make_harness([Turn(text="a")])
+    session = Session(harness.deps, resolve_system1=resolve)
+    await session.set_model("decisions:small", "system1")
+    await harness.deps.decisions.ask("test", "x" * 200_000, {"ok": NoulQuestion(instructions="Is this ok?")})
+    assert len(states[-1]) < 37_000  # three quarters of 16,384 tokens at 3 characters each, and the cut's marker
+    await session.set_model("decisions:large", "system1")
+    assert harness.deps.decisions.max_state_tokens == 32_768  # the configured state, back on a larger window
 
 
 async def test_system1_switches_while_idle_keeping_its_spend_and_is_journaled(make_harness):
