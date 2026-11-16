@@ -12,6 +12,8 @@ Fireworks' `supports_image_input`); a model that does sees them, whatever its pr
 
 from __future__ import annotations
 
+import asyncio
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -20,9 +22,13 @@ import httpx
 from intern.events import WindowInfo
 from intern.models.profile import Profile
 from intern.models.registry import Endpoint
+from intern.providers.openai_compat import RETRYABLE_STATUS
 
 DEFAULT_WINDOW = 32_768
 LOOKUP_TIMEOUT_S = 5.0
+# A listing that times out, is rate-limited or fails on the server is asked again before the default, which is a
+# fraction of a large model's window and caps its replies with it. 404 and other refusals are final.
+LOOKUP_RETRY_WAITS_S = (1.0, 3.0)
 ANTHROPIC_API_VERSION = "2023-06-01"
 _CONTEXT_KEYS = ("context_length", "max_model_len", "context_window", "max_context_length", "max_input_tokens")
 _OUTPUT_KEYS = ("max_tokens", "max_output_tokens", "max_completion_tokens")
@@ -117,6 +123,21 @@ async def _from_llamacpp_props(client: httpx.AsyncClient, endpoint: Endpoint) ->
     return (n_ctx if isinstance(n_ctx, int) and n_ctx > 0 else None), None, None
 
 
+async def _retried(
+    lookup: Callable[[httpx.AsyncClient, Endpoint], Awaitable[Found]], client: httpx.AsyncClient, endpoint: Endpoint
+) -> Found:
+    for wait in LOOKUP_RETRY_WAITS_S:
+        try:
+            return await lookup(client, endpoint)
+        except httpx.HTTPStatusError as error:
+            if error.response.status_code not in RETRYABLE_STATUS:
+                raise
+        except httpx.TransportError:
+            pass
+        await asyncio.sleep(wait)
+    return await lookup(client, endpoint)
+
+
 async def advertised_limits(
     endpoint: Endpoint, profile: Profile, transport: httpx.AsyncBaseTransport | None = None
 ) -> ModelLimits:
@@ -134,7 +155,7 @@ async def advertised_limits(
         sees: bool | None = None  # a listing may say what the model takes without its window (Fireworks')
         for source, lookup in lookups:
             try:
-                window, max_output, vision = await lookup(client, endpoint)
+                window, max_output, vision = await _retried(lookup, client, endpoint)
             except (httpx.HTTPError, ValueError):
                 continue
             sees = vision if sees is None else sees
