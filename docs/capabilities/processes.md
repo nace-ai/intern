@@ -69,7 +69,7 @@ on what still runs is the agent handing over. Those calls are:
 
 - polls (or a list) of jobs that still run;
 - `bash` calls that went on in the background as waits: a long `sleep`, `tail -f`, `watch`, a CI watch, or one
-  System 1 judged waits (`sleep 300; tail train.log` is one);
+  System 1 judged waits (`until [ -f done ]; do sleep 5; done`);
 - in a quiet session only, status checks of what runs: commands that only read, at least one part a process listing
   (`ps`, `pgrep`, `nvidia-smi`…) or a read of a file a running command names or writes to (`tail -n 20 train.log`
   for a job started with `> train.log`). Nothing that writes, starts something, or runs `$( )`.
