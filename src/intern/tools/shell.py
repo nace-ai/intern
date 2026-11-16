@@ -441,11 +441,21 @@ class BashTool(Tool):
                 retry_safe=False,
             ).model_copy(update=metadata)
         if result.idle_stopped:
-            quiet = ctx.processes.idle_stop_s if ctx.processes is not None else 0
+            manager = ctx.processes
+            quiet = manager.idle_stop_s if manager is not None else 0
+            ways = ["make it print progress (python -u, a --verbose or --progress flag)"]
+            if manager is not None and not manager.idle_stop_jobs:
+                ways.append("start it with the process tool")
+            if manager is not None and manager.hold_socket is not None:
+                ways.append(
+                    f"run a call it waits on as `{names.NAME} hold -- <call>`, which keeps it alive while the call is "
+                    "open"
+                )
+            keep = ways[0] if len(ways) == 1 else f"{', '.join(ways[:-1])}, or {ways[-1]}"
             return fail(
                 f"the command was {idle_stopped_text(round(quiet))}",
-                "Check whether it changed files or remote state before retrying. If it works without printing, make it "
-                "print progress (python -u, a --verbose or --progress flag) or start it with the process tool.",
+                f"Check whether it changed files or remote state before retrying. If it works without printing, "
+                f"{keep}.",
                 content=output,
                 retry_safe=False,
             ).model_copy(update=metadata)
