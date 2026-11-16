@@ -68,6 +68,7 @@ from intern.tui.widgets import (
     flow,
     meter,
     mode_label,
+    runners_up,
     short_path,
     shrink,
     stacked,
@@ -156,12 +157,16 @@ def with_notes(head: list[Part], notes: list[Part], room: int) -> list[list[Part
 
 
 def watch_lines(j: TurnJudgement, room: int) -> list[list[Part]]:
-    """A turn System 1 watched: its call and how sure, then what the loop did with it."""
+    """A turn System 1 watched: its call and how sure, what it weighed most against it, then what the loop did."""
     style = MODE_STYLE.get(j.mode, S_INK)
     head: list[Part] = [(mode_label(j.mode).ljust(MODE_WIDTH), style), (f" {j.confidence:.2f}", S_INK)]
     if room >= ROOMY:
         head += ["  ", *meter(j.confidence, style, METER)]
-    return with_notes(head, turn_notes(j), room)
+    first, *notes = with_notes(head, turn_notes(j), room)
+    others: list[list[Part]] = [
+        [(f"{mode_label(mode)} {j.probabilities[mode]:.2f}", S_MUTED)] for mode in runners_up(j.probabilities, j.mode)
+    ]
+    return [first, *flow(others, room, gap=2), *notes]
 
 
 def subject_title(subject: str) -> str:

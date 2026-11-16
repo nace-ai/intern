@@ -1134,6 +1134,12 @@ CARD_MODES = 3
 """The modes on the supervisor's card: its call, and the two it weighed most against it."""
 
 
+def runners_up(probabilities: dict[str, float], answer: str, most: int = CARD_MODES - 1) -> list[str]:
+    """What System 1 weighed most against its answer, likeliest first: none that rounds to 0.00."""
+    others = (other for other, p in probabilities.items() if other != answer and p >= 0.005)
+    return sorted(others, key=lambda other: -probabilities[other])[:most]
+
+
 def level(label: str, p: float, style: str, number: str = S_INK) -> list[Part]:
     """`advancing 0.92`, `risk 0.68`: the words the System 1 panel uses, and the probability. The space inside is
     non-breaking, so a wrapped card breaks between levels, never inside one."""
@@ -1162,10 +1168,7 @@ def supervisor_card(j: TurnJudgement) -> Content:
     """System 1's call at a turn's end, as a card at the turn boundary: the mode in its colour and its probability,
     the next likeliest muted (up to CARD_MODES in all, none that rounds to 0.00), then what followed."""
     levels = level(mode_label(j.mode), j.confidence, MODE_STYLE.get(j.mode, S_INK))
-    others = sorted(
-        (m for m, p in j.probabilities.items() if m != j.mode and p >= 0.005), key=lambda m: -j.probabilities[m]
-    )
-    for mode in others[: CARD_MODES - 1]:
+    for mode in runners_up(j.probabilities, j.mode):
         levels += [GAP, *level(mode_label(mode), j.probabilities[mode], S_MUTED, S_MUTED)]
     outcome = [note for note in turn_notes(j) if note[0] != "cached"]  # the call's own fact, with its time
     return card("System 1", seconds(j.duration_ms, j.cached), levels, outcome)
@@ -1190,11 +1193,8 @@ def look_card(v: ProcessVerdict, *, named: bool) -> Content:
         return [(label, style)] if p is None else level(label, p, style, number)
 
     levels = said(v.verdict, LOOK_STYLE.get(v.verdict, S_MUTED), S_INK)
-    others = sorted(
-        (m for m, p in v.probabilities.items() if m != v.verdict and p >= 0.005), key=lambda m: -v.probabilities[m]
-    )
-    if others:  # one runner-up, not two: the line also says when it looked, and what came of it
-        levels += [GAP, *said(others[0], S_MUTED, S_MUTED)]
+    for other in runners_up(v.probabilities, v.verdict, 1):  # one, not two: the line also says when, and what came
+        levels += [GAP, *said(other, S_MUTED, S_MUTED)]
     meta = (f"{brief(v.command, 32)} " if named else "") + f"at {duration_text(v.elapsed_s)}"
     outcome: list[Part] = [("told the agent", S_WARN_BOLD)] if v.told else []
     return Content.assemble(("⧗ ", S_MUTED), card("System 1", meta, levels, outcome))

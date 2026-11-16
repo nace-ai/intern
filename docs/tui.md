@@ -121,23 +121,23 @@ straight to the conversation; `/clear` comes back to the page.
 │ … (31 earlier lines, click or ctrl+o to expand)   │ ▣   1  ✓ $ pytest -q tests/test_parser.py      │
 │ FAILED tests/test_parser.py::test_dates           │        routine 0.92   risk 0.07   asked 0.90   │
 │ 1 failed, 41 passed in 0.52s                      │ ◆   3  advancing        0.78  ━━━━━━──         │
-│ Took 2.1s                                         │ ⌕   4  decision_code  97 asks · 291 judged     │
-│                                                   │        where are ISO weeks parsed?             │
-│ ▎ System 1 · 0.6s   advancing 0.78                │        → src/parser.py  0.93                   │
-│ ▎ finished 0.12   re-investigating 0.06           │          def parse_date · lines 40-71          │
+│ Took 2.1s                                         │        finished 0.12  re-investigating 0.06    │
+│                                                   │ ⌕   4  decision_code  97 asks · 291 judged     │
+│ ▎ System 1 · 0.6s   advancing 0.78                │        where are ISO weeks parsed?             │
+│ ▎ finished 0.12   re-investigating 0.06           │        → src/parser.py  0.93                   │
 │                                                   │ ◆   9  re-investigating 0.81  ━━━━━━──         │
-│ decision_code where are ISO weeks parsed?         │        strike 3/3 · stuck nudge sent           │
-│ 1. src/parser.py · def parse_date · lines 40-71   │ ▣  11  ✗ $ git push --force origin main        │
-│ Took 3.2s                                         │        rewrites shared history 0.96            │
-│                                                   │        risk 0.96   asked 0.02                  │
-│ $ git push --force origin main                    │        System 1 judged that it rewrites        │
-│ ✗ System 1 refused   rewrites shared history 0.96 │        history that others share and that the  │
-│ risk 0.96   asked 0.02   0.4s                     │        user did not ask for it                 │
-│ System 1 judged that it rewrites history that…    │ ⟲  12  4 reads judged · 2 kept · 2 cut         │
-│                                                   │        14.1k → 6.2k −56% · 6 turns cut to a    │
-│ refused · 0.0s                                    │        summary                                 │
-│                                                   │        ✓ src/parser.py  0.91                   │
-│ ⟲ Compaction · turn 12 · 6 turns cut to a summary │        ✓ tests/test_parser.py  0.74            │
+│ decision_code where are ISO weeks parsed?         │        advancing 0.11  retrying 0.05           │
+│ 1. src/parser.py · def parse_date · lines 40-71   │        strike 3/3 · stuck nudge sent           │
+│ Took 3.2s                                         │ ▣  11  ✗ $ git push --force origin main        │
+│                                                   │        rewrites shared history 0.96            │
+│ $ git push --force origin main                    │        risk 0.96   asked 0.02                  │
+│ ✗ System 1 refused   rewrites shared history 0.96 │        System 1 judged that it rewrites        │
+│ risk 0.96   asked 0.02   0.4s                     │        history that others share and that the  │
+│ System 1 judged that it rewrites history that…    │        user did not ask for it                 │
+│                                                   │ ⟲  12  4 reads judged · 2 kept · 2 cut         │
+│ refused · 0.0s                                    │        14.1k → 6.2k −56% · 6 turns cut to a    │
+│                                                   │        summary                                 │
+│ ⟲ Compaction · turn 12 · 6 turns cut to a summary │        ✓ src/parser.py  0.91                   │
 │  Context ━━━━━━━━╌╌╌╌╌╌╌╌╌╌───  14.1k → 6.2k −56% ├────────────────────────────────────────────────┤
 │                                                   │▐State▌ fast and slow ░░░░░░░░░░░░░░░░░░░░░░░░░░│
 │                                                   │                                                │
@@ -371,8 +371,9 @@ State in full, as the exact text it is given (its JSON laid out).
 turn, in the order they came, each run under its prompt:
 
 - `◆` **watch**: what the supervisor (`supervise.py`) answered at a turn's end: the mode in its colour, its
-  probability as a number and a meter, then what the loop did about it (`strike 2/3`, `stuck nudge sent`) and, once
-  the request looks met, the wrap-up verdict.
+  probability as a number and a meter, and what the loop did about it (`strike 2/3`, `stuck nudge sent`); under it
+  the two modes it weighed most against that one, muted, each with its probability, so a call is seen to have been
+  one of three; and, once the request looks met, the wrap-up verdict.
 - `▣` **guard**: a tool call System 1 judged before it ran: the call, `✓` allowed or `✗` refused, what it would
   do (routine, one of the risks, or unclear), `risk` and `asked`, and the reason when it was refused. A call a
   fixed rule refused is listed too, as `a fixed rule, not System 1` and the rule: no model was asked.

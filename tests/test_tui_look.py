@@ -218,8 +218,10 @@ def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_
         "⌕   4 ",
         "⟲   6 ",
     ]
-    # The watch: what the turn was doing, how sure, and what the loop did about it.
+    # The watch: what the turn was doing, how sure, and what the loop did about it; under it, what System 1 weighed
+    # most against that, so a call made at 0.80 is seen to have been one of three.
     assert "retrying" in rows[2] and "0.80" in rows[2] and "strike 3/3" in rows[2] and "stuck nudge sent" in text
+    assert text.splitlines()[text.splitlines().index(rows[0]) + 1].strip() == "advancing 0.05  re-investigating 0.05"
     # The guard: the call, allowed or refused, and who refused it and why.
     assert "✓ $ pytest -q" in rows[3] and "✗ $ sudo make install" in rows[4] and "✗ $ git push --force" in rows[5]
     assert "a fixed rule, not System 1 · privilege" in text and "it runs sudo" in text
