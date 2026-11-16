@@ -31,7 +31,7 @@ from intern.journal import Entry, EventEntry, Journal, MessageEntry, ModelChange
 from intern.loop import CompactOutcome, EngineDeps, ModelBinding, Run, RunControl, system1_state
 from intern.messages import AssistantMessage, ToolResultMessage, Usage, UserMessage
 from intern.models.registry import Role
-from intern.models.window import recapped
+from intern.models.window import recapped, window_fallback
 from intern.process_watch import ProcessWatch, waits_or_serves
 from intern.processes import duration_text
 
@@ -502,6 +502,8 @@ class Session:
         else:
             raise ValueError(f"role {role!r} cannot be set on a running engine yet")
         self.deps.journal.append(ModelChangeEntry(role=role, model=binding.ref))
+        if (fallback := window_fallback(binding.ref, binding.window)) is not None:
+            self.deps.emit(fallback)
         return binding
 
     async def _set_system1(self, ref: str) -> None:

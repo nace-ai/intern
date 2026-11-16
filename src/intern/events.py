@@ -50,6 +50,8 @@ class WindowInfo(BaseModel):
     effective: int | None
     user_cap: int | None
     working: int
+    lookup_error: str | None = None
+    """Why no source gave the window, when `advertised_source` is "default"."""
 
 
 class RunStart(_EventBase):
@@ -370,6 +372,17 @@ class SecretUnavailable(_EventBase):
     message: str
 
 
+class WindowFallback(_EventBase):
+    """No source gave System 2's window, so it runs at the 32K default and its replies are capped to a share of
+    that. Sent when the session opens and when the model is switched."""
+
+    type: Literal["window_fallback"] = "window_fallback"
+    model: str
+    window: int
+    reason: str
+    message: str
+
+
 class HookError(_EventBase):
     """An extension raised; hooks fail open, so the run continues without its effect."""
 
@@ -420,6 +433,7 @@ Event = Annotated[
     | ProcessCheck
     | HookError
     | SecretUnavailable
+    | WindowFallback
     | RunEnd,
     Field(discriminator="type"),
 ]

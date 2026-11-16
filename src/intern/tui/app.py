@@ -67,6 +67,7 @@ from intern.events import (
     ToolCallStart,
     ToolGuard,
     TurnStart,
+    WindowFallback,
 )
 from intern.hooks import RunOutcome
 from intern.journal import (
@@ -813,6 +814,8 @@ class HarnessApp(App[None]):
                 await transcript.notice(f"⊘ {name} refused by the guard: {reason}", "warn")
             case SecretUnavailable(message=message):
                 await transcript.notice(f"Secret not loaded: {message}", "warn")
+            case WindowFallback(message=message):
+                await transcript.notice(f"Window not known: {message}", "warn")
             case HookError(hook=hook, extension=extension, error=error):
                 await transcript.notice(f"Extension {extension} failed in {hook}: {error}", "error")
             case RunEnd(reason=reason, detail=detail, turns=turns, usage=usage, system1=system1):

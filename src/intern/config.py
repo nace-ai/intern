@@ -59,7 +59,7 @@ from intern.models.catalog import (
 )
 from intern.models.profile import effort_choices, load_profile, profile_candidates
 from intern.models.registry import PROVIDERS, Api, ConfigError, ProviderSpec, resolve_endpoint
-from intern.models.window import advertised_limits, bound_output, working_window
+from intern.models.window import advertised_limits, bound_output, window_fallback, working_window
 from intern.providers.anthropic import AnthropicProvider
 from intern.providers.openai_compat import OpenAICompatProvider
 from intern.providers.openai_responses import OpenAIResponsesProvider
@@ -361,7 +361,7 @@ class Bootstrap:
         limits = await advertised_limits(endpoint, profile)
         bound_output(profile, limits.max_output)
         profile.vision = profile.vision or limits.vision is True  # the provider says it takes images
-        window = working_window(limits.window, limits.source, profile, self.options.window_cap)
+        window = working_window(limits.window, limits.source, profile, self.options.window_cap, limits.lookup_error)
         provider = PROVIDER_CLASSES.get(endpoint.api, OpenAICompatProvider)(endpoint)
         return ModelBinding(
             provider=provider,
@@ -659,6 +659,8 @@ class Bootstrap:
             emit(MemoryMount(drive=str(memory.root), commit=memory.commit))
         for failure in self.store_failures:
             emit(SecretUnavailable(name=failure.name, reason=failure.reason, message=str(failure)))
+        if (fallback := window_fallback(system2.ref, system2.window)) is not None:
+            emit(fallback)
         prepared = await prepare_session(
             deps,
             capabilities,

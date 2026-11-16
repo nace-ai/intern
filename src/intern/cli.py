@@ -39,6 +39,7 @@ from intern.events import (
     TextDelta,
     ToolCallEnd,
     ToolCallStart,
+    WindowFallback,
     event_json_schema,
 )
 from intern.memory.commands import memory_main, steward_main
@@ -125,6 +126,8 @@ def _text_sink(event: Event) -> None:
             print(f"\n> {name} {preview}", file=sys.stderr)
         case SecretUnavailable(message=message):
             print(f"[secrets: {message}]", file=sys.stderr)
+        case WindowFallback(message=message):
+            print(f"[window: {message}]", file=sys.stderr)
         case ToolCallEnd(status=status, content=content) if status != "ok":
             print(f"  {status}: {content.strip().splitlines()[-1] if content.strip() else ''}", file=sys.stderr)
         case Indexing(name=name, done=done, total=total, finished=finished, duration_ms=duration_ms):

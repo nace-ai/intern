@@ -31,7 +31,16 @@ from acp.schema import (
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from intern.events import ContextBudget, Event, ReasoningDelta, RunEnd, SecretUnavailable, TextDelta, ToolCallEnd
+from intern.events import (
+    ContextBudget,
+    Event,
+    ReasoningDelta,
+    RunEnd,
+    SecretUnavailable,
+    TextDelta,
+    ToolCallEnd,
+    WindowFallback,
+)
 from intern.events import StopReason as RunStopReason
 from intern.events import ToolCallStart as HarnessToolCallStart
 from intern.journal import Entry, MessageEntry
@@ -294,6 +303,8 @@ def event_updates(event: Event, ctx: MappingContext) -> list[Update]:
             return [_tool_end(call_id, status, content, diff)]
         case SecretUnavailable(message=message):
             return [update_agent_message_text(f"Secret not loaded: {message}\n\n")]
+        case WindowFallback(message=message):
+            return [update_agent_message_text(f"Window not known: {message}\n\n")]
         case ContextBudget(tokens=tokens):
             return [_usage(ctx, tokens, cost=False)]
         case RunEnd():

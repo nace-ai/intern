@@ -84,7 +84,9 @@ thresholds, provider quirks and enabled extensions. The most specific `match` wi
 `default.toml`; your own profiles go in `~/.intern/profiles/`.
 
 **Working window.** Each model runs at the smallest of its advertised window (profile, then the
-provider's `/models`, then llama.cpp's `/props`, then 32k), its measured effective window, and
+provider's `/models`, then llama.cpp's `/props`, then 32k; a lookup that times out, is rate-limited or fails on the
+server is tried twice more first, and falling back to 32k is shown as a warning with the reason), its measured
+effective window, and
 `--window` (an ACP session can set its own cap with `context_window`). All thresholds are fractions of the working window, so the same profile holds at 32k and
 at 256k; one tool result is also held to the profile's `max_tool_result_tokens` (20,000), so a 1M window does not let
 one output fill a sixth of it. The working window bounds the prompt; the reply may use whatever the model's advertised

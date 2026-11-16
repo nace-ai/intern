@@ -1095,3 +1095,16 @@ changed shape.
 - An index being built when the cancel comes is not cut: it finishes in the background and is kept, and the next
   search or `index` call waits for it instead of building beside it. Its `indexing` events (`-p --json`, JSON-RPC)
   can therefore arrive after the run's `run_end`.
+
+### 0.35.0
+
+Additive; 0.34.1 clients keep working.
+
+- When no source gives System 2's window (no profile `window`, and the provider's listing fails or does not name the
+  model), the model runs at 32,768 tokens, which also caps its replies to a share of that. That used to be silent.
+  The client now gets an agent message, `Window not known: MODEL: its window could not be looked up (REASON), ...`,
+  when the session opens and when the model is switched (event `window_fallback`, with `model`, `window`, `reason`
+  and `message`). `run_start.window` has a new `lookup_error` field with the same reason, null otherwise.
+- Before falling back, a listing call that times out, is rate-limited or fails on the server is tried twice more,
+  after 1 s and 3 s. A refusal such as 404 is not retried. A host that does not answer the listing is not asked for
+  llama.cpp's `/props` as well, so it holds the start for about 19 s at most.
