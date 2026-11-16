@@ -113,6 +113,12 @@ STATE_EFFORT = "low"
 MAX_FINISH_REOPENS = 2
 # A reply that fails partway with a retryable error is requested again; nothing of it was recorded.
 REPLY_RETRY_WAITS_S = (5.0, 20.0)
+# A provider that keeps failing with retryable errors (a rate limit held for minutes, an overloaded or restarting
+# server, a dropped network) is waited out: after the waits above, the reply is requested again every
+# REPLY_WAIT_OUT_S until REPLY_WAIT_OUT_WINDOW_S has passed since the first failure. Ending the run after a
+# minute or two of 429s threw away runs that had hours of budget left.
+REPLY_WAIT_OUT_S = 30.0
+REPLY_WAIT_OUT_WINDOW_S = 1800.0
 
 CUT_OFF_NUDGE = "Your reply was cut off at the output limit. Continue exactly where it stopped."
 BUDGET_NUDGE = (
@@ -896,15 +902,27 @@ class Run:
         return message
 
     async def _call_model_with_retries(self, request: ProviderRequest) -> AssistantMessage | None:
-        """Providers retry failures before any output; this covers a stream that breaks partway."""
-        for wait in REPLY_RETRY_WAITS_S:
+        """Providers retry failures before any output; this covers a stream that breaks partway and a provider
+        that stays unavailable past its own retries."""
+        first_failure: float | None = None
+        attempt = 0
+        while True:
             try:
                 return await self._call_model(request)
             except ProviderError as e:
                 if not e.retryable:
                     raise
-                await asyncio.sleep(wait)
-        return await self._call_model(request)
+                first_failure = time.monotonic() if first_failure is None else first_failure
+                if attempt < len(REPLY_RETRY_WAITS_S):
+                    wait = REPLY_RETRY_WAITS_S[attempt]
+                else:
+                    left = REPLY_WAIT_OUT_WINDOW_S - (time.monotonic() - first_failure)
+                    if left <= 0:
+                        raise
+                    wait = min(REPLY_WAIT_OUT_S, left)
+                if await self._abortable(asyncio.sleep(wait, result=True)) is None:
+                    return None
+                attempt += 1
 
     async def _call_model(self, request: ProviderRequest) -> AssistantMessage | None:
         """The reply, or None if the run was aborted while waiting for it."""

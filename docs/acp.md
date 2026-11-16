@@ -613,7 +613,7 @@ look; others keep working, and see one more prompt error.
 - There is no heuristic System 1. `--system1 heuristic` and a `system1` pick of `heuristic` are refused
   with "System 1 is required", and a config with `[system1] backend = "heuristic"` no longer loads. Nothing stands in for an
   answer: not for the supervisor, the guard, compaction's keep verdicts, memory recall or `decision_code`.
-- An ask System 1 fails is retried with backoff for about two minutes; still unanswered, the prompt fails
+- An ask System 1 fails is retried with backoff for up to 30 minutes; still unanswered, the prompt fails
   with [`system1_unavailable`](#stop-reasons-and-errors) (`-32603`). Before, a heuristic answered and, for
   the guard, the call went through unjudged.
 - `session/new` and `session/load` check that System 1 answers (up to 15 s of retries) and fail with
@@ -984,3 +984,16 @@ A security fix; 0.30.1 clients keep working, and nothing a client sends or reads
   `Install the <extra> extra`) instead of agent message text. Its content is what the install says as it goes, and it
   ends `completed`, or `failed` with the reason (also when `session/cancel` stops it). Before, those lines landed in the
   agent's reply.
+
+### 0.30.4
+
+Longer waits before a run stops on an outage; 0.30.3 clients keep working, and nothing a client sends or reads
+changed shape.
+
+- A model provider that keeps failing with retryable errors (HTTP 429, 5xx, an overloaded server, a dropped
+  connection) is waited out: after the provider's own retries and the reply retries at 5 and 20 s, the reply is
+  requested again every 30 s until 30 minutes have passed since the first failure, then the prompt fails with
+  [`provider_error`](#stop-reasons-and-errors) as before. Errors that are not retryable (`auth`, `quota`, a bad
+  request) still fail at once, and a cancel ends the wait. Before, a rate limit held for about a minute ended the run.
+- An ask System 1 fails is retried with backoff (at most 30 s apart) for up to 30 minutes before the prompt fails with
+  [`system1_unavailable`](#stop-reasons-and-errors); before, about two minutes.
