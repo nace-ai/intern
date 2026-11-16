@@ -103,6 +103,11 @@ class Profile(BaseModel):
     reasoning_replay: bool = True
     max_turns: int = 150
     max_continuations: int = 3
+    finish_check: bool = Field(
+        default=False,
+        description="Send a run's first final answer after its first turn back once, to be checked against the "
+        "request before the run ends.",
+    )
     vision: bool = Field(
         default=False,
         description="The model accepts images; read then shows image files. A provider listing that says the model "

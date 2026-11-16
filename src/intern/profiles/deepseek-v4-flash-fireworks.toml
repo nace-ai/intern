@@ -1,9 +1,11 @@
 # DeepSeek V4 Flash on Fireworks: the models and the spot/ultrafast routers. Fireworks' listing gives the window
 # and image input but not reasoning; every variant took `reasoning_effort` low to max (2026-11-10), and high reasoned
-# about 1.6x the tokens of low on the same prompt. Levels only: until one is picked, no effort is sent.
+# about 1.6x the tokens of low on the same prompt. Levels only: until one is picked, no effort is sent. Its first final
+# answer often leaves a doubt it noted unsettled, so it goes back once to be checked against the request.
 
 match = [
   "fireworks/accounts/fireworks/models/deepseek-v4*-flash*",
   "fireworks/accounts/fireworks/routers/*deepseek-v4*-flash*",
 ]
 effort_levels = ["low", "medium", "high", "xhigh", "max"]
+finish_check = true
