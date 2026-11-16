@@ -248,8 +248,13 @@ def meter(p: float, style: str, width: int = METER_WIDTH) -> list[Part]:
     return [part for part in parts if part[0]]
 
 
+MODE_WORDS = {"advancing": "moving", "re_investigating": "circling", "off_plan": "off-plan", "finished": "done"}
+"""What the supervisor calls a turn (`supervise.MODE`), in a word short enough for a line of the System 1 panel. The
+names System 1 is asked with stay: another name is another question, and the journals have these."""
+
+
 def mode_label(mode: str) -> str:
-    return mode.replace("_", "-")
+    return MODE_WORDS.get(mode, mode.replace("_", "-"))
 
 
 def tokens_text(n: int) -> str:

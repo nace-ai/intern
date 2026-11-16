@@ -134,12 +134,12 @@ straight to the conversation; `/clear` comes back to the page.
 │ $ pytest -q tests/test_parser.py                  ││ › Find why tests/test_parser.py fails and fix… │
 │ … (31 earlier lines, click or ctrl+o to expand)   ││ ▣ ✓ $ pytest -q tests/test_parser.py           │
 │ FAILED tests/test_parser.py::test_dates           ││   routine 0.92   risk 0.07   asked 0.90        │
-│ 1 failed, 41 passed in 0.52s                      ││ ◆ ━━━━━━━━━━━─ advancing 0.78  finished 0.12   │
+│ 1 failed, 41 passed in 0.52s                      ││ ◆ ━━━━━━━━━━━─ moving 0.78  done 0.12          │
 │ Took 2.1s                                         ││ ⌕ decision_code  97 asks · 291 judged          │
 │                                                   ││   where are ISO weeks parsed?                  │
-│ ▎ System 1 · 0.6s   advancing 0.78                ││   → src/parser.py  0.93                        │
-│ ▎ finished 0.12   re-investigating 0.06           ││ ◆ ━━━━━━━━━━━━ re-investigating 0.81           │
-│                                                   ││   advancing 0.11  strike 3/3  stuck nudge sent │
+│ ▎ System 1 · 0.6s   moving 0.78                   ││   → src/parser.py  0.93                        │
+│ ▎ done 0.12   circling 0.06                       ││ ◆ ━━━━━━━━━━━━ circling 0.81  moving 0.11      │
+│                                                   ││   strike 3/3  stuck nudge sent                 │
 │ decision_code where are ISO weeks parsed?         ││ ▣ ✗ $ git push --force origin main             │
 │ 1. src/parser.py · def parse_date · lines 40-71   ││   rewrites shared history 0.96                 │
 │ Took 3.2s                                         ││   risk 0.96   asked 0.02                       │
@@ -217,8 +217,8 @@ whole output.
 panel's row in brief, in the panel's own lowercase words: `System 1 · 0.6s` (how long System 1 took, and
 `cached` when it was), then each answer as a word and its probability, then after an arrow what came of
 them, so a result does not read as one more option (`→ strike 1/3`, `→ refused`); the meters are the
-panel's. The supervisor's card comes at the turn boundary: the mode in its colour (`advancing 0.78`), the two
-next likeliest muted (`finished 0.12   re-investigating 0.06`; none that rounds to 0.00), then what followed
+panel's. The supervisor's card comes at the turn boundary: the mode in its colour (`moving 0.78`), the two
+next likeliest muted (`done 0.12   circling 0.06`; none that rounds to 0.00), then what followed
 (a stuck review's strikes, a nudge). The guard (`guard.py`, which checks every tool call before it runs) is not a card but the last line of
 the call's shaded head, so it reads as part of the call and not as the supervisor: `✓ System 1` (`✗ System 1
 refused`, red), what the call would do (routine, one of the risks, or unclear), `risk` (P(any risk)) and
@@ -386,7 +386,9 @@ order they came, each run under its prompt:
   each mode it weighed taking its share of them in its own colour, so a call is seen to have been one of several;
   the mode it called and its probability; the modes it weighed most against that one, muted, as far as the line
   holds them; then what the loop did about it (`strike 2/3`, `stuck nudge sent`) and, once the request looks met,
-  the wrap-up verdict.
+  the wrap-up verdict. A mode is said in a word short enough for the line: `moving` (the supervisor's `advancing`),
+  `circling` (`re_investigating`), `retrying`, `off-plan`, `done` (`finished`), `unclear`. The names System 1 is
+  asked with are the supervisor's own.
 - `▣` **guard**: a tool call System 1 judged before it ran: the call, `✓` allowed or `✗` refused, what it would
   do (routine, one of the risks, or unclear), `risk` and `asked`, and the reason when it was refused. A call a
   fixed rule refused is listed too, as `a fixed rule, not System 1` and the rule: no model was asked.
