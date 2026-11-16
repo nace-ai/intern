@@ -571,7 +571,8 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         assert [i for i in ids if i] == ["fake/model", "fake/big", "other/x"]
         await pilot.press("b", "i", "g", "enter")
         await wait_for(lambda: session.deps.system2.ref == "fake/big")
-        assert "System 2 → fake/big" in transcript_text(app)
+        # The entering page has the model on System 2's card: the pick gets no line under it.
+        assert "fake/big" in transcript_text(app) and "System 2 →" not in transcript_text(app)
         # System 1: console and decisions-API models in their groups; a pick rebuilds System 1.
         await send(app, pilot, "/system1")
         picker = app.screen
@@ -1071,7 +1072,8 @@ async def test_the_thinking_level_shows_cycles_on_shift_tab_is_set_in_the_picker
         await wait_for(lambda: app.session is not None and app.session.deps.system2.ref == "fake/other")
         await pilot.pause()
         assert app.session.deps.system2.profile.reasoning_effort == "medium"
-        assert "System 2 → fake/other (working window 32.8k tokens) · thinking medium" in transcript_text(app)
+        text = transcript_text(app)  # the entering page again, the pick on System 2's card
+        assert "fake/other" in text and "thinking medium" in text and "System 2 →" not in text
         await app.action_quit()
 
 

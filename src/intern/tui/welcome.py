@@ -318,16 +318,27 @@ def capabilities(o: Opening, width: int) -> list[list[Part]]:
     return lines
 
 
+def model(ref: str, width: int) -> list[list[Part]]:
+    """A model's name whole, on as many lines as it takes: the card is where a pick of it shows. A line ends after
+    a slash where one is in reach."""
+    lines: list[list[Part]] = []
+    while len(ref) > width:
+        cut = ref.rfind("/", 0, width) + 1 or width
+        lines.append([(ref[:cut], S_HEAD)])
+        ref = ref[cut:]
+    return [*lines, [(ref, S_HEAD)]]
+
+
 def system2(o: Opening, width: int) -> list[list[Part]]:
     """System 2's card: the model it is on, how hard it thinks and how many tools it has, then what they are."""
     facts = " · ".join(fact for fact in (f"thinking {o.thinking}" * bool(o.thinking), f"{o.tools} tools") if fact)
-    return [[(clip(o.system2, width), S_HEAD)], [(facts, S_MUTED)], [], *capabilities(o, width)]
+    return [*model(o.system2, width), [(facts, S_MUTED)], [], *capabilities(o, width)]
 
 
 def system1(o: Opening, width: int) -> list[list[Part]]:
     """System 1's card: the model it is on and where it is served, its jobs, then what it judges from."""
-    model, served = system1_parts(o.system1)
-    head: list[list[Part]] = [[(clip(model, width), S_HEAD)], [(served or "the decision model", S_MUTED)], []]
+    name, served = system1_parts(o.system1)
+    head: list[list[Part]] = [*model(name, width), [(served or "the decision model", S_MUTED)], []]
     return [*head, *jobs(o, width), [], *paragraph(STATE_SHORT, width)]
 
 

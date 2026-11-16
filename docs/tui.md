@@ -107,7 +107,9 @@ screen starts above its top.
 The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It follows
 the session, so a `/system2` or `/caps` pick made before the first prompt shows on it: a capability switched there
 changes its line on the page, and the two lines a switch gets in a conversation (`… reopening the session…`,
-`Session reopened · …`) are not written under it. Whatever else is said before the first prompt (`/help`, a session
+`Session reopened · …`) are not written under it; a model picked there shows on its system's card, its name whole
+on as many lines as it takes, and the line a pick gets in a conversation (`System 2 → …`) is not written either,
+unless it has more to say (the thinking level chosen is not one the model takes). Whatever else is said before the first prompt (`/help`, a session
 that could not open, a switch that failed) is under it. A task on the command line, `--session` and `/reload` go
 straight to the conversation; `/clear` comes back to the page.
 
