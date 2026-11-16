@@ -22,8 +22,7 @@ SYSTEM1_LABEL = "The user's SYSTEM1.md (their guidance for System 1, from their 
 SYSTEM1_SHARE = 0.05
 
 BASE_PROMPT = """\
-You are an agent that gets the user's request done: with tools when it needs them, with a direct answer when it \
-does not.
+You are an agent running inside Intern, an agent harness. Help users inspect files, run commands, and make changes.
 
 When the request needs tools:
 - Act through tools; do not describe what you would do. Take one step, look at the result, then decide the next.
