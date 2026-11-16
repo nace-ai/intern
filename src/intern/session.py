@@ -486,7 +486,7 @@ class Session:
         (a model) rebuilds the decision client and returns None."""
         self._ensure_open()
         if role == "system1":
-            self._set_system1(ref)
+            await self._set_system1(ref)
             return None
         if self._resolve_model is None:
             raise ValueError("this session was built without a model resolver")
@@ -504,15 +504,18 @@ class Session:
         self.deps.journal.append(ModelChangeEntry(role=role, model=binding.ref))
         return binding
 
-    def _set_system1(self, ref: str) -> None:
+    async def _set_system1(self, ref: str) -> None:
         if self._resolve_system1 is None:
             raise ValueError("this session was built without a System 1 resolver")
         if self.running:
             raise SessionBusy("cannot change models while a run is in progress")
-        backend = self._resolve_system1(ref)
+        decisions = self.deps.decisions.with_backend(self._resolve_system1(ref))
+        await decisions.fit()  # before the budget wraps the backend, which hides its window
         if self.model_budget is not None:
-            backend = BudgetDecisionBackend(backend, self.model_budget)
-        self.deps.decisions = self.deps.decisions.with_backend(backend)
+            decisions.backend = BudgetDecisionBackend(decisions.backend, self.model_budget)
+        if self.running:
+            raise SessionBusy("a run started while System 1 was resolving; retry while idle")
+        self.deps.decisions = decisions
         self.system1 = ref
         self.deps.journal.append(ModelChangeEntry(role="system1", model=ref))
 

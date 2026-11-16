@@ -251,7 +251,8 @@ def _models(argv: list[str]) -> int:
     parser.add_argument(
         "--json",
         action="store_true",
-        help="Print {system2: [{id, name, default?, reasoning?, window?}], system1: [...], capabilities: [...]}.",
+        help="Print {system2: [{id, name, default?, reasoning?, window?}], system1: [{id, name, window?}], "
+        "capabilities: [...]}.",
     )
     args = parser.parse_args(argv)
     try:

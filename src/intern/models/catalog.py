@@ -51,7 +51,8 @@ class ModelInfo(BaseModel):
     """System 2 only: what its sessions' `thought_level` takes, as they list it: `default` first when the API takes
     requests without an effort, then the efforts least to most."""
     window: int | None = None
-    """System 2 only: the most context a session on it can use, when the profile or the listing says."""
+    """The most context a session on it can use, when the profile or the listing says: for System 1, the decisions
+    API's listing (the console's gives none)."""
 
 
 class CapabilityInfo(BaseModel):
@@ -175,7 +176,8 @@ def _decisions_listed(body: Any) -> list[ModelInfo]:
     for item in _items(body, "data"):
         model_id = item.get("id")
         if isinstance(model_id, str) and model_id:
-            models.append(ModelInfo(id=f"{DECISIONS_PREFIX}{model_id}", name=str(item.get("name") or model_id)))
+            name = str(item.get("name") or model_id)
+            models.append(ModelInfo(id=f"{DECISIONS_PREFIX}{model_id}", name=name, window=context_length(item)))
     return models
 
 
