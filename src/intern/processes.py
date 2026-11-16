@@ -36,6 +36,7 @@ from intern.executor import (
     memory_stopped,
     shell_env,
 )
+from intern.holds import PROCESS_ENV, SOCKET_ENV
 
 COMMAND_CHARS = 200  # a command as records and snapshots show it
 LAST_LINE_CHARS = 200  # a running job's last line of output, as System 1 reads it
@@ -177,6 +178,8 @@ class _Watched:
 
     quiet_since: float
     stop: Callable[[], None]
+    holds: int = 0
+    """Holds open on it (`holds.py`): while any is, its silence does not count."""
 
 
 class ProcessManager:
@@ -204,6 +207,8 @@ class ProcessManager:
         self._quiet: dict[str, int] = {}
         """How long each `bash` call the idle watch stopped had written nothing, by call id, until its end."""
         self._idle_watch: asyncio.Task[None] | None = None
+        self.hold_socket: Path | None = None
+        """The session's hold socket, while it listens (`holds.HoldServer`): every command is told it."""
         self.judge: Callable[[str], Coroutine[object, object, Judgment | None]] | None = None
         """Asks System 1 whether a command still running after JUDGE_AFTER_S waits or serves rather than works, so it
         moves now (the session sets it)."""
@@ -309,6 +314,36 @@ class ProcessManager:
         if (watched := self._watched.get(self._moved_from.get(call_id, call_id))) is not None:
             watched.quiet_since = asyncio.get_running_loop().time()
 
+    def hold_env(self, process_id: str) -> dict[str, str]:
+        """What a command with id `process_id` (a call id, a job handle) is given to hold itself: none while no hold
+        socket listens."""
+        if self.hold_socket is None:
+            return {}
+        return {SOCKET_ENV: str(self.hold_socket), PROCESS_ENV: process_id}
+
+    def hold(self, process_id: str) -> Callable[[], None]:
+        """Hold the running command `process_id` (a call's id, which follows it into the background, or a job's handle)
+        against the idle watch until the returned release is called; its silence counts again from then. ValueError
+        when no such command runs."""
+        key = self._moved_from.get(process_id, process_id)
+        if key not in self._calls and not self.job_running(key):
+            raise ValueError(f"no command with id {process_id!r} is running in this session")
+        watched = self._watched.get(key)
+        if watched is None:  # not stopped for silence (a server, a wait, idle_stop_s off): nothing to hold off
+            return lambda: None
+        watched.holds += 1
+        released = False
+
+        def release() -> None:
+            nonlocal released
+            if not released:
+                released = True
+                watched.holds -= 1
+                if not watched.holds:
+                    watched.quiet_since = asyncio.get_running_loop().time()
+
+        return release
+
     def _watch(self, key: str, stop: Callable[[], None]) -> None:
         if not self.idle_stop_s or self._closed:
             return
@@ -333,7 +368,7 @@ class ProcessManager:
             last = now
             for key, watched in list(self._watched.items()):
                 quiet = now - watched.quiet_since
-                if quiet < self.idle_stop_s or self._exempt(key):
+                if watched.holds or quiet < self.idle_stop_s or self._exempt(key):
                     continue
                 del self._watched[key]
                 if (job := self._jobs.get(key)) is not None:
@@ -532,16 +567,21 @@ class ProcessManager:
         output_filter: OutputFilter | None = None,
         shown_command: str | None = None,
         stdin: bool = False,
+        handle: str | None = None,
     ) -> ProcessSnapshot:
         """Start ``command`` as an owned job; its process group is stopped past ``timeout_s`` or, when given, past
         ``memory_limit`` bytes of resident memory (read every BACKGROUND_POLL_S). With ``executor`` the job runs
         where that executor runs commands, and the executor's own limits bound its memory. ``shown_command`` is the
         command as the agent wrote it, for the record, when ``command`` is a prepared one (secrets injected). Like a
         bash call, it reads end-of-file on its input unless ``stdin``: a command that reads its input (``docker exec
-        -i``, a prompt) would otherwise wait on it forever; only a job started with ``stdin`` takes ``write``."""
+        -i``, a prompt) would otherwise wait on it forever; only a job started with ``stdin`` takes ``write``.
+        ``handle`` is the job's, when the caller had to know it first (`hold_env` for a command it prepares)."""
         if not command.strip() or not 0 < timeout_s <= 86_400:
             raise ValueError("Provide a command and a timeout in (0, 86400] seconds")
         shown = shown_command or command
+        handle = handle or uuid.uuid4().hex
+        if hold := self.hold_env(handle):
+            env = {**(os.environ if env is None else env), **hold}
         async with self._lock:
             if self._closed:
                 raise RuntimeError("Process manager is closed")
@@ -549,18 +589,18 @@ class ProcessManager:
                 raise RuntimeError("Run was aborted before process creation")
             if sum(not j.done.is_set() for j in self._jobs.values()) >= self.max_running:
                 raise RuntimeError("The running-process limit is reached; terminate or wait for an owned job")
-            for handle, old in list(self._jobs.items()):
+            for finished, old in list(self._jobs.items()):
                 if len(self._jobs) < self.max_records:
                     break
                 if old.done.is_set():
-                    del self._jobs[handle]
+                    del self._jobs[finished]
             if executor is not None:
                 remote = await executor.start_job(command, cwd=cwd, env=env)
                 if not stdin:
                     with contextlib.suppress(NotImplementedError, ValueError):
                         await remote.write(b"", eof=True)
                 job = _Job(
-                    handle=uuid.uuid4().hex,
+                    handle=handle,
                     command=shown,
                     remote=remote,
                     output_filter=output_filter,
@@ -583,9 +623,7 @@ class ProcessManager:
                 stderr=asyncio.subprocess.STDOUT,
                 start_new_session=True,
             )
-            job = _Job(
-                handle=uuid.uuid4().hex, command=shown, process=process, output_filter=output_filter, takes_input=stdin
-            )
+            job = _Job(handle=handle, command=shown, process=process, output_filter=output_filter, takes_input=stdin)
             self._jobs[job.handle] = job
             self._report("started", self._info(job))
             if self.idle_stop_jobs:

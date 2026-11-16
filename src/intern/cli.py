@@ -6,6 +6,7 @@
     intern acp [--system2 provider/model]                   serve the Agent Client Protocol over stdio
     intern tui [--system2 provider/model] ["task"]          the terminal UI, explicitly
     intern schema                                           print the event JSON Schema
+    intern hold [--reason TEXT] -- cmd...                   run cmd, keeping the command it runs in from idle_stop_s
     intern models [--json]                                  list the System 2 and System 1 models to pick
     intern index [path] [--documents] [--clean]             build .intern/ index (--documents: .decision_workspace/)
     intern memory init|lint DRIVE                           create or check a memory drive
@@ -298,6 +299,10 @@ def interactive(args: argparse.Namespace) -> bool:
 
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["hold"]:
+        from intern.holds import hold_main
+
+        return hold_main(argv[1:])
     if argv[:1] == ["schema"]:
         print(json.dumps(event_json_schema(), indent=2))
         return EXIT_OK

@@ -24,6 +24,7 @@ from intern.executor import (
     observes_output,
     run_command,
 )
+from intern.holds import HOLD_ENV
 from intern.mcp_credentials import CredentialCommand, run_credential_command
 
 #: The most a secret command may print: room for a PEM key or a service-account JSON.
@@ -245,7 +246,7 @@ class SecretExecutor:
     async def prepare(self, command: str, *, env: Mapping[str, str] | None = None) -> PreparedCommand:
         """Resolve the injected references and wrap `command` to run with exactly the allowed environment plus them,
         for the wrapped executor to run (a command, or a background job through the process manager)."""
-        if env is not None and not env.keys() <= self.allowed_env:
+        if env is not None and not env.keys() <= self.allowed_env | HOLD_ENV:
             raise SecretAccessDenied("Caller environment contains names outside the configured allowlist")
         resolved: dict[str, SecretStr] = {}
         try:

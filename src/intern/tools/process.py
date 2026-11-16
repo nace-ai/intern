@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -58,10 +59,10 @@ class ProcessTool(Tool):
         try:
             match args.action:
                 case "start":
-                    command, env = args.command, None
+                    command, env, handle = args.command, None, uuid.uuid4().hex
                     output_filter: OutputFilter | None = None
                     if secrets is not None:
-                        prepared = await secrets.prepare(args.command)
+                        prepared = await secrets.prepare(args.command, env=self.manager.hold_env(handle) or None)
                         command, env = prepared.command, prepared.env
                         output_filter = prepared.redactor.stream()
                     result = await self.manager.start(
@@ -75,6 +76,7 @@ class ProcessTool(Tool):
                         output_filter=output_filter,
                         shown_command=args.command,
                         stdin=args.stdin,
+                        handle=handle,
                     )
                     if not args.stdin:  # one the agent will feed waits for its input, so it returns at once
                         result = await self.manager.poll(result.handle, wait_s=QUICK_S)

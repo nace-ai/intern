@@ -37,6 +37,7 @@ from intern.decision_failover import BudgetDecisionBackend
 from intern.executor import ClosableExecutor, Executor, JobExecutor, LocalExecutor, mount_of, shell_env
 from intern.extensions.code_search import CodeSearch
 from intern.extensions.workspace.extension import Workspace
+from intern.holds import HoldServer
 from intern.hooks import Extension
 from intern.loop import EngineDeps, ModelBinding
 from intern.mcp_client import MCP_NEEDS, StdioConfig, http_connection, stdio_connection
@@ -667,6 +668,9 @@ async def prepare_session(
                 stack.push_async_callback(owned.aclose)
             if manager is not None:
                 stack.push_async_callback(manager.aclose)
+                if manager.idle_stop_s and type(inner) is LocalExecutor:
+                    # Only a command on this machine can reach the socket; closed before the manager, with its holds.
+                    await stack.enter_async_context(HoldServer(manager))
             if browser is not None:
                 # Constructor and callback only: entering BrowserSession would
                 # eagerly start Chromium instead of waiting for its first use.

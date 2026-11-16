@@ -1069,3 +1069,14 @@ A setting to turn model retries off; 0.32.0 clients keep working, and nothing a 
   [`provider_error`](#stop-reasons-and-errors), where before the provider retried after 2, 8 and 20 s and the
   reply was requested again for up to 30 minutes. `system2_fallbacks` are still tried. The default, `true`, keeps
   the retries. See [model retries](capability-settings.md#model-retries).
+
+### 0.34.0
+
+A command can be held against `idle_stop_s`; 0.33.0 clients keep working, and nothing a client sends or reads changed
+shape.
+
+- `intern hold [--reason TEXT] -- cmd` runs `cmd` and keeps the command it runs in from being stopped for silence until
+  `cmd` exits, for a command that waits on a platform call answered only when it is done. Python code can use
+  `intern.holds.hold()`. Commands run by a session with `idle_stop_s` on the `local` runner are given
+  `INTERN_HOLD_SOCKET` and `INTERN_PROCESS_ID`; any client can hold over that socket. See
+  [processes](capabilities/processes.md#holding-a-command-while-it-waits-on-a-call).
