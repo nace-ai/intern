@@ -99,6 +99,17 @@ class ProcessConfig(_Settings):
         description="A `bash` command still running after this many seconds goes on as a background job; 0 never "
         "moves one.",
     )
+    idle_stop_s: float = Field(
+        default=0,
+        ge=0,
+        le=86_400,
+        allow_inf_nan=False,
+        description="A command that writes nothing for this many seconds is stopped (`idle_stopped`); 0 stops none. "
+        "Servers, watchers and `sleep`s are left alone.",
+    )
+    idle_stop_jobs: bool = Field(
+        default=True, description="`idle_stop_s` stops `process` jobs too, not only `bash` commands."
+    )
 
     @model_validator(mode="after")
     def capacity(self) -> ProcessConfig:
@@ -352,6 +363,9 @@ class CapabilitySettings(_Settings):
     mcp: list[McpConfig] = Field(default_factory=list, max_length=32)
     session_budget: SessionBudgetConfig | None = None
     system2_fallbacks: list[ModelRef] = Field(default_factory=list, max_length=7)
+    model_retries: bool = True
+    """False makes each System 2 call once: a retryable failure ends the run with `provider_error`, for a client
+    whose own gateway retries. Fallbacks in `system2_fallbacks` are still tried."""
 
     @model_validator(mode="before")
     @classmethod

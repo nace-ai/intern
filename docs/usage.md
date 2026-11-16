@@ -30,6 +30,7 @@ intern -p --system2 fireworks/accounts/fireworks/models/nemotron-lightning-3p5-3
 | JSON-RPC server over stdio | `intern rpc --system2 M` |
 | Agent Client Protocol server (t3code, Zed; needs `[acp]`, see [acp.md](acp.md)) | `intern acp` |
 | Event JSON Schema | `intern schema` |
+| Keep the command it runs in from `idle_stop_s` while `cmd` runs | `intern hold [--reason TEXT] -- cmd...` |
 
 Useful flags: `--window N` caps the working window, `--max-turns N` sets the turn budget,
 `--no-session` keeps the journal in memory, `--session FILE` resumes one, `--no-context-files`
@@ -94,12 +95,17 @@ session that cannot set it up, or whose System 1 does not answer when it opens, 
 reason; there is no heuristic stand-in. An ask System 1 fails mid-run is retried with backoff for up to
 30 minutes, then the run stops with `system1_unavailable`. A model provider that keeps failing with
 retryable errors (rate limits, an overloaded server) is waited out the same way before the run stops with
-`provider_error`. `--system1 drex-max-v1.1` picks another console model;
+`provider_error`; [`model_retries = false`](capability-settings.md#model-retries) stops it at the first failure
+instead, for a gateway that retries itself. `--system1 drex-max-v1.1` picks another console model;
 `--system1 decisions:<model>[,<fallback>...]` a decision model on the decisions API (OpenRouter: `~typesafe/jev-latest`, `nace-ai/drex-max`, ...; key in `$OPENROUTER_API_KEY`).
 `intern models` lists every choice the console and the decisions API serve. The old names
 `--model`/`-m`, `--decider`, `model =` and `[decider]` still work.
 
-**The tool-call guard.** Before a tool runs, fixed rules refuse the clearly dangerous: deleting `/`, `~`,
+**The tool-call guard.** It is off by default: no tool call is checked or refused, not even `sudo` or a force
+push, and text the agent reads (a web page, a file) can talk it into sending your keys out. Turn it on with
+`[guard] mode = "full"`, or `mode = "rules"` for the fixed rules without System 1's judgement. System 1 is
+required either way, for supervision and the other asks. With it on, before a tool runs, fixed rules refuse
+the clearly dangerous: deleting `/`, `~`,
 a parent of the working directory or a `.git`, wiping a disk, piping a download into a shell, force-pushing,
 discarding uncommitted work, reading or sending credentials and `.env` files, `sudo`, and writing into `.git/`,
 credential or shell-startup files. These rules are code and need no model. System 1
@@ -138,6 +144,7 @@ base_url = "http://gpu-box:8000/v1"
 memory_share = 0.5         # the default: a shell command holding more than half the machine's memory is stopped
 
 [guard]
+mode = "off"               # the default: no call is checked; "rules": the fixed rules only; "full": rules and System 1
 system_writes = "refuse"   # the default; "allow" in a disposable container leaves /etc, /usr writes to System 1
 ```
 

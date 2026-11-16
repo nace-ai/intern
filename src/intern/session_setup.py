@@ -37,6 +37,7 @@ from intern.decision_failover import BudgetDecisionBackend
 from intern.executor import ClosableExecutor, Executor, JobExecutor, LocalExecutor, mount_of, shell_env
 from intern.extensions.code_search import CodeSearch
 from intern.extensions.workspace.extension import Workspace
+from intern.holds import HoldServer
 from intern.hooks import Extension
 from intern.loop import EngineDeps, ModelBinding
 from intern.mcp_client import MCP_NEEDS, StdioConfig, http_connection, stdio_connection
@@ -51,6 +52,7 @@ from intern.models.catalog import RunnerInfo
 from intern.models.registry import ConfigError
 from intern.needs import Needs
 from intern.processes import ProcessManager
+from intern.providers.base import NO_RETRIES, RetryPolicy
 from intern.providers.failover import (
     BudgetPolicy,
     BudgetProvider,
@@ -666,6 +668,9 @@ async def prepare_session(
                 stack.push_async_callback(owned.aclose)
             if manager is not None:
                 stack.push_async_callback(manager.aclose)
+                if manager.idle_stop_s and type(inner) is LocalExecutor:
+                    # Only a command on this machine can reach the socket; closed before the manager, with its holds.
+                    await stack.enter_async_context(HoldServer(manager))
             if browser is not None:
                 # Constructor and callback only: entering BrowserSession would
                 # eagerly start Chromium instead of waiting for its first use.
@@ -717,6 +722,9 @@ async def prepare_session(
     own = [SecretStr(env[name]) for name in harness_only if len(env.get(name, "")) >= MIN_SECRET_CHARS]
     values = [*(secret_store or {}).values(), *own]
     redact = SecretRedactor(values).redact if values else deps.redact
-    prepared = replace(deps, tools=tools, executor=executor, system2=system2, redact=redact, processes=manager)
+    retries = RetryPolicy() if settings.model_retries else NO_RETRIES
+    prepared = replace(
+        deps, tools=tools, executor=executor, system2=system2, redact=redact, processes=manager, retries=retries
+    )
     resolver = models.resolve if settings.system2_fallbacks or models.budget is not None else resolve_model
     return PreparedSession(prepared, resources, resolver, models.budget)

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import functools
 import hashlib
 import re
 import shlex
@@ -17,9 +18,23 @@ from pydantic import BaseModel, Field
 
 from intern import names
 from intern.events import ProcessState
-from intern.executor import CapturingExecutor, ExecResult, LocalExecutor, memory_stopped, run_command
+from intern.executor import (
+    CapturingExecutor,
+    ExecResult,
+    LocalExecutor,
+    memory_stopped,
+    observes_output,
+    run_command,
+)
 from intern.messages import ResourceRef
-from intern.processes import JUDGE_AFTER_S, Judgment, ProcessManager, ProcessSnapshot, duration_text
+from intern.processes import (
+    JUDGE_AFTER_S,
+    Judgment,
+    ProcessManager,
+    ProcessSnapshot,
+    duration_text,
+    idle_stopped_text,
+)
 from intern.providers.base import ToolSpec
 from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail
 
@@ -182,19 +197,26 @@ async def _moves(
 
 
 class _Deadline:
-    """What stops a `bash` command: the run's abort, or its timeout_s. The executor waits on `stop` beside the command,
-    so the timeout_s can be lifted after it starts: one found to serve (a server, a watcher) does not end, and the
-    timeout_s the agent gave a call it expected to block on would only kill it."""
+    """What stops a `bash` command: the run's abort, its timeout_s, or the idle watch (`idle`). The executor waits on
+    `stop` beside the command, so the timeout_s can be lifted after it starts: one found to serve (a server, a watcher)
+    does not end, and the timeout_s the agent gave a call it expected to block on would only kill it."""
 
     def __init__(self, abort: asyncio.Event, timeout_s: float) -> None:
         self.stop = asyncio.Event()
         self.expired = False
+        self.idled = False
         self._abort = abort
         self._timer = asyncio.get_running_loop().call_later(timeout_s, self._expire)
 
     def _expire(self) -> None:
         if not self.stop.is_set():
             self.expired = True
+            self.stop.set()
+
+    def idle(self) -> None:
+        """It wrote nothing for the session's idle_stop_s: stop it."""
+        if not self.stop.is_set():
+            self.idled = True
             self.stop.set()
 
     def lift(self) -> None:
@@ -216,6 +238,8 @@ class _Deadline:
             self._timer.cancel()
         if self.expired and result.aborted:
             result = result.model_copy(update={"aborted": False, "timed_out": True})
+        elif self.idled and result.aborted:
+            result = result.model_copy(update={"aborted": False, "idle_stopped": True})
         return result
 
 
@@ -306,9 +330,14 @@ class BashTool(Tool):
         captures = isinstance(ctx.executor, CapturingExecutor) and ctx.executor.output_capture
         # The session records the call as running for as long as it runs, and what it leaves running after.
         processes, call_id = ctx.processes, ctx.call_id or uuid4().hex
-        if processes is not None:
-            processes.begin_call(call_id, args.command)
         deadline = _Deadline(ctx.abort, args.timeout_s)
+        on_output, env = None, None
+        if processes is not None:
+            env = processes.hold_env(call_id) or None
+            # Only silence that can be seen is stopped for; a wait that ends by itself (a `sleep`) is silent by design.
+            watched = observes_output(ctx.executor) and not wait_ends(args.command)
+            processes.begin_call(call_id, args.command, deadline.idle if watched else None)
+            on_output = functools.partial(processes.output, call_id) if watched else None
         execution = asyncio.create_task(
             deadline.run(
                 lambda: run_command(
@@ -318,7 +347,9 @@ class BashTool(Tool):
                     timeout_s=SERVES_MAX_S,  # the executor's backstop; `deadline` holds the call's timeout_s
                     max_output_bytes=max(ctx.max_output_chars * CAPTURE_FACTOR, 1 << 20),
                     abort=deadline.stop,
+                    env=env,
                     capture_path=capture if captures else None,
+                    on_output=on_output,
                 )
             )
         )
@@ -353,6 +384,8 @@ class BashTool(Tool):
             state: ProcessState = (
                 "out_of_memory"
                 if result.memory_exceeded
+                else "idle_stopped"
+                if result.idle_stopped
                 else "timed_out"
                 if result.timed_out
                 else "aborted"
@@ -404,6 +437,15 @@ class BashTool(Tool):
                 f"the command was {memory_stopped(result.memory_bytes, limit or result.memory_bytes)}",
                 "Read less at once (fewer columns or rows, or in chunks), or query the data where it is (a database, "
                 "or a tool that reads the files in place) rather than loading it whole.",
+                content=output,
+                retry_safe=False,
+            ).model_copy(update=metadata)
+        if result.idle_stopped:
+            quiet = ctx.processes.idle_stop_s if ctx.processes is not None else 0
+            return fail(
+                f"the command was {idle_stopped_text(round(quiet))}",
+                "Check whether it changed files or remote state before retrying. If it works without printing, make it "
+                "print progress (python -u, a --verbose or --progress flag) or start it with the process tool.",
                 content=output,
                 retry_safe=False,
             ).model_copy(update=metadata)

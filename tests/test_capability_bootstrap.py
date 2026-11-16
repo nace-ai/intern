@@ -266,6 +266,27 @@ max_observed_cost_usd = 0.1
         assert (await budget.snapshot()).calls == 4
 
 
+@pytest.mark.parametrize("fallback", [False, True])
+async def test_with_model_retries_off_a_retryable_failure_ends_the_run_after_one_call_unless_a_fallback_answers(
+    tmp_path, monkeypatch, fallback
+):
+    primary, primary_provider = make_binding(
+        "fake/primary", [Turn(error="HTTP 529 from fake: overloaded", retryable=True), Turn(text="retried")]
+    )
+    backup, _ = make_binding("fake/backup", [Turn(text="backup answer")])
+    text = 'system2 = "fake/primary"\n[capabilities]\nmodel_retries = false\n'
+    if fallback:
+        text += 'system2_fallbacks = ["fake/backup"]\n'
+    bootstrap = make_bootstrap(tmp_path, monkeypatch, {primary.ref: primary, backup.ref: backup}, text)
+    async with await bootstrap.session(lambda event: None) as session:
+        outcome = await session.run("finish the task")
+    assert len(primary_provider.requests) == 1
+    if fallback:
+        assert outcome.final_text == "backup answer"
+    else:
+        assert outcome.reason == "provider_error" and "529" in (outcome.detail or "")
+
+
 @pytest.mark.parametrize("incompatibility", ["working", "advertised", "sampling", "effort", "compat", "vision"])
 async def test_incompatible_backup_is_refused_before_optional_resource_side_effects(
     tmp_path, monkeypatch, incompatibility

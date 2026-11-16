@@ -72,8 +72,8 @@ default options, never another runner's.
 - **Background jobs.** The `process` tool runs its jobs through the executor when the runner runs jobs (Docker runs
   one container per job; OpenSandbox runs them in the session's sandbox). With a runner that runs none, the
   `process` tool is refused rather than started on the host while commands run in the sandbox.
-- **The tool-call guard.** The guard refuses destructive or exfiltrating calls by fixed rules, and System 1 judges
-  the risky rest. It runs before every tool call, whatever the runner, and reads paths as the tools see them
+- **The tool-call guard.** When it is on (`[guard] mode`, off by default), the guard refuses destructive or
+  exfiltrating calls by fixed rules, and System 1 judges the risky rest. It runs before every tool call, whatever the runner, and reads paths as the tools see them
   (`/workspace/...` under Docker) as well as host paths. Its uncommitted-work check runs `git status` through the
   executor, so the image needs `git` for that check to apply.
 - **The web reader.** It saves the pages it fetches (its retained sources) inside the workspace, under

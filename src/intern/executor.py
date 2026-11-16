@@ -11,10 +11,10 @@ import signal
 import sys
 import time
 from collections import deque
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import BinaryIO, Protocol, runtime_checkable
+from typing import Any, BinaryIO, Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
@@ -46,6 +46,8 @@ class ExecResult(BaseModel):
     memory_bytes: int = 0
     #: The command's process group, when the command returned and left members of it running (`cmd &`).
     left_running_group: int | None = None
+    #: It wrote nothing for the session's `idle_stop_s` and was stopped (set by the caller, not the executor).
+    idle_stopped: bool = False
 
 
 @dataclass(frozen=True)
@@ -146,6 +148,31 @@ class CapturingExecutor(Executor, Protocol):
     ) -> ExecResult: ...
 
 
+@runtime_checkable
+class ObservingExecutor(Executor, Protocol):
+    """Optional capability: `run` calls `on_output` each time the command writes output, as the raw bytes arrive (before
+    any redaction or capture), so a command that writes nothing can be told from one that does (`idle_stop_s`)."""
+
+    @property
+    def output_observed(self) -> bool: ...
+
+    async def run(
+        self,
+        command: str,
+        *,
+        cwd: Path,
+        timeout_s: float,
+        max_output_bytes: int,
+        abort: asyncio.Event | None = None,
+        env: Mapping[str, str] | None = None,
+        on_output: Callable[[], None] | None = None,
+    ) -> ExecResult: ...
+
+
+def observes_output(executor: Executor) -> bool:
+    return isinstance(executor, ObservingExecutor) and executor.output_observed
+
+
 async def run_command(
     executor: Executor,
     command: str,
@@ -156,21 +183,19 @@ async def run_command(
     abort: asyncio.Event | None = None,
     env: Mapping[str, str] | None = None,
     capture_path: Path | None = None,
+    on_output: Callable[[], None] | None = None,
 ) -> ExecResult:
+    """Run `command` on `executor`, with a capture file and an output observer only where the executor takes them:
+    asking for a capture it cannot write is an error, an observer it cannot call is dropped (`observes_output`)."""
+    extra: dict[str, Any] = {}
     if capture_path is not None:
         if not isinstance(executor, CapturingExecutor) or not executor.output_capture:
             raise ValueError("This executor does not support output capture")
-        return await executor.run(
-            command,
-            cwd=cwd,
-            timeout_s=timeout_s,
-            max_output_bytes=max_output_bytes,
-            abort=abort,
-            env=env,
-            capture_path=capture_path,
-        )
+        extra["capture_path"] = capture_path
+    if on_output is not None and observes_output(executor):
+        extra["on_output"] = on_output
     return await executor.run(
-        command, cwd=cwd, timeout_s=timeout_s, max_output_bytes=max_output_bytes, abort=abort, env=env
+        command, cwd=cwd, timeout_s=timeout_s, max_output_bytes=max_output_bytes, abort=abort, env=env, **extra
     )
 
 
@@ -311,6 +336,7 @@ class LocalExecutor:
     """
 
     output_capture = True
+    output_observed = True
 
     def __init__(self, memory_limit: int | None = None) -> None:
         self.memory_limit = memory_limit
@@ -361,6 +387,7 @@ class LocalExecutor:
         abort: asyncio.Event | None = None,
         env: Mapping[str, str] | None = None,
         capture_path: Path | None = None,
+        on_output: Callable[[], None] | None = None,
     ) -> ExecResult:
         """Optionally spool output before excerpting; the caller owns the private capture file.
 
@@ -393,6 +420,8 @@ class LocalExecutor:
             assert process.stdout is not None
             try:
                 while chunk := await process.stdout.read(READ_CHUNK):
+                    if on_output is not None:
+                        on_output()
                     if capture is not None:
                         kept = chunk[: max(0, MAX_CAPTURE_BYTES - captured)]
                         capture.write(kept)

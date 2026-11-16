@@ -36,6 +36,7 @@ from intern.executor import (
     memory_stopped,
     shell_env,
 )
+from intern.holds import PROCESS_ENV, SOCKET_ENV
 
 COMMAND_CHARS = 200  # a command as records and snapshots show it
 LAST_LINE_CHARS = 200  # a running job's last line of output, as System 1 reads it
@@ -46,6 +47,10 @@ Judgment = tuple[Literal["waits", "serves"], float]
 """System 1's word that a running `bash` command waits or serves, with P(waits) + P(serves)."""
 ENDED_LINES = ("Background job ", "A process the command ")  # how the line of each process in an end notice begins
 NOTICE_OUTPUT_CHARS = 1_500  # the end of a job's output the notice of its end quotes
+IDLE_POLL_S = 1.0  # how often the idle watch looks for commands that have written nothing for `idle_stop_s`
+IDLE_LATE_S = 30.0
+"""A look this late means the event loop could not read output meanwhile (it was blocked, or the machine paused): the
+silence of every command is counted from then, not stopped for."""
 
 
 class OutputFilter(Protocol):
@@ -69,6 +74,11 @@ def duration_text(seconds: int) -> str:
     hours, rest = divmod(max(seconds, 0), 3600)
     minutes, seconds = divmod(rest, 60)
     return f"{hours}h {minutes:02d}m" if hours else f"{minutes}m {seconds:02d}s" if minutes else f"{seconds}s"
+
+
+def idle_stopped_text(quiet_s: int | None) -> str:
+    """How a stop for silence is told."""
+    return f"stopped after it wrote nothing for {duration_text(quiet_s or 0)}"
 
 
 def _from_before(info: ProcessInfo) -> str:
@@ -149,10 +159,27 @@ class _Job:
     output_filter: OutputFilter | None = None
     takes_input: bool = False
     """It was started with its input open (`stdin`), for `write`; any other job reads end-of-file."""
+    serves: bool = False
+    """It serves (a server, a watcher): moved as one, or found up and ready. Silence is what it does, so the idle watch
+    leaves it alone."""
+    idle: asyncio.Event = field(default_factory=asyncio.Event)
+    """Set by the idle watch: a job the manager supervises stops as `idle_stopped`."""
+    quiet_s: int | None = None
+    """How long it had written nothing when the idle watch stopped it."""
 
     @property
     def returncode(self) -> int | None:
         return self.process.returncode if self.process is not None else self.remote_exit
+
+
+@dataclass
+class _Watched:
+    """A command the idle watch may stop: since when (event-loop time) it has written nothing, and how to stop it."""
+
+    quiet_since: float
+    stop: Callable[[], None]
+    holds: int = 0
+    """Holds open on it (`holds.py`): while any is, its silence does not count."""
 
 
 class ProcessManager:
@@ -163,12 +190,25 @@ class ProcessManager:
         max_records: int = 64,
         max_log_bytes: int = 64 * 1024,
         move_after_s: float = 0,
+        idle_stop_s: float = 0,
+        idle_stop_jobs: bool = True,
     ) -> None:
-        if max_running < 1 or max_records < max_running or max_log_bytes < 1 or move_after_s < 0:
+        if max_running < 1 or max_records < max_running or max_log_bytes < 1 or move_after_s < 0 or idle_stop_s < 0:
             raise ValueError("Invalid process capacity or output budget")
         self.max_running, self.max_records, self.max_log_bytes = max_running, max_records, max_log_bytes
         self.move_after_s = move_after_s
         """A `bash` call still running after this many seconds goes on as a job; 0 never moves one."""
+        self.idle_stop_s = idle_stop_s
+        """A command that writes nothing for this many seconds is stopped (`idle_stopped`); 0 stops none."""
+        self.idle_stop_jobs = idle_stop_jobs
+        """`process` jobs are stopped for silence too, not only `bash` calls."""
+        self._watched: dict[str, _Watched] = {}
+        """What the idle watch may stop, by call id or job handle (a moved call's entry goes on under its job's)."""
+        self._quiet: dict[str, int] = {}
+        """How long each `bash` call the idle watch stopped had written nothing, by call id, until its end."""
+        self._idle_watch: asyncio.Task[None] | None = None
+        self.hold_socket: Path | None = None
+        """The session's hold socket, while it listens (`holds.HoldServer`): every command is told it."""
         self.judge: Callable[[str], Coroutine[object, object, Judgment | None]] | None = None
         """Asks System 1 whether a command still running after JUDGE_AFTER_S waits or serves rather than works, so it
         moves now (the session sets it)."""
@@ -216,9 +256,11 @@ class ProcessManager:
             ended_at=job.ended_at,
             last_output_at=job.last_output_at,
             note=job.note,
+            quiet_s=job.quiet_s,
         )
 
     def _job_ended(self, job: _Job) -> None:
+        self._watched.pop(job.handle, None)
         job.ended_at = now_ms()
         self._report("ended", self._info(job))
 
@@ -246,19 +288,94 @@ class ProcessManager:
             )
         return shown
 
-    def begin_call(self, call_id: str, command: str) -> None:
-        """A `bash` call started: it is running until `end_call` (or `adopt`)."""
+    def begin_call(self, call_id: str, command: str, stop: Callable[[], None] | None = None) -> None:
+        """A `bash` call started: it is running until `end_call` (or `adopt`). With `stop`, the idle watch calls it
+        once the call has written nothing for `idle_stop_s` (`output` says when it writes); it goes on calling it
+        after the call moves to the background, as its job."""
         info = ProcessInfo(id=call_id, kind="call", command=_shown(command), state="running", started_at=now_ms())
         self._calls[call_id] = info
         self._moves[call_id] = asyncio.Event()
+        if stop is not None:
+            self._watch(call_id, stop)
         self._report("started", info)
 
     def end_call(self, call_id: str, state: ProcessState, exit_code: int | None) -> None:
         self._moves.pop(call_id, None)
         self._move_why.pop(call_id, None)
+        self._watched.pop(call_id, None)
+        quiet = self._quiet.pop(call_id, None)
         if (info := self._calls.pop(call_id, None)) is None:
             return
-        self._report("ended", info.model_copy(update={"state": state, "exit_code": exit_code, "ended_at": now_ms()}))
+        ended = {"state": state, "exit_code": exit_code, "ended_at": now_ms(), "quiet_s": quiet}
+        self._report("ended", info.model_copy(update=ended))
+
+    def output(self, call_id: str) -> None:
+        """The `bash` call `call_id` wrote output (or its job, once it moved): its silence starts again."""
+        if (watched := self._watched.get(self._moved_from.get(call_id, call_id))) is not None:
+            watched.quiet_since = asyncio.get_running_loop().time()
+
+    def hold_env(self, process_id: str) -> dict[str, str]:
+        """What a command with id `process_id` (a call id, a job handle) is given to hold itself: none while no hold
+        socket listens."""
+        if self.hold_socket is None:
+            return {}
+        return {SOCKET_ENV: str(self.hold_socket), PROCESS_ENV: process_id}
+
+    def hold(self, process_id: str) -> Callable[[], None]:
+        """Hold the running command `process_id` (a call's id, which follows it into the background, or a job's handle)
+        against the idle watch until the returned release is called; its silence counts again from then. ValueError
+        when no such command runs."""
+        key = self._moved_from.get(process_id, process_id)
+        if key not in self._calls and not self.job_running(key):
+            raise ValueError(f"no command with id {process_id!r} is running in this session")
+        watched = self._watched.get(key)
+        if watched is None:  # not stopped for silence (a server, a wait, idle_stop_s off): nothing to hold off
+            return lambda: None
+        watched.holds += 1
+        released = False
+
+        def release() -> None:
+            nonlocal released
+            if not released:
+                released = True
+                watched.holds -= 1
+                if not watched.holds:
+                    watched.quiet_since = asyncio.get_running_loop().time()
+
+        return release
+
+    def _watch(self, key: str, stop: Callable[[], None]) -> None:
+        if not self.idle_stop_s or self._closed:
+            return
+        self._watched[key] = _Watched(asyncio.get_running_loop().time(), stop)
+        if self._idle_watch is None or self._idle_watch.done():
+            self._idle_watch = asyncio.create_task(self._watch_idle(), name="idle-watch")
+
+    def _exempt(self, key: str) -> bool:
+        """A job whose silence is expected: one that serves, or a wait that ends by itself (a `sleep`)."""
+        job = self._jobs.get(key)
+        return job is not None and (job.serves or job.ends)
+
+    async def _watch_idle(self) -> None:
+        loop = asyncio.get_running_loop()
+        last = loop.time()
+        while self._watched:
+            await asyncio.sleep(IDLE_POLL_S)
+            now = loop.time()
+            if now - last > IDLE_LATE_S:
+                for watched in self._watched.values():
+                    watched.quiet_since = max(watched.quiet_since, now)
+            last = now
+            for key, watched in list(self._watched.items()):
+                quiet = now - watched.quiet_since
+                if watched.holds or quiet < self.idle_stop_s or self._exempt(key):
+                    continue
+                del self._watched[key]
+                if (job := self._jobs.get(key)) is not None:
+                    job.quiet_s = int(quiet)
+                else:
+                    self._quiet[key] = int(quiet)
+                watched.stop()
 
     def move_requested(self, call_id: str) -> asyncio.Event:
         """Set when the running `bash` call `call_id` should go on in the background now."""
@@ -316,10 +433,13 @@ class ProcessManager:
             note=note,
             lift=lift,
         )
+        job.serves = not held
         if not held and lift is not None:
             lift()
         self._jobs[job.handle] = job
         self._moved_from[call_id] = job.handle
+        if (watched := self._watched.pop(call_id, None)) is not None:
+            self._watched[job.handle] = watched
         self._report("started", self._info(job))
         job.task = asyncio.create_task(self._supervise_moved(job))
         return self._snapshot(job, None)
@@ -333,6 +453,7 @@ class ProcessManager:
         freed of its call's timeout_s too."""
         if (job := self._jobs.get(handle)) is not None:
             job.held = False
+            job.serves = True
             if job.lift is not None:
                 job.lift()
 
@@ -374,6 +495,8 @@ class ProcessManager:
                     job.state = (
                         "out_of_memory"
                         if result.memory_exceeded
+                        else "idle_stopped"
+                        if result.idle_stopped
                         else "timed_out"
                         if result.timed_out
                         else "aborted"
@@ -444,16 +567,21 @@ class ProcessManager:
         output_filter: OutputFilter | None = None,
         shown_command: str | None = None,
         stdin: bool = False,
+        handle: str | None = None,
     ) -> ProcessSnapshot:
         """Start ``command`` as an owned job; its process group is stopped past ``timeout_s`` or, when given, past
         ``memory_limit`` bytes of resident memory (read every BACKGROUND_POLL_S). With ``executor`` the job runs
         where that executor runs commands, and the executor's own limits bound its memory. ``shown_command`` is the
         command as the agent wrote it, for the record, when ``command`` is a prepared one (secrets injected). Like a
         bash call, it reads end-of-file on its input unless ``stdin``: a command that reads its input (``docker exec
-        -i``, a prompt) would otherwise wait on it forever; only a job started with ``stdin`` takes ``write``."""
+        -i``, a prompt) would otherwise wait on it forever; only a job started with ``stdin`` takes ``write``.
+        ``handle`` is the job's, when the caller had to know it first (`hold_env` for a command it prepares)."""
         if not command.strip() or not 0 < timeout_s <= 86_400:
             raise ValueError("Provide a command and a timeout in (0, 86400] seconds")
         shown = shown_command or command
+        handle = handle or uuid.uuid4().hex
+        if hold := self.hold_env(handle):
+            env = {**(os.environ if env is None else env), **hold}
         async with self._lock:
             if self._closed:
                 raise RuntimeError("Process manager is closed")
@@ -461,18 +589,18 @@ class ProcessManager:
                 raise RuntimeError("Run was aborted before process creation")
             if sum(not j.done.is_set() for j in self._jobs.values()) >= self.max_running:
                 raise RuntimeError("The running-process limit is reached; terminate or wait for an owned job")
-            for handle, old in list(self._jobs.items()):
+            for finished, old in list(self._jobs.items()):
                 if len(self._jobs) < self.max_records:
                     break
                 if old.done.is_set():
-                    del self._jobs[handle]
+                    del self._jobs[finished]
             if executor is not None:
                 remote = await executor.start_job(command, cwd=cwd, env=env)
                 if not stdin:
                     with contextlib.suppress(NotImplementedError, ValueError):
                         await remote.write(b"", eof=True)
                 job = _Job(
-                    handle=uuid.uuid4().hex,
+                    handle=handle,
                     command=shown,
                     remote=remote,
                     output_filter=output_filter,
@@ -480,6 +608,8 @@ class ProcessManager:
                 )
                 self._jobs[job.handle] = job
                 self._report("started", self._info(job))
+                if self.idle_stop_jobs:
+                    self._watch(job.handle, job.idle.set)
                 job.task = asyncio.create_task(self._supervise_remote(job, timeout_s, abort))
                 return self._snapshot(job, None)
             process = await asyncio.create_subprocess_exec(
@@ -493,17 +623,19 @@ class ProcessManager:
                 stderr=asyncio.subprocess.STDOUT,
                 start_new_session=True,
             )
-            job = _Job(
-                handle=uuid.uuid4().hex, command=shown, process=process, output_filter=output_filter, takes_input=stdin
-            )
+            job = _Job(handle=handle, command=shown, process=process, output_filter=output_filter, takes_input=stdin)
             self._jobs[job.handle] = job
             self._report("started", self._info(job))
+            if self.idle_stop_jobs:
+                self._watch(job.handle, job.idle.set)
             job.task = asyncio.create_task(self._supervise(job, timeout_s, abort, memory_limit))
             return self._snapshot(job, None)
 
     def _append(self, job: _Job, chunk: bytes) -> None:
         if chunk:
             job.last_output_at = now_ms()
+            if (watched := self._watched.get(job.handle)) is not None:
+                watched.quiet_since = asyncio.get_running_loop().time()
         job.output.extend(chunk)
         overflow = max(0, len(job.output) - self.max_log_bytes)
         if overflow:
@@ -616,12 +748,16 @@ class ProcessManager:
         exited = asyncio.create_task(job.process.wait())
         aborted = asyncio.create_task(abort.wait()) if abort is not None else None
         memory = asyncio.create_task(self._watch_memory(job, memory_limit)) if memory_limit else None
-        pending = {exited} | ({aborted} if aborted is not None else set()) | ({memory} if memory is not None else set())
+        idled = asyncio.create_task(job.idle.wait())
+        pending = {exited, idled} | ({aborted} if aborted is not None else set())
+        pending |= {memory} if memory is not None else set()
         try:
             done, _ = await asyncio.wait(pending, timeout=timeout_s, return_when=asyncio.FIRST_COMPLETED)
             if exited not in done:
                 if memory is not None and memory in done:
                     job.state = "out_of_memory"
+                elif idled in done:
+                    job.state = "idle_stopped"
                 else:
                     job.state = "aborted" if aborted is not None and aborted in done else "timed_out"
             elif job.state == "running":
@@ -641,7 +777,7 @@ class ProcessManager:
             try:
                 await self._kill(job)
             finally:
-                extra = [t for t in (aborted, memory) if t is not None]
+                extra = [t for t in (aborted, memory, idled) if t is not None]
                 for task in [exited, drain, *extra]:
                     if not task.done():
                         task.cancel()
@@ -673,11 +809,18 @@ class ProcessManager:
         pump = asyncio.create_task(self._pump(job))
         exited = asyncio.create_task(job.remote.wait())
         aborted = asyncio.create_task(abort.wait()) if abort is not None else None
-        pending = {exited} | ({aborted} if aborted is not None else set())
+        idled = asyncio.create_task(job.idle.wait())
+        pending = {exited, idled} | ({aborted} if aborted is not None else set())
         try:
             done, _ = await asyncio.wait(pending, timeout=timeout_s, return_when=asyncio.FIRST_COMPLETED)
             if exited not in done:
-                job.state = "aborted" if aborted is not None and aborted in done else "timed_out"
+                job.state = (
+                    "idle_stopped"
+                    if idled in done
+                    else "aborted"
+                    if aborted is not None and aborted in done
+                    else "timed_out"
+                )
                 await self._stop_remote(job)
             elif job.state == "running":
                 job.state = "exited"
@@ -694,7 +837,7 @@ class ProcessManager:
                 # Like a local job's group, nothing it started outlives its record.
                 await self._stop_remote(job)
             finally:
-                extra = [aborted] if aborted is not None else []
+                extra = [idled] + ([aborted] if aborted is not None else [])
                 for task in [exited, pump, *extra]:
                     if not task.done():
                         task.cancel()
@@ -787,9 +930,9 @@ class ProcessManager:
             elif info.kind == "job":
                 job, jobs = self._jobs[info.id], True
                 job.end_seen = True
-                status = info.state.replace("_", " ") + (
-                    f", exit code {info.exit_code}" if info.exit_code is not None else ""
-                )
+                status = (
+                    idle_stopped_text(info.quiet_s) if info.state == "idle_stopped" else info.state.replace("_", " ")
+                ) + (f", exit code {info.exit_code}" if info.exit_code is not None else "")
                 tail = bytes(job.output[-NOTICE_OUTPUT_CHARS:]).decode("utf-8", errors="replace").strip()
                 said = f"\nThe end of its output:\n{tail}" if tail else "\nIt wrote no output."
                 lines.append(f"Background job {info.id} (`{info.command}`) ended: {status}, after {took}.{said}")
@@ -845,6 +988,11 @@ class ProcessManager:
 
     async def aclose(self) -> None:
         self._closed = True
+        self._watched.clear()
+        if self._idle_watch is not None:
+            self._idle_watch.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self._idle_watch
         if self._watcher is not None:
             self._watcher.cancel()
             with contextlib.suppress(asyncio.CancelledError):

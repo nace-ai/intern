@@ -14,7 +14,7 @@ from intern.models.profile import Compat
 from intern.models.registry import Endpoint
 from intern.providers import anthropic
 from intern.providers.anthropic import AnthropicProvider, mark_cache, wire_messages
-from intern.providers.base import Completed, ProviderError, ProviderRequest
+from intern.providers.base import NO_RETRIES, Completed, ProviderError, ProviderRequest, RetryPolicy
 
 REF = "anthropic/m"
 
@@ -109,11 +109,26 @@ def test_cache_marks_never_reach_the_stored_reply():
     assert "cache_control" not in reply.reasoning_blocks[0]
 
 
-async def test_an_overloaded_stream_is_retried_before_any_output(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr(anthropic, "RETRY_WAITS_S", (0.0,))
+async def test_an_overloaded_stream_is_retried_before_any_output():
     replies = [sse({"type": "error", "error": {"type": "overloaded_error", "message": "busy"}}), OK_REPLY]
-    message = await collect(provider(lambda r: httpx.Response(200, content=replies.pop(0))), request())
+    message = await collect(
+        provider(lambda r: httpx.Response(200, content=replies.pop(0))),
+        request(retries=RetryPolicy(provider_waits_s=(0.0,))),
+    )
     assert message.text == "ok" and message.stop == "stop"
+
+
+async def test_with_retries_off_an_overloaded_server_is_asked_once_and_the_error_stays_retryable():
+    calls = 0
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(529, text="overloaded")
+
+    with pytest.raises(ProviderError) as raised:
+        await collect(provider(handler), request(retries=NO_RETRIES))
+    assert calls == 1 and raised.value.status == 529 and raised.value.retryable
 
 
 async def test_a_client_error_is_not_retried():
@@ -154,8 +169,7 @@ async def test_a_refusal_ends_the_reply_as_an_error():
     assert message.stop == "error" and message.error
 
 
-async def test_a_tls_error_before_any_output_is_retried(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr(anthropic, "RETRY_WAITS_S", (0.0,))
+async def test_a_tls_error_before_any_output_is_retried():
     calls = 0
 
     def handler(req: httpx.Request) -> httpx.Response:
@@ -165,5 +179,5 @@ async def test_a_tls_error_before_any_output_is_retried(monkeypatch: pytest.Monk
             raise ssl.SSLError("bad record mac")
         return httpx.Response(200, content=OK_REPLY)
 
-    message = await collect(provider(handler), request())
+    message = await collect(provider(handler), request(retries=RetryPolicy(provider_waits_s=(0.0,))))
     assert calls == 2 and message.text == "ok"

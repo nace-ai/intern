@@ -154,6 +154,55 @@ arrives through its capture file, which the job reads as it grows and removes at
 command secrets, the redacted output comes at the end). The `bash` description says a long command
 goes on in the background; a session that never moves one says how to leave one running instead.
 
+## A silent command is stopped
+
+With `[capabilities.process] idle_stop_s` set (0, the default, stops none), a command that writes nothing for that
+long is stopped, as its `timeout_s` would stop it: a `bash` call, one that went on in the background, and a `process`
+job unless `idle_stop_jobs = false`. Any byte it writes, to stdout or stderr, starts its silence again. Output is
+counted as it arrives from the executor, before secret redaction, so a command with command secrets is not taken for
+silent while its published output waits for its end. Left alone, since their silence is what they do: a job that
+serves (moved as one, or found up and `ready` by System 1's look), a wait that ends by itself (a `sleep` of 10 s or
+more, a CI watch), and what a command left running, whose output is not read. An executor that cannot report output
+as it arrives has none of its `bash` calls stopped. A look of the watch's that comes 30 s late (the event loop was
+blocked, or the machine paused) counts every command's silence from then, since output could not be read meanwhile.
+
+A stopped command's state is `idle_stopped`, and its `process` event's `quiet_s` says how long it had written nothing.
+A `bash` call fails with ``the command was stopped after it wrote nothing for 10m 00s`` and is told to make the command
+print progress (`python -u`, a `--progress` flag) or start it with the `process` tool; a job's end notice says the
+same. `-p --json` and JSON-RPC stream the event; ACP sends nothing for it.
+
+### Holding a command while it waits on a call
+
+A command that waits on something that answers only when it is done (a platform call that runs a job, a long
+request) is silent while it waits. Wrap that wait in `intern hold`, and the command is not stopped for silence while
+it runs:
+
+```bash
+intern hold --reason "platform job" -- curl -sf https://platform.example/api/run-and-wait
+```
+
+`intern hold -- cmd` runs `cmd` and exits with its exit code. While `cmd` runs, the command it runs in, the `bash` call
+or `process` job, is held; when `cmd` exits, its silence counts again from then, so a command held for an hour is not
+stopped the moment the hold ends. A hold never extends `timeout_s`. Python code can hold itself around a block with
+`intern.holds.hold()`:
+
+```python
+from intern.holds import hold
+
+with hold("platform job"):
+    result = client.run_and_wait(job)
+```
+
+How it works: a session with `idle_stop_s` set whose commands run on this machine (the `local` runner) listens on a
+Unix socket in a private temporary folder, and gives every command its path (`INTERN_HOLD_SOCKET`) and the command's
+id (`INTERN_PROCESS_ID`; a `bash` call keeps its id after it goes on in the background). A hold is one connection: the
+client sends one JSON line, `{"process": "<id>", "reason": "<text>"}`, is answered `{"ok": true}` or
+`{"ok": false, "error": "<why>"}`, and the hold lasts until the connection closes. A client that exits or crashes
+closes it, so nothing stays held by mistake. Any language can hold this way. The two names reach a command with
+command secrets too. Outside such a session (no `INTERN_HOLD_SOCKET`: Docker, OpenSandbox, `idle_stop_s = 0`, or not
+under the harness), `intern hold` and `hold()` just run what they wrap; a hold the session refuses (the command
+already ended) is said on stderr, and the command runs anyway.
+
 ## Lifetime and limits
 
 For applications, use `async with ProcessManager() as jobs` or call

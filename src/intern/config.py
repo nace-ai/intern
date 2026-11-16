@@ -39,6 +39,7 @@ from intern.extensions.code_search import CodeSearch
 from intern.extensions.memory import Memory
 from intern.extensions.memory.reminders import MemoryActions
 from intern.extensions.workspace.extension import Workspace
+from intern.guard import GuardMode
 from intern.hooks import Extension, Hooks, build_extension, resolve_extension
 from intern.instructions import FileInstructions
 from intern.journal import Journal
@@ -136,6 +137,11 @@ class CommandsConfig(BaseModel):
 
 
 class GuardConfig(BaseModel):
+    mode: GuardMode = Field(
+        default="off",
+        description="`off`: no tool call is checked or refused; `rules`: fixed rules refuse the clearly dangerous; "
+        "`full`: the fixed rules, then System 1 judges the rest that can do harm. System 1 stays required either way.",
+    )
     system_writes: Literal["refuse", "allow"] = Field(
         default="refuse",
         description="Writes to system files (/etc, /usr, ...): refused by a fixed rule, or left to System 1's "
@@ -647,6 +653,7 @@ class Bootstrap:
             spill_dir=self.home / "spill" / journal.session_id,
             emit=emit,
             system_writes=self.config.guard.system_writes == "allow",
+            guard_mode=self.config.guard.mode,
         )
         if memory is not None:
             emit(MemoryMount(drive=str(memory.root), commit=memory.commit))

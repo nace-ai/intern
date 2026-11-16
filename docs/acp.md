@@ -1037,3 +1037,46 @@ Fewer turns while a job runs; 0.30.6 clients keep working, and nothing a client 
   gets System 1's routine looks, so it never holds the prompt until its timeout.
 - The note a command gets when it goes on in the background tells the model to wait with `process poll` rather than
   `sleep`, `ps` or `tail`.
+
+### 0.31.0
+
+The tool-call guard is off by default; 0.30.7 clients keep working, and nothing a client sends or reads changed
+shape.
+
+- `[guard] mode` in `~/.intern/config.toml` sets it: `off` (the new default) checks no call, `rules` runs the fixed
+  rules only, `full` runs the fixed rules and System 1's judgement, as every session did before. A user who wants
+  the old behaviour sets `mode = "full"`.
+- With `off`, no call is refused, so no `tool_guard` event comes, no `decision` event has purpose `guard`, and no run
+  stops with `stopped_by_guard`; with `rules`, no `tool_guard` event has layer `system1`. System 1 is still required.
+
+### 0.32.0
+
+A silent command can be stopped; 0.31.0 clients keep working, and nothing changes until it is turned on.
+
+- `[capabilities.process] idle_stop_s` stops a command that writes nothing for that many seconds (0, the default,
+  stops none; 600 is what Prime does): a `bash` call, one that went on in the background, and a `process` job unless
+  `idle_stop_jobs = false`. Servers, watchers and long `sleep`s are left alone. The agent is told why it stopped and
+  how to keep a long silent command alive. See [processes](capabilities/processes.md#a-silent-command-is-stopped).
+- The `process` event of a stopped command has state `idle_stopped` and `quiet_s`, the seconds it had written
+  nothing. `-p --json` and JSON-RPC carry it; ACP sends nothing for `process` events, as before.
+
+### 0.33.0
+
+A setting to turn model retries off; 0.32.0 clients keep working, and nothing a client sends or reads changed shape.
+
+- `[capabilities] model_retries = false` makes each System 2 call once, for a client whose own gateway retries. The
+  first retryable failure (HTTP 429, 5xx, an overloaded server, a dropped connection) ends the prompt with
+  [`provider_error`](#stop-reasons-and-errors), where before the provider retried after 2, 8 and 20 s and the
+  reply was requested again for up to 30 minutes. `system2_fallbacks` are still tried. The default, `true`, keeps
+  the retries. See [model retries](capability-settings.md#model-retries).
+
+### 0.34.0
+
+A command can be held against `idle_stop_s`; 0.33.0 clients keep working, and nothing a client sends or reads changed
+shape.
+
+- `intern hold [--reason TEXT] -- cmd` runs `cmd` and keeps the command it runs in from being stopped for silence until
+  `cmd` exits, for a command that waits on a platform call answered only when it is done. Python code can use
+  `intern.holds.hold()`. Commands run by a session with `idle_stop_s` on the `local` runner are given
+  `INTERN_HOLD_SOCKET` and `INTERN_PROCESS_ID`; any client can hold over that socket. See
+  [processes](capabilities/processes.md#holding-a-command-while-it-waits-on-a-call).

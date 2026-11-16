@@ -6,10 +6,9 @@ and MLX servers. Differences between them are `Compat` flags on the model profil
 
 from __future__ import annotations
 
-import asyncio
 import json
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -31,7 +30,6 @@ from intern.messages import (
 from intern.models.prices import priced
 from intern.models.registry import Endpoint
 from intern.providers.base import (
-    TRANSIENT_ERRORS,
     Completed,
     ProviderError,
     ProviderRequest,
@@ -40,6 +38,7 @@ from intern.providers.base import (
     TextChunk,
     image_base64,
     missing_image_note,
+    retrying,
     sse_lines,
 )
 from intern.providers.repair import (
@@ -49,7 +48,6 @@ from intern.providers.repair import (
     split_unopened_think,
 )
 
-RETRY_WAITS_S = (2.0, 8.0, 20.0)
 MAX_RETRY_AFTER_S = 60.0
 RETRYABLE_STATUS = frozenset({408, 409, 425, 429, 500, 502, 503, 504, 529})
 _STOP_KINDS: dict[str, StopKind] = {
@@ -203,45 +201,41 @@ class OpenAICompatProvider:
 
     async def stream(self, request: ProviderRequest) -> AsyncIterator[StreamItem]:
         body = self.body(request)
-        url = f"{self.endpoint.base_url}/chat/completions"
         timeout = httpx.Timeout(connect=15.0, read=300.0, write=60.0, pool=15.0)
         started = time.monotonic()
-        emitted = False
         async with httpx.AsyncClient(timeout=timeout, transport=self._transport) as client:
-            for attempt in range(len(RETRY_WAITS_S) + 1):
-                try:
-                    async with client.stream("POST", url, json=body, headers=self._headers(request)) as response:
-                        if response.status_code >= 400:
-                            detail = (await response.aread()).decode(errors="replace")[:500]
-                            raise ProviderError(
-                                f"HTTP {response.status_code} from {self.endpoint.provider}: {detail}",
-                                status=response.status_code,
-                                retryable=response.status_code in RETRYABLE_STATUS,
-                            ) from None
-                        reply = _Reply()
-                        splitter = ThinkSplitter() if request.compat.think_tags else None
-                        if request.compat.stream:
-                            async for item in self._read_sse(response, reply, splitter):
-                                emitted = True
-                                yield item
-                        else:
-                            for item in self._read_json(json.loads(await response.aread()), reply, splitter):
-                                emitted = True
-                                yield item
-                        for item in self._flush(splitter, reply):
-                            yield item
-                        duration_ms = int((time.monotonic() - started) * 1000)
-                        yield Completed(message=self._finish(reply, request, duration_ms))
-                        return
-                except (ProviderError, *TRANSIENT_ERRORS) as error:
-                    retryable = not isinstance(error, ProviderError) or error.retryable
-                    if emitted or not retryable or attempt == len(RETRY_WAITS_S):
-                        if isinstance(error, ProviderError):
-                            raise
-                        raise ProviderError(
-                            f"{type(error).__name__} from {self.endpoint.provider}: {error}", retryable=True
-                        ) from error
-                    await asyncio.sleep(RETRY_WAITS_S[attempt])
+            attempts = retrying(
+                lambda: self._attempt(client, body, request, started),
+                request.retries.provider_waits_s,
+                self.endpoint.provider,
+            )
+            async for item in attempts:
+                yield item
+
+    async def _attempt(
+        self, client: httpx.AsyncClient, body: dict[str, Any], request: ProviderRequest, started: float
+    ) -> AsyncGenerator[StreamItem]:
+        url = f"{self.endpoint.base_url}/chat/completions"
+        async with client.stream("POST", url, json=body, headers=self._headers(request)) as response:
+            if response.status_code >= 400:
+                detail = (await response.aread()).decode(errors="replace")[:500]
+                raise ProviderError(
+                    f"HTTP {response.status_code} from {self.endpoint.provider}: {detail}",
+                    status=response.status_code,
+                    retryable=response.status_code in RETRYABLE_STATUS,
+                ) from None
+            reply = _Reply()
+            splitter = ThinkSplitter() if request.compat.think_tags else None
+            if request.compat.stream:
+                async for item in self._read_sse(response, reply, splitter):
+                    yield item
+            else:
+                for item in self._read_json(json.loads(await response.aread()), reply, splitter):
+                    yield item
+            for item in self._flush(splitter, reply):
+                yield item
+            duration_ms = int((time.monotonic() - started) * 1000)
+            yield Completed(message=self._finish(reply, request, duration_ms))
 
     async def _read_sse(
         self, response: httpx.Response, reply: _Reply, splitter: ThinkSplitter | None

@@ -65,7 +65,7 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
-from intern.guard import NEXT_ACTION, Guard, Scope
+from intern.guard import NEXT_ACTION, Guard, GuardMode, Scope
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
@@ -95,6 +95,7 @@ from intern.providers.base import (
     ProviderError,
     ProviderRequest,
     ReasoningChunk,
+    RetryPolicy,
     TextChunk,
     ToolSpec,
 )
@@ -112,14 +113,6 @@ MAX_STATE_TOKENS = 12_288  # the State and the thinking that writes it: Qwen3.8 
 # text (Qwen3.8: 2,048 tokens of thought, empty State, so every compaction fell back to "drop").
 STATE_EFFORT = "low"
 MAX_FINISH_REOPENS = 2
-# A reply that fails partway with a retryable error is requested again; nothing of it was recorded.
-REPLY_RETRY_WAITS_S = (5.0, 20.0)
-# A provider that keeps failing with retryable errors (a rate limit held for minutes, an overloaded or restarting
-# server, a dropped network) is waited out: after the waits above, the reply is requested again every
-# REPLY_WAIT_OUT_S until REPLY_WAIT_OUT_WINDOW_S has passed since the first failure. Ending the run after a
-# minute or two of 429s threw away runs that had hours of budget left.
-REPLY_WAIT_OUT_S = 30.0
-REPLY_WAIT_OUT_WINDOW_S = 1800.0
 STATUS_HOLD_S = 60.0
 
 CUT_OFF_NUDGE = "Your reply was cut off at the output limit. Continue exactly where it stopped."
@@ -186,9 +179,12 @@ class EngineDeps:
     """Replaces every stored secret's value with `[REDACTED]`; applied to each tool's output before the model,
     the journal, clients or a spill file see it, and to a run's end detail. None when no secret is stored."""
     system_writes: bool = False
+    guard_mode: GuardMode = "full"
     processes: ProcessManager | None = None
     """The session's job manager (`processes.py`): the `process` tool's jobs, and a record of every command running in
     the session. None when the executor runs no background jobs, or for a session built without setup."""
+    retries: RetryPolicy = field(default_factory=RetryPolicy)
+    """How System 2's calls are made again after a retryable failure; `NO_RETRIES` with `model_retries = false`."""
 
 
 CompactOutcome = Literal["compacted", "fits", "stopped"]
@@ -266,6 +262,7 @@ class Run:
             deps.emit,
             self._system1_state,
             guided=bool(deps.instructions.system1),
+            mode=deps.guard_mode,
         )
 
     # -- helpers --------------------------------------------------------------------------------
@@ -615,6 +612,7 @@ class Run:
             reasoning_replay=profile.reasoning_replay,
             compat=profile.compat,
             session_id=self.deps.journal.session_id,
+            retries=self.deps.retries,
         )
         request = await self.deps.hooks.chain(
             "before_provider_request", request, lambda e, r: e.before_provider_request(r, self._ctx())
@@ -838,6 +836,7 @@ class Run:
             reasoning_replay=binding.profile.reasoning_replay,
             compat=binding.profile.compat,
             session_id=self.deps.journal.session_id,
+            retries=self.deps.retries,
         )
         request = await self.deps.hooks.chain(
             "before_provider_request", base, lambda e, r: e.before_provider_request(r, self._ctx(turn))
@@ -935,7 +934,8 @@ class Run:
 
     async def _call_model_with_retries(self, request: ProviderRequest) -> AssistantMessage | None:
         """Providers retry failures before any output; this covers a stream that breaks partway and a provider
-        that stays unavailable past its own retries."""
+        that stays unavailable past its own retries. Nothing of a failed reply was recorded."""
+        policy = request.retries
         first_failure: float | None = None
         attempt = 0
         while True:
@@ -945,13 +945,13 @@ class Run:
                 if not e.retryable:
                     raise
                 first_failure = time.monotonic() if first_failure is None else first_failure
-                if attempt < len(REPLY_RETRY_WAITS_S):
-                    wait = REPLY_RETRY_WAITS_S[attempt]
+                if attempt < len(policy.reply_waits_s):
+                    wait = policy.reply_waits_s[attempt]
                 else:
-                    left = REPLY_WAIT_OUT_WINDOW_S - (time.monotonic() - first_failure)
+                    left = policy.wait_out_window_s - (time.monotonic() - first_failure)
                     if left <= 0:
                         raise
-                    wait = min(REPLY_WAIT_OUT_S, left)
+                    wait = min(policy.wait_out_s, left)
                 if await self._abortable(asyncio.sleep(wait, result=True)) is None:
                     return None
                 attempt += 1
