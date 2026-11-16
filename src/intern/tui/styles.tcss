@@ -18,10 +18,9 @@ Screen {
     height: 1fr;
 }
 
-#transcript {
+#main {
     width: 1fr;
     height: 1fr;
-    padding: 0 2;
 }
 
 #side {
@@ -29,62 +28,67 @@ Screen {
     min-width: 56;
     max-width: 88;
     height: 1fr;
-    border-left: solid $rule;
+}
+
+/* The three panels, each a window: a round border with the panel's name on it as a tab (the entering page's cards,
+   as the conversation has them). */
+#transcript, #system1, #state {
+    padding: 0 1;
+    border: round $brand 45%;
+}
+
+#transcript {
+    height: 1fr;
+}
+
+/* The entering page has the screen: no window around it. */
+#transcript.entering {
+    padding: 0 2;
+    border: none;
 }
 
 #system1 {
     height: 3fr;
-    padding: 0 1;
-    border-bottom: solid $rule;
 }
 
 #state {
     height: 2fr;
-    padding: 0 1;
 }
 
+/* The prompt is to System 2, so it stands under its panel, as wide. */
 #prompt {
-    dock: bottom;
     height: auto;
     max-height: 10;
-    margin: 0 1 0 1;
     background: $surface;
-    border: solid $rule;
+    border: round $rule;
 }
 
 #prompt:focus {
-    border: solid $brand;
+    border: round $brand;
 }
 
-#transcript-header, #state-header, #system1-header {
-    dock: top;
-    height: 1;
+/* The System 1 panel (system1_panel.py): what the asks came to stays put, the judgements scroll.
+   The State panel (state_panel.py): the budget, the goal and what runs stay put, the history scrolls.
+   A panel's parts stand a blank row apart, with no name over any: what each holds says what it is. */
+#system1-usage, #cut-budget, #cut-goal, #cut-running {
+    height: auto;
+}
+
+#cut-goal, #cut-running {
+    margin-top: 1;
+}
+
+/* The goal is your prompts, so it is shaded as they are in the transcript (`.user`): the history under it has them
+   too, as rows. */
+#cut-goal {
+    padding: 0 1;
     background: $select;
-}
-
-/* A side panel's section: its name on a hairline, what it holds under it. */
-.titled {
-    height: auto;
-    margin-top: 1;
-    border-top: solid $rule;
-    border-title-color: $muted;
-    border-title-style: bold;
-}
-
-/* The System 1 panel (system1_panel.py): what the asks came to stays put, the judgements scroll. */
-#system1-usage {
-    height: auto;
-    margin-top: 1;
-}
-
-/* The State panel (state_panel.py): the budget, the goal and what runs stay put, the history scrolls. */
-#cut-budget {
-    height: auto;
-    margin-top: 1;
+    border-left: outer $brand;
 }
 
 #system1-feed, #cut-history {
     height: 1fr;
+    margin-top: 1;
     scrollbar-size-vertical: 1;
 }
 

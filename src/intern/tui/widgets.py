@@ -104,18 +104,19 @@ MASCOT = (
     ".####KK#KWWK#.",
     ".###KWWKKWWK##",
     ".###KWWK#KK###",
-    "#####KK######.",
-    "#############.",
-    ".###########..",
-    "..##########..",
-    "...#######....",
-    "....#####.....",
-    ".....##.......",
+    "#####KK#######",
+    ".############.",
+    ".############.",
+    "..#########...",
+    "..#########...",
+    "....####......",
+    "....####......",
 )
 """The mascot, a character per pixel (`#` its body, `theme.MASCOT_BODY`; the rest `theme.MASCOT_COLOURS`; `.` the
 page): the README's cube in outline, tilted as in the Nace logo, lighter at the top as that one is, with no edge
 between its faces (under the glasses one reads as a mouth); round glasses with the right lens a pixel higher, as the
-top face lies in perspective. Fourteen pixels
+top face lies in perspective. Below its middle it narrows a cell at a time, two rows of pixels as wide as each other:
+a pixel over the open page is a half block whose edge macOS Terminal draws as a hairline. Fourteen pixels
 tall so it stands seven rows, the masthead's height. A pixel is a cell wide and half a cell tall, so it is square on
 screen. The glasses are drawn by hand: at this size the README's scaled down are a smudge."""
 EYES = ("rest", "left", "right", "shut")
@@ -133,7 +134,7 @@ ART = (
 masthead's on a wide terminal."""
 SHADES = tuple(MASCOT_COLOURS[pixel] for pixel in "98654")
 SHADOW = "#3b2470"
-"""The letters' shadow, a pixel down and to the right: a violet deeper than any of the mascot's, which reads on both
+"""The letters' shadow (`wordmark`): a violet deeper than any of the mascot's, which reads on both
 pages."""
 LOOP_S = 8.0
 """The mascot's loop, as the README's: it glances left, then right, and blinks twice."""
@@ -181,9 +182,10 @@ def pixels(grid: list[list[str]], page: str) -> list[list[Part]]:
 
 @functools.cache
 def wordmark(scale: int = 1, page: str = PAPER) -> list[Content]:
-    """The block letters, one `Content` per row, lighter at the top as the mascot is, with a shadow a pixel down and
-    to the right. A letter's row is two pixels tall, so the shadow is as thin under it as beside it. `scale` 2 draws
-    it twice the size, for a terminal with the room; `page` is what it stands on."""
+    """The block letters, one `Content` per row, lighter at the top as the mascot is, with a shadow to their right
+    and, at `scale` 2, twice the size for a terminal with the room, a row of cells down too. The shadow is whole
+    cells, as the letters are: half a row under them would be a half block over the open page, whose edge macOS
+    Terminal draws as a hairline. `page` is what it stands on."""
     width, height = (len(ART[0]) + 1) * scale, (2 * len(ART) + 2) * scale
     grid = [[""] * width for _ in range(height)]
     for row, (line, shade) in enumerate(zip(ART, SHADES, strict=True)):
@@ -191,9 +193,10 @@ def wordmark(scale: int = 1, page: str = PAPER) -> list[Content]:
             if cell == "█":
                 for y in range(2 * row * scale, 2 * (row + 1) * scale):
                     grid[y][column * scale : (column + 1) * scale] = [shade] * scale
-    for y in range(height - 1, scale - 1, -1):
+    down = 2 * (scale - 1)  # pixels: a row of cells, or none
+    for y in range(height - 1, down - 1, -1):
         for x in range(width - 1, scale - 1, -1):
-            if not grid[y][x] and grid[y - scale][x - scale] not in ("", SHADOW):
+            if not grid[y][x] and grid[y - down][x - scale] not in ("", SHADOW):
                 grid[y][x] = SHADOW
     return [Content.assemble(*row) for row in pixels(grid, page)]
 
@@ -1002,12 +1005,7 @@ class Transcript(Following):
         self._last_tool: ToolBlock | None = None
         self._markers: dict[str, Static] = {}
         self._compactions: dict[str, CompactionCard] = {}
-
-    def compose(self) -> ComposeResult:
-        yield Static(
-            Content.assemble((" System 2 ", S_TAB), ("  thinking slow", S_MUTED)),
-            id="transcript-header",
-        )
+        self.border_title = Content.assemble((" System 2 ", S_TAB), (" thinking slow ", S_MUTED))
 
     async def add(self, widget: Widget) -> None:
         await self.mount(widget)
@@ -1098,7 +1096,7 @@ class Transcript(Following):
         self._tools.clear()
         self._markers.clear()
         self._compactions.clear()
-        await self.remove_children([child for child in self.children if child.id != "transcript-header"])
+        await self.remove_children()
         self.anchor()  # following again, even if the reader had scrolled up
 
     async def marker(self, content: Content, key: str | None = None, classes: str = "marker") -> None:

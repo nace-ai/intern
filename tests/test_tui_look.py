@@ -11,8 +11,8 @@ from intern.events import Compaction, MessageEvent, Nudge, ProcessVerdict, ToolC
 from intern.locate.trace import Ranked
 from intern.messages import UserMessage
 from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, Ledger, RuleRefusal, TurnJudgement
-from intern.tui.system1_panel import feed, usage
-from intern.tui.theme import MASCOT_BODY, MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_RULE
+from intern.tui.system1_panel import feed, shares, usage
+from intern.tui.theme import MASCOT_BODY, MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_OK, S_RULE, S_WARN
 from intern.tui.widgets import (
     CARD_LINES,
     FILLED,
@@ -208,23 +208,18 @@ def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_
     ledger.observe(cut.model_copy(update={"kept": 1}))
     text = feed(ledger.runs, 60).plain
     rows = [line for line in text.splitlines() if line[:1] in "◆▣⌕⟲"]
-    # A row a judgement, in the order they came, behind its kind's glyph and its turn.
+    # A row a judgement, in the order they came, behind its kind's glyph.
     assert text.splitlines()[0] == "› Fix the parser"
-    assert [row[:6] for row in rows] == [
-        "◆   1 ",
-        "◆   2 ",
-        "◆   3 ",
-        "▣   4 ",
-        "▣   4 ",
-        "▣   5 ",
-        "⌕   4 ",
-        "⌕   4 ",
-        "⟲   6 ",
-    ]
-    # The watch: what the turn was doing, how sure, and what the loop did about it; under it, what System 1 weighed
-    # most against that, so a call made at 0.80 is seen to have been one of three.
-    assert "retrying" in rows[2] and "0.80" in rows[2] and "strike 3/3" in rows[2] and "stuck nudge sent" in text
-    assert text.splitlines()[text.splitlines().index(rows[0]) + 1].strip() == "advancing 0.05  re-investigating 0.05"
+    assert "".join(row[0] for row in rows) == "◆◆◆▣▣▣⌕⌕⟲"
+    # The watch, in a line: what System 1 weighed as one bar, each answer its share of the cells, so a call made at
+    # 0.80 is seen to have been one of three; then its call, what it weighed most against it as far as the line holds
+    # them, and what the loop did.
+    assert rows[0] == "◆ " + FILLED * 12 + " retrying 0.80  advancing 0.05  strike 1/3"
+    assert "strike 3/3" in rows[2] and "stuck nudge sent" in text
+    weighed = shares({"retrying": 0.8, "advancing": 0.05, "re_investigating": 0.05})
+    # Of twelve cells: the 0.90 it gave answers is eleven of them, and the cell left is a hairline.
+    assert [(len(cells), style) for cells, style in weighed] == [(10, S_WARN), (1, S_OK), (1, S_RULE)]
+    assert shares({"advancing": 0.5}, 4) == [(FILLED * 2, S_OK), (TRACK * 2, S_RULE)]
     # The guard: the call, allowed or refused, and who refused it and why.
     assert "✓ $ pytest -q" in rows[3] and "✗ $ sudo make install" in rows[4] and "✗ $ git push --force" in rows[5]
     assert "a fixed rule, not System 1 · privilege" in text and "it runs sudo" in text

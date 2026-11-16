@@ -206,8 +206,16 @@ def poses(columns: int, rows: int, page: str) -> tuple[Content, ...]:
     for left in range(0, paper.width, width):
         pose = paper.crop((left, 0, left + width, paper.height)).convert("RGB")
         data = pose.resize((columns, 2 * rows), Image.Resampling.BOX).tobytes()
-        colours = ["" if data[at : at + 3] == blank else f"#{data[at : at + 3].hex()}" for at in range(0, len(data), 3)]
-        drawn.append(stacked(pixels([colours[at : at + columns] for at in range(0, len(colours), columns)], page)))
+        pixel = [data[at : at + 3] for at in range(0, len(data), 3)]
+        grid = [pixel[at : at + columns] for at in range(0, len(pixel), columns)]
+        open_page = [blank] * columns
+        for upper, lower, under in zip(grid[::2], grid[1::2], [*grid[2::2], open_page], strict=True):
+            for x in range(columns):
+                if under[x] == blank and upper[x] != lower[x]:
+                    # A cell over the open page: as a half block, its edge is a hairline there in macOS Terminal. It
+                    # is the mean of its two pixels instead, as an edge's pixel is of what it covers.
+                    upper[x] = lower[x] = bytes((a + b) // 2 for a, b in zip(upper[x], lower[x], strict=True))
+        drawn.append(stacked(pixels([["" if p == blank else f"#{p.hex()}" for p in row] for row in grid], page)))
     return tuple(drawn)
 
 

@@ -177,7 +177,7 @@ Opener = Callable[[EventSink, Models], Awaitable[Session]]
 Installer = Callable[[Needs, Say], Awaitable[None]]
 """Installs what a capability needs and this environment lacks, saying what it does (`needs.install`)."""
 
-ENTERING_HIDES = ("#status", "#side", "#transcript-header")
+ENTERING_HIDES = ("#status", "#side")
 """What the entering page takes the place of."""
 ADD_SECRET = "+add"
 """The /secrets row that adds an entry; no secret can have this name."""
@@ -432,15 +432,16 @@ class HarnessApp(App[None]):
     def compose(self) -> ComposeResult:
         yield StatusBar()
         with Horizontal(id="body"):
-            yield Transcript()
+            with Vertical(id="main"):  # System 2: its conversation, and under it the prompt, which is to it alone
+                yield Transcript()
+                yield Prompt(
+                    placeholder="Describe the task… (/help for commands; Shift+Enter or Ctrl+J for a new line)",
+                    id="prompt",
+                    commands=COMMANDS,
+                )
             with Vertical(id="side"):  # System 1 above the State
                 yield System1Panel()
                 yield StatePanel(id="state")
-        yield Prompt(
-            placeholder="Describe the task… (/help for commands; Shift+Enter or Ctrl+J for a new line)",
-            id="prompt",
-            commands=COMMANDS,
-        )
 
     def get_driver_class(self) -> type[Driver]:
         """The terminal's driver, made to stay on the alternate screen across /reload: the exiting process leaves
@@ -506,6 +507,7 @@ class HarnessApp(App[None]):
         self._entering = True
         for name in ENTERING_HIDES:
             self.query_one(name).display = False
+        self.transcript.add_class("entering")
         await self.transcript.mount(Welcome(self._welcome()))
 
     async def _begin(self) -> None:
@@ -516,6 +518,7 @@ class HarnessApp(App[None]):
         self._entering = False
         for name in ENTERING_HIDES:
             self.query_one(name).display = True
+        self.transcript.remove_class("entering")
         await self.query(Welcome).remove()
 
     def _welcome(self, shown: Opening | None = None) -> Opening:

@@ -2,8 +2,9 @@
 
 System 1 is asked for different things, and each reads its own way (`ledger.py` gathers them from the events):
 
-- `◆` a turn it watched: what the latest turns are doing, the probability as a number and a meter, then what the
-  loop did about it (a stuck strike, a nudge) and, once the request looks met, the wrap-up verdict;
+- `◆` a turn it watched, in a line: what it weighed as one bar, each answer its share of it; its call and the
+  probability; then what the loop did about it (a stuck strike, a nudge) and, once the request looks met, the
+  wrap-up verdict;
 - `▣` a tool call the guard asked about: the call, allowed or refused, what it would do, P(any risk) and P(the user
   asked for it), and the reason when refused. A fixed rule's refusal is listed too, as the rule it is: no model was
   asked;
@@ -54,19 +55,21 @@ from intern.tui.theme import (
     S_MUTED,
     S_MUTED_ITALIC,
     S_OK,
+    S_RULE,
     S_TAB,
     S_WARN,
     S_WARN_BOLD,
 )
 from intern.tui.widgets import (
+    FILLED,
     MODE_STYLE,
+    TRACK,
     Following,
     Part,
     brief,
     clip,
     fit_path,
     flow,
-    meter,
     mode_label,
     runners_up,
     short_path,
@@ -86,12 +89,10 @@ GLYPH: dict[Kind, str] = {
     "memory": "◇",
     "other": "·",
 }
-GUTTER = 7
-"""A row's glyph and turn: `◆  12  `."""
-MODE_WIDTH = len("re-investigating")
-METER = 8
-ROOMY = 44
-"""The width of a row's body from which a watched turn has its meter."""
+GUTTER = 2
+"""A row's glyph: `◆ `."""
+BAR = 12
+"""A watched turn's bar, in cells: what System 1 weighed, each answer its share of them."""
 FEED_ROWS = 400
 """The newest lines drawn; a long session's older ones are in its journal."""
 MIN_WIDTH = 30
@@ -156,17 +157,39 @@ def with_notes(head: list[Part], notes: list[Part], room: int) -> list[list[Part
     return lines
 
 
-def watch_lines(j: TurnJudgement, room: int) -> list[list[Part]]:
-    """A turn System 1 watched: its call and how sure, what it weighed most against it, then what the loop did."""
-    style = MODE_STYLE.get(j.mode, S_INK)
-    head: list[Part] = [(mode_label(j.mode).ljust(MODE_WIDTH), style), (f" {j.confidence:.2f}", S_INK)]
-    if room >= ROOMY:
-        head += ["  ", *meter(j.confidence, style, METER)]
-    first, *notes = with_notes(head, turn_notes(j), room)
-    others: list[list[Part]] = [
-        [(f"{mode_label(mode)} {j.probabilities[mode]:.2f}", S_MUTED)] for mode in runners_up(j.probabilities, j.mode)
+def shares(probabilities: dict[str, float], width: int = BAR) -> list[Part]:
+    """What System 1 weighed as one bar of `width` cells: each answer its share of them, likeliest first, in its own
+    colour (`MODE_STYLE`); a hairline for what it gave no answer. A share under half a cell does not show."""
+    ranked = sorted(probabilities.items(), key=lambda item: -item[1])
+    cells = [int(p * width) for _, p in ranked]
+    spare = max(0, min(width, round(sum(probabilities.values()) * width)) - sum(cells))
+    # The cells left over go to the answers nearest to one more.
+    for n in sorted(range(len(ranked)), key=lambda n: cells[n] - ranked[n][1] * width)[:spare]:
+        cells[n] += 1
+    bar: list[Part] = [
+        (FILLED * size, MODE_STYLE.get(mode, S_MUTED)) for (mode, _), size in zip(ranked, cells, strict=True) if size
     ]
-    return [first, *flow(others, room, gap=2), *notes]
+    return [*bar, (TRACK * (width - sum(cells)), S_RULE)] if sum(cells) < width else bar
+
+
+def watch_lines(j: TurnJudgement, room: int) -> list[list[Part]]:
+    """A turn System 1 watched, in a line: what it weighed as a bar, its call and how sure, what it weighed most
+    against it as far as the line holds them (the bar has them all), then what the loop did."""
+    head: list[Part] = [
+        *shares(j.probabilities),
+        " ",
+        (mode_label(j.mode), MODE_STYLE.get(j.mode, S_INK)),
+        (f" {j.confidence:.2f}", S_INK),
+    ]
+    notes = turn_notes(j)
+    noted = sum(2 + cell_len(note[0] if isinstance(note, tuple) else note) for note in notes)
+    spare = room - Content.assemble(*head).cell_length - noted
+    for mode in runners_up(j.probabilities, j.mode):
+        other = f"  {mode_label(mode)} {j.probabilities[mode]:.2f}"
+        if len(other) <= spare:
+            head.append((other, S_MUTED))
+            spare -= len(other)
+    return with_notes(head, notes, room)
 
 
 def subject_title(subject: str) -> str:
@@ -296,7 +319,7 @@ def row_lines(row: Row, room: int, cwd: Path | None = None) -> tuple[Kind, list[
 
 
 def feed(runs: list[RunLedger], width: int, cwd: Path | None = None) -> Content:
-    """The session's rows, oldest first: each run under its prompt, each row behind its kind's glyph and its turn."""
+    """The session's rows, oldest first: each run under its prompt, each row behind its kind's glyph."""
     width = max(MIN_WIDTH, width)
     room = width - GUTTER
     lines: list[list[Part]] = []
@@ -309,8 +332,7 @@ def feed(runs: list[RunLedger], width: int, cwd: Path | None = None) -> Content:
             lines.append([("› ", S_HEAD), (clip(" ".join(run.prompt.split()), width - 2), S_HEAD)])
         for row in run.feed:
             kind, body = row_lines(row, room, cwd)
-            turn = f"{row.turn:>3}" if row.turn else "   "
-            lines.append([(GLYPH[kind], BRAND), " ", (turn, S_MUTED), "  ", *body[0]])
+            lines.append([(GLYPH[kind], BRAND), " ", *body[0]])
             lines += [[" " * GUTTER, *line] for line in body[1:]]
     if len(lines) > FEED_ROWS:
         hidden = len(lines) - FEED_ROWS
@@ -328,13 +350,11 @@ class System1Panel(Vertical, can_focus=False):
         super().__init__(id="system1")
         self._ledger = Ledger()
         self.cwd: Path | None = None
+        self.border_title = Content.assemble((" System 1 ", S_TAB), (" thinking fast ", S_MUTED))
 
     def compose(self) -> ComposeResult:
-        yield Static(Content.assemble((" System 1 ", S_TAB), ("  thinking fast", S_MUTED)), id="system1-header")
         yield Static(id="system1-usage")
-        judgements = Following(id="system1-feed", classes="titled")
-        judgements.border_title = "JUDGEMENTS"
-        with judgements:
+        with Following(id="system1-feed"):
             yield Static(Content.styled(EMPTY, S_MUTED), id="system1-rows")
 
     def show(self, ledger: Ledger) -> None:
