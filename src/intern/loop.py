@@ -67,7 +67,7 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
-from intern.handoff import LOGFILE_NOTE, HandoffTarget, Readiness, logfile_text, trajectory
+from intern.handoff import LOGFILE_NOTE, TAKEOVER_NOTE, HandoffTarget, Readiness, logfile_text, trajectory
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
@@ -1058,8 +1058,11 @@ class Run:
 
         if isinstance(verdict, h.Stop) and (verdict.reason != "completed" or not nudges):
             return verdict
-        if hand_over and self._hand_over():
-            nudges = []  # they were about the turns of the model before, which the fresh start does not show
+        if hand_over:
+            if self._hand_over():
+                nudges = []  # they were about the turns of the model before, which the fresh start does not show
+            else:
+                nudges.append((TAKEOVER_NOTE, "handoff"))
         for text, reason in nudges:
             self._nudge(text, reason)
         if waiting_on and not nudges:
