@@ -10,6 +10,7 @@ import pytest
 from intern import config
 from intern.config import Bootstrap, Options
 from intern.messages import Usage
+from intern.models import catalog
 from intern.models.prices import priced, prices
 from intern.models.profile import Profile, load_profile, profile_candidates
 from intern.models.registry import ConfigError, resolve_endpoint
@@ -212,3 +213,23 @@ async def test_a_model_the_provider_says_takes_images_is_bound_to_see_them(tmp_p
     # A profile that says the model sees keeps it whatever the listing says: OpenAI's own listing says nothing.
     assert (await bootstrap.bind("openrouter/qwen/qwen3.8-27b")).profile.vision is True
     assert load_profile("openai/gpt-6-astra").vision and load_profile("openai/gpt-5-mini").vision
+
+
+def test_openai_models_the_responses_api_refuses_are_not_offered_and_routers_keep_their_search_models():
+    """OpenAI's search models are served on Chat Completions only, and System 2 reaches OpenAI through the Responses
+    API, which refuses them: listed, every request failed. OpenRouter's search models chat, and stay."""
+    openai = resolve_endpoint("openai/gpt-5.4-mini", {"OPENAI_API_KEY": "k"})
+    listed = {"data": [{"id": "gpt-5.4-mini"}, {"id": "gpt-5-search-api"}, {"id": "gpt-5-search-api-2025-10-14"}]}
+    assert [m.id for m in catalog._listed(openai, listed)] == ["openai/gpt-5.4-mini"]
+    router = resolve_endpoint("openrouter/x/y", {"OPENROUTER_API_KEY": "k"})
+    sonar = {"id": "perplexity/sonar-pro-search", "architecture": {"output_modalities": ["text"]}}
+    assert [m.id for m in catalog._listed(router, {"data": [sonar]})] == ["openrouter/perplexity/sonar-pro-search"]
+
+
+def test_gpt_4o_and_gpt_4_1_run_at_their_windows_and_take_no_level():
+    """OpenAI's listing gives no window: without a profile these ran at the 32K fallback (OpenAI's model pages and a
+    measurement, 2026-11-17)."""
+    families = (("openai/gpt-4o-mini", 128_000, 16_384), ("openai/gpt-4.1-2025-04-14", 1_047_576, 32_768))
+    for ref, window, output in families:
+        p = load_profile(ref)
+        assert (p.window, p.max_output_tokens, p.vision, p.effort_levels) == (window, output, True, [])

@@ -391,7 +391,7 @@ wheels = [
 
 [[package]]
 name = "intern-agent"
-version = "0.40.1"
+version = "0.40.2"
 source = { editable = "." }
 dependencies = [
     { name = "httpcore" },
