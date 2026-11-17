@@ -978,7 +978,8 @@ class AcpAgent:
                     id="thought_level",
                     name="Thinking",
                     category="thought_level",
-                    description="The reasoning effort sent with each request; default sends none.",
+                    description="The reasoning effort sent with each request; default sends none, and auto has "
+                    "System 1 pick one for each run, from its request.",
                     type="select",
                     current_value=effort if effort in choices else choices[0],
                     options=[SessionConfigSelectOption(value=level, name=level.title()) for level in choices],

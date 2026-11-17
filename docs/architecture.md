@@ -124,6 +124,29 @@ the mode asked alone had 0.8) and hardly moves the done question's. Replayed thr
 those, and the wrap-up in 22 runs where the old one sent it in 21 (17 the same runs), asking at 27% of the turns. No
 blind judge has rated the new rule's nudges.
 
+At the `auto` thinking level, offered through Anthropic's API only, System 1 picks System 2's reasoning effort
+(`effort.py`): at a run's first request, one choice over its cut of the session asks which of the model's levels the
+work the newest user message asks for needs, and every request of the run goes with that level (a State write too,
+when it is low or medium). Once a run, not once a turn: a turn's need is no clearer from where the loop stands, and a
+level that changes can cost the prompt cache.
+
+That cost is why `auto` is Anthropic's only (`effort_keeps_cache` on its provider). Measured with real replies over a
+13k-token prefix, levels low, low, high, high, low (2026-11-16 and 17): Anthropic's `output_config.effort` kept every
+token across both switches (Claude Haiku and Sonnet 5.5). On every other provider a session can pick System 2 from,
+the first request at a level not used lately read nothing from the cache: OpenAI's Responses API (gpt-5.4-mini and
+nano, directly or through OpenRouter, and with a `prompt_cache_key` that keeps every request on one machine),
+Fireworks (DeepSeek V4 Flash, gpt-oss-120b), DeepInfra (Qwen3.8-27B) and OpenRouter's upstreams for Qwen3.8-27B
+(DeepInfra, Chutes, Alibaba, unpinned) and gpt-oss (Crusoe). Each level then keeps its own cache: the next request at
+it, and a return to the earlier level, read 89-100%. The cause is the provider's, not the request's: intern sends the
+same prompt at every level, with one parameter changed, and the provider writes the level into the prompt's head
+(gpt-oss kept the 16-40 tokens of its system message before `Reasoning: high`; OpenAI's first 1,024 tokens differed).
+One upstream kept it (DeepSeek V4 Flash through OpenRouter to DeepInfra, the level reaching the model: 219 reasoning
+tokens at low, 961 at high), but sessions are offered no level on that model. Where switches break the cache, `auto`
+could change the level every run and pay an uncached prompt each time, against savings no eval has measured; it is
+not offered there, and a fixed level never breaks the cache. In a live session (Sonnet 5.5, drex-max) it picked low for a
+one-line arithmetic question (P 0.98) and high for finding and fixing an edge-case bug with tests (P 0.84), in about
+0.3 s and $0.00007 an ask. No eval has measured what it does to pass rates or cost.
+
 Turns end; a command may not. System 1 also watches what runs (`process_watch.py`): while any command runs,
 in a run or between runs, it is asked about each one at its ages of 30 s, 1, 2, 4, 8 and 16 minutes, then every 30
 minutes, one ask over its cut (which lists them, `processes`) covering every command running. Each gets one choice:

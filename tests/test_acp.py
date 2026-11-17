@@ -877,7 +877,7 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
         "name": claude,
         "default": True,
         "reasoning": True,
-        "efforts": ["default", "low", "medium", "high", "xhigh", "max"],
+        "efforts": ["default", "low", "medium", "high", "xhigh", "max", "auto"],
     }
     # An OpenAI-compatible model takes one only on its profile's word, and always sends it.
     [qwen] = [m for m in listed["system2"] if m["id"] == deployment]
@@ -994,6 +994,7 @@ class Ladder(FakeProvider):
     """A provider whose API takes the whole run of efforts for every model, as the Anthropic provider does."""
 
     effort_levels = EFFORT_LEVELS
+    effort_keeps_cache = True
 
 
 async def test_thought_level_is_offered_only_when_the_model_takes_an_effort_and_lists_what_it_takes(
@@ -1029,7 +1030,7 @@ async def test_thought_level_is_offered_only_when_the_model_takes_an_effort_and_
     switched = await agent.set_config_option(config_id="model", session_id=session.session_id, value="fake/claude")
     level = next(o for o in switched.config_options if o.id == "thought_level")
     assert level.current_value == "default"
-    assert option_values(switched.config_options, "thought_level") == ["default", *EFFORT_LEVELS]
+    assert option_values(switched.config_options, "thought_level") == ["default", *EFFORT_LEVELS, "auto"]
     await agent.set_config_option(config_id="thought_level", session_id=session.session_id, value="max")
     await agent.prompt(prompt=[text_block("again")], session_id=session.session_id)
     provider = agent.sessions[session.session_id].session.deps.system2.provider
@@ -1038,6 +1039,10 @@ async def test_thought_level_is_offered_only_when_the_model_takes_an_effort_and_
     assert next(o for o in reset.config_options if o.id == "thought_level").current_value == "default"
     await agent.prompt(prompt=[text_block("once more")], session_id=session.session_id)
     assert provider.requests[-1].reasoning_effort is None
+    # At `auto` the request goes with the level System 1 picked for the run, never with `auto` itself.
+    await agent.set_config_option(config_id="thought_level", session_id=session.session_id, value="auto")
+    await agent.prompt(prompt=[text_block("and auto")], session_id=session.session_id)
+    assert provider.requests[-1].reasoning_effort in EFFORT_LEVELS
     await agent.aclose()
 
 

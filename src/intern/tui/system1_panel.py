@@ -2,6 +2,8 @@
 
 System 1 is asked for different things, and each reads its own way (`ledger.py` gathers them from the events):
 
+- `✦` the thinking level it picked for a run, at `auto`, first under the run's prompt: a column for each level the
+  model takes, as tall as its probability, the one picked in violet; then the level, how sure, and the next likeliest;
 - a turn it watched, in a line: what it weighed as one bar, each answer its share of it; its call and the
   probability; then what the loop did about it (a stuck strike, a nudge) and, once the request looks met, the
   wrap-up verdict;
@@ -15,9 +17,9 @@ System 1 is asked for different things, and each reads its own way (`ledger.py` 
 - `»` a command that went on running and each look at it; `·` whatever else was asked for a turn.
 
 Above the feed, the session's asks: how many System 1 answered, how long one took, how many the cache answered, and
-the count by kind, each behind the sign its rows start with. The signs are muted, and only a guard's is coloured:
-what stands out in the feed is how a judgement went, not what kind it was. A run starts with its prompt; the feed
-follows its end as the session grows.
+the count by kind, each behind the sign its rows start with. The signs are muted, and only a guard's and the thinking
+pick's are coloured: what stands out in the feed is how a judgement went, and the level the run goes with. A run
+starts with its prompt; the feed follows its end as the session grows.
 """
 
 from __future__ import annotations
@@ -36,6 +38,7 @@ from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.tui.ledger import (
     KINDS,
     CompactionJudgement,
+    EffortJudgement,
     GuardJudgement,
     Kind,
     Ledger,
@@ -50,6 +53,7 @@ from intern.tui.ledger import (
 from intern.tui.theme import (
     S_BAD,
     S_BAD_BOLD,
+    S_BRAND_BOLD,
     S_HEAD,
     S_INK,
     S_MUTED,
@@ -61,6 +65,7 @@ from intern.tui.theme import (
     S_WARN_BOLD,
 )
 from intern.tui.widgets import (
+    AUTO_SIGN,
     CD,
     FILLED,
     JOB,
@@ -70,8 +75,11 @@ from intern.tui.widgets import (
     Part,
     brief,
     clip,
+    effort_runners_up,
     fit_path,
     flow,
+    ladder,
+    level,
     mode_label,
     runners_up,
     short_path,
@@ -83,6 +91,7 @@ from intern.tui.widgets import (
 )
 
 SIGN: dict[Kind, str] = {
+    "thinking": AUTO_SIGN,
     "watch": FILLED,
     "guard": "✓",
     "search": "⌕",
@@ -194,6 +203,19 @@ def watch_lines(j: TurnJudgement, room: int) -> list[list[Part]]:
             head.append((other, S_MUTED))
             spare -= len(other)
     return with_notes(head, notes, room)
+
+
+def effort_lines(e: EffortJudgement, room: int) -> list[list[Part]]:
+    """The run's thinking level in a line: the ladder of what System 1 weighed, the level in violet and how sure, then
+    the next likeliest as far as the line holds them."""
+    head: list[Part] = [("thinking ", S_MUTED), *ladder(e), " ", *level(e.level, e.probability, S_BRAND_BOLD)]
+    if e.cached:
+        head.append(("  cached", S_MUTED))
+    for part in effort_runners_up(e):
+        if Content.assemble(*head, part).cell_length > room:
+            break
+        head.append(part)
+    return [head]
 
 
 def subject_title(subject: str) -> str:
@@ -321,6 +343,8 @@ def other_lines(o: OtherJudgement, room: int) -> list[list[Part]]:
 def row_lines(row: Row, room: int, cwd: Path | None = None) -> tuple[Part, list[list[Part]]]:
     """A row's sign for the gutter, and its lines without it."""
     match row:
+        case EffortJudgement():
+            return (AUTO_SIGN, S_BRAND_BOLD), effort_lines(row, room)
         case TurnJudgement():
             return " ", watch_lines(row, room)
         case GuardJudgement():

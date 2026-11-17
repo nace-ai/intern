@@ -230,6 +230,11 @@ Screen {
     border-left: wide $error;
 }
 
+/* System 1's pick of a run's thinking level, at auto: in the mascot's violet, as the masthead's box says it. */
+.decision.auto {
+    border-left: wide $brand;
+}
+
 /* System 1's look at a background command that it told the agent of. */
 .decision.told {
     border-left: wide $warning;

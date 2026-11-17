@@ -42,11 +42,12 @@ def make_harness(tmp_path: Path):
         profile: Profile | None = None,
         extensions: list[Extension] | None = None,
         system1: DecisionBackend | None = None,
+        provider_class: type[FakeProvider] = FakeProvider,
     ) -> Harness:
         cwd = tmp_path / "work"
         cwd.mkdir(exist_ok=True)
         recorder = Recorder()
-        provider = FakeProvider(script)
+        provider = provider_class(script)
         deps = EngineDeps(
             system2=binding(provider, window, profile),
             tools=with_extension_tools(load_packs(["base"]), extensions or []),
