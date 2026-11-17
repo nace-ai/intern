@@ -12,10 +12,10 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, TypeAdapter
 
-from intern.messages import FileDiff, JsonObject, Message, System1Usage, Usage
+from intern.messages import FileDiff, JsonObject, Message, System1Usage, ToolError, Usage
 
-# 2: tool_call_end carries an optional `diff`.
-PROTOCOL_VERSION = 2
+# 2: tool_call_end carries an optional `diff`. 3: and an optional `error`.
+PROTOCOL_VERSION = 3
 
 StopReason = Literal[
     "completed",
@@ -106,6 +106,9 @@ class ToolCallEnd(_EventBase):
     status: Literal["ok", "error", "refused"]
     content: str
     duration_ms: int
+    error: ToolError | None = Field(
+        default=None, description="Why the call did not succeed, and where it failed (`kind`); None when it did."
+    )
     diff: FileDiff | None = Field(
         default=None, description="For a write or edit on the host: the file before and after. Not journaled."
     )

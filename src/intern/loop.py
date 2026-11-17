@@ -103,7 +103,7 @@ from intern.session_cut import STATE_SHARE, session_cut
 from intern.state_edits import parse as parse_state
 from intern.subagents import SubagentResult, Subagents, SubagentSettings, _Slots
 from intern.supervise import Supervisor
-from intern.tools.base import Tool, ToolContext, ToolOutput, fail
+from intern.tools.base import Tool, ToolContext, ToolOutput, fail, refuse
 from intern.tools.files import EditTool
 from intern.tools.shell import status_check
 
@@ -536,6 +536,7 @@ class Run:
                 pending.pop(message.result.call_id, None)
         for call in pending.values():
             error = ToolError(
+                kind="interrupted",
                 what_failed="The previous run ended without a persisted result for this call; its outcome is unknown.",
                 next_action="Check files or remote state before retrying. The harness has not re-executed this call.",
                 retry_safe=False,
@@ -1173,6 +1174,7 @@ class Run:
                 status=result.status,
                 content=result.content,
                 duration_ms=result.duration_ms,
+                error=result.error,
                 diff=output.diff,
             )
         )
@@ -1197,28 +1199,24 @@ class Run:
 
     async def _tool_output(self, call: ToolCall, by_name: dict[str, Tool]) -> ToolOutput:
         if self._pending_stop is not None:
-            return fail("the run was stopped before this call ran", "Stop.").model_copy(update={"status": "refused"})
+            return refuse("the run was stopped before this call ran", "Stop.", kind="stopped")
         if self.control.abort.is_set():
-            return fail("the run was aborted before this call ran", "Stop.").model_copy(update={"status": "refused"})
+            return refuse("the run was aborted before this call ran", "Stop.", kind="stopped")
         for extension in self.deps.hooks.extensions:
             # Abortable: a hook may wait on System 1 (the guard does), and Esc frees the prompt whatever runs.
             decision = await self._abortable(
                 self.deps.hooks.invoke("tool_call", extension, lambda e, c=call: e.tool_call(c, self._ctx()))
             )
             if self.control.abort.is_set():
-                aborted = fail("the run was aborted before this call ran", "Stop.")
-                return aborted.model_copy(update={"status": "refused"})
+                return refuse("the run was aborted before this call ran", "Stop.", kind="stopped")
             match decision:
                 case h.ReplaceArguments(arguments=arguments):
                     call = call.model_copy(update={"arguments": arguments})
                 case h.Refuse(reason=reason, next_action=next_action):
-                    refused = fail(reason, next_action)
-                    return refused.model_copy(update={"status": "refused"})
+                    return refuse(reason, next_action, by=extension.name)
                 case h.Stop():
                     self._pending_stop = decision
-                    return fail(f"the run was stopped: {decision.detail or decision.reason}", "Stop.").model_copy(
-                        update={"status": "refused"}
-                    )
+                    return refuse(f"the run was stopped: {decision.detail or decision.reason}", "Stop.", kind="stopped")
 
         tool = by_name.get(call.name)
         if tool is None:
@@ -1226,6 +1224,7 @@ class Run:
                 f"there is no tool named {call.name!r}",
                 f"Call one of: {', '.join(sorted(by_name))}.",
                 argument="name",
+                kind="unknown_tool",
             )
         parsed = tool.parse(call.arguments)
         if isinstance(parsed, ToolOutput):
@@ -1249,7 +1248,9 @@ class Run:
                 return await tool.run(parsed, ctx)
             # Esc frees the prompt whatever runs: a tool that does not watch the abort is cancelled at it.
             output = await self._abortable(tool.run(parsed, ctx))
-            return fail("the run was aborted while this call ran", "Stop.") if output is None else output
+            return (
+                fail("the run was aborted while this call ran", "Stop.", kind="stopped") if output is None else output
+            )
         except System1Unavailable:
             raise
         except Exception as e:
@@ -1257,4 +1258,5 @@ class Run:
                 f"{tool.name} failed unexpectedly: {type(e).__name__}: {e}",
                 "Try different arguments or a different approach.",
                 retry_safe=False,
+                kind="crashed",
             )

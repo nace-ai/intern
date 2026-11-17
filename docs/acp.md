@@ -431,7 +431,7 @@ even when every provider fails (the lists are then shorter); 2 on a configuratio
 ## Versioning
 
 - The harness's event protocol (`intern schema`, `intern rpc`) is at `PROTOCOL_VERSION`
-  2: `tool_call_end` gained an optional `diff`.
+  3: `tool_call_end` gained an optional `diff`, then an optional `error`.
 - ACP clients pin a minimum harness version, never a commit. Releases are tagged `vX.Y.Z` by CI when
   a version bump lands on `main`; [AGENTS.md](../AGENTS.md#release-what-clients-see) says when to bump.
 - Planned (not in v1): `session/request_permission` from the tool hook, which adds supervised modes.
@@ -1291,3 +1291,18 @@ A thinking level more, `auto`; 0.40.2 clients keep working, and nothing a client
   as for any build and no model call: about 1 ms a file (15 s for the 15,500 Go files of Kubernetes). Documents are
   not read again. The index holds more chunks, so `.intern/index.json` grows: Envoy's (11,400 files) from 48 MB to
   105 MB.
+
+### 0.43.0
+
+Every failed or refused tool call says where it failed; 0.42.0 clients keep working, and nothing ACP sends changed shape.
+
+- A tool result's `error` (in the journal, and on `tool_call_end` of the event protocol, now at `PROTOCOL_VERSION` 3)
+  has a `kind`: `unknown_tool` (the call named no tool of the session), `bad_arguments` (its arguments did not parse),
+  `refused` (an extension refused it; `refused_by` names the extension, `guard` for the guard), `stopped` (the run
+  stopped or was aborted before or while it ran), `failed` (the tool ran and reported a failure), `crashed` (the tool
+  raised) or `interrupted` (an earlier run ended before the call's result was saved). These were told apart only by
+  their text. A call whose arguments were not JSON is not run and has no result, as before: it stays on the reply's
+  `invalid_tool_calls`, with a `nudge` of reason `invalid_tool_call`.
+- `tool_call_end` carries the call's `error`, `null` when it succeeded, so a `-p --json` run's stream gives the same
+  record as its journal.
+- Older harnesses load journals written by this one; the errors in journals written before it have no `kind`.
