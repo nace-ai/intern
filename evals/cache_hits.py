@@ -8,12 +8,14 @@ The rate is cache read tokens ÷ input tokens (input counts the whole prompt), o
 writes, which send the agent's prefix too; System 1's asks go to another backend and are left out. A model none of
 whose replies reports a cache read or write is listed as no data, not 0%: some OpenAI-compatible hosts never say.
 
-A break is a call after the first whose rate is under 50% where the call before it was over 80%. Each is listed with
-what the journal shows between the two: a compaction, a model change, a changed system prompt or tool list, a
-capability switch, a memory recall, a window cap, a branch, an idle gap past the cache's lifetime (`--ttl`), or a
-prompt near the prompt limit, where squeeze shortens the oldest tool results. The working window comes from the
-profile, the session's cap or `--window`; when none says, squeeze is not judged. Squeeze itself is not journaled.
-Breaks with nothing found are the ones to fix.
+A break is a call that reads back under 50% of the prompt the agent's last reply sent, where that reply's own rate was
+over 80%. A call whose prompt only grew reads all of it back, however low its own rate. A State write's prompt is not
+sent again, so no call is judged against one: the reply after a write is judged against the reply before it. Each
+break is listed with what the journal shows between the two: a compaction, a model change, a changed system prompt or
+tool list, a capability switch, a memory recall, a window cap, a branch, an idle gap past the cache's lifetime
+(`--ttl`, from the call just before, of either kind), or a prompt near the prompt limit, where squeeze shortens tool
+results. The working window comes from the profile, the session's cap or `--window`; when none says, squeeze is not
+judged. Squeeze itself is not journaled. Breaks with nothing found are the ones to fix.
 """
 
 from __future__ import annotations
@@ -190,13 +192,15 @@ def session_calls(path: Path, profiles: list[tuple[str, dict[str, Any]]], window
     return Session(path.stem, calls, parents)
 
 
-def causes(session: Session, before: Call, call: Call, ttl_s: int) -> list[str]:
-    found = list(call.between)
+def causes(session: Session, before: Call, last: Call, call: Call, between: list[str], ttl_s: int) -> list[str]:
+    """What could have broken `call`'s read of `before`'s prompt: `between` them in the journal, and the idle gap
+    since `last`, the call just before it."""
+    found = list(between)
     if call.model != before.model and not any(c.startswith("model change") for c in found):
         found.append(f"model change to {call.model}")
     if before.entry_id not in session.ancestors(call.entry_id):
         found.append("branch")
-    idle_s = (call.sent_at - before.done_at) / 1000
+    idle_s = (call.sent_at - last.done_at) / 1000
     if idle_s > ttl_s:
         found.append(f"idle {idle_s / 60:.0f} min")
     if call.prompt_limit and call.usage.input_tokens >= SQUEEZE_SHARE * call.prompt_limit:
@@ -205,21 +209,35 @@ def causes(session: Session, before: Call, call: Call, ttl_s: int) -> list[str]:
 
 
 def breaks(session: Session, ttl_s: int) -> list[Break]:
-    return [
-        Break(
-            session=session.name,
-            call=call.number,
-            kind=call.kind,
-            model=call.model,
-            rate_before=before.rate,
-            rate=call.rate,
-            input_tokens=call.usage.input_tokens,
-            cache_read_tokens=call.usage.cache_read_tokens,
-            causes=causes(session, before, call, ttl_s),
-        )
-        for before, call in zip(session.calls, session.calls[1:], strict=False)
-        if before.rate > BREAK_AFTER and call.rate < BREAK_BELOW
-    ]
+    found: list[Break] = []
+    before: Call | None = None
+    last: Call | None = None
+    between: list[str] = []
+    for call in session.calls:
+        between = [*between, *call.between]
+        if (
+            before is not None
+            and last is not None
+            and before.rate > BREAK_AFTER
+            and call.usage.cache_read_tokens < BREAK_BELOW * before.usage.input_tokens
+        ):
+            found.append(
+                Break(
+                    session=session.name,
+                    call=call.number,
+                    kind=call.kind,
+                    model=call.model,
+                    rate_before=before.rate,
+                    rate=call.rate,
+                    input_tokens=call.usage.input_tokens,
+                    cache_read_tokens=call.usage.cache_read_tokens,
+                    causes=causes(session, before, last, call, between, ttl_s),
+                )
+            )
+        if call.kind == "reply":
+            before, between = call, []
+        last = call
+    return found
 
 
 def reports_cache(calls: list[Call]) -> bool:
