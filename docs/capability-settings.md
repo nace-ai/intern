@@ -303,7 +303,12 @@ the repository (the index's root card), is the one the session's first message f
 as the instruction files are: a refresh changes what `decision_code` searches, never the start of the prompt, so
 the provider's prompt cache keeps hitting. In a git work tree it
 holds the files git sees (tracked, or untracked and not ignored), so what `.gitignore`
-keeps out of git is not searched; one index holds at most 100,000 files. A working directory that holds
+keeps out of git is not searched; one index holds at most 100,000 files. A working directory that is
+not in a git work tree and has repositories right under it (several checkouts side by side) is never
+indexed whole, since a plain walk would take in what each repository's `.gitignore` keeps out: the pinned
+note names the repositories, and `decision_code` searches one at a time, given as `scope`, from that
+repository's own `.intern/index.json`, built at its first search. With no scope it searches the only
+repository when there is one, and among several is refused with their names. A working directory that holds
 more documents (PDFs, Word, spreadsheets, Parquet: files the index cannot read) than code and text, counted
 over its first 2,000 files in or outside git (images count as neither), is not indexed: the pinned note says
 so in one line, and `decision_code` on such a folder, or on a document, says it cannot read it. `decision_code`'s

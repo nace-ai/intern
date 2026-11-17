@@ -257,6 +257,62 @@ async def test_outside_a_git_repository_nothing_is_indexed_until_the_agent_searc
     assert harness.recorder.of(Indexing)[-1].finished
 
 
+@pytest.fixture
+def checkouts(tmp_path: Path, request: pytest.FixtureRequest) -> Path:
+    """The working directory (make_harness's), no repository itself, holding some: `one` and `two` unless named."""
+    work = tmp_path / "work"
+    for name in getattr(request, "param", ("one", "two")):
+        subprocess.run(["git", "init", "-q", str(work / name)], check=True)
+    return work
+
+
+@pytest.mark.usefixtures("checkouts")
+async def test_a_folder_of_repositories_is_searched_one_repository_at_a_time_from_what_git_sees_there(make_harness):
+    """Several checkouts side by side, the folder itself no repository: a plain walk of it would index what each
+    repository's .gitignore keeps out. The note names the repositories, a search with no scope is sent back for one,
+    and a scope searches that repository's own index."""
+    harness = make_harness(
+        [
+            Turn(tool_calls=[("decision_code", {"question": "where is the alpha function"})]),
+            Turn(tool_calls=[("decision_code", {"question": "where is the alpha function", "scope": "one/src"})]),
+            Turn(text="done"),
+        ],
+        extensions=[CodeSearch()],
+        system1=Needle("alpha"),
+    )
+    one = harness.cwd / "one"
+    (one / "src").mkdir()
+    (one / "src" / "a.py").write_text("def alpha():\n    return 1\n")
+    (one / ".gitignore").write_text("src/build/\n")
+    (one / "src" / "build").mkdir()
+    (one / "src" / "build" / "a.py").write_text("def alpha():\n    return 0\n")
+    (harness.cwd / "two" / "b.py").write_text("def beta():\n    return 2\n")
+    await harness.run("find alpha")
+    head = harness.provider.requests[0].messages[1].content
+    assert "`one`, `two`" in head
+    unscoped, scoped = harness.recorder.of(ToolCallEnd)[:2]
+    assert unscoped.status == "error" and "`one`, `two`" in unscoped.content
+    assert scoped.content.splitlines()[1:3] == ["1. one/src/a.py  def alpha() (1-2)  [1.00]", "   read one/src/a.py"]
+    kept = wi.load(one / ".intern")
+    assert kept and "src/a.py" in kept.files and "src/build/a.py" not in kept.files
+    assert not (harness.cwd / ".intern").exists() and not (harness.cwd / "two" / ".intern").exists()
+
+
+@pytest.mark.parametrize("checkouts", [("one",)], indirect=True)
+@pytest.mark.usefixtures("checkouts")
+async def test_a_folder_holding_one_repository_searches_it_when_no_scope_is_given(make_harness):
+    harness = make_harness(
+        [Turn(tool_calls=[("decision_code", {"question": "where is the alpha function"})]), Turn(text="done")],
+        extensions=[CodeSearch()],
+        system1=Needle("alpha"),
+    )
+    (harness.cwd / "one" / "a.py").write_text("def alpha():\n    return 1\n")
+    await harness.run("find alpha")
+    found = harness.recorder.of(ToolCallEnd)[0]
+    assert found.content.splitlines()[1:3] == ["1. one/a.py  def alpha() (1-2)  [1.00]", "   read one/a.py"]
+    assert not (harness.cwd / ".intern").exists() and (harness.cwd / "one" / ".intern" / wi.INDEX_FILE).is_file()
+
+
 async def test_a_folder_of_documents_outside_git_is_not_indexed_and_the_agent_is_told_why(make_harness):
     # A client's folder (no git): what the code index holds of it is its one text file, not the PDFs and workbooks.
     harness = make_harness(
