@@ -293,6 +293,19 @@ class Nudge(_EventBase):
     text: str
 
 
+class Handoff(_EventBase):
+    """System 2 handed the run over to a cheaper model, which takes the next turn and every one after it."""
+
+    type: Literal["handoff"] = "handoff"
+    turn: int
+    source: str
+    target: str
+    transfer: Literal["context", "logfile"]
+    probability: float = Field(description="System 1's P(ready) at the turn it handed over.")
+    tokens: int = Field(description="The size of the last request the model handed over by sent.")
+    logfile: str | None = Field(default=None, description="Where the turns were written, as the agent sees the path.")
+
+
 class ToolGuard(_EventBase):
     """The guard refused a tool call: a fixed rule matched, or System 1 judged it risky and unrequested."""
 
@@ -407,6 +420,9 @@ class RunEnd(_EventBase):
     usage: Usage
     agent_usage: Usage | None = Field(default=None, description="The agent's own replies; usage = agent + state.")
     state_usage: Usage | None = Field(default=None, description="State writes, the ones made for compaction included.")
+    by_model: dict[str, Usage] = Field(
+        default_factory=dict, description="`usage` by the model that spent it; more than one after a hand-over."
+    )
     system1: System1Usage = Field(
         default_factory=System1Usage, description="This run's System 1 asks: answered, failed after retries, tokens."
     )
@@ -434,6 +450,7 @@ Event = Annotated[
     | ExtensionEvent
     | Decision
     | Nudge
+    | Handoff
     | ToolGuard
     | ProcessEvent
     | ProcessCheck
