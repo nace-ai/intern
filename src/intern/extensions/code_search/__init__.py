@@ -60,6 +60,12 @@ class DecisionCode(DecisionSearch):
     name = "decision_code"
     trace = True
     lexical = True
+    #: No `Files:` line: an agent copies those files into its answer. On CodeScaleBench (39 tasks, two runs), of 137
+    #: files a search brought into answers that the agent without search never listed, 131 were wrong, and 125 of the
+    #: 137 came from that line, at every score. Without it the answers' file precision rose from 0.29 to 0.34 (11
+    #: tasks, two runs; 0.36 with code search off), and over 42 tasks it was 0.39 against 0.38 with code search off.
+    #: A place comes with the call that opens it; a file on that line did not.
+    files_shown = 0
     description = (
         "Find the places in a repository or folder of code and text that answer a question, ranked, each with the read "
         f"call that opens it; it cannot read {DOCUMENTS}. Use it to find code before you browse or grep, and again "

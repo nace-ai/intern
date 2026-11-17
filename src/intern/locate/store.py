@@ -345,6 +345,8 @@ class DecisionSearch(Tool):
     #: Characters of text shown under each of the first `len(inline)` entries (0: pointers only). NDI's locate shows
     #: the best page whole and the next ones' openings, so an answer on the first page costs no read.
     inline: ClassVar[tuple[int, ...]] = ()
+    #: Files named in a last `Files:` line, after the places: the best-scored ones, with no call that opens them.
+    files_shown: ClassVar[int] = FILES_SHOWN
 
     def __init__(self, store: Store, asks: Questions) -> None:
         self.store = store
@@ -399,7 +401,7 @@ class DecisionSearch(Tool):
         result = await self.search(index, root, args.question, decisions, scope)
         kept = survivors([(str(n), p.score) for n, p in enumerate(result.places) if p.score > 0], GAP, PLACES_SHOWN)
         places = [result.places[int(n)] for n, _ in kept]
-        files = [(p, s) for p, s in result.files if s > 0][:FILES_SHOWN]
+        files = [(p, s) for p, s in result.files if s > 0][: self.files_shown]
         if not places and not files:
             where = f"under {args.scope}" if args.scope else "in the working directory"
             walked = _walked(result.walk, decisions.usage.since(before).asks)
