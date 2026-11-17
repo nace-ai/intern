@@ -91,7 +91,7 @@ from intern.events import ToolGuard
 from intern.executor import Executor, mount_of
 from intern.extensions import guard_packages
 from intern.extensions.guard_packages import Ecosystem, PackageFacts, Registries
-from intern.hooks import Extension, Refuse, RunContext, Stop, ToolCallDecision
+from intern.hooks import UNSET, Extension, Refuse, RunContext, Stop, ToolCallDecision, _Unset, own_answer
 from intern.journal import Journal, MessageEntry
 from intern.messages import JsonObject, ToolCall, UserMessage
 from intern.tools.base import Tool, ToolOutput
@@ -1368,6 +1368,12 @@ class Guard(Extension):
         self.scope: Scope | None = None
         self.consecutive = 0
         self.total = 0
+
+    def for_subagent(self) -> Extension | _Unset | None:
+        # A guard of its own: the refusals that stop a run are counted in that run.
+        if not own_answer(self, Guard):
+            return UNSET
+        return Guard(system1=self.system1, system_writes=self.system_writes, registries=self.registries)
 
     async def before_agent_start(self, ctx: RunContext) -> None:
         self.scope = self._scope(ctx)

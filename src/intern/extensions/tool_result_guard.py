@@ -28,7 +28,7 @@ from pydantic import BaseModel
 
 from intern.decisions import NoulAnswer, NoulQuestion, Question
 from intern.events import ExtensionEvent
-from intern.hooks import Extension, RunContext
+from intern.hooks import UNSET, Extension, RunContext, _Unset, own_answer
 from intern.messages import ToolCall, ToolResult
 
 THRESHOLD = 0.8
@@ -97,7 +97,12 @@ class ToolResultGuard(Extension):
     name: ClassVar[str] = "tool-result-guard"
 
     def __init__(self, *, screen: Screened = "outside") -> None:
-        self.screen = screen
+        self.screen: Screened = screen
+
+    def for_subagent(self) -> Extension | _Unset | None:
+        if not own_answer(self, ToolResultGuard):
+            return UNSET
+        return ToolResultGuard(screen=self.screen)
 
     def screens(self, call: ToolCall, ctx: RunContext) -> bool:
         """Whether this call's result is screened: outside content, or with `all` everything but the agent's writes."""

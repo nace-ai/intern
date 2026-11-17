@@ -17,11 +17,12 @@ from intern.capability_toggles import toggles
 from intern.config import CAPABILITY_EXTENSIONS, _extension
 from intern.extensions import REGISTRY
 from intern.hooks import Extension, load_extension
-from intern.locate.store import Locate
+from intern.locate.store import Locate, LocateInSubagent
 from intern.models.registry import ConfigError
 
 BASE_CLASSES: dict[type[Extension], str] = {
     Locate: "the base of code search and the workspace, and of third-party search extensions; never loaded itself",
+    LocateInSubagent: "code search or the workspace as a subagent runs it; built only by `Locate.for_subagent`",
 }
 
 

@@ -24,6 +24,11 @@ NEXT_WRITE = "Write somewhere else. Memory changes are proposed after the sessio
 class Memory(MemoryActions):
     name: ClassVar[str] = "memory"
 
+    def for_subagent(self) -> h.Extension | h._Unset | None:
+        # A subagent reads memory (`memory_search` passes on with the parent's tools) and never writes it: the drive
+        # stays write-protected, recall does not run again, and only the parent's session is stewarded.
+        return ReadOnlyMemory(self.drive) if h.own_answer(self, Memory) else h.UNSET
+
     def tools(self) -> list[Tool]:
         return [MemorySearchTool(self.drive.root)]
 
@@ -78,20 +83,36 @@ class Memory(MemoryActions):
         )
 
     async def tool_call(self, call: ToolCall, ctx: h.RunContext) -> h.ToolCallDecision | None:
-        if refused := self._refuse_write(call, ctx):
+        if refused := refuse_write(self.drive.root, call, ctx):
             return refused
         return await super().tool_call(call, ctx)
 
-    def _refuse_write(self, call: ToolCall, ctx: h.RunContext) -> h.Refuse | None:
-        given = call.arguments.get("path")
-        if call.name not in WRITE_TOOLS or not isinstance(given, str):
-            return None
-        path = Path(given).expanduser()
-        real = (path if path.is_absolute() else Path(ctx.cwd) / path).resolve()
-        root = self.drive.root.resolve()
-        if real != root and root not in real.parents:
-            return None
-        return h.Refuse(
-            reason=f"{given} is inside the memory drive {self.drive.root}, which task runs never write",
-            next_action=NEXT_WRITE,
-        )
+
+class ReadOnlyMemory(MemoryActions):
+    """Memory in a subagent: the drive write guard and the reminders, no recall and no tools of its own."""
+
+    name: ClassVar[str] = "memory"
+
+    def for_subagent(self) -> h.Extension | h._Unset | None:
+        return ReadOnlyMemory(self.drive) if h.own_answer(self, ReadOnlyMemory) else h.UNSET
+
+    async def tool_call(self, call: ToolCall, ctx: h.RunContext) -> h.ToolCallDecision | None:
+        if refused := refuse_write(self.drive.root, call, ctx):
+            return refused
+        return await super().tool_call(call, ctx)
+
+
+def refuse_write(drive: Path, call: ToolCall, ctx: h.RunContext) -> h.Refuse | None:
+    """A refusal of a write or edit into the memory drive; None for any other call."""
+    given = call.arguments.get("path")
+    if call.name not in WRITE_TOOLS or not isinstance(given, str):
+        return None
+    path = Path(given).expanduser()
+    real = (path if path.is_absolute() else Path(ctx.cwd) / path).resolve()
+    root = drive.resolve()
+    if real != root and root not in real.parents:
+        return None
+    return h.Refuse(
+        reason=f"{given} is inside the memory drive {drive}, which task runs never write",
+        next_action=NEXT_WRITE,
+    )

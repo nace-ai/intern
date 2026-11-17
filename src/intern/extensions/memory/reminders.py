@@ -252,6 +252,9 @@ class MemoryActions(h.Extension):
         self.shown: set[str] = set()
         self.shown_lines: set[str] = set()
 
+    def for_subagent(self) -> h.Extension | h._Unset | None:
+        return MemoryActions(self.drive) if h.own_answer(self, MemoryActions) else h.UNSET
+
     async def before_agent_start(self, ctx: h.RunContext) -> None:
         recalled = next((e for e in reversed(ctx.journal.active_path()) if isinstance(e, MemoryRecallEntry)), None)
         self.shown = set(recalled.pages) if recalled else set()

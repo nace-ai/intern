@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from intern.journal import Journal
     from intern.models.profile import Profile
     from intern.providers.base import ProviderRequest
+    from intern.subagents import Subagents
     from intern.tools.base import Tool
 
 HookName = Literal[
@@ -136,6 +137,22 @@ class RunContext:
     """The session's tools by name: what a call names, with its effects and how its arguments parse."""
     executor: Executor
     """Where the session's commands run (this machine, or a runner's sandbox), as its tools reach it."""
+    subagents: Subagents | None = None
+    """Starts this run's subagents (`intern.subagents`); None when the session has none, and in a subagent."""
+
+
+class _Unset:
+    """`Extension.for_subagent`'s answer when an extension that gates tools has not said how it runs in a child."""
+
+    def __repr__(self) -> str:
+        return "UNSET"
+
+
+UNSET = _Unset()
+
+ENFORCING_HOOKS = ("tool_call", "tool_result", "before_provider_request", "turn_end")
+"""Hooks with which an extension can enforce something on a run: refuse or change a call or its result, change what is
+sent to the model, or stop the run."""
 
 
 class Extension:
@@ -153,6 +170,19 @@ class Extension:
     def tools(self) -> list[Tool]:
         """Tools this extension adds to the session; one named like a pack tool replaces it."""
         return []
+
+    def for_subagent(self) -> Extension | _Unset | None:
+        """This extension as a subagent of the session runs it: a new instance (it keeps per-run state on itself, and
+        children may run at once), `self` when it keeps none, or None to leave it out of children.
+
+        The default leaves out an extension that only shapes the parent's own run. One that can enforce something on a
+        run (it overrides `tool_call`, `tool_result`, `before_provider_request` or `turn_end`) must answer: until it
+        does, no subagent starts in its session, so a check is never silently skipped in a child. A subclass of an
+        extension that answers must answer again (`own_answer`)."""
+        cls = type(self)
+        if any(getattr(cls, hook) is not getattr(Extension, hook) for hook in ENFORCING_HOOKS):
+            return UNSET
+        return None
 
     async def before_agent_start(self, ctx: RunContext) -> None:
         return None
@@ -178,6 +208,12 @@ class Extension:
     async def agent_end(self, outcome: RunOutcome, ctx: RunContext) -> Nudge | None:
         """May return a Nudge to reopen a completed run once more (a finish gate)."""
         return None
+
+
+def own_answer(extension: Extension, cls: type[Extension]) -> bool:
+    """Whether `cls`'s `for_subagent` answers for `extension`: it is that class itself, not a subclass that may check
+    more and has not said how it runs in a child."""
+    return type(extension) is cls
 
 
 class Hooks:
