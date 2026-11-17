@@ -1191,3 +1191,15 @@ System 1 supervises every fourth turn in one ask, where it asked twice at every 
   more), or the request done (P(done_polishing) at 0.8 or more), is repeated at the next turn, and the nudge goes
   out when it holds. Once neither nudge can be sent any more, System 1 is not asked.
 - System 1's State (`ctx.state()` for extensions) keeps the newest eight messages whole, was six.
+
+### 0.39.1
+
+A fix to what Claude costs through OpenRouter; 0.39.0 clients keep working, and nothing a client sends or reads changed
+shape.
+
+- Claude models reached through OpenRouter (`openrouter/anthropic/claude-*`) read nothing from Anthropic's prompt cache:
+  Anthropic caches only where a request asks, and intern's OpenAI-compatible requests did not, so every turn paid its
+  whole prompt at the full input price. The packaged `openrouter-claude` profile now asks for OpenRouter's automatic
+  caching (a top-level `cache_control`), on each of Claude's upstreams there. In a live session (Claude Haiku 5.5, six
+  turns of reads, edits and test runs) every request after the first read 85-95% of its prompt from the cache; a
+  request of a 20k-token conversation fell from $0.00206 to $0.00021. `run_end.usage` shows the cache reads as before.

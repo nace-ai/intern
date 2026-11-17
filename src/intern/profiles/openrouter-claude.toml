@@ -1,0 +1,11 @@
+# Claude through OpenRouter. Anthropic caches a prompt only where the request asks, so every request paid its whole
+# prompt at the full input price (Claude Haiku 5.5, a 20k-token conversation: 0% read from the cache, $0.00206 a
+# request). A top-level `cache_control` is OpenRouter's automatic caching: it puts the breakpoint on the last cacheable
+# block and moves it forward as the conversation grows. From the second request on, 100% was read from the cache
+# ($0.00021 a request) on each of Claude's upstreams there: Anthropic, Amazon Bedrock, Google Vertex, Azure and Claude
+# Platform on AWS (2026-11-17).
+
+match = ["openrouter/anthropic/claude-*", "openrouter/~anthropic/claude-*"]
+
+[compat.extra_body.cache_control]
+type = "ephemeral"
