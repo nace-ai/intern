@@ -36,7 +36,7 @@ from intern.messages import (
     Usage,
     UserMessage,
 )
-from intern.models.profile import Profile
+from intern.models.profile import EFFORT_LEVELS, Profile
 from intern.providers.base import ProviderRequest, RetryPolicy
 from intern.providers.fake import FakeProvider, Turn
 from intern.session import Session
@@ -470,12 +470,38 @@ async def test_compaction_keeps_the_run_inside_a_small_window(make_harness):
     assert all(12_000 // 10 < r.max_output_tokens <= loop.MAX_STATE_TOKENS for r in writes)
 
 
-@pytest.mark.parametrize(("agent", "write"), [("medium", "medium"), ("high", "low")])
+class CacheKeeping(FakeProvider):
+    """A provider that keeps its prompt cache when the level changes, as Anthropic's API does: `auto` is offered."""
+
+    effort_keeps_cache = True
+
+
+class PicksLevel:
+    """A System 1 that picks `level` as a run's thinking level at `auto`; `Filled` answers the rest quietly."""
+
+    name = "picks-level"
+
+    def __init__(self, level: str) -> None:
+        self.level = level
+
+    async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
+        effort = {
+            n: q
+            for n, q in questions.items()
+            if isinstance(q, ChoiceQuestion) and set(q.criteria) <= set(EFFORT_LEVELS)
+        }
+        return Answers(answers={n: ChoiceAnswer(choice=self.level, probabilities={self.level: 1.0}) for n in effort})
+
+
+@pytest.mark.parametrize(
+    ("level", "agent", "write"), [("medium", "medium", "medium"), ("high", "high", "low"), ("auto", "medium", "medium")]
+)
 async def test_a_state_write_reasons_at_the_agents_effort_up_to_medium_so_it_reads_the_agents_cache(
-    make_harness, agent: str, write: str
+    make_harness, level: str, agent: str, write: str
 ):
     # The effort is part of the cached prompt: a State write at another one pays its whole prompt again. Above medium
-    # it stays low, where the write the compaction waits for would think too long.
+    # it stays low, where the write the compaction waits for would think too long. At auto, the agent's effort is the
+    # level System 1 picked for the run (medium here), not `auto`.
     def script(request: ProviderRequest) -> Turn:
         if is_state_write(request):
             return Turn(text="## Plan\nprint things\n## Now\nkeep printing")
@@ -485,7 +511,10 @@ async def test_a_state_write_reasons_at_the_agents_effort_up_to_medium_so_it_rea
         return Turn(tool_calls=[("bash", {"command": f"printf '{'x' * 2_000}'"})])
 
     calls: list[int] = []
-    harness = make_harness(script, window=12_000, profile=Profile(reasoning_effort=agent))
+    system1 = PicksLevel(agent) if level == "auto" else None
+    harness = make_harness(
+        script, window=12_000, profile=Profile(reasoning_effort=level), system1=system1, provider_class=CacheKeeping
+    )
     assert (await harness.run()).reason == "completed"
     requests = harness.provider.requests
     writes = [i for i, r in enumerate(requests) if is_state_write(r)]

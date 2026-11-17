@@ -122,6 +122,11 @@ Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared,
   (`~/.intern/.env`) and sending `.env` files; System 1 judges the rest against what you asked for. A refused call
   does not end the run.
   [Rules](docs/architecture.md#system-2-and-system-1)
+- **Auto thinking level.** On Claude models (Anthropic's API), Shift+Tab past the highest level reaches `auto`: at
+  the start of each run, System 1 reads the session and picks how hard System 2 should think for the new request
+  (low for a quick question, high for a bug hunt); every turn of that run uses the level. Anthropic only, for now:
+  other providers write the level into the start of the prompt, so a change re-reads the whole prompt without the
+  cache, where Anthropic's keeps it. [Measurements](docs/architecture.md#system-2-and-system-1)
 - **Compaction that keeps the State honest.** State writes are edits, not rewrites, and a number the run never
   showed is sent back to the writer or blanked. [Below](#compaction)
 - **Capabilities.** Two searches your intern can be given beyond its tools: `decision_code` over a code base and

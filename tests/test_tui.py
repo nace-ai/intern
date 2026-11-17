@@ -119,6 +119,7 @@ class Thinking(FakeProvider):
     """A provider whose API takes an effort for every model, the whole ladder, as the Anthropic provider says."""
 
     effort_levels = EFFORT_LEVELS
+    effort_keeps_cache = True
 
 
 def make_opener(
@@ -1051,12 +1052,15 @@ async def test_the_thinking_level_shows_cycles_on_shift_tab_is_set_in_the_picker
         await send(app, pilot, "/thinking high")
         assert first.deps.system2.profile.reasoning_effort == "high" and "thinking high" in plain(status)
         await send(app, pilot, "/thinking")
-        assert "Thinking is high; /thinking low|medium|high|xhigh|max sets it" in transcript_text(app)
+        assert "Thinking is high; /thinking low|medium|high|xhigh|max|auto sets it" in transcript_text(app)
         await send(app, pilot, "/thinking ultra")
-        assert "/thinking takes low, medium, high, xhigh, max (now: high)" in transcript_text(app)
+        assert "/thinking takes low, medium, high, xhigh, max, auto (now: high)" in transcript_text(app)
         await send(app, pilot, "/thinking max")
         assert first.deps.system2.profile.reasoning_effort == "max" and "thinking max" in plain(status)
-        await pilot.press("shift+tab")  # round: past max comes low
+        await pilot.press("shift+tab")  # past max comes auto, where System 1 picks the level for each run
+        await pilot.pause()
+        assert first.deps.system2.profile.reasoning_effort == "auto" and "thinking ✦ auto" in plain(status)
+        await pilot.press("shift+tab")  # round: past auto comes low
         await pilot.pause()
         assert first.deps.system2.profile.reasoning_effort == "low"
         await send(app, pilot, "/thinking high")
@@ -1115,6 +1119,8 @@ async def test_a_profile_named_effort_offers_the_common_three_and_a_kept_level_w
         assert "thinking medium" in plain(app.query_one(StatusBar))
         await send(app, pilot, "/thinking xhigh")
         assert "/thinking takes low, medium, high (now: medium)" in transcript_text(app)
+        await send(app, pilot, "/thinking auto")
+        assert "auto is on Anthropic's API only" in transcript_text(app) and bound.profile.reasoning_effort == "medium"
         await send(app, pilot, "/system2 fake/model")
         await wait_for(lambda: app.session is not None and app.session.deps.system2.ref == "fake/model")
         await pilot.pause()

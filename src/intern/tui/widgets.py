@@ -10,6 +10,7 @@ from __future__ import annotations
 import ctypes
 import functools
 import json
+import math
 import os
 import re
 import shlex
@@ -42,11 +43,13 @@ from intern import __version__
 from intern.events import ProcessVerdict, ToolCallEnd, ToolCallStart
 from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.messages import JsonObject
+from intern.models.profile import AUTO_EFFORT
 from intern.processes import ENDED_LINES, duration_text
 from intern.supervise import STRIKES
 from intern.tools.images import IMAGE_SUFFIXES
 from intern.tui.ledger import (
     CompactionJudgement,
+    EffortJudgement,
     GuardJudgement,
     KeepVerdict,
     RuleRefusal,
@@ -61,7 +64,10 @@ from intern.tui.theme import (
     S_BAD,
     S_BAD_BOLD,
     S_BOX,
+    S_BOX_AUTO,
+    S_BOX_GLINT,
     S_BOX_MUTED,
+    S_BRAND_BOLD,
     S_HEAD,
     S_HEAD_MUTED,
     S_INK,
@@ -99,6 +105,15 @@ hourglass comes from a fallback font, wider and in its own colour)."""
 FILLED, TRACK = "━", "─"
 PIP_ON, PIP_OFF = "▰", "▱"
 """The thinking box's meter: a pip per level the model takes, filled up to the one in force."""
+AUTO_SIGN = "✦"
+"""System 1's pick of the thinking level, wherever it shows: the masthead's box, its row and its card."""
+AUTO_MARK = f"{AUTO_SIGN} auto"
+"""The `auto` level in the thinking box: System 1 picks the level for each run."""
+GLINT_S = 2.4
+"""How long the glint sweeps across `auto` once it is chosen or System 1 picks a run's level; it sweeps all through a
+run too."""
+GLINT_GAP = 6
+"""Frames between two sweeps of the glint across `auto`."""
 MASCOT = (
     ".......##.....",
     ".....#####....",
@@ -386,15 +401,31 @@ def system1_parts(ref: str) -> tuple[str, str]:
     return (ref, "") if ref in ("…", "none") else (ref, "console")
 
 
-def thinking_box(level: str, levels: tuple[str, ...]) -> list[Part]:
+def glinted(text: str, frame: int | None) -> list[Part]:
+    """`text` in the mascot's violet, with a glint that sweeps across it a letter a frame; still without a frame."""
+    if frame is None:
+        return [(text, S_BOX_AUTO)]
+    at = frame % (len(text) + GLINT_GAP)
+    return [(char, S_BOX_GLINT if at - 1 <= i <= at else S_BOX_AUTO) for i, char in enumerate(text)]
+
+
+def thinking_box(level: str, levels: tuple[str, ...], picked: str = "", frame: int | None = None) -> list[Part]:
     """The thinking level in a box, so Shift+Tab is seen to change it: its name, then a pip per level the model
-    takes, filled up to it (none for the model's own); the box as wide at every level, so what follows stays put."""
-    up_to = levels.index(level) + 1 if level in levels else 0
-    name = level.ljust(max(len(each) for each in (*levels, level)))
+    takes, filled up to it (none for the model's own); the box as wide at every level, so what follows stays put.
+    At `auto`, the mark in violet, a glint sweeping across it at `frame`, and the pips filled up to the level System
+    1 `picked` for the latest run."""
+    auto = level == AUTO_EFFORT
+    shown = picked if auto else level
+    up_to = levels.index(shown) + 1 if shown in levels else 0
+    width = max(len(each) for each in (*levels, level, AUTO_MARK))
+    if auto:
+        name = [*glinted(AUTO_MARK, frame), (" " * (width - len(AUTO_MARK) + 1), S_BOX)]
+    else:
+        name = [(f"{level.ljust(width)} ", S_BOX)]
     return [
         (" thinking ", S_BOX_MUTED),
-        (f"{name} ", S_BOX),
-        (PIP_ON * up_to, S_BOX),
+        *name,
+        (PIP_ON * up_to, S_BOX_AUTO if auto else S_BOX),
         (PIP_OFF * (len(levels) - up_to) + " ", S_BOX_MUTED),
     ]
 
@@ -454,6 +485,10 @@ class StatusBar(Static):
         """The thinking level, `default` for the model's own; empty when the model takes none."""
         self.levels: tuple[str, ...] = ()
         """The levels the model takes, lowest first."""
+        self.picked = ""
+        """The level System 1 picked for the latest run at `auto`; empty before its first pick."""
+        self._glint_until = 0.0
+        self._glinting = False
         self._flash = ""
         self._flash_timer: Timer | None = None
         self._frame = 0
@@ -467,10 +502,24 @@ class StatusBar(Static):
         """The spinner's next frame while a run is in progress, and the mark's eyes, alive as the entering page's
         are; still where motion is switched off (`TEXTUAL_ANIMATIONS=none`)."""
         pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
-        if self.running or pose != self._pose:
+        glinting, was = self._glint_frame() is not None, self._glinting  # the glint's last frame draws it at rest
+        if self.running or pose != self._pose or glinting or was:
             self._frame += self.running
             self._pose = pose
             self.refresh_line()
+
+    def glint(self) -> None:
+        """Sweep the glint across `auto` for a moment: it was just chosen, or System 1 just picked a run's level."""
+        self._glint_until = time.monotonic() + GLINT_S
+        self.refresh_line()
+
+    def _glint_frame(self) -> int | None:
+        """The glint's frame across `auto`: all through a run, and for a moment after `glint`; None while it rests,
+        and always where motion is switched off."""
+        now = time.monotonic()
+        if self.thinking != AUTO_EFFORT or not (self.running or now < self._glint_until) or not self.is_mounted:
+            return None
+        return None if self.app.animation_level == "none" else int((now - self._born) / SPIN_S)
 
     def flash(self, text: str) -> None:
         """A few words after the run's context for a moment: what just went to the clipboard."""
@@ -489,7 +538,9 @@ class StatusBar(Static):
         state = (SPINNER[self._frame % len(SPINNER)], S_OK) if self.running else ("○", S_MUTED)
         width = max(len(self.system2), len(model1)) + COLUMN_GAP
 
-        thinking = thinking_box(self.thinking, self.levels) if self.thinking else []
+        frame = self._glint_frame()
+        self._glinting = frame is not None
+        thinking = thinking_box(self.thinking, self.levels, self.picked, frame) if self.thinking else []
         where: list[Part] = [(served, S_MUTED)] if served else []
         detail = max(Content.assemble(*thinking).cell_length, len(served)) + COLUMN_GAP
 
@@ -1266,6 +1317,37 @@ def card(label: str, meta: str, levels: list[Part], outcome: list[Part]) -> Cont
 
 def seconds(ms: int, cached: bool) -> str:
     return f"{ms / 1000:.1f}s" + (" · cached" if cached else "")
+
+
+LADDER = "▁▂▃▄▅▆▇█"
+"""A thinking level's column in a ladder, by its probability: an eighth a step, the lowest for none."""
+
+
+def ladder(e: EffortJudgement) -> list[Part]:
+    """How System 1 weighed each level the model takes, least to most, as a column each: as tall as its
+    probability, the level it picked in violet, so where the weight sits and how it spread read at a glance."""
+    return [
+        (LADDER[max(0, math.ceil(p * len(LADDER)) - 1)], S_BRAND_BOLD if level == e.level else S_MUTED)
+        for level, p in e.probabilities.items()
+    ]
+
+
+def effort_runners_up(e: EffortJudgement, most: int = CARD_MODES - 1) -> list[Part]:
+    """The levels System 1 weighed most against its pick, muted, as the cards' runners-up read."""
+    parts: list[Part] = []
+    for other in runners_up(e.probabilities, e.level, most):
+        parts += [GAP, *level(other, e.probabilities[other], S_MUTED, S_MUTED)]
+    return parts
+
+
+def effort_card(e: EffortJudgement) -> Content:
+    """System 1's pick of the run's thinking level, as a card under the prompt it judged, worded as its row on System
+    1's panel: the ladder of what it weighed, the level in violet with its probability, the next likeliest muted."""
+    levels: list[Part] = [("thinking ", S_MUTED), *ladder(e), " ", *level(e.level, e.probability, S_BRAND_BOLD)]
+    levels += effort_runners_up(e)
+    return Content.assemble(
+        (f"{AUTO_SIGN} ", S_BRAND_BOLD), card("System 1", seconds(e.duration_ms, e.cached), levels, [])
+    )
 
 
 def supervisor_card(j: TurnJudgement) -> Content:

@@ -75,13 +75,22 @@ def effort_levels(provider_levels: Sequence[str], profile: Profile) -> tuple[str
 DEFAULT_EFFORT = "default"
 """The thought level that sends no effort, so the model uses its own."""
 
+AUTO_EFFORT = "auto"
+"""The thought level where System 1 picks the effort for each run, among the model's levels (`effort.py`): offered only
+on a provider whose prompt cache survives a change of level (`effort_keeps_cache`). A profile's `reasoning_effort` may
+name it; on another provider no effort is sent then, as at `default`."""
 
-def effort_choices(provider_levels: Sequence[str], profile: Profile) -> tuple[str, ...]:
+
+def effort_choices(provider_levels: Sequence[str], profile: Profile, *, auto: bool = False) -> tuple[str, ...]:
     """What a thought level can be set to: `default` first when the levels hold without an effort (the API's own
-    run, or the profile's `effort_levels`), then the efforts. On a named effort alone an effort is always sent."""
+    run, or the profile's `effort_levels`), then the efforts, then `auto` where `auto` says the provider keeps its
+    prompt cache across a change of level (`effort_keeps_cache`). On a named effort alone an effort is always sent."""
     levels = effort_levels(provider_levels, profile)
+    if not levels:
+        return ()
     stated = bool(provider_levels) or profile.effort_levels is not None
-    return (DEFAULT_EFFORT, *levels) if levels and stated else levels
+    default = (DEFAULT_EFFORT,) if stated else ()
+    return (*default, *levels, *((AUTO_EFFORT,) if auto else ()))
 
 
 class Profile(BaseModel):
@@ -129,11 +138,13 @@ class Profile(BaseModel):
 
     @model_validator(mode="after")
     def _effort_it_takes(self) -> Profile:
-        """A named effort the stated levels lack would be refused by the API on every request."""
+        """A named effort the stated levels lack would be refused by the API on every request; `auto` picks among them,
+        so it needs one at least."""
         levels = self.effort_levels
-        if levels is not None and self.reasoning_effort is not None and self.reasoning_effort not in levels:
-            takes = ", ".join(levels) if levels else "none"
-            raise ValueError(f"reasoning_effort {self.reasoning_effort!r} is not one of the effort_levels ({takes})")
+        takes = [*levels, AUTO_EFFORT] if levels else []
+        if levels is not None and self.reasoning_effort is not None and self.reasoning_effort not in takes:
+            named = ", ".join(levels) if levels else "none"
+            raise ValueError(f"reasoning_effort {self.reasoning_effort!r} is not one of the effort_levels ({named})")
         return self
 
     def output_cap(self, working_window: int) -> int:

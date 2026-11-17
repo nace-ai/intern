@@ -1,7 +1,7 @@
-"""System 1's decisions as a ledger the TUI shows: one judgement per turn it looked at, one per tool call the guard
-asked about, one per search (`decision_code`, `decision_files`), one per compaction, and one for every other ask a turn
-made, per run, in the order they came (`RunLedger.feed`); and what all of System 1's asks came to, by kind
-(`Ledger.usage`).
+"""System 1's decisions as a ledger the TUI shows: its pick of a run's thinking level at `auto`, one judgement per turn
+it looked at, one per tool call the guard asked about, one per search (`decision_code`, `decision_files`), one per
+compaction, and one for every other ask a turn made, per run, in the order they came (`RunLedger.feed`); and what all
+of System 1's asks came to, by kind (`Ledger.usage`).
 
 Built from the event stream alone (`run_start`, `decision`, `state_writing`, `state_delta`, `state`, `nudge`,
 `compaction`, `tool_guard`, `process_check`, a search's calls and its `search_trace`s), the
@@ -20,6 +20,7 @@ from typing import Literal
 
 from pydantic import ValidationError
 
+from intern import effort
 from intern.events import (
     Compaction,
     Decision,
@@ -41,6 +42,7 @@ from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD, RISKS
 from intern.locate.trace import KIND as SEARCH_TRACE
 from intern.locate.trace import SearchTrace
 from intern.messages import JsonObject, UserMessage
+from intern.models.profile import EFFORT_LEVELS
 from intern.supervise import MAX_NUDGES, STRIKES, STUCK, is_strike
 
 WORKING_ON = "working_on"
@@ -48,13 +50,15 @@ SEARCH_TOOLS = ("decision_code", "decision_files")
 """The tools that are System 1 searching: a row each on its panel."""
 TOP = 3
 """The places a search's row keeps, best first."""
-Kind = Literal["watch", "guard", "search", "compaction", "jobs", "memory", "other"]
-KINDS: tuple[Kind, ...] = ("watch", "guard", "search", "compaction", "jobs", "memory", "other")
+Kind = Literal["thinking", "watch", "guard", "search", "compaction", "jobs", "memory", "other"]
+KINDS: tuple[Kind, ...] = ("thinking", "watch", "guard", "search", "compaction", "jobs", "memory", "other")
 """What System 1 is asked for, in the order its panel counts them."""
 
 
 def kind_of(purpose: str) -> Kind:
     """What an ask was for, from the purpose its caller gave it."""
+    if purpose == effort.PURPOSE:
+        return "thinking"
     if purpose in ("supervise", "wrap_up"):
         return "watch"
     if purpose in ("guard", "workspace_table_load"):
@@ -196,6 +200,23 @@ class SearchJudgement:
 
 
 @dataclass
+class EffortJudgement:
+    """System 1's pick of the thinking level for a run, at `auto`: the level, and how it weighed each of the model's
+    levels."""
+
+    turn: int
+    level: str
+    probabilities: dict[str, float]
+    """Each level the model takes, least to most."""
+    duration_ms: int = 0
+    cached: bool = False
+
+    @property
+    def probability(self) -> float:
+        return self.probabilities.get(self.level, 1.0 if not self.probabilities else 0.0)
+
+
+@dataclass
 class OtherJudgement:
     """An ask with no row of its own kind, in one line: what a command that went on running is (`background`), a
     look at a running command (`processes`), whatever else an extension asked for a turn."""
@@ -251,7 +272,15 @@ class CompactionJudgement:
         return dict(sorted(by_reason.items(), key=lambda kv: order.get(kv[0], len(order))))
 
 
-Row = TurnJudgement | GuardJudgement | RuleRefusal | SearchJudgement | CompactionJudgement | OtherJudgement
+Row = (
+    EffortJudgement
+    | TurnJudgement
+    | GuardJudgement
+    | RuleRefusal
+    | SearchJudgement
+    | CompactionJudgement
+    | OtherJudgement
+)
 """What the System 1 panel lists, and what `observe` returns: the row an event made or changed."""
 
 
@@ -393,6 +422,12 @@ class Ledger:
         run = self.current
         if turn is None or answers is None:
             return None  # a tool's own ask (a search's, the recall's): counted, and the tool's row shows it
+        if purpose == effort.PURPOSE:
+            level, probabilities = _choice(answers.get("level"))
+            ladder = {each: probabilities[each] for each in EFFORT_LEVELS if each in probabilities}
+            picked = EffortJudgement(turn, level, ladder or probabilities, event.duration_ms, event.cached)
+            run.feed.append(picked)
+            return picked
         if purpose == "supervise":
             return self._supervised(turn, event, answers)
         if purpose == "wrap_up":

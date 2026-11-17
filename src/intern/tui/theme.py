@@ -30,6 +30,7 @@ LIGHT = {
     "red": "#b23a3a",
     "select": "#dedcd3",
     "brand": "#7c4ad2",
+    "glint": "#c7a6ff",
 }
 DARK = {
     "paper": "#141411",
@@ -44,9 +45,12 @@ DARK = {
     "red": "#d9625f",
     "select": "#3a3a31",
     "brand": "#bd98ff",
+    "glint": "#f3ebff",
 }
 """`select`: text the mouse selected, a shade of the page, not ink at half strength. `brand`: the mascot's violet,
-its deeper shade on the light page and its lavender on the dark one, each about as strong against the page."""
+its deeper shade on the light page and its lavender on the dark one, each about as strong against the page. `glint`:
+the light that sweeps across the brand's violet where System 1 is at work (the `auto` thinking level), lighter than
+it in both looks."""
 MASCOT_COLOURS = {
     "9": "#bb90ff",
     "8": "#ab76ff",
@@ -90,6 +94,7 @@ AMBER = "$warning"
 RED = "$error"
 SELECT = "$select"
 BRAND = "$brand"
+GLINT = "$glint"
 # Content styles, by role, so widgets never name a colour.
 S_INK = INK
 S_RULE = RULE
@@ -108,6 +113,13 @@ S_BAD_BOLD = f"bold {RED}"
 S_BOX = f"bold {INK} on {SELECT}"
 """The thinking level's box on the masthead, filled so a change of level is seen at once; `S_BOX_MUTED` its label."""
 S_BOX_MUTED = f"{MUTED} on {SELECT}"
+S_BOX_AUTO = f"bold {BRAND} on {SELECT}"
+"""The `auto` level in the box, and the pips of the level System 1 picked, in the mascot's violet: System 1's choice;
+`S_BOX_GLINT` the light that sweeps across it."""
+S_BOX_GLINT = f"bold {GLINT} on {SELECT}"
+
+S_BRAND_BOLD = f"bold {BRAND}"
+"""System 1's pick of the thinking level, wherever it shows: its sign `✦`, the level picked and its column."""
 
 S_TAB = f"bold {PAPER} on {BRAND}"
 """A panel's name on its header, a tab in the mascot's violet."""
@@ -136,6 +148,7 @@ def make_theme(name: str, c: dict[str, str], *, dark: bool) -> Theme:
             "muted": c["muted"],
             "select": c["select"],
             "brand": c["brand"],
+            "glint": c["glint"],
             "block-cursor-background": c["brand"],
             "block-cursor-foreground": c["paper"],
             "block-cursor-text-style": "none",
