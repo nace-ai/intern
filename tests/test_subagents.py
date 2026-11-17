@@ -31,6 +31,7 @@ from intern.subagents import (
     SubagentResult,
     Subagents,
     SubagentSettings,
+    SubagentsExhausted,
     SubagentSpec,
     child_extensions,
     child_tools,
@@ -513,7 +514,7 @@ async def test_the_limit_counts_every_child_of_the_run(subagent_harness):
     harness.deps.journal.append(MessageEntry(message=UserMessage(content="go")))
     harness.provider._script = lambda request: Turn(text="ok")
     await subagents.run(SubagentSpec(task="one"))
-    with pytest.raises(SubagentRefused, match="0 of this run's 1 are left"):
+    with pytest.raises(SubagentsExhausted, match="0 of this run's 1 are left"):
         await subagents.run(SubagentSpec(task="two"))
     with pytest.raises(SubagentRefused, match="no task"):
         await subagents.run_many([])
@@ -929,3 +930,12 @@ async def test_the_time_limit_covers_waiting_for_a_slot(subagent_harness):
     assert first.status == "timed_out" and second.status == "timed_out"
     assert second.turns == 0  # it never got the writers' lock, and never started
     assert second.duration_ms < 1_500  # it stopped waiting at its limit, not when the first let the lock go
+
+
+async def test_a_refusal_among_several_tasks_names_the_task(subagent_harness):
+    harness = subagent_harness(lambda r: Turn(text="never"))
+    subagents = Subagents(harness.deps, harness.deps.subagents, asyncio.Event())  # type: ignore[arg-type]
+    specs = [SubagentSpec(task="a", name="ok", tools=["read"]), SubagentSpec(task="b", name="bad", tools=["nope"])]
+    with pytest.raises(SubagentRefused, match=r"^task 2 \(bad\): the parent has no tool nope"):
+        await subagents.run_many(specs)
+    assert subagents.started == 0 and not harness.provider.requests

@@ -118,6 +118,10 @@ class SubagentRefused(ValueError):
     """A spec that cannot run as asked: the parent lacks a tool, a model is not allowed, a limit is reached."""
 
 
+class SubagentsExhausted(SubagentRefused):
+    """The run has started all the subagents it may: asking again cannot help."""
+
+
 def _status(reason: StopReason) -> SubagentStatus:
     match reason:
         case "completed" | "turn_budget" | "output_limit" | "aborted" | "provider_error":
@@ -291,10 +295,15 @@ class Subagents:
             raise SubagentRefused("no task given")
         left = self.settings.max_children - self.started
         if len(specs) > left:
-            raise SubagentRefused(
+            raise SubagentsExhausted(
                 f"{len(specs)} subagents asked for, and {left} of this run's {self.settings.max_children} are left"
             )
-        checked = [self._check(spec) for spec in specs]
+        checked: list[tuple[list[Tool], str | None]] = []
+        for index, spec in enumerate(specs, 1):
+            try:
+                checked.append(self._check(spec))
+            except SubagentRefused as e:
+                raise SubagentRefused(f"task {index} ({spec.name}): {e}" if len(specs) > 1 else str(e)) from None
         self.started += len(specs)
         opening = self._opening(host)
         children = [
