@@ -332,7 +332,7 @@ class DecisionSearch(Tool):
     name = "decision_search"
     description = (
         "Find the places in the working directory that answer a question, ranked, each with the call that opens "
-        "it. Use it when you do not know where to look or the exact words to grep for; grep for exact words you know."
+        "it. Use it to find a place before you browse or grep; grep is for exact words you already know."
     )
     Args = SearchArgs
     effects: ClassVar[frozenset[Effect]] = frozenset({"read"})
