@@ -723,11 +723,16 @@ def dropped_turns(previous: str | None, older: list[Message]) -> str:
     return f"{head}Earlier turns were removed to fit the window. Tool calls they made:\n{listing}"
 
 
-def squeeze(view: ContextView, tools: list[ToolSpec], meter: TokenMeter, limit_tokens: int) -> int:
-    """Last resort when whole-turn compaction is not enough: shorten tool results in the view, oldest
-    first. The journal keeps the full text. Returns how many results were shortened."""
+def squeeze(
+    view: ContextView, tools: list[ToolSpec], meter: TokenMeter, limit_tokens: int, *, newest_first: bool = False
+) -> int:
+    """Last resort when whole-turn compaction is not enough: shorten tool results in the view, oldest first, or
+    newest first to keep the start of the prompt as an earlier request sent it, for the provider's cache. The journal
+    keeps the full text. Returns how many results were shortened."""
     shortened = 0
-    for index, message in enumerate(view.history):
+    order = range(len(view.history) - 1, -1, -1) if newest_first else range(len(view.history))
+    for index in order:
+        message = view.history[index]
         if estimate_tokens(view, tools, meter) <= limit_tokens:
             break
         if isinstance(message, ToolResultMessage) and len(message.result.content) > SQUEEZED_RESULT_CHARS:

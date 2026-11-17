@@ -497,6 +497,28 @@ async def test_a_state_write_reasons_at_the_agents_effort_up_to_medium_so_it_rea
         assert fork.messages[: len(before.messages) - 1] == before.messages[:-1]
 
 
+async def test_a_state_write_that_must_shorten_results_keeps_the_agents_cached_prompt(make_harness):
+    # The State ask pushes the write past the prompt limit, so results are shortened. The oldest are where the agent's
+    # cached prompt starts: shortened there, the write would pay its whole prompt again.
+    def script(request: ProviderRequest) -> Turn:
+        if is_state_write(request):
+            return Turn(text="## Plan\nprint things\n## Now\nkeep printing")
+        calls.append(1)
+        if len(calls) > 12:
+            return Turn(text="finished")
+        return Turn(tool_calls=[("bash", {"command": f"printf '{'x' * 3_000}'"})])
+
+    calls: list[int] = []
+    harness = make_harness(script, window=12_000)
+    assert (await harness.run()).reason == "completed"
+    requests = harness.provider.requests
+    writes = [i for i, r in enumerate(requests) if is_state_write(r)]
+    assert any("cut to fit the window" in str(m) for i in writes for m in requests[i].messages), "none was shortened"
+    for i in writes:
+        before, fork = requests[i - 1], requests[i]
+        assert fork.messages[: len(before.messages) - 1] == before.messages[:-1]
+
+
 async def test_replayed_reasoning_counts_toward_compaction_so_the_run_compacts_instead_of_failing(make_harness):
     # Small tool results, long reasoning: the request grows by what the model thought, which it replays.
     thought = "z" * 6_000

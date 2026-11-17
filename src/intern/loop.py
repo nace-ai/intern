@@ -827,7 +827,10 @@ class Run:
         ask = state_edit_request(previous) if previous is not None else state_request(view)
         fork = replace(view, tail=[*view.tail, ask])
         await self.deps.hooks.call("context", lambda e: e.context(fork, self._ctx(turn)))
-        squeeze(fork, specs, self.meter, int(self.window * (1 - binding.profile.thresholds.output_reserve)))
+        # Room for the ask comes off the newest results: the oldest are what the agent's cached prompt starts with,
+        # while the newest stay verbatim through the compaction and the next write sees them whole.
+        limit = int(self.window * (1 - binding.profile.thresholds.output_reserve))
+        squeeze(fork, specs, self.meter, limit, newest_first=True)
         room = binding.window.advertised - estimate_tokens(fork, specs, self.meter)
         base = ProviderRequest(
             model=binding.wire_model,
