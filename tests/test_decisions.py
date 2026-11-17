@@ -201,6 +201,45 @@ async def test_decisions_api_retries_once_after_a_rate_limit(monkeypatch):
     assert result.answers["keep"] == NoulAnswer(noul=0.9)
 
 
+async def test_after_a_refusal_the_ask_waits_as_told_and_later_requests_leave_spaced_not_as_a_burst(monkeypatch):
+    """The console refuses requests that arrive together, so a search's wave must not come back as another burst;
+    an endpoint that refuses nothing is not slowed."""
+    import intern.decisions as d
+
+    waits: list[float] = []
+    real_sleep = asyncio.sleep
+
+    async def sleep(seconds: float) -> None:
+        waits.append(seconds)
+        await real_sleep(0)
+
+    monkeypatch.setattr(d.asyncio, "sleep", sleep)
+    refuse = False
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        nonlocal refuse
+        if refuse:
+            refuse = False
+            return httpx.Response(429, headers={"retry-after": "7"})
+        return httpx.Response(200, json={"answers": {"keep": {"type": "noul", "noul": 0.9}}, "usage": {"cost": 0}})
+
+    backend = DecisionsApiBackend("https://x/v1", SecretStr("k"), ["decider"], transport=httpx.MockTransport(handler))
+    c = client(backend, [])
+
+    async def wave(*states: int) -> None:
+        await asyncio.gather(*(c.ask("keep", f"state {n}", {"keep": QUESTIONS["keep"]}) for n in states))
+
+    await wave(0, 1, 2, 3)
+    assert waits == []
+    refuse = True
+    await wave(4)
+    assert waits[0] == 7
+    waits.clear()
+    await wave(5, 6, 7, 8)
+    gaps = [b - a for a, b in zip(sorted(waits), sorted(waits)[1:], strict=False)]
+    assert len(waits) == 4 and gaps == pytest.approx([d.PACE_S] * 3, abs=0.01)
+
+
 async def test_the_event_carries_the_turn_the_subject_and_the_answers_in_compact_form():
     backend = Scripted(
         Answers(

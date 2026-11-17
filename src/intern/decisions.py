@@ -85,15 +85,23 @@ class Answers(BaseModel):
 
 # OpenRouter's systemone answers at most 16 questions per request (422 otherwise).
 MAX_QUESTIONS_PER_CALL = 16
-# A 429 from a burst of parallel asks (several sessions, or one large batch) clears in well under a second;
-# an overloaded backend (529) takes longer, so each retry waits twice as long as the one before. Any other
-# error, such as a 503, fails over to the next model.
+# A refused request (429) is sent again when the endpoint's `retry-after` says. One that names no wait, as an
+# overloaded backend (529) does not, waits twice as long each retry. Any other error, such as a 503, fails over to
+# the next model.
 RATE_LIMIT_RETRY_S = 1.5
 RETRY_STATUSES = (429, 529)
 MAX_RETRIES = 2
 # Asks in flight at once by default. A code search sends about 140 asks in a few waves, 70 at once at its peak,
-# which queued behind 16 slots; 64 drew no 429s there.
+# which queued behind 16 slots; 64 drew no 429s when this was set. The console refuses such waves now: see PACE_S.
 MAX_CONCURRENCY = 64
+# The console refuses requests that arrive together, however few it had that minute: of 10 sent at once it answered
+# 8, of 60, 21; sent 70 ms apart, all 210, and 50 ms apart, 194 of 200 (2026-11-17). A search sends its asks in
+# waves, so half its requests were refused and it took twice as long (six code searches: 24 s each, 12 s spaced).
+# Once an endpoint has refused a request, requests leave PACE_S apart until it has refused none for PACED_S; an
+# endpoint that refuses nothing is sent whole waves, as before.
+# shortcut: one pace for every endpoint (what the console takes); measure an endpoint's own when another refuses.
+PACE_S = 1 / 15
+PACED_S = 300.0
 # Of a decision model's listed window, the most max_state_tokens may be. A real ask (a session cut to
 # max_state_tokens, two of the loop's questions) was 0.65 to 0.81 of max_state_tokens in the model's own tokens on
 # Jev, Clef, Liquid d1 and Drex (2026-11-15); at three quarters it fills about 0.6 of the window, which leaves room
@@ -109,6 +117,14 @@ MEDIA_DATA_URL = re.compile(
 
 def _without_media(text: str) -> str:
     return MEDIA_DATA_URL.sub(lambda m: f"[base64 data URL of type {m[1]}, {len(m[2])} characters]", text)
+
+
+def _retry_after(response: httpx.Response, otherwise: float) -> float:
+    """Seconds the endpoint asks a refused request to wait; `otherwise` when it names none."""
+    try:
+        return min(max(float(response.headers["retry-after"]), 0.0), RETRY_LONGEST_S)
+    except (KeyError, ValueError):
+        return otherwise
 
 
 class DecisionBackend(Protocol):
@@ -139,6 +155,8 @@ class DecisionsApiBackend:
         self._transport = transport
         self._http: httpx.AsyncClient | None = None
         self._loop: asyncio.AbstractEventLoop | None = None
+        self._paced_until = 0.0
+        self._next_request = 0.0
 
     def _client(self) -> httpx.AsyncClient:
         """One pooled client per event loop: an ask reuses a kept-alive connection instead of paying for a new
@@ -160,6 +178,16 @@ class DecisionsApiBackend:
         models = await decision_models(sources, self._transport)
         listed = {m.id.removeprefix(DECISIONS_PREFIX): m.window for m in models}
         return min((w for m in self._models if (w := listed.get(m))), default=None)
+
+    async def pace(self) -> None:
+        """Returns when the next request may leave: at once, unless the endpoint refused one lately; then PACE_S
+        after the one before it, in the order they came."""
+        now = time.monotonic()
+        if now >= self._paced_until:
+            return
+        at = max(self._next_request, now)
+        self._next_request = at + PACE_S
+        await asyncio.sleep(at - now)
 
     async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
         items = list(questions.items())
@@ -194,7 +222,9 @@ class DecisionsApiBackend:
                 for attempt in range(MAX_RETRIES):
                     if response.status_code not in RETRY_STATUSES:
                         break
-                    await asyncio.sleep(RATE_LIMIT_RETRY_S * 2**attempt)
+                    self._paced_until = time.monotonic() + PACED_S
+                    await asyncio.sleep(_retry_after(response, RATE_LIMIT_RETRY_S * 2**attempt))
+                    await self.pace()
                     response = await client.post(self._url, headers=headers, json=request, timeout=timeout)
                 response.raise_for_status()
                 body = response.json()
@@ -406,8 +436,12 @@ class DecisionClient:
             # Set once the backend answers, so an attempt whose answers are unusable still reports what it cost.
             result: Answers | None = None
             try:
-                # The timeout starts once a slot is held, so waiting in the queue never counts as a backend failure.
+                # The timeout starts once a slot is held and a backend that spaces its requests lets this one leave, so
+                # waiting in either queue never counts as a backend failure.
                 async with self._slots:
+                    pace = getattr(self.backend, "pace", None)
+                    if pace is not None:
+                        await pace()
                     result = await asyncio.wait_for(self.backend.decide(sent, questions), timeout_s or self._timeout_s)
                 self.usage.input_tokens += result.input_tokens
                 self.usage.output_tokens += result.output_tokens
