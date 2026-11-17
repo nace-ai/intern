@@ -101,6 +101,7 @@ async def _steward_locked(
         timeout_s=cfg.timeout_s,
         max_state_tokens=cfg.max_state_tokens,
         max_concurrency=cfg.max_concurrency,
+        retry_window_s=cfg.retry_window_s,
     )
     await decisions.fit()
     if merge:

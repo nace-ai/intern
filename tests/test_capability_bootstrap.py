@@ -14,8 +14,9 @@ import pytest
 
 import intern.config as config_module
 import intern.session_setup as capability_setup
+from intern import decisions
 from intern.capability_settings import CapabilitySettings
-from intern.config import Bootstrap, Options
+from intern.config import Bootstrap, Options, load_user_config
 from intern.decisions import DecisionsApiBackend, NoulAnswer, NoulQuestion, Question
 from intern.events import WindowInfo
 from intern.loop import ModelBinding
@@ -351,3 +352,29 @@ def test_saved_settings_errors_withhold_credentials_even_in_formatted_tracebacks
         make_bootstrap(tmp_path, monkeypatch, {primary.ref: primary}, 'system2="fake/primary"\n' + invalid)
     assert "private-synthetic-credential" not in str(caught.value)
     assert "private-synthetic-credential" not in "".join(traceback.format_exception(caught.value))
+
+
+async def test_system1_retry_window_comes_from_config_else_the_default(tmp_path, monkeypatch):
+    # The window used to be set only by patching `decisions.RETRY_WINDOW_S` at launch.
+    primary, _ = make_binding("fake/primary", [Turn(text="done")])
+    (tmp_path / "configured").mkdir()
+    (tmp_path / "unset").mkdir()
+    configured = make_bootstrap(
+        tmp_path / "configured",
+        monkeypatch,
+        {primary.ref: primary},
+        'system2 = "fake/primary"\n[system1]\nretry_window_s = 5\n',
+    )
+    async with await configured.session(lambda event: None) as session:
+        assert session.deps.decisions._retry_window_s == 5  # pyright: ignore[reportPrivateUsage]
+        assert session.deps.decisions.with_backend(Quiet())._retry_window_s == 5  # pyright: ignore[reportPrivateUsage]
+    unset = make_bootstrap(tmp_path / "unset", monkeypatch, {primary.ref: primary})
+    async with await unset.session(lambda event: None) as session:
+        # Not set: the module default, read when the client is built (conftest shortens it for tests).
+        assert session.deps.decisions._retry_window_s == decisions.RETRY_WINDOW_S  # pyright: ignore[reportPrivateUsage]
+
+
+def test_a_negative_system1_retry_window_is_refused(tmp_path):
+    (tmp_path / "config.toml").write_text("[system1]\nretry_window_s = -1\n")
+    with pytest.raises(ConfigError, match="retry_window_s"):
+        load_user_config(tmp_path)

@@ -119,6 +119,11 @@ class System1Config(BaseModel):
     timeout_s: float = 10.0
     max_state_tokens: int = Field(default=32_768, gt=0)
     max_concurrency: int = Field(default=MAX_CONCURRENCY, gt=0)
+    retry_window_s: float | None = Field(
+        default=None,
+        ge=0,
+        description="How long a failing System 1 ask is retried before the run stops; 30 minutes when not set.",
+    )
     models: list[str] = Field(
         default_factory=lambda: [DEFAULT_SYSTEM1_MODEL],
         description="Decision models on the console the pickers offer when the console cannot be listed; the first "
@@ -636,6 +641,7 @@ class Bootstrap:
             timeout_s=cfg.timeout_s,
             max_state_tokens=cfg.max_state_tokens,
             max_concurrency=cfg.max_concurrency,
+            retry_window_s=cfg.retry_window_s,
         )
         try:
             await decisions.check()
