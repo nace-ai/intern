@@ -2,6 +2,14 @@
 
 from __future__ import annotations
 
+import itertools
+import subprocess
+from pathlib import Path
+
+import pytest
+
+from intern.capability_settings import CapabilitySettings
+from intern.config import Bootstrap, Options
 from intern.context import (
     STATE_PROMPT,
     ContextView,
@@ -21,8 +29,11 @@ from intern.context import (
     with_requests,
     without_code_sections,
 )
+from intern.events import Compaction, WindowInfo
 from intern.instructions import Instructions, PinnedDoc
 from intern.journal import CompactionEntry, Journal, MessageEntry, StateEntry
+from intern.loop import ModelBinding
+from intern.memory.drive import create
 from intern.messages import (
     AssistantMessage,
     JsonObject,
@@ -32,8 +43,11 @@ from intern.messages import (
     ToolResultMessage,
     UserMessage,
 )
-from intern.models.profile import Thresholds
+from intern.models.profile import Profile, Thresholds
+from intern.providers.fake import FakeProvider, Turn
 from intern.state_edits import parse
+
+from .support import Quiet
 
 WRITTEN = "## Plan\n1. parse: in progress\n\n## Now\nparsing"
 
@@ -245,3 +259,70 @@ def test_a_number_fix_changes_only_a_line_that_holds_a_flagged_number():
 def test_view_type_is_plain_data():
     view = ContextView(system="s", pinned=[], summary=None, history=[], history_ids=[])
     assert [m.role for m in view.messages()] == ["system"]
+
+
+@pytest.fixture
+def project(tmp_path: Path) -> Path:
+    """A git repository with an instruction file and one module, beside a config home and a memory drive."""
+    work = tmp_path / "work"
+    work.mkdir()
+    subprocess.run(["git", "init", "-q", str(work)], check=True)
+    (work / "AGENTS.md").write_text("Run the tests before you finish.\n")
+    (work / "app.py").write_text("def total(xs):\n    return sum(xs)\n")
+    (tmp_path / "home").mkdir()
+    (tmp_path / "home" / "config.toml").write_text('system2 = "fake/primary"\n')
+    create(tmp_path / "drive")
+    return work
+
+
+async def test_each_request_starts_with_the_previous_one_so_the_provider_cache_keeps_hitting(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+):
+    """A session with what a default one loads, code search and memory on, over two messages with a file edited in
+    between: each request sends the tools and every message of the request before it unchanged, but that one's
+    last, which may carry the tail. A change that breaks this makes every turn pay full price."""
+    pytest.importorskip("networkx", reason="needs the code-search extra: uv sync --all-extras")
+    provider = FakeProvider(
+        [
+            Turn(tool_calls=[("bash", {"command": "ls"})], reasoning="look first"),
+            Turn(tool_calls=[("read", {"path": "app.py"})]),
+            Turn(tool_calls=[("edit", {"path": "app.py", "old_string": "sum(xs)", "new_string": "sum(xs, 0)"})]),
+            Turn(text="Done."),
+            Turn(tool_calls=[("grep", {"pattern": "total"})]),
+            Turn(tool_calls=[("memory_search", {"query": "totals"})]),
+            Turn(text="Done again."),
+        ],
+        model="fake/primary",
+    )
+    system2 = ModelBinding(
+        provider=provider,
+        ref="fake/primary",
+        wire_model="primary",
+        profile=Profile(),
+        window=WindowInfo(
+            advertised=65_536, advertised_source="profile", effective=None, user_cap=None, working=65_536
+        ),
+    )
+
+    async def bind(self: Bootstrap, ref: str) -> ModelBinding:
+        return system2
+
+    monkeypatch.setattr(Bootstrap, "bind", bind)
+    monkeypatch.setattr(Bootstrap, "_system1", lambda self, spec=None: Quiet())
+    capabilities = CapabilitySettings.model_validate({"code_search": {"enabled": True}, "memory": {"steward": False}})
+    events = []
+    bootstrap = Bootstrap(
+        Options(cwd=project, persist=False, capabilities=capabilities, memory=tmp_path / "drive"),
+        {"INTERN_HOME": str(tmp_path / "home")},
+    )
+    async with await bootstrap.session(events.append) as session:
+        assert {"decision_code", "memory_search"} <= {tool.name for tool in session.deps.tools}
+        await session.run("Make total start from zero.")
+        await session.run("Where else is total used?")
+
+    assert not [e for e in events if isinstance(e, Compaction)]
+    requests = provider.requests
+    assert len(requests) == 7
+    for before, after in itertools.pairwise(requests):
+        assert after.tools == before.tools
+        assert after.messages[: len(before.messages) - 1] == before.messages[:-1]
