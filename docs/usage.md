@@ -54,7 +54,7 @@ A model is `provider/model`. Everything after the first slash is sent to the pro
 
 | Provider | Base URL | Key |
 |---|---|---|
-| `openrouter` | openrouter.ai | `OPENROUTER_API_KEY` |
+| `openrouter` | openrouter.ai (Claude asks for prompt caching, which Anthropic does only when asked) | `OPENROUTER_API_KEY` |
 | `fireworks` | api.fireworks.ai | `FIREWORKS_API_KEY` |
 | `together`, `deepinfra`, `groq` | their public endpoints | `<NAME>_API_KEY` |
 | `openai` | api.openai.com, native Responses API (encrypted reasoning replayed) | `OPENAI_API_KEY` |

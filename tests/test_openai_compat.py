@@ -9,7 +9,7 @@ import httpx
 import pytest
 
 from intern.messages import AssistantMessage, ToolCall, UserMessage
-from intern.models.profile import Compat
+from intern.models.profile import Compat, load_profile
 from intern.models.registry import resolve_endpoint
 from intern.providers.base import (
     NO_RETRIES,
@@ -201,3 +201,21 @@ async def test_request_body_follows_compat_flags_and_replays_reasoning_only_to_i
     assistants = [m for m in body["messages"] if m["role"] == "assistant"]
     assert assistants[0]["reasoning_content"] == "mine"
     assert "reasoning_content" not in assistants[1]
+
+
+async def test_claude_through_openrouter_asks_for_prompt_caching():
+    """Anthropic caches only where a request asks: without it every Claude turn through OpenRouter paid its whole prompt
+    at full price. The top-level `cache_control` is OpenRouter's automatic caching; other models cache on their own."""
+    seen: list[dict[str, Any]] = []
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(r.content))
+        return httpx.Response(200, content=sse(delta(content="ok"), delta(finish_reason="stop")))
+
+    for ref in ("openrouter/anthropic/claude-sonnet-5-5", "openrouter/deepseek/deepseek-v4-flash"):
+        endpoint = resolve_endpoint(ref, {"OPENROUTER_API_KEY": "k"})
+        p = OpenAICompatProvider(endpoint, transport=httpx.MockTransport(handler))
+        await collect(p, request(compat=load_profile(ref).compat))
+    claude, other = seen
+    assert claude["cache_control"] == {"type": "ephemeral"}
+    assert "cache_control" not in other
