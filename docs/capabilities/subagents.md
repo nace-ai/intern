@@ -4,6 +4,30 @@ A subagent is a second run of the agent with a clean conversation and one task. 
 parent) waits for it and gets its final reply back, never its steps, so the parent's context stays small.
 Subagents run in `intern.subagents`.
 
+## Turning it on
+
+Subagents are off by default. Turn them on with `/caps subagents` in the terminal UI, the ACP `cap.subagents` option,
+or in `config.toml`:
+
+```toml
+[capabilities.subagents]
+enabled = true
+```
+
+The agent then has an `agent` tool. It takes one or more tasks (at most eight a call, and no more than `max_children`),
+each with what to do, a short name, and optionally the tools to use, and answers with a line saying how many
+completed, then each subagent's report, the tool result shared evenly between them; a report cut to fit says where the
+whole reply is. A task may name a model only when `model` or `models` lists one: the schema then offers exactly those,
+and otherwise has no model to guess. A configured model is bound when the session opens, so a typo stops the switch
+from turning on instead of failing every subagent. The terminal UI shows a line when each subagent starts and ends. Independent tasks whose tools only read run at
+the same time. The tool itself changes nothing, so the guard does not judge the call; it judges every call each
+subagent makes.
+
+The reports come back as the `agent` call's result. With the tool-result guard on, what a subagent read from the web,
+the browser or MCP was screened in the subagent, before it read it; the report itself is screened only with
+`screen = "all"`. A subagent on another model is bound inside the session budget and without the session's System 2
+fallbacks, which are the parent's backups.
+
 ## What a subagent may do
 
 A subagent inherits the parent's capabilities. The parent may narrow them and never widen them.

@@ -899,6 +899,7 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
         ("cap.memory", True),
         ("cap.guard", False),
         ("cap.tool-result-guard", False),
+        ("cap.subagents", False),
     ]
     assert all(c["name"] and c["description"] for c in listed["capabilities"])
     # Where commands run is one choice, listed apart: the built-ins and OpenSandbox, the configured one the default.
@@ -1137,6 +1138,7 @@ async def test_capability_toggles_apply_at_the_next_prompt_with_one_reopen_and_s
         "cap.memory": True,
         "cap.guard": False,
         "cap.tool-result-guard": False,
+        "cap.subagents": False,
         "cap.mcp.docs": True,
     }
     browser = next(o for o in session.config_options if o.id == "cap.browser")
@@ -1487,3 +1489,30 @@ def test_acp_refuses_stdio_that_is_not_a_pipe(tmp_path: Path, work: Path):
     assert result.stderr.strip() == (
         "intern: acp talks over pipes: start it from an ACP client, not with stdin or stdout redirected to a file"
     )
+
+
+async def test_switching_subagents_on_reopens_with_them_and_a_session_that_cannot_keeps_them_off(
+    tmp_path: Path, work: Path
+):
+    script = lambda request: Turn(text="ok")  # noqa: E731
+    agent, _, opener = make_agent(tmp_path, script)
+    session = await agent.new_session(cwd=str(work))
+    sid = session.session_id
+    await agent.set_config_option(config_id="cap.subagents", session_id=sid, value=True)
+    await agent.prompt(prompt=[text_block("go")], session_id=sid)
+    reopened = opener.opened[-1].capabilities
+    assert reopened is not None and reopened.subagents.enabled
+
+    reason = "Subagents cannot be turned on: extension 'company-gate' checks or changes the run"
+    agent, _, opener = make_agent(tmp_path / "other", script, broken={"cap.subagents": reason})
+    (tmp_path / "other").mkdir(exist_ok=True)
+    session = await agent.new_session(cwd=str(work))
+    sid = session.session_id
+    await agent.set_config_option(config_id="cap.subagents", session_id=sid, value=True)
+    with pytest.raises(RequestError) as refused:
+        await agent.prompt(prompt=[text_block("go")], session_id=sid)
+    assert refused.value.code == -32602 and "company-gate" in str(refused.value)
+    live = agent.sessions[sid]
+    assert not live.capabilities.subagents.enabled  # the session continues on the capabilities it had
+    response = await agent.prompt(prompt=[text_block("again")], session_id=sid)
+    assert response.stop_reason == "end_turn"

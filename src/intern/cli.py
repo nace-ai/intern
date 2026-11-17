@@ -36,6 +36,8 @@ from intern.events import (
     Indexing,
     RunEnd,
     SecretUnavailable,
+    SubagentEnd,
+    SubagentStart,
     TextDelta,
     ToolCallEnd,
     ToolCallStart,
@@ -139,6 +141,13 @@ def _text_sink(event: Event) -> None:
                 share = done / total if total else 0.0
                 sys.stderr.write(f"\r{name}: indexing {share:4.0%} {done}/{total}")
                 sys.stderr.flush()
+        case SubagentStart(name=name, tools=tools):
+            print(f"  [subagent {name} started with {', '.join(tools) or 'no tools'}]", file=sys.stderr)
+        case SubagentEnd(name=name, status=status, turns=turns, usage=usage):
+            print(
+                f"  [subagent {name}: {status}, {turns} turns, {usage.input_tokens} in / {usage.output_tokens} out]",
+                file=sys.stderr,
+            )
         case RunEnd(reason=reason, detail=detail, turns=turns, usage=usage, system1=system1):
             print(file=sys.stdout, flush=True)
             if reason != "completed":

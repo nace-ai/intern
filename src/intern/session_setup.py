@@ -77,6 +77,8 @@ from intern.secrets import (
     SecretResolver,
 )
 from intern.session_resources import ResourceSetupError, SessionResources
+from intern.subagents import SubagentRefused, SubagentSettings, child_extensions
+from intern.tools.agent import AgentTool
 from intern.tools.base import Tool
 from intern.tools.files import EditTool, ReadTool, WriteTool
 from intern.tools.process import ProcessTool
@@ -433,6 +435,24 @@ def _storage(base: Path | None, default: Path, scope: str, cwd: Path) -> Path:
     return root / scope
 
 
+def _child_resolver(resolve: BindingResolver | None, budget: RunBudget | None) -> BindingResolver | None:
+    """How a subagent's model is bound: inside the session's budget, without the session's System 2 fallbacks, which
+    are the parent's backups and need not suit a smaller model. Each model is bound once a session."""
+    if resolve is None:
+        return None
+    bound: dict[str, ModelBinding] = {}
+
+    async def bind(ref: str) -> ModelBinding:
+        if ref not in bound:
+            binding = await resolve(ref)
+            bound[ref] = (
+                replace(binding, provider=BudgetProvider(binding.provider, budget)) if budget is not None else binding
+            )
+        return bound[ref]
+
+    return bind
+
+
 def _unique_tools(tools: list[Tool]) -> None:
     names = [tool.name for tool in tools]
     if len(names) != len(set(names)):
@@ -655,6 +675,14 @@ async def prepare_session(
             BrowserOptions.model_validate(settings.browser.model_dump(exclude={"enabled", "artifact_dir"})),
         )
         tools.append(browser_tool(browser))
+    subagents: SubagentSettings | None = None
+    if settings.subagents.enabled:
+        try:
+            child_extensions(deps.hooks.extensions)
+        except SubagentRefused as error:
+            raise ConfigError(f"Subagents cannot be turned on: {error}") from None
+        subagents = SubagentSettings.model_validate(settings.subagents.model_dump(exclude={"enabled"}))
+        tools.append(AgentTool(subagents))
     plans = [_mcp_plan(entry, env, deps.cwd, home) for entry in settings.mcp]
     _unique_tools(tools)
     exported = [
@@ -734,8 +762,27 @@ async def prepare_session(
     values = [*(secret_store or {}).values(), *own]
     redact = SecretRedactor(values).redact if values else deps.redact
     retries = RetryPolicy() if settings.model_retries else NO_RETRIES
-    prepared = replace(
-        deps, tools=tools, executor=executor, system2=system2, redact=redact, processes=manager, retries=retries
-    )
     resolver = models.resolve if settings.system2_fallbacks or models.budget is not None else resolve_model
+    child_resolver = _child_resolver(resolve_model, models.budget) if subagents is not None else None
+    if subagents is not None:
+        # A model subagents may run on is bound now, so a typo or a missing key stops the session from opening with
+        # the switch on, instead of failing every subagent later.
+        for ref in dict.fromkeys(m for m in (subagents.model, *subagents.models) if m and m != system2.ref):
+            if child_resolver is None:
+                raise ConfigError(f"Subagents cannot be turned on: this session cannot bind model {ref!r}")
+            try:
+                await child_resolver(ref)
+            except ConfigError as error:
+                raise ConfigError(f"Subagents cannot be turned on: model {ref!r}: {error}") from None
+    prepared = replace(
+        deps,
+        tools=tools,
+        executor=executor,
+        system2=system2,
+        redact=redact,
+        processes=manager,
+        retries=retries,
+        subagents=subagents,
+        resolve_model=child_resolver,
+    )
     return PreparedSession(prepared, resources, resolver, models.budget)

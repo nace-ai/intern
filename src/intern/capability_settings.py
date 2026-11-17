@@ -25,6 +25,7 @@ from pydantic import (
 
 from intern.browser import BrowserOptions
 from intern.runners import NoOptions, load_runner
+from intern.subagents import SubagentSettings
 from intern.tools import PACKS
 from intern.tools.base import Effect
 from intern.web.reader import ReadSettings
@@ -158,6 +159,15 @@ class ToolResultGuardConfig(_Settings):
     screen: Literal["outside", "all"] = "outside"
     """`outside`: what comes from a tool that reaches the network without running a command (`web_read`, `web_search`,
     the browser) and from MCP tools; `all`: every result but the agent's own writes, at one System 1 ask each."""
+
+
+class SubagentsConfig(_Settings, SubagentSettings):
+    """Subagents (the `agent` tool): the agent hands self-contained tasks to child runs that inherit its capabilities
+    and never more; the only way to turn them on. The limits are `SubagentSettings`'."""
+
+    enabled: bool = False
+    model: ModelRef | None = None
+    models: list[ModelRef] = Field(default_factory=list, max_length=16)
 
 
 class MemoryConfig(_Settings):
@@ -383,6 +393,7 @@ class CapabilitySettings(_Settings):
     workspace: WorkspaceConfig = Field(default_factory=WorkspaceConfig)
     guard: GuardConfig = Field(default_factory=GuardConfig)
     tool_result_guard: ToolResultGuardConfig = Field(default_factory=ToolResultGuardConfig)
+    subagents: SubagentsConfig = Field(default_factory=SubagentsConfig)
     runner: RunnerConfig = Field(default_factory=RunnerConfig)
     secrets: SecretsConfig = Field(default_factory=SecretsConfig)
     mcp: list[McpConfig] = Field(default_factory=list, max_length=32)

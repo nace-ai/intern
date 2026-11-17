@@ -61,6 +61,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `memory` | switch setting | `cap.memory`: the memory extension, its drive and steward | on |
 | `guard` | switch setting | `cap.guard`: the tool-call guard extension, and its options (`system1`, `system_writes`) | off |
 | `tool_result_guard` | switch setting | `cap.tool-result-guard`: the tool-result guard extension, and what it screens (`screen`) | off |
+| `subagents` | switch setting | `cap.subagents`: the `agent` tool, and its limits (`max_children`, `max_parallel`, `max_turns`, `timeout_s`) and models (`model`, `models`) | off |
 | `mcp` | switch setting | one `cap.mcp.<namespace>` switch per listed connection | none listed |
 | `search` | capability option | options of the `web-search` pack | no backend |
 | `reader` | capability option | options of the `web-read` pack | built-in limits |
@@ -389,6 +390,26 @@ screen = "outside"   # the default: web, browser and MCP output; "all": every re
 ```
 
 It is a separate switch from the guard: either can be on alone. See [tool-result guard](capabilities/tool-result-guard.md).
+
+## Subagents
+
+The agent hands self-contained tasks to subagents with the `agent` tool. A subagent has the agent's tools, or fewer,
+never more; its executor, secret redaction and guard; its budget and deadline; and reads memory without writing it.
+Off by default; turn it on with `/caps subagents`, the ACP `cap.subagents` option, or:
+
+```toml
+[capabilities.subagents]
+enabled = true
+max_children = 8          # subagents one run may start
+max_parallel = 4          # at the same time; those that can write or run commands go one at a time
+max_turns = 40            # each, and never above the agent's own
+# timeout_s = 600         # each; none by default
+# model = "openrouter/qwen/qwen3.8-27b"     # what subagents run on; the agent's model by default
+# models = ["openrouter/qwen/qwen3.8-27b"]  # further models the agent may pick per task
+```
+
+A session whose extensions include one that checks tool calls or results and does not say how it runs in a subagent
+cannot turn this on. See [subagents](capabilities/subagents.md).
 
 ## Runner (where commands run)
 

@@ -182,7 +182,7 @@ After the options above, every session (unbound ones too) advertises one boolean
 a user can switch on or off: the same list as the terminal UI's `/caps`, without the `base` pack.
 Fixed extensions (a `module:Class`) have no toggle: the profile and `--extension`
 choose them for the whole session. Extensions behind a capability (code search, the workspace, memory, the guard,
-the tool-result guard) are switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#extensions-and-capabilities)).
+the tool-result guard) and the subagents' `agent` tool are switched by that capability's toggle ([CONTRIBUTING](../CONTRIBUTING.md#extensions-and-capabilities)).
 
 | `id` | Turns on | Listed |
 |---|---|---|
@@ -194,6 +194,7 @@ the tool-result guard) are switched by that capability's toggle ([CONTRIBUTING](
 | `cap.memory` | `[capabilities.memory] enabled` | always |
 | `cap.guard` | `[capabilities.guard] enabled` | always |
 | `cap.tool-result-guard` | `[capabilities.tool_result_guard] enabled` | always |
+| `cap.subagents` | `[capabilities.subagents] enabled` | always; when a fixed extension cannot run in a subagent, or a subagent model cannot be bound, the prompt that switches it on fails with the reason and the session continues without it |
 | `cap.mcp.<namespace>` | that `[[capabilities.mcp]]` connection | for each connection config.toml names |
 
 A toggle that cannot switch on in this install and environment, even after the install below, is left out unless
@@ -1203,3 +1204,16 @@ shape.
   caching (a top-level `cache_control`), on each of Claude's upstreams there. In a live session (Claude Haiku 5.5, six
   turns of reads, edits and test runs) every request after the first read 85-95% of its prompt from the cache; a
   request of a 20k-token conversation fell from $0.00206 to $0.00021. `run_end.usage` shows the cache reads as before.
+
+### 0.40.0
+
+Additive; 0.39.1 clients keep working, and nothing a client sends or reads changed shape.
+
+- Sessions offer one more boolean option, `cap.subagents` ("Subagents"), off unless `[capabilities.subagents] enabled
+  = true`; `models --json` lists it too. With it on, the agent has an `agent` tool that hands tasks to subagents: runs
+  with a clean conversation and the agent's tools or fewer. A client sees an `agent` tool call (kind `other`) whose
+  result holds each subagent's report. A subagent's own steps are not sent, its file edits included: a client that
+  shows diffs does not see the files a subagent changed.
+- The event stream (`-p --json`, JSON-RPC) has two more event types, `subagent_start` and `subagent_end`, and
+  `run_end` an optional `subagent_usage`. `run_end.usage` includes what the run's subagents spent. ACP sends nothing
+  for the new events.
