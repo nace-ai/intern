@@ -261,6 +261,9 @@ def test_view_type_is_plain_data():
     assert [m.role for m in view.messages()] == ["system"]
 
 
+ADDED = "sum(xs, 0)\n\n\ndef mean(xs):\n    return total(xs) / len(xs)"
+
+
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
     """A git repository with an instruction file and one module, beside a config home and a memory drive."""
@@ -286,7 +289,8 @@ async def test_each_request_starts_with_the_previous_one_so_the_provider_cache_k
         [
             Turn(tool_calls=[("bash", {"command": "ls"})], reasoning="look first"),
             Turn(tool_calls=[("read", {"path": "app.py"})]),
-            Turn(tool_calls=[("edit", {"path": "app.py", "old_string": "sum(xs)", "new_string": "sum(xs, 0)"})]),
+            # A new symbol changes code search's map of the repository.
+            Turn(tool_calls=[("edit", {"path": "app.py", "old_string": "sum(xs)", "new_string": ADDED})]),
             Turn(text="Done."),
             Turn(tool_calls=[("grep", {"pattern": "total"})]),
             Turn(tool_calls=[("memory_search", {"query": "totals"})]),
