@@ -98,6 +98,9 @@ class Store:
         """Roots whose index was checked against their files since the last tool that may have changed files."""
         self.too_many: set[Path] = set()
         """Roots past MAX_FILES: not walked again (a home folder's walk takes seconds, before every run)."""
+        self.apart: set[Path] = set()
+        """Roots never indexed whole, as their extension decides (code search: a folder that is not a repository and
+        holds some): a scope under one is searched in the repository holding it, from that repository's own index."""
         self.decisions: DecisionClient | None = None
         self.emit: EventSink | None = None
         """The run's event sink: a build reports its progress there as `indexing` events (the stderr bar is for
@@ -236,9 +239,10 @@ class Store:
         Under the store's root it is a scope there (root None: the default); elsewhere, another repository the agent
         was asked about, the root is the git work tree holding it (else the folder itself), indexed on first use and
         kept in its own home like any index. Under a root too big to index (a home folder holding the repository
-        asked about) it is searched as elsewhere, in its own work tree, or the folder itself when that tree is the
-        big root or holds it. Where the root has no index and a folder from the scope up to the root has one (built in
-        an earlier run), that folder is the root: its index is used, refreshed if stale, not rebuilt at the root.
+        asked about), or one searched apart (`apart`), it is searched as elsewhere, in its own work tree, or the
+        folder itself when that tree is the big root or holds it. Where the root has no index and a folder from the
+        scope up to the root has one (built in an earlier run), that folder is the root: its index is used, refreshed
+        if stale, not rebuilt at the root.
         Raises FileNotFoundError for a path that does not exist, here or elsewhere: searched, it would read as a
         folder the index has nothing in."""
         if not scope:
@@ -252,7 +256,7 @@ class Store:
         if inside and not self.indexed(base) and (own := self.indexed_from(folder, base)) is not None:
             within = target.relative_to(own).as_posix()
             return own, None if within == "." else within
-        if inside and base not in self.too_many:
+        if inside and base not in self.too_many and base not in self.apart:
             within = target.relative_to(base).as_posix()
             return None, None if within == "." else within
         try:

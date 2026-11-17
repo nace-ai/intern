@@ -184,6 +184,8 @@ The index is `.intern/index.json` in the working directory, built before the fir
 a progress bar on a terminal) in a git repository, and elsewhere (a home folder, Downloads) only when the agent
 first searches, refreshed after edits, and kept out of git by a line in `.intern/.gitignore`. In a git
 repository it holds the files git sees: what `.gitignore` keeps out of git is not indexed or searched.
+A folder that is not a repository but holds some (several checkouts side by side) is not indexed whole:
+`decision_code` searches one repository at a time, given as `scope`, each from its own index.
 
 ## Workspace
 
