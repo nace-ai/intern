@@ -4,6 +4,9 @@ Rows are two aligned columns: how the model reads inside its group (its id witho
 what else is known about it (its display name, its provider). Known models come first. A name that is not
 listed is accepted as typed, so a custom `provider/model` or a decision model the catalog missed can still be
 chosen; the harness refuses it with its own reason if it cannot be resolved.
+
+A picker whose notes are sentences (capabilities, runners, secrets) stacks each row instead: the label on a line of
+its own, the note under it, wrapped at the label's indent rather than back under the label column.
 """
 
 from __future__ import annotations
@@ -18,17 +21,24 @@ from textual.app import ComposeResult
 from textual.binding import Binding, BindingType
 from textual.containers import Vertical
 from textual.content import Content
+from textual.css.styles import RulesMap
+from textual.geometry import Spacing
 from textual.screen import ModalScreen
+from textual.strip import Strip
+from textual.style import Style
+from textual.visual import Padding, RenderOptions, Visual
 from textual.widgets import Input, OptionList, Static
 from textual.widgets.option_list import Option
 
-from intern.tui.theme import S_MUTED, S_MUTED_ITALIC, S_OK_BOLD
+from intern.tui.theme import S_HEAD, S_MUTED, S_MUTED_ITALIC, S_OK_BOLD
 
 LABEL_WIDTH = 56
-KEYS = "↑↓ move · Enter picks · Esc closes"
+KEYS = (("↑↓", "move"), ("Enter", "picks"), ("Esc", "closes"))
+TYPED = "a name not listed is used as typed"
 THINKING_DEFAULT = "default"
 """Shown for a model whose profile sets no effort: the model's own."""
-HINT = f"{KEYS} · a typed name that is not listed is used as is"
+MARK = 2
+"""Cells before a label: the current row's `●`, or blank."""
 
 
 @dataclass(frozen=True)
@@ -39,8 +49,8 @@ class Choice:
     label: str = ""
     """How the id reads inside its group (without the group's prefix); the id itself when empty."""
     note: str = ""
-    """Shown dim after the label: the display name when it says more than the label, the provider for a known
-    model."""
+    """Shown dim after the label, or under it in a stacked picker: the display name when it says more than the
+    label, the provider for a known model, what a capability does."""
 
     @property
     def shown(self) -> str:
@@ -76,6 +86,35 @@ def fit(text: str, width: int) -> str:
     return text[:head] + "…" + text[-tail:] if tail > 0 else text[: width - 1] + "…"
 
 
+class Stacked(Visual):
+    """One option over several lines: its head, then its note wrapped under an indent, so a long note never runs
+    back to the option's left edge."""
+
+    def __init__(self, head: Content, note: Content, indent: int) -> None:
+        self.head = head
+        self.note = Padding(note, Spacing(0, 0, 0, indent))
+
+    def get_optimal_width(self, rules: RulesMap, container_width: int) -> int:
+        return max(
+            self.head.get_optimal_width(rules, container_width), self.note.get_optimal_width(rules, container_width)
+        )
+
+    def get_height(self, rules: RulesMap, width: int) -> int:
+        return self.head.get_height(rules, width) + self.note.get_height(rules, width)
+
+    def render_strips(self, width: int, height: int | None, style: Style, options: RenderOptions) -> list[Strip]:
+        return [
+            *self.head.render_strips(width, None, style, options),
+            *self.note.render_strips(width, None, style, options),
+        ]
+
+
+def label_parts(label: str, style: str) -> list[tuple[str, str]]:
+    """A label in `style`, what follows its first ` · ` (`code search · System 1`) dim, as a tag."""
+    name, dot, tag = label.partition(" · ")
+    return [(name, style), (f"  {tag}", S_MUTED)] if dot else [(name, style)]
+
+
 class ModelPicker(ModalScreen[str | None]):
     """Dismisses with the picked model id, the typed name when nothing listed matches, or None."""
 
@@ -99,6 +138,7 @@ class ModelPicker(ModalScreen[str | None]):
         *,
         hint: str = "",
         typed: bool = True,
+        stacked: bool = False,
         levels: tuple[str, ...] = (),
         thinking: str | None = None,
     ) -> None:
@@ -109,6 +149,9 @@ class ModelPicker(ModalScreen[str | None]):
         self.hint = hint
         self.typed = typed
         """Whether a typed name that matches nothing listed is a valid pick (a model is; a capability is not)."""
+        self.stacked = stacked
+        """Whether each note goes under its label (sentences: capabilities, runners, secrets) rather than beside it
+        (models: a name and a provider)."""
         self.levels = levels
         """The thinking levels ←/→ go through, set with the pick; none for a picker that has no say in it."""
         self.thinking = thinking
@@ -125,10 +168,16 @@ class ModelPicker(ModalScreen[str | None]):
             yield OptionList(id="picker-options")
             if self.levels:
                 yield Static(self._thinking_line(), id="picker-thinking")
-            keys = HINT if self.typed else KEYS
-            yield Static(
-                Content.assemble((f"{self.hint}  " if self.hint else "", S_MUTED), (keys, S_MUTED)), id="picker-hint"
-            )
+            yield Static(self._hint_lines(), id="picker-hint")
+
+    def _hint_lines(self) -> Content:
+        """What Enter does here on a line of its own, then the keys, so neither wraps into the other."""
+        keys: list[tuple[str, str]] = []
+        for key, does in KEYS:
+            keys += [("   " if keys else "", S_MUTED), (key, S_HEAD), (f" {does}", S_MUTED)]
+        if self.typed:
+            keys.append((f"   {TYPED}", S_MUTED))
+        return Content.assemble(*([(f"{self.hint}\n", S_MUTED)] if self.hint else []), *keys)
 
     def on_mount(self) -> None:
         self._refilter("")
@@ -145,19 +194,23 @@ class ModelPicker(ModalScreen[str | None]):
         current: int | None = None
         for choice in shown:
             if choice.group != group:
+                header = Content.assemble((choice.group.upper(), "bold"), (f"  {counts[choice.group]}", S_MUTED))
+                # A blank line above every group but the first sets the groups apart.
+                gap = Padding(header, Spacing(1, 0, 0, 0)) if group is not None else header
+                options.add_option(Option(gap, disabled=True))
                 group = choice.group
-                header = Content.assemble((group.upper(), "bold"), (f"  {counts[group]}", S_MUTED))
-                options.add_option(Option(header, disabled=True))
             is_current = choice.id == self.current
-            parts: list[str | tuple[str, str]] = [
-                ("● ", S_OK_BOLD) if is_current else "  ",
-                (fit(choice.shown, width), "bold" if is_current else ""),
-            ]
-            if choice.note:
-                parts.append(("  " + choice.note, S_MUTED))
-            if is_current:
-                parts.append(("  current", S_MUTED_ITALIC))
-            options.add_option(Option(Content.assemble(*parts), id=choice.id))
+            mark = ("● ", S_OK_BOLD) if is_current else " " * MARK
+            current_tag = [("  current", S_MUTED_ITALIC)] if is_current else []
+            if self.stacked:
+                head = Content.assemble(mark, *label_parts(choice.shown, "bold"), *current_tag)
+                prompt = Stacked(head, Content.styled(choice.note, S_MUTED), MARK) if choice.note else head
+            else:
+                parts: list[str | tuple[str, str]] = [mark, (fit(choice.shown, width), "bold" if is_current else "")]
+                if choice.note:
+                    parts.append(("  " + choice.note, S_MUTED))
+                prompt = Content.assemble(*parts, *current_tag)
+            options.add_option(Option(prompt, id=choice.id))
             index = options.option_count - 1
             first = index if first is None else first
             current = index if is_current else current
