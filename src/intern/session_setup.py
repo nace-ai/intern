@@ -546,6 +546,9 @@ async def prepare_session(
     _unique_tools(tools)
     models = _Models(settings, resolve_model)
     system2 = await models.wrap(deps.system2)
+    handoff = deps.handoff
+    if handoff is not None:
+        handoff = replace(handoff, binding=await models.wrap(handoff.binding))
     scope = hashlib.sha256(deps.journal.session_id.encode()).hexdigest()[:16] + "-" + uuid.uuid4().hex
     storage_root = home / "session-resources"
     selected = {tool.name: tool for tool in tools}
@@ -786,5 +789,6 @@ async def prepare_session(
         retries=retries,
         subagents=subagents,
         resolve_model=child_resolver,
+        handoff=handoff,
     )
     return PreparedSession(prepared, resources, resolver, models.budget)

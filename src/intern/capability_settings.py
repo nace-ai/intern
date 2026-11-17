@@ -176,6 +176,24 @@ class SubagentsConfig(_Settings, SubagentSettings):
     models: list[ModelRef] = Field(default_factory=list, max_length=16)
 
 
+class HandoffConfig(_Settings):
+    """One hand-over per run from System 2 to a cheaper model, once System 1 judges the work far enough along that the
+    cheaper model can finish it; on only when `to` names that model."""
+
+    to: ModelRef | None = None
+    effort: str | None = None
+    """The reasoning effort the model taken over by is sent; unset keeps what its profile (and `--profile`) say."""
+    transfer: Literal["context", "logfile"] = "context"
+    """`context`: it continues the conversation, without the reasoning of the model before it; `logfile`: it starts
+    over from the user's requests and a JSON-lines file of the turns so far, which it reads with its tools."""
+    threshold: float = Field(default=0.7, gt=0, le=1)
+    """P(ready) a turn needs to count toward the hand-over."""
+    streak: int = Field(default=2, ge=1)
+    """Turns in a row at `threshold` or more before it hands over."""
+    min_turn: int = Field(default=5, ge=1)
+    """The earliest turn it hands over at."""
+
+
 class MemoryConfig(_Settings):
     """Recall from a memory drive, a git checkout of main, and steward each session into it when it closes."""
 
@@ -400,6 +418,7 @@ class CapabilitySettings(_Settings):
     guard: GuardConfig = Field(default_factory=GuardConfig)
     tool_result_guard: ToolResultGuardConfig = Field(default_factory=ToolResultGuardConfig)
     subagents: SubagentsConfig = Field(default_factory=SubagentsConfig)
+    handoff: HandoffConfig = Field(default_factory=HandoffConfig)
     runner: RunnerConfig = Field(default_factory=RunnerConfig)
     secrets: SecretsConfig = Field(default_factory=SecretsConfig)
     mcp: list[McpConfig] = Field(default_factory=list, max_length=32)
