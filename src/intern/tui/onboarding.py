@@ -321,7 +321,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
                 S_INK,
             ),
             ("Drex Max", S_HEAD),
-            (" is #1 on Artificial Analysis and the one we recommend.", S_INK),
+            (" was #1 on Artificial Analysis on Nov 13, 2026, and is the one we recommend.", S_INK),
         )
         return "Step 2 of 2 · System 1, the decision model", body
 
