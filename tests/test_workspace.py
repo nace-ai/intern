@@ -4,6 +4,7 @@ documents), `sql`, the document-aware `read`, and `decision_files` over them onc
 from __future__ import annotations
 
 import asyncio
+import re
 import shutil
 from pathlib import Path
 
@@ -591,6 +592,33 @@ async def test_the_tools_open_documents_and_tables(tmp_path: Path):
     first, hint = found.content.splitlines()[1:3]
     assert first.startswith("1. resumes/li_yuchen.docx  ") and "Education (3-4)" in first
     assert hint == "   read resumes/li_yuchen.docx"  # a short file is opened whole
+
+
+async def test_a_passage_deep_in_a_long_document_is_found_because_system_1_is_shown_it(tmp_path: Path):
+    # A contract as plain text (every line a paragraph, no heading) and a handbook with one long section. System 1
+    # here says yes only to text that holds the word asked for, as the real one can only judge what it is shown.
+    filler = "as set out in the schedule to this agreement and subject to the conditions the parties accepted. "
+    clauses = [f"{n}. The parties agree to term {n} of this agreement, {filler * 3}" for n in range(1, 201)]
+    clauses[149] = "150. Governing law: this agreement is governed by the laws of Zanzibar."
+    (tmp_path / "contract.txt").write_text("\n".join(clauses) + "\n")
+    rules = [f"Rule {n} of the handbook: {filler * 3}" for n in range(1, 101)]
+    rules[79] = "Rule 80: an employee may take a sabbatical after seven years."
+    (tmp_path / "handbook.md").write_text("# Handbook\n\n## Leave\n\n" + "\n".join(rules) + "\n")
+    ws = Workspace()
+    ws.store.decisions = DecisionClient(Needle("Zanzibar", "sabbatical"), lambda e: None)
+    index_files, find, *_ = ws.tools()
+    await index_files.run(index_files.Args(path="."), ctx(tmp_path))
+    for question, name, line in [
+        ("Which law governs the agreement: Zanzibar's?", "contract.txt", 150),
+        ("When may an employee take a sabbatical?", "handbook.md", 84),
+    ]:
+        found = await find.run(find.Args(question=question), ctx(tmp_path))
+        first = re.search(rf"^1\. {re.escape(name)}  .*\((\d+)-(\d+)\)", found.content, re.M)
+        assert first is not None, found.content
+        start, end = int(first[1]), int(first[2])
+        assert start <= line <= end  # the place returned holds the passage,
+        text = "\n".join((tmp_path / name).read_text().splitlines()[start - 1 : end])
+        assert len(text) <= 4000  # and is short enough that System 1 was shown all of it
 
 
 def test_the_capability_setting_turns_the_workspace_on_and_a_missing_extra_fails_setup(monkeypatch: pytest.MonkeyPatch):

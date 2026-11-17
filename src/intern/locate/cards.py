@@ -36,7 +36,8 @@ def file_card(path: str, derivative: Derivative, keywords: list[str]) -> str:
         out.append(f"  doc: {derivative.summary}")
     for chunk in (c for c in derivative.chunks if c.parent is None and c.kind != "page"):
         line = f"  {chunk.title}" + (f" — {chunk.summary}" if chunk.summary else "")
-        children = [c for c in derivative.chunks if c.parent == chunk.key and c.kind != "page"]
+        # A section's pages and pieces are where its text is, not names: the card keeps its lines for headings.
+        children = [c for c in derivative.chunks if c.parent == chunk.key and c.kind not in {"page", "window"}]
         if children:
             line += f"\n    {children[0].kind}s: " + ", ".join(c.key.rsplit(".", 1)[-1] for c in children)
         out.append(line)

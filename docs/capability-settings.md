@@ -353,7 +353,9 @@ directory that already has one is loaded at the start. Without one, the pinned n
 working directory that hold documents (PDFs, Word, workbooks, Parquet; counted over its first 2,000 files, in or
 outside git), each with its count and whether it is indexed; a working directory with none, such as a code
 repository, gets no note. As with code search, the note is the session's first message's and stays as it is. Then `decision_files` searches it with System 1 (the
-tree walk and a BM25 first stage over its passages, judged together, then one SAG2 expansion round),
+tree walk and a BM25 first stage over its passages, judged together, then one SAG2 expansion round; a
+passage is a page of a PDF, and in a text file or a Word document a piece of at most 80 lines and 4,000
+characters, which is what System 1 is shown of one, so a clause deep in a long contract is judged on its own text),
 `sql` queries the tables, and `read` shows documents as text (`pages=`, `tab=`). It loads beside code
 search: in a repository with a folder of documents, the code index is `.intern/index.json` at the
 root and the documents' index `.decision_workspace/` in their folder. `intern index --documents
