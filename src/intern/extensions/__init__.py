@@ -1,7 +1,8 @@
 """Packaged extensions. Two kinds (CONTRIBUTING, "Extensions and capabilities"):
 
 Fixed extensions, chosen for the whole session by a profile's `extensions` list or `--extension`, are in
-`REGISTRY`, which has none packaged yet. Any `module:Class` can also be loaded that way, for experiments. The
+`REGISTRY`: `tool-summary` (`tool_summary.py`, a run's tool calls counted for eval error analysis). Any
+`module:Class` can also be loaded that way, for experiments. The
 first pack (write-guard, read-before-edit, loop-detector, tool-output-halflife, decision-triage, output-bounding,
 reasoning-policy, quality-monitor) lands after the bare engine has its baseline, one extension per change, each with
 its ablation.
@@ -16,6 +17,7 @@ the drive write guard, reminders and `memory_search`) by `[capabilities.memory]`
 
 from __future__ import annotations
 
+from intern.extensions.tool_summary import ToolSummary
 from intern.hooks import Extension
 
-REGISTRY: dict[str, type[Extension]] = {}
+REGISTRY: dict[str, type[Extension]] = {ToolSummary.name: ToolSummary}

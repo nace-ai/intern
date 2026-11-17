@@ -35,9 +35,17 @@ intern -p --system2 fireworks/accounts/fireworks/models/nemotron-lightning-3p5-3
 Useful flags: `--window N` caps the working window, `--max-turns N` sets the turn budget,
 `--no-session` keeps the journal in memory, `--session FILE` resumes one, `--no-context-files`
 ignores `AGENTS.md`, `SYSTEM2.md` and `SYSTEM1.md` (instruction files are followed literally, with whatever credentials the shell environment
-holds: an `AGENTS.md` that says "file an issue" and a tracker key in `env` get a filed issue), `--extension NAME` loads an extension (a `module:Class`;
-no extensions are packaged yet), and `--no-extensions` drops the profile's extensions (each `--extension` still loads;
+holds: an `AGENTS.md` that says "file an issue" and a tracker key in `env` get a filed issue), `--extension NAME` loads an extension (`tool-summary`, or a
+`module:Class`), and `--no-extensions` drops the profile's extensions (each `--extension` still loads;
 capabilities such as code search and memory are switched in `[capabilities]`, not by these flags).
+
+Tool calls of eval runs: `--extension tool-summary` ends every run with an `extension` event (`tool-summary`, kind
+`summary`) that counts the run's tool calls by tool and by where they failed (`invalid_json`, `unknown_tool`,
+`bad_arguments`, `refused`, `stopped`, `failed`, `crashed`, `interrupted`), and lists each call that did not succeed;
+`-p --json` writes it with the other events. It is off by default and changes nothing the run does. The same
+summaries come from journals, for any run: `uv run evals/tool_calls.py [journal or folder ...] --failures
+failures.jsonl` (by default every journal in `~/.intern/sessions`; not for `--no-session` runs, whose journal is kept
+in memory).
 
 Stopping it: Ctrl-C (SIGINT) aborts the run in `-p`. SIGTERM or SIGHUP, in `-p` and `rpc` as in the terminal UI and
 `acp`, ends the run as an abort does: the command it is running is stopped with everything it started, `run_end` says
