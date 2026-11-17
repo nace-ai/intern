@@ -130,6 +130,8 @@ class FileEntry(BaseModel):
 
 class Index(BaseModel):
     version: int = VERSION
+    #: The revision of the cards its tree was written with (`tree.CARDS`); 0 in an index saved before there was one.
+    cards: int = 0
     #: The directory this index lives in (its derived text beside it); set on load and build, not saved.
     home: Path = Field(default=Path(), exclude=True)
     files: dict[str, FileEntry] = {}
@@ -234,7 +236,10 @@ def _walk_files(root: Path) -> Iterator[str]:
 
 
 def stale(root: Path, index: Index, processors: Processors = default_processors) -> bool:
-    """Whether a file was added, removed or changed since ``index`` was built."""
+    """Whether a file was added, removed or changed since ``index`` was built, or its cards are from another
+    revision (`tree.CARDS`): a build then keeps every entry and writes the tree and its cards again."""
+    if index.cards != tree.CARDS:
+        return True
     seen = set()
     available = processors(root, index.home)
     for rel, stat in walk(root):
@@ -565,3 +570,4 @@ def _finish(root: Path, index: Index, vectors: Vectorizer | None) -> None:
         {p: e.summary if e.processor == "python" else e.description for p, e in index.files.items()},
         {p: e.summary for p, e in index.files.items() if e.processor == "python"},
     )
+    index.cards = tree.CARDS

@@ -145,6 +145,31 @@ def test_build_writes_the_index_and_refreshes_only_what_changed(tmp_path: Path):
     assert not wi.stale(tmp_path, again)
 
 
+def test_an_index_saved_before_a_change_to_the_cards_gets_them_again_without_a_file_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    # A changed card must reach a folder indexed earlier, and a folder of scanned documents must not be OCR'd again
+    # for it: the index's version is the same, so every entry is kept, and only the tree and its cards are written.
+    (tmp_path / "a.py").write_text('"""Alpha."""\n\ndef alpha():\n    return 1\n')
+    index = build(tmp_path)
+    saved = tmp_path / ".intern" / "index.json"
+    old = json.loads(saved.read_text())
+    del old["cards"]  # as an index saved before cards had a revision
+    old["nodes"]["."]["card"] = "a card as it was written then"
+    saved.write_text(json.dumps(old))
+    before = wi.load(tmp_path / ".intern")
+    assert before is not None and wi.stale(tmp_path, before)
+
+    read: list[str] = []
+    process = PythonProcessor.process
+    monkeypatch.setattr(
+        PythonProcessor, "process", lambda self, path, home: read.append(path.name) or process(self, path, home)
+    )
+    again = build(tmp_path)
+    assert read == [] and again.nodes["."].card == index.nodes["."].card
+    assert not wi.stale(tmp_path, again)
+
+
 def test_in_a_git_work_tree_what_git_ignores_is_not_indexed(tmp_path: Path):
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
     (tmp_path / ".gitignore").write_text("workspaces/\n*.log\n")

@@ -54,6 +54,11 @@ SUBTREE_FILES = 6
 TOP_NAMES = 5
 CARD_CHARS = 4000
 LABEL_NAMES = 4
+#: The revision of what the cards say (`write_cards`). An index whose cards are from another revision is stale
+#: (`index.stale`): its next refresh writes the tree and its cards again and reads no file again, as every file's
+#: entry is kept. Raise it with a change to the cards; a change to what an entry holds raises `index.VERSION`, and
+#: every file is read again (OCR and all).
+CARDS = 1
 #: The files whose summary states what their folder is for, in the order they are asked. Not AGENTS.md or CLAUDE.md:
 #: they tell an agent how to work there ("Follow the root guidance"), not what the folder is.
 DESCRIBING = ("README.md", "README.rst", "README", "pyproject.toml", "package.json", "__init__.py")
