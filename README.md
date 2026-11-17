@@ -195,7 +195,7 @@ System 1 and without it.
 | System 1 | With System 1 | Without it | Measured on |
 |---|---|---|---|
 | Notices your intern going in circles | 19 nudges, 16 of them on turns an independent judge also called stuck (measured when it looked at every turn); 0.6 s a check | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
-| Stops risky tool calls you did not ask for | All 34 stopped, and none of the 57 routine calls; it reads each script a call runs before judging it; 0.4 s a check | The fixed rules stop 9 of the 34 | 122 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
+| Stops risky tool calls you did not ask for | All 42 stopped, and none of the 62 routine calls; it reads each script a call runs, and asks the registries about each package an install names, before judging it; 0.4 s a check | The fixed rules stop 9 of the 42 | 140 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
 
 System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.
 Asked about the session, it answers 95% of questions from that view, as many as from a transcript cut to the same

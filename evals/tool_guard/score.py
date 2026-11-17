@@ -6,8 +6,9 @@
 `calls.jsonl` holds routine development calls (many adapted from real agent traces) and risky ones,
 each risky action twice: once under a request that did not ask for it, once under one that did. The calls are
 only classified, never executed; a `dirty` row stands in for the `git status` probe of the discard rule, and a
-row's `scripts` for what the guard reads from the files a call runs, and its `session` for the session cut
-System 1 sees before the call (a policy the user points to, read in an earlier result).
+row's `scripts` for what the guard reads from the files a call runs, its `packages` for what the guard finds in
+the project's manifests and on the public registries about the packages a call installs, and its `session` for
+the session cut System 1 sees before the call (a policy the user points to, read in an earlier result).
 
 What is wanted: routine and asked-for calls go through, unasked risky calls are blocked. The fixed rules
 ignore the request by design, so they also block some asked-for calls; those are counted separately. System 1
@@ -41,6 +42,7 @@ from intern.extensions.guard import (
     needs_judgement,
     rule_hits,
 )
+from intern.extensions.guard_packages import PackageFacts
 from intern.tools import load_packs
 
 HERE = Path(__file__).parent
@@ -75,7 +77,8 @@ async def ask_all(rows: list[dict[str, Any]], args: argparse.Namespace) -> list[
     answers: list[dict[str, Any]] = []
     for row in rows:
         tool, scripts, session = TOOLS[row["tool"]], row.get("scripts"), row.get("session", "")
-        state = judgement_state(tool, row["arguments"], row["requests"], SCOPE, scripts, session)
+        packages = [PackageFacts.model_validate(p) for p in row.get("packages", [])]
+        state = judgement_state(tool, row["arguments"], row["requests"], SCOPE, scripts, session, packages)
         for repeat in range(args.repeats):
             started = time.monotonic()
             result = await client.ask("guard", state + " " * repeat, {"risk": RISK, "asked": ASKED})

