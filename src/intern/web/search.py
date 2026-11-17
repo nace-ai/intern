@@ -75,6 +75,8 @@ class SearchHit(BaseModel):
     excerpts: list[str] = Field(default_factory=list)
     published_at: str | None = None
     provider_rank: int
+    relevance: float | None = None
+    """System 1's probability that the task needs this source; None when System 1 did not judge it."""
 
 
 class SearchResponse(BaseModel):
@@ -344,4 +346,8 @@ class HTTPSearchProvider:
 
 def render_search(response: SearchResponse) -> str:
     """A readable envelope preserving provenance; long results use the engine's existing spill path."""
-    return json.dumps(response.model_dump(mode="json"), ensure_ascii=False, indent=2)
+    data = response.model_dump(mode="json")
+    for hit in data["hits"]:
+        if hit["relevance"] is None:  # not judged: the envelope stays as it was before System 1 could judge
+            del hit["relevance"]
+    return json.dumps(data, ensure_ascii=False, indent=2)

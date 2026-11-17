@@ -188,10 +188,10 @@ async def test_saved_search_and_reader_reach_model_and_retain_private_sources(tm
     ]
     toml = f"""[capabilities]
 tool_packs = ["base", "web-search", "web-read"]
-[capabilities.search]
+[capabilities.web_search]
 backend = "searxng"
 searxng_url = "{url}"
-[capabilities.reader]
+[capabilities.web_reader]
 allow_private = true
 storage_dir = "retained"
 """
@@ -544,7 +544,7 @@ tool_packs = ["base", "web-read"]
 name = "docker"
 [capabilities.runner.options]
 image = {json.dumps(os.environ["INTERN_DOCKER_IMAGE"])}
-[capabilities.reader]
+[capabilities.web_reader]
 allow_private = true
 """
     replies = [Reply(tool_calls=[("web_read", {"url": f"{url}/long"})]), Reply(text="retained")]
@@ -570,7 +570,7 @@ async def test_docker_reader_refuses_unmounted_storage_before_startup(tmp_path):
 tool_packs = ["base", "web-read"]
 [capabilities.runner]
 name = "docker"
-[capabilities.reader]
+[capabilities.web_reader]
 storage_dir = "../unmounted"
 """
     with pytest.raises(ConfigError, match="inside its mounted workspace"):
@@ -609,7 +609,7 @@ async def test_saved_capabilities_preserve_landed_extension_tools_and_replacemen
     work.mkdir()
     (work / "evidence.txt").write_text("quiet evidence")
     (home / "config.toml").write_text(
-        f"[capabilities]\ntool_packs = {json.dumps(packs)}\n[capabilities.reader]\ntimeout_s = 11\n"
+        f"[capabilities]\ntool_packs = {json.dumps(packs)}\n[capabilities.web_reader]\ntimeout_s = 11\n"
     )
     replies = [Reply(tool_calls=[("greet", {"who": "Ada"}), ("read", {"path": "evidence.txt"})]), Reply(text="done")]
     with FakeOpenAI(replies) as model:
@@ -683,7 +683,7 @@ async def test_extension_owned_stock_tools_keep_their_provider_settings_and_mana
         await process.aclose()
 
 
-@pytest.mark.parametrize("section", ["search", "reader", "process"])
+@pytest.mark.parametrize("section", ["web_search", "web_reader", "process"])
 async def test_settings_cannot_silently_reconfigure_extension_owned_stock_tool(
     tmp_path, configured_stock_extension, section
 ):

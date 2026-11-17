@@ -69,6 +69,9 @@ class SearchConfig(_Settings):
     searxng_url: str | None = None
     timeout_s: float = Field(default=20, gt=0, le=120, allow_inf_nan=False)
     max_attempts: int = Field(default=2, ge=1, le=3)
+    system1: bool = False
+    """System 1 judges a search's results against the task, as the session shows it: the provider is asked for more,
+    and only the results the task needs come back, best first."""
 
     @field_validator("searxng_url")
     @classmethod
@@ -87,6 +90,9 @@ class SearchConfig(_Settings):
 class ReaderConfig(ReadSettings):
     model_config = ConfigDict(extra="forbid", hide_input_in_errors=True)
     storage_dir: Path | None = None
+    system1: bool = False
+    """System 1 judges a page longer than the preview against the task, as the session shows it: the parts the task
+    needs come back, in page order, instead of the page's start."""
 
 
 class ProcessConfig(_Settings):
@@ -384,8 +390,8 @@ class SessionBudgetConfig(_Settings):
 
 class CapabilitySettings(_Settings):
     tool_packs: list[str] | None = None
-    search: SearchConfig = Field(default_factory=SearchConfig)
-    reader: ReaderConfig = Field(default_factory=ReaderConfig)
+    web_search: SearchConfig = Field(default_factory=SearchConfig)
+    web_reader: ReaderConfig = Field(default_factory=ReaderConfig)
     process: ProcessConfig = Field(default_factory=ProcessConfig)
     browser: BrowserConfig = Field(default_factory=BrowserConfig)
     code_search: CodeSearchConfig = Field(default_factory=CodeSearchConfig)
@@ -406,7 +412,14 @@ class CapabilitySettings(_Settings):
     @model_validator(mode="before")
     @classmethod
     def renamed_tables(cls, data: object) -> object:
-        """`[capabilities.executor]` became `[capabilities.runner]` in 0.19.0; say so instead of "extra input"."""
+        """`[capabilities.executor]` became `[capabilities.runner]` in 0.19.0; say so instead of "extra input".
+        `search` and `reader` became `web_search` and `web_reader` in 0.44.0; the old names still load."""
+        if isinstance(data, dict):
+            for old, new in (("search", "web_search"), ("reader", "web_reader")):
+                if old in data:
+                    if new in data:
+                        raise ValueError(f"[capabilities.{old}] is now [capabilities.{new}]; keep one of them")
+                    data = {**{k: v for k, v in data.items() if k != old}, new: data[old]}
         if isinstance(data, dict) and "executor" in data:
             raise ValueError(
                 '[capabilities.executor] is now [capabilities.runner]: rename the table, and its backend = "..." to '

@@ -25,10 +25,10 @@ def test_saved_toml_covers_all_eight_existing_components_without_credential_valu
         tomllib.loads("""
 tool_packs = ["base", "web-search", "web-read"]
 system2_fallbacks = ["vllm/backup"]
-[search]
+[web_search]
 backend = "brave"
 api_key_env = "BRAVE_SEARCH_API_KEY"
-[reader]
+[web_reader]
 storage_dir = "retained-reader"
 max_redirects = 3
 [process]
@@ -61,12 +61,21 @@ deadline_after_s = 60
 """)
     )
     assert settings.effective_tool_packs(["base", "process"]) == ["base", "web-search", "web-read"]
-    assert settings.search.api_key_env == "BRAVE_SEARCH_API_KEY"
+    assert settings.web_search.api_key_env == "BRAVE_SEARCH_API_KEY"
     assert isinstance(settings.runner.options, DockerConfig) and settings.runner.options.network == "none"
     assert settings.browser.artifact_dir is not None and settings.browser.artifact_dir.name == "retained-screenshots"
     assert settings.secrets.bindings["deploy"].source_env == "DEPLOY_TOKEN"
     assert settings.mcp[0].remote_tools == {"search": frozenset({"read", "network"})}
     assert settings.session_budget is not None and settings.session_budget.max_calls == 12
+
+
+def test_a_config_from_before_web_search_and_web_reader_were_renamed_still_loads():
+    """`[capabilities.search]` and `[capabilities.reader]`, as written before 0.44.0, set what they set then."""
+    settings = CapabilitySettings.model_validate(
+        tomllib.loads('[search]\nbackend = "tavily"\nsystem1 = true\n[reader]\nmax_redirects = 2\n')
+    )
+    assert settings.web_search.backend == "tavily" and settings.web_search.system1
+    assert settings.web_reader.max_redirects == 2
 
 
 @pytest.mark.parametrize("executor", [{"name": "docker"}, {"name": "local"}])
@@ -83,7 +92,7 @@ def test_process_runs_with_injected_secrets_on_any_job_capable_executor(executor
     CapabilitySettings.model_validate({"tool_packs": ["process"], "runner": executor, "secrets": secret})
 
 
-@pytest.mark.parametrize("field", ["search", "reader", "process", "browser", "runner", "secrets"])
+@pytest.mark.parametrize("field", ["web_search", "web_reader", "process", "browser", "runner", "secrets"])
 def test_unknown_nested_options_are_rejected_without_echoing_values(field):
     with pytest.raises(ValidationError) as caught:
         CapabilitySettings.model_validate({field: {"api_key": "private-synthetic-value"}})
@@ -99,9 +108,10 @@ def test_unknown_nested_options_are_rejected_without_echoing_values(field):
         {"runner": {"options": {"network": "bridge"}}},
         {"runner": {"name": "docker", "options": {"mystery": True}}},
         {"process": {"max_running": 4, "max_records": 2}},
-        {"search": {"api_key_env": "not-an-environment-name"}},
-        {"search": {"backend": "brave", "searxng_url": "http://localhost/search"}},
-        {"search": {"backend": "searxng", "api_key_env": "SECRET"}},
+        {"web_search": {"api_key_env": "not-an-environment-name"}},
+        {"web_search": {"backend": "brave", "searxng_url": "http://localhost/search"}},
+        {"web_search": {"backend": "searxng", "api_key_env": "SECRET"}},
+        {"search": {"timeout_s": 5}, "web_search": {"timeout_s": 9}},  # the old and new name of one table
         {"secrets": {"inject": {"API_KEY": "missing"}}},
         {"secrets": {"bindings": {"x": {"source_env": "TOKEN", "scopes": ["other"]}}, "inject": {"KEY": "x"}}},
         {"secrets": {"bindings": {"x": {"source_env": "TOKEN", "scopes": ["executor"]}}, "inject": {"PATH": "x"}}},
@@ -124,7 +134,7 @@ def test_invalid_or_ignored_configuration_is_not_silently_accepted(bad):
 @pytest.mark.parametrize(
     "section,field",
     [
-        ("search", "timeout_s"),
+        ("web_search", "timeout_s"),
         ("browser", "timeout_s"),
         ("session_budget", "max_observed_cost_usd"),
         ("session_budget", "deadline_after_s"),

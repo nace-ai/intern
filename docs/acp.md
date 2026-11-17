@@ -1306,3 +1306,22 @@ Every failed or refused tool call says where it failed; 0.42.0 clients keep work
 - `tool_call_end` carries the call's `error`, `null` when it succeeded, so a `-p --json` run's stream gives the same
   record as its journal.
 - Older harnesses load journals written by this one; the errors in journals written before it have no `kind`.
+
+### 0.44.0
+
+System 1 can judge what `web_search` and `web_read` return, each behind its own option, off by default; 0.43.0
+clients keep working, and with both options off a client reads only the toggles' new descriptions.
+
+- `[capabilities.web_search] system1 = true`: a search asks its provider for three times `limit` (at most 20), and
+  System 1, reading the session, keeps the best `limit` the task needs, best first. Each kept hit has `relevance`, the
+  probability System 1 gave it; `warnings` says how many were kept, or that none was and the agent should search
+  differently. One `decision` event with purpose `web_search` per search.
+- `[capabilities.web_reader] system1 = true`: of a page longer than the preview, System 1, reading the session,
+  keeps the parts the task needs, shown in page order with the skipped lines named, where the result was the page's
+  start. A `decision` event with purpose `web_read` per 16 parts. When no part is kept, the start comes back as before.
+- The `cap.web-search` and `cap.web-read` toggles' `description` says what System 1 does for the pack, and, with
+  the option off, the setting that turns it on.
+- `[capabilities.search]` and `[capabilities.reader]` are now `[capabilities.web_search]` and
+  `[capabilities.web_reader]`, named for the packs they set up. A config.toml with the old names loads as before; one
+  with both an old and a new name for the same table fails to load, saying which to keep. From Python,
+  `CapabilitySettings` takes either name, and its fields are `web_search` and `web_reader`.
