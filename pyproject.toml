@@ -1,6 +1,6 @@
 [project]
 name = "intern-agent"
-version = "0.38.0"
+version = "0.38.1"
 description = "An agent harness for models of 35B parameters or less, with a second model watching every turn"
 readme = "README.md"
 license = "Apache-2.0"
@@ -45,6 +45,9 @@ workspace = [
     "openpyxl>=3.1",
     "pymupdf>=1.24",
     "python-docx>=1.1",
+    # DuckDB's Python client needs it to return a TIMESTAMP WITH TIME ZONE (a CSV's 2024-01-01T00:00:00Z): without
+    # it such a file fails to index and a query over such a column fails.
+    "pytz>=2024.1",
     "xlrd>=2.0",
 ]
 ocr = [

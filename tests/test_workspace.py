@@ -170,6 +170,19 @@ def test_files_that_differ_by_suffix_are_two_tables_and_a_removed_workbook_drops
         assert con.execute("select count(*) from duckdb_tables() where table_name = 'book__sheet'").fetchone() == (0,)
 
 
+async def test_a_csv_whose_timestamps_name_a_time_zone_is_indexed_and_queried(tmp_path: Path):
+    # An export's `2024-01-01T00:00:00Z` is a TIMESTAMP WITH TIME ZONE to DuckDB, which returns one through pytz:
+    # without it the file was skipped from the index (80 files of one workspace) and a query over it failed.
+    (tmp_path / "users.csv").write_text(
+        "id,created_at\n1,2024-01-01T00:00:00Z\n2,2024-01-02T12:30:00Z\n3,2024-01-03T00:00:00Z\n"
+    )
+    table = build(tmp_path).files["users.csv"].tables[0]
+    assert table.rows == 3 and "created_at (TIMESTAMP WITH TIME ZONE)" in table.profile
+    sql = Workspace().tools()[2]
+    rows = await sql.run(sql.Args(query="select created_at from users where id = 2"), ctx(tmp_path))
+    assert rows.status == "ok" and "2024-01-02" in rows.content, rows.content
+
+
 async def test_a_folder_copied_with_its_index_queries_its_own_csv_and_parquet(tmp_path: Path):
     duckdb = pytest.importorskip("duckdb")
     original = tmp_path / "original"
