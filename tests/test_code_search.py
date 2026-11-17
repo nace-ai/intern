@@ -114,6 +114,7 @@ async def test_the_index_is_built_before_the_run_and_refreshed_after_an_edit(mak
     assert all(not b.finished for b in builds[: builds.index(finished[0])])
     first, written, second = [e for e in harness.recorder.of(ToolCallEnd)][:3]
     assert first.content.splitlines()[1:3] == ["1. pkg/a.py  def alpha() (3-4)  [1.00]", "   read pkg/a.py"]
+    assert "Files:" not in first.content  # every file named comes with the call that opens it
     assert written.status == "ok"
     assert second.content.splitlines()[1] == "1. pkg/b.py  def beta_feature() (1-2)  [1.00]"
     index = wi.load(harness.cwd / ".intern")
