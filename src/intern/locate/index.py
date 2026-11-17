@@ -53,6 +53,7 @@ from intern.locate.processors import (
     Unit,
     WindowProcessor,
 )
+from intern.locate.symbols import CodeProcessor
 from intern.locate.tree import Node
 from intern.tools.search import SKIP_DIRS
 
@@ -155,8 +156,9 @@ Processors = Callable[[Path, Path], list[Processor]]
 
 def default_processors(root: Path, home: Path) -> list[Processor]:
     """The text processors in order of precedence: Python by its syntax tree, Markdown and reStructuredText by
-    heading, keyed files by top-level key, anything else by windows of lines."""
-    return [PythonProcessor(), MarkdownProcessor(), KeyedProcessor(), WindowProcessor()]
+    heading, keyed files by top-level key, code in a language with a grammar installed by its classes and functions,
+    anything else by windows of lines."""
+    return [PythonProcessor(), MarkdownProcessor(), KeyedProcessor(), CodeProcessor(), WindowProcessor()]
 
 
 def pages_of(derived: str) -> list[str]:
@@ -248,9 +250,17 @@ def stale(root: Path, index: Index, processors: Processors = default_processors)
         if entry is None:
             if _processor_for(root / rel, available, stat.st_size) is not None:
                 return True
-        elif (entry.size, entry.mtime_ns) != (stat.st_size, stat.st_mtime_ns):
+        elif (entry.size, entry.mtime_ns) != (stat.st_size, stat.st_mtime_ns) or _retaken(rel, entry, available):
             return True
     return any(path not in seen for path in index.files)
+
+
+def _retaken(rel: str, entry: FileEntry, available: list[Processor]) -> bool:
+    """Whether another processor takes this file's suffix than the one that made its entry (a grammar installed
+    since: the file was chunked by windows and is now chunked by symbols), so the entry is made again."""
+    suffix = Path(rel).suffix.lower()
+    taker = next((p.name for p in available if suffix in p.suffixes), entry.processor)
+    return taker != entry.processor
 
 
 def _processor_for(path: Path, available: list[Processor], size: int = 0) -> Processor | None:
@@ -382,7 +392,11 @@ def _process(root: Path, home: Path, available: list[Processor], report: Report,
     todo: list[_Job] = []
     for rel, stat in files:
         kept = prior.files.get(rel)
-        if kept is not None and (kept.size, kept.mtime_ns) == (stat.st_size, stat.st_mtime_ns):
+        if (
+            kept is not None
+            and (kept.size, kept.mtime_ns) == (stat.st_size, stat.st_mtime_ns)
+            and not _retaken(rel, kept, available)
+        ):
             index.files[rel] = kept
             continue
         processor = _processor_for(root / rel, available, stat.st_size)

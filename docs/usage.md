@@ -187,6 +187,10 @@ repository it holds the files git sees: what `.gitignore` keeps out of git is no
 A folder that is not a repository but holds some (several checkouts side by side) is not indexed whole:
 `decision_code` searches one repository at a time, given as `scope`, each from its own index.
 
+A place it returns is a class or a function, with its lines, in Python, JavaScript, TypeScript, Go, Rust, Java, C,
+C++, C#, Ruby, PHP, Swift, shell and SQL (a table, a view, a function); a section in Markdown; a top-level key in a
+config file. Code in another language, and a file that defines nothing, is found by windows of 120 lines.
+
 ## Workspace
 
 With the workspace, a folder of office files becomes a tree System 1 can search: the agent indexes the

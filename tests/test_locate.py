@@ -36,9 +36,16 @@ from intern.events import Decision, ToolCallEnd
 from intern.locate import index as wi
 from intern.locate import tree
 from intern.locate.lexical import Lexical
-from intern.locate.processors import Derivative, KeyedProcessor, MarkdownProcessor, PythonProcessor
-from intern.locate.search import NONE, TRACE_RANKED, Left, Questions, search, survivors
+from intern.locate.processors import (
+    Derivative,
+    KeyedProcessor,
+    MarkdownProcessor,
+    PythonProcessor,
+    WindowProcessor,
+)
+from intern.locate.search import CHUNKS_MAX, NONE, TRACE_RANKED, Left, Questions, search, survivors
 from intern.locate.store import Store
+from intern.locate.symbols import MAX_CHUNKS, CodeProcessor
 from intern.locate.trace import PHASES, SearchNode, SearchTrace
 
 REPO = Path(__file__).resolve().parents[1]
@@ -84,6 +91,150 @@ def test_python_files_chunk_by_symbol_with_methods_under_their_class(tmp_path: P
     assert d.chunks[0].title == "class Widget(Base)" and d.chunks[0].summary == "A widget."
     assert d.chunks[1].title == "def Widget.spin(self, turns: int) -> None"
     assert d.chunks[2].title == "async def make() -> Widget"
+
+
+#: One file a grammar: a class, what is defined in it and what is defined beside it, as (key, kind, parent, lines).
+CODE = [
+    (
+        "a.js",
+        "class Pool {\n  take(n) { return n; }\n}\nconst make = (size) => new Pool(size);\n"
+        "exports.drain = function (pool) {};\n",
+        [
+            ("Pool", "class", None, 1, 3),
+            ("Pool.take", "method", "Pool", 2, 2),
+            ("make", "function", None, 4, 4),
+            ("exports.drain", "function", None, 5, 5),
+        ],
+    ),
+    (
+        "a.ts",
+        "export interface Options { size: number }\nexport abstract class Pool {\n"
+        "  take = (n: number): number => n;\n}\nexport function make(size: number): Pool | undefined {\n}\n",
+        [
+            ("Options", "class", None, 1, 1),
+            ("Pool", "class", None, 2, 4),
+            ("Pool.take", "method", "Pool", 3, 3),
+            ("make", "function", None, 5, 6),
+        ],
+    ),
+    ("a.tsx", "export const Hello = ({ name }: Props) => <b>{name}</b>;\n", [("Hello", "function", None, 1, 1)]),
+    (
+        "a.go",
+        "package pool\n\ntype Pool struct{ size int }\n\nfunc (p *Pool) Take(n int) int { return n }\n\n"
+        "func New() *Pool { return &Pool{} }\n",
+        [("Pool", "class", None, 3, 3), ("Pool.Take", "method", "Pool", 5, 5), ("New", "function", None, 7, 7)],
+    ),
+    (
+        "a.rs",
+        "pub struct Pool;\n\nimpl Pool {\n    pub fn take(&self) -> u8 { 1 }\n}\n\nfn main() {}\n",
+        [("Pool", "class", None, 1, 1), ("Pool.take", "method", "Pool", 4, 4), ("main", "function", None, 7, 7)],
+    ),
+    (
+        "A.java",
+        "class Pool {\n    int take(int n) { return n; }\n    interface Taker { int take(int n); }\n}\n",
+        [
+            ("Pool", "class", None, 1, 4),
+            ("Pool.take", "method", "Pool", 2, 2),
+            ("Pool.Taker", "class", "Pool", 3, 3),
+        ],
+    ),
+    (
+        "a.c",
+        "struct pool { int size; };\n\nstatic int *take(struct pool *p) { return 0; }\n",
+        [("pool", "class", None, 1, 1), ("take", "function", None, 3, 3)],
+    ),
+    (
+        "a.h",
+        "namespace net {\nclass Pool {\n public:\n  int size() const { return 0; }\n};\n"
+        "int Pool::take(int n) { return n; }\n}\n",
+        [("Pool", "class", None, 2, 5), ("Pool.size", "method", "Pool", 4, 4), ("Pool::take", "function", None, 6, 6)],
+    ),
+    (
+        "A.cs",
+        "namespace App {\n    class Pool {\n        int Take(int n) => n;\n    }\n}\n",
+        [("Pool", "class", None, 2, 4), ("Pool.Take", "method", "Pool", 3, 3)],
+    ),
+    (
+        "a.rb",
+        "class Pool\n  def take(n)\n    n\n  end\nend\n",
+        [("Pool", "class", None, 1, 5), ("Pool.take", "method", "Pool", 2, 4)],
+    ),
+    (
+        "a.php",
+        "<?php\nclass Pool {\n    function take($n) { return $n; }\n}\nfunction make() { return new Pool(); }\n",
+        [("Pool", "class", None, 2, 4), ("Pool.take", "method", "Pool", 3, 3), ("make", "function", None, 5, 5)],
+    ),
+    (
+        "a.swift",
+        "struct Pool {\n    func take(_ n: Int) -> Int { n }\n}\n",
+        [("Pool", "class", None, 1, 3), ("Pool.take", "method", "Pool", 2, 2)],
+    ),
+    ("a.sh", 'take() {\n  echo "$1"\n}\n', [("take", "function", None, 1, 3)]),
+    (
+        "a.sql",
+        "CREATE TABLE pool (id INT);\nCREATE FUNCTION take() RETURNS INT AS $$ SELECT 1 $$ LANGUAGE SQL;\n",
+        [("pool", "class", None, 1, 1), ("take", "function", None, 2, 2)],
+    ),
+]
+
+
+@pytest.mark.parametrize(("name", "source", "symbols"), CODE, ids=[name for name, _, _ in CODE])
+def test_code_with_a_grammar_chunks_by_class_and_function(tmp_path: Path, name: str, source: str, symbols: list):
+    (tmp_path / name).write_text(source)
+    processor = next(p for p in wi.default_processors(tmp_path, tmp_path) if Path(name).suffix in p.suffixes)
+    d = processor.process(tmp_path / name, tmp_path / ".intern")
+    assert [(c.key, c.kind, c.parent, c.start, c.end) for c in d.chunks] == symbols
+
+
+def test_a_definition_is_titled_by_its_signature_and_code_outside_definitions_is_a_window(tmp_path: Path):
+    source = textwrap.dedent("""
+        package pool
+
+        import "errors"
+
+        var (
+        \tErrFull  = errors.New("full")
+        \tErrEmpty = errors.New("empty")
+        \tretries  = 3
+        \tbackoff  = 2
+        )
+
+        // Take takes n connections
+        // from the pool.
+        func (p *Pool) Take(ctx context.Context,
+        \tn int) error {
+        \treturn nil
+        }
+        """).lstrip()
+    (tmp_path / "pool.go").write_text(source)
+    window, take = CodeProcessor().process(tmp_path / "pool.go", tmp_path / ".intern").chunks
+    assert (window.kind, window.start, window.end) == ("window", 1, 10)  # the comment above Take is not code
+    # The type is in another file: the method is named by it and stands alone.
+    assert (take.key, take.kind, take.parent, take.start, take.end) == ("Pool.Take", "method", None, 14, 17)
+    assert take.title == "func (p *Pool) Take(ctx context.Context, n int) error"
+    assert take.summary == "Take takes n connections"
+
+
+def test_code_keeps_its_windows_where_symbols_would_lose_lines(tmp_path: Path):
+    chunks = lambda name: CodeProcessor().process(tmp_path / name, tmp_path / ".intern").chunks  # noqa: E731
+    (tmp_path / "script.sh").write_text("echo step\n" * 130)  # nothing defined
+    assert [c.key for c in chunks("script.sh")] == ["L1-120", "L121-130"]
+    # More definitions than a hand writes (generated code): each would be a card in the index.
+    (tmp_path / "many.js").write_text("".join(f"function f{n}() {{}}\n" for n in range(MAX_CHUNKS + 1)))
+    assert {c.kind for c in chunks("many.js")} == {"window"}
+    # A form feed is a line break to `read` and not to the parser: every line after it would be off by one.
+    (tmp_path / "paged.c").write_text("int a(void) { return 1; }\n\f\nint b(void) { return 2; }\n")
+    assert chunks("paged.c") == []
+
+
+def test_a_file_indexed_by_windows_is_chunked_by_symbols_once_its_grammar_is_installed(tmp_path: Path):
+    (tmp_path / "pool.go").write_text("package pool\n\nfunc New() int { return 1 }\n")
+    (tmp_path / "notes.md").write_text("# Notes\n\nText.\n")
+    before = wi.build(tmp_path, processors=lambda root, home: [MarkdownProcessor(), WindowProcessor()])
+    assert before.files["pool.go"].processor == "text" and wi.stale(tmp_path, before)
+    again = build(tmp_path)
+    assert [c.key for c in again.files["pool.go"].chunks] == ["New"]
+    assert again.files["notes.md"] == before.files["notes.md"] and not wi.stale(tmp_path, again)
 
 
 def test_markdown_sections_nest_by_level_and_ignore_fenced_headings(tmp_path: Path):
@@ -731,6 +882,23 @@ async def test_the_question_s_words_steer_the_walk_to_a_file_no_card_on_the_way_
     )
     assert steered.files[0][0] == "b/part7/m2.py" and steered.places[0].key == "needle"  # judged, then ranked
     assert steered.walk is not None and steered.walk.seeded >= 1
+
+
+async def test_in_a_file_longer_than_a_search_judges_the_question_s_words_pick_the_chunks(tmp_path: Path):
+    # redis: server.c holds some 400 functions and a search judges 160 chunks of a file, which were its first 160.
+    steps = "".join(f"def step{n}():\n    return {n}\n\n" for n in range(CHUNKS_MAX + 40))
+    (tmp_path / "long.py").write_text(steps + "def needle():\n    return 'here'\n")
+    index = build(tmp_path)
+    ask = lambda **how: search(  # noqa: E731
+        index,
+        tmp_path,
+        "where is the needle",
+        DecisionClient(Gold(index, ["long.py"], ["needle"]), lambda e: None),
+        ASKS,
+        **how,
+    )
+    assert "needle" not in [place.key for place in (await ask()).places]  # past the first 160, never judged
+    assert (await ask(lexical=True)).places[0].key == "needle"
 
 
 def test_the_lexical_table_follows_the_files_and_keeps_out_of_git(tmp_path: Path):

@@ -344,19 +344,25 @@ class WindowProcessor:
 
 
 def windows(lines: list[str]) -> Derivative:
+    chunks = window_chunks(lines, 1, len(lines))
+    summary = next((line.strip() for line in lines if line.strip()), "")[:160]
+    return Derivative(unit="line", units=lines, chunks=chunks if len(chunks) > 1 else [], summary=summary)
+
+
+def window_chunks(lines: list[str], first: int, last: int) -> list[Chunk]:
+    """Lines ``first`` to ``last`` (1-based, inclusive) as windows of WINDOW_LINES."""
     chunks = []
-    for start in range(1, max(len(lines), 1) + 1, WINDOW_LINES):
-        end = min(start + WINDOW_LINES - 1, len(lines))
-        first = next((line.strip() for line in lines[start - 1 : end] if line.strip()), "")
+    for start in range(first, max(last, first) + 1, WINDOW_LINES):
+        end = min(start + WINDOW_LINES - 1, last)
+        head = next((line.strip() for line in lines[start - 1 : end] if line.strip()), "")
         chunks.append(
             Chunk(
                 key=f"L{start}-{end}",
                 kind="window",
                 title=f"lines {start}-{end}",
-                summary=first[:120],
+                summary=head[:120],
                 start=start,
                 end=end,
             )
         )
-    summary = next((line.strip() for line in lines if line.strip()), "")[:160]
-    return Derivative(unit="line", units=lines, chunks=chunks if len(chunks) > 1 else [], summary=summary)
+    return chunks
