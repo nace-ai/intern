@@ -71,6 +71,8 @@ from intern.events import (
     SecretUnavailable,
     State,
     StateWriting,
+    SubagentEnd,
+    SubagentStart,
     TextDelta,
     ToolCallEnd,
     ToolCallStart,
@@ -974,6 +976,11 @@ class HarnessApp(App[None]):
                 await transcript.notice(f"Window not known: {message}", "warn")
             case HookError(hook=hook, extension=extension, error=error):
                 await transcript.notice(f"Extension {extension} failed in {hook}: {error}", "error")
+            case SubagentStart(name=name, tools=tools):
+                await transcript.notice(f"Subagent {name} started with {', '.join(tools) or 'no tools'}", "info")
+            case SubagentEnd(name=name, status=status, turns=turns):
+                kind = "ok" if status == "completed" else "warn"
+                await transcript.notice(f"Subagent {name}: {status}, {turns} turns", kind)
             case RunEnd(reason=reason, detail=detail, turns=turns, usage=usage, system1=system1):
                 await transcript.finish_reply()
                 transcript.run_ended()
@@ -1309,13 +1316,13 @@ class HarnessApp(App[None]):
 
     def _capability_key(self, word: str) -> str | None:
         """A typed capability name as a row id: `web-read`, `browser`, `workspace`, `memory`, `guard`,
-        `tool-result-guard` or an MCP namespace."""
+        `tool-result-guard`, `subagents` or an MCP namespace."""
         word = word.lower().replace("_", "-")
         if word in capability_toggles.PACKS:
             return f"cap.{word}"
         if word == "code-search":
             return "cap.code-search"
-        if word in ("browser", "workspace", "memory", "guard", "tool-result-guard"):
+        if word in ("browser", "workspace", "memory", "guard", "tool-result-guard", "subagents"):
             return f"cap.{word}"
         if any(entry.namespace == word.removeprefix("mcp:") for entry in self._capabilities_at_start.mcp):
             return f"{capability_toggles.MCP_PREFIX}{word.removeprefix('mcp:')}"

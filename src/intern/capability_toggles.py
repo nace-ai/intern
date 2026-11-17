@@ -1,7 +1,7 @@
 """The capabilities a user can switch on and off while a session runs: the TUI's `/caps` rows and the ACP `cap.*`
-options are both these toggles. Behind a toggle is a tool pack, the browser, an MCP connection or an extension
-(code search, the workspace, memory, the guard, the tool-result guard). Fixed extensions have no toggle: the profile
-and `--extension` choose them. See CONTRIBUTING, "Extensions and capabilities"."""
+options are both these toggles. Behind a toggle is a tool pack, the browser, an MCP connection, the subagents' `agent`
+tool or an extension (code search, the workspace, memory, the guard, the tool-result guard). Fixed extensions have no
+toggle: the profile and `--extension` choose them. See CONTRIBUTING, "Extensions and capabilities"."""
 
 from __future__ import annotations
 
@@ -33,6 +33,7 @@ WORKSPACE_NOTE = "index_files, decision_files, sql, read: a folder of PDFs, Word
 MEMORY_NOTE = "a git repository of pages the agent recalls from at the start and adds to"
 GUARD_NOTE = "checks each tool call before it runs: fixed rules refuse the destructive, System 1 judges the rest"
 TOOL_RESULT_GUARD_NOTE = "System 1 removes instructions addressed to the agent from web, browser and MCP output"
+SUBAGENTS_NOTE = "agent: the agent hands self-contained tasks to subagents with its own tools, or fewer, and its budget"
 
 
 class Toggle(BaseModel):
@@ -55,9 +56,9 @@ def toggles(
     caps: CapabilitySettings, at_start: CapabilitySettings, profile_packs: Sequence[str], *, base: bool = False
 ) -> list[Toggle]:
     """One toggle per capability in capability order: the tool packs (`base` only when asked), the browser, code
-    search, the workspace, memory, the guard, the tool-result guard, each MCP connection `at_start` (the configured
-    settings) names, so one switched off is still listed. Where commands run is no toggle: it is the session's runner
-    (`intern.runners`)."""
+    search, the workspace, memory, the guard, the tool-result guard, subagents, each MCP connection `at_start` (the
+    configured settings) names, so one switched off is still listed. Where commands run is no toggle: it is the
+    session's runner (`intern.runners`)."""
     packs = packs_in_force(caps, profile_packs)
     rows = [
         Toggle(
@@ -90,6 +91,9 @@ def toggles(
             label="tool-result guard · System 1",
             note=TOOL_RESULT_GUARD_NOTE,
             on=caps.tool_result_guard.enabled,
+        ),
+        Toggle(
+            id=f"{PREFIX}subagents", name="Subagents", label="subagents", note=SUBAGENTS_NOTE, on=caps.subagents.enabled
         ),
     ]
     for entry in at_start.mcp:
@@ -138,6 +142,8 @@ def flip(
         case "cap.tool-result-guard":
             screen = caps.tool_result_guard.model_copy(update={"enabled": on})
             return caps.model_copy(update={"tool_result_guard": screen})
+        case "cap.subagents":
+            return caps.model_copy(update={"subagents": caps.subagents.model_copy(update={"enabled": on})})
         case _:
             raise KeyError(f"no capability toggle {toggle_id!r}")
 

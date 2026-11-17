@@ -118,6 +118,7 @@ BRIEFS = {
     "cap.memory": "notes across sessions",
     "cap.guard": "System 1 checks calls",
     "cap.tool-result-guard": "System 1 checks output",
+    "cap.subagents": "hands off whole tasks",
 }
 """Each capability in a few words, by its toggle's id (`capability_toggles`); the ones System 1 does the work of
 say so."""
