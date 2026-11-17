@@ -10,7 +10,7 @@
 
     ╭─ System 2 · thinking slow ───────────╮                    ╭─ System 1 · thinking fast ───────────╮
     │ anthropic/claude-haiku-5-5           │    (the mascot,    │ drex-max                             │
-    │ thinking high · 9 tools              │     glancing       │ console                              │
+    │ thinking high ▰▰▰▱▱  9 tools         │     glancing       │ console                              │
     │                                      │     and blinking)  │                                      │
     │ ● base tools   files and the shell   │                    │ ● watch       nudges it out of ...   │
     │ ○ web search   searches the web ...  │                    │ ● guard  ○ search  ● compaction      │
@@ -74,6 +74,7 @@ from intern.tui.widgets import (
     short_path,
     stacked,
     system1_parts,
+    thinking_box,
     wordmark,
 )
 
@@ -189,6 +190,9 @@ class Opening:
     system2: str = "…"
     system1: str = "…"
     thinking: str = ""
+    levels: tuple[str, ...] = ()
+    picked: str = ""
+    """The thinking level, the levels the model takes and System 1's latest pick, as the masthead has them."""
     note: str = ""
     """Why there is no session, while there is none: it is opening, or it could not open."""
     cwd: Path | None = None
@@ -322,9 +326,10 @@ def model(ref: str, width: int) -> list[list[Part]]:
 
 
 def system2(o: Opening, width: int) -> list[list[Part]]:
-    """System 2's card: the model it is on, how hard it thinks and how many tools it has, then what they are."""
-    facts = " · ".join(fact for fact in (f"thinking {o.thinking}" * bool(o.thinking), f"{o.tools} tools") if fact)
-    return [*model(o.system2, width), [(facts, S_MUTED)], [], *capabilities(o, width)]
+    """System 2's card: the model it is on, how hard it thinks (in the masthead's box) and how many tools it has,
+    then what they are."""
+    box: list[Part] = [*thinking_box(o.thinking, o.levels, o.picked), "  "] if o.thinking else []
+    return [*model(o.system2, width), [*box, (f"{o.tools} tools", S_MUTED)], [], *capabilities(o, width)]
 
 
 def system1(o: Opening, width: int) -> list[list[Part]]:
@@ -340,10 +345,11 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     first, in a line or two, a job is one line, the capabilities run together, and where the session works comes
     last, there being no mascot to put it under."""
     model1, served = system1_parts(o.system1)
-    thinking = f" · thinking {o.thinking}" if o.thinking else ""
+    head: list[Part] = [(" System 2 ", S_TAB), ("  thinking slow   ", S_MUTED), (o.system2, S_HEAD)]
+    box = [thinking_box(o.thinking, o.levels, o.picked)] if o.thinking else []
     lines: list[list[Part]] = [
         *([] if roomy else [*paragraph(ABOUT_SHORT, width, S_INK), []]),
-        [(" System 2 ", S_TAB), ("  thinking slow   ", S_MUTED), (o.system2, S_HEAD), (thinking, S_MUTED)],
+        *flow([head, *box], width, gap=2),  # the box on a line of its own where it would wrap
         *([*capabilities(o, width), [(f"{o.tools} tools", S_MUTED)] * bool(o.capabilities), []] if roomy else []),
         [
             (" System 1 ", S_TAB),

@@ -556,6 +556,8 @@ class HarnessApp(App[None]):
             system2=status.system2,
             system1=status.system1,
             thinking=status.thinking,
+            levels=status.levels,
+            picked=status.picked,
             note=status.note,
             cwd=self._cwd,
             journal=session.deps.journal.path if session is not None else None,
