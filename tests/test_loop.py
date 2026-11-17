@@ -41,6 +41,7 @@ from intern.providers.base import ProviderRequest, RetryPolicy
 from intern.providers.fake import FakeProvider, Turn
 from intern.session import Session
 from intern.tools import search
+from intern.tools.base import Tool
 
 from .support import GreetTool, WithTools, is_state_write
 
@@ -91,6 +92,7 @@ async def test_tool_call_stop_prevents_later_writes_in_the_batch(make_harness):
     assert len(seen) == 1
     assert not (harness.cwd / "first").exists() and not (harness.cwd / "second").exists()
     assert [event.status for event in harness.recorder.of(ToolCallEnd)] == ["refused", "refused"]
+    assert [event.error and event.error.kind for event in harness.recorder.of(ToolCallEnd)] == ["stopped", "stopped"]
     assert len([m for m in history(harness) if isinstance(m, ToolResultMessage)]) == 2
 
 
@@ -117,6 +119,7 @@ async def test_unknown_tool_returns_an_error_naming_the_real_tools(make_harness)
     await harness.run()
     result = harness.recorder.of(ToolCallEnd)[0]
     assert result.status == "error"
+    assert result.error and result.error.kind == "unknown_tool"
     assert "there is no tool named 'open_file'" in result.content
     assert "read" in result.content
 
@@ -126,7 +129,31 @@ async def test_invalid_arguments_come_back_as_an_actionable_error(make_harness):
     await harness.run()
     end = harness.recorder.of(ToolCallEnd)[0]
     assert end.status == "error"
+    assert end.error and end.error.kind == "bad_arguments"
     assert "required: path" in end.content
+
+
+async def test_a_tool_that_raises_is_told_apart_from_one_that_reports_a_failure(make_harness):
+    class Explodes(GreetTool):
+        name = "explode"
+
+        async def run(self, args, ctx):
+            raise RuntimeError("boom")
+
+    class WithExplodes(h.Extension):
+        def tools(self) -> list[Tool]:
+            return [Explodes()]
+
+    harness = make_harness(
+        [Turn(tool_calls=[("explode", {"who": "x"}), ("read", {"path": "missing.txt"})]), Turn(text="ok")],
+        extensions=[WithExplodes()],
+    )
+    await harness.run()
+    crashed, failed = harness.recorder.of(ToolCallEnd)
+    assert crashed.error and crashed.error.kind == "crashed" and "RuntimeError: boom" in crashed.error.what_failed
+    assert failed.error and failed.error.kind == "failed"
+    results = [m.result for m in history(harness) if isinstance(m, ToolResultMessage)]
+    assert [r.error and r.error.kind for r in results] == ["crashed", "failed"]
 
 
 async def test_unparsable_tool_calls_stay_out_of_history_and_the_model_is_told(make_harness):
@@ -581,6 +608,7 @@ async def test_tool_call_hook_can_refuse(make_harness):
     await harness.run()
     end = harness.recorder.of(ToolCallEnd)[0]
     assert end.status == "refused"
+    assert end.error and (end.error.kind, end.error.refused_by) == ("refused", "refuse-bash")
     assert "Use read instead." in end.content
 
 

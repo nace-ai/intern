@@ -20,7 +20,7 @@ from intern.mcp_credentials import CredentialCommand as CredentialCommand
 from intern.messages import JsonObject
 from intern.needs import Needs
 from intern.providers.base import ToolSpec
-from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail
+from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail, refuse
 
 
 class StdioConfig(BaseModel):
@@ -140,7 +140,7 @@ class McpConnection:
                 if connection.closed:
                     return fail("The MCP connection is closed.", "Reconnect before using this tool.")
                 if ctx.abort.is_set():
-                    return fail("The run was aborted.", "Stop.").model_copy(update={"status": "refused"})
+                    return refuse("The run was aborted.", "Stop.", kind="stopped")
                 try:
                     arguments = _Arguments.model_validate(args).root
                     validator.validate(arguments)

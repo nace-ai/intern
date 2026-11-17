@@ -103,7 +103,16 @@ class FileDiff(BaseModel):
     new_text: str
 
 
+ToolErrorKind = Literal["unknown_tool", "bad_arguments", "refused", "stopped", "failed", "crashed", "interrupted"]
+"""Where a call failed: `unknown_tool` named no tool of the session; `bad_arguments` named one but its arguments did not
+parse; `refused`, an extension refused it (`refused_by`); `stopped`, the run stopped or was aborted before or while it
+ran; `failed`, the tool ran and reported a failure; `crashed`, the tool raised; `interrupted`, an earlier run ended
+before the call's result was saved."""
+
+
 class ToolError(BaseModel):
+    kind: ToolErrorKind | None = Field(default=None, description="None in journals written before 0.43.0.")
+    refused_by: str | None = Field(default=None, description="With `refused`: the name of the extension that refused.")
     what_failed: str
     argument: str | None = None
     next_action: str = Field(description="Small models recover only when this names the action to take.")

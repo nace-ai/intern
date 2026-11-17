@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from pydantic import AliasChoices, BaseModel, Field, RootModel, ValidationError
 
 from intern.executor import Executor
-from intern.messages import FileDiff, ImagePart, JsonObject, ResourceRef, ToolError
+from intern.messages import FileDiff, ImagePart, JsonObject, ResourceRef, ToolError, ToolErrorKind
 from intern.providers.base import ToolSpec
 
 if TYPE_CHECKING:
@@ -62,12 +62,28 @@ class ToolOutput(BaseModel):
 
 
 def fail(
-    what_failed: str, next_action: str, *, argument: str | None = None, content: str = "", retry_safe: bool = True
+    what_failed: str,
+    next_action: str,
+    *,
+    argument: str | None = None,
+    content: str = "",
+    retry_safe: bool = True,
+    kind: ToolErrorKind = "failed",
 ) -> ToolOutput:
     """An error result whose text tells a small model exactly what to do next."""
-    error = ToolError(what_failed=what_failed, argument=argument, next_action=next_action, retry_safe=retry_safe)
+    error = ToolError(
+        kind=kind, what_failed=what_failed, argument=argument, next_action=next_action, retry_safe=retry_safe
+    )
     body = f"Error: {what_failed}\nNext: {next_action}"
     return ToolOutput(status="error", content=f"{content}\n\n{body}" if content else body, error=error)
+
+
+def refuse(
+    what_failed: str, next_action: str, *, kind: Literal["refused", "stopped"] = "refused", by: str | None = None
+) -> ToolOutput:
+    """A refused result: an extension (`by`) would not let the call run, or the run stopped before or while it ran."""
+    error = ToolError(kind=kind, refused_by=by, what_failed=what_failed, next_action=next_action)
+    return ToolOutput(status="refused", content=f"Error: {what_failed}\nNext: {next_action}", error=error)
 
 
 def file_resource(path: Path, data: bytes) -> ResourceRef:
@@ -134,6 +150,7 @@ class Tool(ABC):
                 f"{self.name} was not run: it does not take {', '.join(named)}",
                 f"Call {self.name} again with only its arguments: {', '.join(self.Args.model_fields)}.",
                 argument=unknown[0],
+                kind="bad_arguments",
             )
         try:
             return self.Args.model_validate(arguments)
@@ -145,6 +162,7 @@ class Tool(ABC):
                 f"invalid arguments for {self.name}: {first['msg']}" + (f" (field {field})" if field else ""),
                 f"Call {self.name} again with valid arguments; required: {', '.join(required) or 'none'}.",
                 argument=field,
+                kind="bad_arguments",
             )
 
     @abstractmethod

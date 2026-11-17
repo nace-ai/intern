@@ -11,7 +11,7 @@ from intern.executor import JobExecutor, LocalExecutor
 from intern.processes import OutputFilter, ProcessManager
 from intern.providers.base import ToolSpec
 from intern.secrets import SecretAccessDenied, SecretExecutor
-from intern.tools.base import Tool, ToolContext, ToolOutput, fail
+from intern.tools.base import Tool, ToolContext, ToolOutput, fail, refuse
 
 QUICK_S = 3.0
 """How long `start` waits for a job before it returns its handle: one that ends by then comes back with its result,
@@ -68,7 +68,7 @@ class ProcessTool(Tool):
                 "This session's executor cannot run background jobs.", "Run the command with bash, or switch runner."
             )
         if ctx.abort.is_set():
-            return fail("The run was aborted.", "Stop.").model_copy(update={"status": "refused"})
+            return refuse("The run was aborted.", "Stop.", kind="stopped")
         try:
             match args.action:
                 case "start":

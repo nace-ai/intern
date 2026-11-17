@@ -19,7 +19,7 @@ from intern.async_tasks import join_tasks
 from intern.browser_proxy import BrowserProxy
 from intern.messages import ImagePart, ResourceRef
 from intern.needs import Needs
-from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail, file_resource
+from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail, file_resource, refuse
 from intern.web.reader import checked_url
 from intern.web.storage import publish_private_file
 
@@ -257,7 +257,7 @@ def browser_tool(session: BrowserSession) -> Tool:
 
         async def run(self, args: BrowserAction, ctx: ToolContext) -> ToolOutput:
             if ctx.abort.is_set():
-                return fail("The run was aborted.", "Stop.").model_copy(update={"status": "refused"})
+                return refuse("The run was aborted.", "Stop.", kind="stopped")
             action = asyncio.create_task(session.perform(args, max_chars=ctx.max_output_chars))
             aborted = asyncio.create_task(ctx.abort.wait())
             interrupted = False
