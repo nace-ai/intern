@@ -407,6 +407,11 @@ def cost_text(cost: float, unpriced: bool = False) -> str:
     return f"${cost:.4f}" if cost >= 0.0001 else ""
 
 
+def cache_text(prompt: int, cached: int, reported: bool) -> str:
+    """How much of System 2's prompts the provider read from its cache; nothing from a provider that never says."""
+    return f"cache {cached / prompt:.0%}" if reported and prompt else ""
+
+
 def joined(parts: list[Part]) -> list[Part]:
     """Parts with a muted dot between each."""
     out: list[Part] = []
@@ -419,7 +424,8 @@ class StatusBar(Static):
     """The masthead: the mark, the wordmark in the entering page's block letters where the terminal is wide enough
     for them (else in type, over the table), then the version and under it a table: System 2 and
     System 1, a label column, then the model in a column of its own, then the rest:
-    the thinking level in its box, where System 1 is served; then each system's cost, in a column. At the end of
+    the thinking level in its box, where System 1 is served; then each system's cost, in a column, System 2's with the
+    share of its prompts read from the provider's cache. At the end of
     System 2's row, the run: a spinner while one is in progress, the context in use as a share of the window, and
     what needs attention."""
 
@@ -433,6 +439,11 @@ class StatusBar(Static):
         self.cost1 = 0.0
         self.unpriced = False
         """Some of System 2's calls have no known cost: `cost2` is short of its cost."""
+        self.prompt2 = 0
+        self.cached2 = 0
+        """System 2's prompt tokens this session, and those the provider read from its cache."""
+        self.cache_reported = False
+        """The provider reported a cache read or write: without one, `cached2` is no data, not 0%."""
         self.running = False
         self.activity = ""
         """What the run is waiting on right now, when it is not the model's turn: a State write."""
@@ -483,6 +494,8 @@ class StatusBar(Static):
         detail = max(Content.assemble(*thinking).cell_length, len(served)) + COLUMN_GAP
 
         cost2, cost1 = cost_text(self.cost2, self.unpriced), cost_text(self.cost1)
+        if cache := cache_text(self.prompt2, self.cached2, self.cache_reported):
+            cost2 = f"{cost2}{SEP}{cache}" if cost2 else cache
         money = max(len(cost2), len(cost1)) + COLUMN_GAP
 
         def table_row(label: str, value: tuple[str, str], rest: list[Part], cost: str, tail: list[Part]) -> list[Part]:

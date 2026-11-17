@@ -28,7 +28,8 @@ journal where it stands, not replayed step by step: the transcript shows its las
 in the journal, their work in the State), the State panel the session as System 1 reads it, a compaction's
 card the summary its journal entry keeps, the
 masthead each system's cost and the context from all of it; it continues on the models it last
-switched to. When memory stewarded the session (once it went idle or closed), System 1's cost includes the
+switched to. Beside System 2's cost the masthead shows the share of its prompts the provider read from its cache
+(`cache 91%`), over the session; nothing when the provider never reports its cache. When memory stewarded the session (once it went idle or closed), System 1's cost includes the
 steward's asks and System 2's its writer's calls, and a line under the conversation says what it spent
 (`◇ Memory steward: 43 System 1 asks and 12.0k in / 1.5k out to the writer stewarding this session, $0.0191
 (2 runs)`). A session of 1,700 journal entries opens in about 2 seconds; drawn whole, one widget at a time,
