@@ -819,11 +819,15 @@ class HarnessApp(App[None]):
         await self.views.dispatch(message.event)
 
     def _spend(self, system2: Usage | None = None, system1: float = 0.0) -> None:
-        """Count what System 2's call (a reply, a State write) and System 1's asks cost on the masthead. A System 2
-        call with tokens but no cost has no known price, so its total is short."""
+        """Count what System 2's call (a reply, a State write) and System 1's asks cost on the masthead, and how much
+        of System 2's prompt was read from the cache. A System 2 call with tokens but no cost has no known price, so
+        its total is short."""
         if system2 is not None:
             self.status.cost2 += system2.cost_usd
             self.status.unpriced |= system2.input_tokens > 0 and not system2.cost_usd
+            self.status.prompt2 += system2.input_tokens
+            self.status.cached2 += system2.cache_read_tokens
+            self.status.cache_reported |= bool(system2.cache_read_tokens or system2.cache_write_tokens)
         self.status.cost1 += system1
         spent2, spent1 = self.run_spent
         self.run_spent = (spent2 + (system2.cost_usd if system2 else 0.0), spent1 + system1)
@@ -1551,6 +1555,8 @@ class HarnessApp(App[None]):
         self.status.context = 0
         self.status.cost2 = self.status.cost1 = 0.0
         self.status.unpriced = False
+        self.status.prompt2 = self.status.cached2 = 0
+        self.status.cache_reported = False
         self.status.running = False
         self.status.activity = ""
         await self.transcript.clear()
