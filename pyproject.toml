@@ -1,6 +1,6 @@
 [project]
 name = "intern-agent"
-version = "0.41.0"
+version = "0.42.0"
 description = "An agent harness for models of 35B parameters or less, with a second model watching every turn"
 readme = "README.md"
 license = "Apache-2.0"
@@ -27,6 +27,21 @@ code-search = [
     "networkx>=3.2",
     "numpy>=1.26",
     "scipy>=1.11",
+    # The grammars `locate/symbols.py` chunks code by; a language without its grammar is chunked by windows of lines.
+    "tree-sitter>=0.25,<0.27",
+    "tree-sitter-bash>=0.25",
+    "tree-sitter-c>=0.24",
+    "tree-sitter-c-sharp>=0.23",
+    "tree-sitter-cpp>=0.23",
+    "tree-sitter-go>=0.25",
+    "tree-sitter-java>=0.23",
+    "tree-sitter-javascript>=0.25",
+    "tree-sitter-php>=0.25",
+    "tree-sitter-ruby>=0.23",
+    "tree-sitter-rust>=0.24",
+    "tree-sitter-sql>=0.3.11",
+    "tree-sitter-swift>=0.7",
+    "tree-sitter-typescript>=0.23",
 ]
 mcp = [
     "jsonschema>=4.23",

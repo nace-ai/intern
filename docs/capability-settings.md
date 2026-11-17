@@ -291,7 +291,9 @@ This setting is the only way to turn code search on. `--extension code-search`, 
 profile's `extensions` list and `module:Class` are refused with a pointer to it;
 `--no-extensions` does not switch it off. Setup checks the extra and fails before
 the run when numpy, scipy or networkx is missing; in the terminal UI, `/caps code-search`
-installs it first.
+installs it first. The extra also holds the tree-sitter grammars that chunk code by class and function
+([the languages](usage.md#code-search)); a language whose grammar is missing is chunked by windows of
+lines, and chunked again by class and function at the first refresh after the grammar is installed.
 
 `decision_code` asks System 1, which every session has (a decision model from the console, or
 what `[system1]` or `--system1` picks). An ask System 1 does not answer, after its

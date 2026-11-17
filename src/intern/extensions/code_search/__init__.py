@@ -1,13 +1,14 @@
 """Code search: the working directory as a tree System 1 can search, for code. A capability, turned on only by
 `[capabilities.code_search] enabled = true` (`session_setup.capability_extensions`), not by extension name.
 
-`decision_code` walks the index (symbols of Python files, sections of Markdown and reStructuredText, keys of config
-files, windows of the rest; folders first, then communities of files that import each other), steered also to the
+`decision_code` walks the index (classes and functions of Python files and of the languages with a grammar,
+`locate/symbols.py`; sections of Markdown and reStructuredText, keys of config files, windows of the rest; folders
+first, then communities of files that import each other), steered also to the
 groups whose chunks hold the question's words (`locate/lexical.py`), and returns the places where the question's
 subject is defined or would be changed, each with the `read` call that opens it. The
 index lives in `.intern/index.json`, built before the first turn when missing or stale in a git work tree, elsewhere
 (a home folder, Downloads) only on `decision_code`'s first call, and refreshed after `write`, `edit` or `bash`; it
-never calls a model. Needs `intern-agent[code-search]` (numpy, scipy, networkx).
+never calls a model. Needs `intern-agent[code-search]` (numpy, scipy, networkx; the tree-sitter grammars).
 
 In the terminal UI each `decision_code` call draws its search live right under the call (`view.py`, this
 extension's `tui_view`): the tree walked top-down, System 1's score for every node, what the survivor rule kept

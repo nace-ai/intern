@@ -1271,3 +1271,23 @@ A thinking level more, `auto`; 0.40.2 clients keep working, and nothing a client
   (directly or through OpenRouter), Fireworks (DeepSeek V4 Flash, gpt-oss-120b), DeepInfra (Qwen3.8-27B) and
   OpenRouter's upstreams for Qwen3.8-27B. The provider writes the level into the prompt's head, so `auto`, which may
   change it every run, would cost an uncached prompt each time ([architecture](architecture.md)).
+
+### 0.42.0
+
+`decision_code` returns a function or a class in thirteen more languages, where it returned a window of 120 lines;
+0.41.0 clients keep working, and nothing a client sends or reads changed shape.
+
+- With `cap.code-search` on, code in JavaScript, TypeScript, Go, Rust, Java, C, C++, C#, Ruby, PHP, Swift, shell and
+  SQL is indexed by its classes and functions, as Python is: a place in a `decision_code` result is a function or a
+  class with its lines, named by its signature. Code outside every definition (a script's body), a file that defines
+  nothing and code in any other language are found by windows of 120 lines, as before.
+- In a file with more than 160 chunks (a long source file defines that many functions), a search judges the 160
+  nearest the question's words and then the file's first ones, where it judged the first 160 only, so a function at
+  the end of a long file can be found. This holds for Python files too.
+- The `code-search` extra now includes tree-sitter and the grammars of those languages (14 packages, each with wheels
+  for macOS, Linux and Windows). Without them, in an environment that installed the extra from an earlier version,
+  `decision_code` works as it did in 0.41.0.
+- An index built earlier has the files of those languages read again at its next refresh, with `indexing` events
+  as for any build and no model call: about 1 ms a file (15 s for the 15,500 Go files of Kubernetes). Documents are
+  not read again. The index holds more chunks, so `.intern/index.json` grows: Envoy's (11,400 files) from 48 MB to
+  105 MB.

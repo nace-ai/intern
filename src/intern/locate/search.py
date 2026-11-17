@@ -9,7 +9,8 @@ files judged, until the file or folder budget is spent. Kept nodes under MIN_PRO
 the frontier empties before any file is judged; the result carries the walk (`Walk`) so an empty answer can say how
 far it got. With `lexical`, the question's words steer the walk too (`lexical.py`): the leaf groups holding the best
 BM25 passages have their files judged first and their parents join the frontier; they are judged like any other.
-The kept files have every chunk judged (16 a state), the best chunks have their text read, and the top files are
+The kept files have every chunk judged (16 a state; of a file with more than CHUNKS_MAX, the ones nearest the
+question's words), the best chunks have their text read, and the top files are
 shown side by side for one choice asked in three orders. Every ask goes through `DecisionClient.ask`, which retries
 a failing System 1 and stops the run if it stays down; nothing stands in for an answer (a keyword heuristic scored
 below grep on every real-size tree). The state is the question and one card, never the
@@ -68,7 +69,8 @@ SEED_RANK = 10
 _TESTS = re.compile(
     r"(^|/)(tests?|__tests__)/|(^|/)(test_[^/]*|[^/]*_test\.py|conftest\.py|[^/]*\.(test|spec)\.[jt]sx?)$"
 )
-#: Chunks judged per file (in order) and per state; chunks whose text is read, per file and in all.
+#: Chunks judged per file (of a longer file, the ones `Cascade.judged` picks) and per state; chunks whose text is read,
+#: per file and in all.
 CHUNKS_MAX = 160
 CHUNKS_PER_STATE = 16
 LEAF_PER_FILE = 8
@@ -200,6 +202,8 @@ class Cascade:
         self.index = index
         self.root = root
         self.lexical = lexical
+        self.words: Lexical | None = None
+        """The lexical index, once the walk has brought it up to date; None without `lexical`."""
         self.question = _trim(question)
         self.decisions = decisions
         self.asks = asks
@@ -453,8 +457,18 @@ class Cascade:
 
     # -- inside a file ------------------------------------------------------------------------------------------
 
+    async def judged(self, path: str) -> list[Chunk]:
+        """The chunks of a file that are judged: all of them up to CHUNKS_MAX; of a longer file the ones nearest
+        the question's words (BM25), then its first ones, so a function at the end of a long file can be found."""
+        chunks = self.index.files[path].chunks
+        if len(chunks) <= CHUNKS_MAX or self.words is None:
+            return chunks[:CHUNKS_MAX]
+        near = {hit.key for hit in await asyncio.to_thread(self.words.hits, self.question, path, CHUNKS_MAX)}
+        first = [c.key for c in chunks if c.key not in near][: CHUNKS_MAX - len(near)]
+        return [c for c in chunks if c.key in near or c.key in first]
+
     async def score_chunks(self, path: str) -> list[tuple[Chunk, float]]:
-        chunks = self.index.files[path].chunks[:CHUNKS_MAX]
+        chunks = await self.judged(path)
         if not chunks:
             return []
         ids = {f"c{n}": c for n, c in enumerate(chunks)}
@@ -524,7 +538,7 @@ class Cascade:
         best first by their prior (the card's score weighted by its file's), and the chunks the leaf step reads."""
         hits: list[Hit] = []
         if self.lexical:
-            words = Lexical(self.index, self.root)
+            self.words = words = Lexical(self.index, self.root)
             await asyncio.to_thread(words.update)
             hits = await asyncio.to_thread(words.hits, self.question, scope, SEED_HITS * 3)  # room for tests skipped
         await self.descend(within, hits)

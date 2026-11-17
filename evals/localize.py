@@ -5,7 +5,9 @@ Gold sources:
 
     uv run --with pyarrow evals/localize.py issues --data <issue parquet dir> --repos <git mirror dir> --tasks <ids...>
         The issue text is the question, the files the gold patch touches are the answer; the repository is
-        checked out at the base commit (git clone --shared) and indexed.
+        checked out at the base commit (git clone --shared) and indexed. The lines the patch edits add place@1/@5
+        (a returned place holds an edited line) and the lines of the top place, which say how closely a place
+        points: a function, or a window of 120 lines.
 
     uv run evals/localize.py office --tasks <office task dir> --personas <persona workspaces dir>
         The task text is the question, its data_manifest files are the answer (any copy of a file name counts);
@@ -30,6 +32,8 @@ import asyncio
 import collections
 import json
 import os
+import re
+import statistics
 import subprocess
 import sys
 import time
@@ -56,8 +60,39 @@ QUESTION_CHARS = 4000
 
 
 class Question:
-    def __init__(self, qid: str, root: Path, text: str, gold: list[set[str]], symbols: list[str] | None = None) -> None:
+    def __init__(
+        self,
+        qid: str,
+        root: Path,
+        text: str,
+        gold: list[set[str]],
+        symbols: list[str] | None = None,
+        lines: dict[str, set[int]] | None = None,
+    ) -> None:
         self.id, self.root, self.text, self.gold, self.symbols = qid, root, text, gold, symbols or []
+        self.lines = lines or {}
+
+
+def edited(patch: str) -> dict[str, set[int]]:
+    """The lines a patch edits, by file, numbered as before the patch: each line it removes, and the line it adds
+    after."""
+    out: dict[str, set[int]] = {}
+    path, n = "", 0
+    for line in patch.splitlines():
+        if line.startswith("diff --git a/"):
+            path = line[len("diff --git a/") :].split(" b/")[0]
+        elif (hunk := re.match(r"@@ -(\d+)", line)) is not None:
+            n = int(hunk[1])
+        elif line.startswith(("---", "+++")) or not path:
+            continue
+        elif line.startswith("-"):
+            out.setdefault(path, set()).add(n)
+            n += 1
+        elif line.startswith("+"):
+            out.setdefault(path, set()).add(max(n - 1, 1))
+        else:
+            n += 1
+    return out
 
 
 def issue_questions(args: argparse.Namespace) -> list[Question]:
@@ -77,7 +112,7 @@ def issue_questions(args: argparse.Namespace) -> list[Question]:
             for ln in inst["patch"].splitlines()
             if ln.startswith("diff --git a/")
         ]
-        out.append(Question(tid, dest, inst["problem_statement"], gold))
+        out.append(Question(tid, dest, inst["problem_statement"], gold, lines=edited(inst["patch"])))
     return out
 
 
@@ -177,11 +212,23 @@ async def run(questions: list[Question], args: argparse.Namespace) -> list[dict]
                 "hit1": float(bool(keys) and keys[0] in q.symbols),
                 "any5": float(any(k in q.symbols for k in keys[:5])),
             }
+        if q.lines:
+            places = [pl for pl in result.places if pl.key]
+            hits = [any(pl.start <= n <= pl.end for n in q.lines.get(pl.path, ())) for pl in places[:5]]
+            row["places"] = {
+                "hit1": float(any(hits[:1])),
+                "any5": float(any(hits)),
+                "lines": places[0].end - places[0].start + 1 if places else 0,
+                "top": [f"{pl.path}:{pl.start}-{pl.end} {pl.key}" for pl in places[:5]],
+            }
         rows.append(row)
         s = row["system1"]
         line = f"hit@1 {s['hit1']:.0f} any@10 {s['any10']:.0f} recall@10 {s['recall10']:.2f}"
         if "symbols" in row:
             line += f" | symbol@1 {row['symbols']['hit1']:.0f} @5 {row['symbols']['any5']:.0f}"
+        if "places" in row:
+            pl = row["places"]
+            line += f" | place@1 {pl['hit1']:.0f} @5 {pl['any5']:.0f} in {pl['lines']} lines"
         print(
             f"{q.id:>28} gold {len(gold):3d} | {line} | {len(asks):3d} asks ${row['usd']:.4f} {secs:.0f}s", flush=True
         )
@@ -202,6 +249,10 @@ def report(rows: list[dict]) -> None:
     if all("symbols" in r for r in rows):
         hit1, any5 = (sum(r["symbols"][k] for r in rows) / n for k in ("hit1", "any5"))
         print(f"| symbols (system1) | {hit1:.2f} | – | {any5:.2f} at 5 | – | | | |")
+    if all("places" in r for r in rows):
+        hit1, any5 = (sum(r["places"][k] for r in rows) / n for k in ("hit1", "any5"))
+        lines = statistics.median(r["places"]["lines"] for r in rows)
+        print(f"| places (system1) | {hit1:.2f} | {any5:.2f} | – | – | top place: {lines:.0f} lines (median) | | |")
     for root in sorted({r["root"] for r in rows}):
         rs = [r for r in rows if r["root"] == root]
         if len({r["root"] for r in rows}) > 1:
