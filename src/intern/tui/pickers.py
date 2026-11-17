@@ -6,7 +6,8 @@ listed is accepted as typed, so a custom `provider/model` or a decision model th
 chosen; the harness refuses it with its own reason if it cannot be resolved.
 
 A picker whose notes are sentences (capabilities, runners, secrets) stacks each row instead: the label on a line of
-its own, the note under it, wrapped at the label's indent rather than back under the label column.
+its own, the note under it, wrapped at the label's indent rather than back under the label column, and a blank line
+between rows.
 """
 
 from __future__ import annotations
@@ -195,10 +196,14 @@ class ModelPicker(ModalScreen[str | None]):
         for choice in shown:
             if choice.group != group:
                 header = Content.assemble((choice.group.upper(), "bold"), (f"  {counts[choice.group]}", S_MUTED))
-                # A blank line above every group but the first sets the groups apart.
-                gap = Padding(header, Spacing(1, 0, 0, 0)) if group is not None else header
+                # Blank lines above every group but the first set the groups apart: more than between stacked rows.
+                above = (2 if self.stacked else 1) if group is not None else 0
+                gap = Padding(header, Spacing(above, 0, 0, 0)) if above else header
                 options.add_option(Option(gap, disabled=True))
                 group = choice.group
+            elif self.stacked:
+                # A blank line between stacked rows, outside either, so the highlight covers just the one row.
+                options.add_option(Option("", disabled=True))
             is_current = choice.id == self.current
             mark = ("● ", S_OK_BOLD) if is_current else " " * MARK
             current_tag = [("  current", S_MUTED_ITALIC)] if is_current else []
