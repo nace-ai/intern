@@ -321,7 +321,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
                 S_INK,
             ),
             ("Drex Max", S_HEAD),
-            (" is Nace AI's decision model and the one we recommend.", S_INK),
+            (" is #1 on Artificial Analysis and the one we recommend.", S_INK),
         )
         return "Step 2 of 2 · System 1, the decision model", body
 

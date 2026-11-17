@@ -332,7 +332,7 @@ SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
     System1Option(
         "drex-max",
         "Drex Max · OpenRouter",
-        "Nace AI's decision model",
+        "Nace AI's decision model, #1 on Artificial Analysis",
         "decisions-api",
         "nace-ai/drex-max",
         "OPENROUTER_API_KEY",
