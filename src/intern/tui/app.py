@@ -1260,8 +1260,10 @@ class HarnessApp(App[None]):
         ]
         choices.sort(key=lambda choice: choice.group != "does not load")
         choices.append(Choice(id=ADD_SECRET, name="Add a secret…", group="new", note="stored in the OS keychain"))
-        hint = "Enter replaces a keychain value, or adds one; values are never shown ·"
-        picker = ModelPicker("Secrets · keys the agent's commands get", choices, "", hint=hint, typed=False)
+        hint = "Enter replaces a keychain value, or adds one; values are never shown"
+        picker = ModelPicker(
+            "Secrets · keys the agent's commands get", choices, "", hint=hint, typed=False, stacked=True
+        )
         self.push_screen(picker, callback=self._secret_picked)
 
     def _secret_picked(self, picked: str | None) -> None:
@@ -1340,9 +1342,14 @@ class HarnessApp(App[None]):
         if self._opening:
             await self.transcript.notice("The session is still opening; try again in a moment.", "warn")
             return
-        hint = "Enter switches one on or off; the session reopens on its journal with the change ·"
+        hint = "Enter switches one on or off; the session reopens on its journal with the change"
         picker = ModelPicker(
-            "Capabilities · what the agent can use", self._capability_choices(), "", hint=hint, typed=False
+            "Capabilities · what the agent can use",
+            self._capability_choices(),
+            "",
+            hint=hint,
+            typed=False,
+            stacked=True,
         )
         self.push_screen(picker, callback=self._capability_picked)
 
@@ -1369,8 +1376,8 @@ class HarnessApp(App[None]):
             for choice in runner_choices(self._capabilities_at_start.runner)
         ]
         choices.sort(key=lambda choice: ("in use", "can run here", "unavailable").index(choice.group))
-        hint = "Enter runs the session's commands there; the session reopens on its journal ·"
-        picker = ModelPicker("Runner · where commands run", choices, "", hint=hint, typed=False)
+        hint = "Enter runs the session's commands there; the session reopens on its journal"
+        picker = ModelPicker("Runner · where commands run", choices, "", hint=hint, typed=False, stacked=True)
         self.push_screen(picker, callback=self._runner_picked)
 
     def _runner_picked(self, picked: str | None) -> None:
@@ -1611,9 +1618,9 @@ class HarnessApp(App[None]):
             hint = ""
         else:
             title = "System 1 · the decision model that watches and judges"
-            hint = "decisions:<model> picks a decisions-API model ·"
+            hint = "decisions:<model> picks a decisions-API model"
         if self.session is None:
-            hint = "No session yet: the pick opens one ·" + (f" {hint}" if hint else "")
+            hint = "No session yet: the pick opens one" + (f" · {hint}" if hint else "")
         if self.catalog is None and self._load_catalog is not None:
             hint = "The catalog is still loading; " + hint[0].lower() + hint[1:]
         thinking = self._thinking_now() if role == "system2" else None

@@ -326,6 +326,7 @@ ModelPicker, StateScreen {
 
 #picker-options {
     height: 1fr;
+    margin-bottom: 1;
     background: $surface;
     border: none;
 }
