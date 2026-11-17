@@ -1,0 +1,10 @@
+# GPT-4.1 and GPT-4.1 mini (and their dated ids): a 1,047,576-token context and 32K output, text and images in
+# (https://developers.openai.com/api/docs/models/gpt-4.1, read 2026-11-17). OpenAI's listing gives no window, so without
+# this they ran at the 32K fallback. GPT-4.1 mini took 300K and refused 1.06M ("exceeds the context window"), measured
+# 2026-11-17. They do not reason: the Responses API refuses `reasoning.effort` from them, so they offer no level.
+
+match = ["openai/gpt-4.1*"]
+window = 1047576
+max_output_tokens = 32768
+vision = true
+effort_levels = []

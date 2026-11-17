@@ -1,6 +1,6 @@
-# OpenAI's models that do not reason, and chat-latest. The Responses API takes `reasoning.effort` for every reasoning
-# model; these refuse it ("'reasoning.effort' is not supported with this model": GPT-4.1, GPT-4o and their minis,
-# gpt-live-1, 2026-11-17), so sessions on them offer no level. chat-latest takes medium alone (openai-chat-latest.toml).
+# gpt-live-1 does not reason: the Responses API refuses `reasoning.effort` from it ("'reasoning.effort' is not
+# supported with this model", 2026-11-17), so sessions on it offer no level. GPT-4o and GPT-4.1, which refuse it too,
+# have profiles of their own with their windows (openai-gpt-4o.toml, openai-gpt-4-1.toml).
 
-match = ["openai/gpt-4.1*", "openai/gpt-4o*", "openai/gpt-live-*"]
+match = ["openai/gpt-live-*"]
 effort_levels = []

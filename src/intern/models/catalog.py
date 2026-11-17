@@ -135,6 +135,12 @@ NON_LANGUAGE_WORDS = frozenset(
 `whisper-large-v3`, `llama-guard-4-12b`; Ollama's `nomic-embed-text`."""
 
 
+CHAT_COMPLETIONS_ONLY = frozenset({"search"})
+"""Words in the ids of OpenAI models served on Chat Completions only, which the Responses API refuses ("The requested
+model 'gpt-5-search-api' is not supported with the Responses API", 2026-11-17). OpenAI's models go through the
+Responses API, so System 2 cannot use these; elsewhere a `search` model may chat (OpenRouter's Sonar Pro Search)."""
+
+
 def language_model(model_id: str, item: dict[str, Any]) -> bool:
     """Whether a `/models` listing entry is a model System 2 can chat with: what the listing says where it says (a
     non-language `type` or Fireworks `kind`, OpenRouter's `architecture.output_modalities`, Fireworks'
@@ -151,11 +157,22 @@ def language_model(model_id: str, item: dict[str, Any]) -> bool:
     return NON_LANGUAGE_WORDS.isdisjoint(re.split(r"[^a-z0-9]+", model_id.lower()))
 
 
+def responses_model(endpoint: Endpoint, model_id: str) -> bool:
+    """Whether the endpoint can serve the model: anything, except on the Responses API a Chat-Completions-only model."""
+    words = re.split(r"[^a-z0-9]+", model_id.lower())
+    return endpoint.api != "responses" or CHAT_COMPLETIONS_ONLY.isdisjoint(words)
+
+
 def _listed(endpoint: Endpoint, body: Any) -> list[ModelInfo]:
     models: list[ModelInfo] = []
     for item in _items(body, "data"):
         model_id = item.get("id")
-        if isinstance(model_id, str) and model_id and language_model(model_id, item):
+        if (
+            isinstance(model_id, str)
+            and model_id
+            and language_model(model_id, item)
+            and responses_model(endpoint, model_id)
+        ):
             name = item.get("name") or item.get("display_name") or model_id
             models.append(ModelInfo(id=f"{endpoint.provider}/{model_id}", name=str(name), window=context_length(item)))
     return models

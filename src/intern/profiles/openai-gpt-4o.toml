@@ -1,0 +1,10 @@
+# GPT-4o and GPT-4o mini (and their dated ids): a 128K context and 16K output, text and images in
+# (https://developers.openai.com/api/docs/models/gpt-4o, read 2026-11-17). OpenAI's listing gives no window, so without
+# this they ran at the 32K fallback. GPT-4o mini took 110K and refused 135K ("exceeds the context window"), measured
+# 2026-11-17. They do not reason: the Responses API refuses `reasoning.effort` from them, so they offer no level.
+
+match = ["openai/gpt-4o*"]
+window = 128000
+max_output_tokens = 16384
+vision = true
+effort_levels = []

@@ -1236,3 +1236,15 @@ A fix to the thinking levels offered; 0.40.0 clients keep working, and nothing a
   none; `effort_levels = []` is a model that takes no level. A profile whose `reasoning_effort` is not one of its
   `effort_levels` is refused when it loads, naming both.
 
+### 0.40.2
+
+Two fixes to OpenAI's models in the catalog; 0.40.1 clients keep working, and nothing a client sends or reads changed
+shape.
+
+- `models --json` no longer lists OpenAI's search models (`openai/gpt-5-search-api` and its dated id). OpenAI serves
+  them on Chat Completions only, and System 2 reaches OpenAI through the Responses API, which refuses them: a session
+  on one failed every request. A search model through another provider (OpenRouter's Sonar Pro Search) is still listed.
+- GPT-4o and GPT-4.1 (with their minis and dated ids) run at their own windows, 128K and 1,047,576 tokens, with 16K and
+  32K of output, where OpenAI's listing gives none and they ran at the 32K fallback. `models --json` gives each its
+  `window`, and a session on one runs at it (`context_window` `auto`). They take images (`read` shows image files).
+
