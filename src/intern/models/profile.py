@@ -14,7 +14,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, JsonValue, field_validator
+from pydantic import BaseModel, Field, JsonValue, field_validator, model_validator
 
 PACKAGED_PROFILES = "intern.profiles"
 DEFAULT_PROFILE = "default.toml"
@@ -60,12 +60,15 @@ COMMON_EFFORTS = EFFORT_LEVELS[:3]
 
 
 def effort_levels(provider_levels: Sequence[str], profile: Profile) -> tuple[str, ...]:
-    """The reasoning efforts a model can be set to, least to most: the provider's run when its API takes one for
-    every model it serves (Anthropic's `output_config.effort`, OpenAI's `reasoning.effort`); else the profile's
-    `effort_levels`; else the three every reasoning API takes when the profile names an effort, since
-    OpenAI-compatible endpoints go only on the profile's word (some reject the field); else none."""
-    if provider_levels or profile.effort_levels:
-        return tuple(provider_levels or profile.effort_levels)
+    """The reasoning efforts a model can be set to, least to most: the profile's `effort_levels` when it states them,
+    for a model that takes another run than its API's, or none (`[]`: GPT-4o, Claude Sonnet 4.5); else the provider's
+    run when its API takes one (Anthropic's `output_config.effort`, OpenAI's `reasoning.effort`); else the three every
+    reasoning API takes when the profile names an effort, since OpenAI-compatible endpoints go only on the profile's
+    word (some reject the field); else none."""
+    if profile.effort_levels is not None:
+        return tuple(profile.effort_levels)
+    if provider_levels:
+        return tuple(provider_levels)
     return COMMON_EFFORTS if profile.reasoning_effort is not None else ()
 
 
@@ -77,7 +80,8 @@ def effort_choices(provider_levels: Sequence[str], profile: Profile) -> tuple[st
     """What a thought level can be set to: `default` first when the levels hold without an effort (the API's own
     run, or the profile's `effort_levels`), then the efforts. On a named effort alone an effort is always sent."""
     levels = effort_levels(provider_levels, profile)
-    return (DEFAULT_EFFORT, *levels) if provider_levels or profile.effort_levels else levels
+    stated = bool(provider_levels) or profile.effort_levels is not None
+    return (DEFAULT_EFFORT, *levels) if levels and stated else levels
 
 
 class Profile(BaseModel):
@@ -95,10 +99,11 @@ class Profile(BaseModel):
     )
     sampling: Sampling = Field(default_factory=Sampling)
     reasoning_effort: str | None = None
-    effort_levels: list[str] = Field(
-        default_factory=list,
-        description="The reasoning efforts the model takes, on an API that does not say (OpenAI-compatible "
-        "endpoints). Sessions offer them after `default`, which sends none, so nothing changes until one is picked.",
+    effort_levels: list[str] | None = Field(
+        default=None,
+        description="The reasoning efforts the model takes, where its API does not say (OpenAI-compatible endpoints) "
+        "or says more than the model takes: they replace the API's run, and `[]` is none (GPT-4o, Claude Sonnet "
+        "4.5, whose APIs refuse the field). Sessions offer them after `default`, which sends none. Unset: the API's.",
     )
     reasoning_replay: bool = True
     max_turns: int = 150
@@ -115,10 +120,21 @@ class Profile(BaseModel):
 
     @field_validator("effort_levels")
     @classmethod
-    def _known_efforts(cls, levels: list[str]) -> list[str]:
+    def _known_efforts(cls, levels: list[str] | None) -> list[str] | None:
+        if levels is None:
+            return None
         if unknown := sorted(set(levels) - set(EFFORT_LEVELS)):
             raise ValueError(f"effort_levels takes {', '.join(EFFORT_LEVELS)}; not {', '.join(unknown)}")
         return [level for level in EFFORT_LEVELS if level in levels]
+
+    @model_validator(mode="after")
+    def _effort_it_takes(self) -> Profile:
+        """A named effort the stated levels lack would be refused by the API on every request."""
+        levels = self.effort_levels
+        if levels is not None and self.reasoning_effort is not None and self.reasoning_effort not in levels:
+            takes = ", ".join(levels) if levels else "none"
+            raise ValueError(f"reasoning_effort {self.reasoning_effort!r} is not one of the effort_levels ({takes})")
+        return self
 
     def output_cap(self, working_window: int) -> int:
         reserve = int(working_window * self.thresholds.output_reserve)

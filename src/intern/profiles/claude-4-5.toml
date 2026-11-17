@@ -1,7 +1,8 @@
-# Claude Opus 4.5, Sonnet 4.5 and Haiku 4.5. Window and output cap as the Models API reports them (200K in, 64K
-# out). They reject adaptive thinking, so they think on a fixed budget; Sonnet and Haiku 4.5 take no effort level.
+# Claude Opus 4.5. Window and output cap as the Models API reports them (200K in, 64K out). It rejects adaptive
+# thinking, so it thinks on a fixed budget. Sonnet and Haiku 4.5, which take no effort level, have their own profile
+# (claude-4-5-no-effort.toml), as this one but for that.
 
-match = ["anthropic/claude-opus-4-5*", "anthropic/claude-sonnet-4-5*", "anthropic/claude-haiku-4-5*"]
+match = ["anthropic/claude-opus-4-5*"]
 window = 200000
 max_output_tokens = 64000
 vision = true

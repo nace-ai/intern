@@ -1,0 +1,15 @@
+# Claude Sonnet 4.5 and Haiku 4.5: as Opus 4.5 (claude-4-5.toml), but they take no effort level; the API refuses
+# `output_config.effort` from them ("This model does not support the effort parameter", 2026-11-17), so sessions on
+# them offer none.
+
+match = ["anthropic/claude-sonnet-4-5*", "anthropic/claude-haiku-4-5*"]
+window = 200000
+max_output_tokens = 64000
+vision = true
+effort_levels = []
+
+# A fixed budget, which a reply cap under 10K (a window capped below about 67K) is refused for.
+[compat.extra_body.thinking]
+type = "enabled"
+budget_tokens = 10000
+display = "summarized"
