@@ -15,6 +15,7 @@ import time
 import traceback
 from collections.abc import Awaitable, Callable, Coroutine, Sequence
 from dataclasses import dataclass, field, replace
+from functools import cache
 from pathlib import Path
 from typing import Literal, NamedTuple
 
@@ -48,6 +49,7 @@ from intern.events import (
     Compaction,
     ContextBudget,
     EventSink,
+    Handoff,
     MessageEvent,
     Nudge,
     ProcessInfo,
@@ -66,11 +68,13 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
+from intern.handoff import LOGFILE_NOTE, HandoffTarget, Readiness, logfile_text, trajectory
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
     Journal,
     MessageEntry,
+    ModelChangeEntry,
     ObservationEntry,
     StateEntry,
     SystemPromptEntry,
@@ -208,6 +212,8 @@ class EngineDeps:
     """This is a subagent's run: it starts no subagents, and System 1 does not supervise its turns."""
     subagent_slots: _Slots | None = None
     """The parallel limit and the writers' lock every subagent of the session shares; made at the first one."""
+    handoff: HandoffTarget | None = None
+    """The cheaper model a run hands over to once System 1 judges it can finish (`[capabilities.handoff]`)."""
 
 
 CompactOutcome = Literal["compacted", "fits", "stopped"]
@@ -269,6 +275,7 @@ class Run:
         self.turn = 0
         self.usage = Usage()
         self.state_usage = Usage()  # the State writes' share of `usage`
+        self.by_model: dict[str, Usage] = {}
         self.continuations = 0
         self.final_text = ""
         self._prompt_chars = 0
@@ -293,6 +300,13 @@ class Run:
         )
         self.effort: str | None = None
         """The effort System 1 picked for this run at the `auto` thought level; None until it is asked."""
+        target = deps.handoff
+        # A session already handed over (an earlier run) stays with the model taken over by.
+        self.handoff = (
+            Readiness(target)
+            if target is not None and target.binding.ref != deps.system2.ref and not deps.child
+            else None
+        )
 
     def _subagent_ended(self, result: SubagentResult) -> None:
         self.usage += result.usage
@@ -337,6 +351,10 @@ class Run:
         entry = self.deps.journal.append(MessageEntry(message=message, run_id=self.run_id))
         self.deps.emit(MessageEvent(entry_id=entry.id, message=message))
         return entry.id
+
+    def _spend(self, usage: Usage, model: str) -> None:
+        self.usage += usage
+        self.by_model[model] = self.by_model.get(model, Usage()) + usage
 
     def _nudge(self, text: str, reason: str) -> None:
         self.deps.emit(Nudge(turn=self.turn, reason=reason, text=text))
@@ -495,6 +513,7 @@ class Run:
                 agent_usage=self.usage - self.state_usage - (self.subagent_usage or Usage()),
                 state_usage=self.state_usage,
                 subagent_usage=self.subagent_usage,
+                by_model=self.by_model,
                 system1=self.deps.decisions.usage.since(system1_before),
                 final_text=outcome.final_text,
                 duration_ms=int((time.monotonic() - started) * 1000),
@@ -616,7 +635,7 @@ class Run:
             return
         if reply is None:
             return
-        self.usage += reply.usage
+        self._spend(reply.usage, reply.model or self.binding.ref)
         self.meter.observe(self._prompt_chars, reply.usage.input_tokens)
         self._record(reply)
         if reply.text:
@@ -755,7 +774,7 @@ class Run:
         abort: asyncio.Event,
     ) -> None:
         call = await self._write_state(view, turn, abort)
-        self.usage += call.usage
+        self._spend(call.usage, call.model)
         self.state_usage += call.usage
         dropped: Literal["write_failed", "branched"] | None = "write_failed" if call.text is None else None
         # It lands on the branch it was written for: the turns it covers must still lead to the leaf.
@@ -1021,7 +1040,7 @@ class Run:
     # -- phase: reply and tools -----------------------------------------------------------------
 
     async def _handle_reply(self, message: AssistantMessage) -> h.Verdict:
-        self.usage += message.usage
+        self._spend(message.usage, message.model or self.binding.ref)
         self.meter.observe(self._prompt_chars, message.usage.input_tokens)
         self._record(message)
         if message.text:
@@ -1085,14 +1104,15 @@ class Run:
         else:
             verdict = h.Stop(reason="completed")
 
+        hand_over = False
         if not isinstance(verdict, h.Stop) and not self.control.abort.is_set() and not self.deps.child:
             # The turn's boundary: when a look is due, System 1 reviews the turns and the loop acts on the answer now
             # (the nudge goes into the next request). An abort during the ask ends the run instead of the ask.
-            nudge = await self._abortable(
-                self.supervisor.after_turn(self.turn, self.deps.decisions, self._system1_state)
-            )
-            if nudge:
-                nudges.append(nudge)
+            review = await self._abortable(self._review())
+            if review is not None:
+                nudge, hand_over = review
+                if nudge:
+                    nudges.append(nudge)
 
         info = h.TurnInfo(turn=self.turn, message=message, results=results)
         for _, hook_verdict in await self.deps.hooks.call("turn_end", lambda e: e.turn_end(info, self._ctx())):
@@ -1104,12 +1124,65 @@ class Run:
 
         if isinstance(verdict, h.Stop) and (verdict.reason != "completed" or not nudges):
             return verdict
+        if hand_over and self._hand_over():
+            nudges = []  # they were about the turns of the model before, which the fresh start does not show
         for text, reason in nudges:
             self._nudge(text, reason)
         if waiting_on and not nudges:
             self._waiting_on = waiting_on  # quiet: `_turns` holds for news before the next turn
             self._waiting_limit, self._waiting_looks = limit, looks
         return h.Continue()
+
+    async def _review(self) -> tuple[tuple[str, str] | None, bool]:
+        """System 1's look at the turn's boundary: the supervisor's nudge, if one is due, and whether to hand over. The
+        State is cut once, and only when one of them asks."""
+        state = cache(self._system1_state)
+        supervise = self.supervisor.after_turn(self.turn, self.deps.decisions, state)
+        if self.handoff is None:
+            return await supervise, False
+        return await asyncio.gather(supervise, self.handoff.after_turn(self.turn, self.deps.decisions, state))
+
+    def _hand_over(self) -> bool:
+        """Hand the run over to the cheaper model for the next turn and every one after; True when it starts afresh
+        from the logfile rather than going on with the conversation."""
+        assert self.handoff is not None and self.deps.handoff is not None
+        target, source, handoff = self.deps.handoff, self.binding, self.handoff
+        self.handoff = None
+        logfile = self._write_logfile() if target.config.transfer == "logfile" else None
+        self.deps.system2 = target.binding
+        self.deps.journal.append(ModelChangeEntry(role="system2", model=target.binding.ref))
+        self.deps.emit(
+            Handoff(
+                turn=self.turn,
+                source=source.ref,
+                target=target.binding.ref,
+                transfer=target.config.transfer,
+                probability=handoff.probability,
+                tokens=self.meter.tokens(self._prompt_chars),
+                logfile=logfile,
+            )
+        )
+        return logfile is not None
+
+    def _write_logfile(self) -> str:
+        """The session's turns as a JSON-lines file in the working directory, and the cut that starts the model taken
+        over by afresh from the user's requests and a note on that file. Returns the path as the agent sees it."""
+        records = trajectory(self.deps.journal.active_path())
+        path = self.deps.cwd / ".intern" / "handoff" / f"{self.run_id}.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(logfile_text(records))
+        mount = mount_of(self.deps.executor)
+        shown = str(mount.to_inner(path) if mount is not None else path)
+        note = LOGFILE_NOTE.format(turns=len(records), path=shown)
+        self.deps.journal.append(
+            CompactionEntry(
+                summary=self._with_requests(note, self._requests()),
+                first_kept_id=None,
+                tokens_before=self.meter.tokens(self._prompt_chars),
+                method="drop",
+            )
+        )
+        return shown
 
     async def _run_tools(self, calls: list[ToolCall]) -> list[ToolResult]:
         by_name = {tool.name: tool for tool in self.deps.tools}
