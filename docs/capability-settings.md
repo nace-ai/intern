@@ -297,7 +297,10 @@ what `[system1]` or `--system1` picks). An ask System 1 does not answer, after i
 retries, stops the run rather than reading as nothing found. The index is `.intern/index.json` in the working
 directory: built before the first turn when it is missing or stale in a git work tree (elsewhere, such as a
 home folder, only on `decision_code`'s first call: nothing is walked or written before), refreshed after
-`write`, `edit` or `bash`, and never built with a model call. In a git work tree it
+`write`, `edit` or `bash`, and never built with a model call. The note pinned before the task, with the map of
+the repository (the index's root card), is the one the session's first message found, kept for the whole session
+as the instruction files are: a refresh changes what `decision_code` searches, never the start of the prompt, so
+the provider's prompt cache keeps hitting. In a git work tree it
 holds the files git sees (tracked, or untracked and not ignored), so what `.gitignore`
 keeps out of git is not searched; one index holds at most 100,000 files. A working directory that holds
 more documents (PDFs, Word, spreadsheets, Parquet: files the index cannot read) than code and text, counted
@@ -341,7 +344,7 @@ folder's `.decision_workspace/` (text under `derived/`, every table in `tables.d
 directory that already has one is loaded at the start. Without one, the pinned note names the folders of the
 working directory that hold documents (PDFs, Word, workbooks, Parquet; counted over its first 2,000 files, in or
 outside git), each with its count and whether it is indexed; a working directory with none, such as a code
-repository, gets no note. Then `decision_files` searches it with System 1 (the
+repository, gets no note. As with code search, the note is the session's first message's and stays as it is. Then `decision_files` searches it with System 1 (the
 tree walk and a BM25 first stage over its passages, judged together, then one SAG2 expansion round),
 `sql` queries the tables, and `read` shows documents as text (`pages=`, `tab=`). It loads beside code
 search: in a repository with a folder of documents, the code index is `.intern/index.json` at the

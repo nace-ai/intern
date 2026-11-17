@@ -9,7 +9,7 @@ is refreshed the same way. The search needs System 1: without a backend nothing 
 `decision_search` says what to configure (a keyword stand-in scored below grep on every real-size tree). A build on a
 terminal shows a progress bar on stderr. Every request carries a pinned note saying what the tools are for and
 the root node's card (a map of the directory), or no note where the working directory holds nothing of the
-extension's kind (`Locate.pin`), fixed at the start of the run so the prompt prefix stays cacheable,
+extension's kind (`Locate.pin`), fixed at the session's first run so the prompt prefix stays cacheable,
 placed before the task so the task's requirements remain the last thing the model reads. The note leaves the
 choice of tool to the agent: told to search first, Qwen3.8 did so and reached the right place by its
 second call instead of its sixth, then spent the saving on reading and iterating (+21% input tokens, same pass
@@ -535,6 +535,7 @@ class Locate(h.Extension):
     def __init__(self) -> None:
         self.store = Store(type(self).processors, self.name, self.install, self.folder, self.auto, self.moved_from)
         self.pinned: str | None = None
+        self.started = False
 
     def tools(self) -> list[Tool]:
         return [self.search_tool(self.store, self.asks)]
@@ -543,11 +544,16 @@ class Locate(h.Extension):
         self.store.decisions = ctx.decisions
         self.store.emit = ctx.emit
         self.store.mark_dirty()
-        self.pinned = await self.pin(Path(ctx.cwd))
+        pinned = await self.pin(Path(ctx.cwd))
+        # A later run's map, changed by an edit, would change the prompt's second message, and the provider's cache
+        # would miss on the whole history after it.
+        if not self.started:
+            self.pinned, self.started = pinned, True
 
     async def pin(self, cwd: Path) -> str | None:
-        """The note this run pins: the note and the map of the working directory's index, `unindexed` when the agent
-        builds the index, nothing past MAX_FILES. An extension may pin nothing where the folder is not its kind."""
+        """The note the session pins, from its first run: the note and the map of the working directory's index,
+        `unindexed` when the agent builds the index, nothing past MAX_FILES. An extension may pin nothing where the
+        folder is not its kind. Every run calls it, so the index is brought up to date before each message."""
         try:
             index = await self.store.ready(cwd)
         except TooManyFiles:
