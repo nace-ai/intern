@@ -526,6 +526,9 @@ async def prepare_session(
     _unique_tools(tools)
     models = _Models(settings, resolve_model)
     system2 = await models.wrap(deps.system2)
+    handoff = deps.handoff
+    if handoff is not None:
+        handoff = replace(handoff, binding=await models.wrap(handoff.binding))
     scope = hashlib.sha256(deps.journal.session_id.encode()).hexdigest()[:16] + "-" + uuid.uuid4().hex
     storage_root = home / "session-resources"
     selected = {tool.name: tool for tool in tools}
@@ -735,7 +738,14 @@ async def prepare_session(
     redact = SecretRedactor(values).redact if values else deps.redact
     retries = RetryPolicy() if settings.model_retries else NO_RETRIES
     prepared = replace(
-        deps, tools=tools, executor=executor, system2=system2, redact=redact, processes=manager, retries=retries
+        deps,
+        tools=tools,
+        executor=executor,
+        system2=system2,
+        redact=redact,
+        processes=manager,
+        retries=retries,
+        handoff=handoff,
     )
     resolver = models.resolve if settings.system2_fallbacks or models.budget is not None else resolve_model
     return PreparedSession(prepared, resources, resolver, models.budget)

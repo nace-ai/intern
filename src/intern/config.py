@@ -41,6 +41,7 @@ from intern.extensions.memory import Memory
 from intern.extensions.memory.reminders import MemoryActions
 from intern.extensions.tool_result_guard import ToolResultGuard
 from intern.extensions.workspace.extension import Workspace
+from intern.handoff import HandoffTarget
 from intern.hooks import Extension, Hooks, build_extension, resolve_extension
 from intern.instructions import FileInstructions
 from intern.journal import Journal
@@ -185,6 +186,7 @@ class Options(BaseModel):
     cwd: Path
     system2: str | None = None
     system1: str | None = Field(default=None, description="decisions:<model>[,<fallback>...] or drex:<model>[,...]")
+    handoff_to: str | None = Field(default=None, description="Sets [capabilities.handoff] to.")
     window_cap: int | None = None
     max_turns: int | None = None
     profile: Path | None = None
@@ -390,8 +392,11 @@ class Bootstrap:
 
     def capability_settings(self) -> CapabilitySettings:
         """What a session opens with: the options' whole object when given, else the saved `[capabilities]`;
-        `--memory` and `--no-memory` then set its memory."""
+        `--memory` and `--no-memory` then set its memory, `--handoff-to` its hand-over."""
         caps = self.options.capabilities if self.options.capabilities is not None else self.config.capabilities
+        if self.options.handoff_to:
+            handoff = caps.handoff.model_copy(update={"to": self.options.handoff_to})
+            caps = caps.model_copy(update={"handoff": handoff})
         if self.options.memory_off:
             memory = caps.memory.model_copy(update={"enabled": False})
         elif self.options.memory is not None:
@@ -615,6 +620,17 @@ class Bootstrap:
         except ValueError as error:
             raise ConfigError(str(error)) from None
         system2.profile = system2.profile.model_copy(update={"tool_packs": packs})
+        handoff = None
+        if (plan := capabilities.handoff).to:
+            try:
+                target = await self.bind(plan.to)
+            except ConfigError as e:
+                raise ConfigError(f"[capabilities.handoff] to {plan.to}: {e}") from None
+            update: dict[str, object] = {"tool_packs": packs}
+            if plan.effort:
+                update["reasoning_effort"] = plan.effort
+            target.profile = target.profile.model_copy(update=update)
+            handoff = HandoffTarget(binding=target, config=plan)
         memory = self.memory()
 
         names = [*(system2.profile.extensions if options.extensions else []), *options.extra_extensions]
@@ -673,6 +689,7 @@ class Bootstrap:
             cwd=options.cwd,
             spill_dir=self.home / "spill" / journal.session_id,
             emit=emit,
+            handoff=handoff,
         )
         if memory is not None:
             emit(MemoryMount(drive=str(memory.root), commit=memory.commit))
