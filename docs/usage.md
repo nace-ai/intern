@@ -142,6 +142,7 @@ backend = "console"        # the default: a decision model from the console, key
 model = "drex-latest"
 max_state_tokens = 32768   # the default; longer states keep their head and tail, with a marker
                            # no more than 3/4 of the model's window where the decisions API lists one
+retry_window_s = 1800       # the default: a failing System 1 ask is retried for 30 minutes before the run stops
 # A decision model on the decisions API instead (OpenRouter, key in $OPENROUTER_API_KEY):
 # backend = "decisions-api"
 # model = "~typesafe/jev-latest"
