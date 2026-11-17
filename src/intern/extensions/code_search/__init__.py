@@ -62,8 +62,8 @@ class DecisionCode(DecisionSearch):
     lexical = True
     description = (
         "Find the places in a repository or folder of code and text that answer a question, ranked, each with the read "
-        f"call that opens it; it cannot read {DOCUMENTS}. Use it when you do not know where to look or the exact "
-        "words to grep for; grep for exact words you know."
+        f"call that opens it; it cannot read {DOCUMENTS}. Use it to find code before you browse or grep, and again "
+        "for each other place you need; grep is for an exact name you already know."
     )
 
     async def run(self, args: SearchArgs, ctx: ToolContext) -> ToolOutput:
@@ -105,8 +105,9 @@ class CodeSearch(Locate):
     asks: ClassVar[Questions] = CODE
     note: ClassVar[str] = (
         "The working directory is indexed. `decision_code` finds the places where a question's subject is defined "
-        "or would be changed (symbols, sections, config keys) when you do not know where to look or the exact "
-        "words to grep for, each with the read call that opens it."
+        "or would be changed (symbols, sections, config keys), each with the read call that opens it. Use it to find "
+        "code before you browse or grep, and again for each other place you need; grep is for an exact name you "
+        "already know."
     )
 
     async def pin(self, cwd: Path) -> str | None:

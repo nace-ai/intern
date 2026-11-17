@@ -124,9 +124,8 @@ class Workspace(Locate):
     note: ClassVar[str] = (
         "Documents (PDFs, Word, spreadsheets, CSV, Parquet) are searchable once their folder is indexed with "
         "`index_files`. Then `decision_files` finds the places that answer a question (sections and pages, tabs and "
-        "tables) when you do not know where to look or the exact words to grep for, each with the call that opens "
-        "it; `sql` queries every spreadsheet tab, CSV and Parquet file; `read` shows PDFs, Word documents and "
-        "workbooks as text (`pages=`, `tab=`)."
+        "tables), each with the call that opens it; `sql` queries every spreadsheet tab, CSV and Parquet file; "
+        "`read` shows PDFs, Word documents and workbooks as text (`pages=`, `tab=`)."
     )
 
     indexed_note: ClassVar[str] = (
