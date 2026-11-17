@@ -398,6 +398,34 @@ class HookError(_EventBase):
     error: str
 
 
+class SubagentStart(_EventBase):
+    """A run handed a task to a subagent (`intern.subagents`), which starts now."""
+
+    type: Literal["subagent_start"] = "subagent_start"
+    subagent_id: str
+    name: str
+    task: str
+    model: str
+    tools: list[str]
+    journal: str | None = Field(default=None, description="Where its own events are kept, when they are.")
+
+
+class SubagentEnd(_EventBase):
+    """A subagent ended; its usage is part of the parent run's `run_end.usage`."""
+
+    type: Literal["subagent_end"] = "subagent_end"
+    subagent_id: str
+    name: str
+    status: Literal[
+        "completed", "turn_budget", "output_limit", "aborted", "timed_out", "provider_error", "failed", "stopped"
+    ]
+    detail: str | None = None
+    turns: int
+    usage: Usage
+    final_text: str
+    duration_ms: int
+
+
 class RunEnd(_EventBase):
     type: Literal["run_end"] = "run_end"
     run_id: str
@@ -407,6 +435,9 @@ class RunEnd(_EventBase):
     usage: Usage
     agent_usage: Usage | None = Field(default=None, description="The agent's own replies; usage = agent + state.")
     state_usage: Usage | None = Field(default=None, description="State writes, the ones made for compaction included.")
+    subagent_usage: Usage | None = Field(
+        default=None, description="The run's subagents; usage = agent + state + subagents. None when it started none."
+    )
     system1: System1Usage = Field(
         default_factory=System1Usage, description="This run's System 1 asks: answered, failed after retries, tokens."
     )
@@ -440,6 +471,8 @@ Event = Annotated[
     | HookError
     | SecretUnavailable
     | WindowFallback
+    | SubagentStart
+    | SubagentEnd
     | RunEnd,
     Field(discriminator="type"),
 ]

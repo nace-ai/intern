@@ -34,6 +34,7 @@ from intern.models.registry import Role
 from intern.models.window import recapped, window_fallback
 from intern.process_watch import ProcessWatch, waits_or_serves
 from intern.processes import duration_text
+from intern.subagents import SubagentRefused, SubagentResult, Subagents, SubagentSpec
 
 if TYPE_CHECKING:
     from intern.decisions import DecisionBackend
@@ -128,6 +129,8 @@ class Session:
         if not math.isfinite(idle_s) or idle_s < 0:
             raise ValueError("session idle time must be finite and not negative")
         self.deps = deps
+        if deps.resolve_model is None:
+            deps.resolve_model = resolve_model  # a subagent on another model is bound as a model switch is
         # The journal keeps System 1's side of the session too, so a resumed session can show it.
         deps.emit = recording(deps.journal, deps.emit)
         deps.decisions.emit = deps.emit
@@ -184,6 +187,11 @@ class Session:
         without a run, and the close then runs it only for what came after."""
         self._closing = False
         self._close_task: asyncio.Task[None] | None = None
+        self._host_abort = asyncio.Event()
+        """Set when the session closes: aborts the subagents a host started with `spawn`."""
+        self._spawns = 0
+        self._spawns_done = asyncio.Event()
+        self._spawns_done.set()
         self.default_window_cap = deps.system2.window.user_cap
         """The cap System 2 was bound with (`--window`), which a `window_cap` of None follows."""
         self.window_cap: int | None = None
@@ -238,6 +246,7 @@ class Session:
                 await self._watch.aclose()
             if self._control is not None:
                 self._control.abort.set()
+            self._host_abort.set()
             active = self._active_task
             if active is not None:
                 try:
@@ -255,6 +264,10 @@ class Session:
             if self._task is not None:
                 with contextlib.suppress(asyncio.CancelledError, Exception):
                     await self._task
+            # A host's subagents use the session's tools and executor: they end before those close.
+            with contextlib.suppress(TimeoutError):
+                async with asyncio.timeout_at(deadline):
+                    await self._spawns_done.wait()
         finally:
             # Before teardown: a client may kill the process soon after asking it to stop.
             try:
@@ -451,6 +464,31 @@ class Session:
             self.usage += run.usage
             if (self._ended or self._checks) and self.job_notices == "wake" and not self._closing:
                 asyncio.get_running_loop().call_soon(self._wake)
+
+    async def spawn(self, spec: SubagentSpec) -> SubagentResult:
+        """Run a subagent for the host, beside or between runs, and return its result. The task stands as the user's
+        own words. It follows the session's subagent settings (`EngineDeps.subagents`), shares the session's budget,
+        and is aborted when the session closes. Its usage is added to `usage`.
+
+        Raises `SubagentRefused` when the session has no subagents or the spec cannot run as asked."""
+        self._ensure_open()
+        if self.deps.subagents is None:
+            raise SubagentRefused(
+                "this session has no subagents: set `EngineDeps.subagents` (`[capabilities.subagents]`)"
+            )
+        # One per call: `max_children` bounds a call, as it bounds a run; the session's slots bound them all.
+        subagents = Subagents(self.deps, self.deps.subagents, self._host_abort, on_end=self._host_subagent_ended)
+        self._spawns += 1
+        self._spawns_done.clear()
+        try:
+            return await subagents.run(spec, host=True)
+        finally:
+            self._spawns -= 1
+            if not self._spawns:
+                self._spawns_done.set()
+
+    def _host_subagent_ended(self, result: SubagentResult) -> None:
+        self.usage += result.usage
 
     def steer(self, text: str) -> None:
         """Add a user message to the run in progress, before its next model call."""

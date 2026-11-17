@@ -14,6 +14,7 @@ fails raises `System1Unavailable`, and the run stops.
 from __future__ import annotations
 
 import asyncio
+import copy
 import hashlib
 import json
 import re
@@ -294,6 +295,13 @@ class DecisionClient:
     def max_state_tokens(self) -> int:
         """The longest state an ask sends whole; a longer one is cut to its head and tail."""
         return self._max_state_tokens
+
+    def emitting_to(self, emit: EventSink) -> DecisionClient:
+        """The same client (backend, cache, concurrency, usage) sending its events to `emit`: a subagent's, so its
+        System 1 asks are kept in its own journal."""
+        client = copy.copy(self)
+        client.emit = emit
+        return client
 
     def with_backend(self, backend: DecisionBackend) -> DecisionClient:
         """The same client on another backend, for a System 1 switch: the session's usage carries over; the cache

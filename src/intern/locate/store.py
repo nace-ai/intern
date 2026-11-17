@@ -578,3 +578,31 @@ class Locate(h.Extension):
         if call.name in CHANGING_TOOLS and result.status == "ok":
             self.store.mark_dirty()
         return None
+
+    def for_subagent(self) -> h.Extension | h._Unset | None:
+        # The child's view forwards `context`, `tool_call` and `tool_result` to this instance (a subclass's included);
+        # a subclass that enforces through another hook must say how it runs in a child.
+        cls = type(self)
+        if any(getattr(cls, hook) is not getattr(Locate, hook) for hook in ("before_provider_request", "turn_end")):
+            return h.UNSET
+        return LocateInSubagent(self)
+
+
+class LocateInSubagent(h.Extension):
+    """Code search or the workspace as a subagent runs it: the parent's index, never built again; its map pinned; a
+    file the child changes marking the index for a refresh; and the workspace's check of commands that would load a
+    large table whole."""
+
+    name: ClassVar[str] = "locate"
+
+    def __init__(self, parent: Locate) -> None:
+        self.parent = parent
+
+    async def context(self, view: ContextView, ctx: h.RunContext) -> None:
+        await self.parent.context(view, ctx)
+
+    async def tool_call(self, call: ToolCall, ctx: h.RunContext) -> h.ToolCallDecision | None:
+        return await self.parent.tool_call(call, ctx)
+
+    async def tool_result(self, call: ToolCall, result: ToolResult, ctx: h.RunContext) -> ToolResult | None:
+        return await self.parent.tool_result(call, result, ctx)

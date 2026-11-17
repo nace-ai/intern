@@ -13,7 +13,7 @@ import re
 import sys
 import time
 import traceback
-from collections.abc import Callable, Coroutine
+from collections.abc import Awaitable, Callable, Coroutine, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Literal, NamedTuple
@@ -100,6 +100,7 @@ from intern.providers.base import (
 )
 from intern.session_cut import STATE_SHARE, session_cut
 from intern.state_edits import parse as parse_state
+from intern.subagents import SubagentResult, Subagents, SubagentSettings, _Slots
 from intern.supervise import Supervisor
 from intern.tools.base import Tool, ToolContext, ToolOutput, fail
 from intern.tools.files import EditTool
@@ -192,6 +193,14 @@ class EngineDeps:
     the session. None when the executor runs no background jobs, or for a session built without setup."""
     retries: RetryPolicy = field(default_factory=RetryPolicy)
     """How System 2's calls are made again after a retryable failure; `NO_RETRIES` with `model_retries = false`."""
+    subagents: SubagentSettings | None = None
+    """How this session's runs start subagents (`intern.subagents`); None: they start none."""
+    resolve_model: Callable[[str], Awaitable[ModelBinding]] | None = None
+    """Binds a model by name, with the session's budget around it: for a subagent on another model."""
+    child: bool = False
+    """This is a subagent's run: it starts no subagents, and System 1 does not supervise its turns."""
+    subagent_slots: _Slots | None = None
+    """The parallel limit and the writers' lock every subagent of the session shares; made at the first one."""
 
 
 CompactOutcome = Literal["compacted", "fits", "stopped"]
@@ -268,6 +277,17 @@ class Run:
         self._waiting_looks = True
         """Whether System 1's routine looks at what runs end that hold."""
         self.supervisor = Supervisor()
+        self.subagent_usage: Usage | None = None
+        """What the run's subagents spent, added to `usage` too; None while it has started none."""
+        self.subagents = (
+            Subagents(deps, deps.subagents, control.abort, on_end=self._subagent_ended)
+            if deps.subagents is not None and not deps.child
+            else None
+        )
+
+    def _subagent_ended(self, result: SubagentResult) -> None:
+        self.usage += result.usage
+        self.subagent_usage = (self.subagent_usage or Usage()) + result.usage
 
     # -- helpers --------------------------------------------------------------------------------
 
@@ -294,6 +314,7 @@ class Run:
             guided=bool(self.deps.instructions.system1),
             tools={tool.name: tool for tool in self.deps.tools},
             executor=self.deps.executor,
+            subagents=self.subagents,
         )
 
     def _system1_state(self) -> str:
@@ -424,9 +445,9 @@ class Run:
 
     # -- run ------------------------------------------------------------------------------------
 
-    async def execute(self, prompt: str | None) -> h.RunOutcome:
-        """Run from `prompt`, the user's message; None for a run the session starts itself to tell the agent of
-        processes that ended while it was idle (`RunControl.ended`)."""
+    async def execute(self, prompt: str | Sequence[UserMessage] | None) -> h.RunOutcome:
+        """Run from `prompt`, the user's message, or the messages that open a subagent's run; None for a run the
+        session starts itself to tell the agent of processes that ended while it was idle (`RunControl.ended`)."""
         started = time.monotonic()
         system1_before = self.deps.decisions.usage.model_copy()
         self.deps.emit(
@@ -442,8 +463,11 @@ class Run:
         try:
             self._record_system_prompt()
             self._recover_unfinished_calls()
-            if prompt is not None:
+            if isinstance(prompt, str):
                 self._record(UserMessage(content=prompt))
+            elif prompt is not None:
+                for message in prompt:
+                    self._record(message)
             outcome = await self._run_with_finish_gate()
         except System1Unavailable as e:
             outcome = self._outcome("system1_unavailable", str(e))
@@ -459,8 +483,9 @@ class Run:
                 detail=self.deps.redact(outcome.detail) if self.deps.redact and outcome.detail else outcome.detail,
                 turns=self.turn,
                 usage=self.usage,
-                agent_usage=self.usage - self.state_usage,
+                agent_usage=self.usage - self.state_usage - (self.subagent_usage or Usage()),
                 state_usage=self.state_usage,
+                subagent_usage=self.subagent_usage,
                 system1=self.deps.decisions.usage.since(system1_before),
                 final_text=outcome.final_text,
                 duration_ms=int((time.monotonic() - started) * 1000),
@@ -1034,7 +1059,7 @@ class Run:
         else:
             verdict = h.Stop(reason="completed")
 
-        if not isinstance(verdict, h.Stop) and not self.control.abort.is_set():
+        if not isinstance(verdict, h.Stop) and not self.control.abort.is_set() and not self.deps.child:
             # The turn's boundary: when a look is due, System 1 reviews the turns and the loop acts on the answer now
             # (the nudge goes into the next request). An abort during the ask ends the run instead of the ask.
             nudge = await self._abortable(
@@ -1192,6 +1217,7 @@ class Run:
             output_dir=None if mount_of(self.deps.executor) else self.deps.spill_dir / "command-output",
             processes=self.deps.processes,
             call_id=call.id,
+            subagents=self.subagents,
         )
         try:
             if not tool.cancel_on_abort:  # it watches the abort itself, and answers with what it has

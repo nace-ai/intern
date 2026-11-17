@@ -18,6 +18,7 @@ from intern.providers.base import ToolSpec
 
 if TYPE_CHECKING:
     from intern.processes import ProcessManager
+    from intern.subagents import Subagents
 
 Effect = Literal["read", "write", "exec", "network"]
 # A diff carries a file twice; past this many characters before and after together, a change has none.
@@ -41,6 +42,8 @@ class ToolContext:
     """The session's job manager: where the `process` tool's jobs run and every running command is recorded."""
     call_id: str | None = None
     """The id of the call being run, as the model sent it."""
+    subagents: Subagents | None = None
+    """Starts the run's subagents: what the tool that hands out tasks uses. None when the session has none."""
 
     def resolve(self, path: str) -> Path:
         candidate = Path(path).expanduser()
