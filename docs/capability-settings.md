@@ -352,7 +352,11 @@ root and the documents' index `.decision_workspace/` in their folder. `intern in
 
 The tool-call guard checks each tool call before it runs: fixed rules refuse what is destructive or exfiltrating
 (`sudo`, `rm -rf ~`, a force push, reading credentials, ...), then System 1 judges the other calls that can do
-harm against the session, what the user asked and their `SYSTEM1.md`. It is off by default; turn it on with
+harm against the session, what the user asked and their `SYSTEM1.md`. Before it judges an install that names a
+package the project's manifests do not list (`pip install x`, `npm install x`, `cargo add x`, `gem install x`), it
+looks the package up on PyPI, npm, crates.io or RubyGems from this machine, so System 1 can tell an established
+package from one published last week; an install pointed at another index or registry (`--index-url`, an `.npmrc`
+with a `registry`, `PIP_INDEX_URL`) is not looked up. It is off by default; turn it on with
 `/caps guard`, the ACP `cap.guard` option, or:
 
 ```toml
