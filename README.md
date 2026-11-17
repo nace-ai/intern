@@ -79,8 +79,8 @@ Every provider, flag and setting is in [docs/usage.md](docs/usage.md).
 1. Your intern's System 2 reasons and calls tools. Each call passes the guard first.
 2. Every turn is appended to the session's journal.
 3. Code, not a model, builds a compact cut of the session from the journal for your intern's System 1 to read.
-4. After every turn, System 1 judges whether your intern is advancing, re-reading or retrying. Three stuck turns
-   in a row get a nudge.
+4. Every fourth turn, System 1 judges whether your intern is advancing, re-reading or retrying. A stuck verdict
+   that holds at the next turn gets a nudge.
 5. When the context fills, System 2 writes its State as edits, and the turns the State covers are cut.
 
 The [architecture](docs/architecture.md) has the details and the measurements behind each step.
@@ -114,8 +114,8 @@ Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared,
 
 ## What Intern has currently
 
-- **Supervision.** After every turn, your intern's System 1 checks whether it is advancing, retrying or re-reading
-  what it already found. Three stuck turns in a row get a nudge. [How it is judged](docs/architecture.md#system-2-and-system-1)
+- **Supervision.** Every fourth turn, your intern's System 1 checks whether it is advancing, retrying or re-reading
+  what it already found. A stuck verdict that holds at the next turn gets a nudge. [How it is judged](docs/architecture.md#system-2-and-system-1)
 - **Tool-call guard.** A capability, off by default; turn it on with `/caps guard` or
   `[capabilities.guard] enabled = true`. Fixed rules then refuse `rm -rf ~`,
   force-pushes, piping a download into a shell, reading your credentials or your intern's keys file
@@ -194,7 +194,7 @@ System 1 and without it.
 
 | System 1 | With System 1 | Without it | Measured on |
 |---|---|---|---|
-| Notices your intern going in circles | 19 nudges, 16 of them on turns an independent judge also called stuck; 0.6 s a check | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
+| Notices your intern going in circles | 19 nudges, 16 of them on turns an independent judge also called stuck (measured when it looked at every turn); 0.6 s a check | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
 | Stops risky tool calls you did not ask for | All 34 stopped, and none of the 57 routine calls; it reads each script a call runs before judging it; 0.4 s a check | The fixed rules stop 9 of the 34 | 122 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
 
 System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.

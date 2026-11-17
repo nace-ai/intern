@@ -84,7 +84,7 @@ quarters of the decision model's window when the decisions API lists a smaller o
 in fast-jev's stages, each only when the one before is not enough: inputs cut to 200 then 60 characters, long
 texts cut to head and tail oldest first, old messages collapsed to a note of their size, old calls to one line,
 old messages without calls left out, runs of old call-only messages folded. The first message and the newest
-six are never collapsed or left out; past the last stage the oldest of the rest are left out behind a note
+eight (four turns) are never collapsed or left out; past the last stage the oldest of the rest are left out behind a note
 (1 of 82 local sessions at its end). It costs no model call and at most 0.1 s to build. Asked 8 questions at
 each of 40 points of 22 sessions (Opus 5.5 writes them from the transcript), System
 1 answers 95% from it (two runs), 94% from System 2's State and the turns since, 94% from a transcript of the
@@ -99,20 +99,30 @@ reads the current step works on stay verbatim after it (`CompactionEntry.kept`),
 compaction — prose facts cannot stand in for code the model reasons over, and at small windows the model
 otherwise re-reads the cut files.
 
-System 1 supervises the run (`supervise.py`): after every turn, one call over its cut of the session asks what
-the latest turns are doing compared with what the session established before them (advancing, re-investigating
+System 1 supervises the run (`supervise.py`): every fourth turn, one call over its cut of the session asks what
+the latest four turns are doing compared with what the session established before them (advancing, re-investigating
 what earlier turns already covered, retrying, off plan, finished, or unclear when the turns fit no single mode).
-Three turns in a row that System 1 calls stuck (P(re-investigating) + P(retrying) at 0.8 or more) nudge System 2
-to act on what it found, and the count starts over (replayed over 82 stored sessions, 16 of its 19 nudges
-fell on turns a blind judge called stuck). The loop waits for the answer (0.6 s at the median
-cut, 0.85 s at its full size, against 0.5 s at main's 18k characters) and acts on it at the same turn's end.
+A look that System 1 calls stuck (P(re-investigating) + P(retrying) at 0.7 or more) is looked at again at the next
+turn, and when that one is stuck too System 2 is nudged to act on what it found; the next look is four turns on.
+The loop waits for the answer (0.6 s at the median cut, 0.85 s at its full size, against 0.5 s at main's 18k
+characters) and acts on it at the same turn's end.
 
-A second ask at the same time (`wrap_up`) asks whether the request is done and checked while the latest turns change
-or re-check what it did not ask for. Three such turns in a row at 0.8 or more send one wrap-up nudge per run. It never
+The same call carries a second question (`wrap`): whether the request is done and checked while the latest turns
+change or re-check what it did not ask for. A look at 0.8 or more that holds at the next turn sends one wrap-up nudge
+per run. It never
 asks System 2 to stop, since the same verdict comes on work a grader fails. Instead it asks System 2 to make any
 further change on a copy and replace the original only once its check passes, so a deliverable that works keeps
 working whenever the run ends (an agent that had its tests green at a third of its time limit broke the
 file by polishing it and was killed with it broken).
+
+Until 0.39.0 both questions were asked at every turn, each in its own call, and three verdicts in a row sent the
+nudge (replayed over 82 stored sessions, 16 of that rule's 19 stuck nudges fell on turns a blind judge called stuck).
+On a 261-task benchmark those two calls were a fifth of the run's cost and led to a nudge at 2.6% and 0.4% of the
+asks. One call shares the State between the questions, which lowers the mode's stuck probabilities (hence 0.7 where
+the mode asked alone had 0.8) and hardly moves the done question's. Replayed through System 1 over 42 stored runs
+(1,935 turns), this rule sends 23 stuck nudges where the old one sent 27, 16 of them within a few turns of one of
+those, and the wrap-up in 22 runs where the old one sent it in 21 (17 the same runs), asking at 27% of the turns. No
+blind judge has rated the new rule's nudges.
 
 Turns end; a command may not. System 1 also watches what runs (`process_watch.py`): while any command runs,
 in a run or between runs, it is asked about each one at its ages of 30 s, 1, 2, 4, 8 and 16 minutes, then every 30

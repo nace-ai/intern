@@ -758,7 +758,7 @@ async def test_closing_one_session_keeps_the_other_resource_owner_live(make_harn
 
 async def test_a_session_journals_system_1s_side_where_it_happened_and_not_into_the_context(make_harness, tmp_path):
     def script(request: ProviderRequest) -> Turn:
-        if sum(isinstance(m, AssistantMessage) for m in request.messages) < 3:
+        if sum(isinstance(m, AssistantMessage) for m in request.messages) < 5:
             return Turn(tool_calls=[("read", {"path": "notes.txt"})])
         return Turn(text="Done.")
 
@@ -773,11 +773,11 @@ async def test_a_session_journals_system_1s_side_where_it_happened_and_not_into_
     path = Journal(cwd=str(harness.cwd), path=tmp_path / "session.jsonl").active_path()  # as a resume reads it
     recorded = [e.event for e in path if isinstance(e, EventEntry)]
     supervised = [e for e in recorded if isinstance(e, Decision) and e.purpose == "supervise"]
-    assert [d.turn for d in supervised] == [1, 2, 3] and supervised[0].answers is not None  # what System 1 answered
-    # Where it happened: each ask right after its turn's tool result.
+    assert [d.turn for d in supervised] == [4] and supervised[0].answers is not None  # what System 1 answered
+    # Where it happened: the ask right after its turn's tool result.
     kinds = [type(e).__name__ for e in path]
     asks = [i for i, e in enumerate(path) if isinstance(e, EventEntry) and e.event in supervised]
-    assert all(kinds[i - 1] == "MessageEntry" for i in asks[:2])
+    assert asks and all(kinds[i - 1] == "MessageEntry" for i in asks)
     # Never read into the context: the view is the one the path gives without them.
     plain: list[Entry] = [e for e in path if not isinstance(e, EventEntry)]
     meter = TokenMeter()

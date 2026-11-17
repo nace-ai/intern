@@ -225,6 +225,7 @@ async def test_a_prompt_runs_and_the_reply_tool_calls_and_system_1_rows_show(tmp
         Turn(text="Let me look.", tool_calls=[("bash", {"command": "echo hi"})]),
         Turn(tool_calls=[("bash", {"command": "echo again"})]),
         Turn(tool_calls=[("bash", {"command": "echo third"})]),
+        Turn(tool_calls=[("bash", {"command": "echo fourth"})]),
         Turn(text="It printed **hi**."),
     ]
     decider = FakeDecision()
@@ -241,13 +242,13 @@ async def test_a_prompt_runs_and_the_reply_tool_calls_and_system_1_rows_show(tmp
         assert "$ echo hi" in text and "$ echo third" in text and "Took 0." in text
         assert "hi" in plain(app.query_one(Transcript).query(ToolBlock).first().out)  # the output under the call
         assert "It printed" in "".join(m.source for m in app.query_one(Transcript).query(".reply"))  # pyright: ignore[reportAttributeAccessIssue]
-        # System 1 was asked at the third turn (the first the supervisor reviews): its card is in the transcript at
+        # System 1 was asked at the fourth turn (the first the supervisor looks at): its card is in the transcript at
         # the turn boundary, and the judgement is a row on its panel, under the prompt it was made for.
-        assert decider.asks >= 1 and 3 in app.ledger.current.turns
+        assert decider.asks >= 1 and 4 in app.ledger.current.turns
         judged = system1_text(app)
-        assert judged.index("› say hi") < judged.index(" moving 0.80") and " asks · " in judged
+        assert judged.index("› say hi") < judged.index(" moving 0.80") and "1 ask · " in judged
         assert "s   moving 0.80" in text
-        assert "completed · 4 turns" in text
+        assert "completed · 5 turns" in text
         assert not status.running
         await app.action_quit()
 
@@ -737,6 +738,7 @@ async def test_a_resumed_journal_brings_back_system_1s_panel_cards_and_each_syst
         Turn(text="Let me look.", tool_calls=[("bash", {"command": "echo hi"})]),
         Turn(tool_calls=[("bash", {"command": "echo again"})]),
         Turn(tool_calls=[("bash", {"command": "echo third"})]),
+        Turn(tool_calls=[("bash", {"command": "echo fourth"})]),
         Turn(text="It printed hi."),
     ]
     decider = FakeDecision()
@@ -751,7 +753,7 @@ async def test_a_resumed_journal_brings_back_system_1s_panel_cards_and_each_syst
         costs = (status.cost2, status.cost1, status.unpriced)
         masthead = plain(status)
         await first.action_quit()
-    assert " moving 0.80" in live and 3 in first.ledger.current.turns, live
+    assert " moving 0.80" in live and 4 in first.ledger.current.turns, live
     # Each System 1 ask counted once, as it was asked and not again at the run's end; the fake System 2 reports
     # tokens but no price, so its cost is not known rather than $0.
     assert decider.asks >= 1 and costs == (0.0, pytest.approx(decider.asks * 0.0001), True)
@@ -765,9 +767,9 @@ async def test_a_resumed_journal_brings_back_system_1s_panel_cards_and_each_syst
         status = second.query_one(StatusBar)
         assert (status.cost2, status.cost1, status.unpriced) == costs  # the costs as they were
         text = transcript_text(second)
-        # The supervisor's card at turn 3's boundary: after the third call, before the reply.
+        # The supervisor's card at turn 4's boundary: after the fourth call, before the reply.
         card = text.rindex("System 1 · ")
-        assert text.index("$ echo third") < card and second.run_count == 1
+        assert text.index("$ echo fourth") < card and second.run_count == 1
         await second.action_quit()
 
 
@@ -779,6 +781,7 @@ async def test_a_long_resumed_journal_shows_its_last_turns_and_counts_all_of_it(
         Turn(text="Let me look.", tool_calls=[("bash", {"command": "echo hi"})]),
         Turn(tool_calls=[("bash", {"command": "echo again"})]),
         Turn(tool_calls=[("bash", {"command": "echo third"})]),
+        Turn(tool_calls=[("bash", {"command": "echo fourth"})]),
         Turn(text="It printed hi."),
     ]
     decider = FakeDecision()
@@ -798,13 +801,13 @@ async def test_a_long_resumed_journal_shows_its_last_turns_and_counts_all_of_it(
         await wait_for(lambda: second.session is not None)
         await pilot.pause()
         text = transcript_text(second)
-        # Only the last two turns are drawn: the third call and the reply, not the prompt or the first calls.
-        assert "$ echo third" in text and "$ echo hi" not in text and "› say hi" not in text
+        # Only the last two turns are drawn: the fourth call and the reply, not the prompt or the first calls.
+        assert "$ echo fourth" in text and "$ echo hi" not in text and "› say hi" not in text
         assert "It printed hi." in "".join(m.source for m in second.query_one(Transcript).query(".reply"))  # pyright: ignore[reportAttributeAccessIssue]
         # What is counted comes from all of it: both systems' costs, System 1's judgement.
         status = second.query_one(StatusBar)
         assert (status.cost2, status.cost1) == costs
-        assert 3 in second.ledger.current.turns
+        assert 4 in second.ledger.current.turns
         # System 1's State is rebuilt from the journal, all of it: the calls the transcript leaves out too.
         await wait_for(lambda: second.query_one(StatePanel).cut is not None)
         await pilot.pause()

@@ -53,7 +53,7 @@ TEXT_HEAD = 400
 TEXT_TAIL = 150
 GOAL_PROMPTS = 3
 GOAL_CHARS = 500
-PINNED = 6  # the newest messages; a turn's tool results count as one, as in Anthropic's format
+PINNED = 8  # the newest messages, four turns (`supervise.EVERY`): a turn's tool results count as one, as in Anthropic's
 TALLY_CHARS = 120
 HEAD_CHARS = 300  # fast-jev's truncateHeadChars
 

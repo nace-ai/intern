@@ -1175,3 +1175,19 @@ shape.
   three most central ones, while the card has room. `decision_code` and `decision_files` judge a group by that card
   before opening it, and a file a group did not lead with could go unjudged. An index built earlier gets the new
   cards at its next refresh, with no file read again and so no `indexing` event for it.
+
+### 0.39.0
+
+System 1 supervises every fourth turn in one ask, where it asked twice at every turn; 0.38.1 clients keep working.
+
+- `decision` events with purpose `supervise` come at every fourth turn's end, and at the turn after one whose
+  verdict would act (stuck, or done and still changing things), not at every turn. A run's System 1 tokens
+  (`run_end.system1`) fall accordingly: on stored runs it is asked at about a quarter of the turns.
+- The `supervise` decision carries two answers: `mode` as before, and `wrap`, the choice of `working`,
+  `done_polishing`, `done_unsaved` or `unclear` that the `wrap_up` decision carried. No `decision` event has purpose
+  `wrap_up` any more. A client that showed a verdict per turn shows one per look.
+- The `nudge` events are unchanged in shape (`reason` `stuck_gate`, at most three a run; `wrap_up`, at most one).
+  The rule that sends them changed: a look that finds the turns stuck (P(re_investigating) + P(retrying) at 0.7 or
+  more), or the request done (P(done_polishing) at 0.8 or more), is repeated at the next turn, and the nudge goes
+  out when it holds. Once neither nudge can be sent any more, System 1 is not asked.
+- System 1's State (`ctx.state()` for extensions) keeps the newest eight messages whole, was six.
