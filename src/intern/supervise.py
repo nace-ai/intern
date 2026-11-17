@@ -1,41 +1,51 @@
-"""System 1 supervises the run: after every turn it says what the recent turns are doing, and being stuck earns a nudge.
+"""System 1 supervises the run: every few turns it says what the latest turns are doing and whether the request is
+met, and being stuck, or done and still changing things, earns a nudge.
 
 Long capped runs spend their turn budget investigating what the session already established, with every call new and
-no change ever made. One System 1 call per turn asks the mode of the recent turns (advancing, re-investigating,
-retrying, off plan, finished, or unclear) over System 1's State, a cut of the session built by code (`session_cut`).
-Unclear is the way out for turns that fit no single mode, so they are not forced into the nearest one; it is not a
-stuck verdict, so it breaks a run of strikes like advancing does (drex-max never picked it over 1,485 reviews of 132
-stored runs).
+no change ever made. One System 1 ask every EVERY turns, over System 1's State (a cut of the session built by code,
+`session_cut`, its newest turns kept whole), carries two questions. The mode of the latest turns: advancing,
+re-investigating, retrying, off plan, finished, or unclear. Unclear is the way out for turns that fit no single mode,
+so they are not forced into the nearest one; it is not a stuck verdict (drex-max never picked it over 1,485 reviews
+of 132 stored runs). And whether the request is done (WRAP_UP).
 
-Stuck (STUCK: re_investigating and retrying together): every turn's verdict counts. A turn is a strike when System 1
-puts P(re_investigating) + P(retrying) at STUCK_THRESHOLD or more; STRIKES in a row earn a nudge that asks for the
-change as the next call, and the count starts over, so the agent has at least STRIKES turns to act on it before the
-next one, judged like any other turns. The loop waits for the answer at the turn's end (about a second) and the nudge
-goes into the next request.
+A verdict that would act is looked at again at the next turn, and the nudge goes out when it holds (STRIKES looks in
+a row); otherwise the next look is EVERY turns on. Asked at every turn in two requests, the questions were a fifth
+of a benchmark's spend and led to a nudge at 2.6% and 0.4% of the asks; a look covers the turns since the one
+before. The loop waits for the answer at the turn's end (about
+a second) and the nudge goes into the next request.
 
-Done (WRAP_UP, its own ask beside the mode's, so neither question's answers move): the request is met and checked, and
-the latest turns change or re-check what it did not ask for. WRAP_STRIKES such turns in a row earn one wrap-up nudge
-per run. The mode's `finished` does not see it: a done agent that keeps tuning makes changes, which reads as advancing.
-The nudge never asks the agent to stop: the same verdict comes mid-run on work a grader fails, and stopping early is
-how that work fails. It asks to keep what works working instead.
+Stuck (STUCK: re_investigating and retrying together): a look is a strike when System 1 puts P(re_investigating) +
+P(retrying) at STUCK_THRESHOLD or more. The nudge asks for the change as the next call, and the next look is EVERY
+turns on, so the agent has that long to act on it.
+
+Done: the request is met and checked, and the latest turns change or re-check what it did not ask for. One wrap-up
+nudge per run. The mode's `finished` does not see it: a done agent that keeps tuning makes changes, which reads as
+advancing. The nudge never asks the agent to stop: the same verdict comes mid-run on work a grader fails, and
+stopping early is how that work fails. It asks to keep what works working instead.
+
+The two questions share a request, so the State is paid for once. Sharing moves the answers: the done question's
+little, the mode's stuck probabilities down, which is why STUCK_THRESHOLD is 0.7 where the mode asked alone had 0.8.
+Replayed through System 1 over 42 stored runs (1,935 turns), this rule sends 23 stuck nudges where every turn's
+verdicts, three in a row, sent 27 (16 of them within a few turns of one of those), and the wrap-up in 22 runs where
+that sent it in 21 (17 the same runs), with System 1 asked at 27% of the turns.
 """
 
 from __future__ import annotations
 
-import asyncio
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 
 from intern.decisions import ChoiceAnswer, ChoiceQuestion, DecisionClient
 
-STRIKES = 3  # stuck verdicts on consecutive turns before a nudge
-STUCK_THRESHOLD = 0.8  # P(re_investigating) + P(retrying) that makes a turn a strike
+EVERY = 4  # turns between looks; MODE's question names as many, and the State keeps as many whole (PINNED)
+STRIKES = 2  # stuck looks in a row before a nudge: the one that found it, and the next turn's
+STUCK_THRESHOLD = 0.7  # P(re_investigating) + P(retrying) that makes a look a strike
 MAX_NUDGES = 3
-WRAP_STRIKES = 3  # done verdicts on consecutive turns before the wrap-up nudge, once per run
-WRAP_THRESHOLD = 0.8  # P(done_polishing) that makes a turn count toward it
+WRAP_STRIKES = 2  # done looks in a row before the wrap-up nudge, once per run
+WRAP_THRESHOLD = 0.8  # P(done_polishing) that makes a look count toward it
 
 MODE = ChoiceQuestion(
     instructions="The state is the agent's session so far, oldest first; its last few entries are the latest turns. "
-    "Compare the latest turns (about the last three replies and their tool calls) with what the session established "
+    "Compare the latest turns (about the last four replies and their tool calls) with what the session established "
     "before them. What are these turns doing?",
     criteria={
         "advancing": "they produce results the session did not have, and the work moves: a step completes, a change "
@@ -102,33 +112,39 @@ def done_probability(answer: object) -> float:
 
 
 class Supervisor:
-    """Per-run counters for the stuck and wrap-up nudges; `after_turn` asks System 1 and returns the nudge and its
-    reason, if one is due."""
+    """Per-run counters for the stuck and wrap-up nudges; `after_turn` asks System 1 when a look is due and returns
+    the nudge and its reason, if one is due."""
 
     def __init__(self) -> None:
+        self.wait = EVERY  # turns until the next look
         self.strikes = 0
         self.nudges = 0
         self.done_turns = 0
         self.wrapped = False
 
-    async def after_turn(self, turn: int, decisions: DecisionClient, state: str) -> tuple[str, str] | None:
-        asks = [decisions.ask("supervise", state, {"mode": MODE}, turn=turn)]
-        if not self.wrapped:
-            asks.append(decisions.ask("wrap_up", state, {"wrap": WRAP_UP}, turn=turn))
-        answers = await asyncio.gather(*asks)
-        mode = answers[0]["mode"]
-        if not self.wrapped:
-            self.done_turns = self.done_turns + 1 if done_probability(answers[1].get("wrap")) >= WRAP_THRESHOLD else 0
-            if self.done_turns >= WRAP_STRIKES:
-                self.wrapped = True
-                self.strikes = 0
-                return WRAP_NUDGE.format(turns=WRAP_STRIKES), "wrap_up"
-        if self.nudges >= MAX_NUDGES:
+    async def after_turn(
+        self, turn: int, decisions: DecisionClient, state: Callable[[], str]
+    ) -> tuple[str, str] | None:
+        self.wait -= 1
+        if self.wait > 0 or (self.wrapped and self.nudges >= MAX_NUDGES):  # not due, or no nudge left to send
             return None
-        strike = isinstance(mode, ChoiceAnswer) and is_strike(mode.choice, mode.probabilities)
+        answers = await decisions.ask("supervise", state(), {"mode": MODE, "wrap": WRAP_UP}, turn=turn)
+        mode = answers["mode"]
+        strike = (
+            self.nudges < MAX_NUDGES and isinstance(mode, ChoiceAnswer) and is_strike(mode.choice, mode.probabilities)
+        )
+        done = not self.wrapped and done_probability(answers.get("wrap")) >= WRAP_THRESHOLD
         self.strikes = self.strikes + 1 if strike else 0
-        if self.strikes < STRIKES:
-            return None
-        self.strikes = 0
-        self.nudges += 1
-        return STUCK_NUDGE.format(turns=STRIKES), "stuck_gate"
+        self.done_turns = self.done_turns + 1 if done else 0
+        self.wait = 1 if strike or done else EVERY  # a verdict that would act is looked at again at the next turn
+        if self.done_turns >= WRAP_STRIKES:
+            self.wrapped = True
+            self.strikes = self.done_turns = 0
+            self.wait = EVERY
+            return WRAP_NUDGE.format(turns=EVERY + WRAP_STRIKES - 1), "wrap_up"
+        if self.strikes >= STRIKES:
+            self.strikes = 0
+            self.nudges += 1
+            self.wait = EVERY
+            return STUCK_NUDGE.format(turns=EVERY + STRIKES - 1), "stuck_gate"
+        return None

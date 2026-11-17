@@ -140,7 +140,7 @@ def test_a_level_binds_its_label_and_number_with_non_breaking_spaces():
 def test_the_supervisor_card_is_the_panel_row_in_one_line():
     (line,) = card_lines(supervisor_card(judgement(strikes=1)))
     # the call, then the two next likeliest; finished (0.00) is not among them
-    assert line == "System 1 · 0.6s   moving 0.92   circling 0.06   off-plan 0.01   → strike 1/3"
+    assert line == "System 1 · 0.6s   moving 0.92   circling 0.06   off-plan 0.01   → strike 1/2"
     (cached,) = card_lines(supervisor_card(judgement(cached=True)))
     assert cached.startswith("System 1 · 0.6s · cached   moving") and "→" not in cached  # nothing followed
 
@@ -189,9 +189,10 @@ def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_
     ledger = Ledger()
     ledger.observe(run_start("r1"))
     ledger.observe(MessageEvent(entry_id="e1", message=UserMessage(content="Fix the parser")))
-    for turn in (1, 2, 3):
+    for turn in (4, 5, 9):
         ledger.observe(supervise(turn, "retrying"))
-    ledger.observe(Nudge(turn=3, reason="stuck_gate", text="A review of your last 3 turns found no progress"))
+        if turn == 5:
+            ledger.observe(Nudge(turn=5, reason="stuck_gate", text="A review of your last 5 turns found no progress"))
     ledger.observe(guard(4, 'bash {"command": "pytest -q"}', "routine", 0.9))
     ledger.observe(ToolCallStart(turn=4, call_id="c4", name="bash", arguments={"command": "sudo make install"}))
     ledger.observe(ToolGuard(turn=4, call_id="c4", name="bash", layer="rule", rule="privilege", reason="it runs sudo"))
@@ -215,8 +216,8 @@ def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_
     # The watch, in a line: what System 1 weighed as one bar, each answer its share of the cells, so a call made at
     # 0.80 is seen to have been one of three; then its call, what it weighed most against it as far as the line holds
     # them, and what the loop did. Each in a word short enough for the line, not the name System 1 is asked with.
-    assert rows[0] == "  " + FILLED * 12 + " retrying 0.80  moving 0.05  strike 1/3"
-    assert "strike 3/3" in rows[2] and "stuck nudge sent" in text
+    assert rows[0] == "  " + FILLED * 12 + " retrying 0.80  moving 0.05  strike 1/2"
+    assert "strike 2/2" in rows[1] and "stuck nudge sent" in text and "strike 1/2" in rows[2]
     weighed = shares({"retrying": 0.8, "advancing": 0.05, "re_investigating": 0.05})
     # Of twelve cells: the 0.90 it gave answers is eleven of them, and the cell left is a hairline.
     assert [(len(cells), style) for cells, style in weighed] == [(10, S_WARN), (1, S_OK), (1, S_RULE)]

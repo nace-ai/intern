@@ -229,18 +229,16 @@ def test_the_ledger_follows_the_supervisor_turn_by_turn_and_what_the_loop_did():
     row = ledger.observe(supervise(3, "advancing"))
     assert isinstance(row, TurnJudgement)
     assert (row.mode, row.confidence, row.strikes) == ("advancing", 0.8, 0)
-    # Every turn counts: consecutive stuck verdicts are strikes, the third earns the nudge, the count starts over.
-    first = ledger.observe(supervise(10, "re_investigating"))
-    second = ledger.observe(supervise(11, "re_investigating"))
-    assert isinstance(first, TurnJudgement) and isinstance(second, TurnJudgement)
-    assert (first.strikes, second.strikes) == (1, 2)
-    third = ledger.observe(supervise(12, "retrying"))
-    assert isinstance(third, TurnJudgement) and third.stuck and third.strikes == STRIKES and not third.nudged
+    # Every look counts: consecutive stuck verdicts are strikes, the second earns the nudge, the count starts over.
+    first = ledger.observe(supervise(11, "re_investigating"))
+    assert isinstance(first, TurnJudgement) and first.strikes == 1
+    second = ledger.observe(supervise(12, "retrying"))
+    assert isinstance(second, TurnJudgement) and second.stuck and second.strikes == STRIKES and not second.nudged
     nudge = Nudge(turn=12, reason="stuck_gate", text="Stop investigating.")
-    assert ledger.observe(nudge) is third and third.nudged
-    restart = ledger.observe(supervise(13, "retrying"))
+    assert ledger.observe(nudge) is second and second.nudged
+    restart = ledger.observe(supervise(16, "retrying"))
     assert isinstance(restart, TurnJudgement) and restart.strikes == 1
-    cleared = ledger.observe(supervise(14, "advancing"))
+    cleared = ledger.observe(supervise(17, "advancing"))
     assert isinstance(cleared, TurnJudgement) and cleared.strikes == 0
     # A failed attempt is retried: it makes no row, the answer that follows does.
     assert ledger.observe(supervise(41, "advancing", ok=False, error="TimeoutError: ")) is None

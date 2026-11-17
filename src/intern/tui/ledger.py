@@ -1,6 +1,7 @@
-"""System 1's decisions as a ledger the TUI shows: one judgement per turn, one per tool call the guard asked about,
-one per search (`decision_code`, `decision_files`), one per compaction, and one for every other ask a turn made, per
-run, in the order they came (`RunLedger.feed`); and what all of System 1's asks came to, by kind (`Ledger.usage`).
+"""System 1's decisions as a ledger the TUI shows: one judgement per turn it looked at, one per tool call the guard
+asked about, one per search (`decision_code`, `decision_files`), one per compaction, and one for every other ask a turn
+made, per run, in the order they came (`RunLedger.feed`); and what all of System 1's asks came to, by kind
+(`Ledger.usage`).
 
 Built from the event stream alone (`run_start`, `decision`, `state_writing`, `state_delta`, `state`, `nudge`,
 `compaction`, `tool_guard`, `process_check`, a search's calls and its `search_trace`s), the
@@ -73,7 +74,7 @@ REASONS = tuple(WORKING.criteria)
 
 @dataclass
 class TurnJudgement:
-    """The supervisor's one call at a turn's end: what the latest turns are doing; then what the loop did about it."""
+    """The supervisor's look at a turn's end: what the latest turns are doing; then what the loop did about it."""
 
     turn: int
     mode: str
@@ -87,7 +88,7 @@ class TurnJudgement:
     nudged: bool = False
     """A stuck nudge went into the next request."""
     wrap: str = ""
-    """The same turn's second ask, whether the request is met: working, done_polishing, done_unsaved or unclear."""
+    """The look's second question, whether the request is met: working, done_polishing, done_unsaved or unclear."""
     wrap_probability: float = 0.0
     wrapped: bool = False
     """The wrap-up nudge went into the next request."""
@@ -479,13 +480,16 @@ class Ledger:
             duration_ms=event.duration_ms,
             cost_usd=event.cost_usd,
         )
-        # Strikes as the supervisor counts them: every turn, consecutive, starting over after a nudge.
+        # Strikes as the supervisor counts them: its looks, consecutive, starting over after a nudge.
         if run.nudges < MAX_NUDGES:
             run.strikes = run.strikes + 1 if is_strike(mode, probabilities) else 0
             judgement.strikes = run.strikes
             if run.strikes >= STRIKES:
                 run.strikes = 0
                 run.nudges += 1
+        if "wrap" in answers:  # the same ask's second question; a session from before 0.39 has it as its own ask
+            choice, wrap_probabilities = _choice(answers["wrap"])
+            run.wraps[turn] = (choice, wrap_probabilities.get(choice, 0.0))
         if wrap := run.wraps.get(turn):
             judgement.wrap, judgement.wrap_probability = wrap
         if (before := run.turns.get(turn)) is not None and before in run.feed:

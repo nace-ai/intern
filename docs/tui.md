@@ -138,7 +138,7 @@ straight to the conversation; `/clear` comes back to the page.
 │ Took 2.1s                                         ││   where are ISO weeks parsed?                  │
 │                                                   ││   → src/parser.py  0.93                        │
 │ ▎ System 1 · 0.6s   moving 0.78                   ││   ━━━━━━━━━━━━ circling 0.81  moving 0.11      │
-│ ▎ done 0.12   circling 0.06                       ││   strike 3/3  stuck nudge sent                 │
+│ ▎ done 0.12   circling 0.06                       ││   strike 2/2  stuck nudge sent                 │
 │                                                   ││ ✗ $ git push --force origin main               │
 │ decision_code where are ISO weeks parsed?         ││   rewrites shared history 0.96                 │
 │ 1. src/parser.py · def parse_date · lines 40-71   ││   risk 0.96   asked 0.02                       │
@@ -182,7 +182,7 @@ in the masthead: drawn by hand, a pixel the upper or lower half of a cell, so it
 each cell can take two of the mascot's colours (`widgets.MASCOT`; the README's cube scaled to this size is a smudge), its eyes glancing and blinking as the
 entering page's do, and nothing on the page says it twice: the
 System 2 panel opens on its heading alone. The panels are headed after Kahneman's two systems: System 2 `thinking slow` (it reasons and
-acts), System 1 `thinking fast` (it reviews every turn, judges the tool
+acts), System 1 `thinking fast` (it reviews the turns, judges the tool
 calls that can do harm and what a compaction keeps), its panel above the State's, headed `fast and slow`:
 the "and" of Kahneman's title, where the two systems meet, since the State is what System 1 sees of System 2's work.
 Each panel is a window, a round border in the mascot's violet with the panel's name on it as a tab, paper on that
@@ -216,8 +216,8 @@ whole output.
 **System 1's cards.** Each of System 1's decisions is a card where it happened: one line, the System 1
 panel's row in brief, in the panel's own lowercase words: `System 1 · 0.6s` (how long System 1 took, and
 `cached` when it was), then each answer as a word and its probability, then after an arrow what came of
-them, so a result does not read as one more option (`→ strike 1/3`, `→ refused`); the meters are the
-panel's. The supervisor's card comes at the turn boundary: the mode in its colour (`moving 0.78`), the two
+them, so a result does not read as one more option (`→ strike 1/2`, `→ refused`); the meters are the
+panel's. The supervisor's card comes at the boundary of a turn it looked at (every fourth, and the turn after a stuck or done verdict): the mode in its colour (`moving 0.78`), the two
 next likeliest muted (`done 0.12   circling 0.06`; none that rounds to 0.00), then what followed
 (a stuck review's strikes, a nudge). The guard (`extensions/guard.py`, which checks every tool call before it runs when `cap.guard` is on) is not a card but the last line of
 the call's shaded head, so it reads as part of the call and not as the supervisor: `✓ System 1` (`✗ System 1
@@ -385,10 +385,10 @@ State in full, as the exact text it is given (its JSON laid out).
 `tui/ledger.py`). System 1 is asked for different things, and each kind reads its own way, in the
 order they came, each run under its prompt:
 
-- **watch**: what the supervisor (`supervise.py`) answered at a turn's end, in a line: one bar of twelve cells,
+- **watch**: what the supervisor (`supervise.py`) answered at the end of a turn it looked at, in a line: one bar of twelve cells,
   each mode it weighed taking its share of them in its own colour, so a call is seen to have been one of several;
   the mode it called and its probability; the modes it weighed most against that one, muted, as far as the line
-  holds them; then what the loop did about it (`strike 2/3`, `stuck nudge sent`) and, once the request looks met,
+  holds them; then what the loop did about it (`strike 2/2`, `stuck nudge sent`) and, once the request looks met,
   the wrap-up verdict. A mode is said in a word short enough for the line: `moving` (the supervisor's `advancing`),
   `circling` (`re_investigating`), `retrying`, `off-plan`, `done` (`finished`), `unclear`. The names System 1 is
   asked with are the supervisor's own.

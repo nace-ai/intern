@@ -1059,8 +1059,8 @@ async def test_every_state_write_is_accounted_for_in_the_stream_and_decisions_na
     decisions = harness.recorder.of(Decision)
     assert decisions and all(d.turn is not None and d.answers for d in decisions)
     supervise = [d for d in decisions if d.purpose == "supervise"]
-    # One question a turn, the turns' mode: System 2 writes the State only for a compaction.
-    assert supervise and all(set(d.answers or {}) == {"mode"} for d in supervise)
+    # One ask a look, the turns' mode and whether the request is done: System 2 writes the State only for a compaction.
+    assert supervise and all(set(d.answers or {}) == {"mode", "wrap"} for d in supervise)
     keeps = [d for d in decisions if d.purpose == "keep"]
     assert keeps and all(d.subject and (d.answers or {})["w"]["choice"] == "working_on" for d in keeps)
     assert {d.turn for d in keeps} <= {c.turn for c in compactions}

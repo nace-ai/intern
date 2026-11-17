@@ -1024,10 +1024,10 @@ class Run:
             verdict = h.Stop(reason="completed")
 
         if not isinstance(verdict, h.Stop) and not self.control.abort.is_set():
-            # The turn's boundary: System 1 reviews the turns and the loop acts on the answer now (the nudge goes into
-            # the next request). An abort during the ask ends the run instead of the ask.
+            # The turn's boundary: when a look is due, System 1 reviews the turns and the loop acts on the answer now
+            # (the nudge goes into the next request). An abort during the ask ends the run instead of the ask.
             nudge = await self._abortable(
-                self.supervisor.after_turn(self.turn, self.deps.decisions, self._system1_state())
+                self.supervisor.after_turn(self.turn, self.deps.decisions, self._system1_state)
             )
             if nudge:
                 nudges.append(nudge)
