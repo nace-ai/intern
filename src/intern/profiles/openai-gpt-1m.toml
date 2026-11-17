@@ -1,9 +1,9 @@
 # OpenAI's GPT models with a 1.05M context and 128K output: GPT-6 (Astra, Sol, Terra, Luna), GPT-5.6, GPT-5.5 and
-# GPT-5.4 with their Pro models. The window is that context, input and output together as OpenAI counts it; a
+# GPT-5.4 (their Pro models in openai-gpt-pro-1m.toml). The window is that context, input and output together as OpenAI counts it; a
 # request stays under 85% of it (892.5K), below the 922K most input the GPT-6 and 5.6 pages give.
 # https://developers.openai.com/api/docs/models, read 2026-11-15.
 
-match = ["openai/gpt-6*", "openai/gpt-5.6*", "openai/gpt-5.5*", "openai/gpt-5.4", "openai/gpt-5.4-2*", "openai/gpt-5.4-pro*"]
+match = ["openai/gpt-6*", "openai/gpt-5.6*", "openai/gpt-5.5*", "openai/gpt-5.4", "openai/gpt-5.4-2*"]
 window = 1050000
 max_output_tokens = 128000
 vision = true

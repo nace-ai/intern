@@ -1,0 +1,8 @@
+# GPT-5.4 Pro and GPT-5.5 Pro: the 1.05M window and 128K output of openai-gpt-1m.toml, and the reasoning efforts they
+# take, medium to xhigh ("Supported values are: 'medium', 'high', and 'xhigh'", 2026-11-17).
+
+match = ["openai/gpt-5.4-pro*", "openai/gpt-5.5-pro*"]
+window = 1050000
+max_output_tokens = 128000
+vision = true
+effort_levels = ["medium", "high", "xhigh"]

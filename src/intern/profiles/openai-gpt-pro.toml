@@ -1,0 +1,8 @@
+# GPT-5.2 Pro: the 272K window and 128K output of openai-gpt.toml, and the reasoning efforts it takes, medium to
+# xhigh ("Supported values are: 'medium', 'high', and 'xhigh'", 2026-11-17).
+
+match = ["openai/gpt-5.2-pro*"]
+window = 272000
+max_output_tokens = 128000
+vision = true
+effort_levels = ["medium", "high", "xhigh"]

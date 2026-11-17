@@ -6,3 +6,5 @@ match = ["openai/gpt-5-pro*"]
 window = 272000
 max_output_tokens = 272000
 vision = true
+# `reasoning.effort` high alone ("Supported values are: 'high'", 2026-11-17).
+effort_levels = ["high"]

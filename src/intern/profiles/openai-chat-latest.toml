@@ -1,0 +1,4 @@
+# chat-latest takes one reasoning effort, medium ("Supported values are: 'medium'", 2026-11-17).
+
+match = ["openai/chat-latest*"]
+effort_levels = ["medium"]

@@ -1663,6 +1663,8 @@ class HarnessApp(App[None]):
             lacking = self._keep_thinking(binding)
             if binding.takes_effort:
                 level = f" · thinking {binding.profile.reasoning_effort or THINKING_DEFAULT}{lacking}"
+            elif self.pending.thinking:  # a level was chosen, and this model has none: it goes without
+                level = " · it takes no thinking level"
         self._refresh_status()
         if self.query(Welcome) and not lacking:
             return  # The entering page has each system's model on its card: the pick needs no line of its own.
@@ -1702,10 +1704,12 @@ class HarnessApp(App[None]):
             return
         binding = session.deps.system2
         if not binding.takes_effort:
-            await self.transcript.notice(
-                f"{binding.ref} takes no thinking level: its profile names none, and its API is not asked for one.",
-                "warn",
+            why = (
+                "its API refuses one for this model"
+                if binding.profile.effort_levels == []
+                else "its profile names none, and its API is not asked for one"
             )
+            await self.transcript.notice(f"{binding.ref} takes no thinking level: {why}.", "warn")
             return
         current, levels = binding.profile.reasoning_effort or THINKING_DEFAULT, binding.effort_levels
         if not level:

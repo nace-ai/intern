@@ -122,13 +122,16 @@ Every session advertises these `configOptions`, in this order, then the
   fallbacks. Any model name is accepted, listed or not; there is no `heuristic` (System 1 off). Changing
   it rebuilds the session's System 1 client, keeping its usage, and journals a `model_change` entry. A model whose key is missing is refused with
   `-32602` and the session keeps the System 1 it had.
-- **`thought_level`** is advertised whenever System 2 takes a reasoning effort: every model on Anthropic's
-  and OpenAI's APIs, which take one for every model they serve, and an OpenAI-compatible model when its
+- **`thought_level`** is advertised whenever System 2 takes a reasoning effort: the models on Anthropic's
+  and OpenAI's APIs, which take one for the models they serve, and an OpenAI-compatible model when its
   profile lists `effort_levels` or sets `reasoning_effort` (some of those endpoints reject the field, so
   the profile is the only word). It sets the effort sent with each request, among the levels the model
   takes (Anthropic's `output_config.effort` goes to `max`, OpenAI's `reasoning.effort` to `xhigh`, a
   profile's `effort_levels` are its own, and a profile with only `reasoning_effort` takes `low`, `medium`,
-  `high`). On Anthropic's and OpenAI's APIs and with `effort_levels`, `default` comes first and sends
+  `high`). A profile's `effort_levels` replace the API's run for a model that takes fewer, or none (`[]`): the
+  packaged profiles give none to OpenAI's GPT-4.1, GPT-4o and gpt-live and to Claude Sonnet and Haiku 4.5, whose
+  APIs refuse the field, so sessions on them advertise no `thought_level`, and the few the Pro models and
+  chat-latest take. On Anthropic's and OpenAI's APIs and with `effort_levels`, `default` comes first and sends
   none, so the model uses its own; it is the current value when the profile names no effort. The packaged
   profiles list `effort_levels` for DeepSeek V4 Flash on Fireworks. It holds across a capability
   reopen but is not journaled: a loaded session starts at the profile's value. A `model` change may add or drop it; the
@@ -1217,3 +1220,19 @@ Additive; 0.39.1 clients keep working, and nothing a client sends or reads chang
 - The event stream (`-p --json`, JSON-RPC) has two more event types, `subagent_start` and `subagent_end`, and
   `run_end` an optional `subagent_usage`. `run_end.usage` includes what the run's subagents spent. ACP sends nothing
   for the new events.
+
+### 0.40.1
+
+A fix to the thinking levels offered; 0.40.0 clients keep working, and nothing a client sends or reads changed shape.
+
+- Every model on Anthropic's and OpenAI's APIs offered the API's whole run of levels, and some models refuse some or
+  all of them: each request at such a level failed with a 400 (measured 2026-11-17). Sessions now offer each model the
+  levels its API takes, and `models --json` lists those in `efforts`:
+  - none for OpenAI's GPT-4.1 and GPT-4o (and their minis and dated ids) and gpt-live-1, and for Claude Sonnet 4.5 and
+    Haiku 4.5: their sessions advertise no `thought_level`, and `models --json` gives them `"reasoning": false`;
+  - `medium` alone for chat-latest, `high` alone for GPT-5 Pro, `medium` to `xhigh` for GPT-5.2, 5.4 and 5.5 Pro,
+    each after `default`.
+- A profile's `effort_levels` now replace the API's run when stated, where they counted only on an API that gives
+  none; `effort_levels = []` is a model that takes no level. A profile whose `reasoning_effort` is not one of its
+  `effort_levels` is refused when it loads, naming both.
+
