@@ -1161,3 +1161,17 @@ Additive; 0.37.1 clients keep working, and nothing a client sends or reads chang
   web, browser and MCP tools return (`screen = "all"`: every result but the agent's own writes) and replaces the
   chunks addressed to the agent in the result's text. Each screen is an `extension` event (`tool-result-guard`, kind
   `screen`) naming the removed chunks, and its ask a `decision` event with purpose `tool_result_guard`.
+
+### 0.38.1
+
+Two fixes to what the search tools find; 0.38.0 clients keep working, and nothing a client sends or reads changed
+shape.
+
+- With `cap.workspace` on, a CSV whose timestamps name a time zone (`2024-01-01T00:00:00Z`) was left out of the
+  index, so `decision_files` could not find it and `sql` had no table for it, and a query returning such a column
+  failed: DuckDB returns those values through `pytz`, which the `workspace` extra did not install. It does now, and
+  an index picks the files up at its next refresh.
+- A folder's card in the search tree names, for each group of files under it, the group's other files after its
+  three most central ones, while the card has room. `decision_code` and `decision_files` judge a group by that card
+  before opening it, and a file a group did not lead with could go unjudged. An index built earlier gets the new
+  cards at its next refresh, with no file read again and so no `indexing` event for it.
