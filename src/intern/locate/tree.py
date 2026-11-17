@@ -503,7 +503,8 @@ def write_cards(
     leads: Mapping[str, str],
 ) -> None:
     """Leaf: its keywords, then every member on one line, most central first. Inner: its keywords, each subgroup with
-    its own keywords and its most central files with their top-level names, then the subtree's most central files.
+    its own keywords and its most central files with their top-level names, a group of files also with the names of
+    its other files while the card has room (`_named`; not on the root's card), then the subtree's most central files.
     ``members`` is each file's member line, ``names`` its top-level names; keywords come from the TF-IDF ``vectors``
     (a node's vector is the balanced sum of its children's, so a large subgroup does not drown a small one; one-row
     sparse matrices, as dense ones were the vocabulary's size for every node).
@@ -602,6 +603,7 @@ def write_cards(
             lines.append(f"keywords: {words}")
         lines.append("subgroups:")
         per = max(200, (CARD_CHARS - 900) // max(1, len(kids)))
+        entries: list[tuple[str, list[str]]] = []  # each subgroup's line, and the files of a group it has not named
         for kid in kids:
             bits = []
             for p in central(kid.files)[:SUBGROUP_FILES]:
@@ -616,10 +618,52 @@ def write_cards(
                 + " | "
                 + "; ".join(bits)
             )
-            lines.append(line if len(line) <= per else line[: per - 3] + "...")
-        lines.append("most central files:")
-        lines += [member(node, p)[:200] for p in central(node.files)[:SUBTREE_FILES]]
-        node.card = "\n".join(lines)[:CARD_CHARS]
+            # A group of files has no name that says what it holds: the names of its other files do. Not on the
+            # root's card: System 1 never judges it, and it is pinned in the agent's context every turn.
+            named = kid.kind == "leaf" and not root
+            rest = [p.rsplit("/", 1)[-1] for p in central(kid.files)[SUBGROUP_FILES:]] if named else []
+            entries.append((line if len(line) <= per else line[: per - 3] + "...", rest))
+        tail = ["most central files:", *(member(node, p)[:200] for p in central(node.files)[:SUBTREE_FILES])]
+        room = CARD_CHARS - len("\n".join([*lines, *(line for line, _ in entries), *tail]))
+        node.card = "\n".join([*lines, *_named(entries, per, room), *tail])[:CARD_CHARS]
+
+
+def _named(entries: list[tuple[str, list[str]]], per: int, room: int) -> list[str]:
+    """Each subgroup's line with the names of its other files (`_also`): up to ``per`` characters a line, and
+    ``room`` characters over all of them, shared out evenly when the lines would take more. The names only ever take
+    the room the card has left, so they never push off what it held without them (its most central files, last)."""
+    full = [_also(line, names, per) for line, names in entries]
+    if sum(len(grown) - len(line) for grown, (line, _) in zip(full, entries, strict=True)) <= room:
+        return full
+    out: list[str] = []
+    left = sum(1 for _, names in entries if names)
+    for line, names in entries:
+        if not names:
+            out.append(line)
+            continue
+        grown = _also(line, names, min(per, len(line) + max(0, room) // left))
+        room -= len(grown) - len(line)
+        left -= 1
+        out.append(grown)
+    return out
+
+
+def _also(line: str, names: list[str], limit: int) -> str:
+    """``line`` followed by ``names``, as many as fit in ``limit`` characters, the rest counted. A folder card named
+    three files of each group under it: a question about `legend.py`, eighth of ten in a group cut from a folder's
+    loose files, scored that group's parent 0.03 and the walk never judged the file."""
+    shown: list[str] = []
+    room = limit - len(line) - len("; also: ")
+    for n, name in enumerate(names):
+        more = len(f", +{len(names) - n - 1} more") if n + 1 < len(names) else 0
+        if room < len(name) + 2 + more:
+            break
+        shown.append(name)
+        room -= len(name) + 2
+    if not shown:
+        return line
+    left = len(names) - len(shown)
+    return f"{line}; also: {', '.join(shown)}" + (f", +{left} more" if left else "")
 
 
 def _says(summary: str) -> bool:

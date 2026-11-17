@@ -22,6 +22,7 @@ pytest.importorskip("networkx", reason="needs the code-search extra: uv sync --a
 
 from intern.cli import main
 from intern.decisions import (
+    Answer,
     Answers,
     ChoiceAnswer,
     ChoiceQuestion,
@@ -656,6 +657,41 @@ async def test_an_empty_search_reports_how_far_its_walk_got(tmp_path: Path):
     assert walk.left == Left(label="c/part8", score=0.09)  # the best folder the walk did not enter
     nowhere = await search(index, tmp_path, "where is the needle", client, ASKS, scope="d")
     assert nowhere.walk is not None and nowhere.walk.in_scope == 0
+
+
+class Reads(Gold):
+    """Gold on files and parts; a folder or group card says yes when it names the file and a flat no when it does
+    not, as System 1 judges a card by what is on it."""
+
+    def _node_holds_gold(self, card: str) -> bool:
+        return self._hit([f.rsplit("/", 1)[-1] for f in self.files], card)
+
+    async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
+        answers = await super().decide(state, questions)
+        if not state.split("\n\n", 1)[1].startswith("Candidate folder"):
+            return answers
+        said: dict[str, Answer] = {
+            n: NoulAnswer(noul=0.9 if isinstance(a, NoulAnswer) and a.noul > 0.5 else 0.0)
+            for n, a in answers.answers.items()
+        }
+        return Answers(answers=said, cost_usd=answers.cost_usd)
+
+
+async def test_a_file_that_is_not_among_its_group_s_most_central_is_still_found_through_the_card_above(tmp_path: Path):
+    # matplotlib: legend.py was eighth of ten in a group of lib/matplotlib's files; the card of the node above that
+    # group named three files of it, scored 0.03 for a question about legends, and the walk never judged the file.
+    for folder in ("app/draw", "app/files", "app/text", "docs"):
+        (tmp_path / folder).mkdir(parents=True)
+        name = folder.rsplit("/", 1)[-1]
+        for i in range(8):
+            uses = "" if i < 3 else f"from {folder.replace('/', '.')} import {name}0, {name}1, {name}2\n"
+            (tmp_path / folder / f"{name}{i}.py").write_text(f'"""{name} {i}."""\n{uses}')
+    (tmp_path / "app" / "text" / "legend.py").write_text('"""Legends."""\n\ndef legend():\n    return 1\n')
+    index = build(tmp_path)
+    assert "legend.py" not in index.nodes["app"].card.split("most central files:")[1]  # not one the card leads with
+    judge = Reads(index, ["app/text/legend.py"], ["legend"])
+    result = await search(index, tmp_path, "where is the legend drawn", DecisionClient(judge, lambda e: None), ASKS)
+    assert result.files and result.files[0][0] == "app/text/legend.py"
 
 
 async def test_the_question_s_words_steer_the_walk_to_a_file_no_card_on_the_way_points_to(tmp_path: Path):
