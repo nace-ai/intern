@@ -47,6 +47,12 @@ READY = ChoiceQuestion(
     },
 )
 
+TAKEOVER_NOTE = """\
+You are taking over this task from another agent, whose turns are above; its work is in the workspace. The main \
+solution exists and has been checked, so finish it rather than redo it: keep its approach and files, and change only \
+what a check shows is wrong. Run the relevant check before and after each change, and undo a change that makes it \
+worse. Once the checks pass and the required output is in place, stop."""
+
 LOGFILE_NOTE = """\
 You are taking over this task from another agent, which worked on it for {turns} turns in this same workspace: every \
 file it created or changed is still there. Its turns are in {path}, one JSON object per line, oldest first: `turn` \
