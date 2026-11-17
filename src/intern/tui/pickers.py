@@ -31,7 +31,7 @@ from textual.visual import Padding, RenderOptions, Visual
 from textual.widgets import Input, OptionList, Static
 from textual.widgets.option_list import Option
 
-from intern.tui.theme import S_HEAD, S_MUTED, S_MUTED_ITALIC, S_OK_BOLD
+from intern.tui.theme import S_HEAD, S_MUTED, S_MUTED_ITALIC, S_OK_BOLD, S_TAB
 
 LABEL_WIDTH = 56
 KEYS = (("↑↓", "move"), ("Enter", "picks"), ("Esc", "closes"))
@@ -111,9 +111,10 @@ class Stacked(Visual):
 
 
 def label_parts(label: str, style: str) -> list[tuple[str, str]]:
-    """A label in `style`, what follows its first ` · ` (`code search · System 1`) dim, as a tag."""
+    """A label in `style`, what follows its first ` · ` (`code search · System 1`) as a violet tab, so what System 1
+    drives stands apart; filled, it still reads on the highlighted row, which is violet too."""
     name, dot, tag = label.partition(" · ")
-    return [(name, style), (f"  {tag}", S_MUTED)] if dot else [(name, style)]
+    return [(name, style), ("  ", ""), (f" {tag} ", S_TAB)] if dot else [(name, style)]
 
 
 class ModelPicker(ModalScreen[str | None]):

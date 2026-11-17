@@ -122,7 +122,8 @@ S_BRAND_BOLD = f"bold {BRAND}"
 """System 1's pick of the thinking level, wherever it shows: its sign `✦`, the level picked and its column."""
 
 S_TAB = f"bold {PAPER} on {BRAND}"
-"""A panel's name on its header, a tab in the mascot's violet."""
+"""A panel's name on its header, a tab in the mascot's violet; also the `System 1` tag on what System 1 drives in
+`/caps`."""
 
 S_WORDMARK = f"bold {BRAND}"
 WORDMARK = names.TITLE
