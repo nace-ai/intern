@@ -470,6 +470,33 @@ async def test_compaction_keeps_the_run_inside_a_small_window(make_harness):
     assert all(12_000 // 10 < r.max_output_tokens <= loop.MAX_STATE_TOKENS for r in writes)
 
 
+@pytest.mark.parametrize(("agent", "write"), [("medium", "medium"), ("high", "low")])
+async def test_a_state_write_reasons_at_the_agents_effort_up_to_medium_so_it_reads_the_agents_cache(
+    make_harness, agent: str, write: str
+):
+    # The effort is part of the cached prompt: a State write at another one pays its whole prompt again. Above medium
+    # it stays low, where the write the compaction waits for would think too long.
+    def script(request: ProviderRequest) -> Turn:
+        if is_state_write(request):
+            return Turn(text="## Plan\nprint things\n## Now\nkeep printing")
+        calls.append(1)
+        if len(calls) > 12:
+            return Turn(text="finished")
+        return Turn(tool_calls=[("bash", {"command": f"printf '{'x' * 2_000}'"})])
+
+    calls: list[int] = []
+    harness = make_harness(script, window=12_000, profile=Profile(reasoning_effort=agent))
+    assert (await harness.run()).reason == "completed"
+    requests = harness.provider.requests
+    writes = [i for i, r in enumerate(requests) if is_state_write(r)]
+    assert writes
+    for i in writes:
+        before, fork = requests[i - 1], requests[i]
+        assert before.reasoning_effort == agent and fork.reasoning_effort == write
+        assert fork.tools == before.tools
+        assert fork.messages[: len(before.messages) - 1] == before.messages[:-1]
+
+
 async def test_replayed_reasoning_counts_toward_compaction_so_the_run_compacts_instead_of_failing(make_harness):
     # Small tool results, long reasoning: the request grows by what the model thought, which it replays.
     thought = "z" * 6_000

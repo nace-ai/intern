@@ -86,7 +86,7 @@ from intern.messages import (
     Usage,
     UserMessage,
 )
-from intern.models.profile import Profile, effort_choices, effort_levels
+from intern.models.profile import EFFORT_LEVELS, Profile, effort_choices, effort_levels
 from intern.processes import ProcessManager
 from intern.providers.base import (
     Completed,
@@ -111,6 +111,10 @@ MAX_STATE_TOKENS = 12_288  # the State and the thinking that writes it: Qwen3.8 
 # A thinking model left at its default effort spends the whole State budget reasoning and returns no
 # text (Qwen3.8: 2,048 tokens of thought, empty State, so every compaction fell back to "drop").
 STATE_EFFORT = "low"
+# The agent's effort, when it is one of these, is the State's too, so the write reads the agent's prompt from the
+# cache. Higher, the write the compaction waits for takes longer and can hit MAX_STATE_TOKENS (Haiku 5.5 at high:
+# a median 22 s against 9 s at low, and 2 of 21 writes cut off at the cap).
+STATE_EFFORTS = EFFORT_LEVELS[:2]
 MAX_FINISH_REOPENS = 2
 STATUS_HOLD_S = 60.0
 
@@ -191,6 +195,13 @@ class EngineDeps:
 
 
 CompactOutcome = Literal["compacted", "fits", "stopped"]
+
+
+def state_effort(agent: str | None) -> str:
+    """The State write's reasoning effort: the agent's own when it is one of `STATE_EFFORTS`, else `STATE_EFFORT`. The
+    effort is part of what the provider caches (Anthropic's thinking, a chat template's reasoning line), so a write at
+    another one reads none of the agent's history back from the cache."""
+    return agent if agent in STATE_EFFORTS else STATE_EFFORT
 
 
 def system1_state(deps: EngineDeps) -> str:
@@ -828,7 +839,7 @@ class Run:
             # effort: 2-5K), so the cap is what the model's context leaves, not a share of the working window.
             max_output_tokens=max(min(MAX_STATE_TOKENS, room), MIN_OUTPUT_TOKENS),
             sampling=binding.profile.sampling,
-            reasoning_effort=STATE_EFFORT,
+            reasoning_effort=state_effort(binding.profile.reasoning_effort),
             reasoning_replay=binding.profile.reasoning_replay,
             compat=binding.profile.compat,
             session_id=self.deps.journal.session_id,
