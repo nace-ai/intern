@@ -6,7 +6,7 @@ telling frame. Every number on them comes from the run or measurement their row 
 
 | File | What it shows |
 |---|---|
-| `tui-light.png`, `tui-dark.png` | The terminal UI at the end of a session: a failing test, three turns System 1 calls stuck and the nudge after them, a `sudo` call the guard's fixed rules refuse, the fix and the passing test |
+| `tui-light.png`, `tui-dark.png` | The terminal UI at the end of a session with code search on: a failing test, re-reads System 1 calls stuck at its look and the next turn, the nudge, a `decision_code` search that ranks the right file first (folded to its summary line), the fix and the passing test. System 2's turns are scripted; System 1 is live |
 | `how-it-works-light.svg`, `how-it-works-dark.svg` | One run of nine turns, animated in CSS: calls going straight to the tools past the guard (dashed, off by default), a `decision_code` search System 1 walks, the journal, the session cut, System 1's looks at turns 4, 8 and 9 and the nudge, and the turns folding into the State and the kept reads at compaction |
 | `supervise-light.svg`, `supervise-dark.svg` | Thirteen turns of one run with System 1's looks at turns 4, 8, 9 and 13 (`supervise.EVERY`, `STRIKES`), each look's mode bars (drawn for illustration) against the 0.7 stuck threshold (`STUCK_THRESHOLD`), and the nudge. Draw it again when the rule changes |
 | `code-search-diagram-light.svg`, `code-search-diagram-dark.svg` | The mechanism of the `code-search` GIFs' run, with its scores: grep's two hits in screen text, System 1's walk from `src/intern` to files and definitions with the cut, the compare, and the ranked result |

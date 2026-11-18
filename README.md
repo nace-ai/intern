@@ -23,11 +23,11 @@ search on, and it decides what your intern keeps in mind when its context fills 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
-  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session with the guard turned on: System 2 runs a failing test, re-reads files three turns in a row, System 1 marks each turn stuck and nudges it, the guard refuses a sudo call, and System 2 fixes the bug and the test passes.">
+  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test and re-reads the parser turn after turn; System 1 calls the turns circling at its look and again at the next turn, and nudges it to make the change. System 2 asks decision_code where each item is split into key and value, which ranks pairs/text.py first at 0.94; it edits that file and the test passes. System 1 made 17 asks for $0.0004.">
 </picture>
 
-_A session with the guard turned on (`/caps guard`), which is off by default; a default install never shows the
-refused `sudo` call._
+_A session with code search turned on (`/caps code-search`), which is off by default. System 2's turns are
+scripted; System 1's looks, nudge and search are live, on `drex-max`._
 
 ## What's new in Intern
 
