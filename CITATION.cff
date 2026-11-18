@@ -5,7 +5,7 @@ type: software
 authors:
   - name: Nace AI
 repository-code: https://github.com/nace-ai/intern
-license: Apache-2.0
+license-url: "https://github.com/nace-ai/intern/blob/main/LICENSE"
 keywords:
   - agent harness
   - small language models
