@@ -1332,3 +1332,20 @@ Every install of `intern-agent` serves ACP: the `agent-client-protocol` SDK is n
 An `intern` installed the way the README says, without `[acp]`, made `intern acp` exit with code 2 (`No module named
 'acp'`), so every thread a client opened on it failed to start. Nothing in the protocol changes; 0.44.0 clients keep
 working. `intern-agent[acp]` still installs, the extra now empty.
+
+### 0.45.0
+
+A run can hand over, once, to a cheaper model when System 1 judges that the rest of the task is within its reach; off
+by default, and 0.44.1 clients keep working.
+
+- `[capabilities.handoff] to = "<model>"` (or `--handoff-to`) names the model; `effort`, `threshold`, `streak` and
+  `min_turn` (8 by default) say how and when. The model is bound when the session opens, so a bad reference or key
+  fails then.
+- With `transfer = "context"` (the default) the cheaper model finishes the run as a child run: it goes on from the
+  conversation with the session's tools, and its events stream to the client as the run's own. The session's journal
+  keeps only the user's messages during it and its final reply, so the next prompt is answered by the session's System
+  2 again. The child run's turns are kept in `<session>.subagents/handoff-<run>.jsonl`. With `transfer = "logfile"`
+  the session switches to the cheaper model, which starts afresh from a file of the turns so far.
+- A new `handoff` event (`turn`, `source`, `target`, `transfer`, `probability`, `tokens`, and `logfile` or `journal`)
+  announces the hand-over; a client that skips event types it does not know is unaffected.
+- `run_end` gains `by_model`, the run's usage by model; its `usage` totals both models.
