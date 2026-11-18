@@ -127,23 +127,24 @@ MASCOT = (
     "##KWWKKWWK#.",
     "##kKk##kKk#.",
     ".#########..",
-    ".###mMMm##..",
+    ".#########..",
     "...####.....",
     "...####.....",
 )
-"""The mascot, a character per pixel (`#` its body, `theme.MASCOT_BODY`; `K`, `W`, `M` and `9` from
+"""The mascot, a character per pixel (`#` its body, `theme.MASCOT_BODY`; `K`, `W` and `9` from
 `theme.MASCOT_COLOURS`; `.` the page): the README's cube, tilted as in the Nace logo, lighter at the top as that one is,
-with no edge between its faces; on its front face round glasses, level, their arms out to its sides, and under them a
-smile. Half-tone pixels soften what is a step at this size: `+` the body over the page at a corner, `k` the frame over
-the body at a lens's corner, `m` the smile's ends. Below its middle it narrows a cell at a time, two rows of pixels as
-wide as each other: a pixel over the open page is a half block whose edge macOS Terminal draws as a hairline. Twelve
-pixels tall so it stands six rows, under the masthead's first. A pixel is a cell wide and half a cell tall, so it is
-square on screen. The glasses and the smile are drawn by hand: at this size the README's scaled down are a smudge."""
+with no edge between its faces; on its front face round glasses, level, their arms out to its sides. No mouth: the
+README's smile, a few pixels at this size, reads as teeth. Half-tone pixels soften what is a step at this size: `+`
+the body over the page at a corner, `k` the frame over the body at a lens's corner. Below its middle it narrows a cell
+at a time, two rows of pixels as wide as each other: a pixel over the open page is a half block whose edge macOS
+Terminal draws as a hairline. Twelve pixels tall so it stands six rows, under the masthead's first. A pixel is a cell
+wide and half a cell tall, so it is square on screen. The glasses are drawn by hand: at this size the README's scaled
+down are a smudge."""
 EYES = ("rest", "left", "right", "shut")
 """The mascot's poses: its eyes at rest, glancing left, glancing right and shut."""
 LOOK = ("WW", "W9", "9W", "99")
 """`MASCOT`'s eyes in each pose, a lens being two pixels across and two down: their white, or the lens where they have
-left. The mouth is `M`, so it stays where it is."""
+left."""
 ART = (
     "██ ███  ██ ████████ ███████ ██████  ███  ██",
     "██ ████ ██    ██    ██      ██   ██ ████ ██",
@@ -242,7 +243,7 @@ def mark(pose: int = 0, page: str = LIGHT["card"]) -> list[Content]:
     colours = MASCOT_COLOURS | {".": ""}
     grid: list[list[str]] = []
     for row, body in zip(MASCOT, MASCOT_BODY, strict=True):
-        half = {"+": (body, page), "k": (colours["K"], body), "m": (colours["M"], body)}
+        half = {"+": (body, page), "k": (colours["K"], body)}
         grid.append(
             [
                 Color.parse(half[pixel][0]).blend(Color.parse(half[pixel][1]), 0.5).hex

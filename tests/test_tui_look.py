@@ -68,12 +68,12 @@ def levels(style: str) -> list[int]:
 
 
 def test_the_mark_draws_the_mascot_two_pixels_to_a_cell_in_its_own_colours_with_the_page_around_it():
-    half_tones = "+km"
+    half_tones = "+k"
     # None the page by a typo.
     assert {pixel for row in MASCOT for pixel in row} <= {*MASCOT_COLOURS, *half_tones, "#", "."}
     rows = mark()
     assert len(rows) == 6  # under the masthead's first row
-    named = {colour: name for name, colour in MASCOT_COLOURS.items() if name != "M"}  # the mouth is the eyes' white
+    named = {colour: name for name, colour in MASCOT_COLOURS.items()}
     pixel = {colour.lower(): name for colour, name in (named | dict.fromkeys(MASCOT_BODY, "#")).items()}
     pixel |= {"": ".", CARD.lower(): "."}
     drawn: list[str] = []
@@ -91,7 +91,7 @@ def test_the_mark_draws_the_mascot_two_pixels_to_a_cell_in_its_own_colours_with_
             upper, lower = upper + pixel.get(top.lower(), "~"), lower + pixel.get(bottom.lower(), "~")
         drawn += [upper, lower]
     # A half tone is a blend, of no colour of its own; the page is no colour at all.
-    expected = [re.sub(f"[{re.escape(half_tones)}]", "~", row).replace("M", "W") for row in MASCOT]
+    expected = [re.sub(f"[{re.escape(half_tones)}]", "~", row) for row in MASCOT]
     assert drawn == expected
 
 
