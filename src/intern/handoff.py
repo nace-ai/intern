@@ -1,11 +1,10 @@
 """One hand-over per run from System 2 to a cheaper model, at the turn System 1 judges the rest within its reach.
 
-AgentBaton (arXiv 2610.35959): a strong model that hands over once, at the right stage, to a cheaper one keeps most of
-its accuracy at a fraction of the cost; the other way round, or switching back and forth, does not pay. The right stage
-is the earliest turn at which a substantive artifact exists, a check relevant to the task has exercised it, and what
-remains is localized repair, validation or finishing. System 1 judges it after every turn until the hand-over, from
-the first turn whose streak could reach `min_turn`, in its own ask: the supervisor looks only every few turns, and
-the hand-over's timing is what it is for.
+It hands over once, from the stronger model to the cheaper one, never the other way round or back and forth. The stage
+it hands over at is the earliest turn at which a substantive artifact exists, a check relevant to the task has
+exercised it, and what remains is localized repair, validation or finishing. System 1 judges it after every turn
+until the hand-over, from the first turn whose streak could reach `min_turn`, in its own ask: the supervisor looks
+only every few turns, and the hand-over's timing is what it is for.
 
 The model taken over by inherits the workspace and either the conversation (`context`: without the reasoning of the
 model before it, which only goes back to the model that wrote it) or a fresh start from the user's requests and a
