@@ -70,6 +70,9 @@ def _parser() -> argparse.ArgumentParser:
         "--system2", "-m", "--model", help="Agent model as provider/model, e.g. openrouter/qwen/qwen3.8-27b."
     )
     parser.add_argument("--system1", "--decider", help=f"System 1: {SYSTEM1_HELP}.")
+    parser.add_argument(
+        "--handoff-to", help="Hand the run over once to this cheaper model when System 1 judges it can finish."
+    )
     parser.add_argument("--window", type=int, help="Cap the working window, in tokens.")
     parser.add_argument("--max-turns", type=int, help="Stop after this many turns.")
     parser.add_argument("--profile", type=Path, help="Profile TOML applied over the matched one.")
@@ -99,6 +102,7 @@ def _options(args: argparse.Namespace) -> Options:
         cwd=args.cwd.resolve(),
         system2=args.system2,
         system1=args.system1,
+        handoff_to=args.handoff_to,
         window_cap=args.window,
         max_turns=args.max_turns,
         profile=args.profile,
