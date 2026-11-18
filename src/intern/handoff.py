@@ -5,9 +5,7 @@ its accuracy at a fraction of the cost; the other way round, or switching back a
 is the earliest turn at which a substantive artifact exists, a check relevant to the task has exercised it, and what
 remains is localized repair, validation or finishing. System 1 judges it after every turn until the hand-over, from
 the first turn whose streak could reach `min_turn`, in its own ask: the supervisor looks only every few turns, and
-the hand-over's timing is what it is for. Over the 62 tasks of a stored DeepSeek V4.1 Flash run it first fired at a
-median 53% of the trajectory with P(ready) >= 0.7 on two turns in a row from turn 5, 62% on runs that failed and 45%
-on those that passed.
+the hand-over's timing is what it is for.
 
 The model taken over by inherits the workspace and either the conversation (`context`: without the reasoning of the
 model before it, which only goes back to the model that wrote it) or a fresh start from the user's requests and a
