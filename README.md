@@ -35,11 +35,11 @@ refused `sudo` call._
   by default. [Supervision](#supervision)
 - **Code search by meaning.** `decision_code` finds where a repository does something, even when the words aren't
   in it: the right file first for 87% of SWE-bench Verified issues, where Semble does for 37%. Off by default.
-  [Search](#search-judged-by-system-1)
+  [Code search](#code-search)
 - **Search for professional files.** `decision_files` searches PDFs, workbooks and scans for audit-style
-  questions. Off by default. [Search](#search-judged-by-system-1)
+  questions. Off by default. [File search](#file-search)
 - **Web results System 1 judges.** `web_search` and `web_read` can have System 1 keep only what the task needs.
-  Off by default. [Search](#search-judged-by-system-1)
+  Off by default. [Web search and read](#web-search-and-read)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
@@ -51,7 +51,8 @@ refused `sudo` call._
 2. When System 2 searches with `decision_code` or `decision_files`, System 1 walks the index and returns ranked
    places.
 3. Every turn is appended to the session's journal.
-4. Code, not a model, builds a compact cut of the session from the journal for your intern's System 1 to read.
+4. Code, not a model, builds a compact cut of the session from the journal for your intern's System 1 to read:
+   at most 24.6k tokens, from which System 1 answers 95% of questions about the session.
 5. Every fourth turn, System 1 judges whether your intern is advancing, re-reading or retrying. A stuck verdict
    that holds at the next turn gets a nudge.
 6. When the context fills, System 2 writes its State as edits, System 1 keeps the reads still in use, and the turns
@@ -145,28 +146,12 @@ Switch each with `/caps` in the terminal UI, the ACP `cap.*` options, or `~/.int
 System 1 check that reads the session also reads your [`SYSTEM1.md`](#instructions), where you tell it what is
 normal in your work; `decision_code` and `decision_files` read only the question.
 
-### Search, judged by System 1
+### Code search
 
-Word search finds the words it is given. System 1 reads each candidate and judges it against the question, or, on
-the web, against the task.
-
-| Tool | What System 1 does | Default |
-|---|---|---|
-| `decision_code` | Walks an index of the repository (folders, then files, then the classes and functions in them, in 14 languages), scores each against the question and opens only the branches worth opening | off ([turn it on](docs/usage.md#code-search)) |
-| `decision_files` | Walks PDFs, workbooks, Word files and scans by page, section and tab beside a BM25 list of passages, judges the best of both, then follows the strongest passages' terms | off ([turn it on](docs/usage.md#workspace)) |
-| `web_search` | Asks the provider for three times the results and keeps the ones the task needs, best first | off, and its System 1 too ([`system1`](docs/capability-settings.md#system-1-on-web-results)) |
-| `web_read` | Of a page longer than the preview, keeps the parts the task needs, in page order, where it showed the page's start | off, and its System 1 too ([`system1`](docs/capability-settings.md#system-1-on-web-results)) |
-
-Measured with no agent in the loop, against other searches ([below](#how-well-system-1-does)):
-
-- **`decision_code`** puts the file a GitHub issue's fix changed first for 87% of 100 SWE-bench Verified issues
-  across 11 Python repositories, where Semble does for 37%, BM25 for 18% and grep for 10%, and the right function
-  first for 64% (Semble: 12%). $0.006 a query.
-- **`decision_files`** puts the right Treasury Bulletin first for 41% of 133 OfficeQA Pro questions over 697
-  bulletins, where SAG2 does for 22% and BM25 for 4%; $0.050 a query, its largest pages making it the dearest set.
-  Over HotpotQA's 9,811 passages it finds 98.8% of the ones a question needs in its top ten, level with SAG2 (99.3%)
-  and ahead of BM25 (88.5%), at $0.006 a query.
-- **`web_search` and `web_read`** are not yet measured with System 1, which is why it is off.
+`decision_code` finds where a repository does something, even when the words aren't in it. System 1 walks an index
+of the repository, folders, then files, then the classes and functions in them (in 14 languages), scores each
+against the question and opens only the branches worth opening. A folder of several repositories is searched one
+repository at a time. Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
@@ -175,6 +160,51 @@ Measured with no agent in the loop, against other searches ([below](#how-well-sy
 
 _Asked where this repository decides that a run is going in circles. "Circles" is in none of that code, so grep
 lands on the wrong files; `decision_code` puts `supervise.py` first, at the class that does it._
+
+Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
+known answer. System 1 is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
+search. [Method](docs/architecture.md#system-2-and-system-1)
+
+**SWE-bench Verified, 100 issues across 11 Python repositories.** The question is the issue. The answer is the files
+the fix changed; the right function is one that holds a changed line.
+
+| | `decision_code` | Semble | BM25 | grep |
+|---|---|---|---|---|
+| **Right file first** | **0.87** | 0.37 | 0.18 | 0.10 |
+| Right file in the top 3 | 0.94 | 0.60 | 0.37 | 0.22 |
+| Right file in the top 5 | 0.94 | 0.70 | 0.49 | 0.27 |
+| Right file in the top 10 | 0.94 | 0.78 | 0.57 | 0.40 |
+| Every changed file in the top 10 | 0.88 | 0.71 | 0.50 | 0.31 |
+| NDCG@10 | 0.89 | 0.56 | 0.35 | 0.21 |
+| **Right function first** | **0.64** | 0.12 | 0.13 | 0.13 |
+| Right function in the top 5 | 0.84 | 0.20 | 0.30 | 0.22 |
+| Right function in the top 10 | 0.89 | 0.28 | 0.36 | 0.30 |
+| $ a query | 0.0062 | 0, local | 0, local | 0, local |
+
+**CodeScaleBench, 54 searches over its 42 tasks.** The question is the task statement. The answer is the oracle's
+list of files, six a search on average.
+
+| | `decision_code` | Semble | BM25 | grep |
+|---|---|---|---|---|
+| **An oracle file first** | **0.67** | 0.28 | 0.30 | 0.11 |
+| An oracle file in the top 5 | 0.80 | 0.65 | 0.52 | 0.39 |
+| An oracle file in the top 10 | 0.89 | 0.72 | 0.69 | 0.46 |
+| Share of the oracle's files in the top 10 | 0.56 | 0.39 | 0.36 | 0.20 |
+| NDCG@10 | 0.56 | 0.35 | 0.30 | 0.16 |
+| $ a query | 0.0061 | 0, local | 0, local | 0, local |
+
+Every gap in right file first, right file in the top 10 and share in the top 10 holds question by question (sign
+test, p at most 0.012). Semble is 0.7.3 with its defaults, over source code. BM25 is `decision_code`'s own keyword
+stage, before System 1 judges anything. grep is the question's keywords through ripgrep, files ranked by how many
+they contain, as Semble's own benchmark runs it.
+
+### File search
+
+`decision_files` searches professional files (PDFs, Excel workbooks, CSV, Parquet, Word documents and scans) for
+tasks like audit. Your intern indexes the folder once, OCRing scanned pages. System 1 walks the files by page,
+section and tab beside a BM25 list of passages, judges the best of both together, then follows the strongest
+passages' terms to what the first pass missed. `sql` queries the tables and `read` shows the documents as text.
+Default off. [Turn it on](docs/usage.md#workspace)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
@@ -185,14 +215,61 @@ _Asked "Has the client ever been the victim of a scam or theft, and what did it 
 "Victim", "scam" and "theft" are in none of its files; `decision_files` puts first the questionnaire page where
 management reports a 2021 cyber attack and its loss._
 
+Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
+known answer. System 1 is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
+search. [Method](docs/architecture.md#system-2-and-system-1)
+
+**OfficeQA Pro, 133 questions over 697 Treasury Bulletins, as parsed text.** The answer is the bulletin and the page
+the figure is on.
+
+| | `decision_files` | SAG2 | BM25 | grep |
+|---|---|---|---|---|
+| **Right bulletin first** | **0.41** | 0.22 | 0.04 | 0.02 |
+| Right bulletin in the top 5 | 0.62 | 0.44 | 0.11 | 0.05 |
+| Right bulletin in the top 10 | 0.72 | 0.56 | 0.20 | 0.08 |
+| Right page within the first 20,000 characters returned | 0.58 | 0.34 | 0.02 | n/a |
+| Right page within the first 50,000 characters returned | 0.68 | 0.40 | 0.04 | n/a |
+| $ a query | 0.0499 | 0.017, its own judge | 0, local | 0, local |
+
+**HotpotQA, 300 of SAG2's questions over 9,811 passages.** The answer is the passages a question needs, two for
+most. R@k is the share of them among the first k passages returned.
+
+| | `decision_files` | SAG2, as published | SAG2, rerun | SAG2 with Drex as its judge | BM25 | BM25, SAG2's index |
+|---|---|---|---|---|---|---|
+| R@1 | 0.487 | 0.483 | 0.482 | 0.493 | 0.405 | 0.392 |
+| R@2 | 0.923 | 0.945 | 0.942 | 0.972 | 0.592 | 0.572 |
+| R@5 | 0.977 | 0.988 | 0.990 | 0.990 | 0.758 | 0.753 |
+| **R@10** | **0.988** | 0.993 | 0.997 | 0.993 | 0.885 | 0.882 |
+| Every gold passage in the top 10 | 0.980 | 0.987 | 0.993 | 0.987 | 0.777 | 0.770 |
+| $ a query | 0.0058 | n/a | n/a | n/a | 0, local | 0, local |
+
+On OfficeQA Pro every gap to SAG2 in the bulletin rows at 1 and 10 and in both page rows holds question by question
+(p below 0.001). On HotpotQA, R@10 is level with SAG2 (8 questions differ, p = 0.73) and better than BM25's on 62
+questions, worse on 2; SAG2 is ahead at two (25 questions to 12). SAG2 is SAG-Benchmark's own code and judge, JEV on
+OpenRouter; its errors on 8 OfficeQA Pro questions count as misses. On HotpotQA, "as published" and both BM25
+columns are an earlier run's stored rows; "rerun" is SAG2's code run again, and "with Drex" the same code judged by
+Drex. The methods return pieces of very different
+sizes, so the page rows give each the same amount of text. OfficeQA Pro costs the most because its requests are the
+largest, 8,600 tokens against under 1,000 on the other sets.
+
+### Web search and read
+
+Each can have System 1 judge what it returns, reading the session, before your intern sees it; both are default off,
+and so is their System 1 until a paired eval measures it ([`system1`](docs/capability-settings.md#system-1-on-web-results)).
+
+- **`web_search`** asks the provider for three times the results, and System 1 keeps the ones the task needs, best
+  first. [Web search](docs/capabilities/web-search.md)
+- **`web_read`**, on a page longer than the preview, has System 1 keep the parts the task needs, in page order,
+  where it showed the page's start. [Web reader](docs/capabilities/web-reader.md)
+
 ### More that System 1 runs
 
 - **Memory** (default on). Before the first request, System 1 recalls the pages of earlier sessions the task needs; after
   the session, it judges what is worth keeping. [Memory](docs/memory.md)
 - **Tool-call guard** (default off). Fixed rules refuse `rm -rf ~`, force-pushes, piping a download into a shell and
-  reading your credentials; System 1 judges every other call against what you asked for. It stops all 42 risky
-  calls of a labeled set and none of its 62 routine ones ([below](#how-well-system-1-does)). Say in `SYSTEM1.md`
-  what you allow. [Guard](docs/capability-settings.md#guard)
+  reading your credentials; System 1 judges every other call against what you asked for. On 140 labeled calls it
+  stops all 42 risky ones, where the fixed rules alone stop 9, and none of the 62 routine ones, at 0.4 s a check
+  ([set](evals/tool_guard/)). Say in `SYSTEM1.md` what you allow. [Guard](docs/capability-settings.md#guard)
 - **Tool-result guard** (default off). System 1 removes the parts of web, browser and MCP output addressed to your intern
   before it reads them. [Tool-result guard](docs/capability-settings.md#tool-result-guard)
 - **Auto thinking level** (Claude models, when you pick it). At the start of each run, System 1 picks how hard
@@ -206,29 +283,6 @@ management reports a 2021 cyber attack and its loss._
   [Terminal UI](docs/tui.md)
 - **Optional tools.** A browser, MCP servers, a Docker workspace, secrets from your keychain or password manager.
   [Capability settings](docs/capability-settings.md)
-
-## How well System 1 does
-
-On its own, a small model does not notice it is going in circles, cannot tell a routine command from a risky one,
-and searches only for the words it was given. Your intern's System 1 does those jobs. Each row is one of them, with
-System 1 and without it, or against another search.
-
-| System 1 | With System 1 | Without it, or another search | Measured on |
-|---|---|---|---|
-| Notices your intern going in circles | 23 stuck nudges, asking at 27% of turns; 0.6 s a look. No blind judge has rated them yet | No nudges | 42 stored runs (1,935 turns), replayed ([method](docs/architecture.md#system-2-and-system-1)) |
-| The same, by the rule before 0.39.0, which looked at every turn | 19 nudges, 16 of them on turns an independent judge also called stuck | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the code a GitHub issue's fix changes (`decision_code`) | Right file first for 0.87, right function first for 0.64; $0.0062 a query | Semble: 0.37 and 0.12. BM25: 0.18 and 0.13. grep: 0.10 and 0.13 | 100 SWE-bench Verified issues over 11 Python repositories, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the files a task needs, across repositories (`decision_code`) | An oracle file first for 0.67, in the top ten for 0.89; $0.0061 a query | Semble: 0.28 and 0.72. BM25: 0.30 and 0.69. grep: 0.11 and 0.46 | 54 searches over CodeScaleBench's 42 tasks, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the report a figure is in (`decision_files`) | Right Treasury Bulletin first for 0.41, in the top ten for 0.72; $0.0499 a query | SAG2: 0.22 and 0.56, $0.017 a query. BM25: 0.04 and 0.20. grep: 0.02 and 0.08 | 133 OfficeQA Pro questions over 697 Treasury Bulletins, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the passages a two-hop question needs (`decision_files`) | 0.988 of them in the top ten; $0.0058 a query | SAG2: 0.993. BM25: 0.885 | 300 HotpotQA questions over 9,811 passages, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Stops risky tool calls you did not ask for (guard, opt-in) | All 42 stopped, and none of the 62 routine calls; it reads each script a call runs, and asks the registries about each package an install names, before judging it; 0.4 s a check | The fixed rules stop 9 of the 42 | 140 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
-
-A query is one search; its cost is System 1's input tokens at $0.03 per 1M (its output is free). SAG2 pays its own
-judge, JEV on OpenRouter; Semble, BM25 and grep run on your machine with no model.
-
-System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.
-Asked about the session, it answers 95% of questions from that view, as many as from a transcript cut to the same
-length (94%) ([method](docs/architecture.md#system-2-and-system-1)).
 
 ## Instructions
 
