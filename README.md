@@ -167,9 +167,14 @@ goal (the user's last three requests), what runs now, and the whole session in o
 harness's nudges, the agent's replies without their reasoning, and each tool call with its input and a note in
 place of its output (status, size, a check's tally, the first 300 characters). Long sessions are cut to fit,
 oldest first; the first message and the newest four turns are never left out. `/state` in the terminal UI shows it
-as System 1 reads it. Every System 1 check reads it, and it is what decides a hand-over: after each turn, System 1
-reads it and gives the probability that a cheaper model can finish from here
-([how it is built](docs/architecture.md#system-2-and-system-1)).
+as System 1 reads it. Every System 1 check reads it ([how it is built](docs/architecture.md#system-2-and-system-1)).
+
+It is also what decides a hand-over. After each turn, System 1 reads its State and is asked one question: has the
+strong model built the main solution, has a check relevant to the task run it, and is what is left only local
+repair and finishing? It judges from what the tool results in its State show, such as a test run's tally and the
+start of each output, not from what the agent says it did, and answers ready, not ready or unclear with a
+probability for each. Its P(ready) is the only signal the switch uses: two turns in a row at 0.7 or more, from turn
+8 on, and the cheaper model takes over.
 
 ## Hand-over
 
