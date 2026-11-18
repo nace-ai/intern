@@ -209,7 +209,8 @@ config file. Code in another language, and a file that defines nothing, is found
 With the workspace, a folder of office files becomes a tree System 1 can search: the agent indexes the
 folder (`index_files`; PDFs, Word documents, workbooks and tables, with a progress bar on a terminal), then
 `decision_files` returns the places a question needs, `sql` queries the tables and `read` shows documents as text
-(`[ocr]` adds OCR of scanned pages). A capability like code search, off by default and turned on only by
+(`[ocr]` adds OCR of scanned pages). `grep` finds a line inside a PDF or a Word document too, in that text, and names
+its page (`report.pdf:page 4:Total due 1,250 EUR.`). A capability like code search, off by default and turned on only by
 `[capabilities.workspace] enabled = true` ([capability settings](capability-settings.md#workspace)).
 It loads beside code search: in a repository with a folder of documents, the code index is `.intern/index.json`
 at the root and the documents' index `.decision_workspace/` in their folder.

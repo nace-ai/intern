@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, ClassVar
 from intern import hooks as h
 from intern.decisions import ChoiceAnswer, ChoiceQuestion
 from intern.extensions.workspace.documents import QUERY_MEMORY_SHARE, office_processors, query_memory
-from intern.extensions.workspace.tools import INSTALL, Sql, SqlExport, WorkspaceRead
+from intern.extensions.workspace.tools import INSTALL, Sql, SqlExport, WorkspaceGrep, WorkspaceRead
 from intern.locate.index import DOCUMENT_SUFFIXES, SAMPLE_FILES, sample
 from intern.locate.search import Questions
 from intern.locate.store import DecisionSearch, IndexTool, Locate
@@ -177,6 +177,7 @@ class Workspace(Locate):
             sql,
             WorkspaceRead(self.store),
             SqlExport(sql),
+            WorkspaceGrep(self.store),
         ]
 
     async def tool_call(self, call: ToolCall, ctx: h.RunContext) -> h.ToolCallDecision | None:

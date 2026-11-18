@@ -4,6 +4,7 @@ the extension's `Store` (see `intern.locate.store`, which also holds the search 
 from __future__ import annotations
 
 import asyncio
+import fnmatch
 import os
 import re
 import shutil
@@ -21,6 +22,7 @@ from intern.locate.index import DOCUMENT_SUFFIXES  # what `read` shows from deri
 from intern.locate.store import NoIndex, Store
 from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail
 from intern.tools.files import ReadArgs, ReadTool, page_lines
+from intern.tools.search import MAX_LINE_CHARS, GrepArgs, GrepTool
 from intern.tools.shell import DEFAULT_TIMEOUT_S, MAX_TIMEOUT_S
 
 if TYPE_CHECKING:
@@ -535,4 +537,76 @@ def _pages(spec: str) -> list[int]:
         if m := _RANGE.match(part):
             a, b = int(m.group(1)), int(m.group(2) or m.group(1))
             out.extend(range(a, b + 1) if a <= b else [])
+    return out
+
+
+_PAGE_LINE = re.compile(r"--- Page \d+ ---")  # a page's mark in a derived text, as `locate.index` writes it
+
+#: Documents `grep` searches in their derived text: the ones `read` shows as text. Workbooks and Parquet are `sql`'s.
+GREP_SUFFIXES = frozenset({".pdf", ".docx"})
+
+
+class WorkspaceGrep(GrepTool):
+    """`grep` that also finds a line inside a PDF or a Word document. The plain tool reads bytes, so on a document it
+    answered "No matches" for words the document holds: on OfficeQA Pro agents asked it 49 times for a line in a
+    PDF they had open and got that answer 47 times (18 Nov 2026)."""
+
+    description = (
+        GrepTool.description + " PDFs and Word documents are searched in the text read shows of them: a match in a "
+        "PDF is path:page N:text."
+    )
+
+    def __init__(self, store: Store) -> None:
+        self.store = store
+
+    async def matches(
+        self, args: GrepArgs, ctx: ToolContext, root: Path, regex: re.Pattern[str]
+    ) -> list[str] | ToolOutput:
+        found = await super().matches(args, ctx, root, regex)
+        if isinstance(found, ToolOutput):
+            return found
+        try:
+            index = await self.store.ready(ctx.cwd)
+        except (ImportError, NoIndex):
+            return found  # nothing derived to search: the files' own bytes, as before
+        base = self.store.root or ctx.cwd
+        return found + await asyncio.to_thread(_in_documents, index, base, root, args.glob, regex, ctx.cwd)
+
+
+def _in_documents(
+    index: Index, base: Path, root: Path, glob: str | None, regex: re.Pattern[str], cwd: Path
+) -> list[str]:
+    """Matching lines of the derived text of the documents at or under ``root``: `path:page N:text` for a paged
+    document, `path:line:text` for a Word document (its Markdown's lines, as `read` numbers them)."""
+    from intern.locate.index import DERIVED_DIR
+
+    base, target, cwd = base.resolve(), root.resolve(), cwd.resolve()
+    anywhere = re.compile(regex.pattern, regex.flags | re.MULTILINE)  # ^ and $ at each line, as the lines are tried
+    out: list[str] = []
+    for rel, entry in sorted(index.files.items()):
+        path = base / rel
+        if (
+            not entry.derived
+            or path.suffix.lower() not in GREP_SUFFIXES
+            or not (path == target or target in path.parents)
+            or (glob and not fnmatch.fnmatch(path.name, glob))
+        ):
+            continue
+        try:
+            text = (index.home / DERIVED_DIR / entry.derived).read_text(errors="replace")
+        except OSError:
+            continue
+        if not anywhere.search(text):  # one pass over the file before its lines
+            continue
+        try:
+            shown = path.relative_to(cwd).as_posix()
+        except ValueError:
+            shown = str(path)
+        page = 0
+        for number, line in enumerate(text.splitlines(), 1):
+            if entry.unit == "page" and _PAGE_LINE.fullmatch(line):
+                page += 1
+            elif regex.search(line):
+                where = f"page {page}" if entry.unit == "page" else str(number)
+                out.append(f"{shown}:{where}:{line[:MAX_LINE_CHARS]}")
     return out
