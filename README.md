@@ -149,8 +149,8 @@ independent judge also called stuck. [How it is judged](docs/architecture.md#sys
 When the context fills up, both parts of your intern's brain pitch in. Its System 2 writes the State: the plan, what
 the work found and changed, and what comes next, as edits to the State before it. Then it carries on from the
 State. Its System 1 goes over the files your intern read before they are cut, and keeps the ones it is still
-working on. System 1 never reads the State, only the session itself, so a State that misses something cannot hide
-it. A number the run never showed is sent back to the writer or blanked.
+working on. System 1 never reads this State, only its own cut of the session, so a State that misses something
+cannot hide it. A number the run never showed is sent back to the writer or blanked.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
@@ -161,14 +161,30 @@ On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, p
 `SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
 ([method](docs/architecture.md#system-2-and-system-1)).
 
+## System 1's State
+
+System 1's State is the session cut: code, not a model, builds it from the journal for every ask. It holds the
+goal (the user's last three requests), what runs now, and the whole session in order: the user's messages, the
+harness's nudges, the agent's replies without their reasoning, and each tool call with its input and a note in
+place of its output (status, size, a check's tally, the first 300 characters). Long sessions are cut to fit,
+oldest first; the first message and the newest four turns are never left out. `/state` in the terminal UI shows it
+as System 1 reads it. Every System 1 check reads it ([how it is built](docs/architecture.md#system-2-and-system-1)).
+
+It is also what decides a hand-over. After each turn, System 1 reads its State and is asked one question: has the
+strong model built the main solution, has a check relevant to the task run it, and is what is left only local
+repair and finishing? It judges from what the tool results in its State show, such as a test run's tally and the
+start of each output, not from what the agent says it did, and answers ready, not ready or unclear with a
+probability for each. Its P(ready) is the only signal the switch uses: two turns in a row at 0.7 or more, from turn
+8 on, and the cheaper model takes over.
+
 ## Hand-over
 
 Long tasks are not hard all the way through: the first turns plan and read, the last ones run the tests and fix
 what they show. Name a cheaper model and your intern's System 2 can hand the rest of a run over to it. After each
-turn, System 1 judges whether the work has reached that point: the main solution exists, a check relevant to the
-task has run it, and what is left is local repair and finishing. Two turns in a row at 0.7 or more, from turn 8
-on, and the cheaper model takes over in the same workspace and conversation. It hands over once a run, never back,
-and the next message starts on System 2 again. Off by default.
+turn, System 1 reads [its State](#system-1s-state), the session cut, and judges whether the work has reached that point:
+the main solution exists, a check relevant to the task has run it, and what is left is local repair and finishing.
+Two turns in a row at 0.7 or more, from turn 8 on, and the cheaper model takes over in the same workspace and
+conversation. It hands over once a run, never back, and the next message starts on System 2 again. Off by default.
 
 ```bash
 intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
