@@ -187,8 +187,6 @@ management reports a 2021 cyber attack and its loss._
 
 ### More that System 1 runs
 
-- **Supervision** (on). Every fourth turn System 1 nudges your intern out of circles. [Above](#supervision)
-- **Compaction** (always). System 1 keeps the file reads still in use when the context fills. [Above](#compaction)
 - **Memory** (on). Before the first request, System 1 recalls the pages of earlier sessions the task needs; after
   the session, it judges what is worth keeping. [Memory](docs/memory.md)
 - **Tool-call guard** (off). Fixed rules refuse `rm -rf ~`, force-pushes, piping a download into a shell and
