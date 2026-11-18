@@ -187,20 +187,20 @@ management reports a 2021 cyber attack and its loss._
 
 ### More that System 1 runs
 
-- **Memory** (on). Before the first request, System 1 recalls the pages of earlier sessions the task needs; after
+- **Memory** (default on). Before the first request, System 1 recalls the pages of earlier sessions the task needs; after
   the session, it judges what is worth keeping. [Memory](docs/memory.md)
-- **Tool-call guard** (off). Fixed rules refuse `rm -rf ~`, force-pushes, piping a download into a shell and
+- **Tool-call guard** (default off). Fixed rules refuse `rm -rf ~`, force-pushes, piping a download into a shell and
   reading your credentials; System 1 judges every other call against what you asked for. It stops all 42 risky
   calls of a labeled set and none of its 62 routine ones ([below](#how-well-system-1-does)). Say in `SYSTEM1.md`
   what you allow. [Guard](docs/capability-settings.md#guard)
-- **Tool-result guard** (off). System 1 removes the parts of web, browser and MCP output addressed to your intern
+- **Tool-result guard** (default off). System 1 removes the parts of web, browser and MCP output addressed to your intern
   before it reads them. [Tool-result guard](docs/capability-settings.md#tool-result-guard)
 - **Auto thinking level** (Claude models, when you pick it). At the start of each run, System 1 picks how hard
   System 2 should think for the request. [Measurements](docs/architecture.md#system-2-and-system-1)
 
 ### Other capabilities
 
-- **Subagents** (off). Your intern hands self-contained tasks to subagents with the `agent` tool, with its tools or
+- **Subagents** (default off). Your intern hands self-contained tasks to subagents with the `agent` tool, with its tools or
   fewer, never more. [Subagents](docs/capability-settings.md#subagents)
 - **Prompt-cache share.** The terminal UI's masthead shows the share of System 2's prompts read from the cache.
   [Terminal UI](docs/tui.md)
