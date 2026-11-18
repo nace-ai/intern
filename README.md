@@ -4,7 +4,7 @@
 
 <h1 align="center"><img src="docs/assets/wordmark.svg" alt="Intern" width="360"></h1>
 
-<p align="center">Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast and watches every turn.</p>
+<p align="center">Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast, keeps it on track and finds what it needs.</p>
 
 <p align="center">
   <a href="https://github.com/nace-ai/intern/actions/workflows/ci.yml"><img src="https://github.com/nace-ai/intern/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
@@ -12,64 +12,31 @@
   <img src="https://img.shields.io/badge/python-3.12%2B-blue" alt="Python 3.12+">
 </p>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
-  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test, re-reads files three turns in a row, System 1 marks each turn stuck and nudges it, the guard refuses a sudo call, and System 2 fixes the bug and the test passes.">
-</picture>
-
 Small models make keen but shaky interns: they loop, cut replies short, send malformed tool calls, overflow their
 context and stop before the work is done. Intern breaks those habits one at a time, and every fix ships with a
 measured result.
 
 Your intern's brain has two parts. Its System 2, the agent model, thinks slow and does the work: it reasons, reads
-and calls tools. Its System 1, a second and faster model, thinks fast and watches each turn: it nudges your intern
-when it goes in circles, checks risky tool calls before they run, and decides what your intern keeps in mind when
-its context fills up.
+and calls tools. Its System 1, a second and faster model, thinks fast and keeps it on track: every fourth turn it
+checks whether your intern is going in circles and nudges it out, it searches code and files for it when you turn
+search on, and it decides what your intern keeps in mind when its context fills up.
 
-## Install
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
+  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session with the guard turned on: System 2 runs a failing test, re-reads files three turns in a row, System 1 marks each turn stuck and nudges it, the guard refuses a sudo call, and System 2 fixes the bug and the test passes.">
+</picture>
 
-```bash
-# Python 3.12+; installs the `intern` command
-uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
-```
+_A session with the guard turned on (`/caps guard`), which is off by default; a default install never shows the
+refused `sudo` call._
 
-Then run `intern`. The first time, it opens on a short setup that explains what Intern is and connects both of its
-models: pick a provider for System 2 (Anthropic, OpenAI, OpenRouter, Gemini, xAI, DeepSeek, Mistral, Groq and 15
-more, or a model on your machine), paste a key (or sign in to OpenRouter in the browser), and pick System 1, Drex Max
-on OpenRouter by default. Keys go to your system keychain; `/setup` brings the screen back any time.
+## What's new in Intern
 
-Your intern runs on two models:
-
-- **System 2** does the work. It can be any chat model: OpenRouter, Fireworks, Together, DeepInfra, Groq, OpenAI,
-  Anthropic, or a local model.
-- **System 1** watches every turn. It can be any decision model: Drex, Jev, Kev and 40+ others, from the
-  [Nace console](https://console.nace.ai) or OpenRouter's decisions API. `intern models` lists them all.
-
-**Option 1: one OpenRouter key for both**
-
-```bash
-export OPENROUTER_API_KEY=...
-intern --system2 openrouter/qwen/qwen3.8-27b \
-  --system1 decisions:nace-ai/drex-max \
-  "Find why tests/test_parser.py fails and fix it"
-```
-
-**Option 2: Nace console for System 1, any provider for System 2**
-
-Sign up at [console.nace.ai](https://console.nace.ai) and create an API key. Drex from the console is the default
-System 1, so no `--system1` is needed:
-
-```bash
-export NACE_API_KEY=...        # System 1: Drex from the Nace console
-export FIREWORKS_API_KEY=...   # System 2: any provider, here Fireworks
-intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
-  "Find why tests/test_parser.py fails and fix it"
-```
-
-Either way the terminal UI opens with the task as its first prompt; `-p` runs it headlessly and prints the reply.
-Every provider, flag and setting is in [docs/usage.md](docs/usage.md).
-
-## How it works
+- **A supervisor that never sleeps.** System 1 looks at every fourth turn and nudges your intern out of circles. On
+  by default. [Supervision](#supervision)
+- **Code search by meaning.** `decision_code` finds where a repository does something, even when the words aren't
+  in it. Off by default. [decision_code](#decision_code-scan-a-code-base)
+- **Search for professional files.** `decision_files` searches PDFs, workbooks and scans for audit-style
+  questions. Off by default. [decision_files](#decision_files-scan-professional-files)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
@@ -87,12 +54,185 @@ Every provider, flag and setting is in [docs/usage.md](docs/usage.md).
 6. When the context fills, System 2 writes its State as edits, System 1 keeps the reads still in use, and the turns
    the State covers are cut.
 
+The [architecture](docs/architecture.md) has the details and the measurements behind each step.
+
+## Install
+
+```bash
+# Python 3.12+; installs the `intern` command
+uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
+```
+
+Then run `intern`. The first time, it opens on a short setup that explains what Intern is and connects both of its
+models: pick a provider for System 2 (Anthropic, OpenAI, OpenRouter, Gemini, xAI, DeepSeek, Mistral, Groq and 12
+more, or a model on your machine), paste a key (or sign in to OpenRouter in the browser), and pick System 1, Drex Max
+on OpenRouter by default. Keys go to your system keychain; `/setup` brings the screen back any time.
+
+Or give it a task straight away, with one OpenRouter key for both models:
+
+```bash
+export OPENROUTER_API_KEY=...
+intern --system2 openrouter/qwen/qwen3.8-27b \
+  --system1 decisions:nace-ai/drex-max \
+  "Find why tests/test_parser.py fails and fix it"
+```
+
+The terminal UI opens with the task as its first prompt; `-p` runs it headlessly and prints the reply.
+
+<details>
+<summary>The two models, and the Nace console for System 1</summary>
+
+- **System 2** does the work. It can be any chat model: OpenRouter, Fireworks, Together, DeepInfra, Groq, OpenAI,
+  Anthropic, or a local model.
+- **System 1** keeps it on track. It can be any decision model: Drex, Jev, Kev and 40+ others, from the
+  [Nace console](https://console.nace.ai) or OpenRouter's decisions API. `intern models` lists them all.
+
+Sign up at [console.nace.ai](https://console.nace.ai) and create an API key. Drex from the console is the default
+System 1, so no `--system1` is needed:
+
+```bash
+export NACE_API_KEY=...        # System 1: Drex from the Nace console
+export FIREWORKS_API_KEY=...   # System 2: any provider, here Fireworks
+intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
+  "Find why tests/test_parser.py fails and fix it"
+```
+
+</details>
+
+Every provider, flag and setting is in [docs/usage.md](docs/usage.md).
+
+## Supervision
+
+Every fourth turn, your intern's System 1 reads the session cut and judges what the latest four turns are doing:
+advancing, re-investigating what earlier turns already covered, retrying, off plan or finished. When
+re-investigating and retrying together reach 0.7, the verdict is stuck, and System 1 looks again at the next turn.
+A stuck verdict that holds gets a nudge to act on what your intern found. On by default.
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/supervise-dark.svg">
   <img src="docs/assets/supervise-light.svg" alt="System 1 supervising one run of thirteen turns. It looks at turn 4: advancing, so the next look is turn 8. At turn 8 re-investigating and retrying together pass 0.7, a stuck verdict, so it looks again at turn 9; still stuck, it nudges System 2 to make the change as its next call. Turns 10 and 11 edit and pass the tests, and the look at turn 13 calls them advancing. 0.6 s a look; replayed over 42 stored runs (1,935 turns), the rule sent 23 stuck nudges and asked System 1 at 27% of turns. The probability bars are illustrative.">
 </picture>
 
-The [architecture](docs/architecture.md) has the details and the measurements behind each step.
+Replayed through System 1 over 42 stored runs (1,935 turns), this rule sends 23 stuck nudges and asks System 1 at
+27% of the turns, 0.6 s a look. No blind judge has rated its nudges yet. The rule before it looked at every turn and
+nudged after three stuck verdicts in a row: over 82 stored sessions, 16 of its 19 nudges fell on turns an
+independent judge also called stuck. [How it is judged](docs/architecture.md#system-2-and-system-1)
+
+## decision_code: scan a code base
+
+The `decision_code` capability lets your intern scan a code base with fast thinking. It answers "where"
+questions about a repository without matching words: System 1 walks an index of it, folders first, then files, then
+the definitions in them, scores each against the question, and opens only the branches worth opening. A folder that
+holds several repositories is searched one repository at a time. Off by default.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-diagram-dark.svg">
+  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: two folders opened and 26 of 132 files judged; supervise.py 0.95, loop.py 0.82, context.py 0.34, session.py 0.21 and cut; then the definitions in the best files, read and compared. Result: supervise.py 0.97 at class Supervisor, then loop.py 0.40. 62 asks, $0.0035, 3.9 s, the run recorded below.">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
+  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first with class Supervisor, then loop.py. 62 asks, $0.0035.">
+</picture>
+
+_Asked where this repository's own source decides that a run is going in circles. The word "circles" appears only
+in two screens' text, never in the code that decides it, so grep for it lands on the wrong files; code search puts
+`supervise.py` first, at the class that does it._
+
+Over 15 such questions about this repository, `decision_code` puts the right file first for 14 of them, where BM25
+word search alone does for 8 ([below](#how-well-system-1-does)). [Turn it on](docs/usage.md#code-search).
+
+## decision_files: scan professional files
+
+The `decision_files` capability lets your intern scan professional files (PDFs, Excel workbooks, CSV, Parquet,
+Word documents and images) quickly, for tasks like audit. Your intern indexes the folder once (scanned pages are
+OCRed; an image is indexed by its name and size, and `read` shows it to a model that can see). Then System 1 walks
+the folders, files and their pages, sections and tabs while BM25 ranks every passage, judges the best of both
+together, and follows the strongest passages' terms to what the first pass missed. `sql` queries the tables and
+`read` shows the documents as text. Off by default.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-diagram-dark.svg">
+  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 11 of 36 passages; System 1 judges both together, 12 passages; the best passages' 20 terms find 19 more, and System 1 judges all 31. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 16 asks, $0.0026, 2.9 s, the run recorded below.">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
+  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 16 asks, $0.0026.">
+</picture>
+
+_Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder: the
+engagement letter, the notes to the financial statements, the income statement and balance sheet as workbooks,
+three management questionnaires and a revenue workpaper. "Victim", "scam" and "theft" are in none of them;
+`decision_files` puts first the page of the fraud-risk questionnaire where management reports a 2021 cyber attack,
+its loss split 50/50 (about $45k)._
+
+[Turn it on](docs/usage.md#workspace).
+
+## Compaction
+
+When the context fills up, both parts of your intern's brain pitch in. Its System 2 writes the State: the plan, what
+the work found and changed, and what comes next, as edits to the State before it. Then it carries on from the
+State. Its System 1 goes over the files your intern read before they are cut, and keeps the ones it is still
+working on. System 1 never reads the State, only the session itself, so a State that misses something cannot hide
+it. A number the run never showed is sent back to the writer or blanked.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
+  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its State into the compaction's card, System 1 judges the file reads being cut and keeps the three your intern is still working on, and a click opens the State.">
+</picture>
+
+On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83% with a
+`SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
+([method](docs/architecture.md#system-2-and-system-1)).
+
+## More capabilities
+
+Switch each one with `/caps` in the terminal UI, the ACP `cap.*` options, or `~/.intern/config.toml`
+([capability settings](docs/capability-settings.md)).
+
+- **Memory** (on). Your intern remembers what earlier sessions learned (where things are, what failed, what people
+  said), in a folder on your machine. [Memory](docs/memory.md)
+- **Auto thinking level** (Claude models, when you pick it). On Anthropic's API, Shift+Tab past the highest level reaches `auto`:
+  at the start of each run, System 1 reads the session and picks how hard System 2 should think for the new request
+  (low for a quick question, high for a bug hunt); every turn of that run uses the level. Other providers write the
+  level into the start of the prompt, so a change re-reads the whole prompt without the cache, where Anthropic's
+  keeps it. [Measurements](docs/architecture.md#system-2-and-system-1)
+- **Tool-call guard** (off). Turn it on with `/caps guard` or `[capabilities.guard] enabled = true`. Fixed rules
+  then refuse `rm -rf ~`, force-pushes, piping a download into a shell, reading your credentials or your intern's
+  keys file (`~/.intern/.env`) and sending `.env` files; System 1 judges the rest against what you asked for. A
+  refused call does not end the run. On 140 labeled calls it stops all 42 risky ones you did not ask for, and none
+  of the 62 routine ones ([below](#how-well-system-1-does)). [Guard](docs/capability-settings.md#guard)
+- **Tool-result guard** (off). System 1 screens what web, browser and MCP tools return and removes the parts
+  addressed to your intern, before your intern reads them. [Tool-result guard](docs/capability-settings.md#tool-result-guard)
+- **Subagents** (off). Your intern hands self-contained tasks to subagents with the `agent` tool. A subagent has
+  your intern's tools or fewer, never more, and its guard, budget and deadline.
+  [Subagents](docs/capability-settings.md#subagents)
+- **Definitions in 14 languages.** `decision_code` returns a class or a function in Python, JavaScript, TypeScript,
+  Go, Rust, Java, C, C++, C#, Ruby, PHP, Swift, shell and SQL, and a section in Markdown.
+  [Code search](docs/usage.md#code-search)
+- **Prompt-cache share.** The terminal UI's masthead shows the share of System 2's prompts its provider read from
+  the cache, over the session. [Terminal UI](docs/tui.md)
+- **Optional tools.** Web search and reading, a browser, MCP servers, a Docker workspace, secrets from your keychain
+  or password manager. [Capability settings](docs/capability-settings.md)
+
+## How well System 1 does
+
+On its own, a small model does not notice it is going in circles, cannot tell a routine command from a risky one,
+and searches only for the words it was given. Your intern's System 1 does those jobs. Each row is one of them, with
+System 1 and without it.
+
+| System 1 | With System 1 | Without it | Measured on |
+|---|---|---|---|
+| Notices your intern going in circles | 23 stuck nudges, asking at 27% of turns; 0.6 s a look. No blind judge has rated them yet | No nudges | 42 stored runs (1,935 turns), replayed ([method](docs/architecture.md#system-2-and-system-1)) |
+| The same, by the rule before 0.39.0, which looked at every turn | 19 nudges, 16 of them on turns an independent judge also called stuck | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds where a repository does something (`decision_code`) | Right file first for 0.93 of questions, in the top five for all; right definition first for 0.67 (top five 0.93); 102 asks, $0.006 and 4.5 to 9.5 s a question | BM25 word search alone: right file first for 0.53, in the top five for 0.73; right definition first for 0.40 | 15 questions about this repository, two repeats, `drex-max` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the passage in professional files (`decision_files`) | Not yet measured | Not yet measured | |
+| Stops risky tool calls you did not ask for (guard, opt-in) | All 42 stopped, and none of the 62 routine calls; it reads each script a call runs, and asks the registries about each package an install names, before judging it; 0.4 s a check | The fixed rules stop 9 of the 42 | 140 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
+
+System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.
+Asked about the session, it answers 95% of questions from that view, as many as from a transcript cut to the same
+length (94%) ([method](docs/architecture.md#system-2-and-system-1)).
 
 ## Instructions
 
@@ -120,110 +260,6 @@ Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared,
 ```
 
 `--no-context-files` skips all three. [Configuration](docs/usage.md#configuration)
-
-## What Intern has currently
-
-- **Supervision.** Every fourth turn, your intern's System 1 checks whether it is advancing, retrying or re-reading
-  what it already found. A stuck verdict that holds at the next turn gets a nudge. [How it is judged](docs/architecture.md#system-2-and-system-1)
-- **Tool-call guard.** A capability, off by default; turn it on with `/caps guard` or
-  `[capabilities.guard] enabled = true`. Fixed rules then refuse `rm -rf ~`,
-  force-pushes, piping a download into a shell, reading your credentials or your intern's keys file
-  (`~/.intern/.env`) and sending `.env` files; System 1 judges the rest against what you asked for. A refused call
-  does not end the run.
-  [Rules](docs/architecture.md#system-2-and-system-1)
-- **Auto thinking level.** On Claude models (Anthropic's API), Shift+Tab past the highest level reaches `auto`: at
-  the start of each run, System 1 reads the session and picks how hard System 2 should think for the new request
-  (low for a quick question, high for a bug hunt); every turn of that run uses the level. Anthropic only, for now:
-  other providers write the level into the start of the prompt, so a change re-reads the whole prompt without the
-  cache, where Anthropic's keeps it. [Measurements](docs/architecture.md#system-2-and-system-1)
-- **Compaction that keeps the State honest.** State writes are edits, not rewrites, and a number the run never
-  showed is sent back to the writer or blanked. [Below](#compaction)
-- **Capabilities.** Two searches your intern can be given beyond its tools: `decision_code` over a code base and
-  `decision_files` over professional files. [Below](#capabilities)
-- **Memory.** On by default: your intern remembers what earlier sessions learned (where things are, what failed,
-  what people said), in a folder on your machine. [Memory](docs/memory.md)
-- **Optional tools.** Web search and reading, a browser, MCP servers, background processes, a Docker workspace,
-  secrets from your keychain or password manager. [Capability settings](docs/capability-settings.md)
-
-## Compaction
-
-When the context fills up, both parts of your intern's brain pitch in. Its System 2 writes a summary of the work so
-far, then carries on from it. Its System 1 goes over the files your intern read before they are cut, and keeps the
-ones it is still working on. System 1 never reads the summary, only the session itself, so a summary that misses
-something cannot hide it.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
-  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its summary into the compaction's card, System 1 judges the file reads being cut and keeps the three your intern is still working on, and a click opens the summary.">
-</picture>
-
-## Capabilities
-
-Two capabilities Intern has on top of its tools. Each is off by default; switch it on with `/caps` in the
-terminal UI or in `~/.intern/config.toml`. Your intern's System 1 does the reading.
-
-### decision_code: scan a code base
-
-The `decision_code` capability lets your intern scan a code base with fast thinking. It answers "where"
-questions about a repository without matching words: System 1 walks an index of it, folders first, then files, then
-the definitions in them, scores each against the question, and opens only the branches worth opening.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-diagram-dark.svg">
-  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: two folders opened and 26 of 132 files judged; supervise.py 0.95, loop.py 0.82, context.py 0.34, session.py 0.21 and cut; then the definitions in the best files, read and compared. Result: supervise.py 0.97 at class Supervisor, then loop.py 0.40. 62 asks, $0.0035, 3.9 s, the run recorded below.">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
-  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first with class Supervisor, then loop.py. 62 asks, $0.0035.">
-</picture>
-
-_Asked where this repository's own source decides that a run is going in circles. The word "circles" is nowhere in
-it, so grep finds nothing; code search puts `supervise.py` first, at the class that does it._
-
-[Turn it on](docs/usage.md#code-search).
-
-### decision_files: scan professional files
-
-The `decision_files` capability lets your intern scan professional files (PDFs, Excel workbooks, CSV, Parquet,
-Word documents and images) quickly, for tasks like audit. Your intern indexes the folder once (scanned pages are
-OCRed; an image is indexed by its name and size, and `read` shows it to a model that can see). Then System 1 walks
-the folders, files and their pages, sections and tabs while BM25 ranks every passage, judges the best of both
-together, and follows the strongest passages' terms to what the first pass missed. `sql` queries the tables and
-`read` shows the documents as text.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-diagram-dark.svg">
-  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 11 of 36 passages; System 1 judges both together, 12 passages; the best passages' 20 terms find 19 more, and System 1 judges all 31. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 16 asks, $0.0026, 2.9 s, the run recorded below.">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
-  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 16 asks, $0.0026.">
-</picture>
-
-_Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder: the
-engagement letter, the notes to the financial statements, the income statement and balance sheet as workbooks,
-three management questionnaires and a revenue workpaper. "Victim", "scam" and "theft" are in none of them;
-`decision_files` puts first the page of the fraud-risk questionnaire where management reports a 2021 cyber attack,
-its loss split 50/50 (about $45k)._
-
-[Turn it on](docs/usage.md#workspace).
-
-## How well System 1 does
-
-On its own, a small model does not notice it is going in circles, cannot tell a routine command from a risky one,
-and searches only for the words it was given. Your intern's System 1 does those jobs. Each row is one of them, with
-System 1 and without it.
-
-| System 1 | With System 1 | Without it | Measured on |
-|---|---|---|---|
-| Notices your intern going in circles | 19 nudges, 16 of them on turns an independent judge also called stuck (measured when it looked at every turn); 0.6 s a check | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
-| Stops risky tool calls you did not ask for | All 42 stopped, and none of the 62 routine calls; it reads each script a call runs, and asks the registries about each package an install names, before judging it; 0.4 s a check | The fixed rules stop 9 of the 42 | 140 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
-
-System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.
-Asked about the session, it answers 95% of questions from that view, as many as from a transcript cut to the same
-length (94%) ([method](docs/architecture.md#system-2-and-system-1)).
 
 ## Models
 
@@ -262,7 +298,9 @@ prints the event JSON Schema.
   [Docker workspace](docs/capabilities/docker-workspace.md) or another container.
 - **It does not work without its System 1.** Your intern's System 1 is a hosted decision model. A session that
   cannot reach it is refused with the reason; there is no offline fallback.
-- **It does not start sub-agents.** Your intern works on one task at a time, alone.
+- **It does not start subagents unless you turn them on.** With `cap.subagents` on, it hands self-contained tasks
+  to subagents, which inherit its capabilities and never get more. Off by default.
+  [Subagents](docs/capability-settings.md#subagents)
 - **It has no editor plugin of its own.** Editors reach it over the Agent Client Protocol.
 
 ## Data
