@@ -2,7 +2,6 @@
 
 One process serves any number of ACP sessions, each a harness `Session` built by `Bootstrap` like the
 CLI's and the JSON-RPC server's. The contract is docs/acp.md; the event mapping is acp_mapping.py.
-Needs the `acp` extra (the official `agent-client-protocol` SDK).
 """
 
 from __future__ import annotations

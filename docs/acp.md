@@ -17,7 +17,7 @@ extra, and a toggle that cannot work here is not offered. [0.25.0](#0250) rename
 [0.27.0](#0270) removes its old names.
 
 ```bash
-uv tool install "intern-agent[acp] @ git+https://github.com/nace-ai/intern@v0.30.1"
+uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.44.1"
 intern acp                         # System 2 from config.toml or $INTERN_SYSTEM2; System 1 drex-latest
 intern acp --system2 openrouter/qwen/qwen3.8-27b --system1 drex-max-v1.1
 ```
@@ -25,8 +25,8 @@ intern acp --system2 openrouter/qwen/qwen3.8-27b --system1 drex-max-v1.1
 `acp` takes the same options as `rpc` (`--system2`, `--system1`, `--window`, `--max-turns`,
 `--profile`, `--no-context-files`, `--no-extensions`, `--extension`, `--no-session`) as defaults for
 every session it opens. `--cwd` and `--session` are ignored: ACP sends the working directory with
-each session, and journals are found by session id. The server needs the `acp` extra (the official
-`agent-client-protocol` Python SDK); without it the command exits with code 2 and says so.
+each session, and journals are found by session id. Every install can serve ACP: the official
+`agent-client-protocol` Python SDK is a dependency of `intern-agent`, not an extra.
 
 stdout carries only the protocol. Warnings and logs go to stderr. stdin and stdout must be pipes (or a
 terminal); redirected to a file, the command exits with code 2. When stdin closes, every request
@@ -1325,3 +1325,10 @@ clients keep working, and with both options off a client reads only the toggles'
   `[capabilities.web_reader]`, named for the packs they set up. A config.toml with the old names loads as before; one
   with both an old and a new name for the same table fails to load, saying which to keep. From Python,
   `CapabilitySettings` takes either name, and its fields are `web_search` and `web_reader`.
+
+### 0.44.1
+
+Every install of `intern-agent` serves ACP: the `agent-client-protocol` SDK is now a dependency, not the `acp` extra.
+An `intern` installed the way the README says, without `[acp]`, made `intern acp` exit with code 2 (`No module named
+'acp'`), so every thread a client opened on it failed to start. Nothing in the protocol changes; 0.44.0 clients keep
+working. `intern-agent[acp]` still installs, the extra now empty.

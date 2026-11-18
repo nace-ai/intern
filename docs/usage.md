@@ -28,7 +28,7 @@ intern -p --system2 fireworks/accounts/fireworks/models/nemotron-lightning-3p5-3
 | One task, readable output, headless | `intern -p --system2 M "task"` |
 | One task, JSON events (one per line) | `intern -p --json --system2 M -- "task"` |
 | JSON-RPC server over stdio | `intern rpc --system2 M` |
-| Agent Client Protocol server (t3code, Zed; needs `[acp]`, see [acp.md](acp.md)) | `intern acp` |
+| Agent Client Protocol server (t3code, Zed; see [acp.md](acp.md)) | `intern acp` |
 | Event JSON Schema | `intern schema` |
 | Keep the command it runs in from `idle_stop_s` while `cmd` runs | `intern hold [--reason TEXT] -- cmd...` |
 
