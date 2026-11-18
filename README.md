@@ -262,7 +262,7 @@ and so is their System 1 until a paired eval measures it ([`system1`](docs/capab
 - **`web_read`**, on a page longer than the preview, has System 1 keep the parts the task needs, in page order,
   where it showed the page's start. [Web reader](docs/capabilities/web-reader.md)
 
-### More that System 1 runs
+### More System 1 based capabilities
 
 - **Memory** (default on). Before the first request, System 1 recalls the pages of earlier sessions the task needs; after
   the session, it judges what is worth keeping. [Memory](docs/memory.md)
