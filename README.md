@@ -132,7 +132,7 @@ it. A number the run never showed is sent back to the writer or blanked.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
-  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its State into the compaction's card, System 1 judges the file reads being cut and keeps the three your intern is still working on, and a click opens the State.">
+  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its State into the compaction's card, System 1 judges the file reads being cut and keeps the three of seven your intern is still working on, and a click opens the State.">
 </picture>
 
 On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83% with a
@@ -155,11 +155,11 @@ repository at a time. Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
-  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first with class Supervisor, then loop.py. 62 asks, $0.0035.">
+  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 88 asks, $0.0061.">
 </picture>
 
 _Asked where this repository decides that a run is going in circles. "Circles" is in none of that code, so grep
-lands on the wrong files; `decision_code` puts `supervise.py` first, at the class that does it._
+lands on the wrong files; `decision_code` puts `supervise.py` first, at the method that does it._
 
 Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
 known answer. System 1 is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
@@ -208,7 +208,7 @@ Default off. [Turn it on](docs/usage.md#workspace)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
-  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 16 asks, $0.0026.">
+  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 13 asks, $0.0021.">
 </picture>
 
 _Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder.
