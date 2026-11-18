@@ -138,9 +138,10 @@ HINTS = (
     ("/dark", "look"),
 )
 SPRITES = Path(__file__).with_name("mascot.png")
-"""The mascot's poses, side by side, one for each of `EYES`: `docs/assets/mascot.svg` without the shadow under it,
-as a browser draws it 160 pixels wide with its eyes at rest, glancing left, glancing right and shut. `poses` scales
-them to the cells."""
+"""The mascot's poses, side by side, one for each of `EYES`: `docs/assets/mascot.svg` without the shadow under it or
+its breath, cut to the cube and drawn 160 pixels wide by a browser stopped at each pose (0.5 s into its loop at rest,
+2.1 s glancing left, 4.6 s glancing right, 6.88 s shut). Its eyes glance behind still glasses, and its smile with
+them. `poses` scales them to the cells."""
 SPRITE_COLUMNS, SPRITE_ROWS = 32, 16
 """The mascot in cells, two pixels to a cell down: as wide in pixels as it is tall."""
 BIG_COLUMNS, BIG_ROWS = 40, 20

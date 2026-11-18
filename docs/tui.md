@@ -86,10 +86,10 @@ README's paragraph; under them the working directory and the session's journal, 
 knowing first (while the session is opening, or when it could not open, that line says so instead). All of it is
 centred, and stands a third of the way down a tall terminal.
 
-The mascot is the README's cube (`tui/mascot.png`: `docs/assets/mascot.svg` as a browser draws it, in each of its
-poses), scaled to the cells, 40 by 20 on a wide page with the room and 32 by 16 otherwise, and its eyes move as that
-one's do: every eight seconds they glance left, then right, and blink twice; `TEXTUAL_ANIMATIONS=none` holds them
-still. A cell is two pixels of it, one over the other, each the mean of what it covers of the drawing, so the cube's
+The mascot is the README's violet cube, smiling on its front face behind round glasses (`tui/mascot.png`:
+`docs/assets/mascot.svg` as a browser draws it, in each of its poses), scaled to the cells, 40 by 20 on a wide page
+with the room and 32 by 16 otherwise, and its eyes move as that one's do: every eight seconds they glance left, then
+right, behind glasses that stay still, and blink twice; `TEXTUAL_ANIMATIONS=none` holds them still. A cell is two pixels of it, one over the other, each the mean of what it covers of the drawing, so the cube's
 edge is a blend with the page and not a step. The upper pixel is the cell's background and the lower a lower half
 block on it, never an upper half block: a terminal draws a cell's background exactly and a glyph where its font puts
 it, and macOS Terminal starts an upper half block short of the cell's top, which leaves a gap, while a lower one
@@ -120,13 +120,13 @@ straight to the conversation; `/clear` comes back to the page.
 ## Layout
 
 ```
-           ▄▄██▄
-      ▄▄██████████▄        INTERN  v0.25.0
- ▄▄▄██▀▀▀█████▀▀▀████▄
-  ███  ██ ███  ██ ██▀      System 2  anthropic/claude-haiku-5-5    thinking high   ▰▰▰▱▱    price unknown   ⠸ 11% of 131.1k
-  ▀███▄▄▄█████▄▄▄███       System 1  nace-ai/drex-max             decisions API             $0.0312
-    ▀██████████████▀
-      ▀▀████▀▀▀
+      ▄▄██▄
+   ▄████████▄              INTERN  v0.25.0
+  ███▀▀██▀▀███▄
+ ▄█▄        ▄▄█            System 2  anthropic/claude-haiku-5-5    thinking high   ▰▰▰▱▱    price unknown   ⠸ 11% of 131.1k
+  ███▄▄██▄▄███             System 1  nace-ai/drex-max             decisions API             $0.0312
+   ████▄▄███
+     ████
 ╭─▐System 2▌ thinking slow ─────────────────────────╮╭─▐System 1▌ thinking fast ──────────────────────╮
 │ › Find why tests/test_parser.py fails and fix it  ││ 131 asks · 0.4s each · 12 cached               │
 │ ▸ Thought for 3.4s                                ││ ━ watch 22   ✓ guard 8   ⌕ search 97           │
@@ -177,8 +177,8 @@ near-black text, a warm gray for what is secondary; the mascot's violet for what
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
 cursors); green only for what went right, amber for what needs a look, red for what went wrong. The mark is the
 mascot, the violet cube in round glasses at the top of the README, in outline, lighter at the top as that one is and with
-no edge between its faces (under the glasses one reads as a mouth), in its own
-colours in both looks, fourteen cells by seven,
+no edge between its faces, its glasses level across its front face with their arms out to its sides and a mouth under
+them, in its own colours in both looks, fourteen cells by seven,
 in the masthead: drawn by hand, a pixel the upper or lower half of a cell, so it is square on screen and
 each cell can take two of the mascot's colours (`widgets.MASCOT`; the README's cube scaled to this size is a smudge), its eyes glancing and blinking as the
 entering page's do, and nothing on the page says it twice: the

@@ -118,29 +118,30 @@ MASCOT = (
     ".......##.....",
     ".....#####....",
     "...########...",
-    "..#######KK#..",
-    ".####KK#KWWK#.",
-    ".###KWWKKWWK##",
-    ".###KWWK#KK###",
-    "#####KK#######",
+    "..##########..",
     ".############.",
+    ".###KK##KK####",
+    ".#KKWWKKWWKKK#",
+    "###KWWKKWWK###",
+    ".###KK##KK###.",
     ".############.",
-    "..#########...",
+    "..####MM###...",
     "..#########...",
     "....####......",
     "....####......",
 )
 """The mascot, a character per pixel (`#` its body, `theme.MASCOT_BODY`; the rest `theme.MASCOT_COLOURS`; `.` the
 page): the README's cube in outline, tilted as in the Nace logo, lighter at the top as that one is, with no edge
-between its faces (under the glasses one reads as a mouth); round glasses with the right lens a pixel higher, as the
-top face lies in perspective. Below its middle it narrows a cell at a time, two rows of pixels as wide as each other:
-a pixel over the open page is a half block whose edge macOS Terminal draws as a hairline. Fourteen pixels
-tall so it stands seven rows, the masthead's height. A pixel is a cell wide and half a cell tall, so it is square on
-screen. The glasses are drawn by hand: at this size the README's scaled down are a smudge."""
+between its faces; on its front face round glasses, level, their arms out to its sides, and under them a mouth. Below
+its middle it narrows a cell at a time, two rows of pixels as wide as each other: a pixel over the open page is a half
+block whose edge macOS Terminal draws as a hairline. Fourteen pixels tall so it stands seven rows, the masthead's
+height. A pixel is a cell wide and half a cell tall, so it is square on screen. The glasses and the mouth are drawn by
+hand: at this size the README's scaled down are a smudge."""
 EYES = ("rest", "left", "right", "shut")
 """The mascot's poses: its eyes at rest, glancing left, glancing right and shut."""
 LOOK = ("WW", "W9", "9W", "99")
-"""`MASCOT`'s eye in each pose, a lens being two pixels across: its white, or the lens where it has left."""
+"""`MASCOT`'s eyes in each pose, a lens being two pixels across and two down: their white, or the lens where they have
+left. The mouth is `M`, so it stays where it is."""
 ART = (
     "██ ███  ██ ████████ ███████ ██████  ███  ██",
     "██ ████ ██    ██    ██      ██   ██ ████ ██",
