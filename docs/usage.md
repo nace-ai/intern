@@ -183,7 +183,7 @@ and turned on only by `[capabilities.code_search] enabled = true` in `~/.intern/
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/code-search-diagram-dark.svg">
-  <img src="assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: one folder opened and 46 of 156 files judged; supervise.py 0.95, loop.py 0.85, session.py 0.55, context.py 0.47; then the definitions in the best files, read and compared. Result: supervise.py 0.96 at Supervisor.after_turn, then loop.py 0.41. 88 asks, $0.0061, 9.0 s, the run the README's recording shows.">
+  <img src="assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: one folder opened and 54 of 157 files judged; supervise.py 0.96, loop.py 0.87, session.py 0.68, context.py 0.42; then the definitions in the best files, read and compared. Result: supervise.py 0.96 at Supervisor.after_turn, then loop.py 0.42. 97 asks, $0.0064, 11.4 s, the run the README's recording shows.">
 </picture>
 
 ```bash
@@ -216,7 +216,7 @@ at the root and the documents' index `.decision_workspace/` in their folder.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/files-search-diagram-dark.svg">
-  <img src="assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 6 of 29 passages; System 1 judges both together, 7 passages; the best passages' 20 terms find 15 more, and System 1 judges all 22. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 13 asks, $0.0021, 4.3 s, the run the README's recording shows.">
+  <img src="assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 6 of 29 passages; System 1 judges both together, 7 passages; the best passages' 20 terms find 15 more, and System 1 judges all 22. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 13 asks, $0.0021, 3.1 s, the run the README's recording shows.">
 </picture>
 
 ```bash
