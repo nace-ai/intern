@@ -71,14 +71,17 @@ def levels(style: str) -> list[int]:
 
 def test_the_mark_stands_six_rows_and_is_drawn_without_an_upper_half_block():
     for pose in range(len(EYES)):
-        rows = mark(pose)
+        rows = mark(pose, fine=False)  # where the terminal is not known to draw sextants
         assert len(rows) == MARK_ROWS == 6  # under the masthead's first row
         for row in rows:
             assert row.cell_length == MARK_COLUMNS
             # The upper pixel is the cell's background, the lower a lower half block on it: never an upper half
             # block, which macOS Terminal starts short of the cell's top.
             assert set(row.plain) <= set(" ▄")
-    assert mark(EYES.index("rest")) != mark(EYES.index("shut"))  # it blinks
+        for row in mark(pose, fine=True):
+            assert row.cell_length == MARK_COLUMNS  # in sextants it takes the same cells
+    for fine in (False, True):
+        assert mark(EYES.index("rest"), fine=fine) != mark(EYES.index("shut"), fine=fine)  # it blinks
 
 
 def test_the_masthead_lines_up_the_models_the_run_and_each_systems_cost_in_columns():

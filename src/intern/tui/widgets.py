@@ -21,7 +21,7 @@ import time
 import uuid
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 from urllib.parse import unquote
 
 from rich.cells import cell_len, set_cell_size
@@ -277,10 +277,104 @@ def frame(name: str, index: int, columns: int, rows: int, page: str, ink: str, a
     return tuple(Content.assemble(*row) for row in pixels(grid, page))
 
 
+FINE_COLUMNS, FINE_ROWS = 2 * MARK_COLUMNS, 3 * MARK_ROWS
+"""The mark's pixels where the terminal draws sextants: six to a cell, two across and three down."""
+
+Eyes = tuple[tuple[int, int, str], tuple[int, int, str]]
+"""The mark's two eyes in sextant pixels: where each one's box starts, and its shape (`EYE_SHAPES`)."""
+
+EYE_SHAPES: dict[str, tuple[tuple[int, int], ...]] = {
+    "open": ((0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2)),
+    "shut": ((0, 1), (1, 1)),
+    "down": ((0, 1), (1, 1), (0, 2), (1, 2)),
+    "cross": ((0, 0), (2, 0), (1, 1), (0, 2), (2, 2)),
+    "plus": ((1, 0), (0, 1), (1, 1), (2, 1), (1, 2)),
+}
+"""An eye's pixels in its box, three by three: open, shut in a blink, lowered to read, crossed out when a run
+failed, and a plus that turns into the cross and back, a turnstile, while a tool runs."""
+
+FINE_EYES: tuple[Eyes, ...] = (
+    ((11, 5, "open"), (16, 4, "open")),
+    ((10, 4, "open"), (15, 4, "open")),
+    ((12, 5, "open"), (17, 5, "open")),
+    ((11, 5, "shut"), (16, 4, "shut")),
+)
+"""The eyes in each pose (`EYES`)."""
+
+Face = Literal["idle", "reading", "turnstile", "failed"]
+"""What the mark's eyes are doing: glancing and blinking; reading, while System 2 thinks; a turnstile, while a tool
+runs; crossed out, for a moment after a run failed."""
+
+READING = (0, 0, 1, 1, 2, 2, 2, 2, 1, 0)
+"""How far along the line the reading eyes are, a step a tick: across, a rest at its end, and back to the next."""
+
+
+def eyes_at(face: Face, seconds: float) -> tuple[Eyes, int]:
+    """The eyes of a face, `seconds` in: in sextant pixels, and the pose (`EYES`) nearest it for a terminal that
+    gets the mark in half blocks, whose eyes are a pixel wide."""
+    tick = int(seconds / SPIN_S)
+    if face == "reading":
+        along = READING[tick // 2 % len(READING)]
+        return ((10 + along, 4, "down"), (15 + along, 4, "down")), (EYES.index("left"), 0, EYES.index("right"))[along]
+    if face == "turnstile":
+        shape = ("plus", "cross")[tick // 3 % 2]
+        return ((10, 4, shape), (15, 4, shape)), (0, EYES.index("shut"))[tick // 3 % 2]
+    if face == "failed":
+        return ((10, 4, "cross"), (15, 4, "cross")), EYES.index("shut")
+    pose = pose_at(seconds)
+    return FINE_EYES[pose], pose
+
+
+def sextants() -> bool:
+    """Whether the terminal draws the sextants (U+1FB00 and on) itself, so they meet with no gaps: the ones known
+    to. Elsewhere a font may not have them, and the mark is drawn in half blocks."""
+    env = os.environ
+    return (
+        env.get("TERM_PROGRAM") in ("ghostty", "WezTerm", "iTerm.app")
+        or "KITTY_WINDOW_ID" in env
+        or env.get("TERM", "").startswith(("xterm-ghostty", "xterm-kitty", "foot", "wezterm"))
+    )
+
+
+def sextant(bits: int) -> str:
+    """The glyph with these pixels of a cell in ink: bit 0 its upper left, bit 1 its upper right, and so on down."""
+    if bits in (0, 21, 42, 63):
+        return {0: " ", 21: "▌", 42: "▐", 63: "█"}[bits]
+    return chr(0x1FB00 + bits - 1 - (bits > 21) - (bits > 42))
+
+
 @functools.cache
-def mark(pose: int = 0, page: str = LIGHT["card"], ink: str = LIGHT["ink"]) -> tuple[Content, ...]:
+def fine_mark(eyes: Eyes, ink: str) -> tuple[Content, ...]:
+    """The mark in sextants, three times the pixels of the half blocks: each pixel ink or not, so its edges are
+    sharp, and its eyes two or three pixels wide."""
+    from PIL import Image
+
+    shape = sheet("mark").split()[1].resize((FINE_COLUMNS, FINE_ROWS), Image.Resampling.BOX)
+    grid = [[shape.getpixel((x, y)) > 127 for x in range(FINE_COLUMNS)] for y in range(FINE_ROWS)]
+    for x, y, drawn in eyes:
+        for right, down in EYE_SHAPES[drawn]:
+            grid[y + down][x + right] = True
+    rows = []
+    for y in range(0, FINE_ROWS, 3):
+        cells = (sum(grid[y + bit // 2][x + bit % 2] << bit for bit in range(6)) for x in range(0, FINE_COLUMNS, 2))
+        rows.append(Content.styled("".join(sextant(bits) for bits in cells), ink))
+    return tuple(rows)
+
+
+@functools.cache
+def mark(
+    pose: int = 0,
+    page: str = LIGHT["card"],
+    ink: str = LIGHT["ink"],
+    fine: bool | None = None,
+    eyes: Eyes | None = None,
+) -> tuple[Content, ...]:
     """The mark, one `Content` per row for laying the masthead's text beside it: Intern in `ink` on the masthead's
-    card, of the colour `page`, its eyes in a pose (`EYES`)."""
+    card, of the colour `page`, its eyes in a pose (`EYES`). In sextants where the terminal draws them (`fine`,
+    by default what `sextants` says), with `eyes` when given in place of the pose's; else in half blocks, a third
+    of the pixels, their edges blended, in the pose."""
+    if sextants() if fine is None else fine:
+        return fine_mark(eyes or FINE_EYES[pose], ink)
     grid = shrunk("mark", 0, MARK_COLUMNS, MARK_ROWS, page, ink, ink)
     for x, y in EYE_PIXELS[pose]:
         grid[y][x] = ink
@@ -536,6 +630,9 @@ class StatusBar(Static):
         self._flash_timer: Timer | None = None
         self._frame = 0
         self._pose = 0
+        self._eyes: Eyes = FINE_EYES[0]
+        self._face: Face = "idle"
+        self._face_until = 0.0
         self._card = ""
         self._born = time.monotonic()
 
@@ -545,12 +642,22 @@ class StatusBar(Static):
     def _spin(self) -> None:
         """The spinner's next frame while a run is in progress, and the mark's eyes, alive as the entering page's
         are; still where motion is switched off (`TEXTUAL_ANIMATIONS=none`)."""
-        pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
+        now = time.monotonic()
+        if self._face_until and now >= self._face_until:
+            self._face, self._face_until = "idle", 0.0
+        still = self.app.animation_level == "none" and self._face != "failed"
+        eyes, pose = (FINE_EYES[0], 0) if still else eyes_at(self._face, now - self._born)
         glinting, was = self._glint_frame() is not None, self._glinting  # the glint's last frame draws it at rest
-        if self.running or pose != self._pose or glinting or was or self._card != self._page():
+        moved = (eyes, pose) != (self._eyes, self._pose)
+        if self.running or moved or glinting or was or self._card != self._page():
             self._frame += self.running
-            self._pose = pose
+            self._eyes, self._pose = eyes, pose
             self.refresh_line()
+
+    def face(self, face: Face, hold_s: float = 0.0) -> None:
+        """What the mark's eyes do from now (`Face`); with `hold_s`, for that long, then back to idle."""
+        self._face = face
+        self._face_until = time.monotonic() + hold_s if hold_s else 0.0
 
     def _page(self) -> str:
         """The card's colour in the look in force (`/dark`), which the mark's half tones blend with."""
@@ -632,7 +739,7 @@ class StatusBar(Static):
         wide = max(Content.assemble(*row).cell_length for row in table) + LETTERS_WIDTH <= self.size.width
         rows: list[list[Part]] = [[], [*([] if wide else name), (f"v{__version__}", S_MUTED)], [], *table, [], []]
         self._card = self._page()
-        cubes = [Content(" " * MARK_COLUMNS), *mark(self._pose, self._card, self._look()["ink"])]
+        cubes = [Content(" " * MARK_COLUMNS), *mark(self._pose, self._card, self._look()["ink"], eyes=self._eyes)]
         lines = [
             Content.assemble(cube, "   ", *([word, "    "] if wide else []), *row)
             for cube, word, row in zip(cubes, beside, rows, strict=True)

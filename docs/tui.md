@@ -184,7 +184,13 @@ look, red for what went wrong. The mark is the mascot, the cube with eyes at the
 both looks, twelve cells by six beside the block letters, in the masthead: the brand's cube scaled to those cells
 (`widgets.mark`, from `tui/sprites/mark.png`), its edges blended with the card, and its eyes put in by hand, a
 pixel wide and two tall (`widgets.EYE_PIXELS`), since eyes scaled to this size are a smudge; they glance and blink
-as the entering page's do, and nothing on the page says it twice: the
+as the entering page's do. Where the terminal draws sextants itself (Ghostty, kitty, WezTerm, iTerm2, foot:
+`widgets.sextants`) the mark is in those, six pixels to a cell and each one ink or not, so its edges are sharp and
+its eyes two pixels wide (`widgets.fine_mark`), and its eyes say what the run is doing (`StatusBar.face`): they
+read along a line while System 2 thinks, turn from a plus to a cross and back, a turnstile, while a tool runs, and
+are crossed out for a few seconds after a run that failed (a provider error, System 1 unavailable, an internal
+error). Elsewhere it is in half blocks, which every font has, in the nearest of its four poses. `uv run python -m
+tests.preview_tui` opens the terminal UI on scripted models to see all of it without keys. and nothing on the page says it twice: the
 System 2 panel opens on its heading alone. The panels are headed after Kahneman's two systems: System 2 `thinking slow` (it reasons and
 acts), System 1 `thinking fast` (it reviews the turns, judges the tool
 calls that can do harm and what a compaction keeps), its panel above the State's, headed `fast and slow`:
