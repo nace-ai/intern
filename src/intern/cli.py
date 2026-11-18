@@ -285,11 +285,8 @@ def _models(argv: list[str]) -> int:
 
 
 def _acp(options: Options) -> int:
-    try:
-        from intern.protocol import acp
-    except ImportError as e:
-        print(f"{names.NAME}: {e}; install {names.DISTRIBUTION}[acp]", file=sys.stderr)
-        return EXIT_USAGE
+    from intern.protocol import acp
+
     acp.main(options)
     return EXIT_OK
 
