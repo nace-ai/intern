@@ -12,12 +12,14 @@ from intern.locate.trace import Ranked
 from intern.messages import UserMessage
 from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, Ledger, RuleRefusal, TurnJudgement
 from intern.tui.system1_panel import feed, shares, usage
-from intern.tui.theme import CARD, MASCOT_BODY, MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_OK, S_RULE, S_WARN
+from intern.tui.theme import S_BOX, S_BOX_MUTED, S_OK, S_RULE, S_WARN
 from intern.tui.widgets import (
     CARD_LINES,
+    EYES,
     FILLED,
     LANDED,
-    MASCOT,
+    MARK_COLUMNS,
+    MARK_ROWS,
     METER_WIDTH,
     NBSP,
     TRACK,
@@ -67,32 +69,19 @@ def levels(style: str) -> list[int]:
     return [int(level, 16) for level in LEVEL.findall(style)]
 
 
-def test_the_mark_draws_the_mascot_two_pixels_to_a_cell_in_its_own_colours_with_the_page_around_it():
-    half_tones = "+k"
-    # None the page by a typo.
-    assert {pixel for row in MASCOT for pixel in row} <= {*MASCOT_COLOURS, *half_tones, "#", "."}
-    rows = mark()
-    assert len(rows) == 6  # under the masthead's first row
-    named = {colour: name for name, colour in MASCOT_COLOURS.items()}
-    pixel = {colour.lower(): name for colour, name in (named | dict.fromkeys(MASCOT_BODY, "#")).items()}
-    pixel |= {"": ".", CARD.lower(): "."}
-    drawn: list[str] = []
-    for row in rows:
-        styles = [""] * len(row.plain)
-        for span in row.spans:
-            styles[span.start : span.end] = [str(span.style)] * (span.end - span.start)
-        upper = lower = ""
-        for glyph, style in zip(row.plain, styles, strict=True):
+def test_the_mark_stands_six_rows_and_is_drawn_without_an_upper_half_block():
+    for pose in range(len(EYES)):
+        rows = mark(pose, fine=False)  # where the terminal is not known to draw sextants
+        assert len(rows) == MARK_ROWS == 6  # under the masthead's first row
+        for row in rows:
+            assert row.cell_length == MARK_COLUMNS
             # The upper pixel is the cell's background, the lower a lower half block on it: never an upper half
             # block, which macOS Terminal starts short of the cell's top.
-            assert glyph in " ▄"
-            fg, on, bg = style.rpartition("on ")
-            top, bottom = ((bg, fg.strip()) if on else ("", bg)) if glyph == "▄" else (bg, bg)
-            upper, lower = upper + pixel.get(top.lower(), "~"), lower + pixel.get(bottom.lower(), "~")
-        drawn += [upper, lower]
-    # A half tone is a blend, of no colour of its own; the page is no colour at all.
-    expected = [re.sub(f"[{re.escape(half_tones)}]", "~", row) for row in MASCOT]
-    assert drawn == expected
+            assert set(row.plain) <= set(" ▄")
+        for row in mark(pose, fine=True):
+            assert row.cell_length == MARK_COLUMNS  # in sextants it takes the same cells
+    for fine in (False, True):
+        assert mark(EYES.index("rest"), fine=fine) != mark(EYES.index("shut"), fine=fine)  # it blinks
 
 
 def test_the_masthead_lines_up_the_models_the_run_and_each_systems_cost_in_columns():

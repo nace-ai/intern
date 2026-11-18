@@ -1,16 +1,32 @@
-<p align="center">
-  <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, smiling, glancing around and blinking" width="160">
-</p>
+<div align="center">
 
-<h1 align="center"><img src="docs/assets/wordmark.svg" alt="Intern" width="360"></h1>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/intern-idle-dark.svg">
+  <img alt="Intern's mark: the Nace cube with two eyes in the window on its top face, looking around and blinking" src="docs/assets/brand/intern-idle-light.svg" width="132">
+</picture>
 
-<p align="center">Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast, keeps it on track and finds what it needs.</p>
+<h1>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/intern-wordmark-white.svg">
+  <img alt="Intern" src="docs/assets/brand/intern-wordmark-black.svg" width="250">
+</picture>
+</h1>
 
-<p align="center">
-  <a href="https://github.com/nace-ai/intern/actions/workflows/ci.yml"><img src="https://github.com/nace-ai/intern/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Nace_AI_Open_RAIL--M-blue" alt="License: Nace AI Open RAIL-M"></a>
-  <img src="https://img.shields.io/badge/python-3.12%2B-blue" alt="Python 3.12+">
-</p>
+**Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast, keeps it on track and finds what it needs.**
+
+[![CI](https://img.shields.io/github/actions/workflow/status/nace-ai/intern/ci.yml?branch=main&style=flat-square&label=ci&color=0FDBB4&labelColor=0A0A0A)](https://github.com/nace-ai/intern/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-Nace_AI_Open_RAIL--M-0FDBB4?style=flat-square&labelColor=0A0A0A)](LICENSE)
+![python](https://img.shields.io/badge/python-3.12%2B-0FDBB4?style=flat-square&labelColor=0A0A0A)
+[![by Nace](https://img.shields.io/badge/by-nace.ai-0A0A0A?style=flat-square&labelColor=0A0A0A)](https://nace.ai)
+
+[What's new](#whats-new-in-intern) · [Install](#install) · [Supervision](#supervision) · [Compaction](#compaction) · [Capabilities](#capabilities) · [Models](#models) · [Editors](#use-it-from-your-editor) · [Contributing](CONTRIBUTING.md)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/intern-banner-dark.svg">
+  <img alt="One agent, two systems. Intern is an open-source agent harness for small models: one model does the work, a faster one keeps it on track." src="docs/assets/brand/intern-banner-light.svg" width="100%">
+</picture>
+
+</div>
 
 Small models make keen but shaky interns: they loop, cut replies short, send malformed tool calls, overflow their
 context and stop before the work is done. Intern breaks those habits one at a time, and every fix ships with a
@@ -23,7 +39,7 @@ search on, and it decides what your intern keeps in mind when its context fills 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
-  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test and re-reads the parser turn after turn; System 1 calls the turns circling at its look and again at the next turn, and nudges it to make the change. System 2 asks decision_code where each item is split into key and value, which ranks pairs/text.py first at 0.94; it edits that file and the test passes. System 1 made 17 asks for $0.0004.">
+  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test and re-reads the parser turn after turn; System 1 calls the turns circling at its look and again at the next turn, and nudges it to make the change. System 2 asks decision_code where each item is split into key and value, which ranks pairs/text.py first at 0.99; it edits that file and the test passes. System 1 made 15 asks for $0.0004.">
 </picture>
 
 _A session with code search turned on (`/caps code-search`), which is off by default. System 2's turns are
@@ -137,7 +153,7 @@ it. A number the run never showed is sent back to the writer or blanked.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
-  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its State into the compaction's card, System 1 judges the file reads being cut and keeps the three of seven your intern is still working on, and a click opens the State.">
+  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its State into the compaction's card, System 1 judges the file reads being cut and keeps the three of six your intern is still working on, and a click opens the State.">
 </picture>
 
 On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83% with a
@@ -195,7 +211,7 @@ repository at a time. Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
-  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 97 asks, $0.0064.">
+  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 90 asks, $0.0063.">
 </picture>
 
 _Asked where this repository decides that a run is going in circles. "Circles" is in none of that code, so grep
@@ -253,7 +269,7 @@ Default off. [Turn it on](docs/usage.md#workspace)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
-  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 13 asks, $0.0021.">
+  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 1.00. 13 asks, $0.0009.">
 </picture>
 
 _Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder.

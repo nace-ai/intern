@@ -80,24 +80,27 @@ the model the session opened on. System 2's card has how hard it thinks, how man
 has switched on (`●` on, `○` off: `/caps` changes them), each capability with what it is in a few words; `code
 search` and `workspace` say that System 1 does the searching. System 1's card has where it is served, its four jobs,
 each on (`●`) or off (`○`) as a capability is (the guard is off, and its line says so, when `cap.guard` is off or
-runs the fixed rules alone; the search while neither `code search` nor `workspace` is on), and what it judges from, the State. Above them the wordmark in block letters, a
-row for each of the mascot's violets, lightest at the top as the mascot is, and what Intern is, in the
+runs the fixed rules alone; the search while neither `code search` nor `workspace` is on), and what it judges from, the State. Above them the wordmark in block letters, in the
+ink with a shadow in the accent, and what Intern is, in the
 README's paragraph; under them the working directory and the session's journal, then what to do and the keys worth
 knowing first (while the session is opening, or when it could not open, that line says so instead). All of it is
 centred, and stands a third of the way down a tall terminal.
 
-The mascot is the README's violet cube, round glasses on its front face (`tui/mascot.png`:
-`docs/assets/mascot.svg` as a browser draws it, in each of its poses, without the mouth, which at this size reads as
-teeth), scaled to the cells, 40 by 20 on a wide page
-with the room and 32 by 16 otherwise, and its eyes move as that one's do: every eight seconds they glance left, then
-right, behind glasses that stay still, and blink twice; `TEXTUAL_ANIMATIONS=none` holds them still. A cell is two pixels of it, one over the other, each the mean of what it covers of the drawing, so the cube's
-edge is a blend with the page and not a step. The upper pixel is the cell's background and the lower a lower half
+The mascot is the README's mark, the Nace cube with two eyes in the window on its top face, in one colour, the ink
+(`tui/sprites/`: sheets of frames from the Nace brand playground's Intern kit, with `sprites.json` saying which
+frame each tick of 0.08 s shows), scaled to the cells, 40 by 20 on a wide page with the room and 32 by 16 otherwise.
+It is in one of five states (`welcome.Mascot.play`): `idle`, looking around and blinking, while the page waits;
+`listening` while there is text in the prompt; `rolling` while the session opens; `blocked` when it could not open;
+`happy` when setup is done. It changes state behind a blink, and what a state draws in the accent (the blocked
+state's sign) is in the look's accent. `TEXTUAL_ANIMATIONS=none` holds it still. Its pixels are sharp, ink or
+page and nothing between: six to a cell in sextants where the terminal draws them (`widgets.sextants`), else two, one
+over the other. Of those two the upper pixel is the cell's background and the lower a lower half
 block on it, never an upper half block: a terminal draws a cell's background exactly and a glyph where its font puts
 it, and macOS Terminal starts an upper half block short of the cell's top, which leaves a gap, while a lower one
-ends at the cell's bottom. It does not breathe as the README's does, a breath being less than a pixel. The wordmark
+ends at the cell's bottom. The wordmark
 and the masthead's mark are drawn the same way. The wordmark's shadow is whole cells, to the right of its letters and,
 at twice the size, a row under them: half a row under them would be a half block over the open page, whose edge
-macOS Terminal draws as a hairline. The mark narrows a cell at a time below its middle for the same reason.
+macOS Terminal draws as a hairline.
 
 The page fits the terminal, and is fitted again when the terminal's size changes. From 130 columns it is the page
 above (`hero`), with the larger mascot from 138 columns and 42 rows, and its wordmark twice the size from 160 columns
@@ -173,23 +176,27 @@ straight to the conversation; `/clear` comes back to the page.
 ╰───────────────────────────────────────────────────╯╰────────────────────────────────────────────────╯
 ```
 
-**Look.** paper, ink and the mascot's violet (`tui/theme.py`): an off-white page, white cards, hairline rules,
-near-black text, a warm gray for what is secondary; the mascot's violet for what is Intern's own (the wordmark, the
+**Look.** paper, ink and one accent, the Nace mint (`tui/theme.py`): an off-white page, white cards, hairline rules,
+near-black text, a warm gray for what is secondary; the accent for what is Intern's own (the wordmark's shadow, the
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
-cursors); green only for what went right, amber for what needs a look, red for what went wrong. The mark is the
-mascot, the violet cube in round glasses at the top of the README, in outline, lighter at the top as that one is and with
-no edge between its faces, its glasses level across its front face with their arms out to its sides and no mouth (a
-smile of a few pixels reads as teeth), in its own colours in both looks, twelve cells by six beside the block letters,
-in the masthead: drawn by hand, a pixel the upper or lower half of a cell, so it is square on screen and
-each cell can take two of the mascot's colours (`widgets.MASCOT`; the README's cube scaled to this size is a smudge),
-with half tones blended with the card where a step would show (its corners, the lenses' corners), its eyes glancing and blinking as the
-entering page's do, and nothing on the page says it twice: the
+cursors), deepened on the light look so it reads on paper; green only for what went right, amber for what needs a
+look, red for what went wrong. The mark is the mascot, the cube with eyes at the top of the README, in the ink in
+both looks, twelve cells by six beside the block letters, in the masthead: the brand's cube scaled to those cells
+(`widgets.mark`, from `tui/sprites/mark.png`), its edges blended with the card, and its eyes put in by hand, a
+pixel wide and two tall (`widgets.EYE_PIXELS`), since eyes scaled to this size are a smudge; they glance and blink
+as the entering page's do. Where the terminal draws sextants itself (Ghostty, kitty, WezTerm, iTerm2, foot:
+`widgets.sextants`) the mark is in those, six pixels to a cell and each one ink or not, so its edges are sharp and
+its eyes two pixels wide (`widgets.fine_mark`), and its eyes say what the run is doing (`StatusBar.face`): they
+read along a line while System 2 thinks, turn from a plus to a cross and back, a turnstile, while a tool runs, and
+are crossed out for a few seconds after a run that failed (a provider error, System 1 unavailable, an internal
+error). Elsewhere it is in half blocks, which every font has, in the nearest of its four poses. `uv run python -m
+tests.preview_tui` opens the terminal UI on scripted models to see all of it without keys. and nothing on the page says it twice: the
 System 2 panel opens on its heading alone. The panels are headed after Kahneman's two systems: System 2 `thinking slow` (it reasons and
 acts), System 1 `thinking fast` (it reviews the turns, judges the tool
 calls that can do harm and what a compaction keeps), its panel above the State's, headed `fast and slow`:
 the "and" of Kahneman's title, where the two systems meet, since the State is what System 1 sees of System 2's work.
-Each panel is a window, a round border in the mascot's violet with the panel's name on it as a tab, paper on that
-violet: the entering page's cards, as the conversation has them. The prompt is to System 2 alone, so it stands
+Each panel is a window, a round border in the accent with the panel's name on it as a tab, paper on that
+accent: the entering page's cards, as the conversation has them. The prompt is to System 2 alone, so it stands
 under System 2's window, as wide, and the State's window runs down beside it. Text the mouse selects takes a shade
 of the page.
 
@@ -200,7 +207,7 @@ labels in one column, the models in the next, the rest in a third. At the end of
 a spinner while one is in progress (`○` when none is), the latest request's tokens as a share of the
 working window, and what the run is waiting on or what needs attention. The thinking level is in a filled box with a pip per level the model takes, filled
 up to the one in force (none for the model's own), so Shift+Tab is seen to change it. At `auto` the box says
-`✦ auto` in the mascot's violet, its pips filled up to the level System 1 picked for the latest run (none before
+`✦ auto` in the accent, its pips filled up to the level System 1 picked for the latest run (none before
 the first), and a glint sweeps across it while a run is in progress and for a moment once it is chosen or System
 1 picks; the pick is also a card under the run's prompt and a row of System 1's panel (below). Each system's cost
 so far is in a fourth column. It moves as the calls are made, during a run too
@@ -209,7 +216,7 @@ resumed journal, but for code search's asks, which the journal does not keep. A
 model whose cost is not known, its provider reporting none and the harness having no price for it,
 leaves System 2's cost `price unknown` (`≥ $…` when other calls had one).
 
-**System 2 panel**, the transcript, headed like the other two. Prompts (`›`), the user's own, in bold on a deeper shade behind a purple bar, so they stand apart from
+**System 2 panel**, the transcript, headed like the other two. Prompts (`›`), the user's own, in bold on a deeper shade behind a bar in the accent, so they stand apart from
 the harness's blocks when scrolling, in the light look and the dark; the model's thinking folded to one line, a spinner and `Thinking…` while it
 thinks and `▸ Thought for 3.4s` once it is done (click it to read the reasoning, click again to fold
 it); replies as Markdown, in full; each tool call the way pi shows it: the call on a lighter shaded line in softer ink (`$ command` for bash, else the
@@ -234,9 +241,9 @@ model was asked. A number past its threshold is red. The
 supervisor card's edge is a thin muted bar.
 
 At the `auto` thinking level, System 1's pick of the run's level is a card right under the prompt, before the
-reply, its edge and its sign the mascot's violet as the masthead's `✦ auto` is: `✦ System 1 · 0.3s   thinking ▁▄▅ high
+reply, its edge and its sign the accent as the masthead's `✦ auto` is: `✦ System 1 · 0.3s   thinking ▁▄▅ high
 0.54   medium 0.45   low 0.01`. The ladder is a column for each level the model takes, least to most, as tall as
-System 1's probability for it, the one picked in violet, so a sure pick (`▁▁█`) reads apart from a close one
+System 1's probability for it, the one picked in the accent, so a sure pick (`▁▁█`) reads apart from a close one
 (`▁▄▅`) at a glance; then the level, its probability, and the two next likeliest, muted.
 
 **A compaction** is a card where it happened, about System 2's context, and the whole of it shows there.
@@ -398,8 +405,8 @@ State in full, as the exact text it is given (its JSON laid out).
 order they came, each run under its prompt:
 
 - `✦` **thinking**: the level System 1 picked for the run at `auto`, first under its prompt, worded as its card
-  in the transcript: `thinking ▁▄▅ high 0.54   medium 0.45`, the ladder and the level in violet, the next
-  likeliest as far as the line holds them. Its sign is violet too.
+  in the transcript: `thinking ▁▄▅ high 0.54   medium 0.45`, the ladder and the level in the accent, the next
+  likeliest as far as the line holds them. Its sign is in the accent too.
 - **watch**: what the supervisor (`supervise.py`) answered at the end of a turn it looked at, in a line: one bar of twelve cells,
   each mode it weighed taking its share of them in its own colour, so a call is seen to have been one of several;
   the mode it called and its probability; the modes it weighed most against that one, muted, as far as the line
@@ -489,7 +496,7 @@ a notice and is off for the rest of the session, and the TUI goes on.
 | `/clear` | start over: the screen cleared and a new session opened on a fresh journal, with the models and capabilities as they are. The journal so far stays on disk, to resume with `--session`. |
 | `/reload` | restart on the code, config and keys as they are now (an editable install's latest edits, a reinstall, a key added to `~/.intern/.env`) and resume this session on its journal, with the models, capabilities and thinking level picked here. The process starts again on the same command line, the task on it not sent twice, so everything is loaded anew: the harness, the UI, extensions, profiles, `config.toml` and `.env`. It installs nothing: a changed dependency needs `uv tool install --reinstall` (or `uv sync`) first. The screen stays up across the restart, the last frame on it until the new process paints over it. Waits for the run to finish; refused with `--no-session`, whose journal is in memory only. |
 | `/panels` | hide or show the right-hand panels |
-| `/dark`, `/light` | the dark look (paper and ink swapped, each a little grayed down, and the mascot's lighter violet) or the light one, the default; `/reload` keeps it |
+| `/dark`, `/light` | the dark look (paper and ink swapped, each a little grayed down, and a brighter accent) or the light one, the default; `/reload` keeps it |
 | `/help`, `/quit` | the commands and the keys; close the session and exit (closing the terminal window, or a SIGTERM, quits the same way, so the session is still stewarded) |
 
 Enter sends the prompt, or, while a run is in progress, steers it: the text shows as `queued` and goes

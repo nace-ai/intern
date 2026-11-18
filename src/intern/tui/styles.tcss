@@ -1,4 +1,4 @@
-/* Paper, ink and the mascot's violet: see theme.py for the colours. */
+/* Paper, ink and the accent: see theme.py for the colours. */
 
 Screen {
     layout: vertical;
@@ -199,7 +199,7 @@ Screen {
     width: 1fr;
 }
 
-/* The user's message: a purple bar and a deeper shade, so it stands apart from the harness's blocks when scrolling. */
+/* The user's message: a bar in the accent and a deeper shade, so it stands apart from the harness's blocks when scrolling. */
 .user {
     margin: 1 0 1 0;
     padding: 0 1;
@@ -230,7 +230,7 @@ Screen {
     border-left: wide $error;
 }
 
-/* System 1's pick of a run's thinking level, at auto: in the mascot's violet, as the masthead's box says it. */
+/* System 1's pick of a run's thinking level, at auto: in the accent, as the masthead's box says it. */
 .decision.auto {
     border-left: wide $brand;
 }

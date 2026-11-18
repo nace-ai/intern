@@ -111,8 +111,8 @@ class Stacked(Visual):
 
 
 def label_parts(label: str, style: str) -> list[tuple[str, str]]:
-    """A label in `style`, what follows its first ` · ` (`code search · System 1`) as a violet tab, so what System 1
-    drives stands apart; filled, it still reads on the highlighted row, which is violet too."""
+    """A label in `style`, what follows its first ` · ` (`code search · System 1`) as a tab in the accent, so what
+    System 1 drives stands apart; filled, it still reads on the highlighted row, which is in the accent too."""
     name, dot, tag = label.partition(" · ")
     return [(name, style), ("  ", ""), (f" {tag} ", S_TAB)] if dot else [(name, style)]
 

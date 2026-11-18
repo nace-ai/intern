@@ -177,6 +177,9 @@ PICKS = TypeAdapter(Models)
 RESUME_TURNS = 30
 """The turns a resumed session shows; the earlier ones are in its journal and their work in the State."""
 CUT_SOON_S = 0.5
+FAILED = ("provider_error", "system1_unavailable", "internal_error")
+"""The ways a run ends that the mark shows as a failure, its eyes crossed out for `FAILED_FACE_S`."""
+FAILED_FACE_S = 6.0
 FEED_SOON_S = 0.1
 """How long System 1's panel waits to redraw: a search asks hundreds of times in a few seconds."""
 Opener = Callable[[EventSink, Models], Awaitable[Session]]
@@ -904,14 +907,17 @@ class HarnessApp(App[None]):
                 await self._delivered(content)
             case TurnStart():
                 self.status.activity = ""
+                self.status.face("reading")
                 await transcript.begin_turn()
             case TextDelta(text=text):
                 await transcript.text(text)
             case ReasoningDelta(text=text):
                 await transcript.reasoning(text)
             case ToolCallStart():
+                self.status.face("turnstile")
                 await transcript.tool_start(event)
             case ToolCallEnd():
+                self.status.face("reading")
                 transcript.tool_end(event)
             case ContextBudget(tokens=tokens, working_window=window):
                 self.status.context, self.status.window = tokens, window
@@ -1017,6 +1023,10 @@ class HarnessApp(App[None]):
                 spent2, spent1 = self.run_spent  # what went uncounted: calls with no event of their own (code search)
                 self._spend(Usage(cost_usd=max(usage.cost_usd - spent2, 0.0)), max(system1.cost_usd - spent1, 0.0))
                 self.status.running = self.session is not None and self.session.running
+                if reason in FAILED:
+                    self.status.face("failed", FAILED_FACE_S)
+                else:
+                    self.status.face("idle")
                 line = f"{reason}" + (f": {detail}" if detail else "")
                 line += (
                     f" · {turns} turns · {tokens_text(usage.input_tokens)} in / {tokens_text(usage.output_tokens)} out"
@@ -1078,6 +1088,8 @@ class HarnessApp(App[None]):
         """Images the prompt names show on its border, so a dropped one reads as attached."""
         sees = self.session is None or self.session.deps.system2.profile.vision
         message.text_area.border_subtitle = attachments(images_in(message.text_area.text), sees)
+        for page in self.query(Welcome):
+            page.typing(bool(message.text_area.text.strip()))
 
     @on(Prompt.Submitted, "#prompt")
     async def _on_prompt(self, message: Prompt.Submitted) -> None:

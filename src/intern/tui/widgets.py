@@ -21,7 +21,7 @@ import time
 import uuid
 from collections.abc import Iterable
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar, Literal
 from urllib.parse import unquote
 
 from rich.cells import cell_len, set_cell_size
@@ -58,11 +58,11 @@ from intern.tui.ledger import (
 )
 from intern.tui.outline import EMPHASIS, LIST_ITEM, QUOTE, Outline, Status, parse_state, plain
 from intern.tui.theme import (
+    BRAND,
     CARD,
     DARK,
+    INK,
     LIGHT,
-    MASCOT_BODY,
-    MASCOT_COLOURS,
     PAPER,
     S_BAD,
     S_BAD_BOLD,
@@ -117,34 +117,32 @@ GLINT_S = 2.4
 run too."""
 GLINT_GAP = 6
 """Frames between two sweeps of the glint across `auto`."""
-MASCOT = (
-    ".....+#+....",
-    "....#####...",
-    "..+######+..",
-    ".##########.",
-    ".#kKk##kKk##",
-    "kKKWWKKWWKKk",
-    "##KWWKKWWK#.",
-    "##kKk##kKk#.",
-    ".#########..",
-    ".#########..",
-    "...####.....",
-    "...####.....",
-)
-"""The mascot, a character per pixel (`#` its body, `theme.MASCOT_BODY`; `K`, `W` and `9` from
-`theme.MASCOT_COLOURS`; `.` the page): the README's cube, tilted as in the Nace logo, lighter at the top as that one is,
-with no edge between its faces; on its front face round glasses, level, their arms out to its sides. No mouth: the
-README's smile, a few pixels at this size, reads as teeth. Half-tone pixels soften what is a step at this size: `+`
-the body over the page at a corner, `k` the frame over the body at a lens's corner. Below its middle it narrows a cell
-at a time, two rows of pixels as wide as each other: a pixel over the open page is a half block whose edge macOS
-Terminal draws as a hairline. Twelve pixels tall so it stands six rows, under the masthead's first. A pixel is a cell
-wide and half a cell tall, so it is square on screen. The glasses are drawn by hand: at this size the README's scaled
-down are a smudge."""
+SPRITES = Path(__file__).with_name("sprites")
+"""Intern, the Nace cube with eyes, as the brand draws it (the Nace brand playground's Intern kit,
+`pnpm export --intern-kit`): a sheet of square frames side by side for each of its states (`<state>.png`), cut to the
+square the cube and its motion keep to, one camera for all, so the cube stands in the same place in every state;
+`poses.png`, its eyes at rest, glancing left, glancing right and shut (`EYES`) in that camera; `mark.png`, the cube
+alone with its eyes shut away, which is the Nace mark, for the masthead; and `sprites.json`, which says for each
+tick of a state's loop which
+frame shows (`sequence`; a frame the loop holds is stored once). A sheet has two channels: the first is which colour
+(white the ink, black the accent), the second how much of it. `frame` scales a frame to the cells and colours it for
+the look in force."""
+MARK_COLUMNS, MARK_ROWS = 12, 6
+"""The masthead's mark in cells, two pixels to a cell down, so as wide in pixels as it is tall: it stands under the
+masthead's first row.
+It is the brand's drawing scaled down, each pixel the mean of what it covers: at this size a cube drawn by hand in
+whole pixels, its window's frame thinner than one, reads as a blob."""
 EYES = ("rest", "left", "right", "shut")
-"""The mascot's poses: its eyes at rest, glancing left, glancing right and shut."""
-LOOK = ("WW", "W9", "9W", "99")
-"""`MASCOT`'s eyes in each pose, a lens being two pixels across and two down: their white, or the lens where they have
-left."""
+"""The mark's poses: its eyes at rest, glancing left, glancing right and shut."""
+EYE_PIXELS = (
+    ((6, 3), (6, 4), (8, 2), (8, 3)),
+    ((5, 3), (5, 4), (7, 2), (7, 3)),
+    ((7, 3), (7, 4), (9, 2), (9, 3)),
+    ((6, 4), (8, 3)),
+)
+"""The masthead mark's eyes in each pose, as (column, row) pixels in its window: each a pixel across and two down,
+the right a pixel higher as the face tilts, a pixel to the side when it glances and half as tall when shut. Whole
+pixels, drawn by hand: the brand's eyes scaled to this size are two smudges."""
 ART = (
     "██ ███  ██ ████████ ███████ ██████  ███  ██",
     "██ ████ ██    ██    ██      ██   ██ ████ ██",
@@ -152,18 +150,15 @@ ART = (
     "██ ██  ███    ██    ██      ██   ██ ██  ███",
     "██ ██   ██    ██    ███████ ██   ██ ██   ██",
 )
-"""The wordmark in block letters, a row for each of the mascot's violets (`SHADES`): the entering page's, and the
-masthead's on a wide terminal."""
-SHADES = tuple(MASCOT_COLOURS[pixel] for pixel in "98654")
-SHADOW = "#3b2470"
-"""The letters' shadow (`wordmark`): a violet deeper than any of the mascot's, which reads on both
-pages."""
+"""The wordmark in block letters, in ink as the mark is: the entering page's, and the masthead's on a wide terminal."""
+SHADOW = BRAND
+"""The letters' shadow (`wordmark`): the accent, the one colour beside the ink."""
 LOOP_S = 8.0
-"""The mascot's loop, as the README's: it glances left, then right, and blinks twice."""
+"""The mark's loop: it glances left, then right, and blinks twice."""
 FLASH_S = 1.5
 LABEL_WIDTH = 10
 """The masthead's label column: `System 2` and room after it."""
-LETTERS_WIDTH = len(MASCOT[0]) + 3 + len(ART[0]) + 1 + 4
+LETTERS_WIDTH = MARK_COLUMNS + 3 + len(ART[0]) + 1 + 4
 """The mark, the block letters and the air after each: what the masthead's table needs beside it to stand with the
 letters."""
 COLUMN_GAP = 3
@@ -204,17 +199,17 @@ def pixels(grid: list[list[str]], page: str) -> list[list[Part]]:
 
 @functools.cache
 def wordmark(scale: int = 1, page: str = PAPER) -> list[Content]:
-    """The block letters, one `Content` per row, lighter at the top as the mascot is, with a shadow to their right
+    """The block letters, one `Content` per row, in ink, with a shadow in the accent to their right
     and, at `scale` 2, twice the size for a terminal with the room, a row of cells down too. The shadow is whole
     cells, as the letters are: half a row under them would be a half block over the open page, whose edge macOS
     Terminal draws as a hairline. `page` is what it stands on."""
     width, height = (len(ART[0]) + 1) * scale, (2 * len(ART) + 2) * scale
     grid = [[""] * width for _ in range(height)]
-    for row, (line, shade) in enumerate(zip(ART, SHADES, strict=True)):
+    for row, line in enumerate(ART):
         for column, cell in enumerate(line):
             if cell == "█":
                 for y in range(2 * row * scale, 2 * (row + 1) * scale):
-                    grid[y][column * scale : (column + 1) * scale] = [shade] * scale
+                    grid[y][column * scale : (column + 1) * scale] = [INK] * scale
     down = 2 * (scale - 1)  # pixels: a row of cells, or none
     for y in range(height - 1, down - 1, -1):
         for x in range(width - 1, scale - 1, -1):
@@ -224,8 +219,8 @@ def wordmark(scale: int = 1, page: str = PAPER) -> list[Content]:
 
 
 def pose_at(seconds: float) -> int:
-    """Which pose the mascot is in, `seconds` into its life, as the README's moves: its eyes glance left, then right,
-    and blink twice, each loop. It does not breathe as that one does: a breath is less than a cell."""
+    """Which pose the mark is in, `seconds` into its life: its eyes glance left, then right,
+    and blink twice, each loop."""
     at = seconds % LOOP_S / LOOP_S
     if 0.165 <= at < 0.365:
         return EYES.index("left")
@@ -237,22 +232,186 @@ def pose_at(seconds: float) -> int:
 
 
 @functools.cache
-def mark(pose: int = 0, page: str = LIGHT["card"]) -> list[Content]:
-    """The mark, one `Content` per row for laying the masthead's text beside it: the mascot (`pixels`) on the
-    masthead's card, of the colour `page`, its eyes in a pose (`EYES`)."""
-    colours = MASCOT_COLOURS | {".": ""}
-    grid: list[list[str]] = []
-    for row, body in zip(MASCOT, MASCOT_BODY, strict=True):
-        half = {"+": (body, page), "k": (colours["K"], body)}
-        grid.append(
-            [
-                Color.parse(half[pixel][0]).blend(Color.parse(half[pixel][1]), 0.5).hex
-                if pixel in half
-                else colours.get(pixel, body)
-                for pixel in row.replace(LOOK[0], LOOK[pose])
-            ]
-        )
-    return [Content.assemble(*row) for row in pixels(grid, CARD)]
+def reel() -> dict[str, Any]:
+    """`sprites.json`: the poses' order, and each state's frames and `sequence`."""
+    return json.loads((SPRITES / "sprites.json").read_text())
+
+
+@functools.cache
+def sheet(name: str) -> Any:
+    from PIL import Image
+
+    with Image.open(SPRITES / f"{name}.png") as image:
+        return image.convert("LA")
+
+
+def shrunk(name: str, index: int, columns: int, rows: int, page: str, ink: str, accent: str) -> list[list[str]]:
+    """Frame `index` of a sheet (a state's, `poses` or `mark`) as a grid of pixel colours, `columns` by twice `rows`,
+    in `ink` and `accent` on a page of the colour `page` (`""` where the page shows): each pixel the mean of what it
+    covers of the drawing, so the cube's edge is a blend with the page and not a step."""
+    from PIL import Image
+
+    sprites = sheet(name)
+    size = sprites.height
+    which, how_much = sprites.crop((index * size, 0, (index + 1) * size, size)).split()
+    drawn = Image.composite(Image.new("RGB", which.size, ink), Image.new("RGB", which.size, accent), which)
+    paper = Image.new("RGB", which.size, page)
+    paper.paste(drawn, mask=how_much)
+    data = paper.resize((columns, 2 * rows), Image.Resampling.BOX).tobytes()
+    pixel = [f"#{data[at : at + 3].hex()}" for at in range(0, len(data), 3)]
+    return [["" if p == page.lower() else p for p in pixel[at : at + columns]] for at in range(0, len(pixel), columns)]
+
+
+SHARP = 110
+"""How much of a pixel the drawing must cover, of 255, for the pixel to be drawn: a frame's pixels are ink or not, so
+its edges are steps and never a blur. Under half, so the window's frame, thinner than a pixel, stays whole."""
+
+
+def cut(name: str, index: int, columns: int, rows: int, ink: str, accent: str) -> list[list[str]]:
+    """Frame `index` of a sheet as a grid of pixel colours, `columns` by `rows`: `ink` or `accent` where the drawing
+    covers enough of the pixel (`SHARP`), `""` where the page shows."""
+    from PIL import Image
+
+    sprites = sheet(name)
+    size = sprites.height
+    box = sprites.crop((index * size, 0, (index + 1) * size, size)).resize((columns, rows), Image.Resampling.BOX)
+    which, how_much = (channel.tobytes() for channel in box.split())
+    pairs = zip(which, how_much, strict=True)
+    pixel = ["" if much <= SHARP else ink if colour > 127 else accent for colour, much in pairs]
+    return [pixel[at : at + columns] for at in range(0, len(pixel), columns)]
+
+
+@functools.lru_cache(maxsize=1024)
+def frame(
+    name: str, index: int, columns: int, rows: int, page: str, ink: str, accent: str, fine: bool = False
+) -> tuple[Content, ...]:
+    """Frame `index` of a sheet, `columns` cells by `rows`, one `Content` per row, its pixels sharp (`cut`): six to
+    a cell in sextants where the terminal draws them (`fine`), else two, one over the other."""
+    if fine:
+        grid = cut(name, index, 2 * columns, 3 * rows, ink, accent)
+        lines = []
+        for y in range(0, 3 * rows, 3):
+            cells: list[tuple[str, str]] = []
+            for x in range(0, 2 * columns, 2):
+                drawn = [grid[y + bit // 2][x + bit % 2] for bit in range(6)]
+                colours = [colour for colour in drawn if colour]
+                bits = sum(bool(colour) << bit for bit, colour in enumerate(drawn))
+                cells.append((sextant(bits), max(colours, key=colours.count) if colours else ""))
+            lines.append(Content.assemble(*merged(cells)))
+        return tuple(lines)
+    grid = cut(name, index, columns, 2 * rows, ink, accent)
+    open_page = [""] * columns
+    for upper, lower, under in zip(grid[::2], grid[1::2], [*grid[2::2], open_page], strict=True):
+        for x in range(columns):
+            if upper[x] and not lower[x] and not under[x]:
+                # The cube's colour over the open page: as a half block in the page's colour on the cube's, its edge
+                # is a hairline there in macOS Terminal. The cell is the mean of the two instead.
+                upper[x] = lower[x] = Color.parse(upper[x]).blend(Color.parse(page), 0.5).hex.lower()
+    return tuple(Content.assemble(*row) for row in pixels(grid, page))
+
+
+FINE_COLUMNS, FINE_ROWS = 2 * MARK_COLUMNS, 3 * MARK_ROWS
+"""The mark's pixels where the terminal draws sextants: six to a cell, two across and three down."""
+
+Eyes = tuple[tuple[int, int, str], tuple[int, int, str]]
+"""The mark's two eyes in sextant pixels: where each one's box starts, and its shape (`EYE_SHAPES`)."""
+
+EYE_SHAPES: dict[str, tuple[tuple[int, int], ...]] = {
+    "open": ((0, 0), (1, 0), (0, 1), (1, 1), (0, 2), (1, 2)),
+    "shut": ((0, 1), (1, 1)),
+    "down": ((0, 1), (1, 1), (0, 2), (1, 2)),
+    "cross": ((0, 0), (2, 0), (1, 1), (0, 2), (2, 2)),
+    "plus": ((1, 0), (0, 1), (1, 1), (2, 1), (1, 2)),
+}
+"""An eye's pixels in its box, three by three: open, shut in a blink, lowered to read, crossed out when a run
+failed, and a plus that turns into the cross and back, a turnstile, while a tool runs."""
+
+FINE_EYES: tuple[Eyes, ...] = (
+    ((11, 5, "open"), (16, 4, "open")),
+    ((10, 4, "open"), (15, 4, "open")),
+    ((12, 5, "open"), (17, 5, "open")),
+    ((11, 5, "shut"), (16, 4, "shut")),
+)
+"""The eyes in each pose (`EYES`)."""
+
+Face = Literal["idle", "reading", "turnstile", "failed"]
+"""What the mark's eyes are doing: glancing and blinking; reading, while System 2 thinks; a turnstile, while a tool
+runs; crossed out, for a moment after a run failed."""
+
+READING = (0, 0, 1, 1, 2, 2, 2, 2, 1, 0)
+"""How far along the line the reading eyes are, a step a tick: across, a rest at its end, and back to the next."""
+
+
+def eyes_at(face: Face, seconds: float) -> tuple[Eyes, int]:
+    """The eyes of a face, `seconds` in: in sextant pixels, and the pose (`EYES`) nearest it for a terminal that
+    gets the mark in half blocks, whose eyes are a pixel wide."""
+    tick = int(seconds / SPIN_S)
+    if face == "reading":
+        along = READING[tick // 2 % len(READING)]
+        return ((10 + along, 4, "down"), (15 + along, 4, "down")), (EYES.index("left"), 0, EYES.index("right"))[along]
+    if face == "turnstile":
+        shape = ("plus", "cross")[tick // 3 % 2]
+        return ((10, 4, shape), (15, 4, shape)), (0, EYES.index("shut"))[tick // 3 % 2]
+    if face == "failed":
+        return ((10, 4, "cross"), (15, 4, "cross")), EYES.index("shut")
+    pose = pose_at(seconds)
+    return FINE_EYES[pose], pose
+
+
+def sextants() -> bool:
+    """Whether the terminal draws the sextants (U+1FB00 and on) itself, so they meet with no gaps: the ones known
+    to. Elsewhere a font may not have them, and the mark is drawn in half blocks."""
+    env = os.environ
+    return (
+        env.get("TERM_PROGRAM") in ("ghostty", "WezTerm", "iTerm.app")
+        or "KITTY_WINDOW_ID" in env
+        or env.get("TERM", "").startswith(("xterm-ghostty", "xterm-kitty", "foot", "wezterm"))
+    )
+
+
+def sextant(bits: int) -> str:
+    """The glyph with these pixels of a cell in ink: bit 0 its upper left, bit 1 its upper right, and so on down."""
+    if bits in (0, 21, 42, 63):
+        return {0: " ", 21: "▌", 42: "▐", 63: "█"}[bits]
+    return chr(0x1FB00 + bits - 1 - (bits > 21) - (bits > 42))
+
+
+@functools.cache
+def fine_mark(eyes: Eyes, ink: str) -> tuple[Content, ...]:
+    """The mark in sextants, three times the pixels of the half blocks: each pixel ink or not, so its edges are
+    sharp, and its eyes two or three pixels wide."""
+    from PIL import Image
+
+    shape = sheet("mark").split()[1].resize((FINE_COLUMNS, FINE_ROWS), Image.Resampling.BOX)
+    grid = [[shape.getpixel((x, y)) > 127 for x in range(FINE_COLUMNS)] for y in range(FINE_ROWS)]
+    for x, y, drawn in eyes:
+        for right, down in EYE_SHAPES[drawn]:
+            grid[y + down][x + right] = True
+    rows = []
+    for y in range(0, FINE_ROWS, 3):
+        cells = (sum(grid[y + bit // 2][x + bit % 2] << bit for bit in range(6)) for x in range(0, FINE_COLUMNS, 2))
+        rows.append(Content.styled("".join(sextant(bits) for bits in cells), ink))
+    return tuple(rows)
+
+
+@functools.cache
+def mark(
+    pose: int = 0,
+    page: str = LIGHT["card"],
+    ink: str = LIGHT["ink"],
+    fine: bool | None = None,
+    eyes: Eyes | None = None,
+) -> tuple[Content, ...]:
+    """The mark, one `Content` per row for laying the masthead's text beside it: Intern in `ink` on the masthead's
+    card, of the colour `page`, its eyes in a pose (`EYES`). In sextants where the terminal draws them (`fine`,
+    by default what `sextants` says), with `eyes` when given in place of the pose's; else in half blocks, a third
+    of the pixels, their edges blended, in the pose."""
+    if sextants() if fine is None else fine:
+        return fine_mark(eyes or FINE_EYES[pose], ink)
+    grid = shrunk("mark", 0, MARK_COLUMNS, MARK_ROWS, page, ink, ink)
+    for x, y in EYE_PIXELS[pose]:
+        grid[y][x] = ink
+    return tuple(Content.assemble(*row) for row in pixels(grid, page))
 
 
 STEP_GLYPH: dict[Status, tuple[str, str]] = {
@@ -413,7 +572,7 @@ def system1_parts(ref: str) -> tuple[str, str]:
 
 
 def glinted(text: str, frame: int | None) -> list[Part]:
-    """`text` in the mascot's violet, with a glint that sweeps across it a letter a frame; still without a frame."""
+    """`text` in the accent, with a glint that sweeps across it a letter a frame; still without a frame."""
     if frame is None:
         return [(text, S_BOX_AUTO)]
     at = frame % (len(text) + GLINT_GAP)
@@ -423,7 +582,7 @@ def glinted(text: str, frame: int | None) -> list[Part]:
 def thinking_box(level: str, levels: tuple[str, ...], picked: str = "", frame: int | None = None) -> list[Part]:
     """The thinking level in a box, so Shift+Tab is seen to change it: its name, then a pip per level the model
     takes, filled up to it (none for the model's own); the box as wide at every level, so what follows stays put.
-    At `auto`, the mark in violet, a glint sweeping across it at `frame`, and the pips filled up to the level System
+    At `auto`, the mark in the accent, a glint sweeping across it at `frame`, and the pips filled up to the level System
     1 `picked` for the latest run."""
     auto = level == AUTO_EFFORT
     shown = picked if auto else level
@@ -504,6 +663,9 @@ class StatusBar(Static):
         self._flash_timer: Timer | None = None
         self._frame = 0
         self._pose = 0
+        self._eyes: Eyes = FINE_EYES[0]
+        self._face: Face = "idle"
+        self._face_until = 0.0
         self._card = ""
         self._born = time.monotonic()
 
@@ -513,16 +675,30 @@ class StatusBar(Static):
     def _spin(self) -> None:
         """The spinner's next frame while a run is in progress, and the mark's eyes, alive as the entering page's
         are; still where motion is switched off (`TEXTUAL_ANIMATIONS=none`)."""
-        pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
+        now = time.monotonic()
+        if self._face_until and now >= self._face_until:
+            self._face, self._face_until = "idle", 0.0
+        still = self.app.animation_level == "none" and self._face != "failed"
+        eyes, pose = (FINE_EYES[0], 0) if still else eyes_at(self._face, now - self._born)
         glinting, was = self._glint_frame() is not None, self._glinting  # the glint's last frame draws it at rest
-        if self.running or pose != self._pose or glinting or was or self._card != self._page():
+        moved = (eyes, pose) != (self._eyes, self._pose)
+        if self.running or moved or glinting or was or self._card != self._page():
             self._frame += self.running
-            self._pose = pose
+            self._eyes, self._pose = eyes, pose
             self.refresh_line()
+
+    def face(self, face: Face, hold_s: float = 0.0) -> None:
+        """What the mark's eyes do from now (`Face`); with `hold_s`, for that long, then back to idle."""
+        self._face = face
+        self._face_until = time.monotonic() + hold_s if hold_s else 0.0
 
     def _page(self) -> str:
         """The card's colour in the look in force (`/dark`), which the mark's half tones blend with."""
-        return (DARK if self.is_mounted and self.app.current_theme.dark else LIGHT)["card"]
+        return self._look()["card"]
+
+    def _look(self) -> dict[str, str]:
+        """The colours of the look in force."""
+        return DARK if self.is_mounted and self.app.current_theme.dark else LIGHT
 
     def glint(self) -> None:
         """Sweep the glint across `auto` for a moment: it was just chosen, or System 1 just picked a run's level."""
@@ -596,7 +772,7 @@ class StatusBar(Static):
         wide = max(Content.assemble(*row).cell_length for row in table) + LETTERS_WIDTH <= self.size.width
         rows: list[list[Part]] = [[], [*([] if wide else name), (f"v{__version__}", S_MUTED)], [], *table, [], []]
         self._card = self._page()
-        cubes = [Content(" " * len(MASCOT[0])), *mark(self._pose, self._card)]
+        cubes = [Content(" " * MARK_COLUMNS), *mark(self._pose, self._card, self._look()["ink"], eyes=self._eyes)]
         lines = [
             Content.assemble(cube, "   ", *([word, "    "] if wide else []), *row)
             for cube, word, row in zip(cubes, beside, rows, strict=True)
@@ -1343,7 +1519,7 @@ LADDER = "▁▂▃▄▅▆▇█"
 
 def ladder(e: EffortJudgement) -> list[Part]:
     """How System 1 weighed each level the model takes, least to most, as a column each: as tall as its
-    probability, the level it picked in violet, so where the weight sits and how it spread read at a glance."""
+    probability, the level it picked in the accent, so where the weight sits and how it spread read at a glance."""
     return [
         (LADDER[max(0, math.ceil(p * len(LADDER)) - 1)], S_BRAND_BOLD if level == e.level else S_MUTED)
         for level, p in e.probabilities.items()
@@ -1360,7 +1536,7 @@ def effort_runners_up(e: EffortJudgement, most: int = CARD_MODES - 1) -> list[Pa
 
 def effort_card(e: EffortJudgement) -> Content:
     """System 1's pick of the run's thinking level, as a card under the prompt it judged, worded as its row on System
-    1's panel: the ladder of what it weighed, the level in violet with its probability, the next likeliest muted."""
+    1's panel: the ladder of what it weighed, the level in the accent with its probability, the next likeliest muted."""
     levels: list[Part] = [("thinking ", S_MUTED), *ladder(e), " ", *level(e.level, e.probability, S_BRAND_BOLD)]
     levels += effort_runners_up(e)
     return Content.assemble(
