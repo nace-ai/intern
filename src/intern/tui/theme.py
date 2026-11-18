@@ -3,9 +3,10 @@
 An off-white page, white cards, hairline rules, near-black ink, a warm gray for what is secondary. Intern itself is
 drawn in ink, as the Nace mark is: the mark (the cube with eyes, `widgets.mark`) and the wordmark's block letters.
 The accent (`brand`) is for what is alive in the session: the panels' tabs and borders, the prompt's bar and cursor,
-System 1's picks and the wordmark's shadow; green only for what went right, amber for what needs a look, red for what
-went wrong. The dark look swaps paper and ink, each a little grayed down, and takes the mint as the brand has it; the
-light look takes a deeper shade of it, which reads on paper (`/dark`, `/light`).
+System 1's picks, its searches and compactions as they run, and the wordmark's shadow; green only for what went right,
+amber for what needs a look, red for what went wrong. The dark look swaps paper and ink, each a little grayed down,
+and takes the mint as the brand has it; the light look takes a deeper shade of it, which reads on paper (`/dark`,
+`/light`).
 
 Widgets name colours by role (`INK`, `S_MUTED`, ...), which are the theme's variables: `Content` reads them when
 it draws, so a switch of theme redraws everything in the other look.
