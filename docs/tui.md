@@ -92,9 +92,9 @@ frame each tick of 0.08 s shows), scaled to the cells, 40 by 20 on a wide page w
 It is in one of five states (`welcome.Mascot.play`): `idle`, looking around and blinking, while the page waits;
 `listening` while there is text in the prompt; `rolling` while the session opens; `blocked` when it could not open;
 `happy` when setup is done. It changes state behind a blink, and what a state draws in the accent (the blocked
-state's sign) is in the look's accent. `TEXTUAL_ANIMATIONS=none` holds it still. A cell is two pixels of it, one
-over the other, each the mean of what it covers of the drawing, so the cube's
-edge is a blend with the page and not a step. The upper pixel is the cell's background and the lower a lower half
+state's sign) is in the look's accent. `TEXTUAL_ANIMATIONS=none` holds it still. Its pixels are sharp, ink or
+page and nothing between: six to a cell in sextants where the terminal draws them (`widgets.sextants`), else two, one
+over the other. Of those two the upper pixel is the cell's background and the lower a lower half
 block on it, never an upper half block: a terminal draws a cell's background exactly and a glyph where its font puts
 it, and macOS Terminal starts an upper half block short of the cell's top, which leaves a gap, while a lower one
 ends at the cell's bottom. The wordmark

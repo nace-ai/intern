@@ -262,18 +262,51 @@ def shrunk(name: str, index: int, columns: int, rows: int, page: str, ink: str, 
     return [["" if p == page.lower() else p for p in pixel[at : at + columns]] for at in range(0, len(pixel), columns)]
 
 
+SHARP = 110
+"""How much of a pixel the drawing must cover, of 255, for the pixel to be drawn: a frame's pixels are ink or not, so
+its edges are steps and never a blur. Under half, so the window's frame, thinner than a pixel, stays whole."""
+
+
+def cut(name: str, index: int, columns: int, rows: int, ink: str, accent: str) -> list[list[str]]:
+    """Frame `index` of a sheet as a grid of pixel colours, `columns` by `rows`: `ink` or `accent` where the drawing
+    covers enough of the pixel (`SHARP`), `""` where the page shows."""
+    from PIL import Image
+
+    sprites = sheet(name)
+    size = sprites.height
+    box = sprites.crop((index * size, 0, (index + 1) * size, size)).resize((columns, rows), Image.Resampling.BOX)
+    which, how_much = (channel.tobytes() for channel in box.split())
+    pairs = zip(which, how_much, strict=True)
+    pixel = ["" if much <= SHARP else ink if colour > 127 else accent for colour, much in pairs]
+    return [pixel[at : at + columns] for at in range(0, len(pixel), columns)]
+
+
 @functools.lru_cache(maxsize=1024)
-def frame(name: str, index: int, columns: int, rows: int, page: str, ink: str, accent: str) -> tuple[Content, ...]:
-    """Frame `index` of a sheet, `columns` cells by `rows`, one `Content` per row, two pixels to a cell (`shrunk`)."""
-    grid = shrunk(name, index, columns, rows, page, ink, accent)
+def frame(
+    name: str, index: int, columns: int, rows: int, page: str, ink: str, accent: str, fine: bool = False
+) -> tuple[Content, ...]:
+    """Frame `index` of a sheet, `columns` cells by `rows`, one `Content` per row, its pixels sharp (`cut`): six to
+    a cell in sextants where the terminal draws them (`fine`), else two, one over the other."""
+    if fine:
+        grid = cut(name, index, 2 * columns, 3 * rows, ink, accent)
+        lines = []
+        for y in range(0, 3 * rows, 3):
+            cells: list[tuple[str, str]] = []
+            for x in range(0, 2 * columns, 2):
+                drawn = [grid[y + bit // 2][x + bit % 2] for bit in range(6)]
+                colours = [colour for colour in drawn if colour]
+                bits = sum(bool(colour) << bit for bit, colour in enumerate(drawn))
+                cells.append((sextant(bits), max(colours, key=colours.count) if colours else ""))
+            lines.append(Content.assemble(*merged(cells)))
+        return tuple(lines)
+    grid = cut(name, index, columns, 2 * rows, ink, accent)
     open_page = [""] * columns
     for upper, lower, under in zip(grid[::2], grid[1::2], [*grid[2::2], open_page], strict=True):
         for x in range(columns):
-            if not under[x] and upper[x] != lower[x]:
-                # A cell over the open page: as a half block, its edge is a hairline there in macOS Terminal. It
-                # is the mean of its two pixels instead, as an edge's pixel is of what it covers.
-                top, bottom = Color.parse(upper[x] or page), Color.parse(lower[x] or page)
-                upper[x] = lower[x] = top.blend(bottom, 0.5).hex.lower()
+            if upper[x] and not lower[x] and not under[x]:
+                # The cube's colour over the open page: as a half block in the page's colour on the cube's, its edge
+                # is a hairline there in macOS Terminal. The cell is the mean of the two instead.
+                upper[x] = lower[x] = Color.parse(upper[x]).blend(Color.parse(page), 0.5).hex.lower()
     return tuple(Content.assemble(*row) for row in pixels(grid, page))
 
 

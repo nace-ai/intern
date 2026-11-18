@@ -70,6 +70,7 @@ from intern.tui.widgets import (
     flow,
     frame,
     reel,
+    sextants,
     short_path,
     stacked,
     system1_parts,
@@ -241,7 +242,8 @@ class Mascot(Static):
             sequence = reel()["states"][self._state]["sequence"]
             name, index = self._state, sequence[ticks % len(sequence)]
         look = DARK if self.app.current_theme.dark else LIGHT
-        if self._shown != (shown := (name, index, *self._cells, look["paper"], look["ink"], look["brand"])):
+        shown = (name, index, *self._cells, look["paper"], look["ink"], look["brand"], sextants())
+        if self._shown != shown:
             self._shown = shown
             self.update(Content("\n").join(frame(*shown)))
 
