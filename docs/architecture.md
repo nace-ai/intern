@@ -322,8 +322,37 @@ first for 14 questions and one in the top five for all 15, and a right symbol fi
 at 102 asks, $0.006 and 4.5 to 9.5 s a question; two repeats scored the same. BM25 alone puts a right file first for
 8 and in the top five for 11, and a right symbol first for 6 (top five: 9). The set is small and its questions were
 written over Intern's own source by its authors, so it shows what System 1 adds to the question's words, not how
-the search does on another repository. `decision_files` is not yet measured: `localize.py office` needs the
-Workspace-Bench persona workspaces (about 19 GB) indexed, with OCR.
+the search does on another repository. `localize.py office` is not yet run: it needs the Workspace-Bench persona
+workspaces (about 19 GB) indexed, with OCR.
+
+On public benchmarks, also with no agent in the loop (17 November 2026; Intern 0.42.0, whose search is the one that
+ships now, System 1 on `drex-latest`), each search gets a question and its ranked results are checked against the
+known answer:
+
+| Set | Question, and answer | `decision_code` or `decision_files` | Other searches |
+|---|---|---|---|
+| SWE-bench Verified, 100 of its 500 issues drawn with a fixed seed (11 Python repositories) | the issue; the files the fix changed, and a function holding a changed line | right file first 0.87, top ten 0.94; right function first 0.64, top ten 0.89 | Semble: 0.37, 0.78; 0.12, 0.28. BM25: 0.18, 0.57; 0.13, 0.36. grep: 0.10, 0.40; 0.13, 0.30 |
+| CodeScaleBench, 54 searches over its 42 tasks, one per repository holding oracle files | the task; the oracle's files, six a search on average | an oracle file first 0.67, top ten 0.89; NDCG@10 0.56 | Semble: 0.28, 0.72; 0.35. BM25: 0.30, 0.69; 0.30. grep: 0.11, 0.46; 0.16 |
+| OfficeQA Pro, 133 questions over 697 Treasury Bulletins, as parsed text | the question; the bulletin and the page the figure is on | right bulletin first 0.34, top ten 0.68; right page within the first 20,000 characters returned 0.40 | SAG2: 0.22, 0.56; 0.34. BM25: 0.04, 0.20; 0.02. grep: 0.02, 0.08 |
+| CUAD, 100 questions over 200 contracts, as text | a clause of a named contract; the contract and the quoted clause | right contract first 0.96; clause within the first 20,000 characters 0.80 | SAG2: 1.00; 0.97. BM25: 0.98; 0.78. grep: 0.70 |
+| HotpotQA, the first 300 of SAG2's 1,000 questions over 9,811 passages | the question; the passages it needs, two for most | R@10 0.988, R@2 0.923 | SAG2 as published: 0.993, 0.945. BM25: 0.885, 0.592 |
+
+A search cost about $0.006 in System 1 tokens on SWE-bench, CodeScaleBench and HotpotQA, $0.036 on OfficeQA Pro and
+$0.009 on CUAD; seconds were not measured, the machine being shared. On SWE-bench and CodeScaleBench every gap in
+right file first, right file in the top ten and share of oracle files in the top ten holds question by question
+(sign test, p at most 0.012); on OfficeQA Pro the gaps to SAG2 in right bulletin first and in the top ten do (p =
+0.014 and 0.023). On CUAD, `decision_files` finds the clause less often than SAG2 (2 questions to 18), because it
+judged only the first 4,000 characters of each piece of a text file; [#131](https://github.com/nace-ai/intern/pull/131)
+has System 1 read each piece whole, which lifts the clause row to 0.99 and OfficeQA Pro's right bulletin first to
+0.41, and was used for the HotpotQA row (it cuts 3 of that corpus's files differently). On HotpotQA,
+`decision_files` and SAG2 differ at ten on 8 questions (p = 0.73); SAG2 is ahead at two (25 questions to 12).
+
+Semble is version 0.7.3 with its default model, over source files. BM25 is the search's own keyword stage over the
+same passages, before System 1 judges anything, not a tuned stand-alone BM25. grep is the question's words, ripgrep
+for each, files ranked by how many distinct words they hold, as Semble's own benchmark models it; it returns files,
+so the page and clause rows do not apply. SAG2 is SAG-Benchmark's `sag2/` code, unmodified, with its own judge (JEV
+on OpenRouter); an error on 8 OfficeQA Pro questions, where a table outran its judge's window, counts as a miss. The
+scripts and every question's rows are kept outside this repository.
 
 ## Modules
 

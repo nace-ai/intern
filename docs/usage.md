@@ -181,6 +181,11 @@ places where a question's subject is defined or would be changed. It is a capabi
 and turned on only by `[capabilities.code_search] enabled = true` in `~/.intern/config.toml`
 ([capability settings](capability-settings.md#code-search)). It asks System 1, which every session has.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/code-search-diagram-dark.svg">
+  <img src="assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: two folders opened and 26 of 132 files judged; supervise.py 0.95, loop.py 0.82, context.py 0.34, session.py 0.21 and cut; then the definitions in the best files, read and compared. Result: supervise.py 0.97 at class Supervisor, then loop.py 0.40. 62 asks, $0.0035, 3.9 s, the run recorded below.">
+</picture>
+
 ```bash
 uv tool install "intern-agent[code-search] @ git+https://github.com/nace-ai/intern"
 printf '[capabilities.code_search]\nenabled = true\n' >> ~/.intern/config.toml
@@ -208,6 +213,11 @@ folder (`index_files`; PDFs, Word documents, workbooks and tables, with a progre
 `[capabilities.workspace] enabled = true` ([capability settings](capability-settings.md#workspace)).
 It loads beside code search: in a repository with a folder of documents, the code index is `.intern/index.json`
 at the root and the documents' index `.decision_workspace/` in their folder.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/files-search-diagram-dark.svg">
+  <img src="assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 11 of 36 passages; System 1 judges both together, 12 passages; the best passages' 20 terms find 19 more, and System 1 judges all 31. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 16 asks, $0.0026, 2.9 s, the run recorded below.">
+</picture>
 
 ```bash
 uv tool install "intern-agent[workspace,ocr] @ git+https://github.com/nace-ai/intern"

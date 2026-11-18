@@ -34,9 +34,12 @@ refused `sudo` call._
 - **A supervisor that never sleeps.** System 1 looks at every fourth turn and nudges your intern out of circles. On
   by default. [Supervision](#supervision)
 - **Code search by meaning.** `decision_code` finds where a repository does something, even when the words aren't
-  in it. Off by default. [decision_code](#decision_code-scan-a-code-base)
+  in it: the right file first for 87% of SWE-bench Verified issues, where Semble does for 37%. Off by default.
+  [Search](#search-judged-by-system-1)
 - **Search for professional files.** `decision_files` searches PDFs, workbooks and scans for audit-style
-  questions. Off by default. [decision_files](#decision_files-scan-professional-files)
+  questions. Off by default. [Search](#search-judged-by-system-1)
+- **Web results System 1 judges.** `web_search` and `web_read` can have System 1 keep only what the task needs.
+  Off by default. [Search](#search-judged-by-system-1)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
@@ -118,57 +121,6 @@ Replayed through System 1 over 42 stored runs (1,935 turns), this rule sends 23 
 nudged after three stuck verdicts in a row: over 82 stored sessions, 16 of its 19 nudges fell on turns an
 independent judge also called stuck. [How it is judged](docs/architecture.md#system-2-and-system-1)
 
-## decision_code: scan a code base
-
-The `decision_code` capability lets your intern scan a code base with fast thinking. It answers "where"
-questions about a repository without matching words: System 1 walks an index of it, folders first, then files, then
-the definitions in them, scores each against the question, and opens only the branches worth opening. A folder that
-holds several repositories is searched one repository at a time. Off by default.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-diagram-dark.svg">
-  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: two folders opened and 26 of 132 files judged; supervise.py 0.95, loop.py 0.82, context.py 0.34, session.py 0.21 and cut; then the definitions in the best files, read and compared. Result: supervise.py 0.97 at class Supervisor, then loop.py 0.40. 62 asks, $0.0035, 3.9 s, the run recorded below.">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
-  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first with class Supervisor, then loop.py. 62 asks, $0.0035.">
-</picture>
-
-_Asked where this repository's own source decides that a run is going in circles. The word "circles" appears only
-in two screens' text, never in the code that decides it, so grep for it lands on the wrong files; code search puts
-`supervise.py` first, at the class that does it._
-
-Over 15 such questions about this repository, `decision_code` puts the right file first for 14 of them, where BM25
-word search alone does for 8 ([below](#how-well-system-1-does)). [Turn it on](docs/usage.md#code-search).
-
-## decision_files: scan professional files
-
-The `decision_files` capability lets your intern scan professional files (PDFs, Excel workbooks, CSV, Parquet,
-Word documents and images) quickly, for tasks like audit. Your intern indexes the folder once (scanned pages are
-OCRed; an image is indexed by its name and size, and `read` shows it to a model that can see). Then System 1 walks
-the folders, files and their pages, sections and tabs while BM25 ranks every passage, judges the best of both
-together, and follows the strongest passages' terms to what the first pass missed. `sql` queries the tables and
-`read` shows the documents as text. Off by default.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-diagram-dark.svg">
-  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 11 of 36 passages; System 1 judges both together, 12 passages; the best passages' 20 terms find 19 more, and System 1 judges all 31. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 16 asks, $0.0026, 2.9 s, the run recorded below.">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
-  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 16 asks, $0.0026.">
-</picture>
-
-_Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder: the
-engagement letter, the notes to the financial statements, the income statement and balance sheet as workbooks,
-three management questionnaires and a revenue workpaper. "Victim", "scam" and "theft" are in none of them;
-`decision_files` puts first the page of the fraud-risk questionnaire where management reports a 2021 cyber attack,
-its loss split 50/50 (about $45k)._
-
-[Turn it on](docs/usage.md#workspace).
-
 ## Compaction
 
 When the context fills up, both parts of your intern's brain pitch in. Its System 2 writes the State: the plan, what
@@ -186,48 +138,91 @@ On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, p
 `SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
 ([method](docs/architecture.md#system-2-and-system-1)).
 
-## More capabilities
+## Capabilities
 
-Switch each one with `/caps` in the terminal UI, the ACP `cap.*` options, or `~/.intern/config.toml`
-([capability settings](docs/capability-settings.md)).
+Switch each with `/caps` in the terminal UI, the ACP `cap.*` options, or `~/.intern/config.toml`
+([capability settings](docs/capability-settings.md)); `/caps` tags the searches and guards System 1 runs. Every
+System 1 check that reads the session also reads your [`SYSTEM1.md`](#instructions), where you tell it what is
+normal in your work; `decision_code` and `decision_files` read only the question.
 
-- **Memory** (on). Your intern remembers what earlier sessions learned (where things are, what failed, what people
-  said), in a folder on your machine. [Memory](docs/memory.md)
-- **Auto thinking level** (Claude models, when you pick it). On Anthropic's API, Shift+Tab past the highest level reaches `auto`:
-  at the start of each run, System 1 reads the session and picks how hard System 2 should think for the new request
-  (low for a quick question, high for a bug hunt); every turn of that run uses the level. Other providers write the
-  level into the start of the prompt, so a change re-reads the whole prompt without the cache, where Anthropic's
-  keeps it. [Measurements](docs/architecture.md#system-2-and-system-1)
-- **Tool-call guard** (off). Turn it on with `/caps guard` or `[capabilities.guard] enabled = true`. Fixed rules
-  then refuse `rm -rf ~`, force-pushes, piping a download into a shell, reading your credentials or your intern's
-  keys file (`~/.intern/.env`) and sending `.env` files; System 1 judges the rest against what you asked for. A
-  refused call does not end the run. On 140 labeled calls it stops all 42 risky ones you did not ask for, and none
-  of the 62 routine ones ([below](#how-well-system-1-does)). [Guard](docs/capability-settings.md#guard)
-- **Tool-result guard** (off). System 1 screens what web, browser and MCP tools return and removes the parts
-  addressed to your intern, before your intern reads them. [Tool-result guard](docs/capability-settings.md#tool-result-guard)
-- **Subagents** (off). Your intern hands self-contained tasks to subagents with the `agent` tool. A subagent has
-  your intern's tools or fewer, never more, and its guard, budget and deadline.
-  [Subagents](docs/capability-settings.md#subagents)
-- **Definitions in 14 languages.** `decision_code` returns a class or a function in Python, JavaScript, TypeScript,
-  Go, Rust, Java, C, C++, C#, Ruby, PHP, Swift, shell and SQL, and a section in Markdown.
-  [Code search](docs/usage.md#code-search)
-- **Prompt-cache share.** The terminal UI's masthead shows the share of System 2's prompts its provider read from
-  the cache, over the session. [Terminal UI](docs/tui.md)
-- **Optional tools.** Web search and reading, a browser, MCP servers, a Docker workspace, secrets from your keychain
-  or password manager. [Capability settings](docs/capability-settings.md)
+### Search, judged by System 1
+
+Word search finds the words it is given. System 1 reads each candidate and judges it against the question, or, on
+the web, against the task.
+
+| Tool | What System 1 does | Default |
+|---|---|---|
+| `decision_code` | Walks an index of the repository (folders, then files, then the classes and functions in them, in 14 languages), scores each against the question and opens only the branches worth opening | off ([turn it on](docs/usage.md#code-search)) |
+| `decision_files` | Walks PDFs, workbooks, Word files and scans by page, section and tab beside a BM25 list of passages, judges the best of both, then follows the strongest passages' terms | off ([turn it on](docs/usage.md#workspace)) |
+| `web_search` | Asks the provider for three times the results and keeps the ones the task needs, best first | off, and its System 1 too ([`system1`](docs/capability-settings.md#system-1-on-web-results)) |
+| `web_read` | Of a page longer than the preview, keeps the parts the task needs, in page order, where it showed the page's start | off, and its System 1 too ([`system1`](docs/capability-settings.md#system-1-on-web-results)) |
+
+Measured with no agent in the loop, against other searches ([below](#how-well-system-1-does)):
+
+- **`decision_code`** puts the file a GitHub issue's fix changed first for 87% of 100 SWE-bench Verified issues,
+  where Semble does for 37%, BM25 for 18% and grep for 10%, and the right function first for 64% (Semble: 12%).
+- **`decision_files`** puts the right Treasury Bulletin first for 34% of 133 OfficeQA Pro questions, where SAG2 does
+  for 22% and BM25 for 4%. On HotpotQA it finds 98.8% of the passages a question needs in its top ten, level with
+  SAG2 (99.3%) and ahead of BM25 (88.5%).
+- **`web_search` and `web_read`** are not yet measured with System 1, which is why it is off.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
+  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first with class Supervisor, then loop.py. 62 asks, $0.0035.">
+</picture>
+
+_Asked where this repository decides that a run is going in circles. "Circles" is in none of that code, so grep
+lands on the wrong files; `decision_code` puts `supervise.py` first, at the class that does it._
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
+  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 16 asks, $0.0026.">
+</picture>
+
+_Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder.
+"Victim", "scam" and "theft" are in none of its files; `decision_files` puts first the questionnaire page where
+management reports a 2021 cyber attack and its loss._
+
+### More that System 1 runs
+
+- **Supervision** (on). Every fourth turn System 1 nudges your intern out of circles. [Above](#supervision)
+- **Compaction** (always). System 1 keeps the file reads still in use when the context fills. [Above](#compaction)
+- **Memory** (on). Before the first request, System 1 recalls the pages of earlier sessions the task needs; after
+  the session, it judges what is worth keeping. [Memory](docs/memory.md)
+- **Tool-call guard** (off). Fixed rules refuse `rm -rf ~`, force-pushes, piping a download into a shell and
+  reading your credentials; System 1 judges every other call against what you asked for. It stops all 42 risky
+  calls of a labeled set and none of its 62 routine ones ([below](#how-well-system-1-does)). Say in `SYSTEM1.md`
+  what you allow. [Guard](docs/capability-settings.md#guard)
+- **Tool-result guard** (off). System 1 removes the parts of web, browser and MCP output addressed to your intern
+  before it reads them. [Tool-result guard](docs/capability-settings.md#tool-result-guard)
+- **Auto thinking level** (Claude models, when you pick it). At the start of each run, System 1 picks how hard
+  System 2 should think for the request. [Measurements](docs/architecture.md#system-2-and-system-1)
+
+### Other capabilities
+
+- **Subagents** (off). Your intern hands self-contained tasks to subagents with the `agent` tool, with its tools or
+  fewer, never more. [Subagents](docs/capability-settings.md#subagents)
+- **Prompt-cache share.** The terminal UI's masthead shows the share of System 2's prompts read from the cache.
+  [Terminal UI](docs/tui.md)
+- **Optional tools.** A browser, MCP servers, a Docker workspace, secrets from your keychain or password manager.
+  [Capability settings](docs/capability-settings.md)
 
 ## How well System 1 does
 
 On its own, a small model does not notice it is going in circles, cannot tell a routine command from a risky one,
 and searches only for the words it was given. Your intern's System 1 does those jobs. Each row is one of them, with
-System 1 and without it.
+System 1 and without it, or against another search.
 
-| System 1 | With System 1 | Without it | Measured on |
+| System 1 | With System 1 | Without it, or another search | Measured on |
 |---|---|---|---|
 | Notices your intern going in circles | 23 stuck nudges, asking at 27% of turns; 0.6 s a look. No blind judge has rated them yet | No nudges | 42 stored runs (1,935 turns), replayed ([method](docs/architecture.md#system-2-and-system-1)) |
 | The same, by the rule before 0.39.0, which looked at every turn | 19 nudges, 16 of them on turns an independent judge also called stuck | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds where a repository does something (`decision_code`) | Right file first for 0.93 of questions, in the top five for all; right definition first for 0.67 (top five 0.93); 102 asks, $0.006 and 4.5 to 9.5 s a question | BM25 word search alone: right file first for 0.53, in the top five for 0.73; right definition first for 0.40 | 15 questions about this repository, two repeats, `drex-max` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the passage in professional files (`decision_files`) | Not yet measured | Not yet measured | |
+| Finds the code a GitHub issue's fix changes (`decision_code`) | Right file first for 0.87, right function first for 0.64; $0.006 a search | Semble: 0.37 and 0.12. BM25: 0.18 and 0.13. grep: 0.10 and 0.13 | 100 SWE-bench Verified issues, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the files a task needs, across repositories (`decision_code`) | An oracle file first for 0.67, in the top ten for 0.89 | Semble: 0.28 and 0.72. BM25: 0.30 and 0.69. grep: 0.11 and 0.46 | 54 searches over CodeScaleBench's 42 tasks, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds where this repository does something (`decision_code`) | Right file first for 0.93 of questions, in the top five for all; right definition first for 0.67 (top five 0.93); 102 asks, $0.006 and 4.5 to 9.5 s a question | BM25 word search alone: right file first for 0.53, in the top five for 0.73; right definition first for 0.40 | 15 questions about this repository, two repeats, `drex-max` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the report a figure is in (`decision_files`) | Right Treasury Bulletin first for 0.34, in the top ten for 0.68; $0.036 a search | SAG2: 0.22 and 0.56. BM25: 0.04 and 0.20. grep: 0.02 and 0.08 | 133 OfficeQA Pro questions over 697 bulletins, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the passages a two-hop question needs (`decision_files`) | 0.988 of them in the top ten; $0.006 a search | SAG2: 0.993. BM25: 0.885 | 300 HotpotQA questions over 9,811 passages, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the clause a contract question asks for (`decision_files`) | The right contract first for 0.96; the clause in the first 20,000 characters for 0.80 | SAG2: 1.00 and 0.97. BM25: 0.98 and 0.78 | 100 CUAD questions over 200 contracts, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
 | Stops risky tool calls you did not ask for (guard, opt-in) | All 42 stopped, and none of the 62 routine calls; it reads each script a call runs, and asks the registries about each package an install names, before judging it; 0.4 s a check | The fixed rules stop 9 of the 42 | 140 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
 
 System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.
@@ -309,7 +304,8 @@ Intern collects no telemetry. What leaves your machine:
 
 - Your intern's System 2 requests, to the provider you chose.
 - Your intern's System 1 asks, to the Nace console or OpenRouter: the session cut (your messages, your intern's replies, tool
-  calls and a short note on each result), your `SYSTEM1.md` if you keep one, and, for the guard, your requests and the call being judged.
+  calls and a short note on each result), your `SYSTEM1.md` if you keep one, for the guard your requests and the call
+  being judged, and for a search what it judges (passages of your code and files, web results and pages).
 - Calls made by tools you turn on, such as web search.
 
 Sessions are journaled, and memory kept, on your machine in `~/.intern/`.
