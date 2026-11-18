@@ -6,7 +6,7 @@
                               Intern v0.34.1 · thinking, fast and slow
 
             Intern's brain has two parts. Its System 2, the agent model, thinks slow and does the
-            work ... Its System 1, a second and faster model, thinks fast and watches each turn ...
+            work ... Its System 1, a second and faster model, thinks fast and keeps it on track ...
 
     ╭─ System 2 · thinking slow ───────────╮                    ╭─ System 1 · thinking fast ───────────╮
     │ anthropic/claude-haiku-5-5           │    (the mascot,    │ drex-max                             │
@@ -81,13 +81,13 @@ from intern.tui.widgets import (
 TITLE = f"{WORDMARK} v{__version__} · thinking, fast and slow"
 ABOUT = (
     "Intern's brain has two parts. Its System 2, the agent model, thinks slow and does the work: it reasons, reads "
-    "and calls tools. Its System 1, a second and faster model, thinks fast and watches each turn: it nudges your "
-    "intern when it goes in circles, checks risky tool calls before they run, and decides what your intern keeps in "
-    "mind when its context fills up."
+    "and calls tools. Its System 1, a second and faster model, thinks fast and keeps it on track: every fourth turn it "
+    "checks whether your intern is going in circles and nudges it out, it searches code and files for it when you "
+    "turn search on, and it decides what your intern keeps in mind when its context fills up."
 )
 """What Intern is, as the README says it."""
 ABOUT_SHORT = (
-    "Intern's brain has two parts: System 2 thinks slow and does the work, System 1 thinks fast and watches each turn."
+    "Intern's brain has two parts: System 2 thinks slow and does the work, System 1 thinks fast and keeps it on track."
 )
 """The same for a small terminal."""
 JOBS: tuple[tuple[Kind, str], ...] = (

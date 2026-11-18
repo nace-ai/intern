@@ -316,8 +316,9 @@ class OnboardingScreen(Screen[Onboarded | None]):
             self.choices.append(Choice(option.id, option.name, group, note=("★ " if option.recommended else "") + note))
         body = Content.assemble(
             (
-                "System 1 is a small, fast model that watches every turn: it nudges your intern out of circles, checks "
-                "risky commands before they run and decides what it keeps in mind. ",
+                "System 1 is a small, fast model that keeps your intern on track: it looks every fourth turn and "
+                "nudges it out of circles, searches code and files when you turn search on, and decides what it "
+                "keeps in mind. ",
                 S_INK,
             ),
             ("Drex Max", S_HEAD),
