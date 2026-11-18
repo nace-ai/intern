@@ -2,7 +2,7 @@
   <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, its eyes on the top face, glancing around and blinking" width="160">
 </p>
 
-<h1 align="center">Intern</h1>
+<h1 align="center"><img src="docs/assets/wordmark.svg" alt="Intern" width="360"></h1>
 
 <p align="center">Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast and watches every turn.</p>
 
