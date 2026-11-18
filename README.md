@@ -23,7 +23,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/intern-banner-dark.svg">
-  <img alt="One agent, two brains. Intern is an open-source agent harness for small models: one model does the work, a faster one keeps it on track." src="docs/assets/brand/intern-banner-light.svg" width="100%">
+  <img alt="One agent, two systems. Intern is an open-source agent harness for small models: one model does the work, a faster one keeps it on track." src="docs/assets/brand/intern-banner-light.svg" width="100%">
 </picture>
 
 </div>
