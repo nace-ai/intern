@@ -190,7 +190,7 @@ class HandoffConfig(_Settings):
     """P(ready) a turn needs to count toward the hand-over."""
     streak: int = Field(default=2, ge=1)
     """Turns in a row at `threshold` or more before it hands over."""
-    min_turn: int = Field(default=5, ge=1)
+    min_turn: int = Field(default=8, ge=1)
     """The earliest turn it hands over at."""
 
 
