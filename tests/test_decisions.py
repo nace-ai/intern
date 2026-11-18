@@ -314,3 +314,18 @@ async def test_a_model_that_hangs_fails_over_within_an_ask_given_more_time():
     question: dict[str, Question] = {"q": NoulQuestion(instructions="Yes?")}
     # The first model is cut at the backend's 0.05 s, the last has the ask's 1 s: the next model answers.
     assert await client.ask("evidence", "state", question, timeout_s=1.0) == {"q": NoulAnswer(noul=0.9)}
+
+
+async def test_system1_requests_say_they_come_from_intern():
+    seen: list[httpx.Headers] = []
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        seen.append(r.headers)
+        return httpx.Response(200, json={"answers": {"s": {"type": "noul", "noul": 0.5}}})
+
+    backend = DecisionsApiBackend(
+        "https://console.nace.ai/v1", SecretStr("k"), ["drex"], transport=httpx.MockTransport(handler)
+    )
+    await backend.decide("state", {"s": decisions.NoulQuestion(instructions="Done?")})
+    assert seen[0]["X-Nace-Client"] == "intern" and seen[0]["User-Agent"].startswith("intern/")
+    assert seen[0]["Authorization"] == "Bearer k"

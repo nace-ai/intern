@@ -10,6 +10,7 @@ from pathlib import Path, PurePosixPath
 import httpx
 from pydantic import SecretStr
 
+from intern import names
 from intern.memory.steward.extract import INJECTION, Extract, file_pages
 from intern.messages import Usage
 from intern.models.registry import ConfigError, Endpoint, resolve_endpoint
@@ -308,7 +309,7 @@ class Writer:
 
     async def complete(self, system: str, user: str, session: str = "", effort: str = "") -> str:
         key = self.endpoint.api_key
-        headers = {"Authorization": f"Bearer {key.get_secret_value()}"} if key else {}
+        headers = {**names.CLIENT_HEADERS, **({"Authorization": f"Bearer {key.get_secret_value()}"} if key else {})}
         payload: dict[str, object] = {
             "model": self.endpoint.model,
             "temperature": 0,

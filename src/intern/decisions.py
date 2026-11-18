@@ -25,6 +25,7 @@ from typing import Annotated, Literal, Protocol
 import httpx
 from pydantic import BaseModel, Field, SecretStr
 
+from intern import names
 from intern.context import INITIAL_CHARS_PER_TOKEN, bound_output
 from intern.events import Decision, EventSink
 from intern.messages import JsonObject, System1Usage
@@ -217,7 +218,7 @@ class DecisionsApiBackend:
             timeout = httpx.USE_CLIENT_DEFAULT if last else httpx.Timeout(self._timeout_s)
             try:
                 request = {"model": model, "state": state, "questions": payload}
-                headers = {"Authorization": f"Bearer {self._key.get_secret_value()}"}
+                headers = {**names.CLIENT_HEADERS, "Authorization": f"Bearer {self._key.get_secret_value()}"}
                 response = await client.post(self._url, headers=headers, json=request, timeout=timeout)
                 for attempt in range(MAX_RETRIES):
                     if response.status_code not in RETRY_STATUSES:
