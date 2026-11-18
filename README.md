@@ -39,7 +39,7 @@ search on, and it decides what your intern keeps in mind when its context fills 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
-  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test and re-reads the parser turn after turn; System 1 calls the turns circling at its look and again at the next turn, and nudges it to make the change. System 2 asks decision_code where each item is split into key and value, which ranks pairs/text.py first at 0.94; it edits that file and the test passes. System 1 made 17 asks for $0.0004.">
+  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test and re-reads the parser turn after turn; System 1 calls the turns circling at its look and again at the next turn, and nudges it to make the change. System 2 asks decision_code where each item is split into key and value, which ranks pairs/text.py first at 0.99; it edits that file and the test passes. System 1 made 15 asks for $0.0004.">
 </picture>
 
 _A session with code search turned on (`/caps code-search`), which is off by default. System 2's turns are
@@ -148,7 +148,7 @@ it. A number the run never showed is sent back to the writer or blanked.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
-  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its State into the compaction's card, System 1 judges the file reads being cut and keeps the three of seven your intern is still working on, and a click opens the State.">
+  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its State into the compaction's card, System 1 judges the file reads being cut and keeps the three of six your intern is still working on, and a click opens the State.">
 </picture>
 
 On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83% with a
@@ -176,7 +176,7 @@ repository at a time. Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
-  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 97 asks, $0.0064.">
+  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 90 asks, $0.0063.">
 </picture>
 
 _Asked where this repository decides that a run is going in circles. "Circles" is in none of that code, so grep
@@ -234,7 +234,7 @@ Default off. [Turn it on](docs/usage.md#workspace)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
-  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 0.98. 13 asks, $0.0021.">
+  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 1.00. 13 asks, $0.0009.">
 </picture>
 
 _Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder.
