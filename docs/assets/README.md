@@ -1,11 +1,16 @@
 # README assets
 
 The README's images. Each but the mascot and the wordmark comes in a light and a dark version, picked by `<picture>`.
+The diagrams are hand-drawn SVG animated in CSS, with system fonts only; under reduced motion each stops on its most
+telling frame. Every number on them comes from the run or measurement their row names.
 
 | File | What it shows |
 |---|---|
 | `tui-light.png`, `tui-dark.png` | The terminal UI at the end of a session: a failing test, three turns System 1 calls stuck and the nudge after them, a `sudo` call the guard's fixed rules refuse, the fix and the passing test |
-| `loop-light.svg`, `loop-dark.svg` | One run of four turns, animated in CSS: calls through the guard (one refused), the journal, the session cut, System 1's verdicts and three strikes to a nudge, and the turns folding into the State at compaction |
+| `how-it-works-light.svg`, `how-it-works-dark.svg` | One run of nine turns, animated in CSS: calls going straight to the tools past the guard (dashed, off by default), a `decision_code` search System 1 walks, the journal, the session cut, System 1's looks at turns 4, 8 and 9 and the nudge, and the turns folding into the State and the kept reads at compaction |
+| `supervise-light.svg`, `supervise-dark.svg` | Thirteen turns of one run with System 1's looks at turns 4, 8, 9 and 13 (`supervise.EVERY`, `STRIKES`), each look's mode bars (drawn for illustration) against the 0.7 stuck threshold (`STUCK_THRESHOLD`), and the nudge. Draw it again when the rule changes |
+| `code-search-diagram-light.svg`, `code-search-diagram-dark.svg` | The mechanism of the `code-search` GIFs' run, with its scores: grep's two hits in screen text, System 1's walk from `src/intern` to files and definitions with the cut, the compare, and the ranked result |
+| `files-search-diagram-light.svg`, `files-search-diagram-dark.svg` | The mechanism of the `files-search` GIFs' run, with its scores: the walk and BM25 lanes, System 1 judging both, the hop through the best passages' terms, the result, and what `decision_files` reads |
 | `code-search-light.gif`, `code-search-dark.gif` | `decision_code` searching this repository's own source for where a run that goes in circles is detected: the search tree growing as System 1 scores folders, files and definitions, then the result |
 | `files-search-light.gif`, `files-search-dark.gif` | `decision_files` searching a folder of audit papers for "Has the client ever been the victim of a scam or theft, and what did it cost?": the walk and the BM25 lane filling, System 1's judgements, the hop through the seeds' terms, then the result |
 | `compaction-light.gif`, `compaction-dark.gif` | `/compact` over a session that read twenty files of a made-up date library: System 2 writing its summary into the compaction's card, System 1 judging the reads being cut and keeping the three your intern is still working on, then a click opening the summary |
