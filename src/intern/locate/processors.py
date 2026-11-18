@@ -19,6 +19,14 @@ ChunkKind = Literal["class", "function", "method", "section", "page", "pages", "
 
 #: Lines a window of plain code or text spans when a file has no structure to chunk by.
 WINDOW_LINES = 120
+#: A piece of a document's text holds no more than System 1 is shown of a place when it judges it
+#: (`search.LEAF_LINES` lines, `search.LEAF_CHARS` characters): what a longer chunk holds past that is never read, so
+#: a passage there is ranked by the chunk's first lines. In contracts as plain text, whose lines are paragraphs, a
+#: window of WINDOW_LINES is about 13,000 characters: System 1 was shown a quarter of the text, and a search put
+#: the quoted clause in its first 20,000 characters for 0.62 of the questions whose clause was past the part shown
+#: and 0.92 of the others (CUAD, 60 questions about contracts of more than one window).
+PIECE_LINES = 80
+PIECE_CHARS = 4000
 #: A Python file is chunked by symbols; a class with no methods is one chunk.
 _PY_SUFFIXES = frozenset({".py", ".pyi"})
 _MD_SUFFIXES = frozenset({".md", ".markdown", ".rst", ".txt"})
@@ -351,18 +359,49 @@ def windows(lines: list[str]) -> Derivative:
 
 def window_chunks(lines: list[str], first: int, last: int) -> list[Chunk]:
     """Lines ``first`` to ``last`` (1-based, inclusive) as windows of WINDOW_LINES."""
-    chunks = []
-    for start in range(first, max(last, first) + 1, WINDOW_LINES):
-        end = min(start + WINDOW_LINES - 1, last)
-        head = next((line.strip() for line in lines[start - 1 : end] if line.strip()), "")
-        chunks.append(
-            Chunk(
-                key=f"L{start}-{end}",
-                kind="window",
-                title=f"lines {start}-{end}",
-                summary=head[:120],
-                start=start,
-                end=end,
-            )
-        )
-    return chunks
+    starts = range(first, max(last, first) + 1, WINDOW_LINES)
+    return [_window(lines, start, min(start + WINDOW_LINES - 1, last)) for start in starts]
+
+
+def _window(lines: list[str], start: int, end: int, parent: Chunk | None = None) -> Chunk:
+    head = next((line.strip() for line in lines[start - 1 : end] if line.strip()), "")
+    where = f"lines {start}-{end}"
+    return Chunk(
+        key=f"L{start}-{end}",
+        kind="window",
+        title=f"{parent.title}, {where}" if parent else where,
+        summary=head[:120],
+        start=start,
+        end=end,
+        parent=parent.key if parent else None,
+    )
+
+
+def fits(lines: list[str], first: int, last: int) -> bool:
+    """Whether lines ``first`` to ``last`` are one piece: text System 1 is shown whole."""
+    return last - first < PIECE_LINES and sum(len(line) + 1 for line in lines[first - 1 : last]) <= PIECE_CHARS
+
+
+def piece_chunks(lines: list[str], first: int, last: int, parent: Chunk | None = None) -> list[Chunk]:
+    """Lines ``first`` to ``last`` as pieces, cut between lines: each as many lines as fit (a line longer than a
+    piece is one by itself, and the only text of a piece System 1 is not shown whole)."""
+    chunks, start = [], first
+    for n in range(first + 1, last + 1):
+        if not fits(lines, start, n):
+            chunks.append(_window(lines, start, n - 1, parent))
+            start = n
+    return [*chunks, _window(lines, start, last, parent)]
+
+
+def in_pieces(derivative: Derivative) -> Derivative:
+    """A text's Derivative with nothing in it longer than a piece: a text with no heading is cut into pieces from
+    its first line (none when it is one piece), and a section with no subsection that is longer than a piece gets
+    its pieces as its parts."""
+    lines, chunks = derivative.units, derivative.chunks
+    if all(c.kind == "window" for c in chunks):
+        pieces = piece_chunks(lines, 1, len(lines)) if lines else []
+        return derivative.model_copy(update={"chunks": pieces if len(pieces) > 1 else []})
+    parents = {c.parent for c in chunks}
+    long = [c for c in chunks if c.key not in parents and not fits(lines, c.start, c.end)]
+    pieces = [piece for c in long for piece in piece_chunks(lines, c.start, c.end, c)]
+    return derivative.model_copy(update={"chunks": [*chunks, *pieces]})

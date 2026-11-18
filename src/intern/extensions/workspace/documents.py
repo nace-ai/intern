@@ -27,6 +27,7 @@ from intern.locate.processors import (
     PythonProcessor,
     TableInfo,
     WindowProcessor,
+    in_pieces,
     sections,
     windows,
 )
@@ -334,13 +335,26 @@ def literal(path: Path | str) -> str:
     return "'" + str(path).replace("'", "''") + "'"
 
 
+class ProseProcessor(MarkdownProcessor):
+    """Markdown, reStructuredText and plain text as the workspace reads them: sections by heading, as code search
+    reads a repository's documents, and nothing in them longer than a piece (`processors.in_pieces`), so a search
+    is shown every passage whole. Documents are what a workspace is searched for; a contract's clause on its
+    fortieth page is as likely to be asked for as its first."""
+
+    #: Not "markdown": the files an index made before holds are cut again at its next refresh (`index._retaken`).
+    name: ClassVar[str] = "prose"
+
+    def process(self, path: Path, workspace: Path) -> Derivative:
+        return in_pieces(super().process(path, workspace))
+
+
 def office_processors(root: Path, home: Path) -> list[Processor]:
     """The workspace extension's processors: the text ones, then PDFs, Word documents, workbooks and tables (one
     DuckDB connection for the build, tables named by path under ``root``) and images."""
     tables = Tables(home, root)
     return [
         PythonProcessor(),
-        MarkdownProcessor(),
+        ProseProcessor(),
         KeyedProcessor(),
         PdfProcessor(),
         DocxProcessor(),
@@ -693,9 +707,11 @@ def _load_rows(con: duckdb.DuckDBPyConnection, name: str, rows: list[list[Any]],
 
 
 class DocxProcessor:
-    """A Word document as Markdown lines (headings by style, tables as rows), sectioned like a Markdown file."""
+    """A Word document as Markdown lines (headings by style, tables as rows), sectioned and cut into pieces like
+    a Markdown file of the workspace (`ProseProcessor`)."""
 
-    name: ClassVar[str] = "docx"
+    #: Not "docx", its name while a long section was one chunk: the documents an index holds are cut again.
+    name: ClassVar[str] = "word"
     suffixes: ClassVar[frozenset[str]] = frozenset({".docx"})
 
     def process(self, path: Path, workspace: Path) -> Derivative:
@@ -720,7 +736,7 @@ class DocxProcessor:
             elif child.tag.endswith("}tbl"):
                 for row in Table(child, document).rows:
                     lines.append("| " + " | ".join(" ".join(cell.text.split()) for cell in row.cells) + " |")
-        derivative = sections(lines) or windows(lines)
+        derivative = in_pieces(sections(lines) or windows(lines))
         derivative.derived = True
         return derivative
 
