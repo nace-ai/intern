@@ -10,3 +10,6 @@ HOME = "~/.intern"
 PROJECT_DIR = ".intern"
 RESOURCES_DIR = ".intern-resources"
 USER_AGENT = f"{NAME}/{__version__}"
+# Sent with every model and System 1 request, so Drex and providers can tell Intern's traffic apart.
+# `X-Title` is OpenRouter's app attribution.
+CLIENT_HEADERS = {"User-Agent": USER_AGENT, "X-Nace-Client": NAME, "X-Title": TITLE}

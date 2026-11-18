@@ -138,7 +138,7 @@ class OpenAIResponsesProvider:
         self._transport = transport
 
     def _headers(self) -> dict[str, str]:
-        headers = {"User-Agent": names.USER_AGENT, "Content-Type": "application/json"}
+        headers = {**names.CLIENT_HEADERS, "Content-Type": "application/json"}
         if self.endpoint.api_key:
             headers["Authorization"] = f"Bearer {self.endpoint.api_key.get_secret_value()}"
         return headers

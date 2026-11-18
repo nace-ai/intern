@@ -181,3 +181,14 @@ async def test_a_tls_error_before_any_output_is_retried():
 
     message = await collect(provider(handler), request(retries=RetryPolicy(provider_waits_s=(0.0,))))
     assert calls == 2 and message.text == "ok"
+
+
+async def test_model_requests_say_they_come_from_intern():
+    seen: list[httpx.Headers] = []
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        seen.append(r.headers)
+        return httpx.Response(200, content=OK_REPLY)
+
+    await collect(provider(handler), request())
+    assert seen[0]["X-Nace-Client"] == "intern" and seen[0]["User-Agent"].startswith("intern/")

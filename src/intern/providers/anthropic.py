@@ -204,7 +204,7 @@ class AnthropicProvider:
 
     def _headers(self) -> dict[str, str]:
         headers = {
-            "User-Agent": names.USER_AGENT,
+            **names.CLIENT_HEADERS,
             "Content-Type": "application/json",
             "anthropic-version": API_VERSION,
             "anthropic-beta": THINKING_BINDING_BETA,

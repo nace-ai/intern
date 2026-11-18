@@ -219,3 +219,14 @@ async def test_claude_through_openrouter_asks_for_prompt_caching():
     claude, other = seen
     assert claude["cache_control"] == {"type": "ephemeral"}
     assert "cache_control" not in other
+
+
+async def test_model_requests_say_they_come_from_intern():
+    seen: list[httpx.Headers] = []
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        seen.append(r.headers)
+        return httpx.Response(200, content=sse(delta(content="ok", finish_reason="stop")))
+
+    await collect(provider(handler), request())
+    assert seen[0]["X-Nace-Client"] == "intern" and seen[0]["X-Title"] == "Intern"
