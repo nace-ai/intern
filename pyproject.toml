@@ -3,7 +3,7 @@ name = "intern-agent"
 version = "0.45.0"
 description = "An agent harness for models of 35B parameters or less, with a second model watching every turn"
 readme = "README.md"
-license = "Apache-2.0"
+license = "LicenseRef-Nace-AI-Open-RAIL-M"
 license-files = ["LICENSE"]
 requires-python = ">=3.12"
 authors = [{ name = "Nace AI" }]
