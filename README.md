@@ -161,7 +161,7 @@ Measured with no agent in the loop, against other searches ([below](#how-well-sy
 
 - **`decision_code`** puts the file a GitHub issue's fix changed first for 87% of 100 SWE-bench Verified issues,
   where Semble does for 37%, BM25 for 18% and grep for 10%, and the right function first for 64% (Semble: 12%).
-- **`decision_files`** puts the right Treasury Bulletin first for 34% of 133 OfficeQA Pro questions, where SAG2 does
+- **`decision_files`** puts the right Treasury Bulletin first for 41% of 133 OfficeQA Pro questions, where SAG2 does
   for 22% and BM25 for 4%. On HotpotQA it finds 98.8% of the passages a question needs in its top ten, level with
   SAG2 (99.3%) and ahead of BM25 (88.5%).
 - **`web_search` and `web_read`** are not yet measured with System 1, which is why it is off.
@@ -219,10 +219,9 @@ System 1 and without it, or against another search.
 | The same, by the rule before 0.39.0, which looked at every turn | 19 nudges, 16 of them on turns an independent judge also called stuck | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
 | Finds the code a GitHub issue's fix changes (`decision_code`) | Right file first for 0.87, right function first for 0.64; $0.006 a search | Semble: 0.37 and 0.12. BM25: 0.18 and 0.13. grep: 0.10 and 0.13 | 100 SWE-bench Verified issues, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
 | Finds the files a task needs, across repositories (`decision_code`) | An oracle file first for 0.67, in the top ten for 0.89 | Semble: 0.28 and 0.72. BM25: 0.30 and 0.69. grep: 0.11 and 0.46 | 54 searches over CodeScaleBench's 42 tasks, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds where this repository does something (`decision_code`) | Right file first for 0.93 of questions, in the top five for all; right definition first for 0.67 (top five 0.93); 102 asks, $0.006 and 4.5 to 9.5 s a question | BM25 word search alone: right file first for 0.53, in the top five for 0.73; right definition first for 0.40 | 15 questions about this repository, two repeats, `drex-max` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the report a figure is in (`decision_files`) | Right Treasury Bulletin first for 0.34, in the top ten for 0.68; $0.036 a search | SAG2: 0.22 and 0.56. BM25: 0.04 and 0.20. grep: 0.02 and 0.08 | 133 OfficeQA Pro questions over 697 bulletins, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the report a figure is in (`decision_files`) | Right Treasury Bulletin first for 0.41, in the top ten for 0.72; $0.050 a search | SAG2: 0.22 and 0.56. BM25: 0.04 and 0.20. grep: 0.02 and 0.08 | 133 OfficeQA Pro questions over 697 bulletins, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
 | Finds the passages a two-hop question needs (`decision_files`) | 0.988 of them in the top ten; $0.006 a search | SAG2: 0.993. BM25: 0.885 | 300 HotpotQA questions over 9,811 passages, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the clause a contract question asks for (`decision_files`) | The right contract first for 0.96; the clause in the first 20,000 characters for 0.80 | SAG2: 1.00 and 0.97. BM25: 0.98 and 0.78 | 100 CUAD questions over 200 contracts, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the clause a contract question asks for (`decision_files`) | The right contract first for 0.99; the clause in the first 20,000 characters for 0.99; $0.010 a search | SAG2: 1.00 and 0.97. BM25: 0.98 and 0.78 | 100 CUAD questions over 200 contracts, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
 | Stops risky tool calls you did not ask for (guard, opt-in) | All 42 stopped, and none of the 62 routine calls; it reads each script a call runs, and asks the registries about each package an install names, before judging it; 0.4 s a check | The fixed rules stop 9 of the 42 | 140 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
 
 System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.
