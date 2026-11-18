@@ -154,6 +154,11 @@ against the question and opens only the branches worth opening. A folder of seve
 repository at a time. Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-diagram-dark.svg">
+  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: one folder opened and 46 of 156 files judged; supervise.py 0.95, loop.py 0.85, session.py 0.55, context.py 0.47; then the definitions in the best files, read and compared. Result: supervise.py 0.96 at Supervisor.after_turn, then loop.py 0.41. 88 asks, $0.0061, 9.0 s, the run recorded below.">
+</picture>
+
+<picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
   <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 88 asks, $0.0061.">
 </picture>
@@ -205,6 +210,11 @@ tasks like audit. Your intern indexes the folder once, OCRing scanned pages. Sys
 section and tab beside a BM25 list of passages, judges the best of both together, then follows the strongest
 passages' terms to what the first pass missed. `sql` queries the tables and `read` shows the documents as text.
 Default off. [Turn it on](docs/usage.md#workspace)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-diagram-dark.svg">
+  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 6 of 29 passages; System 1 judges both together, 7 passages; the best passages' 20 terms find 15 more, and System 1 judges all 22. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 13 asks, $0.0021, 4.3 s, the run recorded below.">
+</picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
