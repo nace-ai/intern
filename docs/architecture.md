@@ -314,6 +314,17 @@ so a stuck strike or a dropped read can be audited from the stream alone. A refu
 also gets a `tool_guard` event naming the layer (`rule` or `system1`), the rule or risk, the reason and
 System 1's probabilities.
 
+Search is measured with no agent in the loop (`evals/localize.py`), against the same ranking with no model: BM25
+over the passage table the search itself uses. On the 15 hand-written questions over `src/intern`
+(`tests/data/workspace_questions.json`: each names the one to three files and the symbols that answer it),
+`decision_code` as it ships (the walk steered by the question's words, System 1 on `drex-max`) puts a right file
+first for 14 questions and one in the top five for all 15, and a right symbol first for 10 (in the top five for 14),
+at 102 asks, $0.006 and 4.5 to 9.5 s a question; two repeats scored the same. BM25 alone puts a right file first for
+8 and in the top five for 11, and a right symbol first for 6 (top five: 9). The set is small and its questions were
+written over Intern's own source by its authors, so it shows what System 1 adds to the question's words, not how
+the search does on another repository. `decision_files` is not yet measured: `localize.py office` needs the
+Workspace-Bench persona workspaces (about 19 GB) indexed, with OCR.
+
 ## Modules
 
 | Module | Owns |
