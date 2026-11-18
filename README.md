@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, its eyes on the top face, glancing around and blinking" width="160">
+  <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, smiling, glancing around and blinking" width="160">
 </p>
 
 <h1 align="center"><img src="docs/assets/wordmark.svg" alt="Intern" width="360"></h1>
