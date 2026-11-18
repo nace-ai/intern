@@ -529,14 +529,45 @@ def documents(root: Path) -> None:
     resume.save(root / "resumes" / "li_yuchen.docx") if (root / "resumes").mkdir() is None else None
 
 
+async def test_grep_finds_a_line_inside_a_pdf_and_a_word_document_and_names_its_page(tmp_path: Path):
+    if shutil.which("rg") is None:
+        pytest.skip("the plain half of this grep is ripgrep's")
+    documents(tmp_path)
+    ws = Workspace()
+    ws.store.decisions = DecisionClient(Needle("zebra"), lambda e: None)
+    index_files, grep = ws.tools()[0], next(t for t in ws.tools() if t.name == "grep")
+
+    # Before the folder is indexed there is no text of the PDF to search: its bytes, as the plain grep reads them.
+    early = await grep.run(grep.Args(pattern="Total due"), ctx(tmp_path))
+    assert early.content == "No matches for 'Total due' in .."
+    await index_files.run(index_files.Args(path="."), ctx(tmp_path))
+
+    found = await grep.run(grep.Args(pattern="Total due"), ctx(tmp_path))
+    assert found.content == "reports/annual.pdf:page 4:Page 4. Total due 1,250 EUR."
+    one = await grep.run(grep.Args(pattern="^page [23]", path="reports/annual.pdf", ignore_case=True), ctx(tmp_path))
+    assert one.content.splitlines() == [
+        "reports/annual.pdf:page 2:Page 2. Revenue grew.",
+        "reports/annual.pdf:page 3:Page 3. Revenue grew.",
+    ]
+    word = await grep.run(grep.Args(pattern="Beijing"), ctx(tmp_path))
+    path, line, text = word.content.split(":", 2)
+    assert (path, text) == ("resumes/li_yuchen.docx", "Beijing University, 2020.")
+    shown = await ws.tools()[3].run(ws.tools()[3].Args(path=path, offset=int(line), limit=1), ctx(tmp_path))
+    assert "Beijing University, 2020." in shown.content  # the line number is the one `read` takes
+    both = await grep.run(grep.Args(pattern="report|Revenue", glob="*.md"), ctx(tmp_path))
+    assert both.content == "notes.md:3:About the report."  # a glob keeps its meaning: the PDF is not a .md
+    nothing = await grep.run(grep.Args(pattern="zebra"), ctx(tmp_path))
+    assert nothing.content == "No matches for 'zebra' in .."
+
+
 async def test_the_tools_open_documents_and_tables(tmp_path: Path):
     documents(tmp_path)
     ws = Workspace()
     ws.store.decisions = DecisionClient(
         Needle("Total due", "amount", "zebra", ("Beijing", "Education")), lambda e: None
     )
-    index_files, find, sql, read, _ = ws.tools()
-    assert [t.name for t in ws.tools()] == ["index_files", "decision_files", "sql", "read", "sql_export"]
+    index_files, find, sql, read, _, _ = ws.tools()
+    assert [t.name for t in ws.tools()] == ["index_files", "decision_files", "sql", "read", "sql_export", "grep"]
 
     early = await find.run(find.Args(question="Where is the Total due on the invoice?"), ctx(tmp_path))
     assert early.status == "error" and "no index under ." in early.content and "index tool" in early.content

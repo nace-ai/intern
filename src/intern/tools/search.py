@@ -90,7 +90,23 @@ class GrepTool(Tool):
             regex = re.compile(args.pattern, re.IGNORECASE if args.ignore_case else 0)
         except re.error as e:
             return fail(f"invalid regular expression: {e}", "Fix or escape the pattern.", argument="pattern")
+        matches = await self.matches(args, ctx, root, regex)
+        if isinstance(matches, ToolOutput):
+            return matches
+        if not matches:
+            return ToolOutput(content=f"No matches for {args.pattern!r} in {args.path}.")
+        shown = matches[: args.max_matches]
+        footer = (
+            f"\n[{len(shown)} of {len(matches)} matches shown; narrow the pattern, path or glob.]"
+            if len(matches) > len(shown)
+            else ""
+        )
+        return ToolOutput(content="\n".join(shown) + footer)
 
+    async def matches(
+        self, args: GrepArgs, ctx: ToolContext, root: Path, regex: re.Pattern[str]
+    ) -> list[str] | ToolOutput:
+        """The matching lines under ``root``, as `path:line:text` (an extension adds what it can read)."""
         rg = _ripgrep()
         if rg:
             argv = [rg, "--line-number", "--no-heading", "--color", "never"]
@@ -102,29 +118,19 @@ class GrepTool(Tool):
             code, output = await _run(argv, ctx.cwd)
             if code not in (0, 1):
                 return fail(f"grep failed: {output.strip()[:300]}", "Check the pattern and path.")
-            matches = [line.removeprefix("./") for line in output.splitlines()]
-        else:
-            matches = []
-            for file in _walk(root):
-                if args.glob and not fnmatch.fnmatch(file.name, args.glob):
-                    continue
-                try:
-                    text = file.read_text()
-                except (UnicodeDecodeError, OSError):
-                    continue
-                for number, line in enumerate(text.splitlines(), 1):
-                    if regex.search(line):
-                        matches.append(f"{_relative(file, ctx.cwd)}:{number}:{line[:MAX_LINE_CHARS]}")
-
-        if not matches:
-            return ToolOutput(content=f"No matches for {args.pattern!r} in {args.path}.")
-        shown = matches[: args.max_matches]
-        footer = (
-            f"\n[{len(shown)} of {len(matches)} matches shown; narrow the pattern, path or glob.]"
-            if len(matches) > len(shown)
-            else ""
-        )
-        return ToolOutput(content="\n".join(shown) + footer)
+            return [line.removeprefix("./") for line in output.splitlines()]
+        matches = []
+        for file in _walk(root):
+            if args.glob and not fnmatch.fnmatch(file.name, args.glob):
+                continue
+            try:
+                text = file.read_text()
+            except (UnicodeDecodeError, OSError):
+                continue
+            for number, line in enumerate(text.splitlines(), 1):
+                if regex.search(line):
+                    matches.append(f"{_relative(file, ctx.cwd)}:{number}:{line[:MAX_LINE_CHARS]}")
+        return matches
 
 
 MEMORY_SESSIONS = "sessions"
