@@ -15,7 +15,7 @@
 **Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast, keeps it on track and finds what it needs.**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/nace-ai/intern/ci.yml?branch=main&style=flat-square&label=ci&color=0FDBB4&labelColor=0A0A0A)](https://github.com/nace-ai/intern/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-Apache--2.0-0FDBB4?style=flat-square&labelColor=0A0A0A)](LICENSE)
+[![license](https://img.shields.io/badge/license-Nace_AI_Open_RAIL--M-0FDBB4?style=flat-square&labelColor=0A0A0A)](LICENSE)
 ![python](https://img.shields.io/badge/python-3.12%2B-0FDBB4?style=flat-square&labelColor=0A0A0A)
 [![by Nace](https://img.shields.io/badge/by-nace.ai-0A0A0A?style=flat-square&labelColor=0A0A0A)](https://nace.ai)
 
@@ -56,6 +56,8 @@ scripted; System 1's looks, nudge and search are live, on `drex-max`._
   questions. Off by default. [File search](#file-search)
 - **Web results System 1 judges.** `web_search` and `web_read` can have System 1 keep only what the task needs.
   Off by default. [Web search and read](#web-search-and-read)
+- **Hand-over to a cheaper model.** System 1 picks the turn where a cheaper model can finish the run: on
+  FrontierHarness, the cheapest result on the board at 65.3%. Off by default. [Hand-over](#hand-over)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
@@ -85,8 +87,10 @@ uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
 
 Then run `intern`. The first time, it opens on a short setup that explains what Intern is and connects both of its
 models: pick a provider for System 2 (Anthropic, OpenAI, OpenRouter, Gemini, xAI, DeepSeek, Mistral, Groq and 12
-more, or a model on your machine), paste a key (or sign in to OpenRouter in the browser), and pick System 1, Drex Max
-on OpenRouter by default. Keys go to your system keychain; `/setup` brings the screen back any time.
+more, or a model on your machine), paste a key (or sign in to OpenRouter in the browser), and pick System 1: the
+setup offers Drex Max on OpenRouter first, on the OpenRouter key you already gave, and Drex from the Nace console
+next. Keys go to your system keychain, your picks to `~/.intern/config.toml`; `/setup` brings the screen back any
+time.
 
 Or give it a task straight away, with one OpenRouter key for both models:
 
@@ -107,8 +111,9 @@ The terminal UI opens with the task as its first prompt; `-p` runs it headlessly
 - **System 1** keeps it on track. It can be any decision model: Drex, Jev, Kev and 40+ others, from the
   [Nace console](https://console.nace.ai) or OpenRouter's decisions API. `intern models` lists them all.
 
-Sign up at [console.nace.ai](https://console.nace.ai) and create an API key. Drex from the console is the default
-System 1, so no `--system1` is needed:
+With no `--system1` and no `[system1]` in `~/.intern/config.toml`, System 1 is `drex-latest` from the Nace console,
+read with `NACE_API_KEY`. Sign up at [console.nace.ai](https://console.nace.ai), create a key, and only System 2 needs
+naming:
 
 ```bash
 export NACE_API_KEY=...        # System 1: Drex from the Nace console
@@ -154,6 +159,36 @@ it. A number the run never showed is sent back to the writer or blanked.
 On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83% with a
 `SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
 ([method](docs/architecture.md#system-2-and-system-1)).
+
+## Hand-over
+
+Long tasks are not hard all the way through: the first turns plan and read, the last ones run the tests and fix
+what they show. Name a cheaper model and your intern's System 2 can hand the rest of a run over to it. After each
+turn, System 1 judges whether the work has reached that point: the main solution exists, a check relevant to the
+task has run it, and what is left is local repair and finishing. Two turns in a row at 0.7 or more, from turn 8
+on, and the cheaper model takes over in the same workspace and conversation. It hands over once a run, never back,
+and the next message starts on System 2 again. Off by default.
+
+```bash
+intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
+  --handoff-to openrouter/qwen/qwen3.8-27b
+```
+
+Or in `~/.intern/config.toml`: `[capabilities.handoff]` with `to = "<provider/model>"`, and `threshold`, `streak`,
+`min_turn` and `effort` to tune it ([settings](docs/capability-settings.md)). In the terminal UI, `/handoff` picks the
+model (or `off`), and the transcript tells you the turn a run hands over at.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/handoff-pareto-dark.svg">
+  <img src="docs/assets/handoff-pareto-light.svg" alt="Pass rate against cost per task on FrontierHarness v1.1, DeepSeek-V4.1-Flash. Intern with DeepSeek alone: 69.4% at $0.182, the highest pass rate. Intern handing over from DeepSeek to Qwen3.8 27B, with Drex choosing the turn: 65.3% at $0.092, cheaper than every board harness and above the board's Pareto frontier of OpenCode 1.19.4 (61.3%, $0.108), mini-SWE-agent (64.9%, $0.142) and ZCode (69.0%, $0.153). Qwen3.8 27B alone in Intern: 40.3%.">
+</picture>
+
+On [FrontierHarness](https://frontierharness.org/efficiency) v1.1, whose board runs 22 harnesses on the same 62
+tasks and model: DeepSeek-V4.1-Flash starts each task, Drex picks the turn, and Qwen3.8 27B finishes it. That is
+65.3% at $0.092 a task, cheaper than every harness on the board and above its Pareto frontier, half the cost of
+DeepSeek alone for 4.1 points of pass rate. The same Qwen running alone passes 40.3%. Qwen runs on our own
+deployment, billed by the GPU hour, so the cost counts only DeepSeek and System 1. Our runs are one attempt a task,
+about ±6 points of noise; the board's are four.
 
 ## Capabilities
 
@@ -398,4 +433,6 @@ Report security issues privately, as [SECURITY.md](SECURITY.md) describes.
 
 ## License
 
-[Apache-2.0](LICENSE)
+[Nace AI Open RAIL-M](LICENSE), the license of the [Drex models](https://huggingface.co/nace-ai). Free for
+individuals, research and companies under $1M in yearly revenue and $1M raised; above either, commercial use needs a
+license from Nace AI (nischay@nace.ai). Releases before this change stay under Apache-2.0.

@@ -1,201 +1,99 @@
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
+NACE AI OPEN RAIL-M LICENSE (MODIFIED)
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+Version 1.0, October 2026
+Based on the Open RAIL-M License (http://licenses.ai/), as modified by Nace.AI, Inc.
+This is the license of the Drex models (https://huggingface.co/nace-ai), applied to the Intern software.
 
-   1. Definitions.
+PLEASE READ THESE TERMS CAREFULLY BEFORE USING THE SOFTWARE OR A DERIVATIVE OF THE SOFTWARE MADE AVAILABLE IN CONNECTION WITH THESE TERMS. BY DOWNLOADING, REPRODUCING, DISTRIBUTING, HOSTING OR USING THE SOFTWARE OR A DERIVATIVE OF THE SOFTWARE IN ANY MANNER, YOU ("YOU") AGREE TO BE BOUND BY THESE TERMS (THE "AGREEMENT") TO THE EXCLUSION OF ALL OTHER TERMS. YOU REPRESENT AND WARRANT THAT YOU HAVE THE AUTHORITY TO ENTER INTO THIS AGREEMENT; IF YOU ARE ENTERING INTO THIS AGREEMENT ON BEHALF OF AN ORGANIZATION OR ENTITY, "YOU" REFERS TO THAT ORGANIZATION OR ENTITY AND ITS AFFILIATES. IF YOU DO NOT AGREE TO ALL OF THE FOLLOWING, YOU MAY NOT DOWNLOAD, REPRODUCE, DISTRIBUTE, HOST OR USE THE SOFTWARE OR A DERIVATIVE OF THE SOFTWARE IN ANY MANNER.
 
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
+SECTION I: PREAMBLE
 
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
+This License is a modified Open RAIL-M License that applies to Intern, the agent software released by Nace.AI, Inc. The Drex models Intern can use as its System 1 are licensed separately, under the same terms as they apply to models.
 
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
+"Open" indicates that the Software is freely accessible to downstream users, including for commercial use by individuals and smaller organizations below the thresholds in Attachment A. "RAIL" indicates that use restrictions apply to the Software, its Derivatives and its Output, and that those restrictions must be carried forward to anyone who receives the Software or a Derivative.
 
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
+NOW THEREFORE, You and Licensor agree as follows:
 
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
+1. Definitions
 
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
+(a) "Licensor" means Nace.AI, Inc. and its affiliates.
 
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
+(b) "Software" means the Intern source code, documentation, configuration files, prompts, model profiles and other assets released by Licensor under this License.
 
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
+(c) "Derivatives of the Software" means all modifications to the Software, works based on the Software, and any software that incorporates the Software in whole or in part, including forks, ports and translations.
 
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
+(d) "Output" means the results produced by operating the Software or a Derivative of the Software, including messages, files, edits, tool calls and decisions.
 
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
+(e) "Distribution" means any transmission, reproduction, publication or other sharing of the Software or Derivatives of the Software to a Third Party, including providing the Software or a Derivative of the Software as a hosted service made available by electronic or other remote means, including but not limited to API-based or web access.
 
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
+(f) "Harm" includes but is not limited to physical, mental, psychological, financial and reputational damage, pain or loss.
 
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
+(g) "Third Parties" means individuals or legal entities that are not under common control with Licensor or You.
 
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
+(h) "You" (or "Your") means an individual or legal entity exercising permissions granted by this License, together with its affiliates, and making use of the Software for whichever purpose and in any field of use.
 
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
+SECTION II: INTELLECTUAL PROPERTY RIGHTS
 
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
+Both copyright and patent grants may apply to the Software and Derivatives of the Software. The Software and Derivatives of the Software are subject to the additional terms in Section III, which govern the use of the Software and Derivatives of the Software even if Section II is held unenforceable.
 
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
+2. Grant of Copyright License. Subject to the terms and conditions of this License, including Section III and Attachment A, Licensor grants You a worldwide, non-exclusive, non-transferable, royalty-free copyright license to reproduce, prepare Derivatives of, publicly display, publicly perform and distribute the Software and Derivatives of the Software.
 
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
+3. Grant of Patent License. Subject to the terms and conditions of this License, including Section III and Attachment A, and where applicable, Licensor grants You a worldwide, non-exclusive, non-transferable, royalty-free patent license to make, have made, use, offer to sell, sell and import the Software and Derivatives of the Software, limited to those patent claims licensable by Licensor that are necessarily infringed by the Software. If You institute patent litigation against any entity (including a cross-claim or counterclaim in a lawsuit) alleging that the Software or a Derivative of the Software constitutes direct or contributory patent infringement, all patent licenses granted to You under this License terminate as of the date such litigation is filed.
 
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
+SECTION III: CONDITIONS OF USAGE, DISTRIBUTION AND REDISTRIBUTION
 
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
+4. Commercial Use Above Threshold. Use of the Software, any Derivative of the Software or any Output by any person or entity described in Attachment A, paragraph 2 is not licensed under this Agreement and requires a separate written commercial license from Licensor. To request a commercial license, contact: nischay@nace.ai.
 
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
+5. Distribution and Redistribution. You may host the Software or Derivatives of the Software for remote access by Third Parties, including as software-as-a-service, and may reproduce and Distribute copies of the Software or Derivatives of the Software in any medium, with or without modifications, provided that You meet all of the following conditions:
 
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
+(a) the use-based restrictions in paragraph 6 and Attachment A MUST be included as an enforceable provision in any legal agreement governing the use or Distribution of the Software or Derivatives of the Software, and You must give notice to all recipients that the Software and Derivatives of the Software are subject to them;
+(b) You must give all recipients a copy of this License;
+(c) You must cause any modified files to carry prominent notices stating that You changed the files;
+(d) You must retain all copyright, patent, trademark and attribution notices; and
+(e) You must Distribute Derivatives of the Software under this License and no other.
 
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
+6. Use-Based Restrictions. The restrictions in Attachment A are use-based restrictions. You may not use the Software, Derivatives of the Software or Output in violation of them. You may use the Software only for lawful purposes and in accordance with this License. "Use" includes running, modifying, hosting, evaluating and benchmarking the Software. You shall require all users to whom You provide the Software or a Derivative of the Software to comply with this paragraph 6.
 
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
+7. The Output You Generate. Except as set forth in this License, Licensor claims no rights in the Output You generate. You are solely responsible for the Output and its subsequent uses. Output may not be used in violation of Attachment A.
 
-   END OF TERMS AND CONDITIONS
+8. Attribution. In connection with any Distribution of the Software or a Derivative of the Software, You agree to give appropriate credit to Licensor, provide a link to the original Software, provide a copy of this License, and identify any changes You made. Attribution must not suggest endorsement by Licensor.
 
-   APPENDIX: How to apply the Apache License to your work.
+SECTION IV: OTHER PROVISIONS
 
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
+9. Trademarks. Nothing in this License permits You to use Licensor's trademarks, trade names or logos, including "Nace", "Nace.AI", "Intern" and "Drex", except as needed for attribution under paragraph 8, or to suggest endorsement by or misrepresent Your relationship with Licensor. All rights not expressly granted are reserved by Licensor.
 
-   Copyright [yyyy] [name of copyright owner]
+10. Disclaimer of Warranty. Unless required by applicable law or agreed to in writing, Licensor provides the Software "AS IS", WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including without limitation any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Software and Derivatives of the Software, including the accuracy and reliability of any Output, and assume all risks associated with Your exercise of permissions under this License.
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+11. Limitation of Liability. In no event and under no legal theory, whether in tort (including negligence), contract or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall Licensor be liable to You for damages, including any direct, indirect, special, incidental or consequential damages of any character arising as a result of this License or out of the use or inability to use the Software (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if Licensor has been advised of the possibility of such damages.
 
-       http://www.apache.org/licenses/LICENSE-2.0
+12. Accepting Warranty or Additional Liability. If You Distribute the Software or Derivatives of the Software under this License, You may offer support, warranty or indemnity only on Your own behalf and sole responsibility, and only if You agree to indemnify, defend and hold Licensor harmless from any liability incurred by, or claims asserted against, Licensor by reason of Your accepting such obligations.
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+13. Severability; Entire Agreement. If any provision of this License is held invalid, illegal or unenforceable, the remaining provisions remain in full effect. This License is the entire agreement between You and Licensor regarding the Software unless superseded by a signed commercial license.
+
+END OF TERMS AND CONDITIONS
+
+ATTACHMENT A
+USE RESTRICTIONS
+
+As conditions to the licenses set forth in this Agreement, You agree not to use, reproduce, modify, create, host or Distribute the Software, Derivatives of the Software or Output (collectively, "Use") in any of the following ways:
+
+1. Legal:
+(a) in any way that violates any applicable national, federal, state, local or international law or regulation; or
+(b) to directly or indirectly infringe or misappropriate any third-party intellectual property, privacy or publicity rights, including those of Licensor.
+
+2. Commercial:
+(a) for any purpose if You (your employer, or the entity you are affiliated with) generated more than one million US dollars ($1,000,000) in gross revenue in the prior twelve (12) months, except where Your Use is limited to personal use or research purposes;
+(b) for any purpose if You (your employer, or the entity you are affiliated with) has raised more than one million US dollars ($1,000,000) in total equity or debt funding from any source, except where Your Use is limited to personal use or research purposes; or
+(c) for any purpose if You (your employer, or the entity you are affiliated with) provides or otherwise makes available any product or service that competes with any product or service offered or made available by Licensor or its affiliates, including decision models and document intelligence services.
+
+3. Automated Decisions and Discrimination:
+(a) to make fully automated decisions that produce legal or similarly significant effects on individuals, including in employment, credit, housing, insurance, healthcare, education, immigration or law enforcement, without meaningful human review;
+(b) to discriminate against, or produce disparate impacts on, individuals or groups based on legally protected characteristics; or
+(c) to provide medical, legal or financial advice or decisions without appropriate qualified human oversight.
+
+4. Safety and Misuse:
+(a) for military, weapons development or mass surveillance purposes;
+(b) to generate or facilitate fraud, scams, spam or deceptive practices; or
+(c) to remove, alter, circumvent or obscure any license, attribution or use restriction in the Software.
+
+Commercial and broader use licenses are available from Licensor: nischay@nace.ai · https://www.nace.ai/drex
