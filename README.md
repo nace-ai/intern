@@ -1,16 +1,32 @@
-<p align="center">
-  <img src="docs/assets/mascot.svg" alt="Intern: a violet cube in round glasses, smiling, glancing around and blinking" width="160">
-</p>
+<div align="center">
 
-<h1 align="center"><img src="docs/assets/wordmark.svg" alt="Intern" width="360"></h1>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/intern-idle-dark.svg">
+  <img alt="Intern's mark: the Nace cube with two eyes in the window on its top face, looking around and blinking" src="docs/assets/brand/intern-idle-light.svg" width="132">
+</picture>
 
-<p align="center">Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast, keeps it on track and finds what it needs.</p>
+<h1>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/intern-wordmark-white.svg">
+  <img alt="Intern" src="docs/assets/brand/intern-wordmark-black.svg" width="250">
+</picture>
+</h1>
 
-<p align="center">
-  <a href="https://github.com/nace-ai/intern/actions/workflows/ci.yml"><img src="https://github.com/nace-ai/intern/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0"></a>
-  <img src="https://img.shields.io/badge/python-3.12%2B-blue" alt="Python 3.12+">
-</p>
+**Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast, keeps it on track and finds what it needs.**
+
+[![CI](https://img.shields.io/github/actions/workflow/status/nace-ai/intern/ci.yml?branch=main&style=flat-square&label=ci&color=0FDBB4&labelColor=0A0A0A)](https://github.com/nace-ai/intern/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-Apache--2.0-0FDBB4?style=flat-square&labelColor=0A0A0A)](LICENSE)
+![python](https://img.shields.io/badge/python-3.12%2B-0FDBB4?style=flat-square&labelColor=0A0A0A)
+[![by Nace](https://img.shields.io/badge/by-nace.ai-0A0A0A?style=flat-square&labelColor=0A0A0A)](https://nace.ai)
+
+[What's new](#whats-new-in-intern) · [Install](#install) · [Supervision](#supervision) · [Compaction](#compaction) · [Capabilities](#capabilities) · [Models](#models) · [Editors](#use-it-from-your-editor) · [Contributing](CONTRIBUTING.md)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/intern-banner-dark.svg">
+  <img alt="One agent, two brains. Intern is an open-source agent harness for small models: one model does the work, a faster one keeps it on track." src="docs/assets/brand/intern-banner-light.svg" width="100%">
+</picture>
+
+</div>
 
 Small models make keen but shaky interns: they loop, cut replies short, send malformed tool calls, overflow their
 context and stop before the work is done. Intern breaks those habits one at a time, and every fix ships with a

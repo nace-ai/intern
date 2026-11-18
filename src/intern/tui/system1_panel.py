@@ -3,7 +3,8 @@
 System 1 is asked for different things, and each reads its own way (`ledger.py` gathers them from the events):
 
 - `✦` the thinking level it picked for a run, at `auto`, first under the run's prompt: a column for each level the
-  model takes, as tall as its probability, the one picked in violet; then the level, how sure, and the next likeliest;
+  model takes, as tall as its probability, the one picked in the accent; then the level, how sure, and the next
+  likeliest;
 - a turn it watched, in a line: what it weighed as one bar, each answer its share of it; its call and the
   probability; then what the loop did about it (a stuck strike, a nudge) and, once the request looks met, the
   wrap-up verdict;
@@ -206,8 +207,8 @@ def watch_lines(j: TurnJudgement, room: int) -> list[list[Part]]:
 
 
 def effort_lines(e: EffortJudgement, room: int) -> list[list[Part]]:
-    """The run's thinking level in a line: the ladder of what System 1 weighed, the level in violet and how sure, then
-    the next likeliest as far as the line holds them."""
+    """The run's thinking level in a line: the ladder of what System 1 weighed, the level in the accent and how sure,
+    then the next likeliest as far as the line holds them."""
     head: list[Part] = [("thinking ", S_MUTED), *ladder(e), " ", *level(e.level, e.probability, S_BRAND_BOLD)]
     if e.cached:
         head.append(("  cached", S_MUTED))

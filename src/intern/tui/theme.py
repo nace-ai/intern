@@ -1,11 +1,11 @@
-"""The look: paper, ink and the mascot's violet, in light and dark.
+"""The look: paper, ink and one accent, the Nace mint, in light and dark.
 
-An off-white page, white cards, hairline rules, near-black ink, a warm gray for what is secondary; the mascot's
-violet (`brand`) for what is Intern's own: the mark, the wordmark, the panels' tabs, the prompt's bar and cursor;
-green only for what went right, amber for what needs a look, red for what went wrong. The mark is the mascot, the
-violet cube in round glasses at the top of the README, drawn in half blocks (`widgets.mark`) in its own colours
-(`MASCOT_COLOURS`), the same in both looks. The dark look swaps paper and ink, each a little grayed down, and
-takes the mascot's lighter violet, which reads on it (`/dark`, `/light`).
+An off-white page, white cards, hairline rules, near-black ink, a warm gray for what is secondary. Intern itself is
+drawn in ink, as the Nace mark is: the mark (the cube with eyes, `widgets.mark`) and the wordmark's block letters.
+The accent (`brand`) is for what is alive in the session: the panels' tabs and borders, the prompt's bar and cursor,
+System 1's picks and the wordmark's shadow; green only for what went right, amber for what needs a look, red for what
+went wrong. The dark look swaps paper and ink, each a little grayed down, and takes the mint as the brand has it; the
+light look takes a deeper shade of it, which reads on paper (`/dark`, `/light`).
 
 Widgets name colours by role (`INK`, `S_MUTED`, ...), which are the theme's variables: `Content` reads them when
 it draws, so a switch of theme redraws everything in the other look.
@@ -29,8 +29,8 @@ LIGHT = {
     "amber": "#b7791f",
     "red": "#b23a3a",
     "select": "#dedcd3",
-    "brand": "#7c4ad2",
-    "glint": "#c7a6ff",
+    "brand": "#00795f",
+    "glint": "#22c7a4",
 }
 DARK = {
     "paper": "#141411",
@@ -44,41 +44,13 @@ DARK = {
     "amber": "#d4973a",
     "red": "#d9625f",
     "select": "#3a3a31",
-    "brand": "#bd98ff",
-    "glint": "#f3ebff",
+    "brand": "#0fdbb4",
+    "glint": "#c2fbe9",
 }
-"""`select`: text the mouse selected, a shade of the page, not ink at half strength. `brand`: the mascot's violet,
-its deeper shade on the light page and its lavender on the dark one, each about as strong against the page. `glint`:
-the light that sweeps across the brand's violet where System 1 is at work (the `auto` thinking level), lighter than
-it in both looks."""
-MASCOT_COLOURS = {
-    "9": "#bb90ff",
-    "8": "#ab76ff",
-    "6": "#9257f2",
-    "5": "#8650de",
-    "4": "#7442c9",
-    "3": "#6538b4",
-    "K": "#1c1c1a",
-    "W": "#ffffff",
-}
-"""The mascot's colours: its violets from the lightest, `9`, down (the wordmark's rows, and `9` a lens of the
-mark's glasses with the eye gone from it); the glasses' frames, `K`; the eyes, `W`."""
-MASCOT_BODY = (
-    "#b689ff",
-    "#b17fff",
-    "#aa74ff",
-    "#a369ff",
-    "#9c5efe",
-    "#975af9",
-    "#9257f0",
-    "#8d54e8",
-    "#8952e2",
-    "#854fdb",
-    "#814dd5",
-    "#7d4ace",
-)
-"""The mark's body (`widgets.MASCOT`'s `#`), a colour for each row of pixels: the README cube's own gradient, top to
-bottom, in steps too small to read as bands."""
+"""`select`: text the mouse selected, a shade of the page, not ink at half strength. `brand`: the Nace accent, a mint
+(OKLCH 0.7953 0.1501 173.8) as the brand has it on the dark page and a deeper shade of the same hue on the light one,
+each strong enough against its page to be read as text. `glint`: the light that sweeps across the accent where
+System 1 is at work (the `auto` thinking level), lighter than it in both looks."""
 
 PAPER = "$background"
 CARD = "$surface"
@@ -112,7 +84,7 @@ S_BOX = f"bold {INK} on {SELECT}"
 """The thinking level's box on the masthead, filled so a change of level is seen at once; `S_BOX_MUTED` its label."""
 S_BOX_MUTED = f"{MUTED} on {SELECT}"
 S_BOX_AUTO = f"bold {BRAND} on {SELECT}"
-"""The `auto` level in the box, and the pips of the level System 1 picked, in the mascot's violet: System 1's choice;
+"""The `auto` level in the box, and the pips of the level System 1 picked, in the accent: System 1's choice;
 `S_BOX_GLINT` the light that sweeps across it."""
 S_BOX_GLINT = f"bold {GLINT} on {SELECT}"
 
@@ -120,7 +92,7 @@ S_BRAND_BOLD = f"bold {BRAND}"
 """System 1's pick of the thinking level, wherever it shows: its sign `✦`, the level picked and its column."""
 
 S_TAB = f"bold {PAPER} on {BRAND}"
-"""A panel's name on its header, a tab in the mascot's violet; also the `System 1` tag on what System 1 drives in
+"""A panel's name on its header, a tab in the accent; also the `System 1` tag on what System 1 drives in
 `/caps`."""
 
 S_WORDMARK = f"bold {BRAND}"

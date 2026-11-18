@@ -19,12 +19,12 @@
 
             Describe a task to begin.   /help commands   /system2 model   /caps capabilities ...
 
-Intern is a brain in two parts, and the page is drawn as one: the mascot, the README's with its eyes moving as they
-do there (`Mascot`), between its two systems, each a card with the model it is on. System 2's card has what the
+Intern is a brain in two parts, and the page is drawn as one: Intern itself, the Nace cube with eyes, alive as the
+brand draws it (`Mascot`), between its two systems, each a card with the model it is on. System 2's card has what the
 session has switched on, each capability in a few words; System 1's has its four jobs, each on or off as a
-capability is, and what it judges from. Above them the wordmark, in the
-mascot's violets, and what Intern is, in the README's paragraph; under them where the session works, then what to do
-next. All of it centred, and a third of the way down a tall terminal.
+capability is, and what it judges from. Above them the wordmark, in ink with the accent for its shadow, and what
+Intern is, in the README's paragraph; under them where the session works, then what to do next.
+All of it centred, and a third of the way down a tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the mascot and both systems in one frame
 (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is the transcript's first block, so
@@ -34,7 +34,6 @@ conversation begins.
 
 from __future__ import annotations
 
-import functools
 import textwrap
 import time
 from dataclasses import dataclass, field
@@ -69,8 +68,8 @@ from intern.tui.widgets import (
     clip,
     fit_path,
     flow,
-    pixels,
-    pose_at,
+    frame,
+    reel,
     short_path,
     stacked,
     system1_parts,
@@ -137,17 +136,12 @@ HINTS = (
     ("Shift+Tab", "thinking"),
     ("/dark", "look"),
 )
-SPRITES = Path(__file__).with_name("mascot.png")
-"""The mascot's poses, side by side, one for each of `EYES`: `docs/assets/mascot.svg` without the shadow under it or
-its breath, cut to the cube and drawn 160 pixels wide by a browser stopped at each pose (0.5 s into its loop at rest,
-2.1 s glancing left, 4.6 s glancing right, 6.88 s shut), its mouth painted out with the body above and below it: at
-this size the smile reads as teeth. Its eyes glance behind still glasses. `poses` scales them to the cells."""
 SPRITE_COLUMNS, SPRITE_ROWS = 32, 16
 """The mascot in cells, two pixels to a cell down: as wide in pixels as it is tall."""
 BIG_COLUMNS, BIG_ROWS = 40, 20
 """The same on a wide page with the room for it."""
 TICK_S = 0.08
-"""How often the mascot looks at the clock: a blink is two of these."""
+"""A frame of Intern's motion, as the brand draws it: 12.5 a second."""
 ABOUT_WIDTH = 100
 """The widest the paragraph runs: a wide terminal is wider than a line reads."""
 CARD_WIDTH = 44
@@ -204,43 +198,22 @@ class Opening:
     guard: GuardState = "off"
 
 
-@functools.cache
-def poses(columns: int, rows: int, page: str) -> tuple[Content, ...]:
-    """The mascot in each of its poses (`SPRITES`), `columns` cells by `rows`, on a page of the colour `page`: two
-    pixels to a cell, each the mean of what it covers of the drawing, so the cube's edge is a blend with the page and
-    not a step."""
-    from PIL import Image, ImageColor
-
-    with Image.open(SPRITES) as sheet:
-        paper = Image.new("RGBA", sheet.size, page)
-        paper.alpha_composite(sheet.convert("RGBA"))
-    blank, width = bytes(ImageColor.getrgb(page)[:3]), paper.width // len(EYES)
-    drawn: list[Content] = []
-    for left in range(0, paper.width, width):
-        pose = paper.crop((left, 0, left + width, paper.height)).convert("RGB")
-        data = pose.resize((columns, 2 * rows), Image.Resampling.BOX).tobytes()
-        pixel = [data[at : at + 3] for at in range(0, len(data), 3)]
-        grid = [pixel[at : at + columns] for at in range(0, len(pixel), columns)]
-        open_page = [blank] * columns
-        for upper, lower, under in zip(grid[::2], grid[1::2], [*grid[2::2], open_page], strict=True):
-            for x in range(columns):
-                if under[x] == blank and upper[x] != lower[x]:
-                    # A cell over the open page: as a half block, its edge is a hairline there in macOS Terminal. It
-                    # is the mean of its two pixels instead, as an edge's pixel is of what it covers.
-                    upper[x] = lower[x] = bytes((a + b) // 2 for a, b in zip(upper[x], lower[x], strict=True))
-        drawn.append(stacked(pixels([["" if p == blank else f"#{p.hex()}" for p in row] for row in grid], page)))
-    return tuple(drawn)
+State = Literal["idle", "listening", "rolling", "blocked", "happy"]
+"""Intern's states on the entering page and the setup: ready for a task; the user is typing; the session is opening;
+it could not open; setup is done."""
 
 
 class Mascot(Static):
-    """The mascot, its eyes alive as the README's are. Still where motion is switched off
+    """Intern, alive as the brand draws it: it plays a state's loop (`play`), and shuts its eyes for a frame between
+    two states, so a change is a blink and never a jump. Still, its eyes at rest, where motion is switched off
     (`TEXTUAL_ANIMATIONS=none`)."""
 
-    def __init__(self) -> None:
+    def __init__(self, state: State = "idle") -> None:
         super().__init__(id="welcome-mascot")
         self._cells = (SPRITE_COLUMNS, SPRITE_ROWS)
         self._shown: object = None
-        self._born = time.monotonic()
+        self._state: State = state
+        self._began = time.monotonic()
 
     def on_mount(self) -> None:
         self._tick()
@@ -251,13 +224,26 @@ class Mascot(Static):
         self._cells = (columns, rows)
         self._tick()
 
+    def play(self, state: State) -> None:
+        """Go to `state`, behind a blink."""
+        if state != self._state:
+            self._state = state
+            self._began = time.monotonic() + TICK_S
+
     def _tick(self) -> None:
-        """Draw the mascot again when its pose, its size or the page under it (`/dark`) is another."""
-        pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
-        page = (DARK if self.app.current_theme.dark else LIGHT)["paper"]
-        if self._shown != (shown := (*self._cells, page, pose)):
+        """Draw Intern again when its frame, its size or the look (`/dark`) is another."""
+        ticks = int((time.monotonic() - self._began) / TICK_S)
+        if self.app.animation_level == "none":
+            name, index = "poses", EYES.index("rest")
+        elif ticks < 0:
+            name, index = "poses", EYES.index("shut")
+        else:
+            sequence = reel()["states"][self._state]["sequence"]
+            name, index = self._state, sequence[ticks % len(sequence)]
+        look = DARK if self.app.current_theme.dark else LIGHT
+        if self._shown != (shown := (name, index, *self._cells, look["paper"], look["ink"], look["brand"])):
             self._shown = shown
-            self.update(poses(*self._cells, page)[pose])
+            self.update(Content("\n").join(frame(*shown)))
 
 
 def where(o: Opening, width: int) -> list[list[Part]]:
@@ -383,6 +369,7 @@ class Welcome(Vertical):
         self.opening = opening
         self._fitted: object = None
         """The terminal's size the page was last drawn for."""
+        self._typing = False
 
     def compose(self) -> ComposeResult:
         # Each in a `Center`: a container centres its children as one block, and these are centred one by one.
@@ -417,6 +404,22 @@ class Welcome(Vertical):
         """The session as it now stands: opened, or on another model or capability."""
         self.opening = opening
         self._draw()
+
+    def typing(self, typing: bool) -> None:
+        """Whether there is a prompt being written: Intern listens while there is."""
+        if self._typing != typing:
+            self._typing = typing
+            self.query_one(Mascot).play(self._state())
+
+    def _state(self) -> State:
+        """What Intern is doing: waiting on a session that is opening, stopped at one that could not open, listening
+        to a prompt being written, or ready."""
+        note = self.opening.note
+        if note.endswith("…"):
+            return "rolling"
+        if note and note != SETUP_NOTE:
+            return "blocked"
+        return "listening" if self._typing else "idle"
 
     def _refit(self, _: object) -> None:
         if self.app.size != self._fitted:
@@ -471,4 +474,5 @@ class Welcome(Vertical):
         left.styles.margin = right.styles.margin = ((tall - card_rows) // 2 if look == "hero" else 0, 0, 0, 0)
         mascot = self.query_one(Mascot)
         mascot.fit(mascot_columns, mascot_rows)
+        mascot.play(self._state())
         mascot.styles.margin = ((tall - mascot_rows) // 2 if look == "hero" else 0, 0, 0, 0)

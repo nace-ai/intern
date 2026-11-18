@@ -1,7 +1,10 @@
 # README assets
 
-The README's images. Each but the mascot and the wordmark comes in a light and a dark version, picked by `<picture>`.
-The diagrams are hand-drawn SVG animated in CSS, with system fonts only; under reduced motion each stops on its most
+The README's images. Each comes in a light and a dark version, picked by `<picture>`.
+The diagrams are hand-drawn SVG animated in CSS, in the look of nace.ai's figures: its sand neutrals, hairline
+rules, headings in Newsreader, text in Inter and labels in Geist Mono, with one accent for what System 1 does. Each
+carries the glyphs it uses of those three fonts (subsets, as data in its `<style>`; their licences are in `fonts/`),
+so it reads the same wherever it is drawn, and falls back to system fonts; under reduced motion each stops on its most
 telling frame. Every number on them comes from the run or measurement their row names.
 
 | File | What it shows |
@@ -14,5 +17,7 @@ telling frame. Every number on them comes from the run or measurement their row 
 | `code-search-light.gif`, `code-search-dark.gif` | `decision_code` searching this repository's own source for where a run that goes in circles is detected: the search tree growing as System 1 scores folders, files and definitions, then the result. System 2's turns are scripted; System 1 is live |
 | `files-search-light.gif`, `files-search-dark.gif` | `decision_files` searching a folder of audit papers for "Has the client ever been the victim of a scam or theft, and what did it cost?": the walk and the BM25 lane filling, System 1's judgements, the hop through the seeds' terms, then the result. System 2's turns are scripted; System 1 is live |
 | `compaction-light.gif`, `compaction-dark.gif` | `/compact` over a session that read twenty files of a made-up date library: System 2 writing its State into the compaction's card, System 1 judging the reads being cut and keeping the three your intern is still working on, then a click opening the State. System 2's turns are scripted; System 1 is live |
-| `wordmark.svg` | The README's title, one for both looks: the terminal UI's block letters (`widgets.ART`), a violet a row (`widgets.SHADES`) and the shadow a cell to their right (`widgets.SHADOW`), as rectangles with no text. Draw it again when those change |
-| `mascot.svg` | Intern's mascot, one for both looks: the Nace agent cube in violet with round glasses, its eyes and a smile on the front face, exported from the Nace agent mascot renderer with a mouth. CSS in the SVG makes it breathe, glance left and right (the eyes and mouth move together behind still glasses) and blink twice on an 8 s loop; it stays still under reduced motion. Draw the terminal UI's `tui/mascot.png` and `widgets.MASCOT` again when it changes, both without the mouth, which at terminal size reads as teeth |
+| `brand/intern-idle-light.svg`, `brand/intern-idle-dark.svg` | Intern's mark at the top of the README: the Nace cube with two eyes in the window on its top face, in one colour (ink on light, white on dark), looking around and blinking in a loop. Exported from the Nace brand playground's Intern kit, as the terminal UI's sprites (`tui/sprites/`) are; export both again when the character changes |
+| `brand/intern-wordmark-black.svg`, `brand/intern-wordmark-white.svg` | The README's title: "Intern" in Inter, as outlines with no text |
+| `brand/intern-banner-light.svg`, `brand/intern-banner-dark.svg` | The README's banner, 1280 by 640, which is also the size of a social card: the cube's outline nested in dashes, in ink on the left and in the accent on the right, for the two systems, around the headline in Newsreader. Its text is outlines, so it needs no font |
+| `brand/intern-mark-*.svg`, `brand/intern-lockup-*.svg`, `brand/intern-app-icon.svg` | The still mark, the mark beside the wordmark, and the app icon, for use outside the README |

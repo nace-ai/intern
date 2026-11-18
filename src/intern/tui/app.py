@@ -1065,6 +1065,8 @@ class HarnessApp(App[None]):
         """Images the prompt names show on its border, so a dropped one reads as attached."""
         sees = self.session is None or self.session.deps.system2.profile.vision
         message.text_area.border_subtitle = attachments(images_in(message.text_area.text), sees)
+        for page in self.query(Welcome):
+            page.typing(bool(message.text_area.text.strip()))
 
     @on(Prompt.Submitted, "#prompt")
     async def _on_prompt(self, message: Prompt.Submitted) -> None:

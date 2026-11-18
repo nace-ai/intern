@@ -163,6 +163,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
         """Draw the current step: its title, what it says, the list or the line it asks with, and the keys."""
         step = self.step
         self.query_one("#setup-intro").display = step in ("welcome", "done")
+        self.query_one(Mascot).play("happy" if step == "done" else "idle")
         self.query_one("#setup-stages", Static).update(self._stages())
         filter_line, options, line = (
             self.query_one("#setup-filter", Input),
