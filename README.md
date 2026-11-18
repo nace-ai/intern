@@ -159,11 +159,13 @@ the web, against the task.
 
 Measured with no agent in the loop, against other searches ([below](#how-well-system-1-does)):
 
-- **`decision_code`** puts the file a GitHub issue's fix changed first for 87% of 100 SWE-bench Verified issues,
-  where Semble does for 37%, BM25 for 18% and grep for 10%, and the right function first for 64% (Semble: 12%).
-- **`decision_files`** puts the right Treasury Bulletin first for 41% of 133 OfficeQA Pro questions, where SAG2 does
-  for 22% and BM25 for 4%. On HotpotQA it finds 98.8% of the passages a question needs in its top ten, level with
-  SAG2 (99.3%) and ahead of BM25 (88.5%).
+- **`decision_code`** puts the file a GitHub issue's fix changed first for 87% of 100 SWE-bench Verified issues
+  across 11 Python repositories, where Semble does for 37%, BM25 for 18% and grep for 10%, and the right function
+  first for 64% (Semble: 12%). $0.006 a query.
+- **`decision_files`** puts the right Treasury Bulletin first for 41% of 133 OfficeQA Pro questions over 697
+  bulletins, where SAG2 does for 22% and BM25 for 4%; $0.050 a query, its largest pages making it the dearest set.
+  Over HotpotQA's 9,811 passages it finds 98.8% of the ones a question needs in its top ten, level with SAG2 (99.3%)
+  and ahead of BM25 (88.5%), at $0.006 a query.
 - **`web_search` and `web_read`** are not yet measured with System 1, which is why it is off.
 
 <picture>
@@ -217,12 +219,14 @@ System 1 and without it, or against another search.
 |---|---|---|---|
 | Notices your intern going in circles | 23 stuck nudges, asking at 27% of turns; 0.6 s a look. No blind judge has rated them yet | No nudges | 42 stored runs (1,935 turns), replayed ([method](docs/architecture.md#system-2-and-system-1)) |
 | The same, by the rule before 0.39.0, which looked at every turn | 19 nudges, 16 of them on turns an independent judge also called stuck | No nudges | 82 stored sessions, replayed ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the code a GitHub issue's fix changes (`decision_code`) | Right file first for 0.87, right function first for 0.64; $0.006 a search | Semble: 0.37 and 0.12. BM25: 0.18 and 0.13. grep: 0.10 and 0.13 | 100 SWE-bench Verified issues, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the files a task needs, across repositories (`decision_code`) | An oracle file first for 0.67, in the top ten for 0.89 | Semble: 0.28 and 0.72. BM25: 0.30 and 0.69. grep: 0.11 and 0.46 | 54 searches over CodeScaleBench's 42 tasks, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the report a figure is in (`decision_files`) | Right Treasury Bulletin first for 0.41, in the top ten for 0.72; $0.050 a search | SAG2: 0.22 and 0.56. BM25: 0.04 and 0.20. grep: 0.02 and 0.08 | 133 OfficeQA Pro questions over 697 bulletins, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the passages a two-hop question needs (`decision_files`) | 0.988 of them in the top ten; $0.006 a search | SAG2: 0.993. BM25: 0.885 | 300 HotpotQA questions over 9,811 passages, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
-| Finds the clause a contract question asks for (`decision_files`) | The right contract first for 0.99; the clause in the first 20,000 characters for 0.99; $0.010 a search | SAG2: 1.00 and 0.97. BM25: 0.98 and 0.78 | 100 CUAD questions over 200 contracts, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the code a GitHub issue's fix changes (`decision_code`) | Right file first for 0.87, right function first for 0.64; $0.0062 a query | Semble: 0.37 and 0.12. BM25: 0.18 and 0.13. grep: 0.10 and 0.13 | 100 SWE-bench Verified issues over 11 Python repositories, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the files a task needs, across repositories (`decision_code`) | An oracle file first for 0.67, in the top ten for 0.89; $0.0061 a query | Semble: 0.28 and 0.72. BM25: 0.30 and 0.69. grep: 0.11 and 0.46 | 54 searches over CodeScaleBench's 42 tasks, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the report a figure is in (`decision_files`) | Right Treasury Bulletin first for 0.41, in the top ten for 0.72; $0.0499 a query | SAG2: 0.22 and 0.56, $0.017 a query. BM25: 0.04 and 0.20. grep: 0.02 and 0.08 | 133 OfficeQA Pro questions over 697 Treasury Bulletins, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
+| Finds the passages a two-hop question needs (`decision_files`) | 0.988 of them in the top ten; $0.0058 a query | SAG2: 0.993. BM25: 0.885 | 300 HotpotQA questions over 9,811 passages, `drex-latest` ([method](docs/architecture.md#system-2-and-system-1)) |
 | Stops risky tool calls you did not ask for (guard, opt-in) | All 42 stopped, and none of the 62 routine calls; it reads each script a call runs, and asks the registries about each package an install names, before judging it; 0.4 s a check | The fixed rules stop 9 of the 42 | 140 labeled calls, two repeats, `drex-latest` ([set](evals/tool_guard/)) |
+
+A query is one search; its cost is System 1's input tokens at $0.03 per 1M (its output is free). SAG2 pays its own
+judge, JEV on OpenRouter; Semble, BM25 and grep run on your machine with no model.
 
 System 1 judges from a condensed view of the session, at most 24.6k tokens and built by code with no model call.
 Asked about the session, it answers 95% of questions from that view, as many as from a transcript cut to the same

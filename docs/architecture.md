@@ -335,23 +335,22 @@ whose code search is the one that ships now; `decision_files` is 0.42.0 with the
 | SWE-bench Verified, 100 of its 500 issues drawn with a fixed seed (11 Python repositories) | the issue; the files the fix changed, and a function holding a changed line | right file first 0.87, top ten 0.94; right function first 0.64, top ten 0.89 | Semble: 0.37, 0.78; 0.12, 0.28. BM25: 0.18, 0.57; 0.13, 0.36. grep: 0.10, 0.40; 0.13, 0.30 |
 | CodeScaleBench, 54 searches over its 42 tasks, one per repository holding oracle files | the task; the oracle's files, six a search on average | an oracle file first 0.67, top ten 0.89; NDCG@10 0.56 | Semble: 0.28, 0.72; 0.35. BM25: 0.30, 0.69; 0.30. grep: 0.11, 0.46; 0.16 |
 | OfficeQA Pro, 133 questions over 697 Treasury Bulletins, as parsed text | the question; the bulletin and the page the figure is on | right bulletin first 0.41, top ten 0.72; right page within the first 20,000 characters returned 0.58 | SAG2: 0.22, 0.56; 0.34. BM25: 0.04, 0.20; 0.02. grep: 0.02, 0.08 |
-| CUAD, 100 questions over 200 contracts, as text | a clause of a named contract; the contract and the quoted clause | right contract first 0.99; clause within the first 20,000 characters 0.99 | SAG2: 1.00; 0.97. BM25: 0.98; 0.78. grep: 0.70 |
-| CUAD, 50 more questions, not looked at before the fix was written | the same | right contract first 0.98; clause 0.98 | SAG2: 1.00; 0.96. BM25: 0.96; 0.79. grep: 0.76 |
 | HotpotQA, the first 300 of SAG2's 1,000 questions over 9,811 passages | the question; the passages it needs, two for most | R@10 0.988, R@2 0.923 | SAG2 as published: 0.993, 0.945. BM25: 0.885, 0.592 |
 
-A search cost about $0.006 in System 1 tokens on SWE-bench, CodeScaleBench and HotpotQA, $0.050 on OfficeQA Pro and
-$0.010 on CUAD; seconds were not measured, the machine being shared. On SWE-bench and CodeScaleBench every gap in
-right file first, right file in the top ten and share of oracle files in the top ten holds question by question
-(sign test, p at most 0.012); on OfficeQA Pro the gaps to SAG2 in right bulletin first, in the top ten and both page
-rows do (p below 0.001). On CUAD's 150 questions `decision_files` puts another contract first twice and SAG2 never;
-on the clause they are level. On HotpotQA they differ at ten on 8 questions (p = 0.73); SAG2 is ahead at two (25
-questions to 12).
+A query (one search) cost $0.0062 in System 1 input tokens on SWE-bench, $0.0061 on CodeScaleBench, $0.0058 on
+HotpotQA and $0.0499 on OfficeQA Pro, whose requests are the largest (8,600 tokens, against under 1,000 on the
+rest), at $0.03 per 1M input tokens with output free. SAG2's own judge was billed $0.017 a query on OfficeQA Pro;
+Semble, BM25 and grep call no hosted model. Seconds were not measured, the machine being shared. On SWE-bench and
+CodeScaleBench every gap in right file first, right file in the top ten and share of oracle files in the top ten
+holds question by question (sign test, p at most 0.012); on OfficeQA Pro the gaps to SAG2 in right bulletin first,
+in the top ten and right page do (p below 0.001). On HotpotQA they differ at ten on 8 questions (p = 0.73); SAG2
+is ahead at two (25 questions to 12).
 
 Semble is version 0.7.3 with its default model, over source files. BM25 is the search's own keyword stage over the
 same passages, before System 1 judges anything, not a tuned stand-alone BM25. grep is the question's words, ripgrep
 for each, files ranked by how many distinct words they hold, as Semble's own benchmark models it; it returns files,
-so the page and clause rows do not apply. SAG2 is SAG-Benchmark's `sag2/` code, unmodified, with its own judge (JEV
-on OpenRouter); an error on 8 OfficeQA Pro questions, where a table outran its judge's window, counts as a miss.
+so the page row does not apply. SAG2 is SAG-Benchmark's `sag2/` code, unmodified, with its own judge (JEV on
+OpenRouter); an error on 8 OfficeQA Pro questions, where a table outran its judge's window, counts as a miss.
 
 ## Modules
 
