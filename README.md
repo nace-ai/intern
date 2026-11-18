@@ -159,7 +159,8 @@ intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
 ```
 
 Or in `~/.intern/config.toml`: `[capabilities.handoff]` with `to = "<provider/model>"`, and `threshold`, `streak`,
-`min_turn` and `effort` to tune it ([settings](docs/capability-settings.md)).
+`min_turn` and `effort` to tune it ([settings](docs/capability-settings.md)). In the terminal UI, `/handoff` picks the
+model (or `off`), and the transcript tells you the turn a run hands over at.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/handoff-pareto-dark.svg">
