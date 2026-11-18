@@ -53,7 +53,8 @@ scripted; System 1's looks, nudge and search are live, on `drex-max`._
   in it: the right file first for 87% of SWE-bench Verified issues, where Semble does for 37%. Off by default.
   [Code search](#code-search)
 - **Search for professional files.** `decision_files` searches PDFs, workbooks and scans for audit-style
-  questions. Off by default. [File search](#file-search)
+  questions. On OfficeQA Pro with Claude Sonnet 5.5, the same score in less than half the iterations, at 27% less
+  a question than pi. Off by default. [File search](#file-search)
 - **Web results System 1 judges.** `web_search` and `web_read` can have System 1 keep only what the task needs.
   Off by default. [Web search and read](#web-search-and-read)
 - **Hand-over to a cheaper model.** System 1 picks the turn where a cheaper model can finish the run: on
@@ -312,6 +313,20 @@ columns are an earlier run's stored rows; "rerun" is SAG2's code run again, and 
 Drex. The methods return pieces of very different
 sizes, so the page rows give each the same amount of text. OfficeQA Pro costs the most because its requests are the
 largest, 8,600 tokens against under 1,000 on the other sets.
+
+Measured end to end, the agent doing the whole task on the same model and the same questions:
+
+**OfficeQA Pro, 132 questions over the 697 bulletins as scanned PDFs, Claude Sonnet 5.5.**
+
+| | Intern | Intern + `decision_files` | pi |
+|---|---|---|---|
+| Answered correctly | 77 | 76 | 75 |
+| Iterations (model turns) | 16.3 | **7.4** | 14.9 |
+| $ a question, System 1 included | 0.160 | **0.138** | 0.188 |
+
+The score is level. A question costs 27% less than on pi, a gap outside noise, and 14% less than Intern without
+`decision_files`, a gap within noise. A search costs about $0.02 of System 1 here, so the saving grows with the
+price of the main model.
 
 ### Web search and read
 
