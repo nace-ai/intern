@@ -184,8 +184,10 @@ class HandoffConfig(_Settings):
     effort: str | None = None
     """The reasoning effort the model taken over by is sent; unset keeps what its profile (and `--profile`) say."""
     transfer: Literal["context", "logfile"] = "context"
-    """`context`: it continues the conversation, without the reasoning of the model before it; `logfile`: it starts
-    over from the user's requests and a JSON-lines file of the turns so far, which it reads with its tools."""
+    """`context`: it finishes the run as a child run that continues the conversation, without the reasoning of the
+    model before it, and only its final reply joins the session, whose next run is System 2's again; `logfile`: it
+    starts over from the user's requests and a JSON-lines file of the turns so far, which it reads with its tools, and
+    keeps the session."""
     threshold: float = Field(default=0.7, gt=0, le=1)
     """P(ready) a turn needs to count toward the hand-over."""
     streak: int = Field(default=2, ge=1)
