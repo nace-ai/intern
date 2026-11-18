@@ -160,31 +160,22 @@ On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, p
 `SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
 ([method](docs/architecture.md#system-2-and-system-1)).
 
-## The State
+## System 1's State
 
-Your intern's two systems each read the run through a State of their own, and the hand-over uses both.
-
-**System 1's State** is the session cut: code, not a model, builds it from the journal for every ask. It holds the
+System 1's State is the session cut: code, not a model, builds it from the journal for every ask. It holds the
 goal (the user's last three requests), what runs now, and the whole session in order: the user's messages, the
 harness's nudges, the agent's replies without their reasoning, and each tool call with its input and a note in
 place of its output (status, size, a check's tally, the first 300 characters). Long sessions are cut to fit,
-oldest first; the first message and the newest four turns are never left out. `/state` in the terminal UI shows it as System 1 reads it. Every
-System 1 check reads it, and it is what decides a hand-over: after each turn, System 1 reads it and gives the
-probability that a cheaper model can finish from here.
-
-**System 2's State** is the brief System 2 writes at a compaction, as edits to the one before: the plan with each
-step's status, what is in progress and the next action, the artifacts the task produced and what each step found,
-with the user's last three messages and the commands still running. System 1 never reads it, so a brief that
-leaves something out cannot hide it from the check. At a hand-over it goes with the run: the cheaper model
-continues the conversation as System 2 left it, so once a compaction has happened, it starts from System 2's State.
-With `transfer = "logfile"` it starts instead from the user's requests and a file of the turns
-([how each is built](docs/architecture.md#system-2-and-system-1)).
+oldest first; the first message and the newest four turns are never left out. `/state` in the terminal UI shows it
+as System 1 reads it. Every System 1 check reads it, and it is what decides a hand-over: after each turn, System 1
+reads it and gives the probability that a cheaper model can finish from here
+([how it is built](docs/architecture.md#system-2-and-system-1)).
 
 ## Hand-over
 
 Long tasks are not hard all the way through: the first turns plan and read, the last ones run the tests and fix
 what they show. Name a cheaper model and your intern's System 2 can hand the rest of a run over to it. After each
-turn, System 1 reads [its State](#the-state), the session cut, and judges whether the work has reached that point:
+turn, System 1 reads [its State](#system-1s-state), the session cut, and judges whether the work has reached that point:
 the main solution exists, a check relevant to the task has run it, and what is left is local repair and finishing.
 Two turns in a row at 0.7 or more, from turn 8 on, and the cheaper model takes over in the same workspace and
 conversation. It hands over once a run, never back, and the next message starts on System 2 again. Off by default.
