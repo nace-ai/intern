@@ -5,7 +5,7 @@ with the summary System 2 continues from; on the right the System 1 panel (every
 each: a turn it watched, a call it guarded, a search it walked, a compaction's reads it sorted) over the State panel
 (the session as System 1 reads it); the prompt line at the bottom. Until the first prompt, the entering page takes
 their place (`welcome.py`). Enter sends a prompt, or steers the run in progress. Slash commands:
-/system2, /system1, /state, /thinking, /abort, /panels, /help, /quit.
+/system2, /system1, /handoff, /state, /thinking, /abort, /panels, /help, /quit.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import ClassVar
 
 import httpx
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 from textual import events, on
 from textual.actions import SkipAction
 from textual.app import App, ComposeResult
@@ -41,7 +41,7 @@ from textual.timer import Timer
 from textual.widgets import Input, Static, TextArea
 
 from intern import capability_toggles, effort, names, secrets_commands
-from intern.capability_settings import CapabilitySettings, GuardConfig
+from intern.capability_settings import CapabilitySettings, GuardConfig, HandoffConfig
 from intern.config import (
     KNOWN_SYSTEM2,
     Bootstrap,
@@ -57,6 +57,7 @@ from intern.events import (
     Decision,
     Event,
     EventSink,
+    Handoff,
     HookError,
     Indexing,
     MessageEvent,
@@ -190,6 +191,8 @@ ADD_SECRET = "+add"
 COMMANDS: dict[str, str] = {
     "/system2": "pick the System 2 model, the agent; /system2 <provider/model> sets it directly",
     "/system1": "pick the System 1 model, the judge; /system1 <model> sets it directly",
+    "/handoff": "pick the cheaper model System 2 hands a run over to once System 1 judges it can finish, or off; "
+    "/handoff <provider/model> or /handoff off sets it directly; the session reopens on its journal",
     "/state": "show System 1's State in full: the session as it reads it",
     "/caps": "switch a tool pack, the browser, code search, the memory drive or an MCP connection on or off; "
     "/caps <name> [path] sets one directly; the session reopens on its journal (also /capabilities)",
@@ -237,6 +240,10 @@ def _runner_group(choice: RunnerInfo, current: str) -> str:
     if choice.id == current:
         return "in use"
     return "unavailable" if choice.unavailable else "can run here"
+
+
+HANDOFF_OFF = ("off", "none", "no")
+"""What `/handoff` takes to turn the hand-over off; the first is the picker's row."""
 
 
 def _switched(toggle_id: str, on: bool) -> str:
@@ -993,6 +1000,12 @@ class HarnessApp(App[None]):
                 await transcript.notice(f"Window not known: {message}", "warn")
             case HookError(hook=hook, extension=extension, error=error):
                 await transcript.notice(f"Extension {extension} failed in {hook}: {error}", "error")
+            case Handoff(turn=turn, target=target, probability=probability):
+                await transcript.notice(
+                    f"Handed over to {target} at turn {turn}: System 1 judged the rest within its reach "
+                    f"(P(ready) {probability:.2f}). It finishes this run; the next message is System 2's again.",
+                    "ok",
+                )
             case SubagentStart(name=name, tools=tools):
                 await transcript.notice(f"Subagent {name} started with {', '.join(tools) or 'no tools'}", "info")
             case SubagentEnd(name=name, status=status, turns=turns):
@@ -1168,6 +1181,8 @@ class HarnessApp(App[None]):
                 await self._pick_or_set("system2", rest)
             case "/system1":
                 await self._pick_or_set("system1", rest)
+            case "/handoff":
+                await self._handoff(rest)
             case "/state":
                 self.push_screen(StateScreen(self.state_panel.cut))
             case "/capabilities" | "/caps":
@@ -1424,6 +1439,48 @@ class HarnessApp(App[None]):
         runner = runner_config(name, self._capabilities_at_start.runner)
         self.pending.capabilities = caps.model_copy(update={"runner": runner})
         await self._reopen(f"runner {name}", before)
+
+    async def _handoff(self, rest: str) -> None:
+        """`/handoff`: a picker of System 2's models, the hand-over's model marked, with a row to turn it off;
+        `/handoff <provider/model>` or `/handoff off` sets it directly."""
+        if rest:
+            target = None if rest.lower() in HANDOFF_OFF else rest
+            self.run_worker(self._set_handoff(target), group="capabilities", exit_on_error=False)
+            return
+        if self._opening:
+            await self.transcript.notice("The session is still opening; try again in a moment.", "warn")
+            return
+        current = self._capabilities_now().handoff.to
+        choices = [
+            Choice(id=HANDOFF_OFF[0], name="off", group="hand-over", label="off", note="System 2 runs every turn")
+        ]
+        choices += [choice for choice in self._choices("system2") if choice.id != self._current("system2")]
+        hint = "Enter picks the model a run hands over to; the session reopens on its journal"
+        picker = ModelPicker("Hand-over · the cheaper model that finishes a run", choices, current or "", hint=hint)
+        self.push_screen(picker, callback=self._handoff_picked)
+
+    def _handoff_picked(self, picked: str | None) -> None:
+        if picked:
+            target = None if picked == HANDOFF_OFF[0] else picked
+            self.run_worker(self._set_handoff(target), group="capabilities", exit_on_error=False)
+
+    async def _set_handoff(self, target: str | None) -> None:
+        """Hand runs over to `target` (None: never) and reopen the session on it."""
+        caps = self._capabilities_now()
+        if target == caps.handoff.to:
+            await self.transcript.notice(f"The hand-over is already {target or 'off'}.")
+            return
+        if target is not None and target == self._current("system2"):
+            await self.transcript.notice(f"{target} is System 2 already: pick a cheaper model.", "warn")
+            return
+        try:
+            handoff = HandoffConfig.model_validate({**caps.handoff.model_dump(), "to": target})
+        except ValidationError:
+            await self.transcript.notice(f"Not a model: {target!r}; a hand-over model is provider/model.", "warn")
+            return
+        before = Models(**vars(self.pending))
+        self.pending.capabilities = caps.model_copy(update={"handoff": handoff})
+        await self._reopen(f"hand-over to {target}" if target else "hand-over off", before)
 
     def _capability_picked(self, picked: str | None) -> None:
         if picked:
@@ -1869,8 +1926,8 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
             opened = options.model_copy(update={"system2": system2}) if system2 else options
         picked: dict[str, object] = {k: v for k, v in (("system2", picks.system2), ("system1", picks.system1)) if v}
         if picks.capabilities is not None:
-            # The picked object already holds --memory and --no-memory, folded in at start.
-            picked |= {"capabilities": picks.capabilities, "memory": None, "memory_off": False}
+            # The picked object already holds --memory, --no-memory and --handoff-to, folded in at start.
+            picked |= {"capabilities": picks.capabilities, "memory": None, "memory_off": False, "handoff_to": None}
         if picks.session_file is not None or picks.fresh:
             picked["session_file"] = picks.session_file  # None after /clear: a new journal
         session = await Bootstrap(opened.model_copy(update=picked), environment).session(emit)
