@@ -65,20 +65,18 @@ MASCOT_COLOURS = {
 """The mascot's colours: its violets from the lightest, `9`, down (the wordmark's rows, and `9` a lens of the
 mark's glasses with the eye gone from it); the glasses' frames, `K`; the eyes, `W`; the mouth, `M`."""
 MASCOT_BODY = (
-    "#b88bff",
-    "#b281ff",
-    "#ac78ff",
-    "#a66eff",
-    "#a064ff",
-    "#9a5cfe",
-    "#975af8",
-    "#9357f2",
-    "#9055ec",
-    "#8c53e6",
-    "#8851e1",
+    "#b689ff",
+    "#b17fff",
+    "#aa74ff",
+    "#a369ff",
+    "#9c5efe",
+    "#975af9",
+    "#9257f0",
+    "#8d54e8",
+    "#8952e2",
     "#854fdb",
     "#814dd5",
-    "#7e4bcf",
+    "#7d4ace",
 )
 """The mark's body (`widgets.MASCOT`'s `#`), a colour for each row of pixels: the README cube's own gradient, top to
 bottom, in steps too small to read as bands."""

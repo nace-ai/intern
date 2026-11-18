@@ -120,13 +120,13 @@ straight to the conversation; `/clear` comes back to the page.
 ## Layout
 
 ```
-      ▄▄██▄
-   ▄████████▄              INTERN  v0.25.0
-  ███▀▀██▀▀███▄
- ▄█▄        ▄▄█            System 2  anthropic/claude-haiku-5-5    thinking high   ▰▰▰▱▱    price unknown   ⠸ 11% of 131.1k
-  ███▄▄██▄▄███             System 1  nace-ai/drex-max             decisions API             $0.0312
-   ████▄▄███
-     ████
+
+     ▄███▄                 INTERN  v0.25.0
+  ▄████████▄
+ ▄██▀▀██▀▀███              System 2  anthropic/claude-haiku-5-5    thinking high   ▰▰▰▱▱    price unknown   ⠸ 11% of 131.1k
+ ███▄▄██▄▄██               System 1  nace-ai/drex-max             decisions API             $0.0312
+  ███▀▀▀▀██
+    ████
 ╭─▐System 2▌ thinking slow ─────────────────────────╮╭─▐System 1▌ thinking fast ──────────────────────╮
 │ › Find why tests/test_parser.py fails and fix it  ││ 131 asks · 0.4s each · 12 cached               │
 │ ▸ Thought for 3.4s                                ││ ━ watch 22   ✓ guard 8   ⌕ search 97           │
@@ -177,10 +177,11 @@ near-black text, a warm gray for what is secondary; the mascot's violet for what
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
 cursors); green only for what went right, amber for what needs a look, red for what went wrong. The mark is the
 mascot, the violet cube in round glasses at the top of the README, in outline, lighter at the top as that one is and with
-no edge between its faces, its glasses level across its front face with their arms out to its sides and a mouth under
-them, in its own colours in both looks, fourteen cells by seven,
+no edge between its faces, its glasses level across its front face with their arms out to its sides and a smile under
+them, in its own colours in both looks, twelve cells by six beside the block letters,
 in the masthead: drawn by hand, a pixel the upper or lower half of a cell, so it is square on screen and
-each cell can take two of the mascot's colours (`widgets.MASCOT`; the README's cube scaled to this size is a smudge), its eyes glancing and blinking as the
+each cell can take two of the mascot's colours (`widgets.MASCOT`; the README's cube scaled to this size is a smudge),
+with half tones blended with the card where a step would show (its corners, the lenses' corners, the smile's ends), its eyes glancing and blinking as the
 entering page's do, and nothing on the page says it twice: the
 System 2 panel opens on its heading alone. The panels are headed after Kahneman's two systems: System 2 `thinking slow` (it reasons and
 acts), System 1 `thinking fast` (it reviews the turns, judges the tool
