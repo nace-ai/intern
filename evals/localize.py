@@ -14,14 +14,17 @@ Gold sources:
         each persona workspace is indexed once.
 
     uv run evals/localize.py questions --root <dir> --file questions.json
-        Hand-written questions over one tree: [{"id", "question", "files": [...], "symbols": [...]}]; the gold
+        Hand-written questions over one tree: [{"id", "question", "files": [...], "symbols": [...]}]; a gold file
+        under <dir> as given (src/intern/loop.py with --root src/intern) is read relative to it, and the gold
         symbols (chunk keys such as "Run._wrap_up") add symbol@1/@5 to the report. tests/data/workspace_questions.json
         is the 15-question set over src/intern.
 
 Reports hit@1 (the top file is gold), any@5 / any@10 (a gold file in the top k) and recall@10 (share of the
 gold files in the top ten), with asks, cost and seconds a question. The
-index is built with the processors of one extension and searched with its questions: `--extension` names it,
-by default code-search, or workspace for the office source.
+index is built with the processors of one extension and searched as its tool searches (`decision_code`: the walk
+steered by the question's words; `decision_files`: the union): `--extension` names it, by default code-search, or
+workspace for the office source. Beside it, the bm25 arm ranks files by their best passage in the same extension's
+BM25 table, with no model; `--no-system1` runs that arm alone, with no key.
 `--out results.json` keeps per-question rows for a before/after diff; `--system1` is the Decisions API spec.
 """
 
@@ -46,8 +49,8 @@ from intern.decisions import DecisionClient, DecisionsApiBackend
 from intern.events import Decision
 from intern.extensions import REGISTRY
 from intern.locate import index as wi
-from intern.locate.search import search
-from intern.locate.store import Locate
+from intern.locate import lexical
+from intern.locate.store import Locate, Store
 
 PERSONA_DIRS = {
     "Operations Manager": "OperationsManager_Workdir",
@@ -57,6 +60,8 @@ PERSONA_DIRS = {
     "Researcher": "Research_Workdir",
 }
 QUESTION_CHARS = 4000
+#: BM25 passages the bm25 arm ranks files from: enough for ten distinct files.
+BM25_PASSAGES = 200
 
 
 class Question:
@@ -136,8 +141,11 @@ def office_questions(args: argparse.Namespace) -> list[Question]:
 
 
 def hand_questions(args: argparse.Namespace) -> list[Question]:
+    under = args.root.as_posix().rstrip("/") + "/"
     return [
-        Question(str(q["id"]), args.root, q["question"], [{f} for f in q["files"]], q.get("symbols"))
+        Question(
+            str(q["id"]), args.root, q["question"], [{p.removeprefix(under)} for p in q["files"]], q.get("symbols")
+        )
         for q in json.loads(args.file.read_text())
     ]
 
@@ -170,12 +178,35 @@ def extension(name: str) -> type[Locate]:
     return ext
 
 
+def bm25(ext: type[Locate], index: wi.Index, root: Path, question: str) -> tuple[list[str], list[str]]:
+    """Files and chunk keys in the order of their best passage in the extension's BM25 table, with the words its
+    tool takes from a question (`decision_files` its own passages and words, `decision_code` the code ones)."""
+    if ext.name == "workspace":
+        from intern.extensions.workspace.search import Table, match
+
+        table, expression = Table(index, root), match(question)
+    else:
+        table, expression = lexical.Lexical(index, root), lexical.query(question)
+    with table.open() as con:
+        rows = table.search(con, expression, (), BM25_PASSAGES, None)
+    files = list(dict.fromkeys(path for _, path, _ in rows))
+    keys = list(dict.fromkeys(key for _, _, key in rows if key))
+    return files, keys
+
+
+def symbols(keys: list[str], gold: list[str]) -> dict[str, float]:
+    return {"hit1": float(bool(keys) and keys[0] in gold), "any5": float(any(k in gold for k in keys[:5]))}
+
+
 async def run(questions: list[Question], args: argparse.Namespace) -> list[dict]:
     ext = extension(args.extension or ("workspace" if args.source == "office" else "code-search"))
-    models = args.system1.removeprefix("decisions:").split(",")
-    backend = DecisionsApiBackend(args.base_url, SecretStr(os.environ[args.api_key_env]), models, timeout_s=30)
+    tool = ext.search_tool(Store(ext.processors, ext.name, ext.install, ext.folder), ext.asks)
     events: list = []
-    client = DecisionClient(backend, events.append)
+    client = None
+    if not args.no_system1:
+        models = args.system1.removeprefix("decisions:").split(",")
+        backend = DecisionsApiBackend(args.base_url, SecretStr(os.environ[args.api_key_env]), models, timeout_s=30)
+        client = DecisionClient(backend, events.append)
     indexes: dict[Path, wi.Index] = {}
     rows = []
     for q in questions:
@@ -191,47 +222,53 @@ async def run(questions: list[Question], args: argparse.Namespace) -> list[dict]
             )
         index = indexes[q.root]
         gold = resolve(index, q.gold)
-        n0, t = len(events), time.perf_counter()
-        result = await search(index, q.root, q.text[:QUESTION_CHARS], client, ext.asks, lexical=args.lexical)
-        secs = time.perf_counter() - t
-        asks = [e for e in events[n0:] if isinstance(e, Decision)]
-        ranked = [p for p, s in result.files if s > 0]
-        row = {
-            "id": q.id,
-            "root": q.root.name,
-            "gold": len(gold),
-            "top": ranked[:5],
-            "system1": score(ranked, gold),
-            "asks": len(asks),
-            "usd": round(sum(e.cost_usd or 0 for e in asks), 4),
-            "secs": round(secs, 1),
+        text = q.text[:QUESTION_CHARS]
+        row: dict = {"id": q.id, "root": q.root.name, "gold": len(gold), "arms": {}}
+        t = time.perf_counter()
+        files, keys = await asyncio.to_thread(bm25, ext, index, q.root, text)
+        row["arms"]["bm25"] = {
+            "top": files[:5],
+            **score(files, gold),
+            "asks": 0,
+            "usd": 0.0,
+            "secs": round(time.perf_counter() - t, 1),
+            **({"symbols": symbols(keys, q.symbols)} if q.symbols else {}),
         }
-        if q.symbols:
-            keys = [pl.key for pl in result.places if pl.key]
-            row["symbols"] = {
-                "hit1": float(bool(keys) and keys[0] in q.symbols),
-                "any5": float(any(k in q.symbols for k in keys[:5])),
+        if client is not None:
+            n0, t = len(events), time.perf_counter()
+            result = await tool.search(index, q.root, text, client, None)
+            secs = time.perf_counter() - t
+            asks = [e for e in events[n0:] if isinstance(e, Decision)]
+            ranked = [p for p, s in result.files if s > 0]
+            arm = row["arms"]["system1"] = {
+                "top": ranked[:5],
+                **score(ranked, gold),
+                "asks": len(asks),
+                "usd": round(sum(e.cost_usd or 0 for e in asks), 4),
+                "secs": round(secs, 1),
             }
-        if q.lines:
-            places = [pl for pl in result.places if pl.key]
-            hits = [any(pl.start <= n <= pl.end for n in q.lines.get(pl.path, ())) for pl in places[:5]]
-            row["places"] = {
-                "hit1": float(any(hits[:1])),
-                "any5": float(any(hits)),
-                "lines": places[0].end - places[0].start + 1 if places else 0,
-                "top": [f"{pl.path}:{pl.start}-{pl.end} {pl.key}" for pl in places[:5]],
-            }
+            if q.symbols:
+                arm["symbols"] = symbols([pl.key for pl in result.places if pl.key], q.symbols)
+            if q.lines:
+                places = [pl for pl in result.places if pl.key]
+                hits = [any(pl.start <= n <= pl.end for n in q.lines.get(pl.path, ())) for pl in places[:5]]
+                arm["places"] = {
+                    "hit1": float(any(hits[:1])),
+                    "any5": float(any(hits)),
+                    "lines": places[0].end - places[0].start + 1 if places else 0,
+                    "top": [f"{pl.path}:{pl.start}-{pl.end} {pl.key}" for pl in places[:5]],
+                }
         rows.append(row)
-        s = row["system1"]
-        line = f"hit@1 {s['hit1']:.0f} any@10 {s['any10']:.0f} recall@10 {s['recall10']:.2f}"
-        if "symbols" in row:
-            line += f" | symbol@1 {row['symbols']['hit1']:.0f} @5 {row['symbols']['any5']:.0f}"
-        if "places" in row:
-            pl = row["places"]
-            line += f" | place@1 {pl['hit1']:.0f} @5 {pl['any5']:.0f} in {pl['lines']} lines"
-        print(
-            f"{q.id:>28} gold {len(gold):3d} | {line} | {len(asks):3d} asks ${row['usd']:.4f} {secs:.0f}s", flush=True
-        )
+        parts = []
+        for name, s in row["arms"].items():
+            line = f"{name} hit@1 {s['hit1']:.0f} any@5 {s['any5']:.0f} recall@10 {s['recall10']:.2f}"
+            if "symbols" in s:
+                line += f" symbol@1 {s['symbols']['hit1']:.0f} @5 {s['symbols']['any5']:.0f}"
+            if "places" in s:
+                pl = s["places"]
+                line += f" place@1 {pl['hit1']:.0f} @5 {pl['any5']:.0f} in {pl['lines']} lines"
+            parts.append(f"{line} {s['asks']:3d} asks ${s['usd']:.4f} {s['secs']:.0f}s")
+        print(f"{q.id:>28} gold {len(gold):3d} | " + " | ".join(parts), flush=True)
     return rows
 
 
@@ -240,24 +277,26 @@ def report(rows: list[dict]) -> None:
     print(f"\n{n} questions")
     print("| arm | hit@1 | any@5 | any@10 | recall@10 | asks / q | $ / q | s / q |")
     print("|---|---|---|---|---|---|---|---|")
-    m = {k: sum(r["system1"][k] for r in rows) / n for k in ("hit1", "any5", "any10", "recall10")}
-    asks, usd, secs = (sum(r[k] for r in rows) / n for k in ("asks", "usd", "secs"))
-    print(
-        f"| system1 | {m['hit1']:.2f} | {m['any5']:.2f} | {m['any10']:.2f} | {m['recall10']:.2f} "
-        f"| {asks:.0f} | ${usd:.4f} | {secs:.1f} |"
-    )
-    if all("symbols" in r for r in rows):
-        hit1, any5 = (sum(r["symbols"][k] for r in rows) / n for k in ("hit1", "any5"))
-        print(f"| symbols (system1) | {hit1:.2f} | – | {any5:.2f} at 5 | – | | | |")
-    if all("places" in r for r in rows):
-        hit1, any5 = (sum(r["places"][k] for r in rows) / n for k in ("hit1", "any5"))
-        lines = statistics.median(r["places"]["lines"] for r in rows)
-        print(f"| places (system1) | {hit1:.2f} | {any5:.2f} | – | – | top place: {lines:.0f} lines (median) | | |")
-    for root in sorted({r["root"] for r in rows}):
+    for name in rows[0]["arms"]:
+        arms = [r["arms"][name] for r in rows]
+        m = {k: sum(a[k] for a in arms) / n for k in ("hit1", "any5", "any10", "recall10", "asks", "usd", "secs")}
+        print(
+            f"| {name} | {m['hit1']:.2f} | {m['any5']:.2f} | {m['any10']:.2f} | {m['recall10']:.2f} "
+            f"| {m['asks']:.0f} | ${m['usd']:.4f} | {m['secs']:.1f} |"
+        )
+        if all("symbols" in a for a in arms):
+            hit1, any5 = (sum(a["symbols"][k] for a in arms) / n for k in ("hit1", "any5"))
+            print(f"| symbols ({name}) | {hit1:.2f} | {any5:.2f} | – | – | | | |")
+        if all("places" in a for a in arms):
+            hit1, any5 = (sum(a["places"][k] for a in arms) / n for k in ("hit1", "any5"))
+            lines = statistics.median(a["places"]["lines"] for a in arms)
+            print(f"| places ({name}) | {hit1:.2f} | {any5:.2f} | – | – | top place: {lines:.0f} lines (median) | | |")
+    roots = sorted({r["root"] for r in rows})
+    for root in roots if len(roots) > 1 else ():
         rs = [r for r in rows if r["root"] == root]
-        if len({r["root"] for r in rows}) > 1:
-            hit1, any10 = (sum(r["system1"][k] for r in rs) / len(rs) for k in ("hit1", "any10"))
-            print(f"  {root}: n={len(rs)} hit@1 {hit1:.2f} any@10 {any10:.2f}")
+        for name in rs[0]["arms"]:
+            hit1, any10 = (sum(r["arms"][name][k] for r in rs) / len(rs) for k in ("hit1", "any10"))
+            print(f"  {root} {name}: n={len(rs)} hit@1 {hit1:.2f} any@10 {any10:.2f}")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -271,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--api-key-env", default="OPENROUTER_API_KEY")
     parser.add_argument("--out", type=Path, help="Write per-question rows here as JSON.")
     parser.add_argument(
-        "--lexical", action="store_true", help="Steer the walk by the question's words, as decision_code does."
+        "--no-system1", action="store_true", help="Run the bm25 arm alone: no System 1 asks, no key needed."
     )
     parser.add_argument(
         "--extension", help="Whose index and questions: code-search (default; office: workspace) or another name."
