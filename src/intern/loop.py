@@ -68,7 +68,16 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
-from intern.handoff import LOGFILE_NOTE, TAKEOVER_NOTE, HandoffTarget, Readiness, logfile_text, trajectory
+from intern.handoff import (
+    LOGFILE_NOTE,
+    TAKEOVER_NOTE,
+    HandoffTarget,
+    Readiness,
+    kept_messages,
+    logfile_text,
+    seed_journal,
+    trajectory,
+)
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
@@ -79,6 +88,7 @@ from intern.journal import (
     StateEntry,
     SystemPromptEntry,
     new_id,
+    recording,
 )
 from intern.messages import (
     AssistantMessage,
@@ -105,7 +115,7 @@ from intern.providers.base import (
 )
 from intern.session_cut import STATE_SHARE, session_cut
 from intern.state_edits import parse as parse_state
-from intern.subagents import SubagentResult, Subagents, SubagentSettings, _Slots
+from intern.subagents import SubagentResult, Subagents, SubagentSettings, _Slots, child_journal_path
 from intern.supervise import Supervisor
 from intern.tools.base import Tool, ToolContext, ToolOutput, fail, refuse
 from intern.tools.files import EditTool
@@ -214,6 +224,9 @@ class EngineDeps:
     """The parallel limit and the writers' lock every subagent of the session shares; made at the first one."""
     handoff: HandoffTarget | None = None
     """The cheaper model a run hands over to once System 1 judges it can finish (`[capabilities.handoff]`)."""
+    stream: EventSink | None = None
+    """The clients' stream, without the session's journal recording `emit` adds: a hand-over's child run sends its
+    events there, so they reach clients but stay out of this conversation's journal. None: `emit`."""
 
 
 CompactOutcome = Literal["compacted", "fits", "stopped"]
@@ -280,6 +293,10 @@ class Run:
         self.final_text = ""
         self._prompt_chars = 0
         self._pending_stop: h.Stop | None = None
+        self._takeover: list[tuple[str, str]] | None = None
+        """Set at the turn that hands over in a child run: the messages that open it, after the conversation so far."""
+        self._child: Run | None = None
+        """The child run the cheaper model finishes this one in, once it hands over (`context`)."""
         self._answered = False
         """The agent has written to the user since the user's latest message."""
         self._urged = False
@@ -495,6 +512,7 @@ class Run:
             elif prompt is not None:
                 for message in prompt:
                     self._record(message)
+            await self.deps.hooks.call("before_agent_start", lambda e: e.before_agent_start(self._ctx()))
             outcome = await self._run_with_finish_gate()
         except System1Unavailable as e:
             outcome = self._outcome("system1_unavailable", str(e))
@@ -522,10 +540,11 @@ class Run:
         return outcome
 
     async def _run_with_finish_gate(self) -> h.RunOutcome:
-        await self.deps.hooks.call("before_agent_start", lambda e: e.before_agent_start(self._ctx()))
         outcome = await self._loop()
         reopens = 0
         while True:
+            if self._child is not None:
+                return outcome  # the child run's own gate ran on its outcome
             gates = await self.deps.hooks.call("agent_end", lambda e, o=outcome: e.agent_end(o, self._ctx()))
             gate = next((verdict for _, verdict in gates if isinstance(verdict, h.Nudge)), None)
             if gate is None or outcome.reason != "completed" or reopens >= MAX_FINISH_REOPENS:
@@ -603,6 +622,8 @@ class Run:
                 return self._outcome("aborted")
 
             verdict = await self._handle_reply(reply)
+            if self._takeover is not None:
+                return await self._take_over(self._takeover)
             if not isinstance(verdict, h.Stop) and self._waiting_on:
                 # The agent handed over: the run holds for news (a job's end, System 1's look, the user) instead.
                 self._waiting_on = []
@@ -1125,10 +1146,12 @@ class Run:
         if isinstance(verdict, h.Stop) and (verdict.reason != "completed" or not nudges):
             return verdict
         if hand_over:
-            if self._hand_over():
-                nudges = []  # they were about the turns of the model before, which the fresh start does not show
-            else:
-                nudges.append((TAKEOVER_NOTE, "handoff"))
+            assert self.deps.handoff is not None
+            if self.deps.handoff.config.transfer == "context":
+                self._takeover = [*nudges, (TAKEOVER_NOTE, "handoff")]
+                return h.Continue()
+            self._hand_over()
+            nudges = []  # they were about the turns of the model before, which the fresh start does not show
         for text, reason in nudges:
             self._nudge(text, reason)
         if waiting_on and not nudges:
@@ -1145,13 +1168,13 @@ class Run:
             return await supervise, False
         return await asyncio.gather(supervise, self.handoff.after_turn(self.turn, self.deps.decisions, state))
 
-    def _hand_over(self) -> bool:
-        """Hand the run over to the cheaper model for the next turn and every one after; True when it starts afresh
-        from the logfile rather than going on with the conversation."""
+    def _hand_over(self) -> None:
+        """Hand the run over to the cheaper model for the next turn and every one after, started afresh from the
+        logfile (`logfile`); the session stays with it."""
         assert self.handoff is not None and self.deps.handoff is not None
         target, source, handoff = self.deps.handoff, self.binding, self.handoff
         self.handoff = None
-        logfile = self._write_logfile() if target.config.transfer == "logfile" else None
+        logfile = self._write_logfile()
         self.deps.system2 = target.binding
         self.deps.journal.append(ModelChangeEntry(role="system2", model=target.binding.ref))
         self.deps.emit(
@@ -1165,7 +1188,58 @@ class Run:
                 logfile=logfile,
             )
         )
-        return logfile is not None
+
+    async def _take_over(self, opening: list[tuple[str, str]]) -> h.RunOutcome:
+        """Finish the run in a child run on the cheaper model (`context`). It goes on from this conversation, copied
+        into a journal of its own, with this run's tools, extensions, System 1, control, supervisor and turn count, so
+        it sees what it would here; its events reach clients but not this journal. Its final reply ends the run and is,
+        with the user's steering, all of it this conversation keeps, so the session's next run is System 2's again."""
+        assert self.handoff is not None and self.deps.handoff is not None
+        target, readiness = self.deps.handoff, self.handoff
+        self.handoff, self._takeover = None, None
+        path = child_journal_path(self.deps.journal, f"handoff-{self.run_id}")
+        journal = seed_journal(self.deps.journal, path)
+        seeded = len(journal.active_path())
+        emit = recording(journal, self.deps.stream or self.deps.emit)
+        self.deps.emit(
+            Handoff(
+                turn=self.turn,
+                source=self.binding.ref,
+                target=target.binding.ref,
+                transfer="context",
+                probability=readiness.probability,
+                tokens=self.meter.tokens(self._prompt_chars),
+                journal=str(path) if path is not None else None,
+            )
+        )
+        deps = replace(
+            self.deps,
+            system2=target.binding,
+            journal=journal,
+            emit=emit,
+            hooks=h.Hooks(self.deps.hooks.extensions, emit),
+            decisions=self.deps.decisions.emitting_to(emit),
+            handoff=None,
+        )
+        child = self._child = Run(deps, self.meter, self.control)
+        child.run_id, child.turn, child.supervisor, child.effort = self.run_id, self.turn, self.supervisor, self.effort
+        child._answered, child._urged = self._answered, self._urged
+        try:
+            for text, reason in opening:
+                child._nudge(text, reason)
+            outcome = await child._run_with_finish_gate()
+        finally:
+            self.turn = child.turn
+            self.usage += child.usage
+            self.state_usage += child.state_usage
+            for model, usage in child.by_model.items():
+                self.by_model[model] = self.by_model.get(model, Usage()) + usage
+            if child.subagent_usage is not None:
+                self.subagent_usage = (self.subagent_usage or Usage()) + child.subagent_usage
+        self.final_text = outcome.final_text
+        for message in kept_messages(journal.active_path()[seeded:]):
+            self.deps.journal.append(MessageEntry(message=message, run_id=self.run_id))
+        return outcome
 
     def _write_logfile(self) -> str:
         """The session's turns as a JSON-lines file in the working directory, and the cut that starts the model taken
