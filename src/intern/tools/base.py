@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import difflib
+import errno
 import hashlib
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -80,6 +81,28 @@ def fail(
     )
     body = f"Error: {what_failed}\nNext: {next_action}"
     return ToolOutput(status="error", content=f"{content}\n\n{body}" if content else body, error=error)
+
+
+# What to do when the system refuses a path: the next action a model can take for each errno, the rest get the default.
+_OS_NEXT_ACTIONS: dict[int, str] = {
+    errno.EACCES: "That path is not open to this run. Use a path inside the working directory instead.",
+    errno.EPERM: "That path is not open to this run. Use a path inside the working directory instead.",
+    errno.EROFS: "That file system is read-only. Use a path inside the working directory instead.",
+    errno.ENOENT: "Check the path: read its parent directory to list what is there.",
+    errno.ENOTDIR: "A part of the path is a file, not a directory. Check the path.",
+    errno.EISDIR: "That path is a directory. Name a file inside it.",
+    errno.ENAMETOOLONG: "Use a shorter path.",
+    errno.ENOSPC: "The disk is full. Free some space, or write less.",
+}
+
+
+def os_failure(tool: str, error: OSError) -> ToolOutput:
+    """A failed result for an OSError a tool let through: the system refused the path or the operation, which the
+    model can work around, unlike a tool that crashed."""
+    what = error.strerror or str(error) or type(error).__name__
+    where = f": {error.filename}" if error.filename else ""
+    next_action = _OS_NEXT_ACTIONS.get(error.errno or 0, "Try a different path or approach.")
+    return fail(f"{tool} failed: {what}{where}", next_action, kind="failed")
 
 
 def refuse(

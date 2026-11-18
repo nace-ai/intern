@@ -156,6 +156,23 @@ async def test_a_tool_that_raises_is_told_apart_from_one_that_reports_a_failure(
     assert [r.error and r.error.kind for r in results] == ["crashed", "failed"]
 
 
+async def test_a_path_the_system_refuses_is_a_failure_the_model_can_act_on_not_a_crash(make_harness, tmp_path):
+    locked = tmp_path / "locked"
+    locked.mkdir()
+    locked.chmod(0o555)
+    try:
+        harness = make_harness(
+            [Turn(tool_calls=[("write", {"path": str(locked / "x.py"), "content": "1"})]), Turn(text="ok")]
+        )
+        await harness.run()
+    finally:
+        locked.chmod(0o755)
+    end = harness.recorder.of(ToolCallEnd)[0]
+    assert end.error and end.error.kind == "failed"
+    assert "Permission denied" in end.error.what_failed and str(locked / "x.py") in end.error.what_failed
+    assert "working directory" in end.error.next_action
+
+
 async def test_unparsable_tool_calls_stay_out_of_history_and_the_model_is_told(make_harness):
     harness = make_harness([Turn(invalid_tool_calls=[("edit", '{"path": "a.py", ')]), Turn(text="ok")])
     outcome = await harness.run()

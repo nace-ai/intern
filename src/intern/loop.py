@@ -117,7 +117,7 @@ from intern.session_cut import STATE_SHARE, session_cut
 from intern.state_edits import parse as parse_state
 from intern.subagents import SubagentResult, Subagents, SubagentSettings, _Slots, child_journal_path
 from intern.supervise import Supervisor
-from intern.tools.base import Tool, ToolContext, ToolOutput, fail, refuse
+from intern.tools.base import Tool, ToolContext, ToolOutput, fail, os_failure, refuse
 from intern.tools.files import EditTool
 from intern.tools.shell import status_check
 
@@ -1404,6 +1404,8 @@ class Run:
             )
         except System1Unavailable:
             raise
+        except OSError as e:  # a refused path, a read-only or full disk: the tool worked, the system said no
+            return os_failure(tool.name, e)
         except Exception as e:
             return fail(
                 f"{tool.name} failed unexpectedly: {type(e).__name__}: {e}",
