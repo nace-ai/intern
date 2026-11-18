@@ -60,10 +60,9 @@ MASCOT_COLOURS = {
     "3": "#6538b4",
     "K": "#1c1c1a",
     "W": "#ffffff",
-    "M": "#ffffff",
 }
 """The mascot's colours: its violets from the lightest, `9`, down (the wordmark's rows, and `9` a lens of the
-mark's glasses with the eye gone from it); the glasses' frames, `K`; the eyes, `W`; the mouth, `M`."""
+mark's glasses with the eye gone from it); the glasses' frames, `K`; the eyes, `W`."""
 MASCOT_BODY = (
     "#b689ff",
     "#b17fff",

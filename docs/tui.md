@@ -86,8 +86,9 @@ README's paragraph; under them the working directory and the session's journal, 
 knowing first (while the session is opening, or when it could not open, that line says so instead). All of it is
 centred, and stands a third of the way down a tall terminal.
 
-The mascot is the README's violet cube, smiling on its front face behind round glasses (`tui/mascot.png`:
-`docs/assets/mascot.svg` as a browser draws it, in each of its poses), scaled to the cells, 40 by 20 on a wide page
+The mascot is the README's violet cube, round glasses on its front face (`tui/mascot.png`:
+`docs/assets/mascot.svg` as a browser draws it, in each of its poses, without the mouth, which at this size reads as
+teeth), scaled to the cells, 40 by 20 on a wide page
 with the room and 32 by 16 otherwise, and its eyes move as that one's do: every eight seconds they glance left, then
 right, behind glasses that stay still, and blink twice; `TEXTUAL_ANIMATIONS=none` holds them still. A cell is two pixels of it, one over the other, each the mean of what it covers of the drawing, so the cube's
 edge is a blend with the page and not a step. The upper pixel is the cell's background and the lower a lower half
@@ -177,11 +178,11 @@ near-black text, a warm gray for what is secondary; the mascot's violet for what
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
 cursors); green only for what went right, amber for what needs a look, red for what went wrong. The mark is the
 mascot, the violet cube in round glasses at the top of the README, in outline, lighter at the top as that one is and with
-no edge between its faces, its glasses level across its front face with their arms out to its sides and a smile under
-them, in its own colours in both looks, twelve cells by six beside the block letters,
+no edge between its faces, its glasses level across its front face with their arms out to its sides and no mouth (a
+smile of a few pixels reads as teeth), in its own colours in both looks, twelve cells by six beside the block letters,
 in the masthead: drawn by hand, a pixel the upper or lower half of a cell, so it is square on screen and
 each cell can take two of the mascot's colours (`widgets.MASCOT`; the README's cube scaled to this size is a smudge),
-with half tones blended with the card where a step would show (its corners, the lenses' corners, the smile's ends), its eyes glancing and blinking as the
+with half tones blended with the card where a step would show (its corners, the lenses' corners), its eyes glancing and blinking as the
 entering page's do, and nothing on the page says it twice: the
 System 2 panel opens on its heading alone. The panels are headed after Kahneman's two systems: System 2 `thinking slow` (it reasons and
 acts), System 1 `thinking fast` (it reviews the turns, judges the tool
