@@ -106,8 +106,8 @@ class FileDiff(BaseModel):
 ToolErrorKind = Literal["unknown_tool", "bad_arguments", "refused", "stopped", "failed", "crashed", "interrupted"]
 """Where a call failed: `unknown_tool` named no tool of the session; `bad_arguments` named one but its arguments did not
 parse; `refused`, an extension refused it (`refused_by`); `stopped`, the run stopped or was aborted before or while it
-ran; `failed`, the tool ran and reported a failure; `crashed`, the tool raised; `interrupted`, an earlier run ended
-before the call's result was saved."""
+ran; `failed`, the tool ran and reported a failure, or the system refused it a path or an operation (an `OSError`);
+`crashed`, the tool raised anything else; `interrupted`, an earlier run ended before the call's result was saved."""
 
 
 class ToolError(BaseModel):
