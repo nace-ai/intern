@@ -23,7 +23,7 @@ search on, and it decides what your intern keeps in mind when its context fills 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
-  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test and re-reads the parser turn after turn; System 1 calls the turns circling at its look and again at the next turn, and nudges it to make the change. System 2 asks decision_code where each item is split into key and value, which ranks pairs/text.py first at 0.94; it edits that file and the test passes. System 1 made 17 asks for $0.0004.">
+  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test and re-reads the parser turn after turn; System 1 calls the turns circling at its look and again at the next turn, and nudges it to make the change. System 2 asks decision_code where each item is split into key and value, which ranks pairs/text.py first at 0.92; it edits that file and the test passes. System 1 made 18 asks for $0.0004.">
 </picture>
 
 _A session with code search turned on (`/caps code-search`), which is off by default. System 2's turns are
