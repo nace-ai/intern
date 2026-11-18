@@ -141,7 +141,7 @@ def _search_settings(config: SearchConfig, env: Mapping[str, str]) -> SearchSett
     if config.api_key_env is not None:
         key_names = {"brave": "BRAVE_SEARCH_API_KEY", "tavily": "TAVILY_API_KEY", "exa": "EXA_API_KEY"}
         if backend not in key_names:
-            raise ConfigError("capabilities.search.api_key_env needs a brave, tavily or exa backend")
+            raise ConfigError("capabilities.web_search.api_key_env needs a brave, tavily or exa backend")
         source[key_names[backend]] = _secret(env, config.api_key_env, "Search").get_secret_value()
     try:
         return SearchSettings.from_env(source)
@@ -180,7 +180,7 @@ def capability_problem(
     none."""
     try:
         if toggle_id == f"{capability_toggles.PREFIX}web-search":
-            _search_settings(settings.search, env)
+            _search_settings(settings.web_search, env)
         elif not (installs and (needs := capability_needs(toggle_id)) is not None and needs.installable()):
             _require(capability_needs(toggle_id))
     except ConfigError as error:
@@ -556,8 +556,9 @@ async def prepare_session(
 
     search = selected.get("web_search")
     if id(search) in pack_ids and type(search) is WebSearchTool:
-        replacements["web_search"] = WebSearchTool(_search(settings.search, env))
-    elif search is not None and settings.search != SearchConfig():
+        searching = settings.web_search
+        replacements["web_search"] = WebSearchTool(_search(searching, env), system1=searching.system1)
+    elif search is not None and settings.web_search != SearchConfig():
         raise ConfigError("Search settings conflict with an extension replacement of web_search")
     executor = deps.executor
     owned: ClosableExecutor | None = None  # only an executor this setup built; never the caller's deps.executor
@@ -608,7 +609,7 @@ async def prepare_session(
     if id(reader) in pack_ids and type(reader) is WebReadTool:
         mount = mount_of(executor)
         default_store = storage_root / "web" if mount is None else mount.host / names.RESOURCES_DIR / "web"
-        store = _storage(settings.reader.storage_dir, default_store, scope, deps.cwd)
+        store = _storage(settings.web_reader.storage_dir, default_store, scope, deps.cwd)
         display_dir = None
         if mount is not None:
             try:
@@ -616,11 +617,12 @@ async def prepare_session(
             except ValueError:
                 raise ConfigError("Sandboxed reader storage must be inside its mounted workspace") from None
         replacements["web_read"] = WebReadTool(
-            WebReader(ReadSettings.model_validate(settings.reader.model_dump(exclude={"storage_dir"}))),
+            WebReader(ReadSettings.model_validate(settings.web_reader.model_dump(exclude={"storage_dir", "system1"}))),
             storage_dir=store,
             display_dir=display_dir,
+            system1=settings.web_reader.system1,
         )
-    elif reader is not None and settings.reader != ReaderConfig():
+    elif reader is not None and settings.web_reader != ReaderConfig():
         raise ConfigError("Reader settings conflict with an extension replacement of web_read")
 
     secrets = settings.secrets

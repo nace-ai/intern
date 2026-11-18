@@ -36,6 +36,23 @@ No shipped profile, default prompt, journal or engine loop is changed. This capa
 existing typed Tool seam; no reasoning hook is needed. The cold-start test checks the actual
 default profile rather than every optional installed tool pack, keeping its existing ceiling.
 
+## System 1
+
+With `[capabilities.web_reader] system1 = true`, a page longer than the preview is judged before the agent sees it,
+instead of being cut at the preview's end. The page is cut into line-aligned parts of up to 1,200 characters; System 1
+reads the session (what the user asked, what the agent has done) and up to 16 parts per ask, the first 128 parts in
+all, and gives each the probability that the task needs it. The parts at 0.5 or above, best first until the preview
+is full, come back in page order, the lines between them named as skipped, then the retained file to read them from.
+When System 1 keeps no part, the page's start comes back as before, with a line saying so. A page that fits the
+preview is never judged. Asks are reported as `web_read` decisions. Off by default: the cut-off is not yet measured.
+
+The agent reads the page's own words, never a summary: pruning, as in
+[CRAG](https://arxiv.org/abs/2401.15884)'s decompose-then-recompose and
+[Provence](https://huggingface.co/blog/nadiinchi/provence), not the summarising model of Claude Code's WebFetch.
+System 1 returns only probabilities, so a page's text cannot instruct it to do anything.
+
+## Validation
+
 Validation covers a real local HTTP server (explicit private opt-in only), connection-level address
 pinning, private redirects, cancellation/timeouts, gzip/size/MIME errors and the scripted engine
 path with full retained content. Paired eval results are still required before

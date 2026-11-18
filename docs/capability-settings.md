@@ -63,14 +63,16 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `tool_result_guard` | switch setting | `cap.tool-result-guard`: the tool-result guard extension, and what it screens (`screen`) | off |
 | `subagents` | switch setting | `cap.subagents`: the `agent` tool, and its limits (`max_children`, `max_parallel`, `max_turns`, `timeout_s`) and models (`model`, `models`) | off |
 | `mcp` | switch setting | one `cap.mcp.<namespace>` switch per listed connection | none listed |
-| `search` | capability option | options of the `web-search` pack | no backend |
-| `reader` | capability option | options of the `web-read` pack | built-in limits |
+| `web_search` | capability option | options of the `web-search` pack, and `system1`: System 1 keeps the results the task needs ([below](#system-1-on-web-results)) | no backend; `system1` off |
+| `web_reader` | capability option | options of the `web-read` pack, and `system1`: System 1 keeps the parts of a long page the task needs ([below](#system-1-on-web-results)) | built-in limits; `system1` off |
 | `process` | session setting | the session's job manager, behind the `process` tool in `base`: running jobs, records and log bytes kept, when a long `bash` command goes on in the background (`move_after_s`), and when a silent command is stopped (`idle_stop_s`, `idle_stop_jobs`) | built-in limits; 30 s; never; jobs too |
 | `runner` | session setting | where commands run; `/runner` and the ACP `runner` option pick it per session | `local` |
 | `secrets` | session setting | secret references for commands (bindings, `inject`); the top-level [`[secrets]`](secrets.md) store is separate | none |
 | `session_budget` | session setting | one model-call budget for the session | none |
 | `system2_fallbacks` | session setting | System 2 models to fall back to | none |
 | `model_retries` | session setting | whether a System 2 call that fails with a retryable error is made again ([below](#model-retries)) | `true` |
+
+`web_search` and `web_reader` were `search` and `reader` before 0.44.0; the old table names still load.
 
 Each value is overridden, lowest first, by:
 
@@ -93,7 +95,7 @@ system2 = "vllm/my-model"
 [capabilities]
 tool_packs = ["base", "web-read"]
 
-[capabilities.reader]
+[capabilities.web_reader]
 timeout_s = 30
 max_bytes = 4000000
 max_redirects = 5
@@ -110,7 +112,7 @@ Credentials are environment references, not literal values in the settings.
 Select `web-search` in the effective tool-pack list, then configure its backend:
 
 ```toml
-[capabilities.search]
+[capabilities.web_search]
 backend = "brave"
 api_key_env = "BRAVE_SEARCH_API_KEY"
 timeout_s = 20
@@ -129,6 +131,23 @@ For SearXNG, use `backend = "searxng"` with `searxng_url`, or retain `SEARXNG_UR
 The current SearXNG adapter does not accept `api_key_env`. See
 [search behavior and limits](capabilities/web-search.md).
 
+## System 1 on web results
+
+Either pack can have System 1 judge what it returns before the agent sees it, each with its own `system1` option,
+off by default:
+
+```toml
+[capabilities.web_search]
+system1 = true   # ask the provider for more, keep the results the task needs, best first
+
+[capabilities.web_reader]
+system1 = true   # of a page longer than the preview, keep the parts the task needs
+```
+
+System 1 reads the session, as every System 1 question does: what the user asked and what the agent has done. Both
+packs' rows in `/caps` carry the `System 1` tag; the note says whether the option is on. What each keeps, and how:
+[web search](capabilities/web-search.md#system-1), [web reader](capabilities/web-reader.md#system-1).
+
 ## Retained URL text
 
 The `web-read` pack uses the existing reader, including redirect, address,
@@ -136,7 +155,7 @@ compression and download-size checks. An optional base folder controls retained
 full-text files:
 
 ```toml
-[capabilities.reader]
+[capabilities.web_reader]
 storage_dir = "retained/web"
 ```
 

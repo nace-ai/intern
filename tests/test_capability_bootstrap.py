@@ -124,7 +124,7 @@ async def test_saved_toml_and_whole_object_programmatic_override_have_clear_prec
     text = """system2 = "fake/primary"
 [capabilities]
 tool_packs = ["base", "web-read"]
-[capabilities.reader]
+[capabilities.web_reader]
 timeout_s = 11
 """
     bootstrap = make_bootstrap(tmp_path, monkeypatch, {primary.ref: primary}, text)
@@ -152,7 +152,7 @@ async def test_capability_options_configure_profile_selected_packs_without_enabl
         tmp_path,
         monkeypatch,
         {primary.ref: primary},
-        'system2 = "fake/primary"\n[capabilities.reader]\ntimeout_s = 12\n',
+        'system2 = "fake/primary"\n[capabilities.web_reader]\ntimeout_s = 12\n',
     )
     async with await bootstrap.session(lambda event: None) as session:
         readers = [tool for tool in session.deps.tools if isinstance(tool, WebReadTool)]
@@ -182,7 +182,7 @@ async def test_search_uses_bootstrap_environment_snapshot_and_explicit_backend_p
     )
     text = 'system2 = "fake/primary"\n[capabilities]\ntool_packs = ["base", "web-search"]\n'
     if explicit_backend:
-        text += '[capabilities.search]\nbackend = "tavily"\napi_key_env = "SELECTED_SEARCH_KEY"\n'
+        text += '[capabilities.web_search]\nbackend = "tavily"\napi_key_env = "SELECTED_SEARCH_KEY"\n'
     env = {
         "INTERN_SEARCH_PROVIDER": "brave",
         "BRAVE_SEARCH_API_KEY": "snapshot-brave",
@@ -341,7 +341,7 @@ remote_tools = { echo = [] }
 @pytest.mark.parametrize(
     "invalid",
     [
-        '[capabilities.search]\napi_key = "private-synthetic-credential"\n',
+        '[capabilities.web_search]\napi_key = "private-synthetic-credential"\n',
         '[[capabilities.mcp]]\nnamespace="docs"\ntransport="http"\n'
         'url="https://user:private-synthetic-credential@example.test/mcp"\nremote_tools={echo=[]}\n',
     ],

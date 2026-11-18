@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 
 import httpx
 import pytest
 from pydantic import SecretStr, ValidationError
 
+from intern.decisions import Answers, NoulAnswer, Question
 from intern.events import ToolCallEnd
 from intern.messages import ToolResultMessage
 from intern.providers.fake import Turn
@@ -233,3 +235,49 @@ async def test_unexpected_compression_is_refused_before_body_is_consumed(encodin
         await provider.search(SearchRequest(query="q"), asyncio.Event())
     assert not consumed.is_set()
     assert closed.is_set()
+
+
+class Gallium:
+    """Judges a result needed when it and the session's request both name gallium: a judge that reads the session."""
+
+    name = "gallium"
+
+    async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
+        session, _, listing = state.partition("# Web search results for:")
+        blocks = dict(re.findall(r"\[(r\d+)\] (.*?)(?=\n\n\[r\d+\] |\Z)", listing, re.S))
+        asked = "gallium" in session.lower()
+        return Answers(
+            answers={
+                n: NoulAnswer(noul=(0.95 if "29.76" in blocks[n] else 0.7) if asked and "gallium" in blocks[n] else 0.1)
+                for n in questions
+                if n in blocks
+            }
+        )
+
+
+@pytest.mark.parametrize(("task", "kept"), [("Find gallium's melting point", ["g/exact", "g/wiki"]), ("Tea", [])])
+async def test_system1_keeps_the_results_the_session_asks_for_best_first(make_harness, task, kept):
+    sent = []
+    results = [
+        {"url": "https://x.org/tea", "title": "Tea", "content": "steeping tea"},
+        {"url": "https://x.org/g/wiki", "title": "Gallium", "content": "gallium is a metal"},
+        {"url": "https://x.org/salt", "title": "Salt", "content": "salt melts at 801 C"},
+        {"url": "https://x.org/g/exact", "title": "Gallium data", "content": "gallium melts at 29.76 C"},
+    ]
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        sent.append(json.loads(request.content)["max_results"])
+        return httpx.Response(200, json={"results": results})
+
+    provider = HTTPSearchProvider(SearchSettings(backend="tavily"), transport=httpx.MockTransport(handler))
+    harness = make_harness(
+        [Turn(tool_calls=[("web_search", {"query": "gallium melting point", "limit": 2})]), Turn(text="Done")],
+        system1=Gallium(),
+    )
+    harness.deps.tools.append(WebSearchTool(provider, system1=True))
+    await harness.run(task)
+    (result,) = [m.result for m in harness.provider.requests[-1].messages if isinstance(m, ToolResultMessage)]
+    hits = json.loads(result.content)["hits"]
+    assert sent == [6]  # three times the limit, so the two kept are the best of more
+    assert [h["url"].removeprefix("https://x.org/") for h in hits] == kept
+    assert kept or "search differently" in result.content

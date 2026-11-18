@@ -3,11 +3,13 @@ from __future__ import annotations
 import asyncio
 import gzip
 import hashlib
+import re
 from pathlib import Path
 
 import httpcore
 import pytest
 
+from intern.decisions import Answers, NoulAnswer, Question
 from intern.messages import ToolResultMessage
 from intern.providers.fake import Turn
 from intern.tools.web_read import WebReadTool
@@ -309,3 +311,41 @@ def test_concurrent_duplicate_publication_allows_a_publishers_staging_link(tmp_p
     assert target.read_bytes() == data
     assert stat.S_IMODE(target.stat().st_mode) == 0o600
     assert not list(tmp_path.glob(".pending-*"))
+
+
+class Gallium:
+    """Judges a part of the page needed when it and the session's request both name gallium."""
+
+    name = "gallium"
+
+    async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
+        session, _, page = state.partition("# Page read with web_read:")
+        blocks = dict(re.findall(r"\[(p\d+)\]\n(.*?)(?=\n\n\[p\d+\]\n|\Z)", page, re.S))
+        asked = "gallium" in session.lower()
+        return Answers(
+            answers={
+                n: NoulAnswer(noul=0.9 if asked and "gallium" in blocks[n].lower() else 0.05)
+                for n in questions
+                if n in blocks
+            }
+        )
+
+
+@pytest.mark.parametrize("task", ["Find gallium's melting point", "Tea"])
+async def test_system1_keeps_the_parts_of_a_long_page_the_session_asks_for(make_harness, tmp_path: Path, task):
+    filler = [f"line {n}: nothing of note here, just words to fill a page" for n in range(3_000)]
+    filler[1_500] = "Gallium melts at 29.76 C, in the hand."
+    body = "\n".join(filler).encode()
+    tool = WebReadTool(mock_reader(body, mime="text/plain"), storage_dir=tmp_path / "sources", system1=True)
+    harness = make_harness(
+        [Turn(tool_calls=[("web_read", {"url": "https://example.org"})]), Turn(text="Done")], system1=Gallium()
+    )
+    harness.deps.tools.append(tool)
+    await harness.run(task)
+    (result,) = [m.result for m in harness.provider.requests[-1].messages if isinstance(m, ToolResultMessage)]
+    if task == "Tea":  # nothing kept: the page's start, as without System 1
+        assert "line 0:" in result.content and "TRUNCATED" in result.content and "29.76" not in result.content
+    else:  # the needed part from the middle, with the lines around it named, and not the start
+        assert "Gallium melts at 29.76 C" in result.content and "line 0:" not in result.content
+        assert re.search(r"\[\.\.\. lines 1-\d+ skipped \.\.\.\]", result.content)
+        assert re.search(r"\[\.\.\. lines \d+-3000 skipped \.\.\.\]", result.content)

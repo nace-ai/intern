@@ -24,6 +24,11 @@ PACK_NOTES = {
     "web-search": "web_search: the web for source evidence, through Brave, Tavily, Exa or SearXNG",
     "web-read": "web_read: a URL fetched as source text the agent can read and quote",
 }
+PACK_SYSTEM1 = {
+    "web-search": ("web_search", "System 1 keeps the results the task needs, best first"),
+    "web-read": ("web_reader", "System 1 keeps the parts of a long page the task needs"),
+}
+"""The packs System 1 can judge for: each one's options table, whose `system1` turns it on, and what it does."""
 RETIRED = frozenset({f"{PREFIX}process"})
 """Toggles no longer offered that a client or a journal may still set: accepted, and they change nothing. `process`
 is a base tool."""
@@ -47,6 +52,15 @@ class Toggle(BaseModel):
     on: bool
 
 
+def _system1_note(caps: CapabilitySettings, pack: str) -> str:
+    """What System 1 does for `pack`, or how to have it do so while its `system1` option is off; "" for other packs."""
+    if pack not in PACK_SYSTEM1:
+        return ""
+    table, does = PACK_SYSTEM1[pack]
+    on = getattr(caps, table).system1
+    return f"; {does}" if on else f"; with [capabilities.{table}] system1 = true, {does}"
+
+
 def packs_in_force(caps: CapabilitySettings, profile_packs: Sequence[str]) -> list[str]:
     """The tool packs in force: the settings' list, else the System 2 profile's."""
     return list(caps.tool_packs) if caps.tool_packs is not None else list(profile_packs)
@@ -62,7 +76,11 @@ def toggles(
     packs = packs_in_force(caps, profile_packs)
     rows = [
         Toggle(
-            id=f"{PREFIX}{pack}", name=PACK_NAMES[pack], label=f"{pack} tools", note=PACK_NOTES[pack], on=pack in packs
+            id=f"{PREFIX}{pack}",
+            name=PACK_NAMES[pack],
+            label=f"{pack} tools" + (" · System 1" if pack in PACK_SYSTEM1 else ""),
+            note=PACK_NOTES[pack] + _system1_note(caps, pack),
+            on=pack in packs,
         )
         for pack in PACKS
         if base or pack != "base"

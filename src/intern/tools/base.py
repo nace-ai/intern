@@ -17,6 +17,7 @@ from intern.messages import FileDiff, ImagePart, JsonObject, ResourceRef, ToolEr
 from intern.providers.base import ToolSpec
 
 if TYPE_CHECKING:
+    from intern.hooks import RunContext
     from intern.processes import ProcessManager
     from intern.subagents import Subagents
 
@@ -44,6 +45,9 @@ class ToolContext:
     """The id of the call being run, as the model sent it."""
     subagents: Subagents | None = None
     """Starts the run's subagents: what the tool that hands out tasks uses. None when the session has none."""
+    run: RunContext | None = None
+    """The run, for a tool that asks System 1: through `run.decisions`, with `run.state()` as the state, as every
+    System 1 question reads the session. None outside a run."""
 
     def resolve(self, path: str) -> Path:
         candidate = Path(path).expanduser()

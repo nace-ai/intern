@@ -31,6 +31,20 @@ search is a callable capability, not a change to the agent's reasoning policy. T
 result bounding, spill, journal and tool events apply. The new tool declares read and network
 effects, so it does not masquerade as a local read-only tool.
 
+## System 1
+
+With `[capabilities.web_search] system1 = true`, System 1 judges the results before the agent sees them. The provider is
+asked for three times `limit`, at most 20 (Brave's and Tavily's ceiling). System 1 reads the session (what the user
+asked, what the agent has done) and each result's title, URL and excerpts, and gives each the probability that the
+task needs it. The best `limit` at 0.5 or above come back, best first, each with its `relevance`; a warning says how
+many were kept, or that none was and the agent should search differently. One System 1 ask per search, reported as a
+`web_search` decision. Off by default: the cut-off is not yet measured.
+
+This is retrieve wide, then rerank with a small judge: the reranker in
+[Jina DeepSearch](https://jina.ai/news/snippet-selection-and-url-ranking-in-deepsearch-deepresearch) and the
+retrieval evaluator of [CRAG](https://arxiv.org/abs/2401.15884), which also says when nothing retrieved is relevant.
+System 1 returns only probabilities, so a result's text cannot instruct it to do anything.
+
 ## Validation and promotion
 
 Contract tests exercise all adapters using mock HTTP, error/cancellation boundaries and the real
