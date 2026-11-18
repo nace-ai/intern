@@ -12,7 +12,7 @@ from intern.locate.trace import Ranked
 from intern.messages import UserMessage
 from intern.tui.ledger import CompactionJudgement, GuardJudgement, KeepVerdict, Ledger, RuleRefusal, TurnJudgement
 from intern.tui.system1_panel import feed, shares, usage
-from intern.tui.theme import MASCOT_BODY, MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_OK, S_RULE, S_WARN
+from intern.tui.theme import CARD, MASCOT_BODY, MASCOT_COLOURS, S_BOX, S_BOX_MUTED, S_OK, S_RULE, S_WARN
 from intern.tui.widgets import (
     CARD_LINES,
     FILLED,
@@ -68,10 +68,14 @@ def levels(style: str) -> list[int]:
 
 
 def test_the_mark_draws_the_mascot_two_pixels_to_a_cell_in_its_own_colours_with_the_page_around_it():
-    assert {pixel for row in MASCOT for pixel in row} <= {*MASCOT_COLOURS, "#", "."}  # none the page by a typo
+    half_tones = "+km"
+    # None the page by a typo.
+    assert {pixel for row in MASCOT for pixel in row} <= {*MASCOT_COLOURS, *half_tones, "#", "."}
     rows = mark()
-    assert len(rows) == 7  # the masthead's height
-    pixel = {colour: name for name, colour in MASCOT_COLOURS.items()} | dict.fromkeys(MASCOT_BODY, "#")
+    assert len(rows) == 6  # under the masthead's first row
+    named = {colour: name for name, colour in MASCOT_COLOURS.items() if name != "M"}  # the mouth is the eyes' white
+    pixel = {colour.lower(): name for colour, name in (named | dict.fromkeys(MASCOT_BODY, "#")).items()}
+    pixel |= {"": ".", CARD.lower(): "."}
     drawn: list[str] = []
     for row in rows:
         styles = [""] * len(row.plain)
@@ -84,9 +88,11 @@ def test_the_mark_draws_the_mascot_two_pixels_to_a_cell_in_its_own_colours_with_
             assert glyph in " ▄"
             fg, on, bg = style.rpartition("on ")
             top, bottom = ((bg, fg.strip()) if on else ("", bg)) if glyph == "▄" else (bg, bg)
-            upper, lower = upper + pixel.get(top, "."), lower + pixel.get(bottom, ".")
+            upper, lower = upper + pixel.get(top.lower(), "~"), lower + pixel.get(bottom.lower(), "~")
         drawn += [upper, lower]
-    assert drawn == list(MASCOT)
+    # A half tone is a blend, of no colour of its own; the page is no colour at all.
+    expected = [re.sub(f"[{re.escape(half_tones)}]", "~", row).replace("M", "W") for row in MASCOT]
+    assert drawn == expected
 
 
 def test_the_masthead_lines_up_the_models_the_run_and_each_systems_cost_in_columns():

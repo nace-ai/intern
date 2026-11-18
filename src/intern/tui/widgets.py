@@ -29,6 +29,7 @@ from textual import events
 from textual.actions import SkipAction
 from textual.app import ComposeResult
 from textual.binding import Binding, BindingType
+from textual.color import Color
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.content import Content
 from textual.geometry import Offset
@@ -58,6 +59,8 @@ from intern.tui.ledger import (
 from intern.tui.outline import EMPHASIS, LIST_ITEM, QUOTE, Outline, Status, parse_state, plain
 from intern.tui.theme import (
     CARD,
+    DARK,
+    LIGHT,
     MASCOT_BODY,
     MASCOT_COLOURS,
     PAPER,
@@ -115,32 +118,32 @@ run too."""
 GLINT_GAP = 6
 """Frames between two sweeps of the glint across `auto`."""
 MASCOT = (
-    ".......##.....",
-    ".....#####....",
-    "...########...",
-    "..#######KK#..",
-    ".####KK#KWWK#.",
-    ".###KWWKKWWK##",
-    ".###KWWK#KK###",
-    "#####KK#######",
-    ".############.",
-    ".############.",
-    "..#########...",
-    "..#########...",
-    "....####......",
-    "....####......",
+    ".....+#+....",
+    "....#####...",
+    "..+######+..",
+    ".##########.",
+    ".#kKk##kKk##",
+    "kKKWWKKWWKKk",
+    "##KWWKKWWK#.",
+    "##kKk##kKk#.",
+    ".#########..",
+    ".###mMMm##..",
+    "...####.....",
+    "...####.....",
 )
-"""The mascot, a character per pixel (`#` its body, `theme.MASCOT_BODY`; the rest `theme.MASCOT_COLOURS`; `.` the
-page): the README's cube in outline, tilted as in the Nace logo, lighter at the top as that one is, with no edge
-between its faces (under the glasses one reads as a mouth); round glasses with the right lens a pixel higher, as the
-top face lies in perspective. Below its middle it narrows a cell at a time, two rows of pixels as wide as each other:
-a pixel over the open page is a half block whose edge macOS Terminal draws as a hairline. Fourteen pixels
-tall so it stands seven rows, the masthead's height. A pixel is a cell wide and half a cell tall, so it is square on
-screen. The glasses are drawn by hand: at this size the README's scaled down are a smudge."""
+"""The mascot, a character per pixel (`#` its body, `theme.MASCOT_BODY`; `K`, `W`, `M` and `9` from
+`theme.MASCOT_COLOURS`; `.` the page): the README's cube, tilted as in the Nace logo, lighter at the top as that one is,
+with no edge between its faces; on its front face round glasses, level, their arms out to its sides, and under them a
+smile. Half-tone pixels soften what is a step at this size: `+` the body over the page at a corner, `k` the frame over
+the body at a lens's corner, `m` the smile's ends. Below its middle it narrows a cell at a time, two rows of pixels as
+wide as each other: a pixel over the open page is a half block whose edge macOS Terminal draws as a hairline. Twelve
+pixels tall so it stands six rows, under the masthead's first. A pixel is a cell wide and half a cell tall, so it is
+square on screen. The glasses and the smile are drawn by hand: at this size the README's scaled down are a smudge."""
 EYES = ("rest", "left", "right", "shut")
 """The mascot's poses: its eyes at rest, glancing left, glancing right and shut."""
 LOOK = ("WW", "W9", "9W", "99")
-"""`MASCOT`'s eye in each pose, a lens being two pixels across: its white, or the lens where it has left."""
+"""`MASCOT`'s eyes in each pose, a lens being two pixels across and two down: their white, or the lens where they have
+left. The mouth is `M`, so it stays where it is."""
 ART = (
     "██ ███  ██ ████████ ███████ ██████  ███  ██",
     "██ ████ ██    ██    ██      ██   ██ ████ ██",
@@ -233,14 +236,21 @@ def pose_at(seconds: float) -> int:
 
 
 @functools.cache
-def mark(pose: int = 0) -> list[Content]:
+def mark(pose: int = 0, page: str = LIGHT["card"]) -> list[Content]:
     """The mark, one `Content` per row for laying the masthead's text beside it: the mascot (`pixels`) on the
-    masthead's card, its eyes in a pose (`EYES`)."""
+    masthead's card, of the colour `page`, its eyes in a pose (`EYES`)."""
     colours = MASCOT_COLOURS | {".": ""}
-    grid = [
-        [colours.get(pixel, body) for pixel in row.replace(LOOK[0], LOOK[pose])]
-        for row, body in zip(MASCOT, MASCOT_BODY, strict=True)
-    ]
+    grid: list[list[str]] = []
+    for row, body in zip(MASCOT, MASCOT_BODY, strict=True):
+        half = {"+": (body, page), "k": (colours["K"], body), "m": (colours["M"], body)}
+        grid.append(
+            [
+                Color.parse(half[pixel][0]).blend(Color.parse(half[pixel][1]), 0.5).hex
+                if pixel in half
+                else colours.get(pixel, body)
+                for pixel in row.replace(LOOK[0], LOOK[pose])
+            ]
+        )
     return [Content.assemble(*row) for row in pixels(grid, CARD)]
 
 
@@ -493,6 +503,7 @@ class StatusBar(Static):
         self._flash_timer: Timer | None = None
         self._frame = 0
         self._pose = 0
+        self._card = ""
         self._born = time.monotonic()
 
     def on_mount(self) -> None:
@@ -503,10 +514,14 @@ class StatusBar(Static):
         are; still where motion is switched off (`TEXTUAL_ANIMATIONS=none`)."""
         pose = pose_at(time.monotonic() - self._born) if self.app.animation_level != "none" else 0
         glinting, was = self._glint_frame() is not None, self._glinting  # the glint's last frame draws it at rest
-        if self.running or pose != self._pose or glinting or was:
+        if self.running or pose != self._pose or glinting or was or self._card != self._page():
             self._frame += self.running
             self._pose = pose
             self.refresh_line()
+
+    def _page(self) -> str:
+        """The card's colour in the look in force (`/dark`), which the mark's half tones blend with."""
+        return (DARK if self.is_mounted and self.app.current_theme.dark else LIGHT)["card"]
 
     def glint(self) -> None:
         """Sweep the glint across `auto` for a moment: it was just chosen, or System 1 just picked a run's level."""
@@ -579,9 +594,11 @@ class StatusBar(Static):
         name: list[Part] = [(WORDMARK.upper(), S_WORDMARK), "  "]
         wide = max(Content.assemble(*row).cell_length for row in table) + LETTERS_WIDTH <= self.size.width
         rows: list[list[Part]] = [[], [*([] if wide else name), (f"v{__version__}", S_MUTED)], [], *table, [], []]
+        self._card = self._page()
+        cubes = [Content(" " * len(MASCOT[0])), *mark(self._pose, self._card)]
         lines = [
             Content.assemble(cube, "   ", *([word, "    "] if wide else []), *row)
-            for cube, word, row in zip(mark(self._pose), beside, rows, strict=True)
+            for cube, word, row in zip(cubes, beside, rows, strict=True)
         ]
         self.update(Content("\n").join(lines))
 
