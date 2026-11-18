@@ -72,16 +72,25 @@ Every provider, flag and setting is in [docs/usage.md](docs/usage.md).
 ## How it works
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/loop-dark.svg">
-  <img src="docs/assets/loop-light.svg" alt="One run over four turns. System 2 calls tools through a guard, which refuses a dangerous call; every turn goes into a journal; System 1 reads a cut of the session built by code, calls three turns in a row stuck and nudges System 2; when System 2's context passes the threshold, the turns fold into the State.">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
+  <img src="docs/assets/how-it-works-light.svg" alt="One run over nine turns. System 2 calls its tools directly; the guard sits beside the path, off by default. At turn 2 System 2 searches, and System 1 walks the index and returns ranked places. Every turn goes into the journal. System 1 reads the session cut, built by code, at turn 4 and calls the turns advancing; at turn 8 it calls them stuck, looks again at turn 9, still stuck, and nudges System 2. When System 2's context passes the threshold, the turns fold into the State, written as edits, beside the reads System 1 kept.">
 </picture>
 
-1. Your intern's System 2 reasons and calls tools. Each call passes the guard first.
-2. Every turn is appended to the session's journal.
-3. Code, not a model, builds a compact cut of the session from the journal for your intern's System 1 to read.
-4. Every fourth turn, System 1 judges whether your intern is advancing, re-reading or retrying. A stuck verdict
+1. Your intern's System 2 reasons and calls tools. With the guard on, each call is checked first; it is off by
+   default.
+2. When System 2 searches with `decision_code` or `decision_files`, System 1 walks the index and returns ranked
+   places.
+3. Every turn is appended to the session's journal.
+4. Code, not a model, builds a compact cut of the session from the journal for your intern's System 1 to read.
+5. Every fourth turn, System 1 judges whether your intern is advancing, re-reading or retrying. A stuck verdict
    that holds at the next turn gets a nudge.
-5. When the context fills, System 2 writes its State as edits, and the turns the State covers are cut.
+6. When the context fills, System 2 writes its State as edits, System 1 keeps the reads still in use, and the turns
+   the State covers are cut.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/supervise-dark.svg">
+  <img src="docs/assets/supervise-light.svg" alt="System 1 supervising one run of thirteen turns. It looks at turn 4: advancing, so the next look is turn 8. At turn 8 re-investigating and retrying together pass 0.7, a stuck verdict, so it looks again at turn 9; still stuck, it nudges System 2 to make the change as its next call. Turns 10 and 11 edit and pass the tests, and the look at turn 13 calls them advancing. 0.6 s a look; replayed over 42 stored runs (1,935 turns), the rule sent 23 stuck nudges and asked System 1 at 27% of turns. The probability bars are illustrative.">
+</picture>
 
 The [architecture](docs/architecture.md) has the details and the measurements behind each step.
 
@@ -160,6 +169,11 @@ questions about a repository without matching words: System 1 walks an index of 
 the definitions in them, scores each against the question, and opens only the branches worth opening.
 
 <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-diagram-dark.svg">
+  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: two folders opened and 26 of 132 files judged; supervise.py 0.95, loop.py 0.82, context.py 0.34, session.py 0.21 and cut; then the definitions in the best files, read and compared. Result: supervise.py 0.97 at class Supervisor, then loop.py 0.40. 62 asks, $0.0035, 3.9 s, the run recorded below.">
+</picture>
+
+<picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
   <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first with class Supervisor, then loop.py. 62 asks, $0.0035.">
 </picture>
@@ -177,6 +191,11 @@ OCRed; an image is indexed by its name and size, and `read` shows it to a model 
 the folders, files and their pages, sections and tabs while BM25 ranks every passage, judges the best of both
 together, and follows the strongest passages' terms to what the first pass missed. `sql` queries the tables and
 `read` shows the documents as text.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-diagram-dark.svg">
+  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 11 of 36 passages; System 1 judges both together, 12 passages; the best passages' 20 terms find 19 more, and System 1 judges all 31. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 16 asks, $0.0026, 2.9 s, the run recorded below.">
+</picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
