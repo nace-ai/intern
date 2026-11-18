@@ -201,6 +201,34 @@ async def test_a_small_advertised_window_still_bounds_the_reply(make_harness):
     assert harness.provider.requests[0].max_output_tokens == int(16_384 * 0.15)
 
 
+async def test_a_reply_cut_off_at_the_output_limit_doubles_the_cap_for_the_rest_of_the_run(make_harness):
+    cut_off = [
+        Turn(reasoning="thinking", stop="length"),
+        Turn(invalid_tool_calls=[("write", '{"path": "a.py", "content": "x')], stop="length"),
+        Turn(reasoning="thinking", stop="length"),
+        Turn(tool_calls=[("read", {"path": "."})]),
+        Turn(text="done"),
+    ]
+    harness = make_harness(cut_off, window=32_768)
+    outcome = await harness.run()
+    assert outcome.reason == "completed"
+    caps = [r.max_output_tokens for r in harness.provider.requests]
+    reserve = int(32_768 * 0.15)
+    assert caps[:3] == [reserve, 2 * reserve, 4 * reserve]
+    # 8x the reserve is more than the window: what the context leaves bounds it, and it stays up after a full reply.
+    assert all(4 * reserve < cap < 32_768 for cap in caps[3:])
+
+
+async def test_a_grown_output_cap_stays_under_the_models_own_limit(make_harness):
+    harness = make_harness(
+        [Turn(reasoning="thinking", stop="length"), Turn(text="done")],
+        window=131_072,
+        profile=Profile(max_output_tokens=32_768),
+    )
+    await harness.run()
+    assert [r.max_output_tokens for r in harness.provider.requests] == [int(131_072 * 0.15), 32_768]
+
+
 async def test_a_reply_that_fails_with_a_retryable_error_is_requested_again(make_harness):
     harness = make_harness([Turn(error="stream broke", retryable=True), Turn(text="done")])
     harness.deps.retries = RetryPolicy(reply_waits_s=(0.0, 0.0))

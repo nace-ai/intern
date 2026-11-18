@@ -147,8 +147,10 @@ class Profile(BaseModel):
             raise ValueError(f"reasoning_effort {self.reasoning_effort!r} is not one of the effort_levels ({named})")
         return self
 
-    def output_cap(self, working_window: int) -> int:
-        reserve = int(working_window * self.thresholds.output_reserve)
+    def output_cap(self, working_window: int, doublings: int = 0) -> int:
+        """The most a reply may have: `output_reserve` of the window, doubled `doublings` times after replies were cut
+        off at it, and never above `max_output_tokens`, the model's own limit."""
+        reserve = int(working_window * self.thresholds.output_reserve) << doublings
         return min(self.max_output_tokens, reserve) if self.max_output_tokens else reserve
 
 

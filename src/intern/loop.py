@@ -123,6 +123,11 @@ from intern.tools.shell import status_check
 
 _SAFE_NAME = re.compile(r"[^A-Za-z0-9_.-]")
 MIN_OUTPUT_TOKENS = 1_024
+# A reply cut off at the output limit doubles the cap for the rest of the run, up to 8x `output_reserve` and never above
+# the model's own limit or what its context leaves. A thinking model's hard turns outgrow the reserve: Qwen3.8 27B with
+# the reserve of a 32k window (4,915 tokens) reasoned to the limit in 170 replies of 184 eval runs, 22 of them a tool
+# call cut off mid-argument, and every cut-off reply is reasoning paid for and thrown away.
+MAX_OUTPUT_DOUBLINGS = 3
 MAX_STATE_TOKENS = 12_288  # the State and the thinking that writes it: Qwen3.8 at low effort, up to 4K + 4K
 # A thinking model left at its default effort spends the whole State budget reasoning and returns no
 # text (Qwen3.8: 2,048 tokens of thought, empty State, so every compaction fell back to "drop").
@@ -290,6 +295,7 @@ class Run:
         self.state_usage = Usage()  # the State writes' share of `usage`
         self.by_model: dict[str, Usage] = {}
         self.continuations = 0
+        self.output_doublings = 0
         self.final_text = ""
         self._prompt_chars = 0
         self._pending_stop: h.Stop | None = None
@@ -689,7 +695,7 @@ class Run:
             model=self.binding.wire_model,
             messages=view.messages(),
             tools=specs,
-            max_output_tokens=min(profile.output_cap(advertised), room),
+            max_output_tokens=min(profile.output_cap(advertised, self.output_doublings), room),
             sampling=profile.sampling,
             reasoning_effort=effort,
             reasoning_replay=profile.reasoning_replay,
@@ -1090,6 +1096,8 @@ class Run:
             waiting_on = []
         if message.stop != "length":
             self.continuations = 0
+        else:
+            self.output_doublings = min(self.output_doublings + 1, MAX_OUTPUT_DOUBLINGS)
         if message.invalid_tool_calls:
             lines = [
                 f"Your call to {c.name or 'a tool'} was not run: {c.error}. "

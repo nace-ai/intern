@@ -101,7 +101,9 @@ one output fill a sixth of it. The working window bounds the prompt; the reply m
 window leaves (`output_reserve` of it, at most the profile's `max_output_tokens`, and at most the output
 cap the provider's listing reports for the model, as Anthropic's and OpenRouter's do), so a small
 `--window` does not starve a thinking model's reply and a 1M-window model is never asked for more output
-than it allows.
+than it allows. Each reply cut off at that cap doubles it for the rest of the run, up to 8 times
+`output_reserve`, within the same limits: a thinking model whose hard turns outgrow the reserve gets the room on
+the next turn instead of reasoning to the limit again.
 
 **System 2 and System 1.** System 2 (`--system2`) is the agent model that reasons and calls tools.
 System 1 (`--system1`) answers the harness's small typed questions (choice, score, noul) fast, and is
