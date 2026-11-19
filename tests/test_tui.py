@@ -1373,7 +1373,7 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
         picks = opened[-1]
         assert picks.capabilities is not None and picks.capabilities.handoff.to == "openrouter/qwen/qwen3.8-27b"
         assert picks.auto and picks.session_file == journal
-        assert "efficient model openrouter/qwen/qwen3.8-27b" in transcript_text(app)
+        assert "reopening the session" not in transcript_text(app)  # the entering page shows the hand-over itself
         # Not a provider/model: refused with why, and nothing reopens.
         count = len(opened)
         await send(app, pilot, "/handover qwen")

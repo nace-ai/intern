@@ -1376,7 +1376,8 @@ class HarnessApp(App[None]):
                 prompt, self._first_prompt = self._first_prompt, None
                 await self._submit(prompt)
             return
-        await self._reopen(f"frontier {done.setup.system2} · decision {done.setup.system1_choice}", before)
+        note = f"frontier {done.setup.system2} · decision {done.setup.system1_choice}"
+        await self._reopen(note, before, shown=bool(self.query(Welcome)))  # the entering page has the models
 
     async def _setup_command(self) -> None:
         if self._setup is None:
@@ -1694,7 +1695,8 @@ class HarnessApp(App[None]):
                 return
             self.pending.capabilities = caps.model_copy(update={"handoff": handoff})
         self.pending.auto = on
-        await self._reopen(f"efficient model {target}" if on else "efficient model off", before)
+        note = f"efficient model {target}" if on else "efficient model off"
+        await self._reopen(note, before, shown=bool(self.query(Welcome)))  # the entering page has the hand-over
 
     def _capability_picked(self, picked: str | None) -> None:
         if picked:

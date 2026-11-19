@@ -11,8 +11,8 @@
     ╭─ Frontier model ────────────────────────────╮         ╭─ Efficient model ───────────────────────────╮
     │ claude-opus-5-5                             │         │ Claude Haiku 5.5                            │
     │ thinking high ▰▰▰▱▱                         │  ━━━━▶  │                                             │
-    │ ⠋ working on the hard part                  │         │ ○ waits for the hand-over                   │
-    │ ▰▰▱▱                                        │         │ ▱▱▱▱                                        │
+    │ ⠋ working on the hard part                  │hand-over│ ○ waits for the hand-over                   │
+    │ ▰▰▱▱                                        │   on    │ ▱▱▱▱                                        │
     ╰─────────────────────────────────────────────╯         ╰─────────────────────────────────────────────╯
     Decision model · watching the run   ready ▂▄ 0.48
 
@@ -29,11 +29,12 @@
 
 The page is drawn as one: first the run as Intern makes it, played over and over (`RunPlay`): the frontier model
 (System 2) in its box works the hard part, the decision model (System 1) judges it ready and the run hands over, and
-the efficient model in the other box finishes the rest. Under it Intern itself, the Nace cube with eyes, alive as
-the brand draws it (`Mascot`), between two cards: the tools the session has switched on, which both models share,
-each in a few words; and the decision model's jobs, each on or off as a capability is, and what it judges from.
-Above them the wordmark, in ink with the accent for its shadow, and what Intern is, in a paragraph; under them where
-the session works, then what to do next.
+the efficient model in the other box finishes the rest. Under the arrow between the boxes, whether a run hands over
+at all: `hand-over` on a chip in the accent over `on`, or in the gray over `off`. Under it Intern itself, the Nace
+cube with eyes, alive as the brand draws it (`Mascot`), between two cards: the tools the session has switched on,
+which both models share, each in a few words; and the decision model's jobs, each on or off as a capability is, and
+what it judges from. Above them the wordmark, in ink with the accent for its shadow, and what Intern is, in a
+paragraph; under them where the session works, then what to do next.
 All of it centred, and a third of the way down a tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the mascot and the models in one frame
@@ -64,6 +65,7 @@ from intern.tui.theme import (
     DARK,
     LIGHT,
     S_BAD,
+    S_BOX_MUTED,
     S_BRAND_BOLD,
     S_HEAD,
     S_HEAD_MUTED,
@@ -445,9 +447,11 @@ def run_frame(o: Opening, width: int, t: float | None) -> Content:
         "  ", ("━" * filled, BRAND), ("━" * (shaft - filled), S_RULE), ("▶", BRAND if filled == shaft else S_RULE), " "
     )
     gap = Content(" " * ARROW)
-    said = Content.styled("hand-over".center(ARROW), S_BRAND_BOLD if phase == "handover" else S_MUTED)
+    # Whether a run hands over, at a glance: the word on a chip in the accent while it does, in the gray while not.
+    chip = Content.styled(" hand-over ".center(ARROW), S_TAB if o.handoff else S_BOX_MUTED)
+    state = Content.styled(("on" if o.handoff else "off").center(ARROW), S_BRAND_BOLD if o.handoff else S_MUTED)
     middle = len(left) // 2
-    between = {middle: arrow, middle + 1: said if o.handoff else gap}
+    between = {middle: arrow, middle + 1: chip, middle + 2: state}
     lines = [Content.assemble(a, between.get(i, gap), b) for i, (a, b) in enumerate(zip(left, right, strict=True))]
     return Content("\n").join([*lines, decision_line(o, phase, through, t is None)])
 
@@ -522,7 +526,7 @@ def systems(o: Opening, width: int, *, roomy: bool = True, played: bool = True) 
     # tools.
     models: list[list[Part]] = [
         *flow([head, *box], width, gap=2),  # the box on a line of its own where it would wrap
-        [(" Efficient ", S_TAB), "  ", (handoff, S_HEAD if o.handoff else S_MUTED)],
+        [(" Efficient ", S_TAB if o.handoff else S_BOX_MUTED), "  ", (handoff, S_HEAD if o.handoff else S_MUTED)],
     ]
     lines: list[list[Part]] = [
         *([] if roomy else [*paragraph(ABOUT_SHORT, width, S_INK), []]),

@@ -12,7 +12,6 @@ between rows.
 
 from __future__ import annotations
 
-from collections import Counter
 from dataclasses import dataclass
 from typing import ClassVar
 
@@ -164,11 +163,8 @@ class ModelPicker(ModalScreen[str | None]):
         """Whether ←/→ changed the level: only then does the pick carry one."""
 
     def compose(self) -> ComposeResult:
-        count = len(self.choices)
         with Vertical(id="picker"):
-            yield Static(
-                Content.assemble((self.title_text, "bold"), (f"   {count} listed", S_MUTED)), id="picker-title"
-            )
+            yield Static(Content.styled(self.title_text, "bold"), id="picker-title")
             yield Input(placeholder="Filter…", id="picker-filter")
             yield OptionList(id="picker-options")
             if self.levels:
@@ -192,14 +188,13 @@ class ModelPicker(ModalScreen[str | None]):
         options = self.query_one(OptionList)
         options.clear_options()
         shown = ranked(self.choices, query)
-        counts = Counter(c.group for c in shown)
         width = min(max((len(c.shown) for c in shown), default=0), LABEL_WIDTH)
         group: str | None = None
         first: int | None = None
         current: int | None = None
         for choice in shown:
             if choice.group != group:
-                header = Content.assemble((choice.group.upper(), "bold"), (f"  {counts[choice.group]}", S_MUTED))
+                header = Content.styled(choice.group.upper(), "bold")
                 # Blank lines above every group but the first set the groups apart: more than between stacked rows.
                 above = (2 if self.stacked else 1) if group is not None else 0
                 gap = Padding(header, Spacing(above, 0, 0, 0)) if above else header
