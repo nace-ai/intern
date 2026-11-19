@@ -5,7 +5,7 @@ with the summary System 2 continues from; on the right the System 1 panel (every
 each: a turn it watched, a call it guarded, a search it walked, a compaction's reads it sorted) over the State panel
 (the session as System 1 reads it); the prompt line at the bottom. Until the first prompt, the entering page takes
 their place (`welcome.py`). Enter sends a prompt, or steers the run in progress. Slash commands:
-/frontier, /efficient, /decision (also /system2, /auto, /system1), /state, /thinking, /abort, /panels, /help, /quit.
+/frontier, /efficient, /decision (also /system2, /handover, /system1), /state, /thinking, /abort, /panels, /help, /quit.
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from textual import events, on
 from textual.actions import SkipAction
 from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.content import Content
 from textual.driver import Driver
 from textual.message import Message
@@ -118,11 +118,12 @@ from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm
 from intern.tui.schedule import TimerDelivery
 from intern.tui.state_panel import StatePanel, system2_start
 from intern.tui.system1_panel import System1Panel
-from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_INK, S_MUTED, S_OK, S_WARN
+from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_HEAD, S_INK, S_MUTED, S_OK, S_TAB, S_WARN
 from intern.tui.views import ViewHost, Views
 from intern.tui.welcome import SETUP_NOTE, GuardState, Opening, Welcome
 from intern.tui.widgets import (
     JOB,
+    HelpCard,
     Prompt,
     StatusBar,
     Transcript,
@@ -166,7 +167,7 @@ class Models:
     thinking: str | None = None
     """The thinking level chosen, kept across model switches and reopens; None while none was."""
     auto: bool = False
-    """Auto mode: a run hands over to the cheaper model once System 1 judges that model can finish it (`/auto`).
+    """Auto mode: a run hands over to the cheaper model once System 1 judges that model can finish it (`/handover`).
     `main` starts it as the config says, on unless `auto = false`."""
     dark: bool = False
     """The dark look, picked with /dark."""
@@ -203,43 +204,50 @@ ENTERING_HIDES = ("#status", "#side")
 ADD_SECRET = "+add"
 """The /secrets row that adds an entry; no secret can have this name."""
 
-COMMANDS: dict[str, str] = {
-    "/frontier": "pick the frontier model, which starts each task and does the hard part; /frontier <provider/model> "
-    "sets it directly (also /system2)",
-    "/efficient": "pick the efficient model a run hands over to once the decision model judges it can finish, or "
-    "off; /efficient on, /efficient off or /efficient <provider/model> sets it directly; the next message is the "
-    "frontier model's again, and the session reopens on its journal (also /auto)",
-    "/decision": "pick the decision model, which picks the moment to hand over and keeps the work on track; "
-    "/decision <model> sets it directly (also /system1)",
-    "/state": "show the State in full: the session as the decision model reads it",
-    "/caps": "switch a tool pack, the browser, code search, the memory drive or an MCP connection on or off; "
-    "/caps <name> [path] sets one directly; the session reopens on its journal (also /capabilities)",
-    "/schedule": "list timers; Enter stops the selected timer (enable with /caps schedule)",
-    "/runner": "pick where commands run: local, docker, opensandbox or an installed runner; /runner <name> sets it "
-    "directly; the session reopens on its journal",
-    "/secrets": "keys kept in the OS keychain or a password manager, with whether each loads; Enter on one replaces "
-    "it; /secrets set <NAME> stores one, /secrets remove <NAME> deletes one; new sessions use them",
-    "/setup": "connect your models: the frontier model's provider, key and model, the efficient model, then the "
-    "decision model; saves them to config.toml and the keychain and reopens the session on them",
-    "/thinking": "the frontier model's thinking level, low to max as the model takes it, for models that take one "
-    "(also Shift+Tab; ←→ in the /frontier picker)",
-    "/compact": "compact the conversation now, as a run does near the window's limit: the older turns cut to "
-    "the summary (written first if it does not cover them), the most recent share of the window kept as it is",
-    "/abort": "stop the run in progress (also Esc)",
-    "/clear": "start over: the screen cleared, a new session on a fresh journal; the models and capabilities stay",
-    "/reload": "restart on the code and config as they are now and resume this session: the models, capabilities "
-    "and thinking level stay",
-    "/panels": "show or hide the decision model and State panels (also F2)",
-    "/dark": "the dark look: paper and ink swapped; kept on /reload",
-    "/light": "the light look, paper and ink (the default)",
-    "/help": "this list",
-    "/quit": "close the session and exit (also Ctrl+Q)",
+HELP: dict[str, dict[str, str]] = {
+    "Models": {
+        "/frontier [provider/model]": "pick the frontier model, which starts each task and does the hard part "
+        "(also /system2)",
+        "/efficient [on|off|model]": "pick the efficient model a run hands over to once the decision model judges it "
+        "can finish, or turn the hand-over off; the session reopens on its journal (also /handover)",
+        "/decision [model]": "pick the decision model, which picks the moment to hand over and keeps the work on "
+        "track (also /system1)",
+        "/thinking [level]": "the frontier model's thinking level, low to max as the model takes it (also Shift+Tab, "
+        "and ←→ in the /frontier picker)",
+        "/setup": "connect your models: provider, key and model for each; saved to config.toml and the keychain",
+    },
+    "Session": {
+        "/abort": "stop the run in progress (also Esc)",
+        "/compact": "compact the conversation now, as a run does near the window's limit",
+        "/state": "the State in full: the session as the decision model reads it",
+        "/clear": "start over on a fresh journal; the models and capabilities stay",
+        "/reload": "restart on the code and config as they are now and resume this session",
+        "/quit": "close the session and exit (also Ctrl+Q)",
+    },
+    "Capabilities": {
+        "/caps [name] [path]": "switch a tool pack, the browser, code search, the memory drive or an MCP connection "
+        "on or off; the session reopens on its journal (also /capabilities)",
+        "/runner [name]": "pick where commands run: local, docker, opensandbox or an installed runner; the session "
+        "reopens on its journal",
+        "/secrets [set|remove NAME]": "keys in the OS keychain or a password manager, with whether each loads; Enter "
+        "on one replaces it; new sessions use them",
+        "/schedule": "the timers; Enter stops one (switch them on with /caps schedule)",
+    },
+    "Screen": {
+        "/panels": "show or hide the decision model and State panels (also F2)",
+        "/dark": "the dark look, kept on /reload",
+        "/light": "the light look, the default",
+        "/help": "this list",
+    },
 }
+"""What /help lists, by what each command is for: each as it is typed, with what it takes."""
+COMMANDS = tuple(usage.split()[0] for rows in HELP.values() for usage in rows)
+"""The commands by name, in /help's order: the prompt suggests the first that starts with what is typed."""
 KEYS: dict[str, str] = {
     "Esc": "abort the run in progress, or clear the prompt",
     "Shift+Tab": "cycle the thinking level",
     "F2": "show or hide the decision model and State panels",
-    "Ctrl+O": "expand or fold the latest tool call's output (a click on a call or a thought shows it all)",
+    "Ctrl+O": "expand or fold the latest tool call's output; a click on a call or a thought shows it all",
     "Ctrl+C": "copy what is selected in the prompt, or clear it",
     "Ctrl+X": "cut what is selected in the prompt (Ctrl+Z undoes, Ctrl+Y redoes)",
     "Shift+arrows": "select in the prompt; F7 selects all, a double click a word, a triple click the line",
@@ -264,7 +272,7 @@ def _runner_group(choice: RunnerInfo, current: str) -> str:
 ROLE_NAMES = {"system2": "Frontier model", "system1": "Decision model"}
 """What the transcript calls a picker's role."""
 AUTO_OFF = ("off", "none", "no")
-"""What `/auto` takes to turn auto mode off; the first is the picker's row."""
+"""What `/handover` takes to turn auto mode off; the first is the picker's row."""
 
 
 def _switched(toggle_id: str, on: bool) -> str:
@@ -319,9 +327,9 @@ def _short(path: Path) -> str:
     return "~" + text[len(home) :] if text.startswith(home + os.sep) else text
 
 
-ALIASES = ("/system2", "/auto", "/system1", "/capabilities", "/exit", "/login", "/connect")
-"""Other names commands answer to: the models' older names (`/system2` is `/frontier`, `/auto` is `/efficient`,
-`/system1` is `/decision`), and the rest."""
+ALIASES = ("/system2", "/handover", "/system1", "/capabilities", "/exit", "/login", "/connect")
+"""Other names commands answer to: the models' older names (`/system2` is `/frontier`, `/system1` is
+`/decision`), `/handover` for `/efficient`, and the rest."""
 COMMAND = re.compile(r"/[a-z0-9]+(?:\s|$)", re.IGNORECASE)
 """A prompt that is a command: a slash and a word, then a space or the end; `/var/folders/...` is a path."""
 
@@ -389,6 +397,22 @@ class StateScreen(ModalScreen[None]):
                 yield Static(Content.styled(said, S_MUTED), classes="state-note")
                 text = json.dumps(json.loads(self.cut.text), indent=2, ensure_ascii=False)
                 yield TextArea(text, read_only=True, soft_wrap=True, show_line_numbers=False, id="state-cut")
+
+    def action_close(self) -> None:
+        self.dismiss(None)
+
+
+class HelpScreen(ModalScreen[None]):
+    """/help: the commands and the keys, over the session; Esc or q closes it."""
+
+    BINDINGS: ClassVar[list[BindingType]] = [Binding("escape", "close", "Close"), Binding("q", "close", "Close")]
+
+    def compose(self) -> ComposeResult:
+        page = VerticalScroll(id="help-page")
+        page.border_title = Content.assemble((" Commands and keys ", S_TAB))
+        page.border_subtitle = Content.assemble((" Esc", S_HEAD), (" closes ", S_MUTED))
+        with page:
+            yield HelpCard({**HELP, "Keys": KEYS})
 
     def action_close(self) -> None:
         self.dismiss(None)
@@ -1274,7 +1298,7 @@ class HarnessApp(App[None]):
                 await self._pick_or_set("system2", rest)
             case "/decision" | "/system1":
                 await self._pick_or_set("system1", rest)
-            case "/efficient" | "/auto":
+            case "/efficient" | "/handover":
                 await self._auto(rest)
             case "/state":
                 self.push_screen(StateScreen(self.state_panel.cut))
@@ -1304,8 +1328,7 @@ class HarnessApp(App[None]):
                 self.pending.dark = look == "/dark"
                 self.theme = (DARK_THEME if self.pending.dark else LIGHT_THEME).name
             case "/help":
-                lines = [f"{c:<11} {d}" for c, d in COMMANDS.items()] + [""] + [f"{k:<11} {d}" for k, d in KEYS.items()]
-                await self.transcript.notice("\n".join(lines))
+                self.push_screen(HelpScreen())
             case "/quit" | "/exit":
                 await self.action_quit()
             case _:
@@ -1587,8 +1610,9 @@ class HarnessApp(App[None]):
         return self._capabilities_now().handoff.to or DEFAULT_TARGET
 
     async def _auto(self, rest: str) -> None:
-        """`/auto`: a picker of the models a run can hand over to, the one in use marked, with a row to turn auto
-        mode off; `/auto on`, `/auto off` or `/auto <provider/model>` sets it directly."""
+        """`/efficient` (`/handover`): a picker of the models a run can hand over to, the one in use marked, with a
+        row to turn auto mode off; `/efficient on`, `/efficient off` or `/efficient <provider/model>` sets it
+        directly."""
         if rest:
             self.run_worker(self._set_auto(rest), group="capabilities", exit_on_error=False)
             return

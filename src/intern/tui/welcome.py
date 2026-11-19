@@ -38,8 +38,8 @@ All of it centred, and a third of the way down a tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the mascot and the models in one frame
 (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is the transcript's first block, so
-what is said before the first prompt (a session that cannot open, `/help`) shows under it, and it goes when the
-conversation begins.
+what is said before the first prompt (a session that cannot open, a switch that failed) shows under it, and it goes
+when the conversation begins.
 """
 
 from __future__ import annotations

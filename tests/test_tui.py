@@ -1340,7 +1340,7 @@ async def test_the_runner_is_one_choice_picked_with_slash_runner(tmp_path: Path)
         assert len(opened) == count
 
 
-async def test_auto_mode_hands_over_to_the_model_slash_auto_picks_until_it_turns_it_off(tmp_path: Path):
+async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_turns_it_off(tmp_path: Path):
     from intern.events import Handoff, TurnStart
 
     journal = tmp_path / "journal.jsonl"
@@ -1355,7 +1355,7 @@ async def test_auto_mode_hands_over_to_the_model_slash_auto_picks_until_it_turns
     async with app.run_test(size=SIZE) as pilot:
         await wait_for(lambda: app.session is not None)
         first = app.session
-        await send(app, pilot, "/auto")
+        await send(app, pilot, "/handover")
         assert isinstance(app.screen, ModelPicker)
         ids = [c.id for c in app.screen.choices]  # pyright: ignore[reportAttributeAccessIssue]
         assert ids[0] == "off" and app._current("system2") not in ids  # System 2 is no hand-over target
@@ -1371,17 +1371,17 @@ async def test_auto_mode_hands_over_to_the_model_slash_auto_picks_until_it_turns
         assert "efficient model openrouter/qwen/qwen3.8-27b" in transcript_text(app)
         # Not a provider/model: refused with why, and nothing reopens.
         count = len(opened)
-        await send(app, pilot, "/auto qwen")
+        await send(app, pilot, "/handover qwen")
         await wait_for(lambda: "Not a model: 'qwen'" in transcript_text(app))
         assert len(opened) == count
         # Off, and the model named stays for when it is on again.
         second = app.session
-        await send(app, pilot, "/auto off")
+        await send(app, pilot, "/handover off")
         await wait_for(lambda: app.session is not None and app.session is not second)
         await pilot.pause()
         third = app.session
         assert not opened[-1].auto
-        await send(app, pilot, "/auto on")
+        await send(app, pilot, "/handover on")
         await wait_for(lambda: app.session is not None and app.session is not third)
         await pilot.pause()
         assert opened[-1].auto and opened[-1].capabilities is not None

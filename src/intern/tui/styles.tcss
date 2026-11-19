@@ -273,6 +273,37 @@ Screen {
     border-left: none;
 }
 
+/* /help: a heading over each group, the names in one column and what each does in the next. */
+.help {
+    grid-size: 2;
+    grid-columns: auto 1fr;
+    grid-rows: auto;
+    grid-gutter: 0 3;
+    height: auto;
+    margin: 0 0 1 0;
+    padding: 0 1;
+}
+
+.help-head {
+    column-span: 2;
+    padding-top: 1;
+    color: $brand;
+    text-style: bold;
+}
+
+.help-head:first-child {
+    padding-top: 0;
+}
+
+.help-name {
+    padding-left: 2;
+    color: $foreground;
+}
+
+.help-does {
+    color: $primary;
+}
+
 .notice.warn {
     color: $warning;
 }
@@ -321,7 +352,7 @@ Screen {
     text-style: none !important;
 }
 
-ModelPicker, StateScreen {
+ModelPicker, StateScreen, HelpScreen {
     align: center middle;
     background: $background 60%;
 }
@@ -359,6 +390,15 @@ ModelPicker, StateScreen {
 #state-full {
     width: 90%;
     height: 90%;
+    border: round $rule;
+    background: $surface;
+    padding: 1 1 0 1;
+}
+
+#help-page {
+    width: 90%;
+    height: auto;
+    max-height: 90%;
     border: round $rule;
     background: $surface;
     padding: 1 1 0 1;

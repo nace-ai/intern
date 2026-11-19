@@ -165,7 +165,7 @@ class UserConfig(BaseModel):
     auto: bool = Field(
         default=True,
         description="The terminal UI opens in auto mode: a run hands over to a cheaper model once System 1 judges that "
-        "model can finish it. `/auto` changes it for the session.",
+        "model can finish it. `/handover` changes it for the session.",
     )
     commands: CommandsConfig = Field(default_factory=CommandsConfig)
     free: FreeConfig = Field(default_factory=FreeConfig)
