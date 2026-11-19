@@ -278,3 +278,16 @@ def test_a_background_commands_lines_say_system_1s_judgement_and_how_it_stands_n
         f"Background job 1cf1caa9 (`{command}`) ended: exited, exit code 0, after 3m 02s.\nThe end of its output:\nok"
     )
     assert ended_lines(notice) == ["`python3 - <<'EOF' …` ended: exited, exit code 0, after 3m 02s"]
+
+
+def test_the_decision_panel_names_models_as_the_masthead_does():
+    from intern.tui.ledger import HandoverJudgement, RunLedger
+
+    handed = HandoverJudgement(turn=8, ready=[0.4, 0.88], target="openrouter/tencent/hy4-flash", handed_at=8)
+    run = RunLedger(run_id="r1", prompt="Fix the slug", model="openrouter/anthropic/claude-opus-5.5", feed=[handed])
+    labels = {"openrouter/anthropic/claude-opus-5.5": "Claude Opus 5.5", "openrouter/tencent/hy4-flash": "Hy4 Flash"}
+    text = feed([run], 60, labels=labels).plain
+    assert "Frontier · Claude Opus 5.5" in text
+    assert "→ Efficient · Hy4 Flash from turn 8" in text
+    # Without the catalog's names it falls back to the model's own name, as before.
+    assert "Frontier · claude-opus-5.5" in feed([run], 60).plain
