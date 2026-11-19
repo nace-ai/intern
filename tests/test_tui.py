@@ -491,15 +491,17 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         assert page.has_class(look)  # the mascot between its two systems, all of it in a frame, or the frame alone
         said = "\n".join(plain(part) for part in page.query(Static) if part.display)
         # The three models, each on the one the session opened with, and what the decision model is asked for.
-        assert "fake/model" in said and "drex-latest" in said and "Efficient" in said
+        # The efficient model is not there while hand-over is off.
+        assert "fake/model" in said and "drex-latest" in said and "Efficient" not in said
         # Each on or off, as a capability is: the hand-over is off with no efficient model, the search while neither
         # capability it searches for is on, and the guard while its capability is off, as it is by default.
         assert all(job in said for job in ("○ hand-over", "● watch", "○ guard", "○ search", "● compaction"))
         assert "Intern uses two models" in " ".join(said.split())  # what it is, with no efficient model to hand to
         assert "● base tools" in said and "Describe a task to begin." in said
-        if look != "compact":  # with the room, what each capability is
-            assert re.search(r"base tools +files and the shell", said)
-            assert re.search(r"code search +searches code for it", said)
+        if look != "compact":  # with the room, what each capability is: under it on the wide page, else beside it
+            gap = r"\n +" if look == "hero" else " +"
+            assert re.search(rf"base tools{gap}files and the shell", said)
+            assert re.search(rf"code search{gap}searches code for it", said)
         # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
         # nothing under the prompt, and the panels it stands in for are away.
         assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y

@@ -42,49 +42,57 @@ see the README); a run whose System 1 stops answering ends with `system1_unavail
 What `intern` opens on, until the conversation begins (`tui/welcome.py`):
 
 ```
-                                      ██ ███  ██ ████████ ███████ ██████  ███  ██
-                                      ██ ████ ██    ██    ██      ██   ██ ████ ██
-                                      ██ ██ ████    ██    █████   ██████  ██ ████
-                                      ██ ██  ███    ██    ██      ██   ██ ██  ███
-                                      ██ ██   ██    ██    ███████ ██   ██ ██   ██
-
-                                       Intern v0.34.1 · thinking, fast and slow
-
-            Intern's brain has two parts. Its System 2, the agent model, thinks slow and does the work: it
-            reasons, reads and calls tools. Its System 1, a second and faster model, thinks fast and watches
-            each turn: it nudges your intern when it goes in circles, checks risky tool calls before they run,
-            and decides what your intern keeps in mind when its context fills up.
-
-╭─ System 2 · thinking slow ───────────────╮             ▄▄▄               ╭─ System 1 · thinking fast ───────────────╮
-│                                          │          ▄▄█████▄▄            │                                          │
-│  anthropic/claude-haiku-5-5              │       ▄▄███████████▄          │  drex-max                                │
-│  thinking high · 27 tools                │     ▄████████▄▀▀▀▀▄██▄▄       │  console                                 │
-│                                          │    ██████▄▄▄▄█ ██ █████▄      │                                          │
-│  ● base tools   files and the shell      │   ██████ ██ █▀▄▄▄▄▀███████    │  ● watch       nudges it out of circles  │
-│  ○ web search   searches the web         │   ██████▄▀▀▀▀▄████████████    │  ○ guard       off · /caps guard         │
-│  ○ web read     reads a page as text     │  █████████████████████████    │  ● search      finds the places to read  │
-│  ○ browser      opens and clicks pages   │   ███████████████████████     │  ● compaction  keeps what still matters  │
-│  ● code search  System 1 searches code   │    ▀███████████████████▀      │                                          │
-│  ○ workspace    System 1 searches docs   │      ▀███████████████▀        │  Judges from the State: your requests    │
-│  ● memory       notes across sessions    │        ▀▀█████████▀▀          │  and the history, cut to fit.            │
-│                                          │           ▀▀███▀              │                                          │
-╰──────────────────────────────────────────╯                               ╰──────────────────────────────────────────╯
-
+                          ██ ███  ██ ████████ ███████ ██████  ███  ██
+                          ██ ████ ██    ██    █████   ██████  ████ ██
+                          ██ ██ ████    ██    ███████ ██  ██  ██ ████
+                                       Intern v0.53.0
+  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░  Intern uses three models: a frontier model does the hard part, an efficient model finishes the rest   ░
+  ░     for much less, and a decision model picks the moment to hand over and keeps the work on track.     ░
+  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ╭─ System 2 ─────────────────────────────╮                            ╭─ Tools ────────────────────────────────╮
+  │  Frontier   thinking high ▰▰▰▱▱        │                            │  9 tools for the frontier and          │
+  │  claude-opus-5-5                       │                            │  efficient models                      │
+  │  ⠋ working on the hard part  ▰▰▱▱      │          ▄▄███▄▄           │                                        │
+  │                                        │       ▄███████████▄        │  ● base tools                          │
+  │  hand-over   ready ▂▄ 0.48             │     ▄████▀▀▀▀▀▄█████▄      │    files and the shell                 │
+  │                                        │    ██████ ██ █████████     │  ○ web search                          │
+  │  Efficient                             │    ███████████████████     │    searches the web                    │
+  │  claude-haiku-5-5                      │     ▀███████████████▀      │  ● code search                         │
+  │  ○ waits for the hand-over             │       ▀▀█████████▀▀        │    searches code for it                │
+  ╰────────────────────────────────────────╯          ▀▀███▀▀           │  ● memory                              │
+  ╭─ System 1 ─────────────────────────────╮                            │    notes across sessions               │
+  │  Decision                              │                            │  ...                                   │
+  │  drex-max                              │                            │                                        │
+  │  console                               │                            │                                        │
+  │                                        │                            │                                        │
+  │  ● hand-over   picks when to hand over │                            │                                        │
+  │  ● watch       nudges it out of circles│                            │                                        │
+  │  ○ guard       off · /caps guard       │                            │                                        │
+  │  ● search      finds the places to read│                            │                                        │
+  │  ● compaction  keeps what still matters│                            │                                        │
+  ╰────────────────────────────────────────╯                            ╰────────────────────────────────────────╯
                                     ~/work/parser  ·  session 20261108-21…
 
           Describe a task to begin.   /help commands   /models models   /caps capabilities   Shift+Tab thinking   /dark look
 ```
 
-Intern is a brain in two parts, and the page is drawn as one: the mascot between its two systems, each a card with
-the model the session opened on. System 2's card has how hard it thinks, how many tools it has and what the session
-has switched on (`●` on, `○` off: `/caps` changes them), each capability with what it is in a few words; `code
-search` and `workspace` say that System 1 does the searching. System 1's card has where it is served, its four jobs,
-each on (`●`) or off (`○`) as a capability is (the guard is off, and its line says so, when `cap.guard` is off or
-runs the fixed rules alone; the search while neither `code search` nor `workspace` is on), and what it judges from, the State. Above them the wordmark in block letters, in the
-ink with a shadow in the accent, and what Intern is, in the
-README's paragraph; under them the working directory and the session's journal, then what to do and the keys worth
-knowing first (while the session is opening, or when it could not open, that line says so instead). All of it is
-centred, and stands a third of the way down a tall terminal.
+Intern is a brain in two parts, and the page is drawn that way: on the left System 2's card over System 1's, on the
+right the tools, the mascot between them. System 2's card has the frontier model and how hard it thinks, and, while
+a run hands over, the efficient model under it, the hand-over between the two on a chip in the accent; it plays a
+run over and over, the frontier model on the hard part, the decision model's P(ready) rising to the moment it hands
+over, then the efficient model on the rest. While hand-over is off the efficient model is not there, the chip is
+gray and says `off · /handover on`, and the frontier model works every turn. System 1's card has the decision model
+and where it is served, its jobs, each on (`●`) or off (`○`) as a capability is (the guard is off, and its line says
+so, when `cap.guard` is off or runs the fixed rules alone; the search while neither `code search` nor `workspace` is
+on), and what it judges from, the State. The tools' card says how many tools the session has and which models work
+with them (a run that hands over keeps its tools, so both do), then what the session has switched on (`●` on, `○`
+off: `/caps` changes them), each capability over what it is in a few words. The two sides stand as tall as each
+other. Above them the wordmark in block letters, in the ink with a shadow in the accent, and what Intern is, in a
+sentence on a shaded band: three models while a run hands over, two while not. Under them the working directory and
+the session's journal, then what to do and the keys worth knowing first (while the session is opening, or when it
+could not open, that line says so instead). All of it is centred, and stands a third of the way down a tall
+terminal.
 
 The mascot is the README's mark, the Nace cube with two eyes in the window on its top face, in one colour, the ink
 (`tui/sprites/`: sheets of frames from the Nace brand playground's Intern kit, with `sprites.json` saying which
@@ -105,11 +113,11 @@ macOS Terminal draws as a hairline.
 The page fits the terminal, and is fitted again when the terminal's size changes. From 130 columns it is the page
 above (`hero`), with the larger mascot from 138 columns and 42 rows, and its wordmark twice the size from 160 columns
 when there are the rows for it. From 108 columns the
-mascot and both systems are in one frame under the wordmark and the paragraph (`framed`), System 2's capabilities
-and System 1's jobs each under its model, then a line on the State. Either goes without its wordmark on a terminal
-too short for it (under 38 rows, or about 44 framed). Smaller than that (under 32 rows, or about 37 framed, or 108
-columns) it is the frame alone, a line a job and the capabilities by name (`compact`), so nothing of the first
-screen starts above its top.
+models and the tools are in one column beside the mascot, in one frame under the wordmark and the sentence
+(`framed`): each model under its tab, the decision model's jobs, a line on the State, then the capabilities. Either
+goes without its wordmark on a terminal too short for it (under about 48 rows, or 47 framed). Smaller than that
+(under about 42 rows, or 41 framed, or 108 columns) it is the frame alone, a line a job and the capabilities by name
+(`compact`), so nothing of the first screen starts above its top.
 
 The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It follows
 the session, so a `/models` or `/caps` pick made before the first prompt shows on it: a capability switched there
