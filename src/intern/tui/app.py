@@ -512,7 +512,7 @@ class HarnessApp(App[None]):
             with Vertical(id="main"):  # System 2: its conversation, and under it the prompt, which is to it alone
                 yield Transcript()
                 yield Prompt(
-                    placeholder="Describe the task… (/help for commands; Shift+Enter or Ctrl+J for a new line)",
+                    placeholder="Describe the task… (/help for commands)",
                     id="prompt",
                     commands=(*COMMANDS, *ALIASES),
                 )

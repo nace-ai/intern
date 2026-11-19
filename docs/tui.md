@@ -74,7 +74,7 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
   ╰────────────────────────────────────────╯                            ╰────────────────────────────────────────╯
                                     ~/work/parser  ·  session 20261108-21…
 
-          Describe a task to begin.   /help commands   /models models   /caps capabilities   Shift+Tab thinking   /dark look
+                          /models models   /caps capabilities   Shift+Tab thinking   /dark look
 ```
 
 Intern is a brain in two parts, and the page is drawn that way: on the left System 2's card over System 1's, on the
@@ -94,9 +94,10 @@ middle, and scrolls the list, its head staying: with the wheel, or the arrows on
 goes to the prompt); its scrollbar shows only while the pointer is on it or it has the focus. Above them the
 wordmark in block letters, in the ink with a shadow in the accent, and what Intern is, in a sentence on a shaded
 band: three models while a run hands over, two while not. Under them the working directory and the session's
-journal, then what to do and the keys worth knowing first, the look last: `/dark` in the light look, `/light` in the
-dark one (while the session is opening, or when it could not open, that line says so instead). All of it is centred,
-and stands a third of the way down a tall terminal.
+journal, then the keys worth knowing first, the look last (the prompt under it says to describe the task, and that
+`/help` lists the commands): `/dark` in the light look, `/light` in the dark one (while the session is opening, or
+when it could not open, that line says so instead). All of it is centred, and stands a third of the way down a tall
+terminal.
 
 The mascot is the README's mark, the Nace cube with two eyes in the window on its top face, in one colour, the ink
 (`tui/sprites/`: sheets of frames from the Nace brand playground's Intern kit, with `sprites.json` saying which

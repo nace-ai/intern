@@ -26,7 +26,7 @@
     ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
-            Describe a task to begin.   /help commands   /models models   /caps capabilities ...
+                    /models models   /caps capabilities   Shift+Tab thinking   /dark look
 
 The page is drawn as one. On the left System 2's card over System 1's, on the right the capabilities, Intern itself
 between them, the Nace cube with eyes, alive as the brand draws it (`Mascot`); the cards on either side as tall as
@@ -39,7 +39,8 @@ tools, then each capability over what it is, in a few words, a line of air betwe
 decision model takes part in, its legend at the top; the card stands exactly beside the models' cards, top and
 bottom, and scrolls the rest (`CapabilityCard`). Above them the wordmark, in ink with the accent for its shadow, and
 what Intern is, in a sentence on a shaded band: three models while a run hands over, two while it does not; under
-them where the session works, then what to do next. All of it centred, and a third of the way down a tall terminal.
+them where the session works, then the keys worth knowing first. All of it centred, and a third of the way down a
+tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the models and the capabilities in one column
 beside the mascot, in one frame (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is
@@ -159,12 +160,12 @@ JOB_WIDTH = 14
 SETUP_NOTE = "Not connected yet: /setup connects your models"
 """What the page and the masthead say while no models are set up: a way on, not an error."""
 HINTS = (
-    ("/help", "commands"),
     ("/models", "models"),
     ("/caps", "capabilities"),
     ("Shift+Tab", "thinking"),
 )
-"""The keys worth knowing first; then the look to switch to (`tips`)."""
+"""The keys worth knowing first; then the look to switch to (`tips`). The prompt itself says to describe the task
+and that /help lists the commands."""
 SPRITE_COLUMNS, SPRITE_ROWS = 32, 16
 """The mascot in cells, two pixels to a cell down: as wide in pixels as it is tall."""
 BIG_COLUMNS, BIG_ROWS = 40, 20
@@ -553,13 +554,13 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
 
 
 def tips(o: Opening, width: int, dark: bool = False) -> Content:
-    """What to do next, then the keys worth knowing first and the look there is to switch to (`/light` in the dark
-    one); while there is no session, why."""
+    """The keys worth knowing first and the look there is to switch to (`/light` in the dark one); while there is no
+    session, why, first."""
     waiting = o.note.endswith("…")
     style = S_MUTED_ITALIC if waiting else S_HEAD if o.note == SETUP_NOTE else S_BAD
-    lead: Part = (o.note, style) if o.note else ("Describe a task to begin.", S_HEAD)
+    lead: list[list[Part]] = [[(o.note, style)]] if o.note else []
     hints = [*HINTS, ("/light" if dark else "/dark", "look")]
-    return stacked(flow([[lead], *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in hints)], width))
+    return stacked(flow([*lead, *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in hints)], width))
 
 
 class CapabilityCard(Vertical):
