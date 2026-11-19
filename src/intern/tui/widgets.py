@@ -756,7 +756,7 @@ class StatusBar(Static):
         if self.window:
             run.append((f"{self.context / self.window:.0%} of {tokens_text(self.window)}", S_MUTED))
         if self.running and self.activity:
-            run.append((self.activity, S_WARN))
+            run.append((self.activity, BRAND))
         if self._flash:
             run.append((self._flash, S_OK))
         elif self.note:
@@ -1723,7 +1723,7 @@ def scan(age: int, width: int = METER_WIDTH) -> list[Part]:
     cells: list[Part] = []
     for i in range(width):
         near = abs(i - at)
-        cells.append((FILLED, S_INK) if near == 0 else (FILLED, S_MUTED) if near == 1 else (TRACK, S_RULE))
+        cells.append((FILLED, BRAND) if near == 0 else (FILLED, S_MUTED) if near == 1 else (TRACK, S_RULE))
     return cells
 
 
@@ -1733,7 +1733,7 @@ def verdict_line(v: KeepVerdict, age: int | None, cwd: Path | None, width: int =
     room = max(16, width - 31) if width else 60
     name = read_name(v.path, cwd, room)
     if age is not None and age < SCAN_FRAMES:
-        mark: Part = (SPINNER[age % len(SPINNER)], S_INK)
+        mark: Part = (SPINNER[age % len(SPINNER)], BRAND)
         return ["  ", mark, " ", ("judging".ljust(10), S_MUTED_ITALIC), *scan(age), " " * 7, *name]
     shown = v.keep if age is None or age >= LANDED else v.keep * (age - SCAN_FRAMES + 1) / FILL_FRAMES
     style = VERDICT_STYLE.get(v.choice, S_MUTED)
@@ -1770,7 +1770,7 @@ def compaction_card(
     (`CompactionCard`); this says a click shows it. A compaction that settles without a cut was stopped."""
     calm = settled(c, ages)
     started = c.verdicts if ages is None else [v for v in c.verdicts if v.path in ages]
-    spin = (SPINNER[frame // 2 % len(SPINNER)] + " ", S_INK) if not calm else ("", "")
+    spin = (SPINNER[frame // 2 % len(SPINNER)] + " ", BRAND) if not calm else ("", "")
     if c.done:
         to = "a summary" if c.method == "state" else "a list of their calls"
         parts: list[Part] = [

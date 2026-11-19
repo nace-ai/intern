@@ -2,18 +2,18 @@
 gives it.
 
     decision_code where are malformed tool call arguments repaired?
-    ▌ ⌕ System 1 walks the index                                                       ⠹ 2.0s
-    ▌ ● descend 1.3s  ──  ⠹ parts  ──  ○ read  ──  ○ compare  ──  ○ ranked
-    ▌ judging every part of the kept files by its card
-    ▌
-    ▌ ◉ src/intern               109 files      LEADERBOARD
-    ▌ ├─ ◆ providers       ━━━┿━━━━━━━━━── 0.85 ✓       1 • providers/repair.py  ━━━━━─ 0.90
-    ▌ │  ├─ ■ repair.py    ━━━┿━━━━━━━━━━─ 0.90 ✓       2 ▼ providers/fake.py    ━──── 0.30
-    ▌ │  │  ├─ · def parse_arguments( ━━━━━━━━━━━━─ 0.87
-    ▌ │  │  └─ … 8 more parts, best 0.21                 SYSTEM 1
-    ▌ ├─ ◇ files 3/4, protocol ━━━┼─────────── 0.05 ✗   asks 62 · judged 191
-    ▌ ┿ cut (best × 0.25)  ✓ kept  ✗ pruned  ⊘ budget  • read  ★ result
-    ▌ ▾ fold   ▾ 54 more rows   latest 0.11 async def MemoryActions.t…
+    ⌕ System 1 walks the index                                                       ⠹ 2.0s
+    ● descend 1.3s  ──  ⠹ parts  ──  ○ read  ──  ○ compare  ──  ○ ranked
+    judging every part of the kept files by its card
+
+    ◉ src/intern               109 files      LEADERBOARD
+    ├─ ◆ providers       ━━━┿━━━━━━━━━── 0.85 ✓       1 • providers/repair.py  ━━━━━─ 0.90
+    │  ├─ ■ repair.py    ━━━┿━━━━━━━━━━─ 0.90 ✓       2 ▼ providers/fake.py    ━──── 0.30
+    │  │  ├─ · def parse_arguments( ━━━━━━━━━━━━─ 0.87
+    │  │  └─ … 8 more parts, best 0.21                 SYSTEM 1
+    ├─ ◇ files 3/4, protocol ━━━┼─────────── 0.05 ✗   asks 62 · judged 191
+    ┿ cut (best × 0.25)  ✓ kept  ✗ pruned  ⊘ budget  • read  ★ result
+    ▾ fold   ▾ 54 more rows   latest 0.11 async def MemoryActions.t…
     running…
 
 The panel fills from the code-search extension's `search_trace` events (`locate/trace.py`): the tree grows as
@@ -44,7 +44,7 @@ from textual.widgets import Static
 from intern.events import Event, ExtensionEvent, ToolCallEnd, ToolCallStart
 from intern.locate.search import GAP
 from intern.locate.trace import KIND, PHASES, Phase, Ranked, SearchNode, SearchTrace, Vote
-from intern.tui.theme import AMBER, GREEN, INK, INK_SOFT, MUTED, RED, RULE
+from intern.tui.theme import BRAND, GREEN, INK, INK_SOFT, MUTED, RED, RULE
 from intern.tui.views import ExtensionView, ViewHost
 
 TOOL = "decision_code"
@@ -221,7 +221,7 @@ def bar(p: float, width: int, fill: str, cut: float | None = None) -> list[Part]
     parts: list[Part] = []
     for i in range(width):
         if i == tick:
-            parts.append(("┿" if i < full else "┼", f"bold {AMBER}"))
+            parts.append(("┿" if i < full else "┼", f"bold {BRAND}"))
         elif i < full:
             parts.append((FILLED, fill))
         elif i == full and half:
@@ -234,7 +234,7 @@ def bar(p: float, width: int, fill: str, cut: float | None = None) -> list[Part]
 def shimmer(width: int, frame: int) -> list[Part]:
     """An empty track with a dash running along it: the card is with System 1."""
     at = frame % (width + 3) - 2
-    return runs([(FILLED, AMBER) if at <= i < at + 3 else (TRACK, RULE) for i in range(width)])
+    return runs([(FILLED, BRAND) if at <= i < at + 3 else (TRACK, RULE) for i in range(width)])
 
 
 def fit(text: str, width: int, *, keep_end: bool = False) -> str:
@@ -294,7 +294,7 @@ def glyph(node: SearchNode, opened: bool) -> Part:
 def mark(node: SearchNode, frame: int) -> Part:
     match node.state:
         case "asking" | "reading":
-            return (SPINNER[frame % len(SPINNER)], AMBER)
+            return (SPINNER[frame % len(SPINNER)], BRAND)
         case "chosen":
             return ("★", f"bold {GREEN}")
         case "kept" | "opened" | "read":
@@ -302,7 +302,7 @@ def mark(node: SearchNode, frame: int) -> Part:
         case "pruned":
             return ("✗", MUTED)
         case "skipped":
-            return ("⊘", AMBER)
+            return ("⊘", BRAND)
         case _:
             return (" ", "")
 
@@ -316,7 +316,7 @@ def fill_of(node: SearchNode) -> str:
         case "pruned":
             return MUTED
         case "skipped":
-            return AMBER
+            return BRAND
         case _:
             return INK_SOFT
 
@@ -382,7 +382,7 @@ def node_line(state: SearchState, lead: str, node: SearchNode, width: int, now: 
     label_w = max(10, width - len(lead) - 2 - right - 1)
     style = label_style(node)
     if now - state.changed_at.get(node.id, 0.0) < FLASH_S:
-        style = f"bold {AMBER}"  # it just changed: a pulse
+        style = f"bold {BRAND}"  # it just changed: a pulse
     label = fit(short_label(state, node), label_w, keep_end=node.kind != "part")
     parts: list[Part] = [(lead, MUTED), glyph(node, opened), (" ", ""), (label.ljust(label_w), style), (" ", "")]
     if node.kind == "root":
@@ -400,7 +400,7 @@ def node_line(state: SearchState, lead: str, node: SearchNode, width: int, now: 
         parts += [*bar(shown, BAR, fill_of(node), cut), (f" {node.score:.2f}", style_score)]
     parts += [(" ", ""), mark(node, frame)]
     if node.kind == "part" and node.state == "reading":
-        parts.append((f"  {SPINNER[frame % len(SPINNER)]} reading", AMBER))
+        parts.append((f"  {SPINNER[frame % len(SPINNER)]} reading", BRAND))
     elif node.kind == "part" and node.read is not None:
         parts += [("  text ", MUTED), (f"{node.read:.2f}", f"bold {INK}" if node.read >= 0.5 else INK)]
     elif node.kind == "file" and node.final is not None and state.phase not in (None, "descend", "parts"):
@@ -419,7 +419,7 @@ def tree(
         if state.status == "ok":
             return Content.assemble(("Nothing to search: the index is empty under this scope.", MUTED)), 0
         spin = SPINNER[frame % len(SPINNER)]
-        return Content.assemble((f"{spin} ", AMBER), ("waiting for the index to be fresh…", MUTED)), 0
+        return Content.assemble((f"{spin} ", BRAND), ("waiting for the index to be fresh…", MUTED)), 0
     rows = tree_rows(state, show_pruned)
     shown = rows if max_rows is None else rows[:max_rows]
     lines: list[Content] = []
@@ -437,7 +437,7 @@ def arrow(state: SearchState, nid: str, now: float) -> Part:
         return ("  ", "")
     delta = move[0]
     if delta >= TOP:
-        return ("• ", AMBER)
+        return ("• ", BRAND)
     return ("▲ ", GREEN) if delta > 0 else ("▼ ", RED)
 
 
@@ -587,12 +587,12 @@ def header(state: SearchState, width: int, frame: int, replay: bool) -> Content:
     elif state.status not in (None, "ok"):
         status = [(f"✗ {state.status}", f"bold {RED}")]
     elif state.phase is None:
-        status = [(spin, AMBER), (" waiting for the index", MUTED)]
+        status = [(spin, BRAND), (" waiting for the index", MUTED)]
     else:
-        status = [(spin, AMBER), (f" {secs:.1f}s", INK)]
+        status = [(spin, BRAND), (f" {secs:.1f}s", INK)]
     if replay:
-        status = [(f"⟲ replay ×{REPLAY_SPEED:g}  ", f"bold {AMBER}"), *status]
-    first: list[Part] = [("⌕ ", f"bold {AMBER}"), ("System 1 walks the index", f"bold {INK}")]
+        status = [(f"⟲ replay ×{REPLAY_SPEED:g}  ", f"bold {BRAND}"), *status]
+    first: list[Part] = [("⌕ ", f"bold {BRAND}"), ("System 1 walks the index", f"bold {INK}")]
     if state.scope:
         first.append((f"  under {state.scope}", MUTED))
     used = sum(len(p[0]) for p in first) + sum(len(p[0]) for p in status)
@@ -613,7 +613,7 @@ def header(state: SearchState, width: int, frame: int, replay: bool) -> Content:
             if phase != "done":
                 second.append((f" {took:.1f}s", MUTED))
         elif i == current:
-            second += [(f"{spin} ", AMBER), (PHASE_NAMES[phase], f"bold {INK}")]
+            second += [(f"{spin} ", BRAND), (PHASE_NAMES[phase], f"bold {INK}")]
         else:
             second += [("○ ", MUTED), (PHASE_NAMES[phase], MUTED)]
     lines = [Content.assemble(*first), Content.assemble(*second)]
@@ -644,7 +644,7 @@ def feed(state: SearchState, width: int, frame: int) -> Content:
 
 def card(state: SearchState, frame: int) -> Content:
     """The search in one line: the folded panel."""
-    head: list[Part] = [("⌕ ", f"bold {AMBER}")]
+    head: list[Part] = [("⌕ ", f"bold {BRAND}")]
     if state.finished:
         secs = state.elapsed_ms / 1000
         t = state.last
@@ -667,7 +667,7 @@ def card(state: SearchState, frame: int) -> Content:
         )
     spin = SPINNER[frame % len(SPINNER)]
     phase = PHASE_NAMES[state.phase] if state.phase else "waiting for the index"
-    parts = [*head, ("search tree ", f"bold {INK}"), (spin, AMBER), (f" {phase}", INK)]
+    parts = [*head, ("search tree ", f"bold {INK}"), (spin, BRAND), (f" {phase}", INK)]
     if state.last is not None:
         parts.append((f" · {state.last.asks} asks · {state.last.files} files judged", MUTED))
     files = state.files()
@@ -720,7 +720,6 @@ class SearchPanel(Vertical):
     SearchPanel {
         height: auto;
         background: $surface;
-        border-left: thick $warning;
         padding: 0 1;
     }
     SearchPanel .decision-head, SearchPanel .decision-tree, SearchPanel .decision-section, SearchPanel .decision-feed {

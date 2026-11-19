@@ -2,28 +2,28 @@
 judgment as System 1 gives it, the hop through the seeds' terms, and the podium.
 
     decision_files When did the board approve the Zorblax merger, and who compiled it?
-    ▌ ⌕ System 1 searches the workspace                                                   ✓ ranked in 2.1s
-    ▌ ● walk ∥ bm25 1.2s  ──  ● judge 0.4s  ──  ● seeds → terms 0.0s  ──  ● judge 0.3s  ──  ● ranked
-    ▌
-    ▌ WALK  folders → files → parts                    BM25  top 100 of 146 passages
-    ▌ ◉ .                              38 files          1   § board/minutes_march.md · Minutes  ━━━━━━ 0.92 ✦
-    ▌ ├─ ◆ board, staff   ━━━━━┿━━━━━━─ 0.90 ✓           2 ◆ § staff/quill.md · Staff          ━━━━━─ 0.80 ✦
-    ▌ │  ├─ ■ doc_0.md     ━━━━━┿━━━━━━─ 0.90 ✓           3   § finance/2023/doc_0.md · Sect…  ⠹ (asking)
-    ▌ │  │  ├─ • Section 0  ━━━━━━━━━━━━ 0.90 ✓ text 0.58  … 95 more, best 0.98
-    ▌ ╰─ 20 from the walk ──────────────────▶ ⚖ ◀──────────────── 100 from BM25 · 15 in both ─╯
-    ▌ JUDGE  ▰▰▰▰▰▰▰▰▰▰ 150/150 passages  scores 0 ▇▁▁▁▁▁▁▁▂▃ 1
-    ▌ SEEDS  ✦ ops/vendors/doc_2.md 0.98  ✦ ops/vendors/doc_4.md 0.94  ✦ board/doc_3.md 0.93  … 7 more
-    ▌ HOP    20 terms → 45 new passages, 43 in files the walk left
-    ▌   board/minutes_march.md ─┬─ ada quill  ▮▮▮▮▯▯ ──▶  2  ↯ staff/quill.md 0.80
-    ▌                            └─ 3          ▮▯▯▯▯▯ ──▶ 15  ↯ legal/doc_3.md 0.80
-    ▌   … 15 reached nothing new
-    ▌
-    ▌ RESULT  top 10, in diversity order                          SYSTEM 1
-    ▌  1 ★ § ops/vendors/doc_2.md · Section 2  bm25      ━━━━━━ 0.98     asks 65 · judged 223
-    ▌  2 ★ § board/minutes_march.md · Minutes  bm25      ━━━━━━ 0.92 ▲3  ≈$0.0123 · 2.1s
-    ▌  5   § staff/quill.md · Staff            walk+bm25 ━━━━━─ 0.80 ▲4  walk files 32/120 ▰▰▰▱▱▱▱▱▱▱
-    ▌  6   § finance/2023/doc_0.md · Section 2 ↯ 2       ━━━━━━ 0.96 ▼4  passages 146 · 3 by card
-    ▌ ▾ fold   ⟲ replay   ▾ 144 more rows   latest 0.43 · doc_4.md · Section 0
+    ⌕ System 1 searches the workspace                                                   ✓ ranked in 2.1s
+    ● walk ∥ bm25 1.2s  ──  ● judge 0.4s  ──  ● seeds → terms 0.0s  ──  ● judge 0.3s  ──  ● ranked
+
+    WALK  folders → files → parts                    BM25  top 100 of 146 passages
+    ◉ .                              38 files          1   § board/minutes_march.md · Minutes  ━━━━━━ 0.92 ✦
+    ├─ ◆ board, staff   ━━━━━┿━━━━━━─ 0.90 ✓           2 ◆ § staff/quill.md · Staff          ━━━━━─ 0.80 ✦
+    │  ├─ ■ doc_0.md     ━━━━━┿━━━━━━─ 0.90 ✓           3   § finance/2023/doc_0.md · Sect…  ⠹ (asking)
+    │  │  ├─ • Section 0  ━━━━━━━━━━━━ 0.90 ✓ text 0.58  … 95 more, best 0.98
+    ╰─ 20 from the walk ──────────────────▶ ⚖ ◀──────────────── 100 from BM25 · 15 in both ─╯
+    JUDGE  ▰▰▰▰▰▰▰▰▰▰ 150/150 passages  scores 0 ▇▁▁▁▁▁▁▁▂▃ 1
+    SEEDS  ✦ ops/vendors/doc_2.md 0.98  ✦ ops/vendors/doc_4.md 0.94  ✦ board/doc_3.md 0.93  … 7 more
+    HOP    20 terms → 45 new passages, 43 in files the walk left
+      board/minutes_march.md ─┬─ ada quill  ▮▮▮▮▯▯ ──▶  2  ↯ staff/quill.md 0.80
+                               └─ 3          ▮▯▯▯▯▯ ──▶ 15  ↯ legal/doc_3.md 0.80
+      … 15 reached nothing new
+
+    RESULT  top 10, in diversity order                          SYSTEM 1
+     1 ★ § ops/vendors/doc_2.md · Section 2  bm25      ━━━━━━ 0.98     asks 65 · judged 223
+     2 ★ § board/minutes_march.md · Minutes  bm25      ━━━━━━ 0.92 ▲3  ≈$0.0123 · 2.1s
+     5   § staff/quill.md · Staff            walk+bm25 ━━━━━─ 0.80 ▲4  walk files 32/120 ▰▰▰▱▱▱▱▱▱▱
+     6   § finance/2023/doc_0.md · Section 2 ↯ 2       ━━━━━━ 0.96 ▼4  passages 146 · 3 by card
+    ▾ fold   ⟲ replay   ▾ 144 more rows   latest 0.43 · doc_4.md · Section 0
     Places for: When did the board approve …
 
 The panel fills from the workspace's `search_trace` events (`trace.py`). The walk's tree grows on the left as
@@ -75,7 +75,7 @@ from intern.extensions.code_search.view import (
 )
 from intern.extensions.workspace.trace import STAGES, Hit, Stage, Term, UnionTrace
 from intern.locate.trace import KIND
-from intern.tui.theme import AMBER, GREEN, INK, INK_SOFT, MUTED, RED, RULE
+from intern.tui.theme import BRAND, GREEN, INK, INK_SOFT, MUTED, RED, RULE
 from intern.tui.views import ExtensionView, ViewHost
 
 TOOL = "decision_files"
@@ -240,7 +240,7 @@ def name_of(hit: Hit, names: dict[str, str], width: int) -> str:
 def score_of(state: FilesState, hit: Hit, width: int, frame: int) -> list[Part]:
     """A hit's bar and score; a running dash while it is with System 1, a dot while it waits."""
     if hit.state == "asking":
-        return [*shimmer(width, frame), (f" {SPINNER[frame % len(SPINNER)]}   ", AMBER)]
+        return [*shimmer(width, frame), (f" {SPINNER[frame % len(SPINNER)]}   ", BRAND)]
     if hit.score is None:
         return [(" " * width, ""), ("    ·", MUTED)]
     fill = GREEN if hit.rank is not None and hit.rank <= 3 else INK if hit.score >= 0.5 else INK_SOFT
@@ -249,7 +249,7 @@ def score_of(state: FilesState, hit: Hit, width: int, frame: int) -> list[Part]:
 
 
 def flash(state: FilesState, hid: str, now: float, style: str) -> str:
-    return f"bold {AMBER}" if now - state.changed_at.get(hid, 0.0) < FLASH_S else style
+    return f"bold {BRAND}" if now - state.changed_at.get(hid, 0.0) < FLASH_S else style
 
 
 def bm25_lane(state: FilesState, width: int, now: float, frame: int, max_rows: int | None) -> Content:
@@ -258,7 +258,7 @@ def bm25_lane(state: FilesState, width: int, now: float, frame: int, max_rows: i
         if state.status not in (None, "ok"):
             return Content.assemble((f"✗ {TOOL} did not search: ", RED), (state.error.strip()[:400], INK))
         spin = SPINNER[frame % len(SPINNER)]
-        return Content.assemble((f"{spin} ", AMBER), ("the passage table opens while the walk runs…", MUTED))
+        return Content.assemble((f"{spin} ", BRAND), ("the passage table opens while the walk runs…", MUTED))
     shown = hits if max_rows is None else hits[:max_rows]
     names = short_paths([h.path for h in shown])
     bar_w = 6
@@ -269,13 +269,13 @@ def bm25_lane(state: FilesState, width: int, now: float, frame: int, max_rows: i
         lines.append(
             Content.assemble(
                 (f"{hit.bm25:>3} ", MUTED),
-                ("◆ " if both else "  ", AMBER if both else ""),
+                ("◆ " if both else "  ", BRAND if both else ""),
                 kind_of(hit),
                 (" ", ""),
                 (name_of(hit, names, name_w).ljust(name_w), flash(state, hit.id, now, INK)),
                 (" ", ""),
                 *score_of(state, hit, bar_w, frame),
-                (" ✦" if hit.seed else "", f"bold {AMBER}"),
+                (" ✦" if hit.seed else "", f"bold {BRAND}"),
             )
         )
     rest = hits[len(shown) :]
@@ -288,7 +288,7 @@ def bm25_lane(state: FilesState, width: int, now: float, frame: int, max_rows: i
 def walk_lane(state: FilesState, width: int, now: float, frame: int, max_rows: int | None) -> tuple[Content, int]:
     if not state.walk.nodes and state.status in (None, "ok") and state.last is None:
         spin = SPINNER[frame % len(SPINNER)]
-        return Content.assemble((f"{spin} ", AMBER), ("waiting for the index to be fresh…", MUTED)), 0
+        return Content.assemble((f"{spin} ", BRAND), ("waiting for the index to be fresh…", MUTED)), 0
     return tree(state.walk, width, now, frame, False, max_rows)
 
 
@@ -306,7 +306,7 @@ def converge(state: FilesState, width: int) -> Content:
         ("╰─", RULE),
         (left, lit),
         ("─" * a + "▶ ", RULE),
-        ("⚖", f"bold {AMBER}"),
+        ("⚖", f"bold {BRAND}"),
         (" ◀" + "─" * b, RULE),
         (right, lit),
         ("─╯", RULE),
@@ -334,7 +334,7 @@ def judge_line(state: FilesState, frame: int) -> Content:
         (f" {judged}/{len(cands)} passages", INK),
     ]
     if asking:
-        parts.append((f"  {SPINNER[frame % len(SPINNER)]} {asking} with System 1", AMBER))
+        parts.append((f"  {SPINNER[frame % len(SPINNER)]} {asking} with System 1", BRAND))
     scores = [h.score for h in cands if h.score is not None and h.state == "judged"]
     if scores:
         parts += [("  scores 0 ", MUTED), *sparkline(scores), (" 1", MUTED)]
@@ -354,7 +354,7 @@ def seeds_line(state: FilesState, width: int) -> Content:
         if used + len(piece) + 4 > width:
             parts.append((f"… {len(seeds) - n} more", MUTED))
             break
-        parts += [("✦ ", f"bold {AMBER}"), (piece, INK), ("  ", "")]
+        parts += [("✦ ", f"bold {BRAND}"), (piece, INK), ("  ", "")]
         used += len(piece) + 4
     return Content.assemble(*parts)
 
@@ -372,7 +372,7 @@ def hop(state: FilesState, width: int, frame: int, max_rows: int | None) -> Cont
         Content.assemble(
             ("HOP    ", f"bold {MUTED}"),
             (f"{len(state.terms)} terms → {len(reached)} new passages", INK),
-            (f", {missed} in files the walk left" if missed else "", AMBER),
+            (f", {missed} in files the walk left" if missed else "", BRAND),
         )
     ]
     fruitful = [t for t in state.terms if t.hits]
@@ -401,7 +401,7 @@ def hop(state: FilesState, width: int, frame: int, max_rows: int | None) -> Cont
                 (f" {joint} ", RULE),
                 (fit(term.term, term_w).ljust(term_w), f"bold {INK}"),
                 (" ", ""),
-                ("▮" * weight, AMBER),
+                ("▮" * weight, BRAND),
                 ("▯" * (6 - weight), RULE),
                 (" ──▶ ", RULE),
                 (f"{len(hits):>2}", INK),
@@ -410,11 +410,11 @@ def hop(state: FilesState, width: int, frame: int, max_rows: int | None) -> Cont
                 far = state.missed(best)
                 rest = width - sum(len(p[0]) for p in parts) - 14
                 parts += [
-                    ("  ↯ " if far else "  · ", f"bold {AMBER}" if far else MUTED),
+                    ("  ↯ " if far else "  · ", f"bold {BRAND}" if far else MUTED),
                     (fit(best.path, max(6, rest), keep_end=True), INK),
                 ]
                 if best.state == "asking" or best.score is None:
-                    parts.append((f" {SPINNER[frame % len(SPINNER)]}", AMBER))
+                    parts.append((f" {SPINNER[frame % len(SPINNER)]}", BRAND))
                 else:
                     parts.append((f" {best.score:.2f}", f"bold {GREEN}" if best.score >= 0.5 else INK))
             lines.append(Content.assemble(*parts))
@@ -428,7 +428,7 @@ def hop(state: FilesState, width: int, frame: int, max_rows: int | None) -> Cont
 
 def lane_of(state: FilesState, hit: Hit) -> Part:
     if "term" in hit.lanes and hit.term:
-        return (f"↯ {hit.term}" if state.missed(hit) else f"⤳ {hit.term}", AMBER)
+        return (f"↯ {hit.term}" if state.missed(hit) else f"⤳ {hit.term}", BRAND)
     if hit.state == "card":
         return ("walk card", MUTED)
     lanes = [lane for lane in ("walk", "bm25") if lane in hit.lanes]
@@ -504,12 +504,12 @@ def header(state: FilesState, width: int, frame: int, replay: bool) -> Content:
     elif state.finished:
         status = [("✗ stopped", f"bold {RED}"), (f" after {secs:.1f}s", MUTED)]
     elif state.stage is None:
-        status = [(spin, AMBER), (" waiting for the index", MUTED)]
+        status = [(spin, BRAND), (" waiting for the index", MUTED)]
     else:
-        status = [(spin, AMBER), (f" {secs:.1f}s", INK)]
+        status = [(spin, BRAND), (f" {secs:.1f}s", INK)]
     if replay:
-        status = [(f"⟲ replay ×{REPLAY_SPEED:g}  ", f"bold {AMBER}"), *status]
-    first: list[Part] = [("⌕ ", f"bold {AMBER}"), ("System 1 searches the workspace", f"bold {INK}")]
+        status = [(f"⟲ replay ×{REPLAY_SPEED:g}  ", f"bold {BRAND}"), *status]
+    first: list[Part] = [("⌕ ", f"bold {BRAND}"), ("System 1 searches the workspace", f"bold {INK}")]
     if state.scope:
         first.append((f"  under {state.scope}", MUTED))
     used = sum(len(p[0]) for p in first) + sum(len(p[0]) for p in status)
@@ -542,7 +542,7 @@ def stage_chips(state: FilesState, spin: str, sep: str, times: bool) -> list[Par
             if stage != "done" and times:
                 second.append((f" {took:.1f}s", MUTED))
         elif i == current and state.live:
-            second += [(f"{spin} ", AMBER), (STAGE_NAMES[stage], f"bold {INK}")]
+            second += [(f"{spin} ", BRAND), (STAGE_NAMES[stage], f"bold {INK}")]
         else:
             second += [("○ ", MUTED), (STAGE_NAMES[stage], MUTED)]
     return second
@@ -550,7 +550,7 @@ def stage_chips(state: FilesState, spin: str, sep: str, times: bool) -> list[Par
 
 def card(state: FilesState, frame: int) -> Content:
     """The search in one line: the folded panel."""
-    head: list[Part] = [("⌕ ", f"bold {AMBER}"), ("workspace search", f"bold {INK}")]
+    head: list[Part] = [("⌕ ", f"bold {BRAND}"), ("workspace search", f"bold {INK}")]
     t = state.last
     if state.status not in (None, "ok"):
         return Content.assemble(*head, ("  the search did not run (see the output)", MUTED))
@@ -569,7 +569,7 @@ def card(state: FilesState, frame: int) -> Content:
             parts += [("  ★ ", f"bold {GREEN}"), (top[0].path, f"bold {GREEN}"), (f" {top[0].score or 0:.2f}", GREEN)]
         return Content.assemble(*parts)
     stage = STAGE_NAMES[state.stage] if state.stage else "waiting for the index"
-    parts = [*head, (f" {SPINNER[frame % len(SPINNER)]}", AMBER), (f" {stage}", INK)]
+    parts = [*head, (f" {SPINNER[frame % len(SPINNER)]}", BRAND), (f" {stage}", INK)]
     if t is not None:
         parts.append((f" · {t.asks} asks", MUTED))
     top = state.top()
@@ -613,7 +613,6 @@ class FilesPanel(Vertical):
     FilesPanel {
         height: auto;
         background: $surface;
-        border-left: thick $warning;
         padding: 0 1;
     }
     FilesPanel Static {

@@ -179,8 +179,9 @@ straight to the conversation; `/clear` comes back to the page.
 **Look.** paper, ink and one accent, the Nace mint (`tui/theme.py`): an off-white page, white cards, hairline rules,
 near-black text, a warm gray for what is secondary; the accent for what is Intern's own (the wordmark's shadow, the
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
-cursors), deepened on the light look so it reads on paper; green only for what went right, amber for what needs a
-look, red for what went wrong. The mark is the mascot, the cube with eyes at the top of the README, in the ink in
+cursors, System 1's searches and compactions as they run), deepened on the light look so it reads on paper; green
+only for what went right, amber for what needs a look, red for what went wrong. The mark is the mascot, the cube
+with eyes at the top of the README, in the ink in
 both looks, twelve cells by six beside the block letters, in the masthead: the brand's cube scaled to those cells
 (`widgets.mark`, from `tui/sprites/mark.png`), its edges blended with the card, and its eyes put in by hand, a
 pixel wide and two tall (`widgets.EYE_PIXELS`), since eyes scaled to this size are a smudge; they glance and blink
@@ -298,27 +299,27 @@ between the call and its output: the code-search extension's own view ([extensio
 
 ```
  decision_code where are malformed tool call arguments from the model repaired before the tool runs?
- ▌ ⌕ System 1 walks the index                                                          ⠹ 2.0s
- ▌ ● descend 1.3s  ──  ⠹ parts  ──  ○ read  ──  ○ compare  ──  ○ ranked
- ▌ judging every part of the kept files by its card
- ▌
- ▌ ◉ src/intern                109 files       LEADERBOARD
- ▌ ├─ ◆ providers        ━━━┿━━━━━━━━━── 0.85 ✓        1 • providers/repair.py  ━━━━━─ 0.90
- ▌ │  ├─ ■ repair.py     ━━━┿━━━━━━━━━━─ 0.90 ✓        2 ▼ providers/fake.py    ━──── 0.30
- ▌ │  │  ├─ · def parse_arguments(  ━━━━━━━━━━━━─ 0.87
- ▌ │  │  └─ … 8 more parts, best 0.21                  COMPARE
- ▌ │  ├─ □ __init__.py   ━━━┼─────────── 0.26 ✗        The top files side by side, once their text …
- ▌ ├─ ◇ files 3/4, protocol  ━━━─────────── 0.05 ✗
- ▌ └─ … 7 more pruned, best 0.05                       SYSTEM 1
- ▌ ┿ cut (best × 0.25)  ✓ kept  ✗ pruned  ⊘ budget     folders 1/40   ▱▱▱▱▱▱▱▱▱▱
- ▌                                                     asks 62 · judged 191 · failed 0
- ▌ ▾ fold   ▾ 54 more rows   latest 0.11 async def MemoryActions.t…   0.10 def MemoryActions.ent…
+  ⌕ System 1 walks the index                                                          ⠹ 2.0s
+  ● descend 1.3s  ──  ⠹ parts  ──  ○ read  ──  ○ compare  ──  ○ ranked
+  judging every part of the kept files by its card
+
+  ◉ src/intern                109 files       LEADERBOARD
+  ├─ ◆ providers        ━━━┿━━━━━━━━━── 0.85 ✓        1 • providers/repair.py  ━━━━━─ 0.90
+  │  ├─ ■ repair.py     ━━━┿━━━━━━━━━━─ 0.90 ✓        2 ▼ providers/fake.py    ━──── 0.30
+  │  │  ├─ · def parse_arguments(  ━━━━━━━━━━━━─ 0.87
+  │  │  └─ … 8 more parts, best 0.21                  COMPARE
+  │  ├─ □ __init__.py   ━━━┼─────────── 0.26 ✗        The top files side by side, once their text …
+  ├─ ◇ files 3/4, protocol  ━━━─────────── 0.05 ✗
+  └─ … 7 more pruned, best 0.05                       SYSTEM 1
+  ┿ cut (best × 0.25)  ✓ kept  ✗ pruned  ⊘ budget     folders 1/40   ▱▱▱▱▱▱▱▱▱▱
+                                                      asks 62 · judged 191 · failed 0
+  ▾ fold   ▾ 54 more rows   latest 0.11 async def MemoryActions.t…   0.10 def MemoryActions.ent…
  running… 8s
 ```
 
 The tree grows top-down as System 1 judges each card: the folders and groups of files, best first, then
 the files of the groups kept, then every part of the kept files, then the text of the best parts. Each
-bar fills to System 1's probability, an amber dash runs along it while the card is being asked, and the
+bar fills to System 1's probability, a dash in the accent runs along it while the card is being asked, and the
 tick across a bar is the survivor rule's cut among its siblings (the best of them times the gap): what
 falls below it is pruned and dims, `⊘` marks a node kept but left when a budget ran out, `•` a part whose
 text was read (its text's probability beside it), and `★` the files and places of the result. A file's
@@ -340,24 +341,24 @@ same way, under the call: the workspace extension's view (`extensions/workspace/
 
 ```
  decision_files When did the board approve the Zorblax merger, and who compiled it?
- ▌ ⌕ System 1 searches the workspace                                              ✓ ranked in 2.1s
- ▌ ● walk ∥ bm25 1.2s  ──  ● judge 0.4s  ──  ● seeds → terms 0.0s  ──  ● judge 0.3s  ──  ● ranked
- ▌
- ▌ WALK  folders → files → parts                    BM25  top 100 of 146 passages
- ▌ ◉ .                              38 files          1   § board/minutes_march.md · Minutes  ━━━━━━ 0.92 ✦
- ▌ ├─ ◆ board, staff   ━━━━━┿━━━━━━─ 0.90 ✓           2 ◆ § staff/quill.md · Staff          ━━━━━─ 0.80 ✦
- ▌ │  ├─ ■ doc_0.md     ━━━━━┿━━━━━━─ 0.90 ✓           3   § finance/2023/doc_0.md · Section 0      0.00
- ▌ ╰─ 20 from the walk ──────────────────▶ ⚖ ◀──────────────── 100 from BM25 · 15 in both ─╯
- ▌ JUDGE  ▰▰▰▰▰▰▰▰▰▰ 150/150 passages  scores 0 ▇▁▁▁▁▁▁▁▂▃ 1
- ▌ SEEDS  ✦ ops/vendors/doc_2.md 0.98  ✦ ops/vendors/doc_4.md 0.94  … 8 more
- ▌ HOP    20 terms → 45 new passages, 43 in files the walk left
- ▌   board/minutes_march.md ─── ada quill  ▮▮▮▮▯▯ ──▶  2  ↯ staff/quill.md 0.80
- ▌
- ▌ RESULT  top 10, in diversity order                          SYSTEM 1
- ▌  1 ★ § ops/vendors/doc_2.md · Section 2  bm25    ━━━━━━ 0.98   asks 65 · judged 223
- ▌  2 ★ § board/minutes_march.md · Minutes  bm25    ━━━━━━ 0.92 ▲3 walk files 32/120
- ▌  6   § finance/2023/doc_0.md · Sect…     ↯ 2     ━━━━━━ 0.96 ▼4 passages 146 · 3 by card
- ▌ ▾ fold   ⟲ replay   ▾ 144 more rows   latest 0.43 · doc_4.md · Section 0
+  ⌕ System 1 searches the workspace                                              ✓ ranked in 2.1s
+  ● walk ∥ bm25 1.2s  ──  ● judge 0.4s  ──  ● seeds → terms 0.0s  ──  ● judge 0.3s  ──  ● ranked
+
+  WALK  folders → files → parts                    BM25  top 100 of 146 passages
+  ◉ .                              38 files          1   § board/minutes_march.md · Minutes  ━━━━━━ 0.92 ✦
+  ├─ ◆ board, staff   ━━━━━┿━━━━━━─ 0.90 ✓           2 ◆ § staff/quill.md · Staff          ━━━━━─ 0.80 ✦
+  │  ├─ ■ doc_0.md     ━━━━━┿━━━━━━─ 0.90 ✓           3   § finance/2023/doc_0.md · Section 0      0.00
+  ╰─ 20 from the walk ──────────────────▶ ⚖ ◀──────────────── 100 from BM25 · 15 in both ─╯
+  JUDGE  ▰▰▰▰▰▰▰▰▰▰ 150/150 passages  scores 0 ▇▁▁▁▁▁▁▁▂▃ 1
+  SEEDS  ✦ ops/vendors/doc_2.md 0.98  ✦ ops/vendors/doc_4.md 0.94  … 8 more
+  HOP    20 terms → 45 new passages, 43 in files the walk left
+    board/minutes_march.md ─── ada quill  ▮▮▮▮▯▯ ──▶  2  ↯ staff/quill.md 0.80
+
+  RESULT  top 10, in diversity order                          SYSTEM 1
+   1 ★ § ops/vendors/doc_2.md · Section 2  bm25    ━━━━━━ 0.98   asks 65 · judged 223
+   2 ★ § board/minutes_march.md · Minutes  bm25    ━━━━━━ 0.92 ▲3 walk files 32/120
+   6   § finance/2023/doc_0.md · Sect…     ↯ 2     ━━━━━━ 0.96 ▼4 passages 146 · 3 by card
+  ▾ fold   ⟲ replay   ▾ 144 more rows   latest 0.43 · doc_4.md · Section 0
 ```
 
 The two lanes run at once: on the left the walk's tree grows as `decision_code`'s does (the same drawing), on
