@@ -80,7 +80,7 @@ async def test_a_first_launch_connects_openrouter_then_takes_its_models_and_drex
         assert isinstance(screen, OnboardingScreen)
         about = str(screen.query_one("#setup-about").render())
         assert "Welcome to Intern" in about and "System" not in about
-        await pilot.press("enter", "down", "enter")  # welcome; how to run: my own keys
+        await pilot.press("enter", "enter", "down", "enter")  # welcome; the theme on screen; how to run: my own keys
         assert screen.step == "provider"
         assert screen.choices[0].id == "openrouter"  # recommended, first, among every other provider
         assert any(choice.id == "anthropic" for choice in screen.choices)
@@ -98,6 +98,7 @@ async def test_a_first_launch_connects_openrouter_then_takes_its_models_and_drex
         await wait_for(lambda: screen.step == "done")
         steps = [
             "welcome",
+            "theme",
             "how",
             "provider",
             "key",
@@ -154,7 +155,7 @@ async def test_choosing_your_own_asks_for_a_frontier_model_then_an_efficient_one
         await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
-        await pilot.press("enter", "down", "enter")  # welcome; my own keys
+        await pilot.press("enter", "enter", "down", "enter")  # welcome; the theme on screen; my own keys
         assert screen.choices[0].id == "openrouter" and screen.choices[0].group == "Ready to use"
         await pilot.press("enter", "enter")  # OpenRouter; the key already in the environment
         await wait_for(lambda: screen.step == "frontier")
@@ -191,7 +192,7 @@ async def test_another_provider_walks_through_frontier_efficient_and_the_decisio
         await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
-        await pilot.press("enter", "down", "enter")  # welcome; my own keys
+        await pilot.press("enter", "enter", "down", "enter")  # welcome; the theme on screen; my own keys
         assert screen.step == "provider"
         await pilot.press(*"anthropic", "enter")
         assert screen.step == "key"
@@ -225,7 +226,7 @@ async def test_the_efficient_model_can_be_on_another_provider_than_the_frontier_
         await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
-        await pilot.press("enter", "down", "enter", *"anthropic", "enter", *"sk-ant-test-key-123", "enter")
+        await pilot.press("enter", "enter", "down", "enter", *"anthropic", "enter", *"sk-ant-test-key-123", "enter")
         await wait_for(lambda: screen.step == "frontier")
         await pilot.press("enter")  # Claude Sonnet 5.5
         await pilot.press(*"openrouter", "enter")
@@ -253,7 +254,9 @@ async def test_skipping_the_efficient_model_runs_every_turn_on_the_frontier_mode
         await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
-        await pilot.press("enter", "down", "enter", "enter", "enter")  # welcome; my own keys; OpenRouter; its key
+        await pilot.press(
+            "enter", "enter", "down", "enter", "enter", "enter"
+        )  # welcome; the theme on screen; my own keys; OpenRouter; its key
         await wait_for(lambda: screen.step == "frontier")
         await pilot.press(*"hy4", "enter")
         assert screen.step == "provider" and screen.role == "efficient"
@@ -304,7 +307,7 @@ async def test_a_refused_key_keeps_the_step_and_says_how_to_fix_it(tmp_path: Pat
     app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
     async with app.run_test(size=SIZE) as pilot:
         app.push_screen(screen)
-        await pilot.press("enter", "down", "enter", "enter", *"sk-bad-key-000", "enter")
+        await pilot.press("enter", "enter", "down", "enter", "enter", *"sk-bad-key-000", "enter")
         await wait_for(lambda: bool(requests) and not screen.busy)
         await pilot.pause()
         assert screen.step == "key"
@@ -318,7 +321,7 @@ async def test_subscriptions_intern_cannot_sign_in_with_are_not_offered(tmp_path
     app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
     async with app.run_test(size=SIZE) as pilot:
         app.push_screen(screen)
-        await pilot.press("enter", "down", "enter")
+        await pilot.press("enter", "enter", "down", "enter")
         assert screen.step == "provider"
         assert "anthropic" in {choice.id for choice in screen.choices}
         assert not {"claude-subscription", "chatgpt", "copilot"} & {choice.id for choice in screen.choices}
