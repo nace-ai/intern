@@ -282,8 +282,11 @@ the run never showed is sent back to the writer or blanked.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
-  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: the frontier model writes its State into the compaction's card, the decision model judges the file reads being cut and keeps the three of six still being worked on, and a click opens the State.">
+  <img src="docs/assets/compaction-light.gif" alt="Terminal UI: /compact after a session that read twenty files of a made-up date library. The frontier model writes its State into the compaction card, the decision model keeps three of nine reads it is still working on, and a click opens the State with its plan.">
 </picture>
+
+_`/compact` over a session of twenty reads. The models' turns and the decision model's judgements are scripted;
+`tests/readme_gifs.py` makes it again._
 
 On `drex-max`, the reads the decision model keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83%
 with a `SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
@@ -328,11 +331,12 @@ Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
-  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. The decision model descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 90 asks, $0.0063.">
+  <img src="docs/assets/code-search-light.gif" alt="Terminal UI: decision_code searches Intern's own source for where a run that goes in circles is detected. The search tree grows under the call as the decision model scores folders, files and definitions, then the result ranks src/intern/supervise.py first at Supervisor.after_turn.">
 </picture>
 
 _Asked where this repository decides that a run is going in circles. "Circles" is in none of that code, so grep
-lands on the wrong files; `decision_code` puts `supervise.py` first, at the method that does it._
+lands on the wrong files; `decision_code` puts `supervise.py` first, at the method that does it. The frontier
+model's turns and the decision model's scores are scripted in the recording._
 
 <details>
 <summary><b>Benchmarks: SWE-bench Verified and CodeScaleBench</b></summary>
@@ -392,12 +396,13 @@ Default off. [Turn it on](docs/usage.md#workspace)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
-  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? The decision model walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 1.00. 13 asks, $0.0009.">
+  <img src="docs/assets/files-search-light.gif" alt="Terminal UI: decision_files searches seven made-up audit papers for whether the client was ever the victim of a scam or theft and what it cost. The walk and BM25 lanes fill, the decision model judges passages, the hop follows their terms, and the result ranks the fraud-risk questionnaire's page 1 first.">
 </picture>
 
 _Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder.
 "Victim", "scam" and "theft" are in none of its files; `decision_files` puts first the questionnaire page where
-management reports a 2021 cyber attack and its loss._
+management reports a 2021 cyber attack and its loss. The frontier model's turns and the decision model's judgements
+are scripted in the recording._
 
 <details>
 <summary><b>Benchmarks: OfficeQA Pro and HotpotQA</b></summary>
