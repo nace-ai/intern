@@ -70,6 +70,7 @@ async def test_a_first_launch_walks_through_both_models_and_opens_the_session_on
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
         await pilot.press("enter")  # welcome
+        await pilot.press(*"choose", "enter")  # each model yourself, not a recommended combination
         await pilot.press(*"anthropic", "enter")
         assert screen.step == "key"
         await pilot.press(*"sk-ant-test-key-123", "enter")
@@ -80,6 +81,8 @@ async def test_a_first_launch_walks_through_both_models_and_opens_the_session_on
         await pilot.press("enter")  # Drex Max, recommended and first
         assert screen.step == "system1-key"
         await pilot.press(*"sk-or-v1-test-key", "enter")
+        await wait_for(lambda: screen.step == "handoff")
+        await pilot.press("enter")  # Haiku, the cheaper sibling, preselected
         await wait_for(lambda: screen.step == "done")
         await pilot.press("enter")
         await wait_for(lambda: app.session is not None)
@@ -87,6 +90,7 @@ async def test_a_first_launch_walks_through_both_models_and_opens_the_session_on
 
     assert opened[-1].system2 == "anthropic/claude-sonnet-5-5"
     assert opened[-1].system1 == "decisions:nace-ai/drex-max"
+    assert opened[-1].auto
     config = tomllib.loads((home / "config.toml").read_text())
     assert config["system2"] == "anthropic/claude-sonnet-5-5"
     assert config["system1"] == {
@@ -95,6 +99,7 @@ async def test_a_first_launch_walks_through_both_models_and_opens_the_session_on
         "base_url": "https://openrouter.ai/api/v1",
         "api_key_env": "OPENROUTER_API_KEY",
     }
+    assert config["capabilities"] == {"handoff": {"to": "anthropic/claude-haiku-5-5"}}
     # Keys are kept out of config.toml, readable by the user only, and in use in this process at once.
     assert "sk-" not in (home / "config.toml").read_text()
     kept = read_env_file(home / ".env")
@@ -105,6 +110,70 @@ async def test_a_first_launch_walks_through_both_models_and_opens_the_session_on
     later = Bootstrap(Options(cwd=tmp_path), {**NO_KEYCHAIN, "INTERN_HOME": str(home), **kept})
     assert later.default_system2() == "anthropic/claude-sonnet-5-5"
     assert later.system1_choice() == "decisions:nace-ai/drex-max"
+    assert later.capability_settings().handoff.to == "anthropic/claude-haiku-5-5"
+
+
+async def test_a_recommended_combination_asks_only_for_the_key_it_lacks_and_saves_all_three_models(tmp_path: Path):
+    home = tmp_path / "home"
+    env = {**NO_KEYCHAIN}
+    requests: list[httpx.Request] = []
+    screen = OnboardingScreen(home=home, env=env, transport=provider(requests))
+    app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
+    async with app.run_test(size=SIZE) as pilot:
+        app.push_screen(screen)
+        await pilot.press("enter")  # welcome
+        assert screen.step == "recommended"
+        await pilot.press("enter")  # One key for everything, first
+        assert screen.step == "key"
+        await pilot.press(*"sk-or-v1-test-key", "enter")
+        # The same OpenRouter key runs System 1: no second key step, and no model steps.
+        await wait_for(lambda: screen.step == "done")
+        await app.action_quit()
+
+    assert screen.trail == ["welcome", "recommended", "key"]
+    config = tomllib.loads((home / "config.toml").read_text())
+    assert config["system2"] == "openrouter/anthropic/claude-sonnet-5.5"
+    assert config["system1"] == {
+        "backend": "decisions-api",
+        "model": "nace-ai/drex-max",
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key_env": "OPENROUTER_API_KEY",
+    }
+    assert config["capabilities"] == {"handoff": {"to": "openrouter/deepseek/deepseek-v4-flash"}}
+    assert "auto" not in config
+    assert read_env_file(home / ".env") == {"OPENROUTER_API_KEY": "sk-or-v1-test-key"}
+
+
+async def test_choosing_no_hand_over_writes_none_and_turns_auto_mode_off(tmp_path: Path):
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / "config.toml").write_text('[capabilities.handoff]\nto = "anthropic/claude-haiku-5-5"\nthreshold = 0.8\n')
+    env = {**NO_KEYCHAIN, "ANTHROPIC_API_KEY": "sk-ant-in-env", "OPENROUTER_API_KEY": "sk-or-v1-in-env"}
+
+    def listing(request: httpx.Request) -> httpx.Response:
+        # Anthropic lists no Haiku here: the cheaper sibling is not offered, and off is what Enter picks.
+        if request.url.host == "api.anthropic.com":
+            return httpx.Response(200, json={"data": [{"id": "claude-sonnet-5-5"}, {"id": "claude-opus-5-5"}]})
+        return provider([]).handle_request(request)
+
+    screen = OnboardingScreen(home=home, env=env, transport=httpx.MockTransport(listing))
+    app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
+    async with app.run_test(size=SIZE) as pilot:
+        app.push_screen(screen)
+        await pilot.press("enter", *"choose", "enter", *"anthropic", "enter", "enter")  # the key in the environment
+        await wait_for(lambda: screen.step == "model")
+        await pilot.press("enter", "enter", "enter")  # Sonnet, Drex Max, the OpenRouter key in the environment
+        await wait_for(lambda: screen.step == "handoff")
+        await pilot.press("enter")
+        await wait_for(lambda: screen.step == "done")
+        await app.action_quit()
+
+    config = tomllib.loads((home / "config.toml").read_text())
+    assert config["auto"] is False
+    assert config["capabilities"] == {"handoff": {"threshold": 0.8}}
+    later = Bootstrap(Options(cwd=tmp_path), {**env, "INTERN_HOME": str(home)})
+    assert later.capability_settings().handoff.to is None
+    assert later.config.auto is False
 
 
 async def test_a_refused_key_keeps_the_step_and_says_how_to_fix_it(tmp_path: Path):
@@ -114,7 +183,7 @@ async def test_a_refused_key_keeps_the_step_and_says_how_to_fix_it(tmp_path: Pat
     app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
     async with app.run_test(size=SIZE) as pilot:
         app.push_screen(screen)
-        await pilot.press("enter", *"anthropic", "enter", *"sk-bad-key-000", "enter")
+        await pilot.press("enter", *"choose", "enter", *"anthropic", "enter", *"sk-bad-key-000", "enter")
         await wait_for(lambda: bool(requests) and not screen.busy)
         await pilot.pause()
         assert screen.step == "key"
@@ -128,7 +197,7 @@ async def test_a_subscription_intern_cannot_sign_in_with_says_what_works_instead
     app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
     async with app.run_test(size=SIZE) as pilot:
         app.push_screen(screen)
-        await pilot.press("enter", *"claude pro", "enter")
+        await pilot.press("enter", *"choose", "enter", *"claude pro", "enter")
         assert screen.step == "unavailable"
         assert "API key" in str(screen.query_one("#setup-body").render())
         await pilot.press("enter")

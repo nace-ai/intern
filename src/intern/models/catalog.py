@@ -85,12 +85,34 @@ class HandoffChoices(BaseModel):
     """`[capabilities.handoff] to` (or `--handoff-to`); None when runs hand over to no model."""
 
 
+class KeyNeeded(BaseModel):
+    """A key a recommended combination runs on: its variable, the provider it is for, and where to make one."""
+
+    env: str
+    provider: str
+    url: str
+
+
+class RecommendedInfo(BaseModel):
+    """One of Nace's recommended own-key combinations (`onboarding.RECOMMENDED`), as the setup screens offer it."""
+
+    id: str
+    title: str
+    why: str
+    system2: str
+    handoff: str
+    system1: str
+    """As `--system1` and the `system1` list name it: `decisions:<model>` or a console model."""
+    keys: list[KeyNeeded]
+
+
 class Catalog(BaseModel):
     system2: list[ModelInfo]
     system1: list[ModelInfo]
     capabilities: list[CapabilityInfo] = []
     runners: list[RunnerInfo] = []
     handoff: HandoffChoices | None = None
+    recommended: list[RecommendedInfo] = []
 
 
 @dataclass(frozen=True)

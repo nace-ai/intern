@@ -428,13 +428,28 @@ with no price there costs 0, such as a Fireworks dedicated deployment, which is 
      "unavailable": "OpenSandbox needs $OPEN_SANDBOX_API_KEY; a server without a key takes api_key_env = \"\""}
   ],
   "handoff": {"models": ["anthropic/claude-haiku-5-5", "anthropic/claude-opus-5-5", "vllm/my-model"],
-              "default": "anthropic/claude-haiku-5-5"}
+              "default": "anthropic/claude-haiku-5-5"},
+  "recommended": [
+    {"id": "one-key", "title": "One key for everything", "why": "Claude Sonnet 5.5 does the work, ...",
+     "system2": "openrouter/anthropic/claude-sonnet-5.5", "handoff": "openrouter/deepseek/deepseek-v4-flash",
+     "system1": "decisions:nace-ai/drex-max",
+     "keys": [{"env": "OPENROUTER_API_KEY", "provider": "OpenRouter", "url": "https://openrouter.ai/settings/keys"}]},
+    {"id": "best-results", "...": "..."}, {"id": "free-models", "...": "..."}
+  ]
 }
 ```
 
 `handoff` (0.49.0 and later) lists the values of the [`handoff` option](#config-options) a session offers, less
 `off`: the configured target first, then the System 2 models. `default` is the configured target
 (`[capabilities.handoff] to`, or `--handoff-to`), absent when runs hand over to no model.
+
+`recommended` (0.51.0 and later) lists Nace's recommended combinations on a user's own keys, best first, the same
+list the terminal UI's setup offers first. It does not depend on the keys set or what the providers list. Each entry
+has `id`, `title`, `why` (one sentence to show under the title), `system2`, `handoff` and `system1`, named as a
+session takes them (`--system2`, the `handoff` option or `[capabilities.handoff] to`, and `--system1`, where a
+decisions-API model is `decisions:<model>`), and `keys`: every key it runs on, once each, in the order to ask for
+them, with `env` (the variable, as `intern secrets` names it), `provider` and `url` (where to make one). Today's ids
+are `one-key`, `best-results` and `free-models`; a client should show what is listed, not look for an id.
 
 `runners` lists the values of the [`runner` option](#runner), in its order: `default` marks the configured one, and
 `unavailable` (only when it cannot run here) says why. `capabilities` lists the [capability toggles](#capability-toggles) a session offers, in their order,
@@ -1478,3 +1493,13 @@ working, and `models --json` lists what it listed before until the console serve
   the request sent again, once.
 - `NACE_FREE_REFRESH_TOKEN`, like `NACE_API_KEY`, is a harness key: a `[secrets]` entry of that name is kept out of
   the agent's commands, and its value is redacted from what they print.
+
+### 0.51.0
+
+[`models --json`](#model-catalog) gains `recommended`: Nace's recommended combinations on a user's own keys (System 2,
+the hand-over model and System 1, each with the keys it needs), so a client's welcome flow offers the same list as the
+terminal UI's setup. Additive: 0.50.0 clients keep working and ignore the field.
+
+- The terminal UI's setup offers the combinations first, and asks for the hand-over model after System 1. What it
+  saves is `[capabilities.handoff] to`, which ACP sessions read too: a user who picks a hand-over model in the terminal
+  UI's setup gets it in the app as the `handoff` option's value.

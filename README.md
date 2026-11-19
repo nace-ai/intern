@@ -87,12 +87,14 @@ The [architecture](docs/architecture.md) has the details and the measurements be
 uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
 ```
 
-Then run `intern`. The first time, it opens on a short setup that explains what Intern is and connects both of its
-models: pick a provider for System 2 (Anthropic, OpenAI, OpenRouter, Gemini, xAI, DeepSeek, Mistral, Groq and 12
-more, or a model on your machine), paste a key (or sign in to OpenRouter in the browser), and pick System 1: the
-setup offers Drex Max on OpenRouter first, on the OpenRouter key you already gave, and Drex from the Nace console
-next. Keys go to your system keychain, your picks to `~/.intern/config.toml`; `/setup` brings the screen back any
-time.
+Then run `intern`. The first time, it opens on a short setup that explains what Intern is and connects its models.
+It offers our recommended combinations first, such as Claude Sonnet 5.5 handing over to DeepSeek V4 Flash with Drex
+Max judging, all on one OpenRouter key, and asks only for the keys a combination needs. Or pick each yourself: a
+provider for System 2 (Anthropic, OpenAI, OpenRouter, Gemini, xAI, DeepSeek, Mistral, Groq and 12 more, or a model on
+your machine), a key (or sign in to OpenRouter in the browser), System 1 (Drex Max on OpenRouter first, on the
+OpenRouter key you already gave, and Drex from the Nace console next), and the cheaper model a run
+[hands over](#hand-over) to, or none. Keys go to your system keychain, your picks to `~/.intern/config.toml`;
+`/setup` brings the screen back any time.
 
 Or give it a task straight away, with one OpenRouter key for both models:
 

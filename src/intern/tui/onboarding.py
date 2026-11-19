@@ -1,9 +1,9 @@
 """The setup screen: what `intern` opens on when it has no models to run on, and what `/setup` brings back.
 
                          ▗▄▄ INTERN ▄▄▖            (the wordmark)
-            ● Welcome ── ○ System 2 ── ○ System 1 ── ○ Ready
+    ✓ Welcome ── ✓ Recommended ── ● System 2 ── ○ System 1 ── ○ Hand-over ── ○ Ready
     ╭────────────────────────────────────────────────────────────╮
-    │ Step 1 of 2 · System 2, the agent model                    │
+    │ Step 1 of 3 · System 2, the agent model                    │
     │ System 2 does the work: it reads, reasons and calls tools. │
     │ ┌ Filter… ───────────────────────────────────────────────┐ │
     │ POPULAR                                                    │
@@ -13,12 +13,14 @@
     ╰────────────────────────────────────────────────────────────╯
              Enter continues · Esc goes back · Ctrl+O opens the key page
 
-It explains what Intern is, then walks through the two models it needs: System 2's provider, its key (checked with
-the provider before it is kept) and its model; then System 1's decision model and its key, Drex Max on OpenRouter
-first, reusing an OpenRouter key already given. Nothing on it is an error to read and give up on: a refused key, a
-server that does not answer or a subscription Intern cannot sign in with each says what to do instead, on the step
-it happened. The last step saves (`onboarding.save`) and the screen dismisses with what it saved, for the app to
-open the session on.
+It explains what Intern is, then offers Nace's recommended combinations (`onboarding.RECOMMENDED`): picking one sets
+System 2, the model it hands over to and System 1, and asks only for the keys not already there. Or it walks through
+each in turn: System 2's provider, its key (checked with the provider before it is kept) and its model; then System
+1's decision model and its key, Drex Max on OpenRouter first, reusing an OpenRouter key already given; then the
+cheaper model runs hand over to, the provider's own sibling first and off last. Nothing on it is an error to read and
+give up on: a refused key, a server that does not answer or a subscription Intern cannot sign in with each says what
+to do instead, on the step it happened. The last step saves (`onboarding.save`) and the screen dismisses with what it
+saved, for the app to open the session on.
 """
 
 from __future__ import annotations
@@ -42,38 +44,62 @@ from textual.widgets.option_list import Option
 from intern import names
 from intern.models.registry import PROVIDERS, ProviderSpec
 from intern.onboarding import (
+    HANDOFF_OWN_KEYS,
     PROVIDER_BY_ID,
+    RECOMMENDED,
     SYSTEM1_BY_ID,
     SYSTEM1_OPTIONS,
     SYSTEM2_PROVIDERS,
     KeyCheck,
     OpenRouterSignIn,
     ProviderOption,
+    Recommendation,
     Saved,
     Setup,
     SignInFailed,
     System1Option,
     check_system1,
     check_system2,
+    handoff_suggestion,
     key_found,
     save,
     suggested_models,
 )
 from intern.secret_store import MIN_SECRET_CHARS
-from intern.tui.pickers import Choice, fit, ranked
+from intern.tui.pickers import Choice, Stacked, fit, ranked
 from intern.tui.theme import BRAND, S_HEAD, S_INK, S_MUTED, S_MUTED_ITALIC, S_OK, S_OK_BOLD, S_WARN
 from intern.tui.welcome import ABOUT, Mascot, wordmark
 
 Step = Literal[
-    "welcome", "provider", "unavailable", "address", "key", "model", "system1", "system1-key", "system1-model", "done"
+    "welcome",
+    "recommended",
+    "provider",
+    "unavailable",
+    "address",
+    "key",
+    "model",
+    "system1",
+    "system1-key",
+    "system1-model",
+    "handoff",
+    "done",
 ]
 STAGES: tuple[tuple[str, tuple[Step, ...]], ...] = (
     ("Welcome", ("welcome",)),
-    ("System 2 · the agent", ("provider", "unavailable", "address", "key", "model")),
-    ("System 1 · the judge", ("system1", "system1-key", "system1-model")),
+    ("Recommended", ("recommended",)),
+    ("System 2", ("provider", "unavailable", "address", "key", "model")),
+    ("System 1", ("system1", "system1-key", "system1-model")),
+    ("Hand-over", ("handoff",)),
     ("Ready", ("done",)),
 )
 """The steps as the progress line shows them."""
+LISTING: tuple[Step, ...] = ("recommended", "provider", "model", "system1", "system1-model", "handoff")
+TYPED: tuple[Step, ...] = ("model", "system1-model", "handoff")
+"""Listing steps where a name typed that is not listed is used as is."""
+CHOOSE = "choose"
+HANDOFF_OFF = "off"
+RECOMMENDED_WHY = {r.id: r.why for r in RECOMMENDED}
+"""Under each recommended row, indented: too long for the note beside it."""
 LABEL_WIDTH = 34
 NONE = ProviderOption("", "", "", "")
 ROOMY_ROWS = 56
@@ -126,6 +152,8 @@ class OnboardingScreen(Screen[Onboarded | None]):
         self.option: System1Option | None = None
         self.system1_listed: tuple[str, ...] = ()
         self.system1_model = ""
+        self.recommendation: Recommendation | None = None
+        self.handoff: str | None = None
         self.keys: dict[str, str] = {}
         self.choices: list[Choice] = []
         self.saved: Onboarded | None = None
@@ -170,7 +198,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
             self.query_one("#setup-options", OptionList),
             self.query_one("#setup-input", Input),
         )
-        listing = step in ("provider", "model", "system1", "system1-model")
+        listing = step in LISTING
         self.query_one("#setup-wordmark").display = not listing or self.app.size.height >= ROOMY_ROWS
         filter_line.display = options.display = listing
         line.display = step in ("address", "key", "system1-key")
@@ -207,7 +235,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
         }.get(self.step, "Enter continues · Esc goes back")
         if self.step in ("key", "system1-key"):
             keys += " · Ctrl+O opens the key page"
-        if self.step in ("model", "system1-model"):
+        if self.step in TYPED:
             keys += " · a typed name that is not listed is used as is"
         return Content.styled(keys, S_MUTED)
 
@@ -223,6 +251,22 @@ class OnboardingScreen(Screen[Onboarded | None]):
         )
         return "", Content("")
 
+    def _recommended(self) -> tuple[str, Content]:
+        self.choices = []
+        for r in RECOMMENDED:
+            missing = [key.provider for key in r.keys if not self._key_present(key.env)]
+            keys = f"needs {' and '.join(missing)} key{'s' if len(missing) > 1 else ''}" if missing else "✓ keys found"
+            self.choices.append(Choice(r.id, r.title, "Recommended", note=keys))
+        self.choices.append(Choice(CHOOSE, "Choose each yourself", "Or", note="any provider, any models"))
+        body = Content.assemble(
+            ("Intern runs on three models: ", S_INK),
+            ("System 2", S_HEAD),
+            (" does the work, a cheaper model finishes it once the hard part is done, and ", S_INK),
+            ("System 1", S_HEAD),
+            (" keeps both on track. Pick one of our combinations and add only the keys it needs.", S_INK),
+        )
+        return "Recommended combinations", body
+
     def _provider(self) -> tuple[str, Content]:
         self.choices = self._provider_choices()
         body = Content.assemble(
@@ -230,7 +274,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
             ("/system2", S_HEAD),
             (" changes it any time.", S_INK),
         )
-        return "Step 1 of 2 · System 2, the agent model", body
+        return "Step 1 of 3 · System 2, the agent model", body
 
     def _provider_choices(self) -> list[Choice]:
         ready = [p for p in SYSTEM2_PROVIDERS if p.kind == "key" and self._key_present(p.key_env)]
@@ -325,7 +369,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
             ("Drex Max", S_HEAD),
             (" is #1 on Artificial Analysis and the one we recommend.", S_INK),
         )
-        return "Step 2 of 2 · System 1, the decision model", body
+        return "Step 2 of 3 · System 1, the decision model", body
 
     def _system1_key(self) -> tuple[str, Content]:
         assert self.option is not None
@@ -339,11 +383,31 @@ class OnboardingScreen(Screen[Onboarded | None]):
         said = "Pick a decision model." if self.choices else "Type the decision model's id, e.g. nace-ai/drex-max."
         return "System 1's decision model", Content.styled(said, S_INK)
 
+    def _handoff(self) -> tuple[str, Content]:
+        provider_id = self.system2.partition("/")[0]
+        option = PROVIDER_BY_ID.get(provider_id)
+        listed = self.listed if self.provider is not None else ()
+        suggestion = handoff_suggestion(self.system2, listed)
+        self.choices = []
+        if suggestion:
+            note = "★ recommended · same family, cheaper"
+            self.choices.append(Choice(suggestion, suggestion.partition("/")[2], "Recommended", note=note))
+        if option is not None:
+            for model in suggested_models(option, listed):
+                ref = f"{provider_id}/{model}"
+                if ref not in (suggestion, self.system2):
+                    group = "Suggested" if model in option.suggested else f"Listed by {option.name}"
+                    self.choices.append(Choice(ref, model, group))
+        self.choices.append(Choice(HANDOFF_OFF, "off", "No hand-over", note="System 2 runs every step"))
+        body = Content.assemble((HANDOFF_OWN_KEYS + " ", S_INK), ("/auto", S_HEAD), (" changes it any time.", S_INK))
+        return "Step 3 of 3 · Hand-over, the model that finishes", body
+
     def _done(self) -> tuple[str, Content]:
         assert self.saved is not None
         setup, saved = self.saved.setup, self.saved.saved
         rows: list[tuple[str, str]] = [
             ("System 2", setup.system2),
+            ("Hand-over", setup.handoff or "off"),
             ("System 1", f"{setup.system1.name.split(' · ')[0]} ({setup.system1_choice.removeprefix('decisions:')})"),
         ]
         where = {"keychain": "system keychain", "env-file": f"{names.HOME}/.env (yours only)"}
@@ -382,13 +446,18 @@ class OnboardingScreen(Screen[Onboarded | None]):
                 (fit(choice.name, LABEL_WIDTH), S_MUTED if unavailable else S_HEAD),
                 ("  " + choice.note, S_MUTED_ITALIC if unavailable else S_MUTED),
             ]
-            options.add_option(Option(Content.assemble(*parts), id=choice.id))
+            head = Content.assemble(*parts)
+            why = RECOMMENDED_WHY.get(choice.id, "") if self.step == "recommended" else ""
+            prompt = Stacked(head, Content.styled(why, S_INK), 4) if why else head
+            options.add_option(Option(prompt, id=choice.id))
             first = options.option_count - 1 if first is None else first
         if not shown:
-            typed = self.step in ("model", "system1-model")
+            typed = self.step in TYPED
             none = "nothing listed matches; Enter uses what you typed" if typed else "nothing listed matches"
             options.add_option(Option(Content.styled(none, S_MUTED), disabled=True))
         options.highlighted = first
+        if self.step == "handoff" and not query and self.choices[0].group != "Recommended":
+            options.highlighted = options.get_option_index(HANDOFF_OFF)  # nothing to recommend: off, not any model
 
     @on(Input.Changed, "#setup-filter")
     def _on_filter(self, message: Input.Changed) -> None:
@@ -399,8 +468,9 @@ class OnboardingScreen(Screen[Onboarded | None]):
         highlighted = self.query_one("#setup-options", OptionList).highlighted_option
         if highlighted is not None and highlighted.id is not None:
             self._picked(highlighted.id)
-        elif message.value.strip() and self.step in ("model", "system1-model"):
-            self._picked(message.value.strip())
+        elif message.value.strip() and self.step in TYPED:
+            typed = message.value.strip()
+            self._picked(f"{self.system2.partition('/')[0]}/{typed}" if self.step == "handoff" else typed)
 
     @on(OptionList.OptionSelected, "#setup-options")
     def _on_pick(self, message: OptionList.OptionSelected) -> None:
@@ -455,7 +525,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
         if event.key == "enter" and self.step in ("welcome", "done", "unavailable"):
             event.stop()
             if self.step == "welcome":
-                self._go("provider")
+                self._go("recommended")
             elif self.step == "unavailable":
                 self.action_back()
             else:
@@ -465,6 +535,15 @@ class OnboardingScreen(Screen[Onboarded | None]):
         if self.busy:
             return
         match self.step:
+            case "recommended":
+                self.recommendation = next((r for r in RECOMMENDED if r.id == picked), None)
+                if self.recommendation is None:
+                    self._go("provider")
+                    return
+                r = self.recommendation
+                self.provider, self.listed, self.address = r.provider, (), ""
+                self.system2, self.option, self.system1_model, self.handoff = r.system2, r.system1_option, "", r.handoff
+                self._recommended_next()
             case "provider":
                 option = next(p for p in SYSTEM2_PROVIDERS if p.id == picked)
                 self.provider, self.listed, self.address = option, (), ""
@@ -486,7 +565,20 @@ class OnboardingScreen(Screen[Onboarded | None]):
                     self._go("system1-key")
             case "system1-model":
                 self.system1_model = picked
+                self._go("handoff")
+            case "handoff":
+                self.handoff = None if picked == HANDOFF_OFF else picked
                 self._finish()
+
+    def _recommended_next(self, status: Content | str = "") -> None:
+        """On a recommended combination, the next key it still needs, System 2's then System 1's; then save."""
+        assert self.provider is not None and self.option is not None
+        if not self._key_present(self.provider.key_env):
+            self._go("key", status)
+        elif not self._key_present(self.option.key_env):
+            self._go("system1-key", status)
+        else:
+            self._finish()
 
     @on(Input.Submitted, "#setup-input")
     def _on_line(self, message: Input.Submitted) -> None:
@@ -574,7 +666,10 @@ class OnboardingScreen(Screen[Onboarded | None]):
         if key:
             self.keys[self._key_env()] = key
         self.listed = found.models
-        self._go("model", self._kept(found))
+        if self.recommendation is not None:
+            self._recommended_next(self._kept(found))
+        else:
+            self._go("model", self._kept(found))
 
     def _fix(self, found: KeyCheck, *, local: bool) -> str:
         if local:
@@ -603,8 +698,11 @@ class OnboardingScreen(Screen[Onboarded | None]):
     def _after_system1_key(self, key: str, checked: KeyCheck | None) -> None:
         assert self.option is not None
         self.keys[self.option.key_env] = key
-        if self.option.model:
+        if self.option.model and self.recommendation is not None:
             self._finish()
+            return
+        if self.option.model:
+            self._go("handoff", self._kept(checked) if checked is not None else "")
             return
         if checked is not None:
             self.system1_listed = checked.models
@@ -638,7 +736,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
                 provider = PROVIDERS[self.provider.id].model_copy(update={"base_url": self.address})
         # A key typed in that is already exported with the same value needs no keeping.
         keys = {name: value for name, value in self.keys.items() if self.env.get(name) != value}
-        setup = Setup(self.system2, self.option, self.system1_model, keys, provider)
+        setup = Setup(self.system2, self.option, self.system1_model, keys, provider, self.handoff)
         self.busy = True
         self._status("Saving…")
         try:

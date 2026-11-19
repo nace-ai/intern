@@ -1287,6 +1287,10 @@ class HarnessApp(App[None]):
         self._setup.configured(done.setup.keys)
         before = Models(**vars(self.pending))
         self.pending.system2, self.pending.system1 = done.setup.system2, done.setup.system1_choice
+        self.pending.auto = done.setup.handoff is not None
+        if (caps := self.pending.capabilities) is not None:
+            handoff = caps.handoff.model_copy(update={"to": done.setup.handoff})
+            self.pending.capabilities = caps.model_copy(update={"handoff": handoff})
         if self._load_catalog is not None:
             self.run_worker(self._fetch_catalog(), name="catalog", exit_on_error=False)
         if self.session is None:

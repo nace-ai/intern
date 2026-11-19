@@ -1,11 +1,12 @@
 """First-run setup: what a new user connects before Intern can open a session, and where it is kept.
 
 Intern needs two models: System 2, the agent, on any provider; System 1, the decision model, on the decisions API
-(OpenRouter) or the Nace console. The terminal UI's setup screen (`tui/onboarding.py`) walks through both and this
-module does the work behind it, with no UI:
+(OpenRouter) or the Nace console. A third, the cheaper model a run hands over to, is optional. The terminal UI's setup
+screen (`tui/onboarding.py`) walks through them and this module does the work behind it, with no UI:
 
+- `RECOMMENDED`: Nace's recommended combinations of the three, offered first, each with the keys it needs.
 - `SYSTEM2_PROVIDERS`: every way to reach a System 2, grouped as the screen lists them, each with the variable its
-  key lives in, where to make one and the models to suggest first.
+  key lives in, where to make one, the models to suggest first and the cheaper sibling to hand over to.
 - `SYSTEM1_OPTIONS`: the decision models to pick from, Drex Max on OpenRouter first.
 - `check_key`: ask the provider whether a key works before keeping it, and list its models while at it.
 - `save`: keep each key (the OS keychain, named in `[secrets]`; `.env` in the config home where there is no
@@ -35,7 +36,7 @@ import tomlkit
 from tomlkit.items import Table
 
 from intern.config import CONFIG_FILE, DEFAULT_SYSTEM1_MODEL, ENV_FILE
-from intern.models.catalog import DECISIONS_PREFIX, NACE_CONSOLE_URL
+from intern.models.catalog import DECISIONS_PREFIX, NACE_CONSOLE_URL, KeyNeeded, RecommendedInfo
 from intern.models.registry import PROVIDERS, ConfigError, ProviderSpec
 from intern.models.window import ANTHROPIC_API_VERSION
 from intern.secret_store import SecretFailure
@@ -65,6 +66,8 @@ class ProviderOption:
     """Why it cannot be picked yet, said in full when it is chosen."""
     badge: str = ""
     """The same in a word or two, on its row."""
+    handoff_suggested: str = ""
+    """The cheaper sibling a run on this provider hands over to, offered first at the hand-over step."""
 
     @property
     def base_url(self) -> str:
@@ -89,6 +92,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         key_env="ANTHROPIC_API_KEY",
         key_url="https://console.anthropic.com/settings/keys",
         suggested=("claude-sonnet-5-5", "claude-haiku-5-5", "claude-opus-5-5"),
+        handoff_suggested="claude-haiku-5-5",
     ),
     ProviderOption(
         "openrouter",
@@ -98,6 +102,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         key_env="OPENROUTER_API_KEY",
         key_url="https://openrouter.ai/settings/keys",
         suggested=("qwen/qwen3.8-27b", "anthropic/claude-sonnet-5.5", "openai/gpt-5.5"),
+        handoff_suggested="deepseek/deepseek-v4-flash",
     ),
     ProviderOption(
         "openai",
@@ -107,6 +112,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         key_env="OPENAI_API_KEY",
         key_url="https://platform.openai.com/api-keys",
         suggested=("gpt-5.5", "gpt-5.4", "gpt-5"),
+        handoff_suggested="gpt-5.4-mini",
     ),
     ProviderOption(
         "gemini",
@@ -116,6 +122,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         key_env="GEMINI_API_KEY",
         key_url="https://aistudio.google.com/apikey",
         suggested=("gemini-3-pro", "gemini-3-flash", "gemini-2.5-pro", "gemini-2.5-flash"),
+        handoff_suggested="gemini-3-flash",
     ),
     ProviderOption(
         "claude-subscription",
@@ -162,6 +169,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         key_env="XAI_API_KEY",
         key_url="https://console.x.ai",
         suggested=("grok-4", "grok-code-fast-1"),
+        handoff_suggested="grok-code-fast-1",
     ),
     ProviderOption(
         "deepseek",
@@ -180,6 +188,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         key_env="MISTRAL_API_KEY",
         key_url="https://console.mistral.ai/api-keys",
         suggested=("devstral-medium-latest", "mistral-medium-latest", "devstral-small-latest"),
+        handoff_suggested="devstral-small-latest",
     ),
     ProviderOption(
         "groq",
@@ -207,6 +216,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         key_env="FIREWORKS_API_KEY",
         key_url="https://app.fireworks.ai/settings/users/api-keys",
         suggested=("accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b",),
+        handoff_suggested="accounts/fireworks/models/deepseek-v4p1-flash-1017",
     ),
     ProviderOption(
         "together",
@@ -241,6 +251,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         key_env="ZAI_API_KEY",
         key_url="https://z.ai/manage-apikey/apikey-list",
         suggested=("glm-4.6", "glm-4.5-air"),
+        handoff_suggested="glm-4.5-air",
     ),
     ProviderOption(
         "minimax",
@@ -368,6 +379,100 @@ SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
     ),
 )
 SYSTEM1_BY_ID = {option.id: option for option in SYSTEM1_OPTIONS}
+
+
+@dataclass(frozen=True)
+class Recommendation:
+    """One of Nace's recommended combinations on a user's own keys: System 2, the model it hands over to, System 1."""
+
+    id: str
+    title: str
+    why: str
+    system2: str
+    handoff: str
+    system1: str
+    """A `SYSTEM1_OPTIONS` id."""
+
+    @property
+    def provider(self) -> ProviderOption:
+        return PROVIDER_BY_ID[self.system2.partition("/")[0]]
+
+    @property
+    def system1_option(self) -> System1Option:
+        return SYSTEM1_BY_ID[self.system1]
+
+    @property
+    def keys(self) -> tuple[KeyNeeded, ...]:
+        """The keys it runs on, one per variable: System 2's, the hand-over model's and System 1's."""
+        handoff = PROVIDER_BY_ID[self.handoff.partition("/")[0]]
+        s1 = self.system1_option
+        where = "OpenRouter" if s1.backend == "decisions-api" else "Nace AI"
+        needed = [
+            KeyNeeded(env=self.provider.key_env, provider=self.provider.name, url=self.provider.key_url),
+            KeyNeeded(env=handoff.key_env, provider=handoff.name, url=handoff.key_url),
+            KeyNeeded(env=s1.key_env, provider=where, url=s1.key_url),
+        ]
+        unique: dict[str, KeyNeeded] = {}
+        for key in needed:
+            unique.setdefault(key.env, key)
+        return tuple(unique.values())
+
+    def info(self) -> RecommendedInfo:
+        return RecommendedInfo(
+            id=self.id,
+            title=self.title,
+            why=self.why,
+            system2=self.system2,
+            handoff=self.handoff,
+            system1=self.system1_option.choice,
+            keys=list(self.keys),
+        )
+
+
+RECOMMENDED: tuple[Recommendation, ...] = (
+    Recommendation(
+        "one-key",
+        "One key for everything",
+        "Claude Sonnet 5.5 does the work, DeepSeek V4 Flash finishes it and Drex Max judges, all on one OpenRouter key",
+        "openrouter/anthropic/claude-sonnet-5.5",
+        "openrouter/deepseek/deepseek-v4-flash",
+        "drex-max",
+    ),
+    Recommendation(
+        "best-results",
+        "Best results",
+        "Claude Sonnet 5.5 does the work and Claude Haiku 5.5, from the same family, finishes it; Drex Max judges",
+        "anthropic/claude-sonnet-5-5",
+        "anthropic/claude-haiku-5-5",
+        "drex-max",
+    ),
+    Recommendation(
+        "free-models",
+        "Same as the free credit",
+        "GLM 5.3 does the work, DeepSeek V4.1 Flash finishes it and Drex judges: the free credit's models on your keys",
+        "fireworks/accounts/fireworks/models/glm-5p3",
+        "fireworks/accounts/fireworks/models/deepseek-v4p1-flash-1017",
+        "drex-console",
+    ),
+)
+"""Offered first on the own-keys path of the terminal UI's setup, and in the app through `models --json`."""
+
+HANDOFF_OWN_KEYS = (
+    "Pick the model that finishes a task once the hard part is done. A smaller model from the same family works best. "
+    "Turn it off to keep every step on System 2."
+)
+"""What the hand-over step says; the app's welcome flow says the same."""
+
+
+def handoff_suggestion(system2: str, listed: tuple[str, ...] = ()) -> str | None:
+    """The model to offer first for System 2 to hand over to: its provider's cheaper sibling, when the provider lists
+    it (or listed nothing) and it is not System 2 itself; None otherwise."""
+    provider = system2.partition("/")[0]
+    option = PROVIDER_BY_ID.get(provider)
+    if option is None or not option.handoff_suggested or (listed and option.handoff_suggested not in listed):
+        return None
+    suggestion = f"{provider}/{option.handoff_suggested}"
+    return suggestion if suggestion != system2 else None
 
 
 @dataclass(frozen=True)
@@ -604,6 +709,8 @@ class Setup:
     """Keys typed in, by variable, to keep; not those already set in the environment."""
     provider: ProviderSpec | None = None
     """A provider to write to `[providers.<id>]`: a custom endpoint, or a local server at another address."""
+    handoff: str | None = None
+    """The `provider/model` runs hand over to; None for no hand-over."""
 
     @property
     def system1_choice(self) -> str:
@@ -611,21 +718,42 @@ class Setup:
         return f"{DECISIONS_PREFIX}{model}" if self.system1.backend == "decisions-api" else model
 
 
-def _table(document: tomlkit.TOMLDocument, *names: str) -> Table:
+def _table(document: tomlkit.TOMLDocument | Table, *names: str, super_table: bool = False) -> Table:
     """The first of `names` the document has as a table (an old name for it included), else a new one under the
     first name."""
     for name in names:
         existing = document.get(name)
         if isinstance(existing, Table):
             return existing
-    created = tomlkit.table()
+    created = tomlkit.table(is_super_table=super_table)
     document[names[0]] = created
     return created
 
 
+def _write_handoff(document: tomlkit.TOMLDocument, handoff: str | None) -> None:
+    """A hand-over model is `[capabilities.handoff] to`, with auto mode on; none is no `to`, and auto mode off, so
+    the terminal UI does not hand over to its default either. The table's other settings stay."""
+    if handoff:
+        _table(_table(document, "capabilities", super_table=True), "handoff")["to"] = handoff
+        if "auto" in document:
+            del document["auto"]
+        return
+    document["auto"] = False
+    capabilities = document.get("capabilities")
+    if not isinstance(capabilities, Table) or not isinstance(table := capabilities.get("handoff"), Table):
+        return
+    if "to" in table:
+        del table["to"]
+    if not table:
+        del capabilities["handoff"]
+    if not capabilities:
+        del document["capabilities"]
+
+
 def write_config(home: Path, setup: Setup) -> Path:
     """Write the picks to `config.toml`: `system2`, the `[system1]` table's backend and model (and where its key
-    is), and a `[providers]` entry when one is needed. Everything else in the file stays as it was."""
+    is), the hand-over model, and a `[providers]` entry when one is needed. Everything else in the file stays as it
+    was."""
     path = home / CONFIG_FILE
     document = tomlkit.parse(path.read_text()) if path.is_file() else tomlkit.document()
     if "model" in document:
@@ -650,6 +778,7 @@ def write_config(home: Path, setup: Setup) -> Path:
             entry[key] = value
         entry["base_url"] = setup.provider.base_url
         providers[provider_id] = entry
+    _write_handoff(document, setup.handoff)
     home.mkdir(parents=True, exist_ok=True)
     path.write_text(tomlkit.dumps(document))
     return path

@@ -622,12 +622,15 @@ class Bootstrap:
             models=list(dict.fromkeys([*([target] if target else []), *(model.id for model in catalog.system2)])),
             default=target,
         )
+        from intern.onboarding import RECOMMENDED  # onboarding imports this module
+
         return catalog.model_copy(
             update={
                 "system2": [marked(model) for model in catalog.system2],
                 "capabilities": capabilities,
                 "runners": runner_choices(caps.runner),
                 "handoff": handoff,
+                "recommended": [recommendation.info() for recommendation in RECOMMENDED],
             }
         )
 
