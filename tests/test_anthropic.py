@@ -74,10 +74,10 @@ def test_thinking_blocks_are_kept_with_signatures_and_replayed_only_to_their_mod
     ]
     assert message.tool_calls == [ToolCall(id="t1", name="bash", arguments={"command": "ls"})]
 
-    _, wire = wire_messages([UserMessage(content="go"), message], provider.endpoint.ref)
+    _, wire, _ = wire_messages([UserMessage(content="go"), message], provider.endpoint.ref)
     assert [b["type"] for b in wire[1]["content"]] == ["thinking", "redacted_thinking", "tool_use"]
     other = AssistantMessage(text="hi", reasoning_blocks=message.reasoning_blocks, model="anthropic/other")
-    _, wire = wire_messages([UserMessage(content="go"), other], provider.endpoint.ref)
+    _, wire, _ = wire_messages([UserMessage(content="go"), other], provider.endpoint.ref)
     assert [b["type"] for b in wire[1]["content"]] == ["text"]
 
 
@@ -103,10 +103,22 @@ def test_extra_body_merges_one_level_deep():
 
 def test_cache_marks_never_reach_the_stored_reply():
     reply = AssistantMessage(reasoning_blocks=[{"type": "thinking", "thinking": "t", "signature": "s"}], model=REF)
-    system, wire = wire_messages([UserMessage(content="go"), reply], REF)
-    mark_cache(system, wire)
+    system, wire, own_reply = wire_messages([UserMessage(content="go"), reply], REF)
+    mark_cache(system, wire, own_reply)
     assert wire[-1]["content"][-1]["cache_control"] == {"type": "ephemeral"}
     assert "cache_control" not in reply.reasoning_blocks[0]
+
+
+def test_after_another_models_turns_the_cache_is_marked_where_the_models_own_last_request_ended():
+    """A hand-over's turns are more blocks than the API looks back across: without this mark the model that comes
+    back writes its whole prompt to the cache again instead of reading what it wrote before the hand-over."""
+    own = AssistantMessage(text="built", model=REF)
+    theirs = [AssistantMessage(text=f"fix {i}", model="anthropic/other") for i in range(3)]
+    turns = [m for reply in theirs for m in (reply, UserMessage(content="go on"))]
+    system, wire, own_reply = wire_messages([UserMessage(content="task"), own, UserMessage(content="ok"), *turns], REF)
+    mark_cache(system, wire, own_reply)
+    marked = [i for i, m in enumerate(wire) if "cache_control" in m["content"][-1]]
+    assert marked == [0, len(wire) - 1]  # the request the model sent before "built", and this one's end
 
 
 async def test_an_overloaded_stream_is_retried_before_any_output():

@@ -92,8 +92,11 @@ def tool_result_content(content: str, images: list[ImagePart]) -> str | list[Blo
     return blocks
 
 
-def wire_messages(messages: list[Message], model_ref: str | None = None) -> tuple[list[Block], list[WireMessage]]:
-    """Split out the system prompt and turn the rest into alternating user and assistant turns.
+def wire_messages(
+    messages: list[Message], model_ref: str | None = None
+) -> tuple[list[Block], list[WireMessage], int | None]:
+    """Split out the system prompt and turn the rest into alternating user and assistant turns; last, the index of
+    the latest turn the model itself wrote (`model_ref`), None when it wrote none.
 
     Tool results become `tool_result` blocks of a user turn, and adjacent turns of one role are merged,
     as the API requires. Empty text blocks are rejected by the API, so they are left out. Thinking blocks go
@@ -102,6 +105,7 @@ def wire_messages(messages: list[Message], model_ref: str | None = None) -> tupl
     """
     system: list[Block] = []
     wire: list[WireMessage] = []
+    own_reply: int | None = None
 
     def add(role: str, blocks: list[Block]) -> None:
         if not blocks:
@@ -128,6 +132,8 @@ def wire_messages(messages: list[Message], model_ref: str | None = None) -> tupl
                     for call in message.tool_calls
                 ]
                 add("assistant", blocks)
+                if blocks and model_ref is not None and message.model == model_ref:
+                    own_reply = len(wire) - 1
             case ToolResultMessage(result=result):
                 add(
                     "user",
@@ -140,16 +146,21 @@ def wire_messages(messages: list[Message], model_ref: str | None = None) -> tupl
                         }
                     ],
                 )
-    return system, wire
+    return system, wire, own_reply
 
 
-def mark_cache(system: list[Block], wire: list[WireMessage]) -> None:
+def mark_cache(system: list[Block], wire: list[WireMessage], own_reply: int | None = None) -> None:
+    """Cache breakpoints: the system prompt, the request's end, and where the model's previous request ended."""
     if system:
         system[-1]["cache_control"] = CACHE
     ends = {len(wire) - 1}
-    # The previous request ended just before the latest assistant reply; marking it again lets this
-    # request find that cache entry even when the latest turn added many blocks.
-    last_reply = max((i for i, m in enumerate(wire) if m["role"] == "assistant"), default=None)
+    # The model's previous request ended just before the latest reply it wrote itself (`own_reply`; the latest
+    # reply when it wrote none); marking it again lets this request find that cache entry even when many blocks
+    # were added since: the latest turn's, or another model's turns after a hand-over, which the API's look back
+    # from the request's end does not reach across.
+    last_reply = own_reply
+    if last_reply is None:
+        last_reply = max((i for i, m in enumerate(wire) if m["role"] == "assistant"), default=None)
     if last_reply:
         ends.add(last_reply - 1)
     for index in ends:
@@ -215,8 +226,8 @@ class AnthropicProvider:
 
     def body(self, request: ProviderRequest) -> dict[str, Any]:
         compat = request.compat
-        system, messages = wire_messages(request.messages, self.endpoint.ref)
-        mark_cache(system, messages)
+        system, messages, own_reply = wire_messages(request.messages, self.endpoint.ref)
+        mark_cache(system, messages, own_reply)
         body: dict[str, Any] = {
             "model": self.endpoint.model,
             "max_tokens": request.max_output_tokens,

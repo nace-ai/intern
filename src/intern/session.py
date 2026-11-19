@@ -132,7 +132,6 @@ class Session:
         if deps.resolve_model is None:
             deps.resolve_model = resolve_model  # a subagent on another model is bound as a model switch is
         # The journal keeps System 1's side of the session too, so a resumed session can show it.
-        deps.stream = deps.emit
         deps.emit = recording(deps.journal, deps.emit)
         deps.decisions.emit = deps.emit
         self.job_notices: JobNotices = job_notices

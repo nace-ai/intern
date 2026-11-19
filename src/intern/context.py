@@ -259,6 +259,18 @@ class ContextView:
     # measured with the history, so compaction plans for what the request will send.
     model: str | None = None
     replay: bool = False
+    # What the harness tells the model for this run alone, each before the history message with that id (None: after
+    # the last one): sent with every request while that message is in the history, never journaled, and no place a
+    # compaction cuts at.
+    asides: dict[str | None, str] = field(default_factory=dict)
+
+    def _asides(self) -> list[tuple[int, UserMessage]]:
+        """Each aside whose message the history holds, with the index it goes before."""
+        if not self.asides:
+            return []
+        at: dict[str | None, int] = {i: n for n, i in enumerate(self.history_ids[: len(self.history)])}
+        at[None] = len(self.history)
+        return [(at[i], UserMessage(content=text, source="harness")) for i, text in self.asides.items() if i in at]
 
     def messages(self) -> list[Message]:
         """Render the segments, merging adjacent user messages so strict chat templates accept them."""
@@ -271,7 +283,10 @@ class ContextView:
         rendered: list[Message] = [SystemMessage(content=self.system)]
         if head:
             rendered.append(UserMessage(content=head))
-        rendered += self.history
+        history = list(self.history)
+        for index, aside in sorted(self._asides(), key=lambda each: each[0], reverse=True):
+            history.insert(index, aside)
+        rendered += history
         if self.tail:
             rendered.append(UserMessage(content="\n\n".join(self.tail), source="harness"))
 
@@ -291,7 +306,8 @@ class ContextView:
             "pinned": sum(len(p) for p in self.pinned) + MESSAGE_OVERHEAD_CHARS,
             "history": summary
             + sum(len(k.path) + len(k.content) for k in self.kept)
-            + sum(message_chars(m) + reasoning_chars(m, self.model, self.replay) for m in self.history),
+            + sum(message_chars(m) + reasoning_chars(m, self.model, self.replay) for m in self.history)
+            + sum(message_chars(aside) for _, aside in self._asides()),
             "tail": sum(len(t) for t in self.tail),
         }
 
