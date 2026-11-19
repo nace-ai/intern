@@ -140,7 +140,7 @@ def test_a_nace_issued_source_goes_to_every_nace_console(host: str):
 
 
 async def test_a_base_url_override_elsewhere_refuses_the_nace_credential_before_any_request(monkeypatch):
-    monkeypatch.setattr(registry, "nace_credential", lambda spec, env: Tokens())
+    monkeypatch.setattr(registry, "nace_credential", lambda spec, env, free=False: Tokens())
     with FakeOpenAI([]) as server:
         env = {"NACE_BASE_URL": server.url, "DREX_BASE_URL": server.url.removesuffix("/v1")}
         with pytest.raises(ConfigError, match="sent only to"):

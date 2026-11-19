@@ -145,6 +145,14 @@ class CommandsConfig(BaseModel):
     )
 
 
+class FreeConfig(BaseModel):
+    use: bool | None = Field(
+        default=None,
+        description="Run on the free trial's credit while it lasts (`intern free pause` and `resume`); unset until a "
+        "first sign-in.",
+    )
+
+
 class UserConfig(BaseModel):
     model_config = ConfigDict(hide_input_in_errors=True)
     # The old keys `model`, `[decider]` and `[memory]` still load, so existing config files keep working.
@@ -158,6 +166,7 @@ class UserConfig(BaseModel):
         "model can finish it. `/auto` changes it for the session.",
     )
     commands: CommandsConfig = Field(default_factory=CommandsConfig)
+    free: FreeConfig = Field(default_factory=FreeConfig)
     secrets: dict[str, StoreEntry] = Field(default_factory=dict)
     """Where each stored secret comes from: `"keychain"` or a command; see `secret_store`."""
 

@@ -235,16 +235,26 @@ class Endpoint(BaseModel):
         return self.api_key.get_secret_value() if self.api_key else None
 
 
-def nace_credential(spec: ProviderSpec, env: Mapping[str, str]) -> CredentialSource | None:
-    """The credential a `credential = "nace"` provider runs on: the console key in its `api_key_env`."""
+def nace_credential(spec: ProviderSpec, env: Mapping[str, str], *, free: bool = False) -> CredentialSource | None:
+    """The credential a `credential = "nace"` provider runs on: with `free`, the free trial's sign-in to its console
+    (`nace_free`), else the console key in its `api_key_env`."""
+    if free:
+        from intern.nace_free import free_credential
+
+        return free_credential(spec, env)
     key = env.get(spec.api_key_env) if spec.api_key_env else None
     return StaticKey(SecretStr(key)) if key else None
 
 
 def resolve_endpoint(
-    ref: str, env: Mapping[str, str], extra_providers: Mapping[str, ProviderSpec] | None = None
+    ref: str,
+    env: Mapping[str, str],
+    extra_providers: Mapping[str, ProviderSpec] | None = None,
+    *,
+    free: bool = False,
 ) -> Endpoint:
-    """Turn `provider/model` into an endpoint, reading the key and any base-URL override from `env`."""
+    """Turn `provider/model` into an endpoint, reading the key and any base-URL override from `env`. With `free`, a
+    `nace` endpoint runs on the free trial's sign-in instead of `$NACE_API_KEY`."""
     providers = {**PROVIDERS, **(extra_providers or {})}
     provider, sep, model = ref.partition("/")
     if not sep or not model:
@@ -255,7 +265,7 @@ def resolve_endpoint(
         raise ConfigError(f"unknown provider {provider!r} in {ref!r}; known providers: {known}")
 
     base_url = (env.get(spec.base_url_env) if spec.base_url_env else None) or spec.base_url
-    credential = nace_credential(spec, env) if spec.credential == "nace" else None
+    credential = nace_credential(spec, env, free=free) if spec.credential == "nace" else None
     key = env.get(spec.api_key_env) if spec.api_key_env and credential is None else None
     if spec.api_key_env and not key and credential is None:
         raise ConfigError(f"{provider} needs an API key in ${spec.api_key_env}")

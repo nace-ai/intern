@@ -846,6 +846,31 @@ async def test_the_harness_keys_in_the_environment_reach_commands_but_never_thei
         assert [path for path in home.rglob("*") if path.is_file() and key in path.read_text()] == []
 
 
+async def test_the_free_trials_tokens_are_redacted_from_a_command_that_prints_their_files(tmp_path):
+    home = tmp_path / "home"
+    home.mkdir()
+
+    def sign_in(n: int) -> list[str]:
+        """The token files as another harness process leaves them after its nth rotation."""
+        refresh, access = f"nace_rt_test_{n:04d}", f"nace_at_test_{n:04d}"
+        (home / "free.json").write_text(json.dumps({"console": "https://console.nace.ai", "refresh_token": refresh}))
+        record = {"access_token": access, "expires_at": 4102444800, "console": "https://console.nace.ai"}
+        (home / "free-access.json").write_text(json.dumps(record))
+        return [refresh, access]
+
+    shown = sign_in(1)
+    cat = Reply(tool_calls=[("bash", {"command": f"cat {home}/free.json {home}/free-access.json"})])
+    toml = '[capabilities]\ntool_packs = ["base"]\n'
+    async with configured(tmp_path, [cat, Reply(text="done"), cat, Reply(text="done")], toml) as (session, model, _, _):
+        await session.run("show me the free trial's files")
+        shown += sign_in(2)  # rotated while the session runs
+        await session.run("again")
+        first, second = outputs(session)
+        assert first.count("[REDACTED]") == 2 and second.count("[REDACTED]") == 2
+        sent = json.dumps(model.requests)
+        assert not [token for token in shown if token in first + second or token in sent]
+
+
 async def test_a_stored_secret_is_redacted_from_every_tool_not_only_the_command_that_got_it(tmp_path):
     fetch = tmp_path / "fetch"
     fetch.write_text("#!/bin/sh\nprintf stored-token-value\n")

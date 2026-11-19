@@ -498,6 +498,15 @@ console lists no chat models yet, so `nace/` entries appear only once it serves 
 over HTTPS: a `$NACE_BASE_URL` or `$DREX_BASE_URL` pointing elsewhere is a configuration error, and nothing is
 sent.
 
+## Free credit
+
+The harness owns the free trial's sign-in, for every client (0.52.0 and later). A client drives it by CLI, as it
+drives `intern secrets`: `intern free start --json --accept <consent_version> [--no-browser]` prints one JSON line
+per step (`code`, then `granted` or `refused` with `code`, `reason` and `message`), and `status`, `pause`, `resume`
+and `sign-out` with `--json` print one document each. [docs/free.md](free.md) has the lines, the refusal codes and
+where the tokens are kept. A client shows the consent text before `start` and passes the version it showed. Sessions do
+not run on free credit yet.
+
 ## Versioning
 
 - The harness's event protocol (`intern schema`, `intern rpc`) is at `PROTOCOL_VERSION`
@@ -1503,3 +1512,16 @@ terminal UI's setup. Additive: 0.50.0 clients keep working and ignore the field.
 - The terminal UI's setup offers the combinations first, and asks for the hand-over model after System 1. What it
   saves is `[capabilities.handoff] to`, which ACP sessions read too: a user who picks a hand-over model in the terminal
   UI's setup gets it in the app as the `handoff` option's value.
+
+### 0.52.0
+
+The [free credit](#free-credit)'s sign-in: `intern free status|start|pause|resume|sign-out`, each with `--json`.
+Additive: 0.51.0 clients keep working, and nothing a session does changes until a later release runs sessions on
+free credit.
+
+- `intern free start --json --accept <consent_version>` signs in with the console's device flow and prints `code`,
+  then `granted` (with the grant: state, meters and bundle) or `refused` (`code`, `reason`, `message`); see
+  [docs/free.md](free.md).
+- The tokens are kept in the OS keychain and in `~/.intern/free.json` and `free-access.json` (mode 0600), shared by
+  every harness process on the machine, renewed by one at a time, and redacted from what the agent's commands print.
+- `config.toml` takes `[free] use`, which `pause` and `resume` set.

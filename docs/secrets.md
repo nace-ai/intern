@@ -19,6 +19,10 @@ Anything you don't put in the store works as before. `gh`, `npm` and `aws` keep 
 variables still reach the agent. The harness's own keys are redacted from what commands print even when they are
 exported or in `~/.intern/.env`, not stored.
 
+The [free credit](free.md)'s tokens are never in the agent's environment, and they are redacted too: a command that
+prints `~/.intern/free.json`, `~/.intern/free-access.json` or the keychain item shows `[REDACTED]`. They change every
+hour, so the harness reads their current values each time it redacts.
+
 ## One secret
 
 ```bash
