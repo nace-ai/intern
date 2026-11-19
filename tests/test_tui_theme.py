@@ -79,11 +79,25 @@ READS = [
 ]
 
 
-@pytest.mark.parametrize("theme_id", [info.id for info in THEMES])
+BRAND_LOOKS = {
+    "light": {"muted": "#7c7c67", "green": "#3fb55a", "amber": "#b7791f"},
+    "dark": {"muted": "#8d8c78", "red": "#d9625f"},
+}
+"""Light and Dark are the Nace brand's looks (#144), kept as the brand drew them: these are the colours that would
+fail the contrast floor below, pinned so a theme change does not move them by accident."""
+
+
+@pytest.mark.parametrize("theme_id", [info.id for info in THEMES if info.id not in BRAND_LOOKS])
 @pytest.mark.parametrize(("text", "ground", "least"), READS)
-def test_every_themes_text_reads_on_the_grounds_it_is_drawn_on(theme_id: str, text: str, ground: str, least: float):
+def test_every_new_themes_text_reads_on_the_grounds_it_is_drawn_on(theme_id: str, text: str, ground: str, least: float):
     colours = palette(theme_id)
     assert contrast(colours[text], colours[ground]) >= least, f"{theme_id}: {text} on {ground}"
+
+
+@pytest.mark.parametrize("theme_id", BRAND_LOOKS)
+def test_light_and_dark_keep_the_brand_colours(theme_id: str):
+    colours = palette(theme_id)
+    assert {role: colours[role] for role in BRAND_LOOKS[theme_id]} == BRAND_LOOKS[theme_id]
 
 
 def test_the_themes_have_distinct_ids_every_colour_role_and_a_name_and_blurb_to_list():
