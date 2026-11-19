@@ -66,6 +66,7 @@ from intern.tui import widgets
 from intern.tui.app import (
     ALT_SCREEN_OFF,
     ALT_SCREEN_ON,
+    AUTO_OFF,
     PICKS,
     SHOW_CURSOR,
     HarnessApp,
@@ -575,7 +576,11 @@ async def test_the_state_panel_draws_what_system_1_reads_and_state_opens_it_in_f
 
 async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_path: Path):
     listed = Catalog(
-        system2=[ModelInfo(id="fake/big", name="Big"), ModelInfo(id="other/x", name="X")],
+        system2=[
+            ModelInfo(id="fake/big", name="Big"),
+            *(ModelInfo(id=f"openai/{m}", name=m) for m in ("gpt-4o-2024-11-20", "gpt-6-luna", "gpt-6.2-sol")),
+            ModelInfo(id="other/x", name="X"),
+        ],
         system1=[
             ModelInfo(id="drex-latest", name="drex-latest"),
             ModelInfo(id="decisions:~typesafe/jev-latest", name="TypeSafe: Jev Latest"),
@@ -595,8 +600,9 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         assert isinstance(picker, ModelPicker)
         options = picker.query_one(OptionList)
         ids = [options.get_option_at_index(i).id for i in range(options.option_count)]
-        # The current model is listed first even when the catalog does not have it; group headers have no id.
-        assert [i for i in ids if i] == ["fake/model", "fake/big", "other/x"]
+        # The current model is listed first even when the catalog does not have it; group headers have no id. On a
+        # provider setup knows, only its frontier models: not its efficient ones, nor the old ones it still lists.
+        assert [i for i in ids if i] == ["fake/model", "fake/big", "openai/gpt-6.2-sol", "other/x"]
         await pilot.press("b", "i", "g", "enter")
         await wait_for(lambda: session.deps.system2.ref == "fake/big")
         # The entering page has the model on System 2's card: the pick gets no line under it.
@@ -622,6 +628,11 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         await send(app, pilot, "/decision")
         await pilot.press("d", "r", "e", "x", "-", "m", "a", "x", "-", "v", "1", ".", "1", "enter")
         await wait_for(lambda: session.system1 == "drex-max-v1.1")
+        # The efficient models: off, then those of each provider, never the frontier model.
+        await send(app, pilot, "/efficient")
+        options = app.screen.query_one(OptionList)
+        ids = [options.get_option_at_index(i).id for i in range(options.option_count)]
+        assert [i for i in ids if i] == [AUTO_OFF[0], "openai/gpt-6-luna", "other/x"]
         await app.action_quit()
 
 
@@ -1323,13 +1334,12 @@ async def test_without_a_default_the_pickers_open_the_session_on_the_pick(tmp_pa
         await app.action_quit()
 
 
-def test_system_2_rows_put_known_models_first_and_read_without_the_provider_prefix():
+def test_system_2_rows_read_without_the_provider_prefix_under_their_provider():
     from intern.tui.app import system2_choice
     from intern.tui.pickers import fit
 
     known = system2_choice(ModelInfo(id="openrouter/qwen/qwen3.8-27b", name="x"))
-    assert (known.group, known.label) == ("known models", "qwen/qwen3.8-27b")
-    assert known.note == "openrouter · Qwen3.8 27B"
+    assert (known.group, known.label, known.note) == ("openrouter", "qwen/qwen3.8-27b", "Qwen3.8 27B")
     listed = system2_choice(ModelInfo(id="deepinfra/Qwen/Qwen3-14B", name="Qwen/Qwen3-14B"))
     assert (listed.group, listed.label, listed.note) == ("deepinfra", "Qwen/Qwen3-14B", "")
     named = system2_choice(ModelInfo(id="openrouter/qwen/qwen3-coder", name="Qwen: Qwen3 Coder"))

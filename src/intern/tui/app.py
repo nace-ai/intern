@@ -21,7 +21,7 @@ import shutil
 import signal
 import subprocess
 import sys
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from dataclasses import dataclass, replace
 from multiprocessing import resource_tracker
 from pathlib import Path
@@ -100,6 +100,8 @@ from intern.models.catalog import DECISIONS_PREFIX, Catalog, ModelInfo, RunnerIn
 from intern.models.profile import EFFORT_LEVELS
 from intern.models.registry import ConfigError, Role
 from intern.needs import InstallFailed, Needs, Say, install
+from intern.onboarding import PROVIDER_BY_ID, offered_models
+from intern.onboarding import Role as OfferedRole
 from intern.processes import duration_text
 from intern.session import Session, SessionBusy
 from intern.session_cut import STATE_SHARE, CutView, cut_view
@@ -345,21 +347,37 @@ def resolve_command(name: str) -> str:
     return matches[0] if len(matches) == 1 else name
 
 
-KNOWN_GROUP = "known models"
 CONSOLE_GROUP = "Console · decision models"
 DECISIONS_GROUP = "decisions API · OpenRouter"
 
 
-def system2_choice(model: ModelInfo, *, current: bool = False) -> Choice:
-    """A System 2 row: known models in their own group with the provider as the note; the rest under their
-    provider, the id without the provider prefix, the display name as the note when it says more."""
+def system2_choice(model: ModelInfo) -> Choice:
+    """A frontier or efficient model's row: under its provider, the id without the provider prefix, the display name
+    as the note when it says more."""
     provider, _, rest = model.id.partition("/")
-    if model.id in KNOWN_SYSTEM2 or current:
-        name = KNOWN_SYSTEM2.get(model.id, model.name if model.name != model.id else "")
-        note = " · ".join(part for part in (provider, name) if part)
-        return Choice(model.id, name or model.id, KNOWN_GROUP, label=rest or model.id, note=note)
-    note = "" if model.name.casefold() in (model.id.casefold(), rest.casefold()) else model.name
-    return Choice(model.id, model.name, provider, label=rest or model.id, note=note)
+    name = KNOWN_SYSTEM2.get(model.id) or model.name
+    note = "" if name.casefold() in (model.id.casefold(), rest.casefold()) else name
+    return Choice(model.id, name, provider, label=rest or model.id, note=note)
+
+
+def offered(models: Iterable[ModelInfo], role: OfferedRole, keep: str = "") -> list[ModelInfo]:
+    """The catalog's models to offer for a role, provider by provider (`offered_models`); on a provider setup does
+    not know (an endpoint of your own), all it lists. `keep`, the one in use, comes first, whether or not it is one
+    of them."""
+    by: dict[str, dict[str, ModelInfo]] = {}
+    for model in models:
+        provider, _, rest = model.id.partition("/")
+        by.setdefault(provider, {})[rest] = model
+    if keep:
+        provider, _, rest = keep.partition("/")
+        by.setdefault(provider, {}).setdefault(rest, ModelInfo(id=keep, name=keep))
+    kept: list[ModelInfo] = []
+    for provider in sorted(by, key=lambda p: p != keep.partition("/")[0]):
+        listed, option = by[provider], PROVIDER_BY_ID.get(provider)
+        names = offered_models(option, tuple(listed), role) if option is not None else list(listed)
+        kept += [m for m in listed.values() if m.id == keep]
+        kept += [listed[name] for name in names if listed[name].id != keep]
+    return kept
 
 
 def system1_choice(model: ModelInfo) -> Choice:
@@ -1669,9 +1687,12 @@ class HarnessApp(App[None]):
             return
         off = "the frontier model runs every turn"
         choices = [Choice(id=AUTO_OFF[0], name="off", group="auto mode", label="off", note=off)]
-        choices += [choice for choice in self._choices("system2") if choice.id != self._current("system2")]
         hint = "Enter picks the model a run hands over to, or off; the session reopens on its journal"
-        current = self._handoff_model() if self.pending.auto else AUTO_OFF[0]
+        target = self._handoff_model() if self.pending.auto else ""
+        models = list(self.catalog.system2) if self.catalog is not None else []
+        frontier = self._current("system2")
+        choices += [system2_choice(m) for m in offered(models, "efficient", target) if m.id != frontier]
+        current = target or AUTO_OFF[0]
         picker = ModelPicker("Efficient model · finishes a run after the hard part", choices, current, hint=hint)
         self.push_screen(picker, callback=self._auto_picked)
 
@@ -1905,16 +1926,12 @@ class HarnessApp(App[None]):
         return session.deps.system2.ref if role == "system2" else session.system1
 
     def _choices(self, role: Role) -> list[Choice]:
-        """The picker's rows: known models first (the current one among them), then the catalog in its order."""
+        """The picker's rows: the frontier models of the catalog (`offered`), the current one among them; every
+        decision model."""
         current = self._current(role)
         if role == "system2":
             models = list(self.catalog.system2) if self.catalog is not None else []
-            listed = {m.id: m for m in models}
-            known = [listed.pop(ref) for ref in KNOWN_SYSTEM2 if ref in listed]
-            if current and current not in KNOWN_SYSTEM2:
-                known.insert(0, listed.pop(current, ModelInfo(id=current, name=current)))
-            choices = [system2_choice(m, current=m.id == current) for m in known]
-            choices += [system2_choice(m) for m in listed.values()]
+            choices = [system2_choice(m) for m in offered(models, "frontier", current)]
         else:
             models = list(self.catalog.system1) if self.catalog is not None else self._system1_choices
             choices = [system1_choice(m) for m in models]

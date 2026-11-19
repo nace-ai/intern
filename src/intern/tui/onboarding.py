@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import ClassVar, Literal
 
@@ -65,9 +65,9 @@ from intern.onboarding import (
     efficient_models,
     key_found,
     model_name,
+    offered_models,
     pairs_for,
     save,
-    suggested_models,
 )
 from intern.secret_store import MIN_SECRET_CHARS
 from intern.tui.pickers import Choice, fit, ranked
@@ -347,8 +347,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
     def _frontier(self) -> tuple[str, Content]:
         assert self.provider is not None
         suggested = list(self.provider.suggested or (LOCAL_SUGGESTED if self.provider.kind == "local" else ()))
-        option = ProviderOption(self.provider.id, self.provider.name, "", "", suggested=tuple(suggested))
-        models = suggested_models(option, self.listed)
+        models = offered_models(replace(self.provider, suggested=tuple(suggested)), self.listed, "frontier")
         top = {m for m in suggested if m in models}
         self.choices = [
             Choice(

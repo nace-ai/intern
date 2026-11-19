@@ -1,9 +1,9 @@
 """The model pickers behind /frontier and /decision: a filter line over the catalog, in groups; Enter picks.
 
 Rows are two aligned columns: how the model reads inside its group (its id without the group's prefix) and, dim,
-what else is known about it (its display name, its provider). Known models come first. A name that is not
-listed is accepted as typed, so a custom `provider/model` or a decision model the catalog missed can still be
-chosen; the harness refuses it with its own reason if it cannot be resolved.
+what else is known about it (its display name, its provider). A name that is not listed is accepted as typed, so a
+custom `provider/model` or a decision model the catalog missed can still be chosen; the harness refuses it with its
+own reason if it cannot be resolved.
 
 A picker whose notes are sentences (capabilities, runners, secrets) stacks each row instead: the label on a line of
 its own, the note under it, wrapped at the label's indent rather than back under the label column, and a blank line
