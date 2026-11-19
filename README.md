@@ -375,6 +375,8 @@ and so is their System 1 until a paired eval measures it ([`system1`](docs/capab
   [Terminal UI](docs/tui.md)
 - **Optional tools.** A browser, MCP servers, a Docker workspace, secrets from your keychain or password manager.
   [Capability settings](docs/capability-settings.md)
+- **Schedules.** Run a task later or on a repeat: in the desktop app, or with launchd or systemd running `intern -p`.
+  [Schedules](docs/capabilities/schedules.md)
 
 ## Instructions
 
@@ -444,6 +446,8 @@ prints the event JSON Schema.
   to subagents, which inherit its capabilities and never get more. Off by default.
   [Subagents](docs/capability-settings.md#subagents)
 - **It has no editor plugin of its own.** Editors reach it over the Agent Client Protocol.
+- **It keeps no schedules once it is closed.** For a task that runs while nothing is open, your OS scheduler runs
+  `intern -p`. [Schedules](docs/capabilities/schedules.md)
 
 ## Data
 
