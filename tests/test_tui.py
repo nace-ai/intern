@@ -495,7 +495,7 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         # Each on or off, as a capability is: the hand-over is off with no efficient model, the search while neither
         # capability it searches for is on, and the guard while its capability is off, as it is by default.
         assert all(job in said for job in ("○ hand-over", "● watch", "○ guard", "○ search", "● compaction"))
-        assert "frontier model" in said and "efficient model" in said  # what it is, in a paragraph
+        assert "Intern uses two models" in " ".join(said.split())  # what it is, with no efficient model to hand to
         assert "● base tools" in said and "Describe a task to begin." in said
         if look != "compact":  # with the room, what each capability is
             assert re.search(r"base tools +files and the shell", said)

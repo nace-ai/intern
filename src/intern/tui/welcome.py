@@ -5,8 +5,8 @@
                               ██ ██ ████    ██    ███████ ██  ██  ██ ████
                               Intern v0.34.1
 
-            Intern starts each task on a frontier model, which does the hard part. An efficient model
-            then finishes the rest, for much less. A decision model picks the moment ...
+            Intern uses three models: a frontier model does the hard part, an efficient model finishes
+            the rest for much less, and a decision model picks the moment to hand over and keeps ...
 
     ╭─ Frontier model ────────────────────────────╮         ╭─ Efficient model ───────────────────────────╮
     │ claude-opus-5-5                             │         │ Claude Haiku 5.5                            │
@@ -34,7 +34,8 @@ at all: `hand-over` on a chip in the accent over `on`, or in the gray over `off`
 cube with eyes, alive as the brand draws it (`Mascot`), between two cards: the tools the session has switched on,
 which both models share, each in a few words; and the decision model's jobs, each on or off as a capability is, and
 what it judges from. Above them the wordmark, in ink with the accent for its shadow, and what Intern is, in a
-paragraph; under them where the session works, then what to do next.
+sentence: three models while a run hands over, two while it does not; under them where the session works, then what
+to do next.
 All of it centred, and a third of the way down a tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the mascot and the models in one frame
@@ -100,16 +101,16 @@ from intern.tui.widgets import (
 
 TITLE = f"{WORDMARK} v{__version__}"
 ABOUT = (
-    "Intern starts each task on a frontier model, which does the hard part. An efficient model then finishes the "
-    "rest, for much less. A small decision model picks the moment to hand over, and keeps the work on track: it "
-    "nudges your intern out of circles, searches code and files for it, and decides what it keeps in mind when its "
-    "context fills up."
+    "Intern uses three models: a frontier model does the hard part, an efficient model finishes the rest for much "
+    "less, and a decision model picks the moment to hand over and keeps the work on track."
 )
-"""What Intern is, in three sentences."""
+"""What Intern is while a run hands over."""
 ABOUT_SHORT = (
     "A frontier model does the hard part, an efficient model finishes it, and a decision model picks the moment."
 )
 """The same for a small terminal."""
+ABOUT_ALONE = "Intern uses two models: a frontier model does the work, and a decision model keeps it on track."
+"""What Intern is while hand-over is off, on any terminal."""
 JOBS: tuple[tuple[Kind, str], ...] = (
     ("hand-over", "picks when to hand over"),
     ("watch", "nudges it out of circles"),
@@ -529,7 +530,7 @@ def systems(o: Opening, width: int, *, roomy: bool = True, played: bool = True) 
         [(" Efficient ", S_TAB if o.handoff else S_BOX_MUTED), "  ", (handoff, S_HEAD if o.handoff else S_MUTED)],
     ]
     lines: list[list[Part]] = [
-        *([] if roomy else [*paragraph(ABOUT_SHORT, width, S_INK), []]),
+        *([] if roomy else [*paragraph(ABOUT_SHORT if o.handoff else ABOUT_ALONE, width, S_INK), []]),
         *([] if roomy and played else [*models, *([[]] if roomy else [])]),
         *([*capabilities(o, width), [(f"{o.tools} tools", S_MUTED)] * bool(o.capabilities), []] if roomy else []),
         [(" Decision  ", S_TAB), "  ", (model1, S_HEAD), (f" · {served}" * bool(served), S_MUTED)],
@@ -622,7 +623,7 @@ class Welcome(Vertical):
         o = self.opening
         columns, rows = self._fitted = self.app.size
         width, room = self.size.width or columns - 4, rows - PROMPT_ROWS
-        about = paragraph(ABOUT, min(width - 2, ABOUT_WIDTH), S_INK)
+        about = paragraph(ABOUT if o.handoff else ABOUT_ALONE, min(width - 2, ABOUT_WIDTH), S_INK)
         inside = min(width, FRAME_MAX) - FRAME
         texts = {played: systems(o, inside - SIDE_WIDTH, played=played) for played in (True, False)}
         cards = [tools(o, CARD_WIDTH - CARD_EDGES), system1(o, CARD_WIDTH - CARD_EDGES)]
