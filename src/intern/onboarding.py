@@ -1,12 +1,13 @@
 """First-run setup: what a new user connects before Intern can open a session, and where it is kept.
 
-Intern needs two models: System 2, the agent, on any provider; System 1, the decision model, on the decisions API
-(OpenRouter) or the Nace console. A third, the cheaper model a run hands over to, is optional. The terminal UI's setup
+Intern runs on three models. The frontier model (System 2 in the code) starts each task and does the hard part; the
+efficient model (the hand-over target) takes over for the rest; the decision model (System 1), on the decisions API
+(OpenRouter) or the Nace console, decides when to hand over and keeps the run on track. The terminal UI's setup
 screen (`tui/onboarding.py`) walks through them and this module does the work behind it, with no UI:
 
-- `RECOMMENDED`: Nace's recommended combinations of the three, offered first, each with the keys it needs.
-- `SYSTEM2_PROVIDERS`: every way to reach a System 2, grouped as the screen lists them, each with the variable its
-  key lives in, where to make one, the models to suggest first and the cheaper sibling to hand over to.
+- `RECOMMENDED`: Nace's frontier and efficient pairs on one OpenRouter key; `PAIRS` has those for other providers.
+- `SYSTEM2_PROVIDERS`: every way to reach the frontier model, grouped as the screen lists them, each with the
+  variable its key lives in, where to make one, the frontier models to suggest first and the efficient ones.
 - `SYSTEM1_OPTIONS`: the decision models to pick from, Drex Max on OpenRouter first.
 - `check_key`: ask the provider whether a key works before keeping it, and list its models while at it.
 - `save`: keep each key (the OS keychain, named in `[secrets]`; `.env` in the config home where there is no
@@ -68,6 +69,8 @@ class ProviderOption:
     """The same in a word or two, on its row."""
     handoff_suggested: str = ""
     """The cheaper sibling a run on this provider hands over to, offered first at the hand-over step."""
+    efficient: tuple[str, ...] = ()
+    """More efficient models to offer after `handoff_suggested`, best first."""
 
     @property
     def base_url(self) -> str:
@@ -97,12 +100,13 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
     ProviderOption(
         "openrouter",
         "OpenRouter",
-        "hundreds of models on one key, and System 1 too",
+        "every model on one key",
         POPULAR,
         key_env="OPENROUTER_API_KEY",
         key_url="https://openrouter.ai/settings/keys",
-        suggested=("qwen/qwen3.8-27b", "anthropic/claude-sonnet-5.5", "openai/gpt-6.2-sol"),
-        handoff_suggested="deepseek/deepseek-v4.1-flash",
+        suggested=("anthropic/claude-opus-5.5", "tencent/hy4", "openai/gpt-6.2-astra", "anthropic/claude-sonnet-5.5"),
+        handoff_suggested="tencent/hy4-flash",
+        efficient=("openai/gpt-6-luna", "deepseek/deepseek-v4.1-flash", "anthropic/claude-haiku-5.5"),
     ),
     ProviderOption(
         "openai",
@@ -345,7 +349,7 @@ SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
     System1Option(
         "drex-max",
         "Drex Max · OpenRouter",
-        "Nace AI's decision model, #1 on Artificial Analysis",
+        "#1 on Artificial Analysis",
         "decisions-api",
         "nace-ai/drex-max",
         "OPENROUTER_API_KEY",
@@ -355,7 +359,7 @@ SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
     System1Option(
         "drex-console",
         "Drex · Nace AI",
-        "Drex from the Nace console, on a Nace key",
+        "Drex on a Nace key",
         "console",
         DEFAULT_SYSTEM1_MODEL,
         "NACE_API_KEY",
@@ -373,7 +377,7 @@ SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
     System1Option(
         "decisions-other",
         "More decision models · OpenRouter",
-        "pick from every decision model OpenRouter lists",
+        "every decision model OpenRouter lists",
         "decisions-api",
         "",
         "OPENROUTER_API_KEY",
@@ -383,17 +387,49 @@ SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
 SYSTEM1_BY_ID = {option.id: option for option in SYSTEM1_OPTIONS}
 
 
+MODEL_NAMES = {
+    "anthropic/claude-opus-5.5": "Claude Opus 5.5",
+    "anthropic/claude-sonnet-5.5": "Claude Sonnet 5.5",
+    "anthropic/claude-haiku-5.5": "Claude Haiku 5.5",
+    "claude-opus-5-5": "Claude Opus 5.5",
+    "claude-sonnet-5-5": "Claude Sonnet 5.5",
+    "claude-haiku-5-5": "Claude Haiku 5.5",
+    "tencent/hy4": "Hy4",
+    "tencent/hy4-flash": "Hy4 Flash",
+    "openai/gpt-6.2-astra": "GPT-6.2 Astra",
+    "openai/gpt-6-luna": "GPT-6 Luna",
+    "gpt-6-luna": "GPT-6 Luna",
+    "deepseek/deepseek-v4.1-flash": "DeepSeek V4.1 Flash",
+    "nace-ai/drex-max": "Drex Max",
+}
+"""How the setup screen names the models it suggests; any other model shows as its id."""
+
+
+def model_name(ref: str) -> str:
+    """`openrouter/tencent/hy4-flash` → `Hy4 Flash`; a model with no name here → its id without the provider."""
+    if ref in MODEL_NAMES:
+        return MODEL_NAMES[ref]
+    provider, _, model = ref.partition("/")
+    return MODEL_NAMES.get(model, model) if provider in PROVIDERS and model else ref
+
+
 @dataclass(frozen=True)
 class Recommendation:
-    """One of Nace's recommended combinations on a user's own keys: System 2, the model it hands over to, System 1."""
+    """One of Nace's frontier and efficient pairs: the frontier model (System 2), the efficient model it hands over
+    to, and the decision model (System 1) suggested with it."""
 
     id: str
-    title: str
+    tag: str
+    """A word or two beside it in the list."""
     why: str
     system2: str
     handoff: str
     system1: str
     """A `SYSTEM1_OPTIONS` id."""
+
+    @property
+    def title(self) -> str:
+        return f"{model_name(self.system2)} → {model_name(self.handoff)}"
 
     @property
     def provider(self) -> ProviderOption:
@@ -433,37 +469,70 @@ class Recommendation:
 
 RECOMMENDED: tuple[Recommendation, ...] = (
     Recommendation(
-        "one-key",
-        "One key for everything",
-        "Claude Sonnet 5.5 does the work, DeepSeek V4.1 Flash finishes it, Drex Max judges: all on one OpenRouter key",
-        "openrouter/anthropic/claude-sonnet-5.5",
-        "openrouter/deepseek/deepseek-v4.1-flash",
+        "opus-hy4",
+        "best results",
+        "Claude Opus 5.5 cracks the hard part, Hy4 Flash finishes the job",
+        "openrouter/anthropic/claude-opus-5.5",
+        "openrouter/tencent/hy4-flash",
         "drex-max",
     ),
     Recommendation(
-        "best-results",
-        "Best results",
-        "Claude Sonnet 5.5 does the work and Claude Haiku 5.5, from the same family, finishes it; Drex Max judges",
-        "anthropic/claude-sonnet-5-5",
-        "anthropic/claude-haiku-5-5",
+        "hy4",
+        "lowest cost",
+        "Hy4 cracks the hard part, Hy4 Flash finishes the job",
+        "openrouter/tencent/hy4",
+        "openrouter/tencent/hy4-flash",
         "drex-max",
     ),
     Recommendation(
-        "free-models",
-        "Same as the free credit",
-        "GLM 5.3 does the work, DeepSeek V4.1 Flash finishes it and Drex judges: the free credit's models on your keys",
-        "fireworks/accounts/fireworks/models/glm-5p3",
-        "fireworks/accounts/fireworks/models/deepseek-v4p1-flash-1017",
-        "drex-console",
+        "gpt",
+        "OpenAI only",
+        "GPT-6.2 Astra cracks the hard part, GPT-6 Luna finishes the job",
+        "openrouter/openai/gpt-6.2-astra",
+        "openrouter/openai/gpt-6-luna",
+        "drex-max",
     ),
 )
-"""Offered first on the own-keys path of the terminal UI's setup, and in the app through `models --json`."""
+"""Offered once an OpenRouter key is in, and in the app through `models --json`. Each runs on that one key."""
 
-HANDOFF_OWN_KEYS = (
-    "Pick the model that finishes a task once the hard part is done. A smaller model from the same family works best. "
-    "Turn it off to keep every step on System 2."
-)
-"""What the hand-over step says; the app's welcome flow says the same."""
+PAIRS: dict[str, tuple[Recommendation, ...]] = {
+    "openrouter": RECOMMENDED,
+    "anthropic": (
+        Recommendation(
+            "claude",
+            "best results",
+            "Claude Opus 5.5 cracks the hard part, Claude Haiku 5.5 finishes the job",
+            "anthropic/claude-opus-5-5",
+            "anthropic/claude-haiku-5-5",
+            "drex-max",
+        ),
+    ),
+    "openai": (
+        Recommendation(
+            "openai",
+            "OpenAI's pair",
+            "GPT-6.2 Astra cracks the hard part, GPT-6 Luna finishes the job",
+            "openai/gpt-6.2-astra",
+            "openai/gpt-6-luna",
+            "drex-max",
+        ),
+    ),
+}
+"""The frontier and efficient pairs the setup screen offers on each provider; others get "choose your own" only."""
+
+
+def pairs_for(provider: str, listed: tuple[str, ...] = ()) -> tuple[Recommendation, ...]:
+    """The pairs to offer on a provider whose models are `listed`: those with both models listed (all of them when
+    the provider listed nothing)."""
+
+    def has(ref: str) -> bool:
+        return not listed or ref.partition("/")[2] in listed
+
+    return tuple(pair for pair in PAIRS.get(provider, ()) if has(pair.system2) and has(pair.handoff))
+
+
+HANDOFF_OWN_KEYS = "Takes over once the hard part is done. Pick a fast, cheap model."
+"""What the efficient-model step says."""
 
 
 def handoff_suggestion(system2: str, listed: tuple[str, ...] = ()) -> str | None:
@@ -475,6 +544,19 @@ def handoff_suggestion(system2: str, listed: tuple[str, ...] = ()) -> str | None
         return None
     suggestion = f"{provider}/{option.handoff_suggested}"
     return suggestion if suggestion != system2 else None
+
+
+def efficient_models(system2: str, listed: tuple[str, ...] = ()) -> list[str]:
+    """The efficient models to offer for a frontier model, as `provider/model`, best first: the provider's
+    suggestion, its other efficient models, then the rest it lists. Never the frontier model itself."""
+    provider = system2.partition("/")[0]
+    option = PROVIDER_BY_ID.get(provider)
+    if option is None:
+        return []
+    first = [option.handoff_suggested, *option.efficient] if option.handoff_suggested else list(option.efficient)
+    ordered = [m for m in first if not listed or m in listed]
+    ordered += [m for m in listed if m not in ordered and m not in option.suggested]  # no frontier picks here
+    return [ref for m in dict.fromkeys(ordered) if (ref := f"{provider}/{m}") != system2]
 
 
 @dataclass(frozen=True)
