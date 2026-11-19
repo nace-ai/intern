@@ -187,7 +187,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         MORE,
         key_env="MISTRAL_API_KEY",
         key_url="https://console.mistral.ai/api-keys",
-        suggested=("mistral-large-latest", "devstral-medium-latest", "mistral-small-latest"),
+        suggested=("mistral-large-latest", "mistral-small-latest"),
         handoff_suggested="mistral-small-latest",
     ),
     ProviderOption(
@@ -197,7 +197,8 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         MORE,
         key_env="GROQ_API_KEY",
         key_url="https://console.groq.com/keys",
-        suggested=("qwen/qwen3-32b", "openai/gpt-oss-120b", "moonshotai/kimi-k2-instruct"),
+        suggested=("qwen/qwen3.8-27b", "openai/gpt-oss-120b"),
+        handoff_suggested="openai/gpt-oss-20b",
     ),
     ProviderOption(
         "cerebras",
@@ -206,7 +207,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         MORE,
         key_env="CEREBRAS_API_KEY",
         key_url="https://cloud.cerebras.ai",
-        suggested=("qwen-3.8-27b", "qwen-3-32b", "gpt-oss-120b"),
+        suggested=("qwen-3.8-27b", "gpt-oss-120b"),
     ),
     ProviderOption(
         "fireworks",
