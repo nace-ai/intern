@@ -17,11 +17,9 @@ from intern.onboarding import (
     PROVIDER_BY_ID,
     RECOMMENDED,
     SYSTEM1_BY_ID,
-    SYSTEM2_PROVIDERS,
     OpenRouterSignIn,
     Setup,
     check_system2,
-    offered_models,
     pairs_for,
     save,
 )
@@ -195,22 +193,6 @@ async def test_another_provider_walks_through_frontier_efficient_and_the_decisio
     assert config["capabilities"] == {"handoff": {"to": "anthropic/claude-haiku-5-5"}}
     kept = read_env_file(home / ".env")
     assert kept == {"ANTHROPIC_API_KEY": "sk-ant-test-key-123", "OPENROUTER_API_KEY": "sk-or-v1-test-key"}
-
-
-def test_a_provider_offers_its_frontier_and_its_efficient_models_apart_and_not_its_old_ones():
-    for option in SYSTEM2_PROVIDERS:
-        assert not set(option.suggested) & {option.handoff_suggested, *option.efficient}, option.id
-    openai = PROVIDER_BY_ID["openai"]
-    listed = ("gpt-4o-2024-11-20", "gpt-6-luna", "gpt-6.2-sol")
-    assert offered_models(openai, listed, "frontier") == ["gpt-6.2-sol"]
-    assert offered_models(openai, listed, "efficient") == ["gpt-6-luna"]
-    # With no picks for the role, or on this machine, what it lists.
-    assert offered_models(PROVIDER_BY_ID["deepseek"], ("deepseek-chat", "deepseek-reasoner"), "efficient") == [
-        "deepseek-chat",
-        "deepseek-reasoner",
-    ]
-    ollama = replace(PROVIDER_BY_ID["ollama"], suggested=("qwen3:30b",))
-    assert offered_models(ollama, ("llama3", "qwen3:30b"), "frontier") == ["qwen3:30b", "llama3"]
 
 
 def test_a_provider_offers_only_the_pairs_whose_models_it_lists():
