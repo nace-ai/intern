@@ -512,7 +512,7 @@ class _Models:
                 or left.vision != right.vision
             ):
                 raise ConfigError(
-                    "System 2 backup profiles need compatible request settings/vision "
+                    "The frontier model's fallbacks (system2_fallbacks) need compatible request settings/vision "
                     "and at least the primary context window"
                 )
             targets.append(backup)

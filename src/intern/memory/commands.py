@@ -92,7 +92,7 @@ async def _steward_locked(
     try:
         backend = bootstrap._system1()
     except ConfigError as e:
-        print(f"{names.NAME}: system1 unavailable: {e}", file=sys.stderr)
+        print(f"{names.NAME}: decision model unavailable: {e}", file=sys.stderr)
         return EXIT_FAILED
     cfg = bootstrap.config.system1
     decisions = DecisionClient(
@@ -162,16 +162,18 @@ def steward_main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         prog=f"{names.NAME} steward",
         description="Propose memory pages from finished session journals, one proposed/<session> branch each. "
-        "System 1 only: a session System 1 could not answer for is deferred (exit 3) and retried by the "
-        "next steward run on the same drive checkout.",
+        "Decision model only: a session the decision model could not answer for is deferred (exit 3) and retried by "
+        "the next steward run on the same drive checkout.",
     )
     parser.add_argument("journals", nargs="+", type=Path, help="Session journal files (JSONL).")
     parser.add_argument("--drive", type=Path, required=True, help="The memory drive: a clean git checkout of main.")
-    parser.add_argument("--system1", help="decisions:<model>[,...] or drex:<model>[,...]; default from config.toml.")
+    parser.add_argument(
+        "--system1", help="The decision model: decisions:<model>[,...] or drex:<model>[,...]; default from config.toml."
+    )
     parser.add_argument(
         "--writer",
         help="provider/model of an OpenAI-compatible LLM that phrases notes, or replay:<dir> of saved drafts; "
-        "System 1 still decides.",
+        "the decision model still decides.",
     )
     parser.add_argument(
         "--world",

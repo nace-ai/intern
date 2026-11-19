@@ -93,7 +93,7 @@ async def test_a_recorded_search_draws_folds_and_replays_at_any_width(tmp_path: 
             panel.now()
             head = plain(panel.query_one(".dxf-head", Static))
             podium = plain(panel.query_one(".dxf-podium", Static))
-            assert "System 1 searches the workspace" in head
+            assert "The decision model searches the workspace" in head
             if upto < len(traces):
                 assert "✓ ranked" not in head
                 continue

@@ -19,7 +19,7 @@ import sys
 import tempfile
 import time
 import uuid
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any, ClassVar, Literal
 from urllib.parse import unquote
@@ -41,6 +41,7 @@ from textual.widgets.markdown import MarkdownStream
 from textual.widgets.text_area import Selection
 
 from intern import __version__
+from intern.config import KNOWN_SYSTEM2
 from intern.events import ProcessVerdict, ToolCallEnd, ToolCallStart
 from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.messages import JsonObject
@@ -144,8 +145,8 @@ SHADOW = BRAND
 LOOP_S = 8.0
 """The mark's loop: it glances left, then right, and blinks twice."""
 FLASH_S = 1.5
-LABEL_WIDTH = 10
-"""The masthead's label column: `System 2` and room after it."""
+LABEL_WIDTH = 11
+"""The masthead's label column: `Efficient` and room after it."""
 LETTERS_WIDTH = MARK_COLUMNS + 3 + len(ART[0]) + 1 + 4
 """The mark, the block letters and the air after each: what the masthead's table needs beside it to stand with the
 letters."""
@@ -595,24 +596,28 @@ def joined(parts: list[Part]) -> list[Part]:
 
 class StatusBar(Static):
     """The masthead: the mark, the wordmark in the entering page's block letters where the terminal is wide enough
-    for them (else in type, over the table), then the version and under it a table: System 2 and
-    System 1, a label column, then the model in a column of its own, then the rest:
-    the thinking level in its box, where System 1 is served; then each system's cost, in a column, System 2's with the
-    share of its prompts read from the provider's cache. At the end of
-    System 2's row, the run: a spinner while one is in progress, the context in use as a share of the window, and
-    what needs attention."""
+    for them (else in type, over the table), then the version and under it a table, a row a model: the frontier
+    model (System 2), the efficient model a run hands over to, and the decision model (System 1); a label column,
+    then the model in a column of its own, then the rest: the thinking level in its box, where the decision model is
+    served; then each model's cost, in a column, the frontier model's with the share of its prompts read from the
+    provider's cache. At the end of the row of the model whose turn it is, the run: a spinner and `working` while one
+    is in progress, the context in use as a share of the window, and what needs attention."""
 
     def __init__(self) -> None:
         super().__init__("", id="status")
         self.system2 = "…"
         self.system1 = "…"
         self.handoff = ""
-        """The model auto mode hands a run over to, by its own name; none when it hands over to none."""
+        """The efficient model auto mode hands a run over to; none when it hands over to none."""
+        self.labels: Mapping[str, str] = {}
+        """Models' display names, by ref, as the catalog lists them (`model_label`)."""
         self.handed = False
         """A run has handed over: that model's turn until the run ends."""
         self.context = 0
         self.window = 0
         self.cost2 = 0.0
+        self.cost_handoff = 0.0
+        """What the efficient model's turns cost, after a hand-over; `cost2` is the frontier model's."""
         self.cost1 = 0.0
         self.unpriced = False
         """Some of System 2's calls have no known cost: `cost2` is short of its cost."""
@@ -686,20 +691,24 @@ class StatusBar(Static):
     def refresh_line(self) -> None:
         model1, served = system1_parts(self.system1)
         state = (SPINNER[self._frame % len(SPINNER)], S_OK) if self.running else ("○", S_MUTED)
-        # System 2, then the model auto mode hands a run over to: the one whose turn it is in the ink.
-        model2: list[Part] = [(self.system2, S_MUTED if self.handed else S_INK)]
-        if self.handoff:
-            model2 += [(f" {HANDOVER_SIGN} ", S_MUTED), (self.handoff, S_BRAND_BOLD if self.handed else S_MUTED)]
-        width = max(Content.assemble(*model2).cell_length, len(model1)) + COLUMN_GAP
+        # The frontier model, then the efficient one a run hands over to: the one whose turn it is in the ink.
+        frontier: list[Part] = [(model_label(self.system2, self.labels), S_MUTED if self.handed else S_INK)]
+        handoff = model_label(self.handoff, self.labels) if self.handoff else ""
+        efficient: list[Part] = [(handoff, S_BRAND_BOLD if self.handed else S_INK)] if handoff else []
+        efficient = efficient or [("off", S_MUTED)]
+        decision: list[Part] = [(model1, S_INK)]
+        names = (frontier, efficient, decision)
+        width = max(Content.assemble(*name).cell_length for name in names) + COLUMN_GAP
 
         thinking = thinking_box(self.thinking, self.levels) if self.thinking else []
         where: list[Part] = [(served, S_MUTED)] if served else []
         detail = max(Content.assemble(*thinking).cell_length, len(served)) + COLUMN_GAP
 
         cost2, cost1 = cost_text(self.cost2, self.unpriced), cost_text(self.cost1)
+        cost_handoff = cost_text(self.cost_handoff)
         if cache := cache_text(self.prompt2, self.cached2, self.cache_reported):
             cost2 = f"{cost2}{SEP}{cache}" if cost2 else cache
-        money = max(len(cost2), len(cost1)) + COLUMN_GAP
+        money = max(len(cost2), len(cost_handoff), len(cost1)) + COLUMN_GAP
 
         def table_row(label: str, value: list[Part], rest: list[Part], cost: str, tail: list[Part]) -> list[Part]:
             pad = " " * (detail - Content.assemble(*rest).cell_length)
@@ -713,7 +722,7 @@ class StatusBar(Static):
                 *tail,
             ]
 
-        run: list[Part] = []
+        run: list[Part] = [("working", S_OK)] if self.running else []
         if self.window:
             run.append((f"{self.context / self.window:.0%} of {tokens_text(self.window)}", S_MUTED))
         if self.running and self.activity:
@@ -722,16 +731,18 @@ class StatusBar(Static):
             run.append((self._flash, S_OK))
         elif self.note:
             run.append((self.note, S_MUTED if self.note.startswith("Not connected yet") else S_BAD))
+        working: list[Part] = [state, " ", *joined(run)]
         table = [
-            table_row("System 2", model2, thinking, cost2, [state, " ", *joined(run)]),
-            table_row("System 1", [(model1, S_INK)], where, cost1, [(self.watching, S_MUTED)] if self.watching else []),
+            table_row("Frontier", frontier, thinking, cost2, [] if self.handed else working),
+            table_row("Efficient", efficient, [], cost_handoff, working if self.handed else []),
+            table_row("Decision", decision, where, cost1, [(self.watching, S_MUTED)] if self.watching else []),
         ]
         # With the room, the entering page's block letters between the mark and the table; else the name in type.
         letters = wordmark(page=CARD)
         beside = [Content(" " * letters[0].cell_length), *letters]
         name: list[Part] = [(WORDMARK.upper(), S_WORDMARK), "  "]
         wide = max(Content.assemble(*row).cell_length for row in table) + LETTERS_WIDTH <= self.size.width
-        rows: list[list[Part]] = [[], [*([] if wide else name), (f"v{__version__}", S_MUTED)], [], *table, [], []]
+        rows: list[list[Part]] = [[], [*([] if wide else name), (f"v{__version__}", S_MUTED)], [], *table, []]
         self._card = self._page()
         cubes = [Content(" " * MARK_COLUMNS), *mark(self._pose, self._card, self._look()["ink"], eyes=self._eyes)]
         lines = [
@@ -836,7 +847,7 @@ def attachments(images: list[Path], sees: bool) -> Content | None:
         (" · ".join(p.name for p in images), S_INK),
     ]
     if not sees:
-        parts.append(("  System 2 cannot see images: /system2 picks one that can ", S_WARN))
+        parts.append(("  The frontier model cannot see images: /frontier picks one that can ", S_WARN))
     else:
         parts.append((" ", S_MUTED))
     return Content.assemble(*parts)
@@ -1235,8 +1246,13 @@ class Transcript(Following):
         self._markers: dict[str, Static] = {}
         self._compactions: dict[str, CompactionCard] = {}
         self._handed: Vertical | None = None
-        """The turns the cheaper model takes after a hand-over, set apart until the run ends."""
-        self.border_title = Content.assemble((" System 2 ", S_TAB), (" thinking slow ", S_MUTED))
+        """The turns the efficient model takes after a hand-over, set apart until the run ends."""
+        self.working("Frontier model", "")
+
+    def working(self, role: str, model: str) -> None:
+        """Who is working, on the transcript's tab: `Frontier model`, or `Efficient model` after a hand-over, and the
+        model by its name."""
+        self.border_title = Content.assemble((f" {role} ", S_TAB), (f" {model} " if model else "", S_MUTED))
 
     async def add(self, widget: Widget) -> None:
         await (self._handed or self).mount(widget)
@@ -1246,7 +1262,7 @@ class Transcript(Following):
         return self._handed is not None
 
     async def hand_over(self, content: Content) -> None:
-        """The run handed over: what follows, until `hand_back`, is the cheaper model's, under `content`."""
+        """The run handed over: what follows, until `hand_back`, is the efficient model's, under `content`."""
         await self.finish_reply()
         await self.hand_back()
         region = Vertical(classes="handed")
@@ -1255,7 +1271,7 @@ class Transcript(Following):
         await region.mount(Static(content, classes="handed-head"))
 
     async def hand_back(self, content: Content | None = None) -> None:
-        """The run the cheaper model finished is over: what follows is System 2's again."""
+        """The run the efficient model finished is over: what follows is the frontier model's again."""
         if self._handed is None:
             return
         await self.finish_reply()
@@ -1275,8 +1291,11 @@ class Transcript(Following):
     async def notice(self, text: str, kind: str = "info") -> None:
         await self.add(Static(Content(text), classes=f"notice {kind}"))
 
-    async def begin_turn(self) -> None:
+    async def begin_turn(self, head: Content | None = None) -> None:
+        """A turn starts: the reply before it is finished, and `head`, who takes the turn, goes above it."""
         await self.finish_reply()
+        if head is not None:
+            await self.add(Static(head, classes="turn-head"))
 
     async def finish_reply(self) -> None:
         if self._reply is not None:
@@ -1513,9 +1532,24 @@ def model_name(ref: str) -> str:
     return ref.rsplit("/", 1)[-1]
 
 
+def model_label(ref: str, labels: Mapping[str, str] | None = None) -> str:
+    """A model by the name people know it by: its display name where one is known (`labels`, from the catalog, or
+    the known models'), else its own name without the provider. `…` and `none`, before there is a model, as they are."""
+    if ref in ("…", "none", ""):
+        return ref
+    return (labels or {}).get(ref) or KNOWN_SYSTEM2.get(ref) or model_name(ref)
+
+
+def turn_head(efficient: bool, model: str, turn: int | None = None) -> Content:
+    """Who takes a turn, on a line above it: `Frontier · Claude Opus 5.5`, or after a hand-over
+    `Efficient · Hy4 Flash` in the accent, as the hand-over's shading is; then the turn's number, where it is known."""
+    role: Part = ("Efficient", S_BRAND_BOLD) if efficient else ("Frontier", S_HEAD_MUTED)
+    return Content.assemble(role, (f" · {model}", S_MUTED), (f" · turn {turn}" if turn else "", S_MUTED))
+
+
 def readiness(h: HandoverJudgement) -> list[Part]:
     """System 1's P(ready) turn by turn as a column each, the latest in the accent, then that one in figures: how the
-    work came to the point where the cheaper model can finish it."""
+    work came to the point where the efficient model can finish it."""
     if not h.ready:
         return []
     columns = [LADDER[max(0, math.ceil(p * len(LADDER)) - 1)] for p in h.ready[-READY_SHOWN:]]
@@ -1527,14 +1561,15 @@ READY_SHOWN = 12
 """The turns a readiness trail shows, newest last."""
 
 
-def handoff_card(h: HandoverJudgement) -> Content:
-    """The hand-over as a card where it happened: the turn, how sure System 1 was and how it got there, then who
-    finishes the run."""
-    outcome: list[Part] = [(f"{model_name(h.target)} finishes this run", S_BRAND_BOLD)]
-    return Content.assemble(
+def handoff_card(h: HandoverJudgement, name: str = "") -> Content:
+    """The hand-over where it happened: which model finishes the run (`name`, else the target's own name) and from
+    which turn; under it, how sure the decision model was and how it got there."""
+    head = Content.assemble(
         (f"{HANDOVER_SIGN} ", S_BRAND_BOLD),
-        card("System 1", f"handed over at turn {h.handed_at}", readiness(h), outcome),
+        (f"Handed over to the efficient model ({name or model_name(h.target)})", S_BRAND_BOLD),
+        (f" at turn {h.handed_at}", S_MUTED),
     )
+    return Content("\n").join([head, Content.assemble("  ", card("Decision model", "", readiness(h), []))])
 
 
 def supervisor_card(j: TurnJudgement) -> Content:
@@ -1544,7 +1579,7 @@ def supervisor_card(j: TurnJudgement) -> Content:
     for mode in runners_up(j.probabilities, j.mode):
         levels += [GAP, *level(mode_label(mode), j.probabilities[mode], S_MUTED, S_MUTED)]
     outcome = [note for note in turn_notes(j) if note[0] != "cached"]  # the call's own fact, with its time
-    return card("System 1", seconds(j.duration_ms, j.cached), levels, outcome)
+    return card("Decision model", seconds(j.duration_ms, j.cached), levels, outcome)
 
 
 LOOK_STYLE = {
@@ -1570,7 +1605,7 @@ def look_card(v: ProcessVerdict, *, named: bool) -> Content:
         levels += [GAP, *said(other, S_MUTED, S_MUTED)]
     meta = (f"{brief(v.command, 32)} " if named else "") + f"at {duration_text(v.elapsed_s)}"
     outcome: list[Part] = [("told the agent", S_WARN_BOLD)] if v.told else []
-    return Content.assemble((f"{JOB} ", S_MUTED), card("System 1", meta, levels, outcome))
+    return Content.assemble((f"{JOB} ", S_MUTED), card("Decision model", meta, levels, outcome))
 
 
 def guard_card(g: GuardJudgement) -> Content:
@@ -1581,7 +1616,9 @@ def guard_card(g: GuardJudgement) -> Content:
     unasked = risky and g.asked < ASKED_THRESHOLD
     kind_style = S_MUTED if g.kind == "routine" else S_WARN if g.kind == "unclear" else S_BAD
     head: list[Part] = (
-        [("✗ ", S_BAD_BOLD), ("System 1 refused", S_BAD_BOLD)] if g.refused else [("✓ ", S_OK), ("System 1", S_MUTED)]
+        [("✗ ", S_BAD_BOLD), ("Decision model refused", S_BAD_BOLD)]
+        if g.refused
+        else [("✓ ", S_OK), ("Decision model", S_MUTED)]
     )
     parts: list[Part] = [
         *head,
@@ -1697,8 +1734,8 @@ def continued_from(c: CompactionJudgement) -> list[Part]:
     size = f" ({len(c.summary.split()):,} words)" if c.summary else ""
     if c.method == "state":
         written = ", written for it first: the standing one did not cover the cut" if c.state_written else ""
-        return ["System 2's summary", (size + written, S_MUTED)]
-    why = "System 2's summary of them did not land" if c.state_written else "no summary covered them"
+        return ["the summary", (size + written, S_MUTED)]
+    why = "the summary of them did not land" if c.state_written else "no summary covered them"
     return ["a list of the cut turns' tool calls", (f"{size}: {why}", S_MUTED)]
 
 
@@ -1784,7 +1821,7 @@ def compaction_card(
     elif calm:
         parts = [("⟲ Compaction stopped", S_HEAD), (f" · turn {c.turn} · nothing was cut", S_MUTED)]
     elif c.writing:
-        parts = [("⟲ Compacting", S_HEAD), (f" · turn {c.turn} · System 2 is writing its summary  ", S_MUTED), spin]
+        parts = [("⟲ Compacting", S_HEAD), (f" · turn {c.turn} · writing the summary  ", S_MUTED), spin]
         head = Content.assemble(*parts)
         count = f" {len(c.draft):,} chars" if c.draft else ""
         if not width or head.cell_length + len(count) <= width:  # the line below shows it grow, so it can go
@@ -1794,7 +1831,10 @@ def compaction_card(
         last = Content.styled("  " + line, S_MUTED)
         return Content("\n").join([head, last.truncate(width, ellipsis=True) if width else last])
     else:
-        parts = [("⟲ Compacting", S_HEAD), (f" · turn {c.turn} · System 1 is judging the reads being cut", S_MUTED)]
+        parts = [
+            ("⟲ Compacting", S_HEAD),
+            (f" · turn {c.turn} · the decision model is sorting the reads being cut", S_MUTED),
+        ]
         if not started and spin[0]:
             parts += ["  ", spin]
     if calm and c.done:
@@ -1802,7 +1842,12 @@ def compaction_card(
         if started:
             kept = c.kept_reads()
             count = f"{len(kept)} of {len(c.verdicts)}"
-            parts += ["\n", ("Reads ", S_MUTED), ("System 1 kept ", S_MUTED), (count, S_OK if kept else S_INK)]
+            parts += [
+                "\n",
+                ("Reads ", S_MUTED),
+                ("the decision model kept ", S_MUTED),
+                (count, S_OK if kept else S_INK),
+            ]
             parts.append((" verbatim", S_MUTED))
             if cut := c.cut_reads():
                 reasons = ", ".join(f"{len(r)} {REASON_LABEL.get(k, k)}" for k, r in cut.items())
@@ -1822,7 +1867,7 @@ def compaction_card(
     landed = [v for v in started if ages is None or ages[v.path] >= SCAN_FRAMES]
     kept_so_far = sum(v.kept for v in landed)
     of = f" of {len(c.verdicts)}" if c.done else ""
-    parts += ["\n", ("Reads ", S_MUTED), spin, (f"System 1 judged {len(landed)}{of}", S_MUTED)]
+    parts += ["\n", ("Reads ", S_MUTED), spin, (f"the decision model judged {len(landed)}{of}", S_MUTED)]
     parts.append((f" · {kept_so_far} kept", S_OK if kept_so_far else S_MUTED))
     for v in started[-CARD_LINES:]:
         parts += ["\n", *verdict_line(v, None if ages is None else ages[v.path], cwd, width)]

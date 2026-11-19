@@ -78,7 +78,7 @@ from intern.tui.widgets import (
     fit_path,
     flow,
     mode_label,
-    model_name,
+    model_label,
     readiness,
     runners_up,
     short_path,
@@ -111,8 +111,8 @@ MIN_WIDTH = 30
 QUESTION_LINES = 2
 KEPT_SHOWN = 3
 EMPTY = (
-    "System 1's judgements show here as it makes them: the turns it watches, the calls it guards, the searches it "
-    "walks and the reads it sorts at a compaction."
+    "The decision model's judgements show here as it makes them: when to hand over, the turns it watches, the calls "
+    "it guards, the searches it walks and the reads it sorts at a compaction."
 )
 
 
@@ -255,7 +255,7 @@ def guard_lines(g: GuardJudgement, room: int) -> list[list[Part]]:
 def rule_lines(r: RuleRefusal, room: int) -> list[list[Part]]:
     """A call a fixed rule refused: no model was asked, and the row says so."""
     title = tool_header(r.name, r.arguments) if r.arguments else r.name
-    said = f"a fixed rule, not System 1 · {r.rule.replace('_', ' ')}"
+    said = f"a fixed rule, not the decision model · {r.rule.replace('_', ' ')}"
     return [call_line(title, room), [(clip(said, room), S_MUTED)], *wrapped(r.reason, room, S_BAD)]
 
 
@@ -288,7 +288,7 @@ def compaction_lines(c: CompactionJudgement, room: int, cwd: Path | None) -> lis
     """A compaction: the reads System 1 judged and kept, then what the cut did to the context."""
     kept = c.kept_reads()
     if not c.done:
-        doing = "System 2 is writing its summary…" if c.writing else "System 1 is judging the reads being cut…"
+        doing = "writing the summary…" if c.writing else "sorting the reads being cut…"
         so_far = f" · {len(c.verdicts)} so far" if c.verdicts and not c.writing else ""
         return [[(clip(doing + so_far, room), S_MUTED_ITALIC)]]
     if c.verdicts:
@@ -314,13 +314,13 @@ def compaction_lines(c: CompactionJudgement, room: int, cwd: Path | None) -> lis
 
 
 def handover_lines(h: HandoverJudgement, room: int) -> list[list[Part]]:
-    """The run's hand-over in a line: System 1's P(ready) turn by turn, and, once the run has handed over, to which
-    model and at which turn."""
+    """The run's hand-over: System 1's P(ready) turn by turn, and, once the run has handed over, a line under it with
+    the efficient model that took over and from which turn."""
     head: list[Part] = [("hand-over ", S_MUTED), *readiness(h)]
-    if h.target:
-        said = f"  → {model_name(h.target)} at turn {h.handed_at}"
-        head.append((clip(said, max(8, room - Content.assemble(*head).cell_length)), S_BRAND_BOLD))
-    return [head]
+    if not h.target:
+        return [head]
+    said = f"→ Efficient · {model_label(h.target)} from turn {h.handed_at}"
+    return [head, [(clip(said, room), S_BRAND_BOLD)]]
 
 
 def other_lines(o: OtherJudgement, room: int) -> list[list[Part]]:
@@ -367,6 +367,8 @@ def feed(runs: list[RunLedger], width: int, cwd: Path | None = None) -> Content:
             lines.append([])
         if run.prompt:
             lines.append([("› ", S_HEAD), (clip(" ".join(run.prompt.split()), width - 2), S_HEAD)])
+        if run.model:  # who works the run, until a hand-over row says otherwise
+            lines.append([" " * GUTTER, (clip(f"Frontier · {model_label(run.model)}", room), S_MUTED)])
         for row in run.feed:
             sign, body = row_lines(row, room, cwd)
             lines.append([sign, " ", *body[0]])
@@ -387,7 +389,7 @@ class System1Panel(Vertical, can_focus=False):
         super().__init__(id="system1")
         self._ledger = Ledger()
         self.cwd: Path | None = None
-        self.border_title = Content.assemble((" System 1 ", S_TAB), (" thinking fast ", S_MUTED))
+        self.border_title = Content.assemble((" Decision model ", S_TAB))
 
     def compose(self) -> ComposeResult:
         yield Static(id="system1-usage")

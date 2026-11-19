@@ -592,7 +592,7 @@ def header(state: SearchState, width: int, frame: int, replay: bool) -> Content:
         status = [(spin, BRAND), (f" {secs:.1f}s", INK)]
     if replay:
         status = [(f"⟲ replay ×{REPLAY_SPEED:g}  ", f"bold {BRAND}"), *status]
-    first: list[Part] = [("⌕ ", f"bold {BRAND}"), ("System 1 walks the index", f"bold {INK}")]
+    first: list[Part] = [("⌕ ", f"bold {BRAND}"), ("The decision model walks the index", f"bold {INK}")]
     if state.scope:
         first.append((f"  under {state.scope}", MUTED))
     used = sum(len(p[0]) for p in first) + sum(len(p[0]) for p in status)
@@ -868,7 +868,7 @@ class SearchPanel(Vertical):
         board = "RESULT" if state.finished and state.ranking else "LEADERBOARD"
         self.query_one(".decision-board", Static).update(section(board, leaderboard(state, side, now)))
         self.query_one(".decision-compare", Static).update(section("COMPARE", compare(state, side)))
-        self.query_one(".decision-stats", Static).update(section("SYSTEM 1", stats(state)))
+        self.query_one(".decision-stats", Static).update(section("DECISION MODEL", stats(state)))
         self.query_one(".decision-feed", Static).update(feed(state, max(20, width - 40), self.frame))
 
     def now(self) -> None:

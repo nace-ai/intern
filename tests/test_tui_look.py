@@ -95,12 +95,23 @@ def test_the_masthead_lines_up_the_models_the_run_and_each_systems_cost_in_colum
     assert isinstance(content, Content)
     rows = content.plain.splitlines()
     assert len(rows) == 7 and "INTERN" in rows[1]
-    sys2, sys1 = rows[3], rows[4]
-    assert sys2.index("System 2") == sys1.index("System 1")
-    assert sys2.index("anthropic/") == sys1.index("drex-max-v1.1")
-    assert sys2.index(" thinking xhigh") == sys1.index("console")
-    assert sys2.index("$1.2500") == sys1.index("$0.0178")  # each system's cost on its row, in a column
-    assert sys2.rstrip().endswith("$1.2500   ○ 23% of 1.0M")  # the run after it: the context as a share
+    frontier, efficient, decision = rows[3], rows[4], rows[5]
+    assert frontier.index("Frontier") == efficient.index("Efficient") == decision.index("Decision")
+    assert frontier.index("Claude Haiku 5.5") == efficient.index("off") == decision.index("drex-max-v1.1")
+    assert frontier.index(" thinking xhigh") == decision.index("console")
+    assert frontier.index("$1.2500") == decision.index("$0.0178")  # each model's cost on its row, in a column
+    assert frontier.rstrip().endswith("$1.2500   ○ 23% of 1.0M")  # the run after it: the context as a share
+    # After a hand-over the run is on the efficient model's row: that is the one working.
+    status.handoff, status.handed, status.running, status.cost_handoff = "fake/hy4-flash", True, True, 0.05
+    status.refresh_line()
+    assert isinstance(status.content, Content)
+    frontier, efficient = status.content.plain.splitlines()[3:5]
+    assert "working" not in frontier and "hy4-flash" in efficient
+    assert (
+        efficient.index("$0.0500") == frontier.index("$1.2500")
+        and "working" in efficient
+        and "23% of 1.0M" in efficient
+    )
 
 
 def test_the_thinking_box_is_filled_up_to_the_level_and_as_wide_at_every_one():
@@ -135,9 +146,9 @@ def test_a_level_binds_its_label_and_number_with_non_breaking_spaces():
 def test_the_supervisor_card_is_the_panel_row_in_one_line():
     (line,) = card_lines(supervisor_card(judgement(strikes=1)))
     # the call, then the two next likeliest; finished (0.00) is not among them
-    assert line == "System 1 · 0.6s   moving 0.92   circling 0.06   off-plan 0.01   → strike 1/2"
+    assert line == "Decision model · 0.6s   moving 0.92   circling 0.06   off-plan 0.01   → strike 1/2"
     (cached,) = card_lines(supervisor_card(judgement(cached=True)))
-    assert cached.startswith("System 1 · 0.6s · cached   moving") and "→" not in cached  # nothing followed
+    assert cached.startswith("Decision model · 0.6s · cached   moving") and "→" not in cached  # nothing followed
 
 
 def test_the_guard_card_says_what_the_call_would_do_and_why_it_was_refused():
@@ -153,10 +164,10 @@ def test_the_guard_card_says_what_the_call_would_do_and_why_it_was_refused():
         cost_usd=0.00004,
     )
     (line,) = card_lines(guard_card(g))
-    assert line == "✓ System 1   rewrites shared history 0.96   risk 0.96   asked 0.02   0.4s"
+    assert line == "✓ Decision model   rewrites shared history 0.96   risk 0.96   asked 0.02   0.4s"
     g.refused, g.reason = True, "System 1 judged that it rewrites history that others share and the user did not ask"
     lines = card_lines(guard_card(g))
-    assert lines[0].startswith("✗ System 1 refused   ") and lines[1] == g.reason
+    assert lines[0].startswith("✗ Decision model refused   ") and lines[1] == g.reason
     rule = rule_card(RuleRefusal(turn=4, call_id="c4", name="bash", rule="force_push", reason="a force push"))
     assert rule.plain == "✗ refused   rule · force push\na force push"
 
@@ -222,7 +233,7 @@ def test_the_system_1_panel_lists_every_judgement_under_its_prompt_each_kind_in_
     assert rows[3].startswith("✓ $ pytest -q ") and rows[3].endswith(" risk 0.00") and "routine" not in text
     assert len(rows[3]) == 60 and "✗ $ sudo make install" in rows[4]
     assert "✗ $ git push --force" in rows[5]
-    assert "a fixed rule, not System 1 · privilege" in text and "it runs sudo" in text
+    assert "a fixed rule, not the decision model · privilege" in text and "it runs sudo" in text
     assert "rewrites shared history 0.96" in text and "System 1 judged that it rewrites history" in text
     # A search: the question, what it took and the place it ranked first; one still running says so.
     assert "decision_code  12 asks · 36 judged" in rows[6] and "where are retries capped?" in text
@@ -242,11 +253,11 @@ def test_a_background_commands_lines_say_system_1s_judgement_and_how_it_stands_n
         id="j1", command=command, elapsed_s=120, verdict="waiting_as_expected", probabilities=waits, told=False
     )
     alone = look_card(looked, named=False).plain.replace(NBSP, " ")
-    assert alone == "» System 1 · at 2m 00s   waiting as expected 0.93   progressing 0.05"  # the judgement alone
+    assert alone == "» Decision model · at 2m 00s   waiting as expected 0.93   progressing 0.05"  # the judgement alone
     stalled = looked.model_copy(update={"verdict": "stalled", "probabilities": {"stalled": 0.7}, "told": True})
     # With several running, which one: what it runs, in a few words, not the `cd` before it nor its later lines.
     named = look_card(stalled, named=True).plain.replace(NBSP, " ")
-    assert named == "» System 1 · python3 - <<'EOF' … at 2m 00s   stalled 0.70   → told the agent"
+    assert named == "» Decision model · python3 - <<'EOF' … at 2m 00s   stalled 0.70   → told the agent"
 
     # A poll reads as how the job stands and what it printed, not the JSON the agent gets.
     snapshot = {

@@ -95,7 +95,7 @@ STAGE_NAMES: dict[Stage, str] = {
     "done": "ranked",
 }
 STAGE_HINTS: dict[Stage, str] = {
-    "walk": "System 1 walks folders, files and parts; the BM25 table of every passage opens beside it",
+    "walk": "the decision model walks folders, files and parts; the BM25 table of every passage opens beside it",
     "judge": "the walk's passages and the BM25 top 100 judged as evidence, eight to an ask, the walk's best in view",
     "expand": "the ten best are seeds: their rarest words and names, each searched with the question",
     "rejudge": "what the terms reached, judged with the seeds in the state",
@@ -334,7 +334,7 @@ def judge_line(state: FilesState, frame: int) -> Content:
         (f" {judged}/{len(cands)} passages", INK),
     ]
     if asking:
-        parts.append((f"  {SPINNER[frame % len(SPINNER)]} {asking} with System 1", BRAND))
+        parts.append((f"  {SPINNER[frame % len(SPINNER)]} {asking} with the decision model", BRAND))
     scores = [h.score for h in cands if h.score is not None and h.state == "judged"]
     if scores:
         parts += [("  scores 0 ", MUTED), *sparkline(scores), (" 1", MUTED)]
@@ -509,7 +509,7 @@ def header(state: FilesState, width: int, frame: int, replay: bool) -> Content:
         status = [(spin, BRAND), (f" {secs:.1f}s", INK)]
     if replay:
         status = [(f"⟲ replay ×{REPLAY_SPEED:g}  ", f"bold {BRAND}"), *status]
-    first: list[Part] = [("⌕ ", f"bold {BRAND}"), ("System 1 searches the workspace", f"bold {INK}")]
+    first: list[Part] = [("⌕ ", f"bold {BRAND}"), ("The decision model searches the workspace", f"bold {INK}")]
     if state.scope:
         first.append((f"  under {state.scope}", MUTED))
     used = sum(len(p[0]) for p in first) + sum(len(p[0]) for p in status)
@@ -771,7 +771,7 @@ class FilesPanel(Vertical):
         self.query_one(".dxf-flow", Static).update(Content("\n").join(flow))
         title = "RESULT  top 10, in diversity order" if state.top() and state.top()[0].rank else "LEADERBOARD"
         self.query_one(".dxf-podium", Static).update(section(title, podium(state, podium_w, now, self.frame)))
-        self.query_one(".dxf-stats", Static).update(section("SYSTEM 1", stats(state)))
+        self.query_one(".dxf-stats", Static).update(section("DECISION MODEL", stats(state)))
         rows.display = hidden > 0 or self.all_rows
         rows.update("▴ fewer rows" if self.all_rows else f"▾ {hidden} more rows")
         self.query_one(".dxf-feed", Static).update(feed(state, max(20, width - 40)))

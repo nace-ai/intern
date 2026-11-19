@@ -475,7 +475,8 @@ class DecisionClient:
                     self.usage.failed += 1
                     waited = int(time.monotonic() - started)
                     raise System1Unavailable(
-                        f"System 1 ({backend_name}) did not answer {purpose} in {waited}s of retries: {self.last_error}"
+                        f"The decision model ({backend_name}) did not answer {purpose} in {waited}s of retries: "
+                        f"{self.last_error}"
                     ) from e
                 await asyncio.sleep(delay)
                 delay = min(delay * 2, RETRY_LONGEST_S)

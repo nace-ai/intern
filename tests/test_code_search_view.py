@@ -92,7 +92,7 @@ async def test_a_decision_code_call_draws_its_search_live_right_under_the_call(t
         assert state.question == QUESTION and state.finished and state.status == "ok"
         await wait_for(lambda: "✓ ranked in" in text_of(panel, ".decision-head"))
         head = text_of(panel, ".decision-head")
-        assert "System 1 walks the index" in head and "● descend" in head and "● ranked" in head
+        assert "The decision model walks the index" in head and "● descend" in head and "● ranked" in head
         assert "RESULT" in text_of(panel, ".decision-board") and "dates.py" in text_of(panel, ".decision-board")
         lines = text_of(panel, ".decision-tree").splitlines()
         assert lines[0].startswith("◉ ") and "3 files" in lines[0]
@@ -110,7 +110,8 @@ async def test_a_decision_code_call_draws_its_search_live_right_under_the_call(t
         )
         panel.query_one(".decision-fold", Control).on_click(_click())
         await pilot.pause()
-        assert not panel.has_class("-folded") and "System 1 walks the index" in text_of(panel, ".decision-head")
+        assert not panel.has_class("-folded")
+        assert "The decision model walks the index" in text_of(panel, ".decision-head")
         # A replay plays the recorded search again, in place.
         # A click draws at once; the replay of a search that took milliseconds could end between two frames.
         panel.query_one(".decision-replay", Control).on_click(_click())

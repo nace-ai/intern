@@ -69,7 +69,7 @@ def _emit(as_json: bool, data: dict[str, Any], text: str) -> None:
 def _grant_text(grant: FreeGrant | None) -> str:
     if grant is None:
         return "Signed in to the free credit."
-    meters = (("agent", grant.meters.agent), ("System 1", grant.meters.system1))
+    meters = (("agent", grant.meters.agent), ("decision model", grant.meters.system1))
     left = [f"{name} ${m.limit_usd - m.used_usd:.2f} of ${m.limit_usd:.2f}" for name, m in meters]
     return f"Free credit {grant.state}: {', '.join(left)} left."
 

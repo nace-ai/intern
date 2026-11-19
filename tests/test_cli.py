@@ -228,7 +228,7 @@ def test_a_run_without_system_1_is_refused_not_run_on_heuristics(tmp_path: Path,
         keyed = cli(*run, env={**env, **server.system1_env}, cwd=work)
     assert refused.returncode == 2, refused.stderr
     assert "drex-latest" in refused.stderr and "NACE_API_KEY" in refused.stderr and "--system1" in refused.stderr
-    assert heuristic.returncode == 2 and "System 1 is required" in heuristic.stderr, heuristic.stderr
+    assert heuristic.returncode == 2 and "A decision model is required" in heuristic.stderr, heuristic.stderr
     assert keyed.returncode == 0 and keyed.stdout.strip() == "Four.", keyed.stderr
 
 

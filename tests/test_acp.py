@@ -966,12 +966,11 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
     # Nace's recommended combinations, listed whatever keys are set, each naming the models as a session takes them
     # (`--system2`, `--handoff-to`, `--system1`) and every key it runs on, once.
     recommended = {r["id"]: r for r in listed["recommended"]}
-    assert list(recommended) == ["one-key", "best-results", "free-models"]
-    assert recommended["one-key"]["system1"] == "decisions:nace-ai/drex-max"
-    assert [k["env"] for k in recommended["one-key"]["keys"]] == ["OPENROUTER_API_KEY"]
-    assert [k["env"] for k in recommended["best-results"]["keys"]] == ["ANTHROPIC_API_KEY", "OPENROUTER_API_KEY"]
-    assert recommended["free-models"]["system1"] == "drex-latest"
-    assert [k["env"] for k in recommended["free-models"]["keys"]] == ["FIREWORKS_API_KEY", "NACE_API_KEY"]
+    assert list(recommended) == ["opus-hy4", "hy4", "gpt"]
+    assert recommended["opus-hy4"]["system2"] == "openrouter/anthropic/claude-opus-5.5"
+    assert recommended["opus-hy4"]["handoff"] == "openrouter/tencent/hy4-flash"
+    assert recommended["opus-hy4"]["system1"] == "decisions:nace-ai/drex-max"
+    assert all([k["env"] for k in r["keys"]] == ["OPENROUTER_API_KEY"] for r in recommended.values())
     assert all(r["title"] and r["why"] and all(k["url"] for k in r["keys"]) for r in recommended.values())
     assert not (home / "sessions").exists()
 
@@ -1580,7 +1579,7 @@ def test_bootstrap_requires_system_1_and_serves_picks_from_the_console_or_the_de
     other = keyed.system1_backend("drex-max-v1.1")
     assert isinstance(other, DecisionsApiBackend) and other.name == "decisions-api:drex-max-v1.1"
     # Heuristics are gone: there is no System 1 that is not a model.
-    with pytest.raises(ConfigError, match="System 1 is required"):
+    with pytest.raises(ConfigError, match="A decision model is required"):
         Bootstrap(options.model_copy(update={"system1": "heuristic"}), home).system1_choice()
     # A decision model on the decisions API, picked as decisions:<model> or started on with --system1, with its
     # own endpoint, fallbacks and key.

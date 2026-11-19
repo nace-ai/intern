@@ -25,19 +25,23 @@ PACK_NOTES = {
     "web-read": "web_read: a URL fetched as source text the agent can read and quote",
 }
 PACK_SYSTEM1 = {
-    "web-search": ("web_search", "System 1 keeps the results the task needs, best first"),
-    "web-read": ("web_reader", "System 1 keeps the parts of a long page the task needs"),
+    "web-search": ("web_search", "the decision model keeps the results the task needs, best first"),
+    "web-read": ("web_reader", "the decision model keeps the parts of a long page the task needs"),
 }
 """The packs System 1 can judge for: each one's options table, whose `system1` turns it on, and what it does."""
 RETIRED = frozenset({f"{PREFIX}process"})
 """Toggles no longer offered that a client or a journal may still set: accepted, and they change nothing. `process`
 is a base tool."""
 BROWSER_NOTE = "browser: Playwright pages the agent opens, reads, clicks, fills and screenshots"
-CODE_SEARCH_NOTE = "decision_code: System 1 searches the repository for where something is defined or changed"
+CODE_SEARCH_NOTE = "decision_code: the decision model searches the repository for where something is defined or changed"
 WORKSPACE_NOTE = "index_files, decision_files, sql, read: a folder of PDFs, Word files and workbooks the agent indexes"
 MEMORY_NOTE = "a git repository of pages the agent recalls from at the start and adds to"
-GUARD_NOTE = "checks each tool call before it runs: fixed rules refuse the destructive, System 1 judges the rest"
-TOOL_RESULT_GUARD_NOTE = "System 1 removes instructions addressed to the agent from web, browser and MCP output"
+GUARD_NOTE = (
+    "checks each tool call before it runs: fixed rules refuse the destructive, the decision model judges the rest"
+)
+TOOL_RESULT_GUARD_NOTE = (
+    "the decision model removes instructions addressed to the agent from web, browser and MCP output"
+)
 SUBAGENTS_NOTE = "agent: the agent hands self-contained tasks to subagents with its own tools, or fewer, and its budget"
 
 
@@ -78,7 +82,7 @@ def toggles(
         Toggle(
             id=f"{PREFIX}{pack}",
             name=PACK_NAMES[pack],
-            label=f"{pack} tools" + (" · System 1" if pack in PACK_SYSTEM1 else ""),
+            label=f"{pack} tools" + (" · decision model" if pack in PACK_SYSTEM1 else ""),
             note=PACK_NOTES[pack] + _system1_note(caps, pack),
             on=pack in packs,
         )
@@ -90,23 +94,25 @@ def toggles(
         Toggle(
             id=f"{PREFIX}code-search",
             name="Code search",
-            label="code search · System 1",
+            label="code search · decision model",
             note=CODE_SEARCH_NOTE,
             on=caps.code_search.enabled,
         ),
         Toggle(
             id=f"{PREFIX}workspace",
             name="Workspace",
-            label="workspace · System 1",
+            label="workspace · decision model",
             note=WORKSPACE_NOTE,
             on=caps.workspace.enabled,
         ),
         Toggle(id=f"{PREFIX}memory", name="Memory", label="memory drive", note=MEMORY_NOTE, on=caps.memory.enabled),
-        Toggle(id=f"{PREFIX}guard", name="Guard", label="guard · System 1", note=GUARD_NOTE, on=caps.guard.enabled),
+        Toggle(
+            id=f"{PREFIX}guard", name="Guard", label="guard · decision model", note=GUARD_NOTE, on=caps.guard.enabled
+        ),
         Toggle(
             id=f"{PREFIX}tool-result-guard",
             name="Tool-result guard",
-            label="tool-result guard · System 1",
+            label="tool-result guard · decision model",
             note=TOOL_RESULT_GUARD_NOTE,
             on=caps.tool_result_guard.enabled,
         ),

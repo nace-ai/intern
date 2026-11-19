@@ -75,6 +75,8 @@ from intern.tools.files import ReadTool
 
 HOME_ENV = f"{names.ENV_PREFIX}HOME"
 SYSTEM2_ENV = f"{names.ENV_PREFIX}SYSTEM2"
+COMMAND = names.NAME
+"""The command a user runs: the terminal UI connects their models on its first launch."""
 MEMORY_ENV = f"{names.ENV_PREFIX}MEMORY"
 DRIVE_DIR = "memory"
 # System 1 on the console (`drex:<model>`): https://console.nace.ai serves /v1/systemone.
@@ -499,7 +501,7 @@ class Bootstrap:
         if not spec:
             return cfg
         if spec == "heuristic":
-            raise ConfigError(f"System 1 is required: --system1 heuristic is gone; pass {SYSTEM1_HELP}")
+            raise ConfigError(f"A decision model is required: --system1 heuristic is gone; pass {SYSTEM1_HELP}")
         kind, _, rest = spec.partition(":")
         models = [m for m in rest.split(",") if m]
         if kind == "decisions" and models:
@@ -529,7 +531,7 @@ class Bootstrap:
             url, key = self._console(cfg)
             if not key:
                 raise System1Unconfigured(
-                    f"System 1 ({models[0]} from the console) needs a key in ${cfg.console_key_env} (or "
+                    f"The decision model ({models[0]} from the console) needs a key in ${cfg.console_key_env} (or "
                     f"${DECISION_KEY_ENV}); or set [system1] in {self.home / CONFIG_FILE}, or pass --system1 "
                     "decisions:<model>"
                 )
@@ -649,8 +651,8 @@ class Bootstrap:
         ref = self.default_system2()
         if not ref:
             raise System2Unavailable(
-                f"no model given: pass --system2 provider/model, set ${SYSTEM2_ENV}, "
-                f"or set system2 in {self.home / CONFIG_FILE}",
+                f"no model given: run `{COMMAND}` in a terminal to connect your models, pass --system2 "
+                f"provider/model, set ${SYSTEM2_ENV}, or set system2 in {self.home / CONFIG_FILE}",
                 ref="",
                 system1=self.system1_choice(),
             )
@@ -700,7 +702,7 @@ class Bootstrap:
         try:
             await decisions.check()
         except System1Unavailable as e:
-            raise ConfigError(f"{e}; the harness does not run without System 1") from None
+            raise ConfigError(f"{e}; Intern does not run without a decision model") from None
         await decisions.fit()
 
         journal_path = None
