@@ -14,7 +14,7 @@
     │                                      │    (the mascot,    │ ● Base Tools                         │
     │ ━━━━━ ↓ hand-over · ready 0.48 ───── │     glancing       │     files and the shell              │
     │                                      │     and blinking)  │ ○ Web Search ◆                       │
-    │ Efficient                            │                    │     searches the web                 │
+    │ Efficient               /handover off│                    │     searches the web                 │
     │ claude-haiku-5-5                     │                    │ ...                                  │
     │ ○ waits for the hand-over            │                    │                                      │
     ╰──────────────────────────────────────╯                    │                                      │
@@ -126,6 +126,8 @@ GuardState = Literal["off", "rules", "full"]
 GUARD: dict[GuardState, str] = {"off": "off · /caps guard", "rules": "fixed rules only"}
 """What the guard's line says when the decision model does not judge calls."""
 HANDOVER_OFF = "off · /handover on"
+TURN_OFF = "/handover off"
+"""What turns the hand-over off, beside the efficient model while a run hands over."""
 """What the hand-over's line says while no efficient model is set."""
 STATE = (
     "What the decision model judges from: the session as it reads it, your requests as the goal and then the "
@@ -454,7 +456,9 @@ def run_frame(o: Opening, width: int, t: float | None) -> Content:
     head: list[Part] = [(" Frontier ", S_TAB), *(["  ", *thinking_box(o.thinking, o.levels)] if o.thinking else [])]
     lines: list[list[Part]] = [head, *model(o.system2, width), f_said, *handover(o, width, phase, through, t is None)]
     if o.handoff:
-        lines += [[(" Efficient ", S_TAB)], *model(o.handoff, width), e_said]
+        tab = " Efficient "
+        head = [(tab, S_TAB), (TURN_OFF.rjust(width - len(tab)), S_MUTED)]  # how to turn it off, at the line's end
+        lines += [head, *model(o.handoff, width), e_said]
     return Content("\n").join(Content.assemble(*line).truncate(width, ellipsis=True) for line in lines)
 
 
@@ -528,7 +532,11 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     box = [thinking_box(o.thinking, o.levels)] if o.thinking else []
     models: list[list[Part]] = [
         *flow([head, *box], width, gap=2),  # the box on a line of its own where it would wrap
-        *([[(" Efficient ", S_TAB), "  ", (model_label(o.handoff), S_HEAD)]] if o.handoff else []),
+        *(
+            [[(" Efficient ", S_TAB), "  ", (model_label(o.handoff), S_HEAD), (f" · {TURN_OFF}", S_MUTED)]]
+            if o.handoff
+            else []
+        ),
     ]
     lines: list[list[Part]] = [
         *([] if roomy else [*paragraph(ABOUT_SHORT if o.handoff else ABOUT_ALONE, width, S_INK), []]),
