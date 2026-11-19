@@ -21,7 +21,7 @@ from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 from pydantic import BaseModel
@@ -29,6 +29,7 @@ from pydantic import BaseModel
 from intern.models.profile import PACKAGED_PROFILES
 from intern.models.registry import PROVIDERS, ConfigError, Endpoint, ProviderSpec, resolve_endpoint
 from intern.models.window import LOOKUP_TIMEOUT_S, auth_headers, context_length
+from intern.nace_free import Bundle, Meters
 
 NACE_CONSOLE_URL = "https://console.nace.ai/v1"
 DECISIONS_PREFIX = "decisions:"
@@ -106,6 +107,29 @@ class RecommendedInfo(BaseModel):
     keys: list[KeyNeeded]
 
 
+class FreeSources(BaseModel):
+    """What each system runs on: `free` credit, or the user's `own` configuration."""
+
+    system1: Literal["free", "own"]
+    agent: Literal["free", "own"]
+    """System 2 and the hand-over model."""
+
+
+class FreeInfo(BaseModel):
+    """The free credit, for a client to show: the grant, whether it is in use, and what each system runs on."""
+
+    state: str
+    """The grant's `active`, `paused` or `exhausted`; `signed_out`; or why it could not be read (`free_revoked`,
+    `unavailable`)."""
+    meters: Meters | None = None
+    bundle: Bundle | None = None
+    use: bool | None = None
+    """`[free] use`: false while paused with `intern free pause`, unset before a first sign-in."""
+    paused: bool = False
+    """The console has paused free calls."""
+    source: FreeSources
+
+
 class Catalog(BaseModel):
     system2: list[ModelInfo]
     system1: list[ModelInfo]
@@ -113,6 +137,7 @@ class Catalog(BaseModel):
     runners: list[RunnerInfo] = []
     handoff: HandoffChoices | None = None
     recommended: list[RecommendedInfo] = []
+    free: FreeInfo | None = None
 
 
 @dataclass(frozen=True)

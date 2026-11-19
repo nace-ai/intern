@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import contextlib
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 from intern import names
@@ -72,6 +73,14 @@ def _deferred_file(drive: Path) -> Path | None:
     return git / DEFERRED_FILE if git.is_dir() else None
 
 
+@dataclass(frozen=True)
+class OnFree:
+    """Which of the steward's models run on the free credit, as the session's systems did."""
+
+    system1: bool = False
+    writer: bool = False
+
+
 async def _steward(
     journals: list[Path],
     drive: Path,
@@ -79,18 +88,25 @@ async def _steward(
     writer_ref: str | None,
     world: str = "",
     merge: bool = False,
+    free: OnFree | None = None,
 ) -> int:
     with locked(drive, STEWARD_LOCK):
-        return await _steward_locked(journals, drive, system1, writer_ref, world, merge)
+        return await _steward_locked(journals, drive, system1, writer_ref, world, merge, free or OnFree())
 
 
 async def _steward_locked(
-    journals: list[Path], drive: Path, system1: str | None, writer_ref: str | None, world: str, merge: bool
+    journals: list[Path],
+    drive: Path,
+    system1: str | None,
+    writer_ref: str | None,
+    world: str,
+    merge: bool,
+    free: OnFree,
 ) -> int:
     bootstrap = Bootstrap(Options(cwd=Path.cwd(), system1=system1))
-    writer = writer_from_ref(writer_ref, bootstrap.env) if writer_ref else None
+    writer = writer_from_ref(writer_ref, bootstrap.env, free=free.writer) if writer_ref else None
     try:
-        backend = bootstrap._system1()
+        backend = bootstrap.free_system1(system1) if free.system1 and system1 else bootstrap._system1()
     except ConfigError as e:
         print(f"{names.NAME}: decision model unavailable: {e}", file=sys.stderr)
         return EXIT_FAILED
@@ -184,10 +200,13 @@ def steward_main(argv: list[str]) -> int:
     parser.add_argument(
         "--merge", action="store_true", help="Fast-forward main to each proposal and delete its branch."
     )
+    parser.add_argument("--free-system1", action="store_true", help="The decision model runs on the free credit.")
+    parser.add_argument("--free-writer", action="store_true", help="The writer runs on the free credit.")
     args = parser.parse_args(argv)
     try:
         drive = args.drive.expanduser().resolve()
-        return asyncio.run(_steward(args.journals, drive, args.system1, args.writer, args.world, args.merge))
+        free = OnFree(system1=args.free_system1, writer=args.free_writer)
+        return asyncio.run(_steward(args.journals, drive, args.system1, args.writer, args.world, args.merge, free))
     except ConfigError as e:
         print(f"{names.NAME}: {e}", file=sys.stderr)
         return EXIT_USAGE

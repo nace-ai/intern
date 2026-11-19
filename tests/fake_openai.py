@@ -29,11 +29,15 @@ def quiet(questions: dict[str, Any]) -> dict[str, Any]:
     return answers
 
 
-def send_json(handler: BaseHTTPRequestHandler, payload: object, status: int = 200) -> None:
+def send_json(
+    handler: BaseHTTPRequestHandler, payload: object, status: int = 200, headers: dict[str, str] | None = None
+) -> None:
     data = json.dumps(payload).encode()
     handler.send_response(status)
     handler.send_header("Content-Type", "application/json")
     handler.send_header("Content-Length", str(len(data)))
+    for name, value in (headers or {}).items():
+        handler.send_header(name, value)
     handler.end_headers()
     handler.wfile.write(data)
 
@@ -72,12 +76,15 @@ class FakeOpenAI:
                 body = json.loads(raw)
                 if self.path.endswith("/systemone"):
                     server.system1.append(body)
-                    self._json({"answers": quiet(body["questions"]), "usage": {}})
+                    answer = {"answers": quiet(body["questions"]), "usage": {}}
+                    send_json(self, answer, headers=server.headers("system1"))
                     return
                 server.requests.append(body)
                 reply = server.replies.pop(0) if server.replies else Reply(text="done")
                 self.send_response(200)
                 self.send_header("Content-Type", "text/event-stream")
+                for name, value in server.headers("system2").items():
+                    self.send_header(name, value)
                 self.end_headers()
                 for chunk in server.chunks(reply, body):
                     self.wfile.write(f"data: {json.dumps(chunk)}\n\n".encode())
@@ -92,6 +99,10 @@ class FakeOpenAI:
     def answer(self, handler: BaseHTTPRequestHandler, body: bytes | None) -> bool:
         """Answer a request before the chat and System 1 routes do (a GET when `body` is None); whether it did."""
         return False
+
+    def headers(self, route: str) -> dict[str, str]:
+        """Headers the answer of a chat (`system2`) or System 1 (`system1`) request carries."""
+        return {}
 
     @property
     def url(self) -> str:

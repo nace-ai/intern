@@ -40,6 +40,7 @@ from intern.subagents import SubagentRefused, SubagentResult, Subagents, Subagen
 
 if TYPE_CHECKING:
     from intern.decisions import DecisionBackend
+    from intern.free_session import FreeSession
     from intern.providers.failover import RunBudget
     from intern.session_resources import SessionResources
 
@@ -139,6 +140,9 @@ class Session:
         self.job_notices: JobNotices = job_notices
         self.handoff_missing: str | None = None
         """Why the session opened without the default hand-over model (`Options.handoff_default`), when it did."""
+        self.free: FreeSession | None = None
+        """What each system runs on, free credit or the user's own configuration, when the free credit is in use;
+        a system on free credit keeps the bundle's models."""
         self._ended: list[ProcessInfo] = []
         """Processes that ended while no run was in progress (or after a run's last turn), not yet told."""
         self._waking = False
@@ -412,6 +416,8 @@ class Session:
             self._on_close(self)
 
     async def _run_once(self, prompt: UserMessage | None) -> RunOutcome:
+        if self.free is not None:
+            await self.free.before_run(self)
         # What ended while no run was in progress is told at this run's first turn.
         control = self._control = RunControl(ended=self._ended, checks=self._checks, hold=self.job_notices == "quiet")
         self._ended, self._checks = [], []
@@ -525,8 +531,11 @@ class Session:
 
     async def set_model(self, ref: str, role: Role = "system2") -> ModelBinding | None:
         """Switch a role's model while idle and journal the change. System 2 returns its new binding; System 1
-        (a model) rebuilds the decision client and returns None."""
+        (a model) rebuilds the decision client and returns None. A role on free credit takes only the bundle's
+        model (FreeLocked otherwise), which changes nothing."""
         self._ensure_open()
+        if self.free is not None and self.free.check(role, ref):
+            return None if role == "system1" else self.deps.system2
         if role == "system1":
             await self._set_system1(ref)
             return None
@@ -550,8 +559,11 @@ class Session:
 
     async def set_handoff(self, ref: str | None, config: HandoffConfig) -> HandoffTarget | None:
         """Name the model the session's runs hand over to while idle, or none, and journal the change (as a
-        `model_change` of role `handoff`, its model empty for none). A model that cannot be bound changes nothing."""
+        `model_change` of role `handoff`, its model empty for none). A model that cannot be bound changes nothing. On
+        free credit only the bundle's hand-over model is taken (FreeLocked otherwise), which changes nothing."""
         self._ensure_open()
+        if self.free is not None and self.free.check(HANDOFF_ROLE, ref):
+            return self.deps.handoff
         if self.running:
             raise SessionBusy("cannot change models while a run is in progress")
         target = None

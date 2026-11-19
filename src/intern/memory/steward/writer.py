@@ -356,10 +356,11 @@ class ReplayWriter:
         return text
 
 
-def writer_from_ref(ref: str, env: Mapping[str, str]) -> Writer | ReplayWriter:
+def writer_from_ref(ref: str, env: Mapping[str, str], *, free: bool = False) -> Writer | ReplayWriter:
+    """The writer `ref` names; with `free`, a `nace` model on the free credit's sign-in."""
     if ref.startswith("replay:"):
         return ReplayWriter(Path(ref.removeprefix("replay:")).expanduser())
-    endpoint = resolve_endpoint(ref, env)
+    endpoint = resolve_endpoint(ref, env, free=free)
     # Local servers need no key by default; a key in $<PROVIDER>_API_KEY is sent when one is set.
     key = env.get(f"{endpoint.provider.upper()}_API_KEY")
     if endpoint.api_key is None and endpoint.credential is None and key:

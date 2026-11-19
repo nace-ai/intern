@@ -15,6 +15,7 @@ need a look, and a prompt may now fail with `system1_unavailable`. [0.15.0](#015
 offer a thinking picker read each model's `efforts`. From [0.23.0](#0230) a toggle switched on installs its missing
 extra, and a toggle that cannot work here is not offered. [0.25.0](#0250) renames the harness to Intern, and
 [0.27.0](#0270) removes its old names. [0.49.0](#0490) is additive: clients that show or pick the hand-over need it.
+[0.54.0](#0540) runs sessions on free credit: clients that send a model with every turn need a look.
 
 ```bash
 uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.44.1"
@@ -270,8 +271,8 @@ a configured `[capabilities.session_budget]` starts a new ledger.
 | `reasoning_delta` | `agent_thought_chunk` (text) |
 | `tool_call_start` | `tool_call`, `status: "in_progress"`, `kind` from the tool (below), `title` the tool name and its main argument, `rawInput` the arguments, `locations` from a `path` argument |
 | `tool_call_end` | `tool_call_update`, `status` `completed` (`ok`) or `failed` (`error`, `refused`), `content` the result text the model saw; for a `write` or `edit` that changed a text file, also a `diff` item `{path, oldText, newText}` (`oldText` null for a new file); none for binary files, files over 256k characters before and after together, or the Docker workspace's tools |
-| `context_budget` | `usage_update {used: tokens in the request, size: working window}` |
-| `run_end` | `usage_update {used, size, cost: {amount: session cost so far, currency: "USD"}}` |
+| `context_budget` | `usage_update {used: tokens in the request, size: working window}`, with [`_meta.nace.free`](#free-credit) while the free credit is in use |
+| `run_end` | `usage_update {used, size, cost: {amount: session cost so far, currency: "USD"}}`, with `_meta.nace.free` likewise |
 | `handoff` | the extension notification `_nace/handoff` (below), not a `session/update` |
 | everything else | nothing |
 
@@ -494,7 +495,7 @@ The console is also a System 2 provider (0.50.0 and later), `nace`: `https://con
 `$NACE_BASE_URL`, with `$NACE_API_KEY`. Its models are `nace/<model>`, such as `nace/glm-5.3`, listed from the
 chat models in its `GET /models` (`data`) and never from its decision models (`models`), which stay System 1's. The
 console lists no chat models yet, so `nace/` entries appear only once it serves some. A token the console issues
-(the free trial's, in a later release) is sent only to `console.nace.ai`, `console.test.nace.ai` and `console.stage.nace.ai`
+(the free credit's) is sent only to `console.nace.ai`, `console.test.nace.ai` and `console.stage.nace.ai`
 over HTTPS: a `$NACE_BASE_URL` or `$DREX_BASE_URL` pointing elsewhere is a configuration error, and nothing is
 sent.
 
@@ -504,8 +505,67 @@ The harness owns the free trial's sign-in, for every client (0.52.0 and later). 
 drives `intern secrets`: `intern free start --json --accept <consent_version> [--no-browser]` prints one JSON line
 per step (`code`, then `granted` or `refused` with `code`, `reason` and `message`), and `status`, `pause`, `resume`
 and `sign-out` with `--json` print one document each. [docs/free.md](free.md) has the lines, the refusal codes and
-where the tokens are kept. A client shows the consent text before `start` and passes the version it showed. Sessions do
-not run on free credit yet.
+where the tokens are kept. A client shows the consent text before `start` and passes the version it showed.
+
+Sessions run on free credit (0.54.0 and later), system by system. The agent meter pays for System 2 and the hand-over
+model, the System 1 meter for System 1. At `session/new`, `session/load`, a reopen and the start of every run, each
+system runs on free credit when `[free] use` is true, a grant is signed in and `active`, and its meter has more left
+than its overdraft (so a run never starts on credit that cannot finish it). Otherwise it runs on the user's own
+configuration, as before. A user with own keys and a grant runs everything free; once the agent meter is spent, the
+next run's System 2 and hand-over are their own while System 1 stays free.
+
+While a system runs on free credit, its models are the grant's `bundle`, whatever config, `--system2`, the journal or
+`_meta` say:
+
+- System 2 is `bundle.system2` and the hand-over always on (auto mode), to `bundle.handoff` with
+  `bundle.handoff_tuning`; System 1 is `bundle.system1` on the console. Memory's steward writes with the hand-over
+  model.
+- System 2's working window is at most `bundle.window_tokens`, whatever `context_window` says, and no request asks for
+  more than `bundle.max_output_tokens` (a reply cut off at the cap does not raise it past that).
+- `model`, `system1` and `handoff` list only the bundle's model; `handoff` has no `off`.
+- Another model is refused with `-32602` and `data: {"code": "free_locked"}`: by `_meta.nace.system2` or `system1`
+  (the session is not opened), by `session/set_config_option` for `model`, `system1` or `handoff` (`off` too), and by
+  `--system2`, `--system1` or `--handoff-to` when `intern acp` was started with them (every session/new fails). The
+  bundle's own model is accepted and changes nothing. The message says to use own keys with `intern free pause`.
+- The bundle's models are not journaled: a `session/load` once the credit is spent continues on the models the
+  session last ran on with the user's own keys, or their configured ones.
+
+When a system's meter is spent and the user's own configuration cannot run it, the session opens as it does for a
+missing key: [unbound](#when-no-system-2-can-run) for System 2, with the reason starting `the free agent credit is
+used up; add your own key to keep going: …`, and for System 1 the `-32602` of a missing System 1 key, with the same
+start. A meter that runs out during a run is not handled here yet: the run fails as the console refuses it.
+
+When a run starts on the user's own keys after the one before ran on free credit, the prompt's updates are followed by
+a `config_option_update` with the pickers as they are now.
+
+Every `usage_update` of a session that uses the free credit carries `_meta.nace.free`, the meters as the console last
+reported them (from the `x-nace-free-used` and `x-nace-free-limit` headers of each answer, so the gauge moves as the
+session works) and what each system runs on:
+
+```json
+{"sessionUpdate": "usage_update", "used": 18200, "size": 160000,
+ "_meta": {"nace": {"free": {
+   "meters": {"system1": {"usedUsd": 0.12, "limitUsd": 1.0}, "agent": {"usedUsd": 0.75, "limitUsd": 4.0}},
+   "source": {"system1": "free", "agent": "free"}}}}}
+```
+
+`source` is `free` or `own` for `system1` and `agent`. `meters` is absent when the console has not given them yet.
+
+[`models --json`](#model-catalog) gains `free` once the install has signed in:
+
+```json
+"free": {"state": "active", "use": true,
+         "meters": {"system1": {"used_usd": 0.1, "limit_usd": 1.0}, "agent": {"used_usd": 0.5, "limit_usd": 4.0}},
+         "bundle": {"system2": "nace/glm-5.3", "handoff": "nace/deepseek-v4.1-flash", "system1": "drex-latest",
+                    "handoff_tuning": {"threshold": 0.7, "streak": 2, "min_turn": 8},
+                    "window_tokens": 160000, "max_output_tokens": 8192},
+         "source": {"system1": "free", "agent": "free"}}
+```
+
+`state` is the grant's (`active`, `paused`, `exhausted`), `signed_out`, or why the grant could not be read
+(`free_revoked`, `unavailable`); `use` is `[free] use` (false while paused with `intern free pause`); `paused` is
+present and true while the console has paused free calls; `source` is what each system would run on now. For a
+system on free credit, `system2` (with its `window` capped), `system1` and `handoff` list only the bundle's model.
 
 ## Versioning
 
@@ -1541,3 +1601,21 @@ to hand over. Option ids, fields and flags are unchanged: 0.52.0 clients keep wo
   still starts `no model given`.
 - The terminal UI's setup always sets a pair, and its screens, masthead, transcript and commands use the three names;
   `/frontier`, `/efficient` and `/decision` sit beside `/system2`, `/auto` and `/system1`, which keep working.
+
+### 0.54.0
+
+Sessions run on the [free credit](#free-credit), system by system: on the grant's bundle while its meter lasts, then
+on the user's own configuration. Additive: 0.53.0 clients keep working. A client that sends a model, `system1` or
+`handoff` on every turn gets `-32602` with `data.code` `free_locked` while that system runs on free credit, so it
+should send none then (`models --json`'s `free.source` says which systems do).
+
+- With `[free] use` true and an active grant, System 2, the hand-over (always on) and System 1 run on the bundle, and
+  memory's steward writes with the hand-over model. The window is capped at `bundle.window_tokens` and each request's
+  output at `bundle.max_output_tokens`.
+- `model`, `system1` and `handoff` list only the bundle's model while their system runs on free credit, and refuse
+  another (`handoff` refuses `off`), as do `_meta.nace.system2` and `system1`, `--system2`, `--system1` and
+  `--handoff-to`.
+- A system whose meter is spent runs on the user's own configuration from the next run; with none, the session opens
+  unbound, saying the free credit is used up.
+- `usage_update` gains `_meta.nace.free` (the meters, from the console's response headers, and each system's source);
+  `models --json` gains `free` (`state`, `meters`, `bundle`, `use`, `paused`, `source`).

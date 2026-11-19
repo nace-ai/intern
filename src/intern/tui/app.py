@@ -2138,7 +2138,7 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
         journal = picks.session_file or (None if picks.fresh else options.session_file)
         if journal is not None and journal.is_file() and options.system2 is None:
             system2 = Journal(cwd=str(options.cwd), path=journal).last_models().get("system2")
-            opened = options.model_copy(update={"system2": system2}) if system2 else options
+            opened = options.model_copy(update={"system2": system2, "system2_picked": False}) if system2 else options
         picked: dict[str, object] = {k: v for k, v in (("system2", picks.system2), ("system1", picks.system1)) if v}
         caps = picks.capabilities
         if picks.auto:

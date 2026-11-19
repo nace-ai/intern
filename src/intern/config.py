@@ -24,7 +24,7 @@ from uuid import uuid4
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 
 from intern import capability_toggles, names
-from intern.capability_settings import CapabilitySettings
+from intern.capability_settings import CapabilitySettings, HandoffConfig
 from intern.decisions import (
     MAX_CONCURRENCY,
     DecisionBackend,
@@ -42,7 +42,8 @@ from intern.extensions.memory.reminders import MemoryActions
 from intern.extensions.schedule import Schedule
 from intern.extensions.tool_result_guard import ToolResultGuard
 from intern.extensions.workspace.extension import Workspace
-from intern.handoff import HandoffTarget
+from intern.free_session import FreePlan, FreeSession, System, free_plan
+from intern.handoff import HANDOFF_ROLE, HandoffTarget
 from intern.hooks import Extension, Hooks, build_extension, resolve_extension
 from intern.instructions import FileInstructions
 from intern.journal import Journal
@@ -64,6 +65,7 @@ from intern.models.catalog import (
 from intern.models.profile import effort_choices, load_profile, profile_candidates
 from intern.models.registry import NACE_FREE_ENTRIES, PROVIDERS, Api, ConfigError, ProviderSpec, resolve_endpoint
 from intern.models.window import advertised_limits, bound_output, window_fallback, working_window
+from intern.nace_free import Bundle, FreeCredential, free_credential
 from intern.providers.anthropic import AnthropicProvider
 from intern.providers.openai_compat import OpenAICompatProvider
 from intern.providers.openai_responses import OpenAIResponsesProvider
@@ -209,6 +211,11 @@ class Options(BaseModel):
     cwd: Path
     tui: bool = Field(default=False, description="Build terminal-UI-only capabilities; set by the TUI host.")
     system2: str | None = None
+    system2_picked: bool = Field(
+        default=True,
+        description="`system2` is a pick (`--system2`, a client's), not the model a journal last ran on. While the "
+        "agent runs on free credit a pick other than the bundle's is refused, and a journal's is set aside.",
+    )
     system1: str | None = Field(default=None, description="decisions:<model>[,<fallback>...] or drex:<model>[,...]")
     handoff_to: str | None = Field(default=None, description="Sets [capabilities.handoff] to.")
     handoff_default: str | None = Field(
@@ -408,13 +415,84 @@ class Bootstrap:
         """The System 2 a session opens on unless a client picks one; empty when none is configured."""
         return self.options.system2 or self.config.system2 or self.env.get(SYSTEM2_ENV) or ""
 
+    def own_system2(self, bundle: Bundle | None) -> str:
+        """The System 2 of the user's own configuration: `default_system2`, less a model of the free bundle."""
+        given = self.options.system2
+        if given and bundle is not None and given in (bundle.system2, bundle.handoff):
+            given = None
+        return given or self.config.system2 or self.env.get(SYSTEM2_ENV) or ""
+
+    def _nace(self) -> ProviderSpec:
+        return {**PROVIDERS, **self.config.providers}["nace"]
+
+    async def free_plan(self, *, read: bool = False) -> FreePlan:
+        """The free credit as it stands: in use or not, the grant, and so what each system runs on."""
+        return await free_plan(self.config.free.use, self._nace(), self.env, read=read)
+
+    def _free_system1(self, credential: FreeCredential, model: str) -> DecisionBackend:
+        """System 1 on the free credit: `model` on the console the credential belongs to (or `$DREX_BASE_URL`,
+        which must then be a Nace console too)."""
+        base = self.env.get(DECISION_URL_ENV)
+        url = f"{base.rstrip('/')}/v1" if base else f"{credential.console}/v1"
+        return DecisionsApiBackend(url, credential, [model], timeout_s=self.config.system1.timeout_s)
+
+    def free_system1(self, model: str) -> DecisionBackend:
+        """System 1 `model` on the free credit, for a process that runs for a session on it (its steward)."""
+        credential = free_credential(self._nace(), self.env)
+        if credential is None:
+            raise System1Unconfigured(f"the free credit is not signed in (`{names.NAME} free start`)")
+        return self._free_system1(credential, model.removeprefix("drex:"))
+
+    def _free_locks(self, free: FreeSession) -> None:
+        """Refuse a model picked on the command line or by a client for a system on free credit."""
+        options = self.options
+        if options.system2 and options.system2_picked:
+            free.check("system2", options.system2)
+        if options.handoff_to:
+            free.check(HANDOFF_ROLE, options.handoff_to)
+        if options.system1:
+            free.check("system1", options.system1)
+
+    async def _to_own(self, session: Session, system: System) -> bool:
+        """Move `system` of `session` to the user's own configuration at the start of a run; whether it could. One
+        that cannot bind leaves the system on free credit, whose console then says it is spent."""
+        try:
+            if system == "system1":
+                await session.set_model(self.system1_choice(), "system1")
+                return True
+            ref = self.own_system2(session.free.bundle if session.free is not None else None)
+            if not ref:
+                return False
+            await session.set_model(ref)
+        except ConfigError:
+            return False
+        handoff = self.capability_settings().handoff
+        try:
+            await session.set_handoff(handoff.to or self.options.handoff_default, handoff)
+        except ConfigError:
+            await session.set_handoff(None, handoff)
+        return True
+
     async def bind(self, ref: str) -> ModelBinding:
-        endpoint = resolve_endpoint(ref, self.env, self.config.providers)
+        return await self._bind(ref, None)
+
+    async def bind_free(self, ref: str, bundle: Bundle | None) -> ModelBinding:
+        """`ref` on the free credit when `bundle` is given, else on the user's own configuration (`bind`)."""
+        return await self.bind(ref) if bundle is None else await self._bind(ref, bundle)
+
+    async def _bind(self, ref: str, free: Bundle | None) -> ModelBinding:
+        """`ref` bound to its provider; with `free`, on the free credit, its window and replies no larger than the
+        bundle allows, so the gateway's limits are never what stops a run."""
+        endpoint = resolve_endpoint(ref, self.env, self.config.providers, free=free is not None)
         profile = load_profile(endpoint.ref, search_dirs=[self.home / "profiles"], override=self.options.profile)
         if self.options.max_turns:
             profile.max_turns = self.options.max_turns
         limits = await advertised_limits(endpoint, profile)
         bound_output(profile, limits.max_output)
+        if free is not None:
+            bound_output(profile, free.max_output_tokens)
+            if free.window_tokens:
+                profile.effective_window = min(profile.effective_window or free.window_tokens, free.window_tokens)
         profile.vision = profile.vision or limits.vision is True  # the provider says it takes images
         window = working_window(limits.window, limits.source, profile, self.options.window_cap, limits.lookup_error)
         provider = PROVIDER_CLASSES.get(endpoint.api, OpenAICompatProvider)(endpoint)
@@ -462,17 +540,27 @@ class Bootstrap:
                 raise ConfigError(f"memory drive {path} cannot be created: {e}") from e
         return Drive.mount(path)
 
-    def _steward_on_close(self, journal: Path, drive: Path, system2: str) -> Callable[[Session], None]:
+    def _steward_on_close(
+        self, journal: Path, drive: Path, system2: str, free: FreeSession
+    ) -> Callable[[Session], None]:
+        """The steward, run when the session closes. A system on free credit stewards on it too: System 1 on the
+        bundle's, and the writer on the hand-over model, the cheapest the bundle has."""
         argv = [sys.executable, "-m", "intern.cli", "steward", str(journal), "--drive", str(drive), "--merge"]
-        if self.options.system1:
+        bundle = free.bundle
+        if bundle is not None and free.on_free("system1"):
+            argv += ["--system1", bundle.system1, "--free-system1"]
+        elif self.options.system1:
             argv += ["--system1", self.options.system1]
-        writer = self.capability_settings().memory.writer or system2
-        try:
-            writer_from_ref(writer, self.env)
-        except ConfigError:
-            pass
+        if bundle is not None and free.on_free("agent"):
+            argv += ["--writer", bundle.handoff, "--free-writer"]
         else:
-            argv += ["--writer", writer]
+            writer = self.capability_settings().memory.writer or system2
+            try:
+                writer_from_ref(writer, self.env)
+            except ConfigError:
+                pass
+            else:
+                argv += ["--writer", writer]
         log = self.home / STEWARD_DIR / f"{journal.stem}.log"
 
         def start(session: Session) -> None:
@@ -633,49 +721,80 @@ class Bootstrap:
             models=list(dict.fromkeys([*([target] if target else []), *(model.id for model in catalog.system2)])),
             default=target,
         )
+        system2 = [marked(model) for model in catalog.system2]
+        system1 = catalog.system1
+        plan = await self.free_plan(read=True)
+        sources, bundle = plan.sources(), plan.bundle
+        if bundle is not None and sources.agent == "free":
+            # A system on free credit runs on the bundle's model and no other.
+            model = marked(ModelInfo(id=bundle.system2, name=bundle.system2))
+            window = min(w for w in (model.window, bundle.window_tokens) if w) if bundle.window_tokens else model.window
+            system2 = [model.model_copy(update={"default": True, "window": window})]
+            handoff = HandoffChoices(models=[bundle.handoff], default=bundle.handoff)
+        if bundle is not None and sources.system1 == "free":
+            system1 = [ModelInfo(id=bundle.system1, name=bundle.system1)]
         from intern.onboarding import RECOMMENDED  # onboarding imports this module
 
         return catalog.model_copy(
             update={
-                "system2": [marked(model) for model in catalog.system2],
+                "system2": system2,
+                "system1": system1,
                 "capabilities": capabilities,
                 "runners": runner_choices(caps.runner),
                 "handoff": handoff,
                 "recommended": [recommendation.info() for recommendation in RECOMMENDED],
+                "free": plan.info(sources),
             }
         )
 
     async def session(self, emit: EventSink) -> Session:
         options = self.options
         capabilities = self.capability_settings()
-        ref = self.default_system2()
+        plan = await self.free_plan()
+        free = FreeSession(plan, plan.sources(), switch=self._to_own)
+        bundle = plan.bundle
+        self._free_locks(free)
+        agent_free = bundle if free.on_free("agent") else None
+        system1_label = bundle.system1 if bundle is not None and free.on_free("system1") else self.system1_choice()
+
+        def unavailable(message: str) -> str:
+            why = plan.why_not("agent")
+            return f"{why}; add your own key to keep going: {message}" if why else message
+
+        ref = agent_free.system2 if agent_free is not None else self.own_system2(bundle)
         if not ref:
             raise System2Unavailable(
-                f"no model given: run `{COMMAND}` in a terminal to connect your models, pass --system2 "
-                f"provider/model, set ${SYSTEM2_ENV}, or set system2 in {self.home / CONFIG_FILE}",
+                unavailable(
+                    f"no model given: run `{COMMAND}` in a terminal to connect your models, pass --system2 "
+                    f"provider/model, set ${SYSTEM2_ENV}, or set system2 in {self.home / CONFIG_FILE}"
+                ),
                 ref="",
-                system1=self.system1_choice(),
+                system1=system1_label,
             )
         try:
-            system2 = await self.bind(ref)
+            system2 = await self.bind_free(ref, agent_free)
         except ConfigError as e:
-            raise System2Unavailable(str(e), ref=ref, system1=self.system1_choice()) from None
+            raise System2Unavailable(unavailable(str(e)), ref=ref, system1=system1_label) from None
         try:
             packs = capabilities.effective_tool_packs(system2.profile.tool_packs)
         except ValueError as error:
             raise ConfigError(str(error)) from None
         system2.profile = system2.profile.model_copy(update={"tool_packs": packs})
         handoff, handoff_missing = None, None
-        plan = capabilities.handoff
-        if to := plan.to or options.handoff_default:
+        handoff_plan = capabilities.handoff
+        if agent_free is not None:
+            # Auto mode is always on, on the bundle's model and tuning.
+            tuning = agent_free.handoff_tuning.model_dump() if agent_free.handoff_tuning else {}
+            handoff_plan = HandoffConfig(to=agent_free.handoff, **tuning)
+        if to := handoff_plan.to or options.handoff_default:
             try:
-                target = await self.bind(to)
+                target = await self.bind_free(to, agent_free)
             except ConfigError as e:
-                if plan.to:
-                    raise ConfigError(f"[capabilities.handoff] to {plan.to}: {e}") from None
+                if handoff_plan.to and agent_free is None:
+                    raise ConfigError(f"[capabilities.handoff] to {handoff_plan.to}: {e}") from None
                 handoff_missing = str(e)  # the default is nobody's choice: the session opens without a hand-over
             else:
-                handoff = HandoffTarget.of(target, plan, packs)
+                handoff = HandoffTarget.of(target, handoff_plan, packs)
         memory = self.memory()
 
         names = [*(system2.profile.extensions if options.extensions else []), *options.extra_extensions]
@@ -685,11 +804,24 @@ class Bootstrap:
             *capability_extensions(capabilities, Memory(memory) if memory is not None else None, tui=options.tui),
         ]
         hooks = Hooks(extensions, emit)
+
+        def resolve_system1(choice: str) -> DecisionBackend:
+            on_free = bundle is not None and choice == bundle.system1 and free.on_free("system1")
+            if on_free and bundle is not None and plan.credential is not None:
+                return self._free_system1(plan.credential, bundle.system1)
+            return self.system1_backend(choice)
+
+        async def resolve_model(model: str) -> ModelBinding:
+            on_free = bundle is not None and free.on_free("agent") and model in (bundle.system2, bundle.handoff)
+            return await self.bind_free(model, bundle if on_free else None)
+
         try:
-            system1 = self._system1()
+            system1 = resolve_system1(system1_label) if free.on_free("system1") else self._system1()
         except System1Unconfigured as e:
+            if why := plan.why_not("system1"):
+                e = System1Unconfigured(f"{why}; add your own key to keep going: {e}")
             e.system2 = system2.ref
-            raise
+            raise e from None
         cfg = self.config.system1
         decisions = DecisionClient(
             system1,
@@ -749,25 +881,26 @@ class Bootstrap:
             pack_tools=pack_tools,
             env=self.env,
             home=self.home,
-            resolve_model=self.bind,
+            resolve_model=resolve_model,
             secret_store=self.store,
             harness_only=harness_keys(self.config),
         )
         on_close = None
         if memory is not None and journal_path is not None and capabilities.memory.steward:
-            on_close = self._steward_on_close(journal_path, memory.root, ref)
+            on_close = self._steward_on_close(journal_path, memory.root, ref, free)
         try:
             session = Session(
                 prepared.deps,
                 resolve_model=prepared.resolve_model,
                 resources=prepared.resources,
                 model_budget=prepared.budget,
-                resolve_system1=self.system1_backend,
-                system1=self.system1_choice(),
+                resolve_system1=resolve_system1,
+                system1=system1_label,
                 on_close=on_close,
                 idle_s=capabilities.memory.steward_idle_s,
             )
             session.handoff_missing = handoff_missing
+            session.free = free if plan.use is True and plan.credential is not None else None
             return session
         except BaseException:
             if prepared.resources is not None:

@@ -7,6 +7,7 @@ It follows the console's contract (drex `docs/oauth.md` and `docs/free-trial.md`
 
 from __future__ import annotations
 
+import copy
 import threading
 import time
 from dataclasses import dataclass
@@ -75,8 +76,26 @@ class FakeConsole(FakeOpenAI):
         self.accesses: dict[str, Access] = {}
         self.revoked: set[int] = set()
         self.status = {"grants": "open", "inference": "open", "message": None}
+        self.grant: dict[str, Any] = copy.deepcopy(GRANT)
+        """What `/v1/free/grant` answers; its meters grow by `charge` with each call, as the headers say."""
+        self.charge = {"system2": 0.0, "system1": 0.0}
+        """What one chat (`system2`) or System 1 call costs its meter, in USD."""
         self._issued = 0
         self._families = 0
+
+    def spend(self, meter: str, used_usd: float) -> None:
+        with self.lock:
+            self.grant["meters"][meter]["used_usd"] = used_usd
+
+    def headers(self, route: str) -> dict[str, str]:
+        meters = self.grant["meters"]
+        with self.lock:
+            meter = meters["agent" if route == "system2" else "system1"]
+            meter["used_usd"] = round(meter["used_usd"] + self.charge[route], 6)
+            return {
+                "x-nace-free-used": ";".join(f"{name}={meters[name]['used_usd']}" for name in ("system1", "agent")),
+                "x-nace-free-limit": ";".join(f"{name}={meters[name]['limit_usd']}" for name in ("system1", "agent")),
+            }
 
     @property
     def origin(self) -> str:
@@ -122,7 +141,8 @@ class FakeConsole(FakeOpenAI):
                 send_json(handler, self.status)
             elif path == "/v1/free/grant":
                 if self._authorized(handler):
-                    send_json(handler, GRANT)
+                    with self.lock:
+                        send_json(handler, self.grant)
             else:
                 return False
             return True
