@@ -98,7 +98,7 @@ checked against it yet.
 
 ## Switching models
 
-`intern models` and the `/system2` picker list every model in Kapitsa's catalog, downloaded or
+`intern models` and the `/frontier` picker list every model in Kapitsa's catalog, downloaded or
 not. The server answers with the model it loaded, whatever a request names, unless it was started with
 `--allow-switch`: then picking another model loads it, downloading it first if needed. To switch by
 hand, stop the server and start it with another `--model`.

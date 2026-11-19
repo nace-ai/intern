@@ -25,7 +25,7 @@
     ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
-            Describe a task to begin.   /help commands   /frontier model   /caps capabilities ...
+            Describe a task to begin.   /help commands   /models models   /caps capabilities ...
 
 The page is drawn as one: first the run as Intern makes it, played over and over (`RunPlay`): the frontier model
 (System 2) in its box works the hard part, the decision model (System 1) judges it ready and the run hands over, and
@@ -152,7 +152,7 @@ SETUP_NOTE = "Not connected yet: /setup connects your models"
 """What the page and the masthead say while no models are set up: a way on, not an error."""
 HINTS = (
     ("/help", "commands"),
-    ("/frontier", "model"),
+    ("/models", "models"),
     ("/caps", "capabilities"),
     ("Shift+Tab", "thinking"),
     ("/dark", "look"),

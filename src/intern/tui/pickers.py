@@ -1,4 +1,4 @@
-"""The model pickers behind /system2 and /system1: a filter line over the catalog, in groups; Enter picks.
+"""The model pickers behind /frontier and /decision: a filter line over the catalog, in groups; Enter picks.
 
 Rows are two aligned columns: how the model reads inside its group (its id without the group's prefix) and, dim,
 what else is known about it (its display name, its provider). Known models come first. A name that is not
@@ -52,6 +52,8 @@ class Choice:
     note: str = ""
     """Shown dim after the label, or under it in a stacked picker: the display name when it says more than the
     label, the provider for a known model, what a capability does."""
+    dim: bool = False
+    """The label in the gray too: a row that can be picked but is not in use (`/models`' efficient model, off)."""
 
     @property
     def shown(self) -> str:
@@ -210,7 +212,9 @@ class ModelPicker(ModalScreen[str | None]):
             mark = ("● ", S_OK_BOLD) if is_current else " " * MARK
             current_tag = [("  current", S_MUTED_ITALIC)] if is_current else []
             if self.stacked:
-                head = Content.assemble(mark, *label_parts(choice.shown, "bold"), *current_tag)
+                head = Content.assemble(
+                    mark, *label_parts(choice.shown, S_MUTED if choice.dim else "bold"), *current_tag
+                )
                 prompt = Stacked(head, Content.styled(choice.note, S_MUTED), MARK) if choice.note else head
             else:
                 parts: list[str | tuple[str, str]] = [mark, (fit(choice.shown, width), "bold" if is_current else "")]
