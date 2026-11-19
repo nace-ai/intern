@@ -847,7 +847,9 @@ class HarnessApp(App[None]):
         self.status.labels = {
             m.id: m.name.rpartition(": ")[2] for m in self.catalog.system2 if m.name and m.name != m.id
         }
+        self.system1_panel.labels = self.status.labels
         self._refresh_status()
+        self._feed_soon()
 
     async def _replay(self, entries: list[Entry]) -> None:
         """A resumed journal as it stands, not run again step by step: the counts and the ledger from all of it,

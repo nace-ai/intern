@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import json
 import textwrap
+from collections.abc import Mapping
 from pathlib import Path
 
 from rich.cells import cell_len
@@ -313,13 +314,13 @@ def compaction_lines(c: CompactionJudgement, room: int, cwd: Path | None) -> lis
     return lines
 
 
-def handover_lines(h: HandoverJudgement, room: int) -> list[list[Part]]:
+def handover_lines(h: HandoverJudgement, room: int, labels: Mapping[str, str] | None = None) -> list[list[Part]]:
     """The run's hand-over: System 1's P(ready) turn by turn, and, once the run has handed over, a line under it with
     the efficient model that took over and from which turn."""
     head: list[Part] = [("hand-over ", S_MUTED), *readiness(h)]
     if not h.target:
         return [head]
-    said = f"→ Efficient · {model_label(h.target)} from turn {h.handed_at}"
+    said = f"→ Efficient · {model_label(h.target, labels)} from turn {h.handed_at}"
     return [head, [(clip(said, room), S_BRAND_BOLD)]]
 
 
@@ -336,11 +337,13 @@ def other_lines(o: OtherJudgement, room: int) -> list[list[Part]]:
     return [[(clip(about, max(8, room - size - 2)), S_MUTED), "  ", *answer]]
 
 
-def row_lines(row: Row, room: int, cwd: Path | None = None) -> tuple[Part, list[list[Part]]]:
-    """A row's sign for the gutter, and its lines without it."""
+def row_lines(
+    row: Row, room: int, cwd: Path | None = None, labels: Mapping[str, str] | None = None
+) -> tuple[Part, list[list[Part]]]:
+    """A row's sign for the gutter, and its lines without it; models by the display names in `labels`."""
     match row:
         case HandoverJudgement():
-            return (HANDOVER_SIGN, S_BRAND_BOLD if row.target else S_MUTED), handover_lines(row, room)
+            return (HANDOVER_SIGN, S_BRAND_BOLD if row.target else S_MUTED), handover_lines(row, room, labels)
         case TurnJudgement():
             return " ", watch_lines(row, room)
         case GuardJudgement():
@@ -355,7 +358,9 @@ def row_lines(row: Row, room: int, cwd: Path | None = None) -> tuple[Part, list[
             return (SIGN[row.kind], S_MUTED), other_lines(row, room)
 
 
-def feed(runs: list[RunLedger], width: int, cwd: Path | None = None) -> Content:
+def feed(
+    runs: list[RunLedger], width: int, cwd: Path | None = None, labels: Mapping[str, str] | None = None
+) -> Content:
     """The session's rows, oldest first: each run under its prompt, each row behind its sign."""
     width = max(MIN_WIDTH, width)
     room = width - GUTTER
@@ -368,9 +373,9 @@ def feed(runs: list[RunLedger], width: int, cwd: Path | None = None) -> Content:
         if run.prompt:
             lines.append([("› ", S_HEAD), (clip(" ".join(run.prompt.split()), width - 2), S_HEAD)])
         if run.model:  # who works the run, until a hand-over row says otherwise
-            lines.append([" " * GUTTER, (clip(f"Frontier · {model_label(run.model)}", room), S_MUTED)])
+            lines.append([" " * GUTTER, (clip(f"Frontier · {model_label(run.model, labels)}", room), S_MUTED)])
         for row in run.feed:
-            sign, body = row_lines(row, room, cwd)
+            sign, body = row_lines(row, room, cwd, labels)
             lines.append([sign, " ", *body[0]])
             lines += [[" " * GUTTER, *line] for line in body[1:]]
     if len(lines) > FEED_ROWS:
@@ -389,6 +394,8 @@ class System1Panel(Vertical, can_focus=False):
         super().__init__(id="system1")
         self._ledger = Ledger()
         self.cwd: Path | None = None
+        self.labels: Mapping[str, str] = {}
+        """Models' display names, by ref, as the masthead has them."""
         self.border_title = Content.assemble((" Decision model ", S_TAB))
 
     def compose(self) -> ComposeResult:
@@ -411,5 +418,5 @@ class System1Panel(Vertical, can_focus=False):
         drawn = usage(self._ledger.usage, max(MIN_WIDTH, self.content_size.width))
         used.display = bool(drawn.plain)
         used.update(drawn)
-        rows = feed(self._ledger.runs, width, self.cwd)
+        rows = feed(self._ledger.runs, width, self.cwd, self.labels)
         self.query_one("#system1-rows", Static).update(rows if rows.plain else Content.styled(EMPTY, S_MUTED))
