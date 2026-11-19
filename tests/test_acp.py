@@ -34,6 +34,7 @@ from intern.capability_settings import CapabilitySettings, McpConfig
 from intern.config import Bootstrap, Options, System2Unavailable
 from intern.decisions import (
     Answers,
+    ChoiceAnswer,
     DecisionBackend,
     DecisionClient,
     DecisionsApiBackend,
@@ -41,13 +42,24 @@ from intern.decisions import (
     NoulQuestion,
     Question,
 )
-from intern.events import ContextBudget, Nudge, ReasoningDelta, RunEnd, RunStart, TextDelta, TurnStart, WindowInfo
+from intern.events import (
+    ContextBudget,
+    Handoff,
+    Nudge,
+    ReasoningDelta,
+    RunEnd,
+    RunStart,
+    TextDelta,
+    TurnStart,
+    WindowInfo,
+)
 from intern.events import ToolCallEnd as ToolCallEndEvent
 from intern.events import ToolCallStart as ToolCallStartEvent
 from intern.executor import LocalExecutor
+from intern.handoff import HandoffTarget
 from intern.hooks import Extension, Hooks, RunContext, TurnInfo
 from intern.instructions import FileInstructions
-from intern.journal import Journal, MessageEntry
+from intern.journal import EventEntry, Journal, MessageEntry
 from intern.loop import EngineDeps, ModelBinding
 from intern.messages import (
     AssistantMessage,
@@ -72,7 +84,7 @@ from intern.tools.base import Effect, Tool, ToolContext, ToolOutput
 from intern.tools.web_search import WebSearchTool
 
 from .fake_openai import MODEL, FakeOpenAI, Reply
-from .support import Quiet, binding
+from .support import Filled, Quiet, binding
 
 
 class WaitArgs(BaseModel):
@@ -104,6 +116,10 @@ class FakeClient:
 
     async def session_update(self, session_id: str, update: Any, **kwargs: Any) -> None:
         self.updates.append((session_id, update))
+
+    async def ext_notification(self, method: str, params: dict[str, Any]) -> None:
+        """Kept among the updates, in the order they were sent, as (method, params)."""
+        self.updates.append((params["sessionId"], (method, params)))
 
     def of(self, kind: type) -> list[Any]:
         return [u for _, u in self.updates if isinstance(u, kind)]
@@ -137,6 +153,10 @@ class Opener:
     """Capability toggles a session cannot open with, and the error it fails with."""
     closed: list[str] = field(default_factory=list)
     """The journal of each session whose close hook (what stewards memory) ran."""
+    scripts: dict[str, Script] = field(default_factory=dict)
+    """Scripts of their own for some refs (a hand-over model), each replying as that model."""
+    configured: CapabilitySettings = field(default_factory=CapabilitySettings)
+    """What a session opens on when the request names no capabilities: the agent's configured ones."""
 
     def bind(self, ref: str, provider: FakeProvider) -> ModelBinding:
         model = binding(provider, window=self.windows.get(ref, 32_768), profile=self.profiles.get(ref))
@@ -149,7 +169,7 @@ class Opener:
         ref = request.system2 or "fake/model"
         if ref in self.unbindable:
             raise System2Unavailable(f"{ref} needs an API key", ref=ref, system1=self.system1.name)
-        caps = request.capabilities or CapabilitySettings()
+        caps = request.capabilities or self.configured
         for toggle_id, on in capability_toggles.values(caps, caps, ["base"]).items():
             if on and toggle_id in self.broken:
                 raise ConfigError(self.broken[toggle_id])
@@ -158,13 +178,21 @@ class Opener:
         async def resolve(ref: str) -> ModelBinding:
             if not ref.startswith("fake/") or ref in self.unbindable:
                 raise ValueError(f"unknown provider in {ref!r}")
+            if ref in self.scripts:
+                return self.bind(ref, FakeProvider(self.scripts[ref], ref))
             own = self.providers.get(ref)
             return self.bind(ref, own(self.script) if own is not None else provider)
 
         system2 = self.bind(ref, provider)
-        # As Bootstrap does: the profile's packs become the ones in force.
+        # As Bootstrap does: the profile's packs become the ones in force, and the hand-over model is bound now.
         packs = caps.effective_tool_packs(system2.profile.tool_packs)
         system2.profile = system2.profile.model_copy(update={"tool_packs": packs})
+        handoff = None
+        if to := caps.handoff.to:
+            try:
+                handoff = HandoffTarget.of(await resolve(to), caps.handoff, packs)
+            except ValueError as e:
+                raise ConfigError(f"[capabilities.handoff] to {to}: {e}") from None
         deps = EngineDeps(
             system2=system2,
             tools=[*load_packs(packs), WaitTool(self.waiting)],
@@ -176,6 +204,7 @@ class Opener:
             cwd=request.cwd,
             spill_dir=self.tmp / "spill",
             emit=request.emit,
+            handoff=handoff,
         )
         return Session(
             deps,
@@ -211,7 +240,7 @@ def make_agent(
     **opener: Any,
 ) -> tuple[AcpAgent, FakeClient, Opener]:
     """`unavailable`: the capability toggles that cannot switch on here, and why."""
-    open_session = Opener(script, tmp_path, **opener)
+    open_session = Opener(script, tmp_path, configured=capabilities or CapabilitySettings(), **opener)
     agent = AcpAgent(
         open_session,
         tmp_path / "home",
@@ -278,6 +307,7 @@ async def test_a_prompt_reports_each_systems_usage_for_that_prompt(tmp_path: Pat
     for response in (first, second):
         assert response.field_meta is not None and response.usage is not None
         usage = response.field_meta["nace"]["usage"]
+        assert "handoff" not in usage  # no run handed over: the usage of 0.48.0 and before
         assert usage["system2"]["model"] == "fake/model"
         assert usage["system2"]["outputTokens"] == response.usage.output_tokens > 0
         assert usage["system1"] == {
@@ -705,24 +735,35 @@ def test_provider_failures_are_classified(detail: str | None, kind: str, status:
     assert (failure.kind, failure.status) == (kind, status)
 
 
-def test_replay_shows_prompts_replies_and_tool_calls_but_not_nudges():
+def test_replay_shows_prompts_replies_tool_calls_and_hand_overs_but_not_nudges():
     journal = Journal(cwd="/work")
+    call = ToolCall(id="c1", name="read", arguments={"path": "a.py"})
     for message in [
         UserMessage(content="fix it"),
-        AssistantMessage(reasoning="think", tool_calls=[ToolCall(id="c1", name="read", arguments={"path": "a.py"})]),
+        AssistantMessage(reasoning="think", tool_calls=[call], model="big/model"),
         ToolResultMessage(result=ToolResult(call_id="c1", tool_name="read", status="ok", content="x = 1")),
+        Handoff(turn=1, source="big/model", target="small/model", probability=0.9, tokens=100),
         UserMessage(content="keep going", source="harness"),
-        AssistantMessage(text="fixed"),
+        AssistantMessage(text="fixed", model="small/model"),
     ]:
-        journal.append(MessageEntry(message=message))
+        if isinstance(message, Handoff):
+            journal.append(EventEntry(event=message))
+        else:
+            journal.append(MessageEntry(message=message))
     updates = acp_mapping.replay_updates(journal.active_path(), CTX)
-    assert [u.session_update for u in updates] == [
+    assert ["nace/handoff" if isinstance(u, acp_mapping.HandoffNotice) else u.session_update for u in updates] == [
         "user_message_chunk",
         "agent_thought_chunk",
         "tool_call",
         "tool_call_update",
+        "nace/handoff",
         "agent_message_chunk",
     ]
+    models = [
+        None if isinstance(u, acp_mapping.HandoffNotice) else (u.field_meta or {}).get("nace", {}).get("model")
+        for u in updates
+    ]
+    assert models == [None, "big/model", "big/model", "big/model", None, "small/model"]
     start, end = updates[2], updates[3]
     assert isinstance(start, ToolCallStart) and (start.kind, start.title) == ("read", "read a.py")
     assert isinstance(end, ToolCallProgress) and end.status == "completed"
@@ -853,7 +894,8 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
     (home / "profiles" / "mine.toml").write_text(
         f'match = ["{deployment}"]\nname = "Qwen3.8 27B (Fireworks)"\nwindow = 131072\nreasoning_effort = "medium"\n'
     )
-    (home / "config.toml").write_text(config + "[capabilities.browser]\nenabled = true\n")
+    handoff = '[capabilities.handoff]\nto = "anthropic/claude-haiku-unlisted"\n'
+    (home / "config.toml").write_text(config + "[capabilities.browser]\nenabled = true\n" + handoff)
     with FakeOpenAI([]) as server:
         env = {"PATH": os.environ["PATH"], "INTERN_HOME": str(home), "VLLM_BASE_URL": server.url}
         # Fireworks lists its serverless models but not dedicated deployments, as the real one does.
@@ -914,6 +956,11 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
     assert {c["id"]: c.get("unavailable") for c in listed["capabilities"]}["cap.web-search"] == (
         "Web search is not set up: set INTERN_SEARCH_PROVIDER to brave, tavily, exa or searxng"
     )
+    # A run can hand over to any System 2 model; the configured target is the default and comes first, listed or not.
+    assert listed["handoff"] == {
+        "models": ["anthropic/claude-haiku-unlisted", *(m["id"] for m in listed["system2"])],
+        "default": "anthropic/claude-haiku-unlisted",
+    }
     # No console or decisions-API key in this environment: the configured decision models stand in.
     assert listed["system1"] == [{"id": "drex-latest", "name": "drex-latest"}, {"id": "drex-mini", "name": "drex-mini"}]
     assert not (home / "sessions").exists()
@@ -954,8 +1001,9 @@ async def test_the_model_picker_fills_from_the_catalog_once_it_arrives(tmp_path:
 
 
 def settings(options: list[Any]) -> list[Any]:
-    """The model options: not the capability toggles, nor the runner (tests/test_runner_choice.py covers it)."""
-    return [o for o in options if o.category not in ("_nace_capability", "_nace_runner")]
+    """The model options: not the capability toggles, the runner (tests/test_runner_choice.py covers it) nor the
+    hand-over."""
+    return [o for o in options if o.category not in ("_nace_capability", "_nace_runner", "_nace_handoff")]
 
 
 def option_values(options: list[Any], config_id: str) -> list[str]:
@@ -987,6 +1035,144 @@ async def test_system1_is_switched_from_the_picker_and_restored_on_load(tmp_path
     assert next(o for o in loaded.config_options if o.id == "system1").current_value == "drex-latest"
     backend = agent.sessions[session.session_id].session.deps.decisions.backend
     assert isinstance(backend, NamedBackend) and backend.name == "drex-latest"
+    await agent.aclose()
+
+
+def current(options: list[Any], config_id: str) -> Any:
+    return next(o for o in options if o.id == config_id).current_value
+
+
+def handoff_ref(agent: AcpAgent, session_id: str) -> str | None:
+    target = agent.sessions[session_id].session.deps.handoff
+    return target.binding.ref if target is not None else None
+
+
+async def test_the_hand_over_model_is_picked_per_session_and_kept_across_a_reopen_and_a_load(
+    tmp_path: Path, work: Path
+):
+    configured = CapabilitySettings.model_validate({"handoff": {"to": "fake/cheap"}})
+    listed = catalog.Catalog(
+        system2=[catalog.ModelInfo(id=ref, name=ref.title()) for ref in ("fake/model", "fake/other", "fake/cheap")],
+        system1=[],
+    )
+
+    async def load() -> catalog.Catalog:
+        return listed
+
+    script = lambda request: Turn(text="ok")  # noqa: E731
+    agent, _, opener = make_agent(tmp_path, script, configured, unbindable={"fake/gone"})
+    agent._load_catalog = load
+    session = await agent.new_session(cwd=str(work))
+    sid = session.session_id
+    assert agent.catalog_task is not None
+    await agent.catalog_task
+    options = (await agent.set_config_option(config_id="cap.web-read", session_id=sid, value=False)).config_options
+    option = next(o for o in options if o.id == "handoff")
+    assert (option.category, option.current_value) == ("_nace_handoff", "fake/cheap")
+    # Off, then the configured target, then the catalog's System 2 models.
+    assert option_values(options, "handoff") == ["off", "fake/cheap", "fake/model", "fake/other"]
+
+    # A model that cannot be bound is refused and changes nothing, in the session or its journal.
+    journal = agent.sessions[sid].session.deps.journal
+    entries = len(journal.active_path())
+    with pytest.raises(RequestError) as refused:
+        await agent.set_config_option(config_id="handoff", session_id=sid, value="fake/gone")
+    assert refused.value.code == -32602
+    assert handoff_ref(agent, sid) == "fake/cheap" and len(journal.active_path()) == entries
+
+    picked = await agent.set_config_option(config_id="handoff", session_id=sid, value="fake/other")
+    assert current(picked.config_options, "handoff") == "fake/other" and handoff_ref(agent, sid) == "fake/other"
+    # A capability change reopens the session at the next prompt; the pick holds through it.
+    await agent.set_config_option(config_id="cap.web-search", session_id=sid, value=True)
+    await agent.prompt(prompt=[text_block("go")], session_id=sid)
+    assert len(opener.opened) == 2 and handoff_ref(agent, sid) == "fake/other"
+    await agent.aclose()
+
+    # A new process continues on the pick, over the configured target.
+    agent, _, _ = make_agent(tmp_path, script, configured)
+    loaded = await agent.load_session(cwd=str(work), session_id=sid)
+    assert loaded.config_options is not None
+    assert current(loaded.config_options, "handoff") == "fake/other" and handoff_ref(agent, sid) == "fake/other"
+    # Off is a pick too.
+    off = await agent.set_config_option(config_id="handoff", session_id=sid, value="off")
+    assert current(off.config_options, "handoff") == "off" and handoff_ref(agent, sid) is None
+    await agent.aclose()
+    agent, _, _ = make_agent(tmp_path, script, configured)
+    loaded = await agent.load_session(cwd=str(work), session_id=sid)
+    assert loaded.config_options is not None and current(loaded.config_options, "handoff") == "off"
+    picked = await agent.set_config_option(config_id="handoff", session_id=sid, value="fake/other")
+    await agent.aclose()
+
+    # A picked model that can no longer be bound here does not keep the session from opening: it opens on config's.
+    agent, _, _ = make_agent(tmp_path, script, configured, unbindable={"fake/other"})
+    loaded = await agent.load_session(cwd=str(work), session_id=sid)
+    assert loaded.config_options is not None
+    assert current(loaded.config_options, "handoff") == "fake/cheap" and handoff_ref(agent, sid) == "fake/cheap"
+    await agent.aclose()
+
+
+class Ready:
+    """A System 1 that judges every turn ready for the hand-over."""
+
+    name = "ready"
+
+    async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
+        ready = ChoiceAnswer(choice="ready", probabilities={"ready": 1.0})
+        return Answers(answers={name: ready for name in questions if name == "ready"})
+
+
+def sent(client: FakeClient) -> list[tuple[str, str | None]]:
+    """What the client was sent, in order: each update's kind (or the notification's method) and its model."""
+    kinds: list[tuple[str, str | None]] = []
+    for _, update in client.updates:
+        if isinstance(update, tuple):
+            kinds.append((update[0], None))
+        elif not isinstance(update, UsageUpdate):
+            kinds.append((update.session_update, ((update.field_meta or {}).get("nace") or {}).get("model")))
+    return kinds
+
+
+async def test_a_hand_over_reaches_the_client_in_its_place_with_each_updates_model_and_its_own_usage(
+    tmp_path: Path, work: Path
+):
+    configured = CapabilitySettings.model_validate({"handoff": {"to": "fake/cheap", "min_turn": 1, "streak": 1}})
+    script = [Turn(tool_calls=[("write", {"path": "a.txt", "content": "one\n"})])]
+    cheap = lambda request: Turn(text="all done")  # noqa: E731
+    agent, client, _ = make_agent(tmp_path, script, configured, system1=Filled(Ready()), scripts={"fake/cheap": cheap})
+    session = await agent.new_session(cwd=str(work))
+    sid = session.session_id
+    response = await agent.prompt(prompt=[text_block("write a.txt")], session_id=sid)
+
+    assert sent(client) == [
+        ("tool_call", "fake/model"),
+        ("tool_call_update", "fake/model"),
+        ("nace/handoff", None),
+        ("agent_message_chunk", "fake/cheap"),
+        ("agent_message_chunk", "fake/cheap"),
+    ]
+    [(_, (_, notice))] = [(s, u) for s, u in client.updates if isinstance(u, tuple)]
+    assert notice == {"sessionId": sid, "turn": 1, "from": "fake/model", "to": "fake/cheap", "probability": 1.0}
+    # The prompt's usage splits three ways; System 2's share and the hand-over's make the turn's tokens.
+    assert response.field_meta is not None and response.usage is not None
+    usage = response.field_meta["nace"]["usage"]
+    assert set(usage) == {"system2", "system1", "handoff"}
+    assert (usage["system2"]["model"], usage["handoff"]["model"]) == ("fake/model", "fake/cheap")
+    assert usage["system2"]["outputTokens"] == usage["handoff"]["outputTokens"] == 10
+    assert usage["system2"]["inputTokens"] + usage["handoff"]["inputTokens"] == response.usage.input_tokens
+    await agent.aclose()
+
+    # Loaded in a new process, the hand-over is replayed where it happened, and each reply under its model.
+    agent, client, _ = make_agent(tmp_path, script, configured)
+    await agent.load_session(cwd=str(work), session_id=sid)
+    assert sent(client) == [
+        ("user_message_chunk", None),
+        ("tool_call", "fake/model"),
+        ("tool_call_update", "fake/model"),
+        ("nace/handoff", None),
+        ("agent_message_chunk", "fake/cheap"),
+    ]
+    [(_, (_, replayed))] = [(s, u) for s, u in client.updates if isinstance(u, tuple)]
+    assert replayed == notice
     await agent.aclose()
 
 

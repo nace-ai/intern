@@ -77,11 +77,20 @@ class RunnerInfo(BaseModel):
     """Why it cannot run in this install and environment; None when it can."""
 
 
+class HandoffChoices(BaseModel):
+    """The models a run can hand over to (the ACP `handoff` option's, less `off`), and the configured one."""
+
+    models: list[str]
+    default: str | None = None
+    """`[capabilities.handoff] to` (or `--handoff-to`); None when runs hand over to no model."""
+
+
 class Catalog(BaseModel):
     system2: list[ModelInfo]
     system1: list[ModelInfo]
     capabilities: list[CapabilityInfo] = []
     runners: list[RunnerInfo] = []
+    handoff: HandoffChoices | None = None
 
 
 @dataclass(frozen=True)

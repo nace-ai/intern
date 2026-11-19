@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel
 
+from intern.capability_settings import HandoffConfig
 from intern.context import TokenMeter, build_view
 from intern.decision_failover import BudgetDecisionBackend
 from intern.decisions import System1Unavailable
@@ -26,6 +27,7 @@ from intern.events import (
     WindowInfo,
     now_ms,
 )
+from intern.handoff import HANDOFF_ROLE, HandoffTarget
 from intern.hooks import RunOutcome
 from intern.journal import Entry, EventEntry, Journal, MessageEntry, ModelChangeEntry, WindowCapEntry, recording
 from intern.loop import CompactOutcome, EngineDeps, ModelBinding, Run, RunControl, system1_state
@@ -545,6 +547,25 @@ class Session:
         if (fallback := window_fallback(binding.ref, binding.window)) is not None:
             self.deps.emit(fallback)
         return binding
+
+    async def set_handoff(self, ref: str | None, config: HandoffConfig) -> HandoffTarget | None:
+        """Name the model the session's runs hand over to while idle, or none, and journal the change (as a
+        `model_change` of role `handoff`, its model empty for none). A model that cannot be bound changes nothing."""
+        self._ensure_open()
+        if self.running:
+            raise SessionBusy("cannot change models while a run is in progress")
+        target = None
+        if ref:
+            if self._resolve_model is None:
+                raise ValueError("this session was built without a model resolver")
+            binding = await self._resolve_model(ref)
+            self._ensure_open()
+            if self.running:
+                raise SessionBusy("a run started while the model was resolving; retry while idle")
+            target = HandoffTarget.of(binding, config, list(self.deps.system2.profile.tool_packs))
+        self.deps.handoff = target
+        self.deps.journal.append(ModelChangeEntry(role=HANDOFF_ROLE, model=ref or ""))
+        return target
 
     async def _set_system1(self, ref: str) -> None:
         if self._resolve_system1 is None:

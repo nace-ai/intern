@@ -28,12 +28,13 @@ from acp.schema import (
     UsageUpdate,
     UserMessageChunk,
 )
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 from intern.events import (
     ContextBudget,
     Event,
+    Handoff,
     ReasoningDelta,
     RunEnd,
     SecretUnavailable,
@@ -43,7 +44,7 @@ from intern.events import (
 )
 from intern.events import StopReason as RunStopReason
 from intern.events import ToolCallStart as HarnessToolCallStart
-from intern.journal import Entry, MessageEntry
+from intern.journal import Entry, EventEntry, MessageEntry
 from intern.memory.spend import StewardSpend
 from intern.messages import (
     AssistantMessage,
@@ -57,6 +58,8 @@ from intern.messages import (
 from intern.tools.base import Effect
 
 Update = UserMessageChunk | AgentMessageChunk | AgentThoughtChunk | ToolCallStart | ToolCallProgress | UsageUpdate
+HANDOFF_METHOD = "nace/handoff"
+"""The extension notification a hand-over is sent as; ACP puts `_` before it on the wire (`_nace/handoff`)."""
 
 STOP_REASONS: dict[RunStopReason, StopReason] = {
     "completed": "end_turn",
@@ -98,6 +101,8 @@ class MappingContext:
     """Tokens in the latest request, from its `context_budget`."""
     cost_usd: float = 0.0
     """What the session has cost so far, System 1 included."""
+    model: str = ""
+    """The model whose replies and tool calls the run streams now: System 2, or the one the run handed over to."""
 
 
 _STATUS = re.compile(r"\bHTTP (\d{3})\b")
@@ -124,6 +129,23 @@ class _Wire(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
 
+class HandoffNotice(_Wire):
+    """`_nace/handoff`'s params, less the session id the server adds: a run handed over at `turn`."""
+
+    turn: int
+    source: str = Field(serialization_alias="from")
+    target: str = Field(serialization_alias="to")
+    probability: float
+
+
+Outgoing = Update | HandoffNotice
+"""What a session sends: `session/update`s, and `_nace/handoff` in its place among them."""
+
+
+def handoff_notice(event: Handoff) -> HandoffNotice:
+    return HandoffNotice(turn=event.turn, source=event.source, target=event.target, probability=event.probability)
+
+
 class System2PromptUsage(_Wire):
     model: str
     input_tokens: int
@@ -145,23 +167,37 @@ class System1PromptUsage(_Wire):
 
 
 class PromptUsage(_Wire):
-    """`_meta.nace.usage` on a prompt response: what each system did for that prompt, follow-ups included."""
+    """`_meta.nace.usage` on a prompt response: what each system did for that prompt, follow-ups included. After a
+    hand-over, `handoff` is the cheaper model's share and `system2` the rest."""
 
     system2: System2PromptUsage
     system1: System1PromptUsage
+    handoff: System2PromptUsage | None = None
 
 
-def prompt_usage(system2_model: str, system2: Usage, system1_model: str, system1: System1Usage) -> PromptUsage:
+def _model_usage(model: str, usage: Usage) -> System2PromptUsage:
+    return System2PromptUsage(
+        model=model,
+        input_tokens=usage.input_tokens,
+        output_tokens=usage.output_tokens,
+        cached_read_tokens=usage.cache_read_tokens,
+        cached_write_tokens=usage.cache_write_tokens,
+        thought_tokens=usage.reasoning_tokens,
+        cost_usd=usage.cost_usd,
+    )
+
+
+def prompt_usage(
+    system2_model: str,
+    system2: Usage,
+    system1_model: str,
+    system1: System1Usage,
+    handoff: tuple[str, Usage] | None = None,
+) -> PromptUsage:
+    """`system2` is everything System 2's side spent; `handoff`, the model handed over to and its share of it."""
     return PromptUsage(
-        system2=System2PromptUsage(
-            model=system2_model,
-            input_tokens=system2.input_tokens,
-            output_tokens=system2.output_tokens,
-            cached_read_tokens=system2.cache_read_tokens,
-            cached_write_tokens=system2.cache_write_tokens,
-            thought_tokens=system2.reasoning_tokens,
-            cost_usd=system2.cost_usd,
-        ),
+        system2=_model_usage(system2_model, system2 - handoff[1] if handoff else system2),
+        handoff=_model_usage(*handoff) if handoff else None,
         system1=System1PromptUsage(
             model=system1_model,
             asks=system1.asks,
@@ -290,17 +326,26 @@ def _usage(ctx: MappingContext, tokens: int, cost: bool) -> UsageUpdate:
     )
 
 
-def event_updates(event: Event, ctx: MappingContext) -> list[Update]:
+def _by[U: AgentMessageChunk | AgentThoughtChunk | ToolCallStart | ToolCallProgress](update: U, model: str) -> U:
+    """`update` with `_meta.nace.model`, the model that wrote it or called the tool, when that is known."""
+    if model:
+        update.field_meta = {**(update.field_meta or {}), "nace": {"model": model}}
+    return update
+
+
+def event_updates(event: Event, ctx: MappingContext) -> list[Outgoing]:
     """The updates one live engine event becomes; most events become none."""
     match event:
         case TextDelta(text=text) if text:
-            return [update_agent_message_text(text)]
+            return [_by(update_agent_message_text(text), ctx.model)]
         case ReasoningDelta(text=text) if text:
-            return [update_agent_thought_text(text)]
+            return [_by(update_agent_thought_text(text), ctx.model)]
         case HarnessToolCallStart(call_id=call_id, name=name, arguments=arguments):
-            return [_tool_start(call_id, name, arguments, ctx)]
+            return [_by(_tool_start(call_id, name, arguments, ctx), ctx.model)]
         case ToolCallEnd(call_id=call_id, status=status, content=content, diff=diff):
-            return [_tool_end(call_id, status, content, diff)]
+            return [_by(_tool_end(call_id, status, content, diff), ctx.model)]
+        case Handoff():
+            return [handoff_notice(event)]
         case SecretUnavailable(message=message):
             return [update_agent_message_text(f"Secret not loaded: {message}\n\n")]
         case WindowFallback(message=message):
@@ -313,24 +358,30 @@ def event_updates(event: Event, ctx: MappingContext) -> list[Update]:
             return []
 
 
-def replay_updates(path: list[Entry], ctx: MappingContext) -> list[Update]:
-    """The updates that show a loaded session's active branch as if it had just run. Messages the harness
-    added itself (nudges) are left out."""
-    updates: list[Update] = []
+def replay_updates(path: list[Entry], ctx: MappingContext) -> list[Outgoing]:
+    """The updates that show a loaded session's active branch as if it had just run, each hand-over in its place.
+    Messages the harness added itself (nudges) are left out."""
+    updates: list[Outgoing] = []
+    called_by: dict[str, str] = {}
     for entry in path:
+        if isinstance(entry, EventEntry) and isinstance(entry.event, Handoff):
+            updates.append(handoff_notice(entry.event))
         if not isinstance(entry, MessageEntry):
             continue
         match entry.message:
             case UserMessage(content=content, source="user"):
                 updates.append(user_text(content))
-            case AssistantMessage(text=text, reasoning=reasoning, tool_calls=calls):
+            case AssistantMessage(text=text, reasoning=reasoning, tool_calls=calls, model=model):
                 if reasoning:
-                    updates.append(update_agent_thought_text(reasoning))
+                    updates.append(_by(update_agent_thought_text(reasoning), model))
                 if text:
-                    updates.append(update_agent_message_text(text))
-                updates.extend(_tool_start(c.id, c.name, c.arguments, ctx) for c in calls)
+                    updates.append(_by(update_agent_message_text(text), model))
+                for c in calls:
+                    called_by[c.id] = model
+                    updates.append(_by(_tool_start(c.id, c.name, c.arguments, ctx), model))
             case ToolResultMessage(result=result):
-                updates.append(_tool_end(result.call_id, result.status, result.content))
+                update = _tool_end(result.call_id, result.status, result.content)
+                updates.append(_by(update, called_by.get(result.call_id, "")))
             case _:
                 pass
     return updates

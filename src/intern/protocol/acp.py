@@ -76,9 +76,11 @@ from pydantic import BaseModel, StrictBool, ValidationError
 from intern import __version__, capability_toggles, names
 from intern.capability_settings import CapabilitySettings
 from intern.config import Bootstrap, Options, System2Unavailable, home_dir, process_env
-from intern.events import ContextBudget, Event, EventSink, RunEnd
+from intern.events import ContextBudget, Event, EventSink, Handoff, RunEnd, RunStart
+from intern.handoff import HANDOFF_ROLE
 from intern.journal import CapabilitiesChangeEntry, Journal, ModelChangeEntry
 from intern.memory.spend import read_spend
+from intern.messages import Usage as RunUsage
 from intern.models.catalog import CACHE_TTL_S, Catalog, ModelInfo
 from intern.models.profile import DEFAULT_EFFORT, RETIRED_AUTO, Profile
 from intern.models.registry import ConfigError
@@ -106,6 +108,9 @@ CAPABILITY_CATEGORY = "_nace_capability"
 RUNNER = "runner"
 RUNNER_CATEGORY = "_nace_runner"
 """ACP keeps categories starting with `_` for custom ones."""
+HANDOFF = "handoff"
+HANDOFF_CATEGORY = "_nace_handoff"
+HANDOFF_OFF = "off"
 DEFAULT_PACKS = tuple(Profile().tool_packs)
 """The packs toggles start from before a session's profile is known."""
 # Prompts carry images inline as base64; the SDK's own default.
@@ -149,8 +154,8 @@ def bootstrap_opener(options: Options, env: Mapping[str, str] | None = None) -> 
         if request.system2:
             update["system2"] = request.system2
         if request.capabilities is not None:
-            # Built from the configured settings, which already hold --memory and --no-memory.
-            update |= {"capabilities": request.capabilities, "memory": None, "memory_off": False}
+            # Built from the configured settings, which already hold --memory, --no-memory and --handoff-to.
+            update |= {"capabilities": request.capabilities, "memory": None, "memory_off": False, "handoff_to": None}
         return await Bootstrap(options.model_copy(update=update), env).session(request.emit)
 
     return open_session
@@ -205,6 +210,11 @@ def window_cap(value: str) -> int | None:
     if not value.isascii() or not value.isdigit() or int(value) <= 0:
         raise RequestError(-32602, f"{CONTEXT_WINDOW} takes {AUTO_WINDOW} or a positive number of tokens")
     return int(value)
+
+
+def with_handoff(caps: CapabilitySettings, to: str | None) -> CapabilitySettings:
+    """`caps` handing runs over to `to`, or to none."""
+    return caps.model_copy(update={"handoff": caps.handoff.model_copy(update={"to": to})})
 
 
 def tokens_label(tokens: int) -> str:
@@ -270,14 +280,27 @@ class LiveSession:
     """A cancel arrived while it reopened, before the prompt's run started."""
     installing: asyncio.Task[None] | None = None
     """The install a switched-on capability waits for before the reopen; a cancel stops it."""
+    model: str = ""
+    """The model the run in progress streams from: System 2, or the one it handed over to."""
+    handed_to: str | None = None
+    """The model the run in progress handed over to, once it has."""
+    handed: tuple[str, RunUsage] | None = None
+    """What the prompt in progress spent on the model its runs handed over to, by that model."""
 
     def observe(self, event: Event) -> None:
-        """Keep the running totals the usage updates report."""
+        """Keep the running totals the usage updates report, and which model the run streams from."""
         match event:
             case ContextBudget(tokens=tokens):
                 self.context_tokens = tokens
-            case RunEnd(usage=usage, system1=system1):
+            case RunStart(model=model):
+                self.model, self.handed_to = model, None
+            case Handoff(target=target):
+                self.model = self.handed_to = target
+            case RunEnd(usage=usage, system1=system1, by_model=by_model):
                 self.cost_usd += usage.cost_usd + system1.cost_usd
+                if self.handed_to is not None and (spent := by_model.get(self.handed_to)) is not None:
+                    before = self.handed[1] if self.handed is not None else RunUsage()
+                    self.handed = (self.handed_to, before + spent)
             case _:
                 pass
 
@@ -289,6 +312,7 @@ class LiveSession:
             working_window=deps.system2.window.working,
             context_tokens=self.context_tokens,
             cost_usd=self.cost_usd,
+            model=self.model,
         )
 
     async def flush(self) -> None:
@@ -399,15 +423,20 @@ class AcpAgent:
         system2: str | None,
         caps: CapabilitySettings,
         session_id: str | None = None,
+        fallback: CapabilitySettings | None = None,
     ) -> LiveSession:
-        """Open a harness session. Raises System2Unavailable when its System 2 cannot bind."""
+        """Open a harness session, on `fallback` when it cannot open on `caps`. Raises System2Unavailable when its
+        System 2 cannot bind."""
         queue: asyncio.Queue[Event] = asyncio.Queue()
         try:
             session = await self._open(self._request(Path(cwd), journal, system2, queue.put_nowait, caps))
         except System2Unavailable:
             raise
         except ConfigError as e:
-            raise RequestError(-32602, str(e)) from None
+            if fallback is None:
+                raise RequestError(-32602, str(e)) from None
+            print(f"{names.NAME}: {e}; the session opens on the configured settings", file=sys.stderr)
+            return await self._start(cwd, journal, system2, fallback, session_id)
         packs = tuple(session.deps.system2.profile.tool_packs) if caps.tool_packs is None else DEFAULT_PACKS
         live = LiveSession(session_id or session.deps.journal.session_id, session, caps, packs, queue)
         live.pump = asyncio.create_task(self._pump(live), name=f"acp-updates-{live.id}")
@@ -471,10 +500,11 @@ class AcpAgent:
         system1: str | None,
         caps: CapabilitySettings,
         session_id: str | None = None,
+        fallback: CapabilitySettings | None = None,
     ) -> LiveSession | UnboundSession:
         """A live session on `system2` (the configured default when None), or an unbound one when it cannot bind."""
         try:
-            live = await self._start(cwd, journal, system2, caps, session_id)
+            live = await self._start(cwd, journal, system2, caps, session_id, fallback)
         except System2Unavailable as e:
             # A new session's entry is written now, so the id the client keeps finds this journal on load.
             unbound = UnboundSession(
@@ -532,7 +562,12 @@ class AcpAgent:
                 live.queue.task_done()
 
     async def _send(self, session_id: str, update: Any) -> None:
-        if self._client is not None:
+        if self._client is None:
+            return
+        if isinstance(update, acp_mapping.HandoffNotice):
+            params = {"sessionId": session_id, **update.model_dump(by_alias=True)}
+            await self._client.ext_notification(acp_mapping.HANDOFF_METHOD, params)
+        else:
             await self._client.session_update(session_id=session_id, update=update)
 
     def _journal_path(self) -> Path | None:
@@ -567,7 +602,12 @@ class AcpAgent:
         models = journal.last_models()
         system2 = meta.system2 or models.get("system2")
         caps = self._picks(journal, meta.capabilities, meta.runner)
-        opened = await self._open_session(cwd, path, system2, meta.system1 or models.get("system1"), caps, session_id)
+        fallback = None
+        if (handoff := models.get(HANDOFF_ROLE)) is not None and handoff != (caps.handoff.to or ""):
+            # The hand-over model the session last picked, unless it can no longer be bound here.
+            caps, fallback = with_handoff(caps, handoff or None), caps
+        system1 = meta.system1 or models.get("system1")
+        opened = await self._open_session(cwd, path, system2, system1, caps, session_id, fallback)
         self._refresh_catalog()
         if isinstance(opened, LiveSession):
             path_entries, mapping = opened.session.deps.journal.active_path(), opened.mapping()
@@ -659,6 +699,7 @@ class AcpAgent:
         before = session.usage
         # Shared across System 1 switches, so the difference is this prompt's asks, tools' own included.
         system1_before = session.deps.decisions.usage.model_copy()
+        live.handed = None
         try:
             # No await before run(): a cancel that follows this prompt finds the run started.
             outcome = await session.run(text)
@@ -677,9 +718,10 @@ class AcpAgent:
             used,
             session.system1,
             session.deps.decisions.usage.since(system1_before),
+            live.handed,
         )
         return PromptResponse(
-            field_meta={"nace": {"usage": usage.model_dump(by_alias=True)}},
+            field_meta={"nace": {"usage": usage.model_dump(by_alias=True, exclude_none=True)}},
             stop_reason=reason,
             usage=Usage(
                 input_tokens=used.input_tokens,
@@ -886,9 +928,28 @@ class AcpAgent:
         return [
             *options,
             self._window_option(opened.session),
+            self._handoff_option(opened.session),
             self._runner_option(caps),
             *self._capability_options(caps, opened.packs),
         ]
+
+    def _handoff_option(self, session: Session) -> SessionConfigOptionSelect:
+        """`off`, then the models a run can hand over to: the session's target first, then the catalog's System 2."""
+        target = session.deps.handoff.binding.ref if session.deps.handoff is not None else None
+        listed = {model.id: model.name for model in self.catalog.system2} if self.catalog is not None else {}
+        if target is not None:
+            listed = {target: listed.get(target, target)} | listed
+        choices = [SessionConfigSelectOption(value=HANDOFF_OFF, name="Off")]
+        choices += [SessionConfigSelectOption(value=ref, name=name) for ref, name in listed.items()]
+        return SessionConfigOptionSelect(
+            id=HANDOFF,
+            name="Hand-over",
+            category=HANDOFF_CATEGORY,
+            description="The cheaper model a run hands over to once System 1 judges the rest within its reach.",
+            type="select",
+            current_value=target or HANDOFF_OFF,
+            options=choices,
+        )
 
     def _runner_option(self, caps: CapabilitySettings) -> SessionConfigOptionSelect:
         """Where the session's commands run: one choice among every runner, each value saying why it cannot run here
@@ -1020,6 +1081,8 @@ class AcpAgent:
                 binding.profile = binding.profile.model_copy(update={"reasoning_effort": effort})
             elif config_id == CONTEXT_WINDOW:
                 session.set_window_cap(window_cap(value))
+            elif config_id == HANDOFF:
+                await self._set_handoff(live, value)
             else:
                 raise RequestError(-32602, f"unknown config option {config_id!r}")
         except SessionBusy as e:
@@ -1027,6 +1090,20 @@ class AcpAgent:
         except (ConfigError, ValueError, KeyError) as e:
             raise RequestError(-32602, str(e)) from None
         return SetSessionConfigOptionResponse(config_options=self._options(live))
+
+    async def _set_handoff(self, live: LiveSession, value: str) -> None:
+        """Hand the session's runs over to the model `value` names, or to none (`off`), from the next run; it is
+        `[capabilities.handoff] to` for this session, so a reopen keeps it."""
+        if not value:
+            raise RequestError(-32602, f"{HANDOFF} takes {HANDOFF_OFF} or a model")
+        to = None if value == HANDOFF_OFF else value
+        handoff = live.session.deps.handoff
+        if to == (handoff.binding.ref if handoff is not None else None):
+            return
+        await live.session.set_handoff(to, live.capabilities.handoff)
+        live.capabilities = with_handoff(live.capabilities, to)
+        if live.pending is not None:
+            live.pending = with_handoff(live.pending, to)
 
     async def _set_capability(
         self, config_id: str, session_id: str, value: str | bool
