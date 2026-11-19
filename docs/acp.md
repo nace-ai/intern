@@ -1357,3 +1357,9 @@ a file of the turns so far, is gone, and `[capabilities.handoff]` no longer has 
 that still sets it loads as before and hands over as `context` did. The `handoff` event keeps `transfer`, now always
 `"context"`, and drops `logfile`, which only that mode set. Still `PROTOCOL_VERSION` 3: a client that reads the event
 gets the values it could get before. ACP does not carry the event, and 0.45.0 clients keep working.
+
+### 0.46.1
+
+The process watch skips commands that are only `sleep` and numeric durations: their answer never changes, so they
+cost no scheduled System 1 looks. Their ends are still reported as before; other commands keep their schedule.
+Older clients keep working, and nothing a client sends or reads changed shape.

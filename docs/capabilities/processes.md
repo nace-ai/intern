@@ -104,6 +104,9 @@ and that a turn that only polls running jobs ends its turn until then.
 
 ## System 1's look at what runs
 
+A command that is only `sleep N` (including durations with units or several duration arguments) is not looked at:
+its answer never changes. The agent is still told when it ends.
+
 While any command runs, System 1 is asked what each is doing (`process_watch.py`): at its
 ages of 30 s, 1, 2, 4, 8 and 16 minutes, then every 30 minutes, one ask covering every command
 running, over its view of the session with `processes`. Nothing running, no ask; a command that runs
