@@ -1,0 +1,39 @@
+FRAUD-RISK QUESTIONNAIRE
+Client: Harbour & Pine Joinery Ltd    Year ended 30 June 2026
+Completed by: R. Okafor, finance director    Reviewed by: audit senior, 14 August 2026
+
+Q1. Who is responsible for preventing and detecting fraud?
+The board. Day to day, the finance director; payments over $10,000 need a second director's approval.
+
+Q2. Are you aware of any actual, suspected or alleged fraud affecting the entity?
+No allegations by staff, customers or regulators this year.
+
+Q3. Has the entity been the victim of fraud, a scam or theft during the year or since? If so, describe each
+case and its cost to the entity.
+Yes, twice.
+(a) Payment scam. On 11 March 2026 accounts payable received a phishing email that appeared to come from our
+timber supplier, Northgate Timber, giving new bank details. Invoice 4471 was paid to the new account. The real
+supplier chased the invoice three weeks later. Loss: $48,200. The bank recovered nothing; the insurer declined
+the claim because the policy excludes payments made on false instructions.
+(b) Theft. A laptop and a site tablet were stolen from the warehouse office on 2 June 2026. Insurance paid the
+replacement cost less the $500 excess.
+
+Q4. What did you change as a result?
+Changes to supplier bank details are now confirmed by a call to a number already on file (since April 2026).
+Laptops are kept in a locked cabinet overnight.
+--- page ---
+FRAUD-RISK QUESTIONNAIRE (continued)
+
+Q5. Do any employees have incentives or pressures that could lead to fraudulent reporting?
+Sales staff earn a bonus on orders booked; the bonus is paid on cash received, not on orders.
+
+Q6. Is there a whistleblowing procedure?
+Yes, a line to the chair of the board. No reports this year.
+
+Q7. Are there related parties that management controls outside the entity?
+The managing director owns the premises; rent of $54,000 a year is charged at market rate.
+
+Q8. Has the entity received any communication from regulators about fraud or non-compliance?
+No.
+
+Signed: R. Okafor, finance director, 12 August 2026

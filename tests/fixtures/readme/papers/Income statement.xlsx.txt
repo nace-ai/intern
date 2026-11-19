@@ -1,0 +1,13 @@
+## Income statement
+Harbour & Pine Joinery Ltd	Year ended 30 June 2026
+	2026	2025
+Revenue	2184600	1967300
+Cost of sales	-1428900	-1301200
+Gross profit	755700	666100
+Administrative expenses	-512300	-488700
+Other expenses (note 7)	-70540	-19430
+Operating profit	172860	157970
+Interest payable	-41100	-43800
+Profit before tax	131760	114170
+Tax	-32940	-28540
+Profit for the year	98820	85630
