@@ -70,7 +70,7 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
   │  ● Watch       nudges it out of circles│                            │                                        │
   │  ○ Guard       off · /caps guard       │                            │                                        │
   │  ● Search      finds the places to read│                            │                                        │
-  │  ● Compaction  keeps what still matters│                            │  ◆ the decision model takes part       │
+  │  ● Compaction  keeps what still matters│                            │  ◆ uses the decision model             │
   ╰────────────────────────────────────────╯                            ╰────────────────────────────────────────╯
                                     ~/work/parser  ·  session 20261108-21…
 

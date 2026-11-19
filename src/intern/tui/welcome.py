@@ -23,7 +23,7 @@
     │ drex-max · console                   │                    │                                      │
     │ ● Hand-over   picks when to hand over│                    │                                      │
     │ ...                                  │                    │                                      │
-    ╰──────────────────────────────────────╯                    │ ◆ the decision model takes part      │
+    ╰──────────────────────────────────────╯                    │ ◆ uses the decision model            │
                                                                 ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
@@ -150,7 +150,7 @@ NAMES = {"cap.tool-result-guard": "result guard"}
 others."""
 MCP_BRIEF = "remote tools"
 BRIEF_INDENT = 4
-DECIDED, LEGEND = "◆", "the decision model takes part"
+DECIDED, LEGEND = "◆", "uses the decision model"
 """The mark beside a capability the decision model takes part in, and what it means, said once under the list."""
 """Where a capability's few words start on its card: further in than its name."""
 JOB_WIDTH = 14
