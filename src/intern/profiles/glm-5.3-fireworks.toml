@@ -1,0 +1,19 @@
+# GLM 5.3 on Fireworks serverless and its fast and spot routers, and through the Nace console, which serves it from
+# there; not glm-5p3-flash, another model, which takes images. Measured on Fireworks (2026-11-19): the server refuses
+# a prompt over 1,048,576 tokens ("maximum context length is 1048576"), as its listing says, and refuses image input.
+# It takes max_tokens up to the window; the cap is the 128K the model card's long-output evaluations allow.
+# `reasoning_effort` none is refused (thinking only); low, medium and high reasoned about 50, 100-600 and 400-800
+# tokens on one puzzle, and xhigh, max and no effort alike 1,200-5,300, so max stands for xhigh and is the model's
+# own level. A replayed `reasoning_content` reaches the prompt.
+
+match = [
+  "fireworks/accounts/fireworks/models/glm-5p3",
+  "fireworks/accounts/fireworks/routers/glm-5p3-fast",
+  "fireworks/accounts/fireworks/routers/glm-5p3-spot",
+  "nace/glm-5.3*",
+]
+window = 1048576
+max_output_tokens = 131072
+effort_levels = ["low", "medium", "high", "max"]
+reasoning_replay = true
+vision = false

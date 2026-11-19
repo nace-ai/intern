@@ -810,16 +810,17 @@ async def test_stored_secret_reaches_commands_redacted_over_the_users_environmen
             pytest.fail("one source of command secrets at a time")
 
 
-async def test_a_stored_key_the_harness_uses_itself_stays_out_of_the_agents_commands(tmp_path, monkeypatch):
+@pytest.mark.parametrize("name", ["ANTHROPIC_API_KEY", "NACE_API_KEY", "NACE_FREE_REFRESH_TOKEN"])
+async def test_a_stored_key_the_harness_uses_itself_stays_out_of_the_agents_commands(tmp_path, monkeypatch, name):
     fetch = tmp_path / "fetch"
     fetch.write_text('#!/bin/sh\nprintf "%s-stored-value" "$1"\n')
     fetch.chmod(0o755)
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv(name, raising=False)
     toml = (
         f'[secrets]\nDEMO_TOKEN = [{json.dumps(str(fetch))}, "demo"]\n'
-        f'ANTHROPIC_API_KEY = [{json.dumps(str(fetch))}, "model"]\n[capabilities]\ntool_packs = ["base"]\n'
+        f'{name} = [{json.dumps(str(fetch))}, "model"]\n[capabilities]\ntool_packs = ["base"]\n'
     )
-    command = 'printf "%s|%s" "$DEMO_TOKEN" "${ANTHROPIC_API_KEY-unset}"'
+    command = f'printf "%s|%s" "$DEMO_TOKEN" "${{{name}-unset}}"'
     replies = [Reply(tool_calls=[("bash", {"command": command})]), Reply(text="done")]
     async with configured(tmp_path, replies, toml) as (session, _, _, _):
         await session.run("use the secrets")

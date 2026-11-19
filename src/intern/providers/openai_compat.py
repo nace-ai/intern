@@ -28,7 +28,7 @@ from intern.messages import (
     UserMessage,
 )
 from intern.models.prices import priced
-from intern.models.registry import Endpoint
+from intern.models.registry import Endpoint, token_expired
 from intern.providers.base import (
     Completed,
     ProviderError,
@@ -126,10 +126,10 @@ class OpenAICompatProvider:
         self.endpoint = endpoint
         self._transport = transport
 
-    def _headers(self, request: ProviderRequest) -> dict[str, str]:
+    async def _headers(self, request: ProviderRequest) -> dict[str, str]:
         headers = {**names.CLIENT_HEADERS, "Content-Type": "application/json"}
-        if self.endpoint.api_key:
-            headers["Authorization"] = f"Bearer {self.endpoint.api_key.get_secret_value()}"
+        if key := await self.endpoint.authorization():
+            headers["Authorization"] = f"Bearer {key}"
         if self.endpoint.session_header and request.session_id:
             headers[self.endpoint.session_header] = request.session_id
         return headers
@@ -216,26 +216,33 @@ class OpenAICompatProvider:
         self, client: httpx.AsyncClient, body: dict[str, Any], request: ProviderRequest, started: float
     ) -> AsyncGenerator[StreamItem]:
         url = f"{self.endpoint.base_url}/chat/completions"
-        async with client.stream("POST", url, json=body, headers=self._headers(request)) as response:
-            if response.status_code >= 400:
-                detail = (await response.aread()).decode(errors="replace")[:500]
-                raise ProviderError(
-                    f"HTTP {response.status_code} from {self.endpoint.provider}: {detail}",
-                    status=response.status_code,
-                    retryable=response.status_code in RETRYABLE_STATUS,
-                ) from None
-            reply = _Reply()
-            splitter = ThinkSplitter() if request.compat.think_tags else None
-            if request.compat.stream:
-                async for item in self._read_sse(response, reply, splitter):
+        credential = self.endpoint.credential
+        for resend in (credential is not None, False):
+            async with client.stream("POST", url, json=body, headers=await self._headers(request)) as response:
+                if response.status_code >= 400:
+                    raw = await response.aread()
+                    if resend and credential is not None and token_expired(response.status_code, raw):
+                        await credential.invalidate()
+                        continue
+                    raise ProviderError(
+                        f"HTTP {response.status_code} from {self.endpoint.provider}: "
+                        f"{raw.decode(errors='replace')[:500]}",
+                        status=response.status_code,
+                        retryable=response.status_code in RETRYABLE_STATUS,
+                    ) from None
+                reply = _Reply()
+                splitter = ThinkSplitter() if request.compat.think_tags else None
+                if request.compat.stream:
+                    async for item in self._read_sse(response, reply, splitter):
+                        yield item
+                else:
+                    for item in self._read_json(json.loads(await response.aread()), reply, splitter):
+                        yield item
+                for item in self._flush(splitter, reply):
                     yield item
-            else:
-                for item in self._read_json(json.loads(await response.aread()), reply, splitter):
-                    yield item
-            for item in self._flush(splitter, reply):
-                yield item
-            duration_ms = int((time.monotonic() - started) * 1000)
-            yield Completed(message=self._finish(reply, request, duration_ms))
+                duration_ms = int((time.monotonic() - started) * 1000)
+                yield Completed(message=self._finish(reply, request, duration_ms))
+                return
 
     async def _read_sse(
         self, response: httpx.Response, reply: _Reply, splitter: ThinkSplitter | None

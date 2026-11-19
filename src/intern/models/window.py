@@ -85,12 +85,12 @@ def takes_images(item: dict[str, Any]) -> bool | None:
     return supported if isinstance(supported, bool) else None
 
 
-def auth_headers(endpoint: Endpoint) -> dict[str, str]:
+async def auth_headers(endpoint: Endpoint) -> dict[str, str]:
     """The headers a provider's model listing needs: Anthropic's own, or a bearer token."""
     if endpoint.api_key and endpoint.api == "anthropic":
         return {"x-api-key": endpoint.api_key.get_secret_value(), "anthropic-version": ANTHROPIC_API_VERSION}
-    if endpoint.api_key:
-        return {"Authorization": f"Bearer {endpoint.api_key.get_secret_value()}"}
+    if key := await endpoint.authorization():
+        return {"Authorization": f"Bearer {key}"}
     return {}
 
 
@@ -148,7 +148,7 @@ async def advertised_limits(
     if profile.window:
         return ModelLimits(profile.window, "profile")
     async with httpx.AsyncClient(
-        timeout=LOOKUP_TIMEOUT_S, headers=auth_headers(endpoint), transport=transport
+        timeout=LOOKUP_TIMEOUT_S, headers=await auth_headers(endpoint), transport=transport
     ) as client:
         lookups: list[tuple[WindowSource, Any]] = [
             ("provider", _from_models_listing),

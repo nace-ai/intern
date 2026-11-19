@@ -173,12 +173,16 @@ def responses_model(endpoint: Endpoint, model_id: str) -> bool:
 
 
 def _listed(endpoint: Endpoint, body: Any) -> list[ModelInfo]:
+    # The console lists its decision models under `models` (today, all it lists): System 1's, not System 2's,
+    # even should one also appear among its chat models under `data`.
+    decision = {item.get("name") for item in _items(body, "models")}
     models: list[ModelInfo] = []
     for item in _items(body, "data"):
         model_id = item.get("id")
         if (
             isinstance(model_id, str)
             and model_id
+            and model_id not in decision
             and language_model(model_id, item)
             and responses_model(endpoint, model_id)
         ):
@@ -232,7 +236,8 @@ async def _fetch(
 async def _provider_models(endpoint: Endpoint, transport: httpx.AsyncBaseTransport | None) -> list[ModelInfo]:
     key = (endpoint.provider, endpoint.base_url)
     url = f"{endpoint.base_url}/models"
-    return await _fetch(key, url, auth_headers(endpoint), {}, transport, lambda body: _listed(endpoint, body))
+    headers = await auth_headers(endpoint)
+    return await _fetch(key, url, headers, {}, transport, lambda body: _listed(endpoint, body))
 
 
 async def console_models(sources: System1Sources, transport: httpx.AsyncBaseTransport | None = None) -> list[ModelInfo]:

@@ -475,6 +475,14 @@ answer) and from the decisions API (`GET {base_url}/models?output_modalities=dec
 `$OPENROUTER_API_KEY`, OpenRouter's filter for decision models), as `decisions:<model>`. Exit code 0,
 even when every provider fails (the lists are then shorter); 2 on a configuration error.
 
+The console is also a System 2 provider (0.50.0 and later), `nace`: `https://console.nace.ai/v1`, or
+`$NACE_BASE_URL`, with `$NACE_API_KEY`. Its models are `nace/<model>`, such as `nace/glm-5.3`, listed from the
+chat models in its `GET /models` (`data`) and never from its decision models (`models`), which stay System 1's. The
+console lists no chat models yet, so `nace/` entries appear only once it serves some. A token the console issues
+(the free trial's, in a later release) is sent only to `console.nace.ai`, `console.test.nace.ai` and `console.stage.nace.ai`
+over HTTPS: a `$NACE_BASE_URL` or `$DREX_BASE_URL` pointing elsewhere is a configuration error, and nothing is
+sent.
+
 ## Versioning
 
 - The harness's event protocol (`intern schema`, `intern rpc`) is at `PROTOCOL_VERSION`
@@ -1456,3 +1464,17 @@ keep working, and a session where no run hands over sends what it sent before, b
   handed over, from `run_end.by_model`, and `system2` then leaves that model's share out. A client that reads only
   `system2` shows less for such a turn than it did; the prompt's `usage` and `usage_update`'s `cost` are unchanged.
 - [`models --json`](#model-catalog) gains `handoff: {models, default}`.
+
+### 0.50.0
+
+The Nace console is a System 2 provider, `nace` ([model catalog](#model-catalog)). Additive: 0.49.0 clients keep
+working, and `models --json` lists what it listed before until the console serves chat models.
+
+- `--system2 nace/<model>` and `system2` in config.toml take `nace/` models, with `$NACE_API_KEY` (and
+  `$NACE_BASE_URL` for another console). `nace/glm-5.3` runs on GLM 5.3's profile and
+  `nace/deepseek-v4*-flash*` on DeepSeek V4 Flash's.
+- `models --json` lists the console's chat models as `nace/<model>` once it serves them, never its decision models.
+- A `401` whose `error.code` is `token_expired`, from System 2 on `nace` or from System 1, has its bearer renewed and
+  the request sent again, once.
+- `NACE_FREE_REFRESH_TOKEN`, like `NACE_API_KEY`, is a harness key: a `[secrets]` entry of that name is kept out of
+  the agent's commands, and its value is redacted from what they print.
