@@ -144,6 +144,21 @@ Screen {
     margin-top: 1;
 }
 
+/* The capabilities' card scrolls its list, and says what the ◆ means on its bottom edge. */
+#welcome-tools {
+    overflow-x: hidden;
+    scrollbar-size-vertical: 1;
+    scrollbar-background: $background;
+    scrollbar-color: $brand 35%;
+    scrollbar-color-hover: $brand 60%;
+    scrollbar-color-active: $brand;
+    border-subtitle-align: left;
+}
+
+#welcome-tools-list {
+    height: auto;
+}
+
 #welcome.hero #welcome-side {
     width: auto;
     padding: 0 3;

@@ -2101,6 +2101,21 @@ class HarnessApp(App[None]):
         event.stop()
         self.query_one("#prompt", Prompt).take_paste(event.text)
 
+    def on_key(self, event: events.Key) -> None:
+        """A character typed while nothing that writes has the focus, as after a click on the entering page's
+        capabilities to scroll them: the prompt takes the focus back, and the character with it."""
+        if (
+            isinstance(self.screen, ModalScreen)
+            or isinstance(self.focused, (Input, TextArea))
+            or not event.is_printable
+        ):
+            return
+        if event.character:
+            prompt = self.query_one("#prompt", Prompt)
+            prompt.focus()
+            prompt.insert(event.character)
+            event.stop()
+
     def on_text_selected(self, event: events.TextSelected) -> None:
         """A drag that selected text has ended: it is copied there and then, as a terminal's own selection
         is; ctrl+c (cmd+c) copies it again."""

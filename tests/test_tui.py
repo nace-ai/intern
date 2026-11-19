@@ -73,7 +73,7 @@ from intern.tui.app import (
 )
 from intern.tui.pickers import Choice, ModelPicker, ranked
 from intern.tui.state_panel import StatePanel
-from intern.tui.welcome import LEGEND, Welcome
+from intern.tui.welcome import LEGEND, CapabilityCard, Welcome
 from intern.tui.widgets import (
     CompactionCard,
     Prompt,
@@ -504,11 +504,23 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
             assert re.search(rf"Code Search.*?{gap}searches code for it", said)
             # The decision model takes part in code search: its mark is beside the name, on no other's, and said once.
             assert "Code Search ◆" in said and "Base Tools ◆" not in said
-            assert said.count(LEGEND) == 1
+            edge = str(page.query_one(CapabilityCard).border_subtitle) if look == "hero" else ""
+            assert (said + edge).count(LEGEND) == 1
         # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
         # nothing under the prompt, and the panels it stands in for are away.
         assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y
         assert not app.query_one("#side").display and not app.query_one(StatusBar).display
+        if look == "hero":
+            # The capabilities scroll rather than stretch the page: clicked, the arrows move them, and what is typed
+            # next goes to the prompt.
+            card = page.query_one(CapabilityCard)
+            assert card.max_scroll_y > 0
+            await pilot.click(card)
+            await pilot.press("down", "down")
+            await wait_for(lambda: card.scroll_y > 0)
+            await pilot.press("o", "k")
+            await wait_for(lambda: app.query_one("#prompt", Prompt).text == "ok")
+            app.query_one("#prompt", Prompt).clear()
         # A capability switched from here shows on the page, which lists them: nothing is said of it under the page.
         assert "○ Web Search" in said
         await send(app, pilot, "/caps web-search")

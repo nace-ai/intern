@@ -88,12 +88,14 @@ on (`●`) or off (`○`) as a capability is (the guard is off, and its line say
 the fixed rules alone; the search while neither `code search` nor `workspace` is on). The capabilities' card says
 how many tools the session has and which models work with them (a run that hands over keeps its tools, so both do),
 then what the session has switched on (`●` on, `○` off: `/caps` changes them), each capability over what it is in a
-few words, with a `◆` after those the decision model takes part in, said once under the list. Each side stands at
-the middle of the taller. Above them the wordmark in block letters, in the ink with a shadow in the accent, and what
-Intern is, in a sentence on a shaded band: three models while a run hands over, two while not. Under them the
-working directory and the session's journal, then what to do and the keys worth knowing first, the look last:
-`/dark` in the light look, `/light` in the dark one (while the session is opening, or when it could not open, that
-line says so instead). All of it is centred, and stands a third of the way down a tall terminal.
+few words, a line of air between them, with a `◆` after those the decision model takes part in and its legend on the
+card's bottom edge. The capabilities' card stands exactly beside the models' cards, top and bottom, the mascot at
+their middle, and scrolls the rest: with the wheel, or the arrows once it is clicked (what is typed next goes to the
+prompt). Above them the wordmark in block letters, in the ink with a shadow in the accent, and what Intern is, in a
+sentence on a shaded band: three models while a run hands over, two while not. Under them the working directory and
+the session's journal, then what to do and the keys worth knowing first, the look last: `/dark` in the light look,
+`/light` in the dark one (while the session is opening, or when it could not open, that line says so instead). All
+of it is centred, and stands a third of the way down a tall terminal.
 
 The mascot is the README's mark, the Nace cube with two eyes in the window on its top face, in one colour, the ink
 (`tui/sprites/`: sheets of frames from the Nace brand playground's Intern kit, with `sprites.json` saying which
@@ -112,13 +114,13 @@ at twice the size, a row under them: half a row under them would be a half block
 macOS Terminal draws as a hairline.
 
 The page fits the terminal, and is fitted again when the terminal's size changes. From 130 columns it is the page
-above (`hero`), with the larger mascot from 138 columns and 42 rows, and its wordmark twice the size from 160 columns
-when there are the rows for it. From 108 columns the
-models and the capabilities are in one column beside the mascot, in one frame under the wordmark and the sentence
-(`framed`): each model under its tab, the decision model's jobs, a line on the State, then the capabilities. Either
-goes without its wordmark on a terminal too short for it (under about 48 rows, or 47 framed). Smaller than that
-(under about 42 rows, or 41 framed, or 108 columns) it is the frame alone, a line a job and the capabilities by name
-(`compact`), so nothing of the first screen starts above its top.
+above (`hero`), with the larger mascot from 138 columns and 42 rows, and its wordmark twice the size from 160
+columns when there are the rows for it. From 108 columns the models and the capabilities are in one column beside
+the mascot, in one frame under the wordmark and the sentence (`framed`): each model under its tab, the decision
+model's jobs, a line on the State, then the capabilities. Either goes without its wordmark on a terminal too short
+for it (under about 44 rows, or 47 framed). Smaller than that (under about 38 rows, or 41 framed, or 108 columns) it
+is the frame alone, a line a job and the capabilities by name (`compact`), so nothing of the first screen starts
+above its top.
 
 The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It follows
 the session, so a `/models` or `/caps` pick made before the first prompt shows on it: a capability switched there

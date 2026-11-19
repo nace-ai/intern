@@ -30,16 +30,18 @@
             Describe a task to begin.   /help commands   /models models   /caps capabilities ...
 
 The page is drawn as one. On the left System 2's card over System 1's, on the right the capabilities, Intern itself
-between them, the Nace cube with eyes, alive as the brand draws it (`Mascot`); the two sides as tall as each other.
-System 2's card plays the run as Intern makes it, over and over (`RunPlay`): the frontier model works the hard part,
-on a rule across the card, `↓ hand-over` in its middle, the decision model's P(ready) fills it until it hands over,
-and the efficient model finishes the rest. While hand-over is off the efficient model is not there, a line says so,
-and the frontier model works every turn. System 1's card has the decision model's jobs, each on or off as a
-capability is. The capabilities' card says which models work with the tools, then each capability over what it is,
-in a few words, and a ◆ after those the decision model takes part in, said once under them. Above them the wordmark,
-in ink with the accent for its shadow, and what Intern is, in a sentence on a shaded band: three models while a run
-hands over, two while it does not; under them where the session works, then what to do next. All of it centred, and
-a third of the way down a tall terminal.
+between them, the Nace cube with eyes, alive as the brand draws it (`Mascot`); the cards on either side as tall as
+each other, the mascot at their middle. System 2's card plays the run as Intern makes it, over and over (`RunPlay`):
+the frontier model works the hard part, on a rule across the card, `↓ hand-over` in its middle, the decision model's
+P(ready) fills it until it hands over, and the efficient model finishes the rest. While hand-over is off the
+efficient model is not there, a line says so, and the frontier model works every turn. System 1's card has the
+decision model's jobs, each on or off as a capability is. The capabilities' card says which models work with the
+tools, then each capability over what it is, in a few words, a line of air between them, and a ◆ after those the
+decision model takes part in, its legend on the card's edge; the card stands exactly beside the models' cards, top
+and bottom, and scrolls the rest (`CapabilityCard`). Above them the wordmark, in ink with the accent for its shadow,
+and what Intern is, in a sentence on a shaded band: three models while a run hands over, two while it does not;
+under them where the session works, then what to do next. All of it centred, and a third of the way down a tall
+terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the models and the capabilities in one column
 beside the mascot, in one frame (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is
@@ -56,7 +58,7 @@ from pathlib import Path
 from typing import Literal
 
 from textual.app import ComposeResult
-from textual.containers import Center, Horizontal, Vertical
+from textual.containers import Center, Horizontal, Vertical, VerticalScroll
 from textual.content import Content
 from textual.widgets import Static
 
@@ -389,7 +391,8 @@ def model(ref: str, width: int) -> list[list[Part]]:
 
 def tools(o: Opening, width: int) -> list[list[Part]]:
     """The capabilities' card: how many tools the session has and which models work with them (a run that hands over
-    keeps its tools), then each capability over what it is, in a few words."""
+    keeps its tools), then each capability over what it is, in a few words, a line of air between them; the legend
+    for the ◆ is on the card's edge (`CapabilityCard`)."""
     shared = "for the frontier and efficient models" if o.handoff else "for the frontier model"
     lines: list[list[Part]] = [[(f"{o.tools} tools", S_HEAD)], [(clip(shared, width), S_MUTED)], []]
     for toggle, name, on, decides in o.capabilities:
@@ -397,7 +400,8 @@ def tools(o: Opening, width: int) -> list[list[Part]]:
         lines.append([*switch(clip(NAMES.get(toggle, name), width - 2), on), *decided(decides, on)])
         if brief:
             lines.append([(" " * BRIEF_INDENT, ""), (clip(brief, width - BRIEF_INDENT), S_MUTED)])
-    return [*lines, *([[], legend(o)] if legend(o) else [])]
+        lines.append([])  # air between capabilities: the card scrolls rather than packs them
+    return lines[:-1]
 
 
 # -- the played run -------------------------------------------------------------------------------------------
@@ -550,6 +554,22 @@ def tips(o: Opening, width: int, dark: bool = False) -> Content:
     return stacked(flow([[lead], *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in hints)], width))
 
 
+class CapabilityCard(VerticalScroll):
+    """The capabilities' card on the wide page: as tall as the models beside it, its list scrolling past that, with
+    the wheel or, once clicked, the arrows; the ◆'s legend on its bottom edge, always in sight."""
+
+    def __init__(self) -> None:
+        super().__init__(id="welcome-tools", classes="card")
+        self.border_title = "Capabilities"
+
+    def compose(self) -> ComposeResult:
+        yield Static(id="welcome-tools-list")
+
+    def show(self, o: Opening, width: int) -> None:
+        self.query_one(Static).update(stacked(tools(o, width)))
+        self.border_subtitle = Content.assemble(*legend(o)) if legend(o) else ""
+
+
 class Welcome(Vertical):
     """The entering page (the module's docstring)."""
 
@@ -578,9 +598,7 @@ class Welcome(Vertical):
             with Vertical(id="welcome-side"):
                 yield Mascot()
                 yield Static(id="welcome-where")
-            card = Static(id="welcome-tools", classes="card")
-            card.border_title = "Capabilities"
-            yield card
+            yield CapabilityCard()
         with Center():
             yield Static(id="welcome-foot")
         with Center():
@@ -627,17 +645,17 @@ class Welcome(Vertical):
         inside = min(width, FRAME_MAX) - FRAME
         text = systems(o, inside - SIDE_WIDTH)
         inner = CARD_WIDTH - CARD_EDGES
-        cards = [system1(o, inner), tools(o, inner)]
+        cards = [system1(o, inner)]
         system2_rows = run_frame(o, inner, None).plain.count("\n") + 1 + CARD_EDGE_ROWS
-        system1_rows, tools_rows = (len(card) + CARD_EDGE_ROWS for card in cards)
+        system1_rows = len(cards[0]) + CARD_EDGE_ROWS
         models_rows = system2_rows + CARD_GAP + system1_rows
         # The larger mascot where the wide page holds it and its wordmark whole.
         big = (
             width >= HERO_WIDTH + BIG_COLUMNS - SPRITE_COLUMNS
-            and HERO_ROWS + about_rows + max(BIG_ROWS, models_rows, tools_rows) <= room
+            and HERO_ROWS + about_rows + max(BIG_ROWS, models_rows) <= room
         )
         mascot_columns, mascot_rows = (BIG_COLUMNS, BIG_ROWS) if big else (SPRITE_COLUMNS, SPRITE_ROWS)
-        tall = max(mascot_rows, models_rows, tools_rows)
+        tall = max(mascot_rows, models_rows)  # the capabilities scroll in what the rest leaves them
         hero = HERO_ROWS + about_rows + tall
         framed = FRAMED_ROWS + about_rows + max(SIDE_ROWS, text.plain.count("\n") + 1)
         if width >= HERO_WIDTH and hero - WORDMARK_ROWS <= room:
@@ -672,10 +690,12 @@ class Welcome(Vertical):
         models.update(
             stacked(cards[0]) if hero_look else text if look == "framed" else systems(o, width - 4, roomy=False)
         )
-        right = self.query_one("#welcome-tools", Static)
-        right.update(stacked(cards[1]))
-        for side, side_rows in ((self.query_one("#welcome-models"), models_rows), (right, tools_rows)):
-            side.styles.margin = ((tall - side_rows) // 2 if hero_look else 0, 0, 0, 0)
+        # The capabilities' card stands exactly beside the two models' cards, top and bottom, and scrolls the rest.
+        right = self.query_one(CapabilityCard)
+        right.show(o, inner - 1)  # a cell for its scrollbar
+        right.styles.height = models_rows if hero_look else "auto"
+        for side in (self.query_one("#welcome-models"), right):
+            side.styles.margin = ((tall - models_rows) // 2 if hero_look else 0, 0, 0, 0)
         mascot = self.query_one(Mascot)
         mascot.fit(mascot_columns, mascot_rows)
         mascot.play(self._state())
