@@ -963,6 +963,16 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
     }
     # No console or decisions-API key in this environment: the configured decision models stand in.
     assert listed["system1"] == [{"id": "drex-latest", "name": "drex-latest"}, {"id": "drex-mini", "name": "drex-mini"}]
+    # Nace's recommended combinations, listed whatever keys are set, each naming the models as a session takes them
+    # (`--system2`, `--handoff-to`, `--system1`) and every key it runs on, once.
+    recommended = {r["id"]: r for r in listed["recommended"]}
+    assert list(recommended) == ["one-key", "best-results", "free-models"]
+    assert recommended["one-key"]["system1"] == "decisions:nace-ai/drex-max"
+    assert [k["env"] for k in recommended["one-key"]["keys"]] == ["OPENROUTER_API_KEY"]
+    assert [k["env"] for k in recommended["best-results"]["keys"]] == ["ANTHROPIC_API_KEY", "OPENROUTER_API_KEY"]
+    assert recommended["free-models"]["system1"] == "drex-latest"
+    assert [k["env"] for k in recommended["free-models"]["keys"]] == ["FIREWORKS_API_KEY", "NACE_API_KEY"]
+    assert all(r["title"] and r["why"] and all(k["url"] for k in r["keys"]) for r in recommended.values())
     assert not (home / "sessions").exists()
 
 

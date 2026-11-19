@@ -270,7 +270,7 @@ def _models(argv: list[str]) -> int:
         "--json",
         action="store_true",
         help="Print {system2: [{id, name, default?, reasoning?, window?}], system1: [{id, name, window?}], "
-        "capabilities: [...], runners: [...], handoff: {models, default?}}.",
+        "capabilities: [...], runners: [...], handoff: {models, default?}, recommended: [...]}.",
     )
     args = parser.parse_args(argv)
     try:
