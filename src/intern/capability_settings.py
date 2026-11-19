@@ -473,7 +473,7 @@ class CapabilitySettings(_Settings):
         if len(exported) != len(set(exported)):
             raise ValueError("Selected MCP tool names collide across connections after namespacing")
         if len(self.system2_fallbacks) != len(set(self.system2_fallbacks)):
-            raise ValueError("System 2 fallback model references must be distinct")
+            raise ValueError("system2_fallbacks: the frontier model's fallbacks must be distinct")
         if self.tool_packs is not None:
             self.effective_tool_packs(())
         return self

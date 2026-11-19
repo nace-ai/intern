@@ -293,11 +293,11 @@ class _Decision:
         if self.run_state:
             state = f"The session:\n{self.run_state}\n\n{state}"
         if len(state) > MAX_STATE_CHARS:
-            raise Deferred(f"the {purpose} state is {len(state)} characters, over System 1's limit")
+            raise Deferred(f"the {purpose} state is {len(state)} characters, over the decision model's limit")
         try:
             return await self.decisions.ask(purpose, state, questions)
         except System1Unavailable as e:
-            raise Deferred(f"{purpose}: {e}; the steward writes only on System 1 answers") from e
+            raise Deferred(f"{purpose}: {e}; the steward writes only on the decision model's answers") from e
 
 
 def _task(task: str) -> str:

@@ -499,7 +499,7 @@ class Bootstrap:
         if not spec:
             return cfg
         if spec == "heuristic":
-            raise ConfigError(f"System 1 is required: --system1 heuristic is gone; pass {SYSTEM1_HELP}")
+            raise ConfigError(f"A decision model is required: --system1 heuristic is gone; pass {SYSTEM1_HELP}")
         kind, _, rest = spec.partition(":")
         models = [m for m in rest.split(",") if m]
         if kind == "decisions" and models:
@@ -529,7 +529,7 @@ class Bootstrap:
             url, key = self._console(cfg)
             if not key:
                 raise System1Unconfigured(
-                    f"System 1 ({models[0]} from the console) needs a key in ${cfg.console_key_env} (or "
+                    f"The decision model ({models[0]} from the console) needs a key in ${cfg.console_key_env} (or "
                     f"${DECISION_KEY_ENV}); or set [system1] in {self.home / CONFIG_FILE}, or pass --system1 "
                     "decisions:<model>"
                 )
@@ -700,7 +700,7 @@ class Bootstrap:
         try:
             await decisions.check()
         except System1Unavailable as e:
-            raise ConfigError(f"{e}; the harness does not run without System 1") from None
+            raise ConfigError(f"{e}; Intern does not run without a decision model") from None
         await decisions.fit()
 
         journal_path = None

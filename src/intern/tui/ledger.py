@@ -200,7 +200,7 @@ class SearchJudgement:
 
 @dataclass
 class HandoverJudgement:
-    """System 1's judgement, turn by turn, of whether the cheaper model can finish the run: one row a run."""
+    """System 1's judgement, turn by turn, of whether the efficient model can finish the run: one row a run."""
 
     turn: int
     ready: list[float] = field(default_factory=list)
@@ -300,6 +300,8 @@ class RunLedger:
     run_id: str
     prompt: str = ""
     """What the user asked for: the run's first message."""
+    model: str = ""
+    """The frontier model the run started on."""
     feed: list[Row] = field(default_factory=list)
     """Every row of the run, in the order System 1 was first asked for it."""
     handover: HandoverJudgement | None = None
@@ -330,8 +332,8 @@ class Ledger:
     def observe(self, event: Event) -> Row | None:
         """Take one event; the row it created or changed, for the panel to redraw, or None."""
         match event:
-            case RunStart(run_id=run_id):
-                self.runs.append(RunLedger(run_id=run_id))
+            case RunStart(run_id=run_id, model=model):
+                self.runs.append(RunLedger(run_id=run_id, model=model))
             case MessageEvent(message=UserMessage(content=content, source="user")):
                 self.current.prompt = self.current.prompt or content
             case Decision():

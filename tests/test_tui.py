@@ -312,7 +312,7 @@ async def test_the_guards_verdicts_show_under_the_tool_calls_they_concern(tmp_pa
         await pilot.pause()
         block = app.query_one(Transcript).query(ToolBlock).first()
         card = plain(block.query_one(".decision", Static))
-        assert card.startswith("✗ System 1 refused   ")
+        assert card.startswith("✗ Decision model refused   ")
         assert "rewrites shared history 0.96   risk 0.96   asked 0.02" in card
         assert reason in card and block.has_class("failed")
         # A fixed rule refused a call: no model was asked, and the card says which rule.
@@ -353,10 +353,10 @@ async def test_capabilities_are_listed_and_a_switch_reopens_the_session_on_its_j
         assert listed["cap.browser"] == "off" and listed["cap.code-search"] == "off" and listed["cap.memory"] == "on"
         assert listed["cap.workspace"] == "off"
         labels = {c.id: c.label for c in app.screen.choices}  # pyright: ignore[reportAttributeAccessIssue]
-        assert labels["cap.base"] == "base tools" and labels["cap.code-search"] == "code search · System 1"
+        assert labels["cap.base"] == "base tools" and labels["cap.code-search"] == "code search · decision model"
         assert labels["cap.memory"] == "memory drive"
         assert not any(row.startswith(("cap.docker", "cap.executor")) for row in labels)  # runners: /runner
-        assert labels["cap.workspace"] == "workspace · System 1"
+        assert labels["cap.workspace"] == "workspace · decision model"
         groups = [c.group for c in app.screen.choices]  # pyright: ignore[reportAttributeAccessIssue]
         assert groups == sorted(groups, key=lambda g: g != "on")  # what is on first, so each group heads once
         notes = {c.id: c.note for c in app.screen.choices}  # pyright: ignore[reportAttributeAccessIssue]
@@ -421,7 +421,7 @@ async def test_a_compactions_card_streams_system_2s_summary_and_a_click_shows_it
         for event in [StateDelta(turn=4, text="## Plan\n- Fix"), StateDelta(turn=4, text=" the parser\n")]:
             app.post_message(HarnessEvent(event))
         await wait_for(lambda: "Fix the parser" in plain(card.head))
-        assert "System 2 is writing its summary" in plain(card.head)
+        assert "writing the summary" in plain(card.head)
         assert "writing the summary" in plain(app.query_one(StatusBar))
         landed = State(turn=4, landed=4, turns_covered=2, tokens_before=900, text=SAMPLE_STATE, duration_ms=1800)
         cut = Compaction(
@@ -429,7 +429,7 @@ async def test_a_compactions_card_streams_system_2s_summary_and_a_click_shows_it
         )
         app.post_message(HarnessEvent(landed))
         app.post_message(HarnessEvent(cut))
-        await wait_for(lambda: "Continues from System 2's summary" in plain(card.head))
+        await wait_for(lambda: "Continues from the summary" in plain(card.head))
         assert "writing" not in plain(app.query_one(StatusBar))
         # The summary is System 2's, not the State System 1 reads: a click on its card shows it, the panel never.
         assert "Fix the parser" not in transcript_text(app) and "Fix the parser" not in panel_text(app)
@@ -490,16 +490,16 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         page = app.query_one(Welcome)
         assert page.has_class(look)  # the mascot between its two systems, all of it in a frame, or the frame alone
         said = "\n".join(plain(part) for part in page.query(Static) if part.display)
-        # The two systems, each on the model the session opened with, and what System 1 is asked for.
-        assert "fake/model" in said and "drex-latest" in said
-        # Each on or off, as a capability is: the search is off while neither capability it searches for is on, and
-        # the guard while its capability is off, as it is by default.
-        assert all(job in said for job in ("● watch", "○ guard", "○ search", "● compaction"))
-        assert "Intern's brain has two parts" in said  # what it is, in a paragraph
+        # The three models, each on the one the session opened with, and what the decision model is asked for.
+        assert "fake/model" in said and "drex-latest" in said and "Efficient" in said
+        # Each on or off, as a capability is: the hand-over is off with no efficient model, the search while neither
+        # capability it searches for is on, and the guard while its capability is off, as it is by default.
+        assert all(job in said for job in ("○ hand-over", "● watch", "○ guard", "○ search", "● compaction"))
+        assert "frontier model" in said and "efficient model" in said  # what it is, in a paragraph
         assert "● base tools" in said and "Describe a task to begin." in said
-        if look != "compact":  # with the room, what each capability is, and which of them System 1 searches for
+        if look != "compact":  # with the room, what each capability is
             assert re.search(r"base tools +files and the shell", said)
-            assert re.search(r"code search +System 1 searches code", said)
+            assert re.search(r"code search +searches code for it", said)
         # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
         # nothing under the prompt, and the panels it stands in for are away.
         assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y
@@ -577,7 +577,7 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         await pilot.press("b", "i", "g", "enter")
         await wait_for(lambda: session.deps.system2.ref == "fake/big")
         # The entering page has the model on System 2's card: the pick gets no line under it.
-        assert "fake/big" in transcript_text(app) and "System 2 →" not in transcript_text(app)
+        assert "fake/big" in transcript_text(app) and "Frontier model →" not in transcript_text(app)
         # System 1: console and decisions-API models in their groups; a pick rebuilds System 1.
         await send(app, pilot, "/system1")
         picker = app.screen
@@ -593,7 +593,7 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         assert isinstance(session.deps.decisions.backend, Named)
         # A direct set that cannot be resolved is refused and said; the model stays.
         await send(app, pilot, "/system2 nowhere/x")
-        await wait_for(lambda: "Cannot set system2 to nowhere/x" in transcript_text(app))
+        await wait_for(lambda: "Cannot set the frontier model to nowhere/x" in transcript_text(app))
         assert session.deps.system2.ref == "fake/big"
         # A typed name the picker does not list is accepted as typed.
         await send(app, pilot, "/system1")
@@ -696,7 +696,7 @@ async def test_compact_cuts_the_older_turns_to_the_state_now_and_says_when_there
         await wait_for(lambda: "⟲ Compaction" in transcript_text(app))
         await pilot.pause()
         text = transcript_text(app)
-        assert "Continues from System 2's summary" in text  # written first, then cut to
+        assert "Continues from the summary" in text  # written first, then cut to
         assert app.session is not None and not app.session.running and not app.status.running
         assert 0 < app.status.context < before  # the masthead's context is the compacted one
         await click_compaction(app, pilot)
@@ -768,7 +768,7 @@ async def test_a_resumed_journal_brings_back_system_1s_panel_cards_and_each_syst
         assert (status.cost2, status.cost1, status.unpriced) == costs  # the costs as they were
         text = transcript_text(second)
         # The supervisor's card at turn 4's boundary: after the fourth call, before the reply.
-        card = text.rindex("System 1 · ")
+        card = text.rindex("Decision model · ")
         assert text.index("$ echo fourth") < card and second.run_count == 1
         await second.action_quit()
 
@@ -1020,10 +1020,10 @@ async def test_the_prompt_takes_several_lines_a_click_places_the_cursor_and_ente
         sent = plain(app.query_one(Transcript).query(".user").first(Static))
         assert sent == "› first line\n  secondX line\n  third\n  fourth" and prompt.text == ""
         # A command being typed is completed in ghost text that → accepts.
-        await pilot.press(*"/sys")
-        assert prompt.suggestion == "tem2"
+        await pilot.press(*"/fro")
+        assert prompt.suggestion == "ntier"
         await pilot.press("right")
-        assert prompt.text == "/system2"
+        assert prompt.text == "/frontier"
         await app.action_quit()
 
 
@@ -1081,7 +1081,7 @@ async def test_the_thinking_level_shows_cycles_on_shift_tab_is_set_in_the_picker
         await pilot.pause()
         assert app.session.deps.system2.profile.reasoning_effort == "medium"
         text = transcript_text(app)  # the entering page again, the pick on System 2's card
-        assert "fake/other" in text and "thinking medium" in text and "System 2 →" not in text
+        assert "fake/other" in text and "thinking medium" in text and "Frontier model →" not in text
         await app.action_quit()
 
 
@@ -1341,7 +1341,7 @@ async def test_the_runner_is_one_choice_picked_with_slash_runner(tmp_path: Path)
 
 
 async def test_auto_mode_hands_over_to_the_model_slash_auto_picks_until_it_turns_it_off(tmp_path: Path):
-    from intern.events import Handoff
+    from intern.events import Handoff, TurnStart
 
     journal = tmp_path / "journal.jsonl"
     opened: list[Models] = []
@@ -1362,13 +1362,13 @@ async def test_auto_mode_hands_over_to_the_model_slash_auto_picks_until_it_turns
         await pilot.press("escape")
         await pilot.pause()
         # A typed model is the hand-over's, and the session reopens on the same journal with it.
-        await send(app, pilot, "/auto openrouter/qwen/qwen3.8-27b")
+        await send(app, pilot, "/efficient openrouter/qwen/qwen3.8-27b")
         await wait_for(lambda: app.session is not None and app.session is not first)
         await pilot.pause()
         picks = opened[-1]
         assert picks.capabilities is not None and picks.capabilities.handoff.to == "openrouter/qwen/qwen3.8-27b"
         assert picks.auto and picks.session_file == journal
-        assert "auto on, hand-over to openrouter/qwen/qwen3.8-27b" in transcript_text(app)
+        assert "efficient model openrouter/qwen/qwen3.8-27b" in transcript_text(app)
         # Not a provider/model: refused with why, and nothing reopens.
         count = len(opened)
         await send(app, pilot, "/auto qwen")
@@ -1386,12 +1386,16 @@ async def test_auto_mode_hands_over_to_the_model_slash_auto_picks_until_it_turns
         await pilot.pause()
         assert opened[-1].auto and opened[-1].capabilities is not None
         assert opened[-1].capabilities.handoff.to == "openrouter/qwen/qwen3.8-27b"
-        # The hand-over, when a run makes it, is told in the transcript.
+        # The hand-over, when a run makes it, is told in the transcript, and from then on the efficient model is the
+        # one working: on the transcript's tab and on each of its turns.
+        assert "Frontier model" in str(app.transcript.border_title)
         await app._handle(
             Handoff(turn=9, source="a/strong", target="b/cheap", transfer="context", probability=0.82, tokens=1)
         )
-        await wait_for(lambda: "handed over at turn 9" in transcript_text(app))
-        assert "cheap finishes this run" in transcript_text(app)
+        await wait_for(lambda: "Handed over to the efficient model (cheap) at turn 9" in transcript_text(app))
+        await app._handle(TurnStart(turn=10))
+        await wait_for(lambda: "Efficient · cheap · turn 10" in transcript_text(app))
+        assert "Efficient model" in str(app.transcript.border_title)
 
 
 async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_path: Path, monkeypatch):

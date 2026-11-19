@@ -87,7 +87,7 @@ FAILED = re.compile(
     r"\b[1-9]\d* (?:failed|errors?|problems?)\b|\bFound [1-9]|\b[1-9]\d* files? would be reformatted", re.I
 )
 OMITTED = re.compile(r"^\[… (\d+) chars omitted …\]$")
-EMPTY = "System 1's State is the session as it reads it: it shows here from the first prompt."
+EMPTY = "The State is the session as the decision model reads it: it shows here from the first prompt."
 
 
 def first_line(text: str) -> str:
@@ -205,7 +205,7 @@ def history(view: CutView, width: int, cwd: Path | None = None, system2_from: in
         if m is None:
             break
         if m.index == system2_from:
-            said = "⟲ System 2 reads on from here "
+            said = "⟲ The model's context starts here "
             add(" ", [(said, S_MUTED), ("╌" * max(0, room - cell_len(said)), S_RULE)])
         if m.kept == "left_out":
             run.append(m)
@@ -233,8 +233,8 @@ class StatePanel(Vertical, can_focus=False):
         """System 1's State as last built, None before the session has any."""
         self.cwd: Path | None = None
         self._system2_from: str | None = None
-        # The "and" of Kahneman's title, where the two systems meet: what System 1 sees of System 2's work.
-        self.border_title = Content.assemble((" State ", S_TAB), (" fast and slow ", S_MUTED))
+        # What the decision model sees of the work.
+        self.border_title = Content.assemble((" State ", S_TAB), (" what the decision model reads ", S_MUTED))
 
     def compose(self) -> ComposeResult:
         yield Static(id="cut-budget")

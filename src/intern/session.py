@@ -577,7 +577,7 @@ class Session:
         if self.model_budget is not None:
             decisions.backend = BudgetDecisionBackend(decisions.backend, self.model_budget)
         if self.running:
-            raise SessionBusy("a run started while System 1 was resolving; retry while idle")
+            raise SessionBusy("a run started while the decision model was being set up; retry while idle")
         self.deps.decisions = decisions
         self.system1 = ref
         self.deps.journal.append(ModelChangeEntry(role="system1", model=ref))

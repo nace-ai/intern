@@ -5,7 +5,7 @@ with the summary System 2 continues from; on the right the System 1 panel (every
 each: a turn it watched, a call it guarded, a search it walked, a compaction's reads it sorted) over the State panel
 (the session as System 1 reads it); the prompt line at the bottom. Until the first prompt, the entering page takes
 their place (`welcome.py`). Enter sends a prompt, or steers the run in progress. Slash commands:
-/system2, /system1, /auto, /state, /thinking, /abort, /panels, /help, /quit.
+/frontier, /efficient, /decision (also /system2, /auto, /system1), /state, /thinking, /abort, /panels, /help, /quit.
 """
 
 from __future__ import annotations
@@ -134,10 +134,11 @@ from intern.tui.widgets import (
     images_in,
     look_card,
     meter,
-    model_name,
+    model_label,
     rule_card,
     supervisor_card,
     tokens_text,
+    turn_head,
 )
 
 CatalogLoader = Callable[[], Awaitable[Catalog]]
@@ -187,6 +188,8 @@ RESUME_TURNS = 30
 """The turns a resumed session shows; the earlier ones are in its journal and their work in the State."""
 CUT_SOON_S = 0.5
 FAILED = ("provider_error", "system1_unavailable", "internal_error")
+REASONS = {"system1_unavailable": "decision model unavailable"}
+"""How a run's end reads where its reason's own name would say System 1."""
 """The ways a run ends that the mark shows as a failure, its eyes crossed out for `FAILED_FACE_S`."""
 FAILED_FACE_S = 6.0
 FEED_SOON_S = 0.1
@@ -201,12 +204,14 @@ ADD_SECRET = "+add"
 """The /secrets row that adds an entry; no secret can have this name."""
 
 COMMANDS: dict[str, str] = {
-    "/system2": "pick the System 2 model, the agent; /system2 <provider/model> sets it directly",
-    "/system1": "pick the System 1 model, the judge; /system1 <model> sets it directly",
-    "/auto": "auto mode, on unless the config says auto = false: System 1 hands a run over to a cheaper model once "
-    "it judges that model can finish it; the next message is System 2's again. /auto picks that model or off; "
-    "/auto on, /auto off or /auto <provider/model> sets it directly; the session reopens on its journal",
-    "/state": "show System 1's State in full: the session as it reads it",
+    "/frontier": "pick the frontier model, which starts each task and does the hard part; /frontier <provider/model> "
+    "sets it directly (also /system2)",
+    "/efficient": "pick the efficient model a run hands over to once the decision model judges it can finish, or "
+    "off; /efficient on, /efficient off or /efficient <provider/model> sets it directly; the next message is the "
+    "frontier model's again, and the session reopens on its journal (also /auto)",
+    "/decision": "pick the decision model, which picks the moment to hand over and keeps the work on track; "
+    "/decision <model> sets it directly (also /system1)",
+    "/state": "show the State in full: the session as the decision model reads it",
     "/caps": "switch a tool pack, the browser, code search, the memory drive or an MCP connection on or off; "
     "/caps <name> [path] sets one directly; the session reopens on its journal (also /capabilities)",
     "/schedule": "list timers; Enter stops the selected timer (enable with /caps schedule)",
@@ -214,17 +219,17 @@ COMMANDS: dict[str, str] = {
     "directly; the session reopens on its journal",
     "/secrets": "keys kept in the OS keychain or a password manager, with whether each loads; Enter on one replaces "
     "it; /secrets set <NAME> stores one, /secrets remove <NAME> deletes one; new sessions use them",
-    "/setup": "connect your models: walks through System 2's provider, its key and model, then System 1's; saves "
-    "them to config.toml and the keychain and reopens the session on them",
-    "/thinking": "the thinking level, low to max as the model takes it, for models that take one (also Shift+Tab; "
-    "←→ in the /system2 picker)",
+    "/setup": "connect your models: the frontier model's provider, key and model, the efficient model, then the "
+    "decision model; saves them to config.toml and the keychain and reopens the session on them",
+    "/thinking": "the frontier model's thinking level, low to max as the model takes it, for models that take one "
+    "(also Shift+Tab; ←→ in the /frontier picker)",
     "/compact": "compact the conversation now, as a run does near the window's limit: the older turns cut to "
-    "System 2's summary (written first if it does not cover them), the most recent share of the window kept as it is",
+    "the summary (written first if it does not cover them), the most recent share of the window kept as it is",
     "/abort": "stop the run in progress (also Esc)",
     "/clear": "start over: the screen cleared, a new session on a fresh journal; the models and capabilities stay",
     "/reload": "restart on the code and config as they are now and resume this session: the models, capabilities "
     "and thinking level stay",
-    "/panels": "show or hide the State and System 1 panels (also F2)",
+    "/panels": "show or hide the decision model and State panels (also F2)",
     "/dark": "the dark look: paper and ink swapped; kept on /reload",
     "/light": "the light look, paper and ink (the default)",
     "/help": "this list",
@@ -233,7 +238,7 @@ COMMANDS: dict[str, str] = {
 KEYS: dict[str, str] = {
     "Esc": "abort the run in progress, or clear the prompt",
     "Shift+Tab": "cycle the thinking level",
-    "F2": "show or hide the State and System 1 panels",
+    "F2": "show or hide the decision model and State panels",
     "Ctrl+O": "expand or fold the latest tool call's output (a click on a call or a thought shows it all)",
     "Ctrl+C": "copy what is selected in the prompt, or clear it",
     "Ctrl+X": "cut what is selected in the prompt (Ctrl+Z undoes, Ctrl+Y redoes)",
@@ -256,6 +261,8 @@ def _runner_group(choice: RunnerInfo, current: str) -> str:
     return "unavailable" if choice.unavailable else "can run here"
 
 
+ROLE_NAMES = {"system2": "Frontier model", "system1": "Decision model"}
+"""What the transcript calls a picker's role."""
 AUTO_OFF = ("off", "none", "no")
 """What `/auto` takes to turn auto mode off; the first is the picker's row."""
 
@@ -312,7 +319,9 @@ def _short(path: Path) -> str:
     return "~" + text[len(home) :] if text.startswith(home + os.sep) else text
 
 
-ALIASES = ("/capabilities", "/exit", "/login", "/connect")
+ALIASES = ("/system2", "/auto", "/system1", "/capabilities", "/exit", "/login", "/connect")
+"""Other names commands answer to: the models' older names (`/system2` is `/frontier`, `/auto` is `/efficient`,
+`/system1` is `/decision`), and the rest."""
 COMMAND = re.compile(r"/[a-z0-9]+(?:\s|$)", re.IGNORECASE)
 """A prompt that is a command: a slash and a word, then a space or the end; `/var/folders/...` is a path."""
 
@@ -376,7 +385,7 @@ class StateScreen(ModalScreen[None]):
                 yield Static(Content.styled("No State yet: it is built from the first prompt.", S_MUTED))
             else:
                 tokens = f"{tokens_text(self.cut.tokens)} of {tokens_text(self.cut.budget)} tokens"
-                said = f"The session as System 1 reads it, rebuilt for every ask: {tokens}."
+                said = f"The session as the decision model reads it, rebuilt for every ask: {tokens}."
                 yield Static(Content.styled(said, S_MUTED), classes="state-note")
                 text = json.dumps(json.loads(self.cut.text), indent=2, ensure_ascii=False)
                 yield TextArea(text, read_only=True, soft_wrap=True, show_line_numbers=False, id="state-cut")
@@ -568,11 +577,14 @@ class HarnessApp(App[None]):
         still."""
         session, status = self.session, self.status
         if session is None and shown is not None:
-            return replace(shown, system2=status.system2, system1=status.system1, note=status.note)
+            return replace(
+                shown, system2=status.system2, system1=status.system1, handoff=status.handoff, note=status.note
+            )
         toggles = self._toggles(self._capabilities_now()) if session is not None else []
         return Opening(
             system2=status.system2,
             system1=status.system1,
+            handoff=status.handoff,
             thinking=status.thinking,
             levels=status.levels,
             note=status.note,
@@ -626,7 +638,7 @@ class HarnessApp(App[None]):
                 return False
             await self.transcript.notice(f"Cannot open a session: {e}", "error")
             await self.transcript.notice(
-                f"No provider key found for a default. /system2 picks a model (a typed provider/model is accepted) "
+                f"No provider key found for a default. /frontier picks a model (a typed provider/model is accepted) "
                 f"and opens the session on it; {CONFIG_HINT}.",
                 "warn",
             )
@@ -640,7 +652,7 @@ class HarnessApp(App[None]):
                 self._open_setup("system1", e.system2)
                 return False
             await self.transcript.notice(f"Cannot open a session: {e}", "error")
-            await self.transcript.notice("Connect System 1 with /setup, or pick one with /system1.", "warn")
+            await self.transcript.notice("Connect the decision model with /setup, or pick one with /decision.", "warn")
             self._refresh_status()
             return False
         except ConfigError as e:
@@ -648,13 +660,13 @@ class HarnessApp(App[None]):
             if self._setup is not None:
                 await self.transcript.notice(f"The session could not open: {e}", "warn")
                 await self.transcript.notice(
-                    "/setup reconnects your models, or /system2 and /system1 pick others: either reopens it.", "ok"
+                    "/setup reconnects your models, or /frontier and /decision pick others: either reopens it.", "ok"
                 )
                 self._refresh_status()
                 return False
             await self.transcript.notice(f"Cannot open a session: {e}", "error")
             await self.transcript.notice(
-                "Fix the configuration (export the key it names), or pick with /system1 or /system2: a pick "
+                "Fix the configuration (export the key it names), or pick with /frontier or /decision: a pick "
                 "reopens the session on it.",
                 "warn",
             )
@@ -675,12 +687,16 @@ class HarnessApp(App[None]):
             try:
                 await session.set_model(system1, "system1")
             except (ConfigError, ValueError) as e:
-                await self.transcript.notice(f"The session's last System 1, {system1}, cannot be set up: {e}", "warn")
+                await self.transcript.notice(
+                    f"The session's last decision model, {system1}, cannot be set up: {e}", "warn"
+                )
         self._keep_thinking(session.deps.system2)
         if self.pending.auto and (missing := session.handoff_missing) and missing != self._handoff_missing:
             self._handoff_missing = missing  # said once, not at every reopen
             await self.transcript.notice(
-                f"Auto mode runs without a hand-over: {missing}. /auto <provider/model> names another model.", "warn"
+                f"Runs stay on the frontier model, with no efficient model: {missing}. /efficient <provider/model> "
+                "names another.",
+                "warn",
             )
         if not self._resuming:  # a reopened session's conversation is already on the screen
             self._replaying = True  # its compactions drawn settled, not landing again
@@ -725,7 +741,7 @@ class HarnessApp(App[None]):
         writer = spent.writer
         self._spend(writer if writer.input_tokens else None, spent.system1.cost_usd)
         asks = spent.system1.asks
-        line = f": {asks} System 1 ask{'s' if asks != 1 else ''}"
+        line = f": {asks} decision model ask{'s' if asks != 1 else ''}"
         if writer.input_tokens:
             sent, got = tokens_text(writer.input_tokens), tokens_text(writer.output_tokens)
             line += f" and {sent} in / {got} out to the writer"
@@ -745,6 +761,12 @@ class HarnessApp(App[None]):
             self.catalog = await self._load_catalog()
         except Exception as e:  # listings are a convenience; the pickers still take typed names
             await self.transcript.notice(f"Could not list models: {type(e).__name__}: {e}", "warn")
+            return
+        # A model by its listed name, without the maker an aggregator puts first (`Anthropic: Claude Opus 5.5`).
+        self.status.labels = {
+            m.id: m.name.rpartition(": ")[2] for m in self.catalog.system2 if m.name and m.name != m.id
+        }
+        self._refresh_status()
 
     async def _replay(self, entries: list[Entry]) -> None:
         """A resumed journal as it stands, not run again step by step: the counts and the ledger from all of it,
@@ -759,20 +781,22 @@ class HarnessApp(App[None]):
         if any(isinstance(e, MessageEntry) for e in entries):
             await self._begin()
         start = replies[-RESUME_TURNS] if len(replies) > RESUME_TURNS else 0
-        run_id, nudge, summary = None, None, ""
+        run_id, nudge, summary, turn = None, None, "", 0
         handed: HandoverJudgement | None = None  # a hand-over before the turns drawn, its own turns among them
         for i, entry in enumerate(entries):
             drawn = i >= start
             if isinstance(entry, MessageEntry) and entry.run_id is not None and entry.run_id != run_id:
                 run_id = entry.run_id  # a run began: its own ledger, under the prompt that began it
                 await self._hand_back()
-                handed = None
+                handed, turn = None, 0
                 self.run_count += 1
                 first = entry.message
                 asked = first.content if isinstance(first, UserMessage) and first.source == "user" else ""
                 self.ledger.runs.append(RunLedger(run_id=run_id, prompt=asked))
             if drawn and handed is not None and isinstance(entry, MessageEntry):
-                await self.transcript.hand_over(handoff_card(handed))
+                name = model_label(handed.target, self.status.labels)
+                await self.transcript.hand_over(handoff_card(handed, name))
+                self.transcript.working("Efficient model", name)
                 self.status.handed, handed = True, None
             match entry:
                 case EventEntry(event=event):
@@ -785,7 +809,10 @@ class HarnessApp(App[None]):
                         handed = row
                     continue
                 case MessageEntry(message=AssistantMessage(usage=usage) as reply):
-                    self._spend(usage)
+                    turn += 1
+                    self._spend(usage, efficient=self._by_efficient(reply.model))
+                    run = self.ledger.current
+                    run.model = run.model or reply.model  # the frontier model: a run starts on it
                     self.status.context = usage.input_tokens + usage.output_tokens  # the next request's size, nearly
                     calls = [
                         ToolCallStart(turn=0, call_id=call.id, name=call.name, arguments=call.arguments)
@@ -795,6 +822,7 @@ class HarnessApp(App[None]):
                         self.ledger.observe(start_call)  # a search's row on System 1's panel, a refusal's call
                     if not drawn:
                         continue
+                    await self.transcript.begin_turn(self._turn_head(turn, reply.model))
                     if reply.reasoning:
                         await self.transcript.reasoning(reply.reasoning, live=False)
                     if reply.text:
@@ -851,7 +879,9 @@ class HarnessApp(App[None]):
             self.status.levels = binding.effort_levels
             handoff = self.session.deps.handoff
             runs = handoff is not None and handoff.binding.ref != binding.ref
-            self.status.handoff = model_name(handoff.binding.ref) if handoff is not None and runs else ""
+            self.status.handoff = handoff.binding.ref if handoff is not None and runs else ""
+            if not self.status.handed:
+                self.transcript.working("Frontier model", model_label(binding.ref, self.status.labels))
         else:
             self.status.system2 = self.pending.system2 or "none"
             self.status.system1 = self.pending.system1 or "none"
@@ -870,11 +900,25 @@ class HarnessApp(App[None]):
         await self._handle(message.event)
         await self.views.dispatch(message.event)
 
-    def _spend(self, system2: Usage | None = None, system1: float = 0.0) -> None:
+    def _by_efficient(self, model: str) -> bool:
+        """A reply the efficient model wrote: one by the model a run hands over to, when that is not the frontier's."""
+        return bool(model) and model == self.status.handoff and model != self.status.system2
+
+    def _turn_head(self, turn: int | None = None, model: str = "") -> Content:
+        """Who takes a turn: the frontier model, or the efficient one once the run has handed over; `model`, the
+        reply's own, where it is known (a resumed session's turns)."""
+        handed = self.ledger.current.handover
+        efficient = self.status.handed
+        ref = model or (handed.target if efficient and handed is not None and handed.target else self.status.system2)
+        return turn_head(efficient, model_label(ref, self.status.labels), turn)
+
+    def _spend(self, system2: Usage | None = None, system1: float = 0.0, *, efficient: bool = False) -> None:
         """Count what System 2's call (a reply, a State write) and System 1's asks cost on the masthead, and how much
         of System 2's prompt was read from the cache. A System 2 call with tokens but no cost has no known price, so
         its total is short."""
-        if system2 is not None:
+        if system2 is not None and efficient:
+            self.status.cost_handoff += system2.cost_usd
+        elif system2 is not None:
             self.status.cost2 += system2.cost_usd
             self.status.unpriced |= system2.input_tokens > 0 and not system2.cost_usd
             self.status.prompt2 += system2.input_tokens
@@ -891,7 +935,9 @@ class HarnessApp(App[None]):
         if row is not None or isinstance(event, Decision | ProcessCheck):
             self._feed_soon()
         match event:
-            case MessageEvent(message=AssistantMessage(usage=usage)) | State(usage=Usage() as usage):
+            case MessageEvent(message=AssistantMessage(usage=usage, model=model)):
+                self._spend(usage, efficient=self._by_efficient(model))
+            case State(usage=Usage() as usage):
                 self._spend(usage)
             case Decision(cost_usd=cost):
                 self._spend(system1=cost)
@@ -936,10 +982,10 @@ class HarnessApp(App[None]):
                 if content != self._nudge_text:
                     await transcript.notice(f"⚑ {content}")
                 self._nudge_text = None
-            case TurnStart():
+            case TurnStart(turn=turn):
                 self.status.activity = ""
                 self.status.face("reading")
-                await transcript.begin_turn()
+                await transcript.begin_turn(self._turn_head(turn))
             case TextDelta(text=text):
                 await transcript.text(text)
             case ReasoningDelta(text=text):
@@ -1004,7 +1050,9 @@ class HarnessApp(App[None]):
                 action="ended", process=ProcessInfo(kind="call", state="moved", command=command, note=note)
             ):
                 # Why a command the agent ran went on in the background: System 1, the timer, a rule, your message.
-                await transcript.notice(f"⇢ `{brief(command)}` went on in the background: {note or 'moved'}")
+                # The note is the agent's too, so it keeps its own words; on screen the decision model is named so.
+                said = (note or "moved").replace("System 1", "the decision model")
+                await transcript.notice(f"⇢ `{brief(command)}` went on in the background: {said}")
             case Nudge(reason="process_ended", text=text):
                 # What the agent is told: each process in a few words and how it ended, not the output it quotes.
                 for line in ended_lines(text):
@@ -1035,8 +1083,10 @@ class HarnessApp(App[None]):
                 await transcript.notice(f"Window not known: {message}", "warn")
             case HookError(hook=hook, extension=extension, error=error):
                 await transcript.notice(f"Extension {extension} failed in {hook}: {error}", "error")
-            case Handoff() if isinstance(row, HandoverJudgement):
-                await transcript.hand_over(handoff_card(row))
+            case Handoff(target=target) if isinstance(row, HandoverJudgement):
+                name = model_label(target, self.status.labels)
+                await transcript.hand_over(handoff_card(row, name))
+                transcript.working("Efficient model", name)
                 self.status.handed = True
                 self.status.refresh_line()
             case SubagentStart(name=name, tools=tools):
@@ -1055,12 +1105,12 @@ class HarnessApp(App[None]):
                     self.status.face("failed", FAILED_FACE_S)
                 else:
                     self.status.face("idle")
-                line = f"{reason}" + (f": {detail}" if detail else "")
+                line = REASONS.get(reason, reason) + (f": {detail}" if detail else "")
                 line += (
                     f" · {turns} turns · {tokens_text(usage.input_tokens)} in / {tokens_text(usage.output_tokens)} out"
                 )
                 if system1.asks or system1.failed:
-                    line += f" · System 1 {system1.asks} asks"
+                    line += f" · decision model {system1.asks} asks"
                     if system1.failed:
                         line += f", {system1.failed} failed"
                 if refusals := self.ledger.current.refusals:
@@ -1072,7 +1122,8 @@ class HarnessApp(App[None]):
                     await transcript.marker(
                         Content.assemble(
                             ("⏸ ", S_INK),
-                            f"Waiting on {waited}: you get the result when it ends; System 1 looks at it meanwhile.",
+                            f"Waiting on {waited}: you get the result when it ends; the decision model looks at it "
+                            "meanwhile.",
                         )
                     )
                 else:
@@ -1087,11 +1138,15 @@ class HarnessApp(App[None]):
         self.status.refresh_line()
 
     async def _hand_back(self) -> None:
-        """A run that handed over has ended: the next message is System 2's again, and the transcript says so."""
+        """A run that handed over has ended: the next message is the frontier model's again, and the transcript says
+        so."""
         self.status.handed = False
+        ref = self.session.deps.system2.ref if self.session is not None else self.status.system2
+        back = model_label(ref, self.status.labels)
         if self.transcript.handed:
-            back = model_name(self.session.deps.system2.ref if self.session is not None else self.status.system2)
-            await self.transcript.hand_back(Content.assemble((f"⇠ {back} takes the next message", S_MUTED)))
+            line = f"⇠ The frontier model ({back}) takes the next message"
+            await self.transcript.hand_back(Content.assemble((line, S_MUTED)))
+        self.transcript.working("Frontier model", back)
         self.status.refresh_line()
 
     async def _show_verdict(self, j: TurnJudgement) -> None:
@@ -1215,11 +1270,11 @@ class HarnessApp(App[None]):
         name, _, rest = text.partition(" ")
         rest = rest.strip()
         match resolve_command(name):
-            case "/system2":
+            case "/frontier" | "/system2":
                 await self._pick_or_set("system2", rest)
-            case "/system1":
+            case "/decision" | "/system1":
                 await self._pick_or_set("system1", rest)
-            case "/auto":
+            case "/efficient" | "/auto":
                 await self._auto(rest)
             case "/state":
                 self.push_screen(StateScreen(self.state_panel.cut))
@@ -1249,7 +1304,7 @@ class HarnessApp(App[None]):
                 self.pending.dark = look == "/dark"
                 self.theme = (DARK_THEME if self.pending.dark else LIGHT_THEME).name
             case "/help":
-                lines = [f"{c:<10} {d}" for c, d in COMMANDS.items()] + [""] + [f"{k:<10} {d}" for k, d in KEYS.items()]
+                lines = [f"{c:<11} {d}" for c, d in COMMANDS.items()] + [""] + [f"{k:<11} {d}" for k, d in KEYS.items()]
                 await self.transcript.notice("\n".join(lines))
             case "/quit" | "/exit":
                 await self.action_quit()
@@ -1298,7 +1353,7 @@ class HarnessApp(App[None]):
                 prompt, self._first_prompt = self._first_prompt, None
                 await self._submit(prompt)
             return
-        await self._reopen(f"System 2 {done.setup.system2} · System 1 {done.setup.system1_choice}", before)
+        await self._reopen(f"frontier {done.setup.system2} · decision {done.setup.system1_choice}", before)
 
     async def _setup_command(self) -> None:
         if self._setup is None:
@@ -1540,12 +1595,12 @@ class HarnessApp(App[None]):
         if self._opening:
             await self.transcript.notice("The session is still opening; try again in a moment.", "warn")
             return
-        off = "System 2 runs every turn"
+        off = "the frontier model runs every turn"
         choices = [Choice(id=AUTO_OFF[0], name="off", group="auto mode", label="off", note=off)]
         choices += [choice for choice in self._choices("system2") if choice.id != self._current("system2")]
-        hint = "Enter picks the cheaper model a run hands over to, or off; the session reopens on its journal"
+        hint = "Enter picks the model a run hands over to, or off; the session reopens on its journal"
         current = self._handoff_model() if self.pending.auto else AUTO_OFF[0]
-        picker = ModelPicker("Auto · the cheaper model that finishes a run", choices, current, hint=hint)
+        picker = ModelPicker("Efficient model · finishes a run after the hard part", choices, current, hint=hint)
         self.push_screen(picker, callback=self._auto_picked)
 
     def _auto_picked(self, picked: str | None) -> None:
@@ -1560,21 +1615,23 @@ class HarnessApp(App[None]):
         named = value if on and value.lower() != "on" else None
         target = named or self._handoff_model()
         if on == self.pending.auto and (not on or target == self._handoff_model()):
-            await self.transcript.notice(f"Auto is already {f'on, handing over to {target}' if on else 'off'}.")
+            await self.transcript.notice(
+                f"The efficient model is already {target}." if on else "The efficient model is already off."
+            )
             return
         if named is not None and named == self._current("system2"):
-            await self.transcript.notice(f"{named} is System 2 already: pick a cheaper model.", "warn")
+            await self.transcript.notice(f"{named} is the frontier model already: pick a cheaper one.", "warn")
             return
         before = Models(**vars(self.pending))
         if named is not None:
             try:
                 handoff = HandoffConfig.model_validate({**caps.handoff.model_dump(), "to": named})
             except ValidationError:
-                await self.transcript.notice(f"Not a model: {named!r}; a hand-over model is provider/model.", "warn")
+                await self.transcript.notice(f"Not a model: {named!r}; an efficient model is provider/model.", "warn")
                 return
             self.pending.capabilities = caps.model_copy(update={"handoff": handoff})
         self.pending.auto = on
-        await self._reopen(f"auto on, hand-over to {target}" if on else "auto off", before)
+        await self._reopen(f"efficient model {target}" if on else "efficient model off", before)
 
     def _capability_picked(self, picked: str | None) -> None:
         if picked:
@@ -1800,10 +1857,10 @@ class HarnessApp(App[None]):
             return
         current = self._current(role)
         if role == "system2":
-            title = "System 2 · the agent model"
+            title = "Frontier model · starts each task and does the hard part"
             hint = ""
         else:
-            title = "System 1 · the decision model that watches and judges"
+            title = "Decision model · picks the moment to hand over and keeps the work on track"
             hint = "decisions:<model> picks a decisions-API model"
         if self.session is None:
             hint = "No session yet: the pick opens one" + (f" · {hint}" if hint else "")
@@ -1841,7 +1898,7 @@ class HarnessApp(App[None]):
                 self.pending.system2 = ref
             else:
                 self.pending.system1 = ref
-            await self.transcript.notice(f"{role} → {ref}; opening the session…", "ok")
+            await self.transcript.notice(f"{ROLE_NAMES[role]} → {ref}; opening the session…", "ok")
             await self._open_with(self.pending)
             return
         if session.running:
@@ -1850,7 +1907,7 @@ class HarnessApp(App[None]):
         try:
             binding = await session.set_model(ref, role)
         except (ConfigError, ValueError, KeyError, SessionBusy) as e:
-            await self.transcript.notice(f"Cannot set {role} to {ref}: {e}", "error")
+            await self.transcript.notice(f"Cannot set the {ROLE_NAMES[role].lower()} to {ref}: {e}", "error")
             return
         level = lacking = ""
         if role == "system2" and binding is not None:
@@ -1861,12 +1918,14 @@ class HarnessApp(App[None]):
                 level = " · it takes no thinking level"
         self._refresh_status()
         if self.query(Welcome) and not lacking:
-            return  # The entering page has each system's model on its card: the pick needs no line of its own.
+            return  # The entering page has each model on its card: the pick needs no line of its own.
         if role == "system2" and binding is not None:
             window = tokens_text(binding.window.working)
-            await self.transcript.notice(f"System 2 → {binding.ref} (working window {window} tokens){level}", "ok")
+            await self.transcript.notice(
+                f"Frontier model → {binding.ref} (working window {window} tokens){level}", "ok"
+            )
         else:
-            await self.transcript.notice(f"System 1 → {ref}", "ok")
+            await self.transcript.notice(f"Decision model → {ref}", "ok")
 
     # -- thinking --------------------------------------------------------------------------------------------
 

@@ -7,7 +7,7 @@
     intern tui [--system2 provider/model] ["task"]          the terminal UI, explicitly
     intern schema                                           print the event JSON Schema
     intern hold [--reason TEXT] -- cmd...                   run cmd, keeping the command it runs in from idle_stop_s
-    intern models [--json]                                  list the System 2 and System 1 models to pick
+    intern models [--json]                                  list the frontier and decision models to pick
     intern free status|start|pause|resume|sign-out [--json] the free trial's sign-in and credit
     intern index [path] [--documents] [--clean]             build .intern/ index (--documents: .decision_workspace/)
     intern memory init|lint DRIVE                           create or check a memory drive
@@ -34,6 +34,7 @@ from intern import __version__, names
 from intern.config import SYSTEM1_HELP, Bootstrap, Options
 from intern.events import (
     Event,
+    Handoff,
     Indexing,
     RunEnd,
     SecretUnavailable,
@@ -68,11 +69,18 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--json", action="store_true", help="Write every event as one JSON line to stdout.")
     # -m/--model and --decider are the old names, kept so existing scripts and eval configs still run.
     parser.add_argument(
-        "--system2", "-m", "--model", help="Agent model as provider/model, e.g. openrouter/qwen/qwen3.8-27b."
+        "--system2",
+        "-m",
+        "--model",
+        help="The frontier model, which starts each task and does the hard part, as provider/model, e.g. "
+        "anthropic/claude-opus-5-5.",
     )
-    parser.add_argument("--system1", "--decider", help=f"System 1: {SYSTEM1_HELP}.")
     parser.add_argument(
-        "--handoff-to", help="Hand the run over once to this cheaper model when System 1 judges it can finish."
+        "--system1", "--decider", help=f"The decision model, which picks when to hand over: {SYSTEM1_HELP}."
+    )
+    parser.add_argument(
+        "--handoff-to",
+        help="The efficient model: hand the run over to it once, when the decision model judges it can finish.",
     )
     parser.add_argument("--window", type=int, help="Cap the working window, in tokens.")
     parser.add_argument("--max-turns", type=int, help="Stop after this many turns.")
@@ -146,6 +154,8 @@ def _text_sink(event: Event) -> None:
                 share = done / total if total else 0.0
                 sys.stderr.write(f"\r{name}: indexing {share:4.0%} {done}/{total}")
                 sys.stderr.flush()
+        case Handoff(turn=turn, target=target):
+            print(f"\n[handed over to the efficient model ({target}) at turn {turn}]", file=sys.stderr)
         case SubagentStart(name=name, tools=tools):
             print(f"  [subagent {name} started with {', '.join(tools) or 'no tools'}]", file=sys.stderr)
         case SubagentEnd(name=name, status=status, turns=turns, usage=usage):
@@ -159,7 +169,9 @@ def _text_sink(event: Event) -> None:
                 print(f"[stopped: {reason}{f': {detail}' if detail else ''}]", file=sys.stderr)
             line = f"{turns} turns, {usage.input_tokens} in / {usage.output_tokens} out tokens"
             if system1.asks or system1.failed:
-                line += f"; System 1: {system1.asks} asks, {system1.input_tokens} in / {system1.output_tokens} out"
+                line += (
+                    f"; decision model: {system1.asks} asks, {system1.input_tokens} in / {system1.output_tokens} out"
+                )
                 if system1.failed:
                     line += f", {system1.failed} failed"
                 if system1.cost_usd >= 0.0001:
@@ -265,7 +277,9 @@ def _index(argv: list[str]) -> int:
 
 def _models(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
-        prog=f"{names.NAME} models", description="List the System 2 and System 1 models clients can pick."
+        prog=f"{names.NAME} models",
+        description="List the frontier and decision models clients can pick; any frontier model can be the efficient "
+        "one.",
     )
     parser.add_argument(
         "--json",
@@ -282,7 +296,7 @@ def _models(argv: list[str]) -> int:
     if args.json:
         print(catalog.model_dump_json(exclude_defaults=True))
         return EXIT_OK
-    for role, models in (("System 2", catalog.system2), ("System 1", catalog.system1)):
+    for role, models in (("Frontier and efficient models", catalog.system2), ("Decision models", catalog.system1)):
         print(f"{role}:")
         for model in models:
             print(f"  {model.id}" + (f"  ({model.name})" if model.name != model.id else ""))

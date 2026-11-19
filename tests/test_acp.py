@@ -1580,7 +1580,7 @@ def test_bootstrap_requires_system_1_and_serves_picks_from_the_console_or_the_de
     other = keyed.system1_backend("drex-max-v1.1")
     assert isinstance(other, DecisionsApiBackend) and other.name == "decisions-api:drex-max-v1.1"
     # Heuristics are gone: there is no System 1 that is not a model.
-    with pytest.raises(ConfigError, match="System 1 is required"):
+    with pytest.raises(ConfigError, match="A decision model is required"):
         Bootstrap(options.model_copy(update={"system1": "heuristic"}), home).system1_choice()
     # A decision model on the decisions API, picked as decisions:<model> or started on with --system1, with its
     # own endpoint, fallbacks and key.

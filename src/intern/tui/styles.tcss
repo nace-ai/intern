@@ -98,12 +98,12 @@ Screen {
     height: auto;
 }
 
-#welcome-wordmark, #welcome-title, #welcome-about, #welcome-foot, #welcome-tips {
+#welcome-wordmark, #welcome-title, #welcome-about, #welcome-run, #welcome-foot, #welcome-tips {
     width: auto;
     height: auto;
 }
 
-#welcome-title, #welcome-about, #welcome-row, #welcome-foot, #welcome-tips {
+#welcome-title, #welcome-about, #welcome-run, #welcome-row, #welcome-foot, #welcome-tips {
     margin-top: 1;
 }
 
@@ -163,7 +163,8 @@ Screen {
 
 #welcome.framed #welcome-system2, #welcome.framed #welcome-title, #welcome.framed #welcome-foot,
 #welcome.compact #welcome-system2, #welcome.compact #welcome-title, #welcome.compact #welcome-foot,
-#welcome.compact #welcome-wordmark, #welcome.compact #welcome-about, #welcome.compact #welcome-side {
+#welcome.compact #welcome-wordmark, #welcome.compact #welcome-about, #welcome.compact #welcome-side,
+#welcome.compact #welcome-run {
     display: none;
 }
 
@@ -230,8 +231,8 @@ Screen {
     border-left: wide $error;
 }
 
-/* A hand-over's turns, the cheaper model's until the run ends, set apart from System 2's: a shade of the accent
-   behind them, and a hairline above and below it, in the accent as the panels' borders are. */
+/* A hand-over's turns, the efficient model's until the run ends, set apart from the frontier model's: a shade of the
+   accent behind them, and a hairline above and below it, in the accent as the panels' borders are. */
 .handed {
     height: auto;
     margin: 0 0 1 0;
@@ -247,6 +248,11 @@ Screen {
 
 .handed-foot {
     color: $muted;
+}
+
+/* Who takes a turn, on the line above it: the frontier model, or the efficient one after a hand-over. */
+.turn-head {
+    margin: 1 0 0 0;
 }
 
 /* System 1's look at a background command that it told the agent of. */
