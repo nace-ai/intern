@@ -162,7 +162,7 @@ HINTS = (
     ("Shift+Tab", "thinking"),
     ("/theme", "look"),
 )
-"""The keys worth knowing first; then the look to switch to (`tips`). The prompt itself says to describe the task
+"""The keys worth knowing first, `/theme` for the look last (`tips`). The prompt itself says to describe the task
 and that /help lists the commands."""
 SPRITE_COLUMNS, SPRITE_ROWS = 32, 16
 """The mascot in cells, two pixels to a cell down: as wide in pixels as it is tall."""
@@ -554,13 +554,13 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
 
 
 def tips(o: Opening, width: int, dark: bool = False) -> Content:
-    """The keys worth knowing first, how to turn the hand-over off or on, and the look there is to switch to (`/light`
-    in the dark one); while there is no session, why, first."""
+    """The keys worth knowing first, how to turn the hand-over off or on, and `/theme` for the look; while there is no
+    session, why, first. `dark` is kept for callers and no longer changes the hint."""
     waiting = o.note.endswith("…")
     style = S_MUTED_ITALIC if waiting else S_HEAD if o.note == SETUP_NOTE else S_BAD
     lead: list[list[Part]] = [[(o.note, style)]] if o.note else []
     handover = ("/free", "free credit") if o.free else ("/handover off" if o.handoff else "/handover on", "hand-over")
-    hints = [*HINTS[:2], handover, *HINTS[2:], ("/light" if dark else "/dark", "look")]
+    hints = [*HINTS[:2], handover, *HINTS[2:]]
     return stacked(flow([*lead, *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in hints)], width))
 
 
