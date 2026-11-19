@@ -1,0 +1,13 @@
+## Balance sheet
+Harbour & Pine Joinery Ltd	At 30 June 2026
+	2026	2025
+Equipment	214500	198300
+Inventories	186200	171900
+Trade receivables	301400	276800
+Cash at bank	22300	41700
+Trade payables	-244800	-231600
+Overdraft	-88000	-64000
+Term loan	-420000	-480000
+Net assets	-28400	-86900
+Share capital	1000	1000
+Retained earnings	-29400	-87900

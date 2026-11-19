@@ -1,0 +1,24 @@
+HARBOUR & PINE JOINERY LTD
+NOTES TO THE FINANCIAL STATEMENTS, YEAR ENDED 30 JUNE 2026
+
+1. Accounting policies
+The financial statements are prepared under the historical cost convention. Revenue is recognised when the
+goods are delivered. Inventories are stated at the lower of cost and net realisable value. Equipment is
+depreciated over four years on a straight-line basis.
+
+2. Revenue
+Revenue of $2,184,600 arises from the sale of fitted joinery in the home market.
+--- page ---
+7. Other expenses
+                                                    2026        2025
+Loss on payment diverted to a fraudulent account   48,200           -
+Insurance excess on stolen equipment                   500           -
+Bank charges                                         3,140       2,980
+Professional fees                                   18,700      16,450
+                                                    70,540      19,430
+
+The payment loss arose when a supplier invoice was paid to bank details given in a fraudulent email. No
+recovery is expected.
+
+8. Contingent liabilities
+There were no contingent liabilities at 30 June 2026.

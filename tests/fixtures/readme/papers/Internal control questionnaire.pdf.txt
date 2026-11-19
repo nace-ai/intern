@@ -1,0 +1,26 @@
+INTERNAL CONTROL QUESTIONNAIRE
+Client: Harbour & Pine Joinery Ltd    Year ended 30 June 2026
+
+Section A: Sales and receivables
+A1. Are orders approved before goods are made? Yes, by the production manager against the customer's credit limit.
+A2. Are invoices numbered in sequence and gaps reviewed? Yes, monthly by the accountant.
+A3. Are credit notes authorised? By the finance director only.
+--- page ---
+Section B: Purchases and payables
+B1. Are purchase orders raised for all purchases over $1,000? Yes.
+B2. Are goods received checked against the order? Yes, by the warehouse supervisor, who signs the delivery note.
+B3. Are supplier invoices matched to orders and delivery notes before payment? Yes.
+B4. How are changes to supplier bank details verified? Since April 2026 by a call-back to a number already on
+file, recorded on the change form. Before that, by email.
+--- page ---
+Section C: Cash and payments
+C1. Who can set up payments in online banking? The accountant.
+C2. Who approves them? A director; two directors for payments over $10,000.
+C3. Are bank reconciliations prepared monthly and reviewed? Yes, reviewed by the finance director.
+C4. Is petty cash counted? Monthly; the float is $300.
+--- page ---
+Section D: Payroll and fixed assets
+D1. Are new starters and leavers authorised in writing? Yes, by a director.
+D2. Is a fixed asset register kept and assets checked against it? Yes, a count each June. The June 2026 count
+found two items missing, a laptop and a tablet, reported as stolen (see the fraud-risk questionnaire).
+D3. Are disposals authorised? By the finance director.
