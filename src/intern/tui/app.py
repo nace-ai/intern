@@ -200,6 +200,8 @@ Opener = Callable[[EventSink, Models], Awaitable[Session]]
 Installer = Callable[[Needs, Say], Awaitable[None]]
 """Installs what a capability needs and this environment lacks, saying what it does (`needs.install`)."""
 
+DECIDES = " · decision model"
+"""What a capability's label has (`capability_toggles.toggles`) when the decision model takes part in it."""
 ENTERING_HIDES = ("#status", "#side")
 """What the entering page takes the place of."""
 ADD_SECRET = "+add"
@@ -409,8 +411,11 @@ class HelpScreen(ModalScreen[None]):
         page = VerticalScroll(id="help-page")
         page.border_title = Content.assemble((" Commands and keys ", S_TAB))
         page.border_subtitle = Content.assemble((" Esc", S_HEAD), (" closes ", S_MUTED))
+        here = "/dark" if self.app.current_theme.dark else "/light"  # the look in force needs no line
         with page:
-            yield HelpCard({**HELP, "Keys": KEYS})
+            yield HelpCard(
+                {**{group: {k: v for k, v in rows.items() if k != here} for group, rows in HELP.items()}, "Keys": KEYS}
+            )
 
     def action_close(self) -> None:
         self.dismiss(None)
@@ -507,7 +512,7 @@ class HarnessApp(App[None]):
             with Vertical(id="main"):  # System 2: its conversation, and under it the prompt, which is to it alone
                 yield Transcript()
                 yield Prompt(
-                    placeholder="Describe the task… (/help for commands; Shift+Enter or Ctrl+J for a new line)",
+                    placeholder="Describe the task… (/help for commands)",
                     id="prompt",
                     commands=(*COMMANDS, *ALIASES),
                 )
@@ -612,8 +617,7 @@ class HarnessApp(App[None]):
             note=status.note,
             cwd=self._cwd,
             journal=session.deps.journal.path if session is not None else None,
-            capabilities=[(toggle.id, toggle.name.lower(), toggle.on) for toggle in toggles],
-            tools=len(session.deps.tools) if session is not None else 0,
+            capabilities=[(t.id, t.name, t.on, DECIDES in t.label) for t in toggles],
             guard=_guard_state(self._capabilities_now().guard) if session is not None else "off",
         )
 
@@ -1327,6 +1331,8 @@ class HarnessApp(App[None]):
             case ("/dark" | "/light") as look:
                 self.pending.dark = look == "/dark"
                 self.theme = (DARK_THEME if self.pending.dark else LIGHT_THEME).name
+                for page in self.query(Welcome):  # its tips offer the other look now
+                    page.show(page.opening)
             case "/help":
                 self.push_screen(HelpScreen())
             case "/quit" | "/exit":
@@ -1376,7 +1382,8 @@ class HarnessApp(App[None]):
                 prompt, self._first_prompt = self._first_prompt, None
                 await self._submit(prompt)
             return
-        await self._reopen(f"frontier {done.setup.system2} · decision {done.setup.system1_choice}", before)
+        note = f"frontier {done.setup.system2} · decision {done.setup.system1_choice}"
+        await self._reopen(note, before, shown=bool(self.query(Welcome)))  # the entering page has the models
 
     async def _setup_command(self) -> None:
         if self._setup is None:
@@ -1694,7 +1701,8 @@ class HarnessApp(App[None]):
                 return
             self.pending.capabilities = caps.model_copy(update={"handoff": handoff})
         self.pending.auto = on
-        await self._reopen(f"efficient model {target}" if on else "efficient model off", before)
+        note = f"efficient model {target}" if on else "efficient model off"
+        await self._reopen(note, before, shown=bool(self.query(Welcome)))  # the entering page has the hand-over
 
     def _capability_picked(self, picked: str | None) -> None:
         if picked:
@@ -2091,6 +2099,21 @@ class HarnessApp(App[None]):
             return
         event.stop()
         self.query_one("#prompt", Prompt).take_paste(event.text)
+
+    def on_key(self, event: events.Key) -> None:
+        """A character typed while nothing that writes has the focus, as after a click on the entering page's
+        capabilities to scroll them: the prompt takes the focus back, and the character with it."""
+        if (
+            isinstance(self.screen, ModalScreen)
+            or isinstance(self.focused, (Input, TextArea))
+            or not event.is_printable
+        ):
+            return
+        if event.character:
+            prompt = self.query_one("#prompt", Prompt)
+            prompt.focus()
+            prompt.insert(event.character)
+            event.stop()
 
     def on_text_selected(self, event: events.TextSelected) -> None:
         """A drag that selected text has ended: it is copied there and then, as a terminal's own selection

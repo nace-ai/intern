@@ -3,57 +3,60 @@
                               ██ ███  ██ ████████ ███████ ██████  ███  ██
                               ██ ████ ██    ██    █████   ██████  ████ ██
                               ██ ██ ████    ██    ███████ ██  ██  ██ ████
-                              Intern v0.34.1
+                              Intern v0.53.0
+    ░  Intern uses three models: a frontier model does the hard part, an efficient model finishes the rest  ░
+    ░     for much less, and a decision model picks the moment to hand over and keeps the work on track.    ░
 
-            Intern starts each task on a frontier model, which does the hard part. An efficient model
-            then finishes the rest, for much less. A decision model picks the moment ...
-
-    ╭─ Frontier model ────────────────────────────╮         ╭─ Efficient model ───────────────────────────╮
-    │ claude-opus-5-5                             │         │ Claude Haiku 5.5                            │
-    │ thinking high ▰▰▰▱▱                         │  ━━━━▶  │                                             │
-    │ ⠋ working on the hard part                  │         │ ○ waits for the hand-over                   │
-    │ ▰▰▱▱                                        │         │ ▱▱▱▱                                        │
-    ╰─────────────────────────────────────────────╯         ╰─────────────────────────────────────────────╯
-    Decision model · watching the run   ready ▂▄ 0.48
-
-    ╭─ Tools ──────────────────────────────╮                    ╭─ Decision model ─────────────────────╮
-    │ 9 tools, the same for both models    │    (the mascot,    │ drex-max                             │
-    │                                      │     glancing       │ console                              │
-    │ ● base tools   files and the shell   │     and blinking)  │                                      │
-    │ ○ web search   searches the web ...  │                    │ ● hand-over   picks when to hand over│
-    │ ...                                  │                    │ ● watch       nudges it out of ...   │
+    ╭─ System 2 ───────────────────────────╮                    ╭─ Capabilities ───────────────────────╮
+    │ Frontier   thinking high ▰▰▰▱▱       │                    │ For the frontier and efficient models│
+    │ claude-opus-5-5                      │                    │ ◆ uses the decision model            │
+    │ ⠋ working on the hard part  ━━━━──── │                    │                                      │
+    │                                      │    (the mascot,    │ ● Base Tools                         │
+    │ ━━━━━ ↓ hand-over · ready 0.48 ───── │     glancing       │     files and the shell              │
+    │                                      │     and blinking)  │ ○ Web Search ◆                       │
+    │ Efficient                            │                    │     searches the web                 │
+    │ claude-haiku-5-5                     │                    │ ...                                  │
+    │ ○ waits for the hand-over            │                    │                                      │
+    ╰──────────────────────────────────────╯                    │                                      │
+    ╭─ System 1 ───────────────────────────╮                    │                                      │
+    │ Decision                             │                    │                                      │
+    │ drex-max · console                   │                    │                                      │
+    │ ● Hand-over   picks when to hand over│                    │                                      │
+    │ ...                                  │                    │                                      │
     ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
-            Describe a task to begin.   /help commands   /models models   /caps capabilities ...
+        /models models   /caps capabilities   /handover off hand-over   Shift+Tab thinking   /dark look
 
-The page is drawn as one: first the run as Intern makes it, played over and over (`RunPlay`): the frontier model
-(System 2) in its box works the hard part, the decision model (System 1) judges it ready and the run hands over, and
-the efficient model in the other box finishes the rest. Under it Intern itself, the Nace cube with eyes, alive as
-the brand draws it (`Mascot`), between two cards: the tools the session has switched on, which both models share,
-each in a few words; and the decision model's jobs, each on or off as a capability is, and what it judges from.
-Above them the wordmark, in ink with the accent for its shadow, and what Intern is, in a paragraph; under them where
-the session works, then what to do next.
-All of it centred, and a third of the way down a tall terminal.
+The page is drawn as one. On the left System 2's card over System 1's, on the right the capabilities, Intern itself
+between them, the Nace cube with eyes, alive as the brand draws it (`Mascot`); the cards on either side as tall as
+each other, the mascot at their middle. System 2's card plays the run as Intern makes it, over and over (`RunPlay`):
+the frontier model works the hard part, on a rule across the card, `↓ hand-over` in its middle, the decision model's
+P(ready) fills it until it hands over, and the efficient model finishes the rest. While hand-over is off the
+efficient model is not there, and the frontier model works every turn. System 1's card has the decision model's
+jobs, each on or off as a capability is. The capabilities' card says which models work with the tools, then each
+capability over what it is, in a few words, a line of air between them, and a ◆ after those the decision model takes
+part in, its legend at the top; the card stands exactly beside the models' cards, top and bottom, and scrolls the
+rest (`CapabilityCard`). Above them the wordmark, in ink with the accent for its shadow, and what Intern is, in a
+sentence on a shaded band: three models while a run hands over, two while it does not; under them where the session
+works, then the keys worth knowing first. All of it centred, and a third of the way down a tall terminal.
 
-That is the page on a wide terminal (`hero`). A narrower one has the mascot and the models in one frame
-(`framed`); one too small for that, the frame alone, a line a job (`compact`). It is the transcript's first block, so
-what is said before the first prompt (a session that cannot open, a switch that failed) shows under it, and it goes
-when the conversation begins.
+That is the page on a wide terminal (`hero`). A narrower one has the models and the capabilities in one column
+beside the mascot, in one frame (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is
+the transcript's first block, so what is said before the first prompt (a session that cannot open, a switch that
+failed) shows under it, and it goes when the conversation begins.
 """
 
 from __future__ import annotations
 
-import math
 import textwrap
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-from rich.cells import cell_len
 from textual.app import ComposeResult
-from textual.containers import Center, Horizontal, Vertical
+from textual.containers import Center, Horizontal, Vertical, VerticalScroll
 from textual.content import Content
 from textual.widgets import Static
 
@@ -66,7 +69,6 @@ from intern.tui.theme import (
     S_BAD,
     S_BRAND_BOLD,
     S_HEAD,
-    S_HEAD_MUTED,
     S_INK,
     S_MUTED,
     S_MUTED_ITALIC,
@@ -79,7 +81,6 @@ from intern.tui.widgets import (
     ART,
     EYES,
     HANDOVER_SIGN,
-    LADDER,
     SPINNER,
     Part,
     clip,
@@ -98,16 +99,18 @@ from intern.tui.widgets import (
 
 TITLE = f"{WORDMARK} v{__version__}"
 ABOUT = (
-    "Intern starts each task on a frontier model, which does the hard part. An efficient model then finishes the "
-    "rest, for much less. A small decision model picks the moment to hand over, and keeps the work on track: it "
-    "nudges your intern out of circles, searches code and files for it, and decides what it keeps in mind when its "
-    "context fills up."
+    "Intern uses three models: a frontier model does the hard part, an efficient model finishes the rest for much "
+    "less, and a decision model picks the moment to hand over and keeps the work on track."
 )
-"""What Intern is, in three sentences."""
+"""What Intern is while a run hands over."""
 ABOUT_SHORT = (
     "A frontier model does the hard part, an efficient model finishes it, and a decision model picks the moment."
 )
 """The same for a small terminal."""
+ABOUT_ALONE = "Intern uses two models: a frontier model does the work, and a decision model keeps it on track."
+"""What Intern is while hand-over is off, on any terminal."""
+NAMED = r"(three|two) models|(frontier|efficient|decision) model"
+"""What stands out in what Intern is: how many models, and each by its name."""
 JOBS: tuple[tuple[Kind, str], ...] = (
     ("hand-over", "picks when to hand over"),
     ("watch", "nudges it out of circles"),
@@ -122,14 +125,13 @@ GuardState = Literal["off", "rules", "full"]
 """The guard capability: off, on with the fixed rules alone (`[capabilities.guard] system1 = false`), or on."""
 GUARD: dict[GuardState, str] = {"off": "off · /caps guard", "rules": "fixed rules only"}
 """What the guard's line says when the decision model does not judge calls."""
-HANDOVER_OFF = "off · /efficient picks a model"
+HANDOVER_OFF = "off"
+"""What the hand-over's line says while no efficient model is set; the tips say how to turn it on."""
 """What the hand-over's line says while no efficient model is set."""
 STATE = (
     "What the decision model judges from: the session as it reads it, your requests as the goal and then the "
     "history, cut to fit its window."
 )
-STATE_SHORT = "Judges from the State: your requests and the history, cut to fit."
-"""The same on the decision model's card."""
 BRIEFS = {
     "cap.base": "files and the shell",
     "cap.web-search": "searches the web",
@@ -141,30 +143,35 @@ BRIEFS = {
     "cap.guard": "checks risky calls",
     "cap.tool-result-guard": "checks tool output",
     "cap.subagents": "hands off whole tasks",
+    "cap.schedule": "runs prompts on timers",
 }
 """Each capability in a few words, by its toggle's id (`capability_toggles`)."""
 NAMES = {"cap.tool-result-guard": "result guard"}
 """A shorter name on the card for a capability whose own (`Toggle.name`, what clients show) would not fit beside the
 others."""
 MCP_BRIEF = "remote tools"
+BRIEF_INDENT = 4
+DECIDED, LEGEND = "◆", "uses the decision model"
+"""The mark beside a capability the decision model takes part in, and what it means, said once under the list."""
+"""Where a capability's few words start on its card: further in than its name."""
 JOB_WIDTH = 14
 SETUP_NOTE = "Not connected yet: /setup connects your models"
 """What the page and the masthead say while no models are set up: a way on, not an error."""
 HINTS = (
-    ("/help", "commands"),
     ("/models", "models"),
     ("/caps", "capabilities"),
     ("Shift+Tab", "thinking"),
-    ("/dark", "look"),
 )
+"""The keys worth knowing first; then the look to switch to (`tips`). The prompt itself says to describe the task
+and that /help lists the commands."""
 SPRITE_COLUMNS, SPRITE_ROWS = 32, 16
 """The mascot in cells, two pixels to a cell down: as wide in pixels as it is tall."""
 BIG_COLUMNS, BIG_ROWS = 40, 20
 """The same on a wide page with the room for it."""
 TICK_S = 0.08
 """A frame of Intern's motion, as the brand draws it: 12.5 a second."""
-ABOUT_WIDTH = 100
-"""The widest the paragraph runs: a wide terminal is wider than a line reads."""
+ABOUT_WIDTH = 110
+"""The widest what Intern is may run, before its lines are evened out: a wide terminal is wider than a line reads."""
 CARD_WIDTH = 44
 """A system's card on the wide page, its border and padding (`CARD_EDGES`) included."""
 CARD_EDGES = 6
@@ -202,11 +209,13 @@ RUN_PHASES: tuple[tuple[float, Phase], ...] = ((4.0, "frontier"), (5.5, "handove
 RUN_TICK_S = 0.2
 """A frame of the played run: five a second, enough for its spinner and the arrow filling."""
 RUN_TURNS = 4
+TURN_CELLS = 2
+"""A turn's share of the line its model's turns fill (`pips`)."""
 """The turns each model takes in the played run, a pip each."""
-RUN_ROWS = 9
-"""The played run's rows: its boxes, the decision model's line under them, the air above."""
-ARROW = 11
-"""The hand-over's arrow between the two boxes, in cells."""
+CARD_GAP = 1
+"""The air between System 2's card and System 1's, on the wide page."""
+ABOUT_PAD = 2
+"""The band's air either side of what Intern is."""
 READY_FROM, READY_AT = 0.15, 0.82
 """The decision model's P(ready) in the played run: where it starts, and where the run hands over."""
 PROMPT_ROWS = 3
@@ -229,9 +238,8 @@ class Opening:
     """Why there is no session, while there is none: it is opening, or it could not open."""
     cwd: Path | None = None
     journal: Path | None = None
-    capabilities: list[tuple[str, str, bool]] = field(default_factory=list)
-    """Each capability's toggle id, its name and whether it is on."""
-    tools: int = 0
+    capabilities: list[tuple[str, str, bool, bool]] = field(default_factory=list)
+    """Each capability's toggle id, its name, whether it is on, and whether the decision model takes part in it."""
     guard: GuardState = "off"
 
 
@@ -296,6 +304,16 @@ def where(o: Opening, width: int) -> list[list[Part]]:
     return lines
 
 
+def about_lines(o: Opening, width: int) -> list[Content]:
+    """What Intern is, as the session has it (three models while a run hands over, two while not), the models in
+    bold, in as few lines as `width` cells hold, each about as long as the others."""
+    text = Content.styled(ABOUT if o.handoff else ABOUT_ALONE, S_INK).highlight_regex(NAMED, style="bold")
+    lines = text.wrap(width := max(20, width))
+    while width > 20 and len(text.wrap(width - 1)) == len(lines):  # as narrow as the same lines go: no short last
+        width -= 1
+    return text.wrap(width)
+
+
 def paragraph(text: str, width: int, style: str = S_MUTED) -> list[list[Part]]:
     return [[(line, style)] for line in textwrap.wrap(text, max(20, width))]
 
@@ -304,7 +322,7 @@ def jobs(o: Opening, width: int, *, wrap: bool = True) -> list[list[Part]]:
     """The decision model's jobs, each on (`●`) or off (`○`) as a capability is, then what it is asked: wrapped under
     itself, or cut to the line. The hand-over is off while there is no efficient model, the guard unless its
     capability is on with the decision model judging, and the search while neither capability it searches for is on."""
-    searches = any(on for toggle, _, on in o.capabilities if toggle in SEARCHES)
+    searches = any(on for toggle, _, on, _ in o.capabilities if toggle in SEARCHES)
     lines: list[list[Part]] = []
     for job, does in JOBS:
         unguarded = job == "guard" and o.guard != "full"
@@ -320,26 +338,41 @@ def jobs(o: Opening, width: int, *, wrap: bool = True) -> list[list[Part]]:
 
 
 def switch(name: str, on: bool) -> list[Part]:
+    """A capability or a job by its name, a capital to each word (`Base Tools`), on (`●`) or off (`○`)."""
+    name = " ".join(word[:1].upper() + word[1:] for word in name.split(" "))
     return [("●", S_OK) if on else ("○", S_MUTED), (f" {name}", S_INK if on else S_MUTED)]
+
+
+def decided(decides: bool, on: bool) -> list[Part]:
+    """What a capability the decision model takes part in has after its name (`LEGEND` says it once): a ◆, in the
+    accent while the capability is on."""
+    return [(f" {DECIDED}", BRAND if on else S_MUTED)] if decides else []
+
+
+def legend(o: Opening) -> list[Part]:
+    """What the ◆ beside a capability means, where one has it."""
+    return [(DECIDED, BRAND), (f" {LEGEND}", S_MUTED)] if any(decides for *_, decides in o.capabilities) else []
 
 
 def switches(o: Opening, width: int) -> list[list[Part]]:
     """What the session has switched on (`●`) and not (`○`), run together, then how many tools that comes to."""
     if not o.capabilities:
         return []
-    items = [switch(NAMES.get(toggle, name), on) for toggle, name, on in o.capabilities]
-    return flow([*items, [(f"{o.tools} tools", S_MUTED)]], width, gap=2)
+    items = [switch(NAMES.get(toggle, name), on) for toggle, name, on, _ in o.capabilities]
+    return flow(items, width, gap=2)
 
 
 def capabilities(o: Opening, width: int) -> list[list[Part]]:
-    """The same, a line each, with what the capability is in a few words."""
-    named = [(toggle, NAMES.get(toggle, name), on) for toggle, name, on in o.capabilities]
-    column = min(max((len(name) for _, name, _ in named), default=0), width // 3) + 4
+    """The same, a line each, with what the capability is in a few words; a ◆ after the name of those the decision
+    model takes part in."""
+    named = [(toggle, NAMES.get(toggle, name), on, decides) for toggle, name, on, decides in o.capabilities]
+    column = min(max((len(name) + 2 * decides for _, name, _, decides in named), default=0), width // 3) + 4
     lines: list[list[Part]] = []
-    for toggle, name, on in named:
+    for toggle, name, on, decides in named:
         brief = BRIEFS.get(toggle, MCP_BRIEF if toggle.startswith("cap.mcp.") else "")
-        mark, label = switch(clip(name, column - 4), on)
-        lines.append([mark, label, " " * (column - 1 - cell_len(label[0])), (clip(brief, width - column), S_MUTED)])
+        head = [*switch(clip(name, column - 4), on), *decided(decides, on)]
+        pad = " " * max(1, column - Content.assemble(*head).cell_length)
+        lines.append([*head, pad, (clip(brief, width - column), S_MUTED)])
     return lines
 
 
@@ -354,9 +387,23 @@ def model(ref: str, width: int) -> list[list[Part]]:
     return [*lines, [(ref, S_HEAD)]]
 
 
+def tools_head(o: Opening, width: int) -> list[list[Part]]:
+    """The top of the capabilities' card, which stays as the list under it scrolls: which models work with the tools
+    (a run that hands over keeps its tools), then what the ◆ means."""
+    shared = "For the frontier and efficient models" if o.handoff else "For the frontier model"
+    return [[(clip(shared, width), S_MUTED)], *([legend(o)] if legend(o) else [])]
+
+
 def tools(o: Opening, width: int) -> list[list[Part]]:
-    """The tools' card: how many the session has, which both models work with, then what they are."""
-    return [[(clip(f"{o.tools} tools, the same for both models", width), S_MUTED)], [], *capabilities(o, width)]
+    """The capabilities' list: each capability over what it is, in a few words, a line of air between them."""
+    lines: list[list[Part]] = []
+    for toggle, name, on, decides in o.capabilities:
+        brief = BRIEFS.get(toggle, MCP_BRIEF if toggle.startswith("cap.mcp.") else "")
+        lines.append([*switch(clip(NAMES.get(toggle, name), width - 2), on), *decided(decides, on)])
+        if brief:
+            lines.append([(" " * BRIEF_INDENT, ""), (clip(brief, width - BRIEF_INDENT), S_MUTED)])
+        lines.append([])  # air between capabilities: the card scrolls rather than packs them
+    return lines[:-1]
 
 
 # -- the played run -------------------------------------------------------------------------------------------
@@ -373,117 +420,80 @@ def phase_at(t: float) -> tuple[Phase, float]:
     return "done", 1.0
 
 
-def boxed(title: str, lines: list[list[Part]], width: int, lit: bool) -> list[Content]:
-    """`lines` in a rounded box `width` cells wide, `title` on its top edge: in the accent while its model works
-    (`lit`), else in the rule's colour."""
-    edge, inner, head = BRAND if lit else S_RULE, width - 4, f" {title} "
-    rows = [
-        Content.assemble(
-            ("╭─", edge), (head, S_BRAND_BOLD if lit else S_HEAD_MUTED), ("─" * (width - 3 - len(head)) + "╮", edge)
-        )
-    ]
-    for line in lines:
-        body = Content.assemble(*line).truncate(inner, ellipsis=True)
-        rows.append(Content.assemble(("│ ", edge), body, " " * (inner - body.cell_length), (" │", edge)))
-    rows.append(Content.styled("╰" + "─" * (width - 2) + "╯", edge))
-    return rows
-
-
 def pips(done: int, lit: bool) -> list[Part]:
-    """The turns a model has taken in the played run, a pip each."""
-    return [("▰" * done, BRAND if lit else S_MUTED), ("▱" * (RUN_TURNS - done), S_RULE)]
+    """The turns a model has taken in the played run, on a thin line filling up, two cells a turn: not the thinking
+    level's boxes beside the frontier model."""
+    return [("━" * TURN_CELLS * done, BRAND if lit else S_MUTED), ("─" * TURN_CELLS * (RUN_TURNS - done), S_RULE)]
 
 
 def run_frame(o: Opening, width: int, t: float | None) -> Content:
-    """The played run `t` seconds in (`RunPlay`): two boxes, the frontier model's and the efficient model's, the one
-    whose turn it is in the accent with a spinner and its turns filling up, a hand-over arrow between them that fills
-    as the run hands over, and under them what the decision model is doing. `t` None, where motion is off: what each
-    model does, still. With no efficient model the frontier model works the whole run."""
-    box = (width - ARROW) // 2
+    """System 2's card on the wide page, its run played `t` seconds in (`RunPlay`): the frontier model, with a spinner
+    and its turns filling up while it works; the hand-over, the decision model's P(ready) rising to the moment it
+    hands over; then the efficient model finishing the rest. While hand-over is off the efficient model is not there,
+    and the frontier model works every turn. `t` None, where motion is off: what each model does, still."""
     phase, through = phase_at(t) if t is not None else ("done", 1.0)
     if not o.handoff and t is not None:  # one model, the whole run
         phase, through = ("frontier", (t % RUN_LOOP_S) / RUN_LOOP_S) if t % RUN_LOOP_S < 9.0 else ("done", 1.0)
     spin: Part = (SPINNER[int((t or 0) / RUN_TICK_S) % len(SPINNER)] + " ", BRAND)
     done: Part = ("✓ ", S_OK)
-    thinking: list[Part] = thinking_box(o.thinking, o.levels) if o.thinking else []
     frontier_turns = min(RUN_TURNS, int(through * RUN_TURNS) + 1) if phase == "frontier" else RUN_TURNS
     efficient_turns = {"efficient": min(RUN_TURNS, int(through * RUN_TURNS) + 1), "done": RUN_TURNS}.get(phase, 0)
     if t is None:
-        f_said: list[Part] = [("starts each task and does the hard part", S_MUTED)]
+        f_said: list[Part] = [("does the hard part" if o.handoff else "does every turn", S_MUTED)]
         e_said: list[Part] = [("finishes the rest, for much less", S_MUTED)]
-        f_pips: list[Part] = []
-        e_pips: list[Part] = []
     else:
+        working = "working on the hard part" if o.handoff else "working on every turn"
         f_said = (
-            [spin, ("working on the hard part", S_INK)] if phase == "frontier" else [done, ("hard part done", S_MUTED)]
+            [spin, (working, S_INK), "  ", *pips(frontier_turns, True)]
+            if phase == "frontier"
+            else [done, ("hard part done" if o.handoff else "done", S_MUTED), "  ", *pips(RUN_TURNS, False)]
         )
-        if not o.handoff:
-            f_said = [spin, ("working on every turn", S_INK)] if phase == "frontier" else [done, ("done", S_MUTED)]
         e_said = {
-            "efficient": [spin, ("finishing the rest", S_INK)],
-            "done": [done, ("done, for much less", S_MUTED)],
+            "efficient": [spin, ("finishing the rest", S_INK), "  ", *pips(efficient_turns, True)],
+            "done": [done, ("done, for much less", S_MUTED), "  ", *pips(RUN_TURNS, False)],
         }.get(phase, [("○ waits for the hand-over", S_MUTED)])
-        f_pips, e_pips = pips(frontier_turns, phase == "frontier"), pips(efficient_turns, phase == "efficient")
+    head: list[Part] = [(" Frontier ", S_TAB), *(["  ", *thinking_box(o.thinking, o.levels)] if o.thinking else [])]
+    lines: list[list[Part]] = [head, *model(o.system2, width), f_said, *handover(o, width, phase, through, t is None)]
+    if o.handoff:
+        lines += [[(" Efficient ", S_TAB)], *model(o.handoff, width), e_said]
+    return Content("\n").join(Content.assemble(*line).truncate(width, ellipsis=True) for line in lines)
+
+
+def handover(o: Opening, width: int, phase: Phase, through: float, still: bool) -> list[list[Part]]:
+    """The hand-over between the two models: a rule across the card, `↓ hand-over` in its middle, filling in the
+    accent from the left as the decision model's P(ready) rises turn by turn; whole at the moment it hands over, then
+    the turn it did. Nothing while hand-over is off: System 1's card and the tips say so."""
     if not o.handoff:
-        e_said, e_pips = [("○ no hand-over · /efficient picks a model", S_MUTED)], []
-    left = boxed(
-        "Frontier model",
-        [[(o.system2, S_HEAD)], thinking, [], f_said, f_pips],
-        box,
-        lit=t is not None and phase == "frontier",
-    )
-    right = boxed(
-        "Efficient model",
-        [[(o.handoff or "off", S_HEAD if o.handoff else S_MUTED)], [], [], e_said, e_pips],
-        box,
-        lit=t is not None and phase == "efficient",
-    )
-    # The arrow, on the boxes' middle row: filling in the accent as the run hands over, in the accent once it has.
-    shaft = ARROW - 4
-    filled = {"frontier": 0, "handover": round(through * shaft)}.get(phase, shaft) if o.handoff else 0
-    arrow = Content.assemble(
-        "  ", ("━" * filled, BRAND), ("━" * (shaft - filled), S_RULE), ("▶", BRAND if filled == shaft else S_RULE), " "
-    )
-    gap = Content(" " * ARROW)
-    said = Content.styled("hand-over".center(ARROW), S_BRAND_BOLD if phase == "handover" else S_MUTED)
-    middle = len(left) // 2
-    between = {middle: arrow, middle + 1: said if o.handoff else gap}
-    lines = [Content.assemble(a, between.get(i, gap), b) for i, (a, b) in enumerate(zip(left, right, strict=True))]
-    return Content("\n").join([*lines, decision_line(o, phase, through, t is None)])
+        return []
+    ready = 0.0
+    if still:
+        label: list[Part] = [(" ↓ hand-over when ready ", S_MUTED)]
+    elif phase == "frontier":
+        ready = READY_FROM + (READY_AT - 0.1 - READY_FROM) * min(RUN_TURNS, int(through * RUN_TURNS) + 1) / RUN_TURNS
+        label = [(" ↓ hand-over · ready ", S_MUTED), (f"{ready:.2f} ", S_INK)]
+    elif phase == "handover":
+        ready = 1.0
+        label = [(f" {HANDOVER_SIGN} hand-over · now ", S_BRAND_BOLD)]
+    else:
+        ready = 1.0
+        label = [(f" ↓ handed over at turn {RUN_TURNS} ", S_MUTED)]
+    rule = max(0, width - Content.assemble(*label).cell_length)
+    left, filled = rule // 2, round(ready * rule)
 
+    def piece(start: int, cells: int) -> list[Part]:
+        lit = max(0, min(cells, filled - start))
+        return [("━" * lit, BRAND), ("─" * (cells - lit), S_RULE)]
 
-def decision_line(o: Opening, phase: Phase, through: float, still: bool) -> Content:
-    """What the decision model is doing in the played run, under the boxes: watching P(ready) rise, handing over, then
-    keeping the work on track."""
-    head: Part = ("Decision model", S_HEAD_MUTED)
-    if still or not o.handoff:
-        said = "picks the moment to hand over" if o.handoff else "keeps the work on track"
-        return Content.assemble(head, (f" · {said}", S_MUTED))
-    if phase == "frontier":
-        steps = [READY_FROM + (READY_AT - 0.1 - READY_FROM) * (i / RUN_TURNS) for i in range(1, RUN_TURNS + 1)]
-        seen = steps[: min(RUN_TURNS, int(through * RUN_TURNS) + 1)]
-        trail = "".join(LADDER[max(0, math.ceil(p * len(LADDER)) - 1)] for p in seen)
-        return Content.assemble(
-            head, (" · watching the run   ready ", S_MUTED), (trail, BRAND), (f" {seen[-1]:.2f}", S_INK)
-        )
-    if phase == "handover":
-        return Content.assemble(
-            head,
-            (" · ready ", S_MUTED),
-            (f"{READY_AT:.2f}", S_INK),
-            (f"   {HANDOVER_SIGN} hands over to the efficient model", S_BRAND_BOLD),
-        )
-    if phase == "efficient":
-        return Content.assemble(head, (" · keeps the work on track", S_MUTED))
-    return Content.assemble(("Done. ", S_INK), ("The frontier model takes the next task.", S_MUTED))
+    return [[], [*piece(0, left), *label, *piece(left, rule - left)], []]
 
 
 class RunPlay(Static):
-    """The run Intern makes, played over and over on the entering page (`run_frame`); still where motion is switched
+    """System 2's card on the wide page, its run played over and over (`run_frame`); still where motion is switched
     off (`TEXTUAL_ANIMATIONS=none`)."""
 
     def __init__(self) -> None:
-        super().__init__(id="welcome-run")
+        super().__init__(id="welcome-system2", classes="card")
+        self.border_title = "System 2"
         self._opening: Opening | None = None
         self._width = 0
         self._began = time.monotonic()
@@ -503,47 +513,66 @@ class RunPlay(Static):
 
 
 def system1(o: Opening, width: int) -> list[list[Part]]:
-    """The decision model's card: the model it is on and where it is served, its jobs, then what it judges from."""
+    """System 1's card: the decision model and where it is served, then its jobs."""
     name, served = system1_parts(o.system1)
-    head: list[list[Part]] = [*model(name, width), [(served or "the decision model", S_MUTED)], []]
-    return [*head, *jobs(o, width), [], *paragraph(STATE_SHORT, width)]
+    head: list[list[Part]] = [[(" Decision ", S_TAB)], *model(name, width), [(served or "the decision model", S_MUTED)]]
+    return [*head, [], *jobs(o, width)]
 
 
-def systems(o: Opening, width: int, *, roomy: bool = True, played: bool = True) -> Content:
-    """The models in one column, each under its tab: the frontier model and the efficient one it hands over to, the
-    decision model and its jobs; then the capabilities. `roomy`, the State has its lines too and a capability its few
-    words; else what Intern is comes first, in a line or two, a job is one line, the capabilities run together, and
-    where the session works comes last, there being no mascot to put it under."""
+def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
+    """The models in one column, each under its tab: the frontier model and, while a run hands over, the efficient
+    one it hands over to, the decision model and its jobs; then the capabilities. `roomy`, the State has its lines too
+    and a capability its few words; else what Intern is comes first, in a line or two, a job is one line, the
+    capabilities run together, and where the session works comes last, there being no mascot to put it under."""
     model1, served = system1_parts(o.system1)
     head: list[Part] = [(" Frontier  ", S_TAB), "  ", (o.system2, S_HEAD)]
     box = [thinking_box(o.thinking, o.levels)] if o.thinking else []
-    handoff = model_label(o.handoff) if o.handoff else "off · /efficient"
-    # With the room, the frontier and efficient models are in the played run's boxes above (`played`): here, the
-    # tools.
     models: list[list[Part]] = [
         *flow([head, *box], width, gap=2),  # the box on a line of its own where it would wrap
-        [(" Efficient ", S_TAB), "  ", (handoff, S_HEAD if o.handoff else S_MUTED)],
+        *([[(" Efficient ", S_TAB), "  ", (model_label(o.handoff), S_HEAD)]] if o.handoff else []),
     ]
     lines: list[list[Part]] = [
-        *([] if roomy else [*paragraph(ABOUT_SHORT, width, S_INK), []]),
-        *([] if roomy and played else [*models, *([[]] if roomy else [])]),
-        *([*capabilities(o, width), [(f"{o.tools} tools", S_MUTED)] * bool(o.capabilities), []] if roomy else []),
+        *([] if roomy else [*paragraph(ABOUT_SHORT if o.handoff else ABOUT_ALONE, width, S_INK), []]),
+        *models,
         [(" Decision  ", S_TAB), "  ", (model1, S_HEAD), (f" · {served}" * bool(served), S_MUTED)],
         *jobs(o, width, wrap=roomy),
     ]
     if roomy:
         lines += [[], [(" State ", S_TAB), ("  what the decision model reads", S_MUTED)], *paragraph(STATE, width)]
+        lines += [[], *capabilities(o, width), *([legend(o)] if legend(o) else [])]
     else:
         lines += [[], *switches(o, width), *where(o, width)]
     return stacked(lines)
 
 
-def tips(o: Opening, width: int) -> Content:
-    """What to do next, then the keys worth knowing first; while there is no session, why."""
+def tips(o: Opening, width: int, dark: bool = False) -> Content:
+    """The keys worth knowing first, how to turn the hand-over off or on, and the look there is to switch to (`/light`
+    in the dark one); while there is no session, why, first."""
     waiting = o.note.endswith("…")
     style = S_MUTED_ITALIC if waiting else S_HEAD if o.note == SETUP_NOTE else S_BAD
-    lead: Part = (o.note, style) if o.note else ("Describe a task to begin.", S_HEAD)
-    return stacked(flow([[lead], *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in HINTS)], width))
+    lead: list[list[Part]] = [[(o.note, style)]] if o.note else []
+    handover = ("/handover off" if o.handoff else "/handover on", "hand-over")
+    hints = [*HINTS[:2], handover, *HINTS[2:], ("/light" if dark else "/dark", "look")]
+    return stacked(flow([*lead, *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in hints)], width))
+
+
+class CapabilityCard(Vertical):
+    """The capabilities' card on the wide page, beside the models': which models use the tools and what the ◆ means,
+    then the list, which scrolls what the card does not hold, with the wheel or, once clicked, the arrows. Its
+    scrollbar shows while the pointer is on it or it has the focus."""
+
+    def __init__(self) -> None:
+        super().__init__(id="welcome-tools", classes="card")
+        self.border_title = "Capabilities"
+
+    def compose(self) -> ComposeResult:
+        yield Static(id="welcome-tools-head")
+        with VerticalScroll(id="welcome-tools-scroll"):
+            yield Static(id="welcome-tools-list")
+
+    def show(self, o: Opening, width: int) -> None:
+        self.query_one("#welcome-tools-head", Static).update(stacked(tools_head(o, width)))
+        self.query_one("#welcome-tools-list", Static).update(stacked(tools(o, width)))
 
 
 class Welcome(Vertical):
@@ -564,19 +593,17 @@ class Welcome(Vertical):
             yield Static(Content.styled(TITLE, f"bold {BRAND}"), id="welcome-title")
         with Center():
             yield Static(id="welcome-about")
-        with Center():
-            yield RunPlay()
         with Center(), Horizontal(id="welcome-row") as row:
             row.border_title = TITLE
-            card = Static(id="welcome-system2", classes="card")
-            card.border_title = "Tools"
-            yield card
+            with Vertical(id="welcome-models"):  # System 2's two models over System 1's
+                yield RunPlay()
+                card = Static(id="welcome-system1", classes="card")
+                card.border_title = "System 1"
+                yield card
             with Vertical(id="welcome-side"):
                 yield Mascot()
                 yield Static(id="welcome-where")
-            card = Static(id="welcome-system1", classes="card")
-            card.border_title = "Decision model"
-            yield card
+            yield CapabilityCard()
         with Center():
             yield Static(id="welcome-foot")
         with Center():
@@ -618,61 +645,63 @@ class Welcome(Vertical):
         o = self.opening
         columns, rows = self._fitted = self.app.size
         width, room = self.size.width or columns - 4, rows - PROMPT_ROWS
-        about = paragraph(ABOUT, min(width - 2, ABOUT_WIDTH), S_INK)
+        about = about_lines(o, min(width - 2, ABOUT_WIDTH) - 2 * ABOUT_PAD)
+        about_rows = len(about) + 2  # the band's air above and under
         inside = min(width, FRAME_MAX) - FRAME
-        texts = {played: systems(o, inside - SIDE_WIDTH, played=played) for played in (True, False)}
-        cards = [tools(o, CARD_WIDTH - CARD_EDGES), system1(o, CARD_WIDTH - CARD_EDGES)]
-        card_rows = max(len(card) for card in cards) + CARD_EDGE_ROWS  # the cards are one height
+        text = systems(o, inside - SIDE_WIDTH)
+        inner = CARD_WIDTH - CARD_EDGES
+        cards = [system1(o, inner)]
+        system2_rows = run_frame(o, inner, None).plain.count("\n") + 1 + CARD_EDGE_ROWS
+        system1_rows = len(cards[0]) + CARD_EDGE_ROWS
+        models_rows = system2_rows + CARD_GAP + system1_rows
         # The larger mascot where the wide page holds it and its wordmark whole.
         big = (
             width >= HERO_WIDTH + BIG_COLUMNS - SPRITE_COLUMNS
-            and HERO_ROWS + RUN_ROWS + len(about) + max(BIG_ROWS, card_rows) <= room
+            and HERO_ROWS + about_rows + max(BIG_ROWS, models_rows) <= room
         )
         mascot_columns, mascot_rows = (BIG_COLUMNS, BIG_ROWS) if big else (SPRITE_COLUMNS, SPRITE_ROWS)
-        tall = max(mascot_rows, card_rows)
-        hero = HERO_ROWS + RUN_ROWS + len(about) + tall
-        # The framed page plays the run where it has the rows for it; without them, the models are in the frame.
-        framed = {
-            played: FRAMED_ROWS + RUN_ROWS * played + len(about) + max(SIDE_ROWS, text.plain.count("\n") + 1)
-            for played, text in texts.items()
-        }
-        fits = inside - SIDE_WIDTH >= TEXT_WIDTH
+        tall = max(mascot_rows, models_rows)  # the capabilities scroll in what the rest leaves them
+        hero = HERO_ROWS + about_rows + tall
+        framed = FRAMED_ROWS + about_rows + max(SIDE_ROWS, text.plain.count("\n") + 1)
         if width >= HERO_WIDTH and hero - WORDMARK_ROWS <= room:
-            look, needs, played = "hero", hero, True
-        elif fits and framed[True] - WORDMARK_ROWS <= room:
-            look, needs, played = "framed", framed[True], True
-        elif fits and framed[False] - WORDMARK_ROWS <= room:
-            look, needs, played = "framed", framed[False], False
+            look, needs = "hero", hero
+        elif inside - SIDE_WIDTH >= TEXT_WIDTH and framed - WORDMARK_ROWS <= room:
+            look, needs = "framed", framed
         else:
-            look, needs, played = "compact", room, False
-        text = texts[played]
+            look, needs = "compact", room
         short = needs > room  # all of it but the wordmark
         grand = look == "hero" and width >= GRAND_WIDTH and needs + WORDMARK_ROWS <= room  # a wordmark twice the size
         needs += WORDMARK_ROWS * (grand - short)
+        hero_look = look == "hero"
         for name in ("hero", "framed", "compact"):
             self.set_class(name == look, name)
         self.set_class(short, "short")
         self.query_one("#welcome-wordmark", Static).update(Content("\n").join(wordmark(2 if grand else 1)))
         self.styles.margin = (1 + max(0, room - needs) // RISE, 0, 1, 0) if look != "compact" else (0, 0, 0, 0)
-        self.query_one("#welcome-about", Static).update(stacked(about))
-        # As wide as the cards' row under it on the wide page, as the frame on a narrower one.
-        row = 2 * CARD_WIDTH + 2 * SIDE_GAP + mascot_columns
-        run = self.query_one(RunPlay)
-        run.display = played
-        run.show(o, min(width - 2, row if look == "hero" else FRAME_MAX))
+        # What Intern is, on a band as wide as the row under it.
+        band = self.query_one("#welcome-about", Static)
+        band.update(Content("\n").join(about))
+        band.styles.width = 2 * CARD_WIDTH + 2 * SIDE_GAP + mascot_columns if hero_look else min(width, FRAME_MAX)
         self.query_one("#welcome-where", Static).update(stacked(where(o, SPRITE_COLUMNS)))
         foot: list[Part] = [part for line in where(o, FOOT_WIDTH) for part in (*line, ("  ·  ", S_MUTED))][:-1]
         self.query_one("#welcome-foot", Static).update(Content.assemble(*foot))
-        self.query_one("#welcome-tips", Static).update(tips(o, min(width, FRAME_MAX) - 2))
-        left, right = self.query_one("#welcome-system2", Static), self.query_one("#welcome-system1", Static)
-        left.update(stacked(cards[0]))
-        right.update(
-            stacked(cards[1]) if look == "hero" else text if look == "framed" else systems(o, width - 4, roomy=False)
+        self.query_one("#welcome-tips", Static).update(tips(o, min(width, FRAME_MAX) - 2, self.app.current_theme.dark))
+        # The wide page: System 2's card over System 1's on the left, the capabilities on the right, the mascot between,
+        # each at the middle of the tallest. A narrower page has the models and the capabilities in one column, in
+        # System 1's place.
+        run, models = self.query_one(RunPlay), self.query_one("#welcome-system1", Static)
+        run.display = hero_look
+        run.show(o, inner)
+        models.update(
+            stacked(cards[0]) if hero_look else text if look == "framed" else systems(o, width - 4, roomy=False)
         )
-        # On the wide page the cards stand as tall as each other, and they and the mascot at each other's middle.
-        left.styles.height = right.styles.height = card_rows if look == "hero" else "auto"
-        left.styles.margin = right.styles.margin = ((tall - card_rows) // 2 if look == "hero" else 0, 0, 0, 0)
+        # The capabilities' card stands exactly beside the two models' cards, top and bottom, and scrolls the rest.
+        right = self.query_one(CapabilityCard)
+        right.show(o, inner - 1)  # a cell for its scrollbar
+        right.styles.height = models_rows if hero_look else "auto"
+        for side in (self.query_one("#welcome-models"), right):
+            side.styles.margin = ((tall - models_rows) // 2 if hero_look else 0, 0, 0, 0)
         mascot = self.query_one(Mascot)
         mascot.fit(mascot_columns, mascot_rows)
         mascot.play(self._state())
-        mascot.styles.margin = ((tall - mascot_rows) // 2 if look == "hero" else 0, 0, 0, 0)
+        mascot.styles.margin = ((tall - mascot_rows) // 2 if hero_look else 0, 0, 0, 0)

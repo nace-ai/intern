@@ -92,22 +92,29 @@ Screen {
     scrollbar-size-vertical: 1;
 }
 
-/* The entering page (welcome.py): centred; on a wide terminal the mascot between its two systems (hero), on a
-   narrower one all of it in a frame (framed), on a small one the frame alone (compact). */
+/* The entering page (welcome.py): centred; on a wide terminal the models on the left, the mascot, the tools on the
+   right (hero), on a narrower one all of it in a frame (framed), on a small one the frame alone (compact). */
 #welcome {
     height: auto;
 }
 
-#welcome-wordmark, #welcome-title, #welcome-about, #welcome-run, #welcome-foot, #welcome-tips {
+#welcome-wordmark, #welcome-title, #welcome-about, #welcome-foot, #welcome-tips {
     width: auto;
     height: auto;
 }
 
-#welcome-title, #welcome-about, #welcome-run, #welcome-row, #welcome-foot, #welcome-tips {
+#welcome-title, #welcome-about, #welcome-row, #welcome-foot, #welcome-tips {
     margin-top: 1;
 }
 
-#welcome-row, #welcome-side, #welcome-mascot, #welcome-where, #welcome .card {
+/* What Intern is, on a shaded band. */
+#welcome-about {
+    padding: 1 2;
+    background: $wash;
+    text-align: center;
+}
+
+#welcome-row, #welcome-models, #welcome-side, #welcome-mascot, #welcome-where, #welcome .card {
     height: auto;
 }
 
@@ -121,12 +128,47 @@ Screen {
     align-vertical: middle;
 }
 
+#welcome.hero #welcome-models {
+    width: 44;
+}
+
 #welcome.hero .card {
     width: 44;
     padding: 1 2;
     border: round $brand 45%;
     border-title-color: $brand;
     border-title-style: bold;
+}
+
+#welcome.hero #welcome-system1 {
+    margin-top: 1;
+}
+
+/* The capabilities' card: its head stays, its list scrolls, the scrollbar showing only while the pointer is on it
+   or it has the focus. */
+#welcome-tools-head {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#welcome-tools-scroll {
+    height: 1fr;
+    overflow-x: hidden;
+    scrollbar-size-vertical: 1;
+    scrollbar-background: $background;
+    scrollbar-background-hover: $background;
+    scrollbar-background-active: $background;
+    scrollbar-color: $background;
+}
+
+#welcome-tools-scroll:hover, #welcome-tools-scroll:focus {
+    scrollbar-color: $brand 35%;
+    scrollbar-color-hover: $brand 60%;
+    scrollbar-color-active: $brand;
+}
+
+#welcome-tools-list {
+    height: auto;
 }
 
 #welcome.hero #welcome-side {
@@ -138,7 +180,7 @@ Screen {
     display: none;
 }
 
-/* framed, and compact */
+/* framed, and compact: the models and the tools in one column, in System 1's place */
 #welcome.framed #welcome-row, #welcome.compact #welcome-row {
     width: 100%;
     max-width: 124;
@@ -151,20 +193,22 @@ Screen {
 
 #welcome.framed #welcome-side {
     width: 36;
+    padding-left: 4;
 }
 
 #welcome.framed #welcome-where {
     margin-top: 1;
 }
 
+#welcome.framed #welcome-models, #welcome.compact #welcome-models,
 #welcome.framed #welcome-system1, #welcome.compact #welcome-system1 {
     width: 1fr;
 }
 
-#welcome.framed #welcome-system2, #welcome.framed #welcome-title, #welcome.framed #welcome-foot,
-#welcome.compact #welcome-system2, #welcome.compact #welcome-title, #welcome.compact #welcome-foot,
-#welcome.compact #welcome-wordmark, #welcome.compact #welcome-about, #welcome.compact #welcome-side,
-#welcome.compact #welcome-run {
+#welcome.framed #welcome-system2, #welcome.framed #welcome-tools, #welcome.framed #welcome-title,
+#welcome.framed #welcome-foot, #welcome.compact #welcome-system2, #welcome.compact #welcome-tools,
+#welcome.compact #welcome-title, #welcome.compact #welcome-foot, #welcome.compact #welcome-wordmark,
+#welcome.compact #welcome-about, #welcome.compact #welcome-side {
     display: none;
 }
 

@@ -18,9 +18,11 @@ import pytest
 pytest.importorskip("textual", reason="needs the tui extra")
 
 from textual.app import App
+from textual.containers import VerticalScroll
 from textual.content import Content
 from textual.errors import NoWidget
 from textual.events import Paste
+from textual.widget import Widget
 from textual.widgets import OptionList, Static, TextArea
 
 from intern.capability_settings import CapabilitySettings
@@ -73,7 +75,7 @@ from intern.tui.app import (
 )
 from intern.tui.pickers import Choice, ModelPicker, ranked
 from intern.tui.state_panel import StatePanel
-from intern.tui.welcome import Welcome
+from intern.tui.welcome import LEGEND, CapabilityCard, Welcome
 from intern.tui.widgets import (
     CompactionCard,
     Prompt,
@@ -189,6 +191,11 @@ def plain(widget: object) -> str:
     """A widget's text, the non-breaking spaces inside a card's labelled levels read as spaces."""
     content = getattr(widget, "content", "")
     return (content.plain if isinstance(content, Content) else str(content)).replace(" ", " ")
+
+
+def shown(widget: Widget) -> bool:
+    """Whether a widget is drawn: it and everything it is in have their display on."""
+    return all(getattr(node, "display", True) for node in widget.ancestors_with_self)
 
 
 def transcript_text(app: HarnessApp) -> str:
@@ -489,25 +496,41 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         await pilot.pause()
         page = app.query_one(Welcome)
         assert page.has_class(look)  # the mascot between its two systems, all of it in a frame, or the frame alone
-        said = "\n".join(plain(part) for part in page.query(Static) if part.display)
+        said = "\n".join(plain(part) for part in page.query(Static) if shown(part))
         # The three models, each on the one the session opened with, and what the decision model is asked for.
-        assert "fake/model" in said and "drex-latest" in said and "Efficient" in said
+        # The efficient model is not there while hand-over is off.
+        assert "fake/model" in said and "drex-latest" in said and "Efficient" not in said
         # Each on or off, as a capability is: the hand-over is off with no efficient model, the search while neither
         # capability it searches for is on, and the guard while its capability is off, as it is by default.
-        assert all(job in said for job in ("○ hand-over", "● watch", "○ guard", "○ search", "● compaction"))
-        assert "frontier model" in said and "efficient model" in said  # what it is, in a paragraph
-        assert "● base tools" in said and "Describe a task to begin." in said
-        if look != "compact":  # with the room, what each capability is
-            assert re.search(r"base tools +files and the shell", said)
-            assert re.search(r"code search +searches code for it", said)
+        assert all(job in said for job in ("○ Hand-over", "● Watch", "○ Guard", "○ Search", "● Compaction"))
+        assert "Intern uses two models" in " ".join(said.split())  # what it is, with no efficient model to hand to
+        assert "● Base Tools" in said and "/handover on hand-over" in said  # the tips: how to turn the hand-over on
+        if look != "compact":  # with the room, what each capability is: under it on the wide page, else beside it
+            gap = r"\n +" if look == "hero" else " +"
+            assert re.search(rf"Base Tools{gap}files and the shell", said)
+            assert re.search(rf"Code Search.*?{gap}searches code for it", said)
+            # The decision model takes part in code search: its mark is beside the name, on no other's, and said once.
+            assert "Code Search ◆" in said and "Base Tools ◆" not in said
+            assert said.count(LEGEND) == 1
         # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
         # nothing under the prompt, and the panels it stands in for are away.
         assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y
         assert not app.query_one("#side").display and not app.query_one(StatusBar).display
+        if look == "hero":
+            # The capabilities scroll rather than stretch the page: clicked, the arrows move them, and what is typed
+            # next goes to the prompt.
+            card = page.query_one(CapabilityCard).query_one(VerticalScroll)
+            assert card.max_scroll_y > 0
+            await pilot.click(card)
+            await pilot.press("down", "down")
+            await wait_for(lambda: card.scroll_y > 0)
+            await pilot.press("o", "k")
+            await wait_for(lambda: app.query_one("#prompt", Prompt).text == "ok")
+            app.query_one("#prompt", Prompt).clear()
         # A capability switched from here shows on the page, which lists them: nothing is said of it under the page.
-        assert "○ web search" in said
+        assert "○ Web Search" in said
         await send(app, pilot, "/caps web-search")
-        await wait_for(lambda: "● web search" in "\n".join(plain(part) for part in page.query(Static)))
+        await wait_for(lambda: "● Web Search" in "\n".join(plain(part) for part in page.query(Static)))
         assert app.query(Welcome) and "reopen" not in transcript_text(app)
         await send(app, pilot, "hello")
         await wait_for(lambda: app.run_count == 1 and app.session is not None and not app.session.running)
@@ -1357,7 +1380,7 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
         first = app.session
         # /models has the three models, the efficient one in use; Enter on it opens its own picker.
         await send(app, pilot, "/models")
-        assert isinstance(app.screen, ModelPicker)
+        await wait_for(lambda: isinstance(app.screen, ModelPicker))
         rows = app.screen.choices  # pyright: ignore[reportAttributeAccessIssue]
         assert [c.id for c in rows] == ["system2", "handoff", "system1"] and not rows[1].dim
         await pilot.press("down", "enter")
@@ -1373,7 +1396,7 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
         picks = opened[-1]
         assert picks.capabilities is not None and picks.capabilities.handoff.to == "openrouter/qwen/qwen3.8-27b"
         assert picks.auto and picks.session_file == journal
-        assert "efficient model openrouter/qwen/qwen3.8-27b" in transcript_text(app)
+        assert "reopening the session" not in transcript_text(app)  # the entering page shows the hand-over itself
         # Not a provider/model: refused with why, and nothing reopens.
         count = len(opened)
         await send(app, pilot, "/handover qwen")
@@ -1387,7 +1410,8 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
         third = app.session
         assert not opened[-1].auto
         await send(app, pilot, "/models")  # off: the efficient model grayed
-        assert isinstance(app.screen, ModelPicker) and app.screen.choices[1].dim  # pyright: ignore[reportAttributeAccessIssue]
+        await wait_for(lambda: isinstance(app.screen, ModelPicker))
+        assert app.screen.choices[1].dim  # pyright: ignore[reportAttributeAccessIssue]
         await pilot.press("escape")
         await send(app, pilot, "/handover on")
         await wait_for(lambda: app.session is not None and app.session is not third)
