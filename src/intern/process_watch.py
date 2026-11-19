@@ -4,9 +4,9 @@ the agent, so a user need not ask "are you stuck?".
 
 When. Each running command is due for a look at the ages in SCHEDULE_S (30 s, 1, 2, 4, 8 and 16 minutes), then every
 EVERY_S (30 minutes): hangs show early, and a command that has run fine for hours is not asked about every minute. When
-any is due, one ask covers every command running, over System 1's view of the session, which lists them beside the
-goal (`session_cut`'s `processes`). Nothing running, no ask. A command that runs ten hours costs about 25 asks; at a
-supervisor ask's measured cost ($0.00027 mean over 2,095 local asks, median 0.54 s) that is under a cent.
+any is due, one ask covers every command running except plain sleeps, over System 1's view of the session, which lists
+them beside the goal (`session_cut`'s `processes`). Nothing watched, no ask. A command that runs ten hours costs about
+25 asks; at a supervisor ask's measured cost ($0.00027 mean over 2,095 local asks, median 0.54 s) that is under a cent.
 
 What. One choice a command (CHECK). Those whose P(stalled) + P(failing) + P(ready) reach ACT_THRESHOLD are told to
 the agent as one harness message (the session delivers it: at the run's next turn, or between runs as `job_notices`
@@ -19,13 +19,14 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import json
+import re
 import sys
 from collections.abc import Callable, Sequence
 from typing import Literal
 
 from intern import names
 from intern.decisions import ChoiceAnswer, ChoiceQuestion, DecisionClient, Question, System1Unavailable
-from intern.events import ProcessCheck, ProcessVerdict, now_ms
+from intern.events import ProcessCheck, ProcessInfo, ProcessVerdict, now_ms
 from intern.processes import ProcessManager, RunningProcess, duration_text
 
 SCHEDULE_S: tuple[float, ...] = (30, 60, 120, 240, 480, 960)
@@ -70,6 +71,12 @@ STARTED = ChoiceQuestion(
 )
 MOVE_NOW = frozenset({"waits", "serves"})
 MOVE_THRESHOLD = 0.6  # P(waits) + P(serves) that moves a command at once
+
+
+def is_plain_sleep(command: str) -> bool:
+    """Whether the trimmed command is only `sleep` and unsigned decimal durations, optionally suffixed s/m/h/d.
+    Arguments use spaces or tabs: a newline inside the command would run another shell command."""
+    return re.fullmatch(r"sleep(?:[ \t]+(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)[smhd]?)+", command.strip()) is not None
 
 
 async def waits_or_serves(
@@ -137,7 +144,7 @@ class ProcessWatch:
         self,
         processes: ProcessManager,
         decisions: DecisionClient,
-        state: Callable[[], str],
+        state: Callable[[Sequence[RunningProcess]], str],
         tell: Callable[[str], None],
         emit: Callable[[ProcessCheck], None],
         *,
@@ -172,13 +179,17 @@ class ProcessWatch:
                 await self._task
 
     def status(self) -> dict[str, tuple[str | None, float]]:
-        """For each command running: System 1's verdict at its latest look (None before the first) and the seconds
+        """For each watched command: System 1's verdict at its latest look (None before the first) and the seconds
         until its next look, for the terminal UI."""
         now = now_ms()
         return {
             p.id: (self._last.get(p.id), max(0.0, self._due(p.id) - (now - p.started_at) / 1000))
-            for p in self.processes.running()
+            for p in self._running()
         }
+
+    def _running(self) -> list[ProcessInfo]:
+        """Running commands worth looking at: a plain sleep's answer never changes."""
+        return [p for p in self.processes.running() if not is_plain_sleep(p.command)]
 
     def _due(self, process_id: str) -> float:
         """The age, in seconds, at which a command's next look is due."""
@@ -189,7 +200,7 @@ class ProcessWatch:
 
     async def _watch(self) -> None:
         while not self._closed:
-            running = self.processes.running()
+            running = self._running()
             ids = {p.id for p in running}
             self._looks = {process_id: n for process_id, n in self._looks.items() if process_id in ids}
             self._last = {process_id: v for process_id, v in self._last.items() if process_id in ids}
@@ -218,17 +229,17 @@ class ProcessWatch:
         """Count a look for every command whose next look is due, or nearly (within DUE_SLACK of its step): two that
         started moments apart share one ask rather than two."""
         now = now_ms()
-        for p in self.processes.running():
+        for p in self._running():
             while self._due(p.id) * (1 - DUE_SLACK) <= (now - p.started_at) / 1000:
                 self._looks[p.id] = self._looks.get(p.id, 0) + 1
 
     async def _check(self) -> None:
-        shown = self.processes.for_system1()
+        shown = self.processes.for_system1(self._running())
         if not shown:
             return
         turn = self.turn()
         questions: dict[str, Question] = {f"p{i}": question(p) for i, p in enumerate(shown)}
-        answers = await self.decisions.ask("processes", self.state(), questions, turn=turn)
+        answers = await self.decisions.ask("processes", self.state(shown), questions, turn=turn)
         self._advance()
         verdicts, flagged = [], []
         for i, p in enumerate(shown):

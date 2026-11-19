@@ -92,7 +92,7 @@ from intern.messages import (
     UserMessage,
 )
 from intern.models.profile import AUTO_EFFORT, EFFORT_LEVELS, Profile, effort_choices, effort_levels
-from intern.processes import ProcessManager
+from intern.processes import ProcessManager, RunningProcess
 from intern.providers.base import (
     Completed,
     Provider,
@@ -234,12 +234,13 @@ def state_effort(agent: str | None) -> str:
     return agent if agent in STATE_EFFORTS else STATE_EFFORT
 
 
-def system1_state(deps: EngineDeps) -> str:
+def system1_state(deps: EngineDeps, *, processes: Sequence[RunningProcess] | None = None) -> str:
     """What System 1 is asked about: the session as it stands, cut to its share of System 1's window, with what runs
-    now beside the goal, then the user's SYSTEM1.md when they keep one."""
+    now beside the goal (or the supplied `processes`), then the user's SYSTEM1.md when they keep one."""
     max_tokens = deps.decisions.max_state_tokens
-    running = deps.processes.for_system1() if deps.processes is not None else ()
-    state = session_cut(deps.journal.active_path(), int(max_tokens * STATE_SHARE), processes=running)
+    if processes is None:
+        processes = deps.processes.for_system1() if deps.processes is not None else ()
+    state = session_cut(deps.journal.active_path(), int(max_tokens * STATE_SHARE), processes=processes)
     if not deps.instructions.system1:
         return state
     text, _ = bound_output(deps.instructions.system1, int(max_tokens * SYSTEM1_SHARE * INITIAL_CHARS_PER_TOKEN))

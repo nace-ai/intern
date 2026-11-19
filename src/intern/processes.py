@@ -270,11 +270,11 @@ class ProcessManager:
         jobs = [self._info(job) for job in self._jobs.values() if not job.done.is_set()]
         return sorted([*jobs, *self._calls.values(), *self._groups.values()], key=lambda info: info.started_at)
 
-    def for_system1(self) -> list[RunningProcess]:
+    def for_system1(self, running: Sequence[ProcessInfo] | None = None) -> list[RunningProcess]:
         """What runs now as System 1 reads it: the oldest SYSTEM1_PROCESSES, each with how long it has run and, for a
-        job, how long it has been quiet and its last line of output."""
+        job, how long it has been quiet and its last line of output. `running` selects which commands to show."""
         now, shown = now_ms(), []
-        for info in self.running()[:SYSTEM1_PROCESSES]:
+        for info in (self.running() if running is None else running)[:SYSTEM1_PROCESSES]:
             quiet = last = None
             if (job := self._jobs.get(info.id)) is not None and info.kind == "job":
                 quiet = (now - (job.last_output_at or job.started_at)) // 1000

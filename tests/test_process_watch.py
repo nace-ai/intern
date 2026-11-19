@@ -6,9 +6,12 @@ from __future__ import annotations
 
 import asyncio
 
+import pytest
+
 from intern.decisions import Answers, ChoiceAnswer, ChoiceQuestion, Question
 from intern.events import Nudge, ProcessCheck, RunStart
 from intern.messages import UserMessage
+from intern.process_watch import is_plain_sleep
 from intern.providers.fake import Turn
 from intern.session import JobNotices, Session
 
@@ -46,14 +49,108 @@ def _told(harness: Harness) -> list[str]:
     return [n.text for n in harness.recorder.of(Nudge) if n.reason == "process_check"]
 
 
+@pytest.mark.parametrize(
+    ("command", "plain"),
+    [
+        ("sleep 1200", True),
+        ("sleep 20m", True),
+        ("  sleep 1.5h ", True),
+        ("sleep 1m 30s", True),
+        ("sleep 0", True),
+        ("sleep\t.5d 1.", True),
+        ("sleep 5 && make", False),
+        ("sleep $N", False),
+        ("sleep infinity", False),
+        ("timeout 5 sleep 10", False),
+        ("sleep 10; echo done", False),
+        ("sleep 10 > /dev/null", False),
+        ("sleep 10 | cat", False),
+        ("sleep $(echo 10)", False),
+        ("N=10 sleep 10", False),
+        ("sleep -1", False),
+        ("sleep", False),
+        ("sleep 1\n30", False),
+        ("sleep\n30", False),
+        ("sleep 1e3", False),
+    ],
+)
+def test_plain_sleep_classifier(command: str, plain: bool):
+    assert is_plain_sleep(command) is plain
+
+
+async def test_only_a_plain_sleep_job_makes_no_asks_across_scheduled_looks(make_harness):
+    harness = make_harness([], system1=(system1 := Sees("stalled")))
+    session = _watched(harness)
+    jobs = session.deps.processes
+    assert jobs is not None
+    try:
+        await jobs.start("sleep 600", cwd=harness.cwd)
+        await asyncio.sleep(1.4)  # beyond all three scheduled looks
+        [status] = session.jobs_status()
+        assert status.command == "sleep 600" and status.verdict is None and status.next_look_s is None
+        assert system1.asks == []
+        assert harness.recorder.of(ProcessCheck) == [] and _told(harness) == []
+    finally:
+        await session.aclose()
+        await jobs.aclose()
+
+
+async def test_a_plain_sleep_beside_another_job_is_absent_from_asks_and_verdicts(make_harness):
+    harness = make_harness([], system1=(system1 := Sees("progressing")))
+    session = _watched(harness)
+    jobs = session.deps.processes
+    assert jobs is not None
+    try:
+        await jobs.start("sleep 600", cwd=harness.cwd)
+        await asyncio.sleep(0.05)  # the watch is idle; another command must wake it
+        other = await jobs.start("sleep 5 && echo built", cwd=harness.cwd)
+        await asyncio.sleep(0.8)
+        checks = harness.recorder.of(ProcessCheck)
+        assert len(checks) >= 2
+        assert all([v.id for v in check.verdicts] == [other.handle] for check in checks)
+        assert system1.asks
+        for state, questions in system1.asks:
+            assert "sleep 600" not in state and other.command in state
+            assert len(questions) == 1
+            assert all("sleep 600" not in q.instructions for q in questions.values())
+    finally:
+        await session.aclose()
+        await jobs.aclose()
+
+
+@pytest.mark.parametrize("notices", ["quiet", "wake"])
+async def test_a_skipped_sleep_end_still_reaches_the_agent(make_harness, notices: JobNotices):
+    harness = make_harness([], system1=Sees("stalled"))
+    session = _watched(harness, notices)
+    jobs = session.deps.processes
+    assert jobs is not None
+    try:
+        job = await jobs.start("sleep 0.8", cwd=harness.cwd)
+        for _ in range(60):
+            if not jobs.job_running(job.handle) and (notices == "quiet" or harness.recorder.of(RunStart)):
+                break
+            await asyncio.sleep(0.05)
+        if notices == "quiet":
+            assert harness.recorder.of(RunStart) == []
+            await session.run("anything new?")
+        else:
+            await session.wait()
+        ended = [n.text for n in harness.recorder.of(Nudge) if n.reason == "process_ended"]
+        assert len(ended) == 1 and job.handle in ended[0] and "exit code 0" in ended[0]
+        assert harness.recorder.of(ProcessCheck) == []
+    finally:
+        await session.aclose()
+        await jobs.aclose()
+
+
 async def test_looks_come_on_the_schedule_one_ask_for_all_and_none_once_nothing_runs(make_harness):
     harness = make_harness([], system1=(system1 := Sees("progressing")))
     session = _watched(harness)
     jobs = session.deps.processes
     assert jobs is not None
     try:
-        await jobs.start("sleep 1.6", cwd=harness.cwd)
-        await jobs.start("sleep 1.6", cwd=harness.cwd)
+        await jobs.start("sleep 1.6 && echo built", cwd=harness.cwd)
+        await jobs.start("sleep 1.6; echo done", cwd=harness.cwd)
         await asyncio.sleep(2.6)
     finally:
         await session.aclose()
@@ -89,7 +186,7 @@ async def test_a_command_found_stalled_is_told_at_the_next_turn_the_latest_look_
 
 async def test_between_runs_a_stalled_command_starts_a_run_that_tells_the_agent(make_harness):
     harness = make_harness(
-        _scripted(_call("process", action="start", command="sleep 30"), lambda r: Turn(text="started")),
+        _scripted(_call("process", action="start", command="sleep 30; echo done"), lambda r: Turn(text="started")),
         system1=Sees("stalled"),
     )
     session = _watched(harness, "wake")
@@ -110,7 +207,7 @@ async def test_between_runs_a_stalled_command_starts_a_run_that_tells_the_agent(
 
 async def test_a_look_system1_cannot_answer_during_a_run_stops_it(make_harness):
     harness = make_harness(
-        _scripted(_call("process", action="start", command="sleep 30"), _call("bash", command="sleep 1")),
+        _scripted(_call("process", action="start", command="sleep 30; echo done"), _call("bash", command="sleep 1")),
         system1=(system1 := Sees("progressing")),
     )
     system1.down = True

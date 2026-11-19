@@ -155,7 +155,7 @@ class Session:
             self._watch = ProcessWatch(
                 deps.processes,
                 deps.decisions,
-                lambda: system1_state(self.deps),
+                lambda processes: system1_state(self.deps, processes=processes),
                 self._on_check,
                 self._on_look,
                 turn=lambda: self._run.turn if self._run is not None else None,
