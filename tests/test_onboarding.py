@@ -139,7 +139,7 @@ async def test_a_recommended_combination_asks_only_for_the_key_it_lacks_and_save
         "base_url": "https://openrouter.ai/api/v1",
         "api_key_env": "OPENROUTER_API_KEY",
     }
-    assert config["capabilities"] == {"handoff": {"to": "openrouter/deepseek/deepseek-v4-flash"}}
+    assert config["capabilities"] == {"handoff": {"to": "openrouter/deepseek/deepseek-v4.1-flash"}}
     assert "auto" not in config
     assert read_env_file(home / ".env") == {"OPENROUTER_API_KEY": "sk-or-v1-test-key"}
 

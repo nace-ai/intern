@@ -431,7 +431,7 @@ with no price there costs 0, such as a Fireworks dedicated deployment, which is 
               "default": "anthropic/claude-haiku-5-5"},
   "recommended": [
     {"id": "one-key", "title": "One key for everything", "why": "Claude Sonnet 5.5 does the work, ...",
-     "system2": "openrouter/anthropic/claude-sonnet-5.5", "handoff": "openrouter/deepseek/deepseek-v4-flash",
+     "system2": "openrouter/anthropic/claude-sonnet-5.5", "handoff": "openrouter/deepseek/deepseek-v4.1-flash",
      "system1": "decisions:nace-ai/drex-max",
      "keys": [{"env": "OPENROUTER_API_KEY", "provider": "OpenRouter", "url": "https://openrouter.ai/settings/keys"}]},
     {"id": "best-results", "...": "..."}, {"id": "free-models", "...": "..."}

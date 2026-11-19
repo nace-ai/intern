@@ -88,7 +88,7 @@ uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
 ```
 
 Then run `intern`. The first time, it opens on a short setup that explains what Intern is and connects its models.
-It offers our recommended combinations first, such as Claude Sonnet 5.5 handing over to DeepSeek V4 Flash with Drex
+It offers our recommended combinations first, such as Claude Sonnet 5.5 handing over to DeepSeek V4.1 Flash with Drex
 Max judging, all on one OpenRouter key, and asks only for the keys a combination needs. Or pick each yourself: a
 provider for System 2 (Anthropic, OpenAI, OpenRouter, Gemini, xAI, DeepSeek, Mistral, Groq and 12 more, or a model on
 your machine), a key (or sign in to OpenRouter in the browser), System 1 (Drex Max on OpenRouter first, on the
