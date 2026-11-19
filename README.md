@@ -12,71 +12,77 @@
 </picture>
 </h1>
 
-**Your intern, with a brain in two parts: one thinks slow and does the work, the other thinks fast, keeps it on track and finds what it needs.**
+**Three models, each on the work it's good at. A frontier model cracks the hard part, an efficient model finishes the job, and a decision model picks the moment to hand over.**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/nace-ai/intern/ci.yml?branch=main&style=flat-square&label=ci&color=0FDBB4&labelColor=0A0A0A)](https://github.com/nace-ai/intern/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Nace_AI_Open_RAIL--M-0FDBB4?style=flat-square&labelColor=0A0A0A)](LICENSE)
 ![python](https://img.shields.io/badge/python-3.12%2B-0FDBB4?style=flat-square&labelColor=0A0A0A)
 [![by Nace](https://img.shields.io/badge/by-nace.ai-0A0A0A?style=flat-square&labelColor=0A0A0A)](https://nace.ai)
 
-[What's new](#whats-new-in-intern) · [Install](#install) · [Supervision](#supervision) · [Compaction](#compaction) · [Capabilities](#capabilities) · [Models](#models) · [Editors](#use-it-from-your-editor) · [Contributing](CONTRIBUTING.md)
+[How it works](#how-it-works) · [Install](#install) · [Results](#results) · [Questions](#questions) · [Decision model](#what-the-decision-model-does) · [Capabilities](#capabilities) · [Models](#models) · [Editors](#use-it-from-your-editor)
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/intern-banner-dark.svg">
-  <img alt="One agent, two systems. Intern is an open-source agent harness for small models: one model does the work, a faster one keeps it on track." src="docs/assets/brand/intern-banner-light.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tb21-pareto-dark.svg">
+  <img alt="Pass rate against cost per task on Terminal-Bench 2.1, 87 tasks. Intern, starting on Opus 5.5 and handing over to Hy4 Flash, passes 92.4% at $0.127 a task, on the Pareto frontier between OpenCode on Hy4 Flash alone (83.5% at $0.0066) and Pi on Opus 5.5 alone (93.7% at $0.291). Hermes on Opus 5.5 also passes 92.4%, at $0.280." src="docs/assets/tb21-pareto-light.svg" width="100%">
 </picture>
 
 </div>
 
-Small models make keen but shaky interns: they loop, cut replies short, send malformed tool calls, overflow their
-context and stop before the work is done. Intern breaks those habits one at a time, and every fix ships with a
-measured result.
+One model on its own is either too weak for hard tasks or too expensive for the easy parts. Intern is an
+open-source coding harness that runs every task on three:
 
-Your intern's brain has two parts. Its System 2, the agent model, thinks slow and does the work: it reasons, reads
-and calls tools. Its System 1, a second and faster model, thinks fast and keeps it on track: every fourth turn it
-checks whether your intern is going in circles and nudges it out, it searches code and files for it when you turn
-search on, and it decides what your intern keeps in mind when its context fills up.
+- **Frontier model.** The smart, pricey one: Claude Opus 5.5, Fable, Sol, Hy4. It reads the code, works out what
+  has to be done and does the hard part.
+- **Efficient model.** The fast, cheap one: Hy4 Flash, DeepSeek Flash, Sonnet, or a model on your own machine. It
+  carries on with the rest of the job.
+- **Decision model.** A small model between the turns: Drex Max, Jev. It picks the moment to hand over, searches and
+  reranks code and files, decides what to keep when the context fills up, and nudges the work out of circles.
+
+On Terminal-Bench 2.1 (87 tasks), Claude Opus 5.5 handing over to Hy4 Flash passes **92.4% at $0.127 a task**. Opus
+5.5 on its own passes 91.1–93.7% at $0.280–0.393 in Pi, Hermes and OpenCode, and Hy4 Flash on its own 82.3–83.5%.
+It isn't tied to one pair of models:
+
+| Terminal-Bench 2.1 · 87 tasks | FrontierHarness v1.1 · open weights | 62 terminal tasks · one vendor |
+|---|---|---|
+| **Opus 5.5 → Hy4 Flash** | **DeepSeek V4.1 Flash → Qwen3.8 27B** | **GPT-6.1 Sol → GPT-6 Luna** |
+| 92.4% at **$0.127** a task | 65.3% at **$0.092** a task | 44/62 at **$0.143** a task |
+| Opus 5.5 alone: 91–94% at $0.28–0.39 | cheaper than all 22 harnesses on the board | Sol alone $0.233, Codex CLI $0.274 |
+
+[All results](#results)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
-  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session: System 2 runs a failing test and re-reads the parser turn after turn; System 1 calls the turns circling at its look and again at the next turn, and nudges it to make the change. System 2 asks decision_code where each item is split into key and value, which ranks pairs/text.py first at 0.99; it edits that file and the test passes. System 1 made 15 asks for $0.0004.">
+  <img src="docs/assets/tui-light.png" alt="The terminal UI after one session. The masthead lists the three models and their cost: frontier Claude Opus 5.5 $0.0803, efficient Hy4 Flash $0.0030, decision model $0.0002. Asked to fix a failing test, the frontier model finds that the slug pattern drops capitals, fixes it and runs the test: 3 passed. The decision model judges the run ready at 0.88 and hands over to the efficient model at turn 2. Hy4 Flash runs the whole suite, fixes the apostrophe case it finds, reruns it (5 passed) and finishes. The decision model panel shows its three asks.">
 </picture>
 
-_A session with code search turned on (`/caps code-search`), which is off by default. System 2's turns are
-scripted; System 1's looks, nudge and search are live, on `drex-max`._
+_Claude Opus 5.5 finds and fixes the bug, the decision model hands over, and Hy4 Flash finishes the job for a few
+tenths of a cent. Scripted models on a real project; `tests/readme_screenshot.py` makes it again._
 
-## What's new in Intern
-
-- **A supervisor that never sleeps.** System 1 looks at every fourth turn and nudges your intern out of circles. On
-  by default. [Supervision](#supervision)
-- **Code search by meaning.** `decision_code` finds where a repository does something, even when the words aren't
-  in it: the right file first for 87% of SWE-bench Verified issues, where Semble does for 37%. Off by default.
-  [Code search](#code-search)
-- **Search for professional files.** `decision_files` searches PDFs, workbooks and scans for audit-style
-  questions. On OfficeQA Pro with Claude Sonnet 5.5, the same score in less than half the iterations, at 27% less
-  a question than pi. Off by default. [File search](#file-search)
-- **Web results System 1 judges.** `web_search` and `web_read` can have System 1 keep only what the task needs.
-  Off by default. [Web search and read](#web-search-and-read)
-- **Hand-over to a cheaper model.** System 1 picks the turn where a cheaper model can finish the run: on
-  FrontierHarness, the cheapest result on the board at 65.3%. On in the terminal UI (auto mode), off elsewhere
-  until you name the model. [Hand-over](#hand-over)
+## How it works
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
-  <img src="docs/assets/how-it-works-light.svg" alt="One run over nine turns. System 2 calls its tools directly; the guard sits beside the path, off by default. At turn 2 System 2 searches, and System 1 walks the index and returns ranked places. Every turn goes into the journal. System 1 reads the session cut, built by code, at turn 4 and calls the turns advancing; at turn 8 it calls them stuck, looks again at turn 9, still stuck, and nudges System 2. When System 2's context passes the threshold, the turns fold into the State, written as edits, beside the reads System 1 kept.">
+  <img src="docs/assets/how-it-works-light.svg" alt="How Intern runs a task on three models. A decision model sits between every turn: it searches and reranks, prunes the context, picks the hand-over moment and filters tool output. The frontier model reads the code, spots the bug and plans the fix; when the plan is ready it hands over to the efficient model, which writes the fix, runs the tests and finishes the job. On Terminal-Bench 2.1 with Opus 5.5 handing over to Hy4 Flash, the frontier model takes about 35% of the turns and 99% of the cost, the efficient model about 65% of the turns and 1% of the cost.">
 </picture>
 
-1. Your intern's System 2 reasons and calls tools. With the guard on, each call is checked first; it is off by
-   default.
-2. When System 2 searches with `decision_code` or `decision_files`, System 1 walks the index and returns ranked
-   places.
-3. Every turn is appended to the session's journal.
-4. Code, not a model, builds a compact cut of the session from the journal for your intern's System 1 to read:
-   at most 24.6k tokens, from which System 1 answers 95% of questions about the session.
-5. Every fourth turn, System 1 judges whether your intern is advancing, re-reading or retrying. A stuck verdict
-   that holds at the next turn gets a nudge.
-6. When the context fills, System 2 writes its State as edits, System 1 keeps the reads still in use, and the turns
-   the State covers are cut.
+1. **The frontier model starts every task.** It reads the code, runs what fails and lays down the main fix.
+2. **The decision model watches each turn.** It reads a compact cut of the session, built by code rather than a
+   model, and answers one question: is the main solution in place, has a check run it, and is what's left only
+   local repair and finishing? Two turns in a row at 0.7 or more, from turn 8 on, and it hands over.
+3. **The efficient model finishes.** It takes over in the same workspace and conversation, runs the tests, fixes
+   what they show and wraps up. A run hands over once and never back; your next message starts on the frontier
+   model again.
+4. **The decision model keeps the work on track the whole way.** Every fourth turn it checks for circles and nudges.
+   It searches when your models ask, and it picks which reads to keep when the context fills up.
+
+The work splits unevenly by design. On the Terminal-Bench 2.1 run, Hy4 Flash made about two-thirds of the model
+calls and half the output, for 1% of the cost:
+
+| | Claude Opus 5.5, frontier | Hy4 Flash, efficient |
+|---|---|---|
+| Model calls | 35% | 65% |
+| Output tokens, thinking included | 52% | 48% |
+| Cost | 99% | 1% |
 
 The [architecture](docs/architecture.md) has the details and the measurements behind each step.
 
@@ -85,43 +91,47 @@ The [architecture](docs/architecture.md) has the details and the measurements be
 ```bash
 # Python 3.12+; installs the `intern` command
 uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
+intern
 ```
 
-Then run `intern`. The first time, it opens on a short setup that explains what Intern is and connects its models.
-It offers our recommended combinations first, such as Claude Sonnet 5.5 handing over to DeepSeek V4.1 Flash with Drex
-Max judging, all on one OpenRouter key, and asks only for the keys a combination needs. Or pick each yourself: a
-provider for System 2 (Anthropic, OpenAI, OpenRouter, Gemini, xAI, DeepSeek, Mistral, Groq and 12 more, or a model on
-your machine), a key (or sign in to OpenRouter in the browser), System 1 (Drex Max on OpenRouter first, on the
-OpenRouter key you already gave, and Drex from the Nace console next), and the cheaper model a run
-[hands over](#hand-over) to, or none. Keys go to your system keychain, your picks to `~/.intern/config.toml`;
-`/setup` brings the screen back any time.
+The first time, `intern` opens on a setup that takes about a minute:
 
-Or give it a task straight away, with one OpenRouter key for both models:
+1. **Connect a provider.** OpenRouter is the one we recommend: one key runs every model, and you can sign in with
+   your browser instead of pasting a key. Anthropic, OpenAI, Gemini and 20 more work too, as does a model on your
+   machine (Ollama, LM Studio, llama.cpp, vLLM, Kapitsa).
+2. **Pick your models.** Each pick is a frontier model and an efficient model together. On OpenRouter: Claude Opus
+   5.5 → Hy4 Flash (best results), Hy4 → Hy4 Flash (lowest cost), GPT-6.2 Astra → GPT-6 Luna, or your own pair.
+3. **Pick the decision model.** Drex Max is first, and it runs on the OpenRouter key you already gave.
+
+Keys go to your system keychain and your picks to `~/.intern/config.toml`. `/setup` brings the screen back any
+time.
+
+Or give it a task straight away, with one OpenRouter key for all three models:
 
 ```bash
 export OPENROUTER_API_KEY=...
-intern --system2 openrouter/qwen/qwen3.8-27b \
+intern --system2 openrouter/anthropic/claude-opus-5.5 \
+  --handoff-to openrouter/tencent/hy4-flash \
   --system1 decisions:nace-ai/drex-max \
   "Find why tests/test_parser.py fails and fix it"
 ```
 
-The terminal UI opens with the task as its first prompt; `-p` runs it headlessly and prints the reply.
+`--system2` is the frontier model, `--handoff-to` the efficient model and `--system1` the decision model. The
+terminal UI opens with the task as its first prompt; `-p` runs it headlessly and prints the reply.
 
 <details>
-<summary>The two models, and the Nace console for System 1</summary>
+<summary>Decision models, and the Nace console</summary>
 
-- **System 2** does the work. It can be any chat model: OpenRouter, Fireworks, Together, DeepInfra, Groq, OpenAI,
-  Anthropic, or a local model.
-- **System 1** keeps it on track. It can be any decision model: Drex, Jev, Kev and 40+ others, from the
-  [Nace console](https://console.nace.ai) or OpenRouter's decisions API. `intern models` lists them all.
+The decision model can be Drex, Jev, Kev or any of 40+ others, from the [Nace console](https://console.nace.ai)
+or OpenRouter's decisions API. `intern models` lists them all.
 
-With no `--system1` and no `[system1]` in `~/.intern/config.toml`, System 1 is `drex-latest` from the Nace console,
-read with `NACE_API_KEY`. Sign up at [console.nace.ai](https://console.nace.ai), create a key, and only System 2 needs
-naming:
+With no `--system1` and no `[system1]` in `~/.intern/config.toml`, the decision model is `drex-latest` from the
+Nace console, read with `NACE_API_KEY`. Sign up at [console.nace.ai](https://console.nace.ai) and create a key.
+Then only the frontier model needs naming:
 
 ```bash
-export NACE_API_KEY=...        # System 1: Drex from the Nace console
-export FIREWORKS_API_KEY=...   # System 2: any provider, here Fireworks
+export NACE_API_KEY=...        # the decision model: Drex from the Nace console
+export FIREWORKS_API_KEY=...   # the frontier model: any provider, here Fireworks
 intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
   "Find why tests/test_parser.py fails and fix it"
 ```
@@ -130,120 +140,205 @@ intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
 
 Every provider, flag and setting is in [docs/usage.md](docs/usage.md).
 
-## Supervision
+> [!NOTE]
+> **Good to know.** The decision model is hosted, on OpenRouter or the Nace console, and Intern doesn't run without
+> it. The frontier and efficient models can be anything, local ones included. Intern's code is open under
+> [Nace AI Open RAIL-M](LICENSE): free for individuals, research and companies under $1M in revenue.
 
-Every fourth turn, your intern's System 1 reads the session cut and judges what the latest four turns are doing:
-advancing, re-investigating what earlier turns already covered, retrying, off plan or finished. When
-re-investigating and retrying together reach 0.7, the verdict is stuck, and System 1 looks again at the next turn.
-A stuck verdict that holds gets a nudge to act on what your intern found. On by default.
+## Results
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/supervise-dark.svg">
-  <img src="docs/assets/supervise-light.svg" alt="System 1 supervising one run of thirteen turns. It looks at turn 4: advancing, so the next look is turn 8. At turn 8 re-investigating and retrying together pass 0.7, a stuck verdict, so it looks again at turn 9; still stuck, it nudges System 2 to make the change as its next call. Turns 10 and 11 edit and pass the tests, and the look at turn 13 calls them advancing. 0.6 s a look; replayed over 42 stored runs (1,935 turns), the rule sent 23 stuck nudges and asked System 1 at 27% of turns. The probability bars are illustrative.">
-</picture>
+**Terminal-Bench 2.1, 87 tasks: Claude Opus 5.5 → Hy4 Flash.** The chart at the top.
 
-Replayed through System 1 over 42 stored runs (1,935 turns), this rule sends 23 stuck nudges and asks System 1 at
-27% of the turns, 0.6 s a look. No blind judge has rated its nudges yet. The rule before it looked at every turn and
-nudged after three stuck verdicts in a row: over 82 stored sessions, 16 of its 19 nudges fell on turns an
-independent judge also called stuck. [How it is judged](docs/architecture.md#system-2-and-system-1)
+| Harness and models | Pass rate | $ a task |
+|---|---|---|
+| **Intern, Opus 5.5 → Hy4 Flash** | **92.4%** | **0.127** |
+| Pi, Opus 5.5 | 93.7% | 0.291 |
+| Hermes, Opus 5.5 | 92.4% | 0.280 |
+| OpenCode, Opus 5.5 | 91.1% | 0.393 |
+| OpenCode, Hy4 Flash | 83.5% | 0.0066 |
+| Pi, Hy4 Flash | 82.3% | 0.0068 |
+| Hermes, Hy4 Flash | 82.3% | 0.0075 |
 
-## Compaction
+Within 1.3 points of the best Opus 5.5 run, at 2.2–3.1 times less a task.
 
-When the context fills up, both parts of your intern's brain pitch in. Its System 2 writes the State: the plan, what
-the work found and changed, and what comes next, as edits to the State before it. Then it carries on from the
-State. Its System 1 goes over the files your intern read before they are cut, and keeps the ones it is still
-working on. System 1 never reads this State, only its own cut of the session, so a State that misses something
-cannot hide it. A number the run never showed is sent back to the writer or blanked.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
-  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: System 2 writes its State into the compaction's card, System 1 judges the file reads being cut and keeps the three of six your intern is still working on, and a click opens the State.">
-</picture>
-
-On `drex-max`, the reads System 1 keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83% with a
-`SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
-([method](docs/architecture.md#system-2-and-system-1)).
-
-## System 1's State
-
-System 1's State is the session cut: code, not a model, builds it from the journal for every ask. It holds the
-goal (the user's last three requests), what runs now, and the whole session in order: the user's messages, the
-harness's nudges, the agent's replies without their reasoning, and each tool call with its input and a note in
-place of its output (status, size, a check's tally, the first 300 characters). Long sessions are cut to fit,
-oldest first; the first message and the newest four turns are never left out. `/state` in the terminal UI shows it
-as System 1 reads it. Every System 1 check reads it ([how it is built](docs/architecture.md#system-2-and-system-1)).
-
-It is also what decides a hand-over. After each turn, System 1 reads its State and is asked one question: has the
-strong model built the main solution, has a check relevant to the task run it, and is what is left only local
-repair and finishing? It judges from what the tool results in its State show, such as a test run's tally and the
-start of each output, not from what the agent says it did, and answers ready, not ready or unclear with a
-probability for each. Its P(ready) is the only signal the switch uses: two turns in a row at 0.7 or more, from turn
-8 on, and the cheaper model takes over.
-
-## Hand-over
-
-Long tasks are not hard all the way through: the first turns plan and read, the last ones run the tests and fix
-what they show. Name a cheaper model and your intern's System 2 can hand the rest of a run over to it. After each
-turn, System 1 reads [its State](#system-1s-state), the session cut, and judges whether the work has reached that point:
-the main solution exists, a check relevant to the task has run it, and what is left is local repair and finishing.
-Two turns in a row at 0.7 or more, from turn 8 on, and the cheaper model takes over in the same workspace and
-conversation. It hands over once a run, never back. The next message starts on System 2 again, which reads what the
-cheaper model did as part of the conversation.
-
-The terminal UI opens in auto mode: runs hand over to `anthropic/claude-haiku-5-5` unless you name another model.
-`/auto` picks the model or turns the mode off, and `auto = false` in `~/.intern/config.toml` starts it off. Headless
-runs hand over only when you name the model:
-
-```bash
-intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
-  --handoff-to openrouter/qwen/qwen3.8-27b
-```
-
-Or in `~/.intern/config.toml`: `[capabilities.handoff]` with `to = "<provider/model>"`, and `threshold`, `streak`,
-`min_turn` and `effort` to tune it ([settings](docs/capability-settings.md)). The transcript tells you the turn a
-run hands over at.
+**Open weights: FrontierHarness v1.1, DeepSeek → Qwen.** [FrontierHarness](https://frontierharness.org/efficiency)
+runs 22 harnesses on the same 62 tasks and model. DeepSeek-V4.1-Flash starts each task, Drex picks the turn, and
+Qwen3.8 27B finishes it.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/handoff-pareto-dark.svg">
   <img src="docs/assets/handoff-pareto-light.svg" alt="Pass rate against cost per task on FrontierHarness v1.1, DeepSeek-V4.1-Flash. Intern with DeepSeek alone: 69.4% at $0.182, the highest pass rate. Intern handing over from DeepSeek to Qwen3.8 27B, with Drex choosing the turn: 65.3% at $0.092, cheaper than every board harness and above the board's Pareto frontier of OpenCode 1.19.4 (61.3%, $0.108), mini-SWE-agent (64.9%, $0.142) and ZCode (69.0%, $0.153). Qwen3.8 27B alone in Intern: 40.3%.">
 </picture>
 
-On [FrontierHarness](https://frontierharness.org/efficiency) v1.1, whose board runs 22 harnesses on the same 62
-tasks and model: DeepSeek-V4.1-Flash starts each task, Drex picks the turn, and Qwen3.8 27B finishes it. That is
-65.3% at $0.092 a task, cheaper than every harness on the board and above its Pareto frontier, half the cost of
-DeepSeek alone for 4.1 points of pass rate. The same Qwen running alone passes 40.3%. Qwen runs on our own
-deployment, billed by the GPU hour, so the cost counts only DeepSeek and System 1. Our runs are one attempt a task,
-about ±6 points of noise; the board's are four.
+- DeepSeek alone in Intern: 69.4% at $0.182, the highest pass rate on the board.
+- DeepSeek → Qwen: 65.3% at $0.092. That's cheaper than every harness on the board and above its Pareto frontier,
+  and half the cost of DeepSeek alone for 4.1 points of pass rate.
+- The same Qwen running alone passes 40.3%.
+
+Qwen runs on our own deployment, billed by the GPU hour, so the cost counts only DeepSeek and the decision model.
+Our runs are one attempt a task, about ±6 points of noise; the board's are four.
+
+**One vendor: GPT-6.1 Sol → GPT-6 Luna, 62 terminal tasks, one attempt each.**
+
+| | Passed | $ a task |
+|---|---|---|
+| Codex CLI, GPT-6.1 Sol | 44/62 | 0.274 |
+| Intern, GPT-6.1 Sol alone | 44/62 | 0.233 |
+| **Intern, GPT-6.1 Sol → GPT-6 Luna** | **44/62** | **0.143** |
+
+The same tasks pass at 39% less than Sol alone and 48% less than Codex CLI.
+
+## Questions
+
+<details>
+<summary><b>Why not just run the cheap model?</b></summary>
+
+On Terminal-Bench 2.1, Hy4 Flash on its own passes 82–84%. Starting each task on Opus 5.5 and handing over takes it
+to 92.4%, at less than half of what Opus costs on its own.
+
+</details>
+
+<details>
+<summary><b>Does it run fully local?</b></summary>
+
+The frontier and efficient models can: Ollama, LM Studio, llama.cpp, vLLM, or Kapitsa on a Mac. The decision model
+is hosted, and a session that cannot reach it is refused.
+
+</details>
+
+<details>
+<summary><b>What does the decision model cost?</b></summary>
+
+Drex is $0.03 per 1M input tokens, with its output free: about $0.006 a code search, and a fraction of a cent for a
+session's supervision.
+
+</details>
+
+<details>
+<summary><b>When exactly does it hand over?</b></summary>
+
+When the main solution exists, a check has run it, and what's left is local repair: P(ready) at 0.7 or more two
+turns in a row, from turn 8 on. [Hand-over](#hand-over)
+
+</details>
+
+<details>
+<summary><b>How noisy are these numbers?</b></summary>
+
+The FrontierHarness and GPT runs are one attempt a task, about ±6 points; the FrontierHarness board's own runs are
+four. Read a one- or two-point gap as a tie and the cost gaps as the result.
+
+</details>
+
+## What the decision model does
+
+### Hand-over
+
+Long tasks are not hard all the way through. The first turns read, plan and build; the last ones run the tests and
+fix what they show. After each turn, the decision model reads [the session cut](#what-the-decision-model-reads)
+and judges whether the work has reached that point. The main solution has to exist, a check relevant to the task
+has to have run it, and what's left must be local repair and finishing. Two turns in a row at 0.7 or more, from
+turn 8 on, and the efficient model takes over in the same workspace and conversation. It hands over once a run,
+never back. The next message starts on the frontier model again, which reads what the efficient model did as part
+of the conversation.
+
+The terminal UI opens in auto mode and hands over to the efficient model you picked in setup (Claude Haiku 5.5 if
+you named none). `/efficient` picks another model or turns hand-over off, and `auto = false` in
+`~/.intern/config.toml` starts with it off. Headless runs hand over only when you name the model:
+
+```bash
+intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
+  --handoff-to openrouter/qwen/qwen3.8-27b
+```
+
+Or in `~/.intern/config.toml`: `[capabilities.handoff]` with `to = "<provider/model>"`. `threshold`, `streak`,
+`min_turn` and `effort` tune it ([settings](docs/capability-settings.md)). The transcript marks the turn a run
+hands over at, and every turn says whether the frontier or the efficient model ran it.
+
+### Supervision
+
+Every fourth turn, the decision model reads the session cut and judges what the latest four turns are doing:
+advancing, re-investigating what earlier turns already covered, retrying, off plan or finished. When
+re-investigating and retrying together reach 0.7, the verdict is stuck, and it looks again at the next turn. A stuck
+verdict that holds gets a nudge to act on what the work found. On by default.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/supervise-dark.svg">
+  <img src="docs/assets/supervise-light.svg" alt="The decision model supervising one run of thirteen turns: it looks at turn 4 and calls the turns advancing, finds them stuck at turn 8 and still stuck at turn 9, then nudges the frontier model to make the change as its next call. Turns 10 and 11 edit and pass the tests, and the look at turn 13 calls them advancing.">
+</picture>
+
+Replayed through the decision model over 42 stored runs (1,935 turns), this rule sends 23 stuck nudges and asks the
+decision model at 27% of the turns, 0.6 s a look. No blind judge has rated its nudges yet. The rule before it looked
+at every turn and nudged after three stuck verdicts in a row: over 82 stored sessions, 16 of its 19 nudges fell on
+turns an independent judge also called stuck. [How it is judged](docs/architecture.md#system-2-and-system-1)
+
+### Compaction
+
+When the context fills up, two models share the work. The frontier model writes the State: the plan, what the work
+found and changed, and what comes next, as edits to the State before it. Then it carries on from the State. The
+decision model goes over the files read so far before they are cut, and keeps the ones still being worked on. It
+never reads this State, only its own cut of the session, so a State that misses something cannot hide it. A number
+the run never showed is sent back to the writer or blanked.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/compaction-dark.gif">
+  <img src="docs/assets/compaction-light.gif" alt="An animation of the terminal UI compacting a session: the frontier model writes its State into the compaction's card, the decision model judges the file reads being cut and keeps the three of six still being worked on, and a click opens the State.">
+</picture>
+
+On `drex-max`, the reads the decision model keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83%
+with a `SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
+([method](docs/architecture.md#system-2-and-system-1)).
+
+### What the decision model reads
+
+The decision model reads the session cut. Code, not a model, builds it from the journal for every ask. It holds:
+- the goal (the user's last three requests);
+- what runs now;
+- the whole session in order: the user's messages, the harness's nudges, the models' replies without their
+  reasoning, and each tool call with its input and a note in place of its output (status, size, a check's tally,
+  the first 300 characters).
+
+Long sessions are cut to fit, oldest first; the first message and the newest four turns are never left out. The cut
+is at most 24.6k tokens, and the decision model answers 95% of questions about the session from it. `/state` in the
+terminal UI shows it as the decision model reads it ([how it is built](docs/architecture.md#system-2-and-system-1)).
+
+It judges from what the tool results show, such as a test run's tally and the start of each output, not from what
+the agent says it did. For a hand-over it answers ready, not ready or unclear with a probability for each, and
+P(ready) is the only signal the switch uses.
 
 ## Capabilities
 
 Switch each with `/caps` in the terminal UI, the ACP `cap.*` options, or `~/.intern/config.toml`
-([capability settings](docs/capability-settings.md)); `/caps` tags the searches and guards System 1 runs. Every
-System 1 check that reads the session also reads your [`SYSTEM1.md`](#instructions), where you tell it what is
-normal in your work; `decision_code` and `decision_files` read only the question.
+([capability settings](docs/capability-settings.md)); `/caps` tags the searches and guards the decision model runs.
+Every decision-model check that reads the session also reads your [`SYSTEM1.md`](#instructions), where you tell it
+what is normal in your work; `decision_code` and `decision_files` read only the question.
 
 ### Code search
 
-`decision_code` finds where a repository does something, even when the words aren't in it. System 1 walks an index
-of the repository, folders, then files, then the classes and functions in them (in 14 languages), scores each
-against the question and opens only the branches worth opening. A folder of several repositories is searched one
-repository at a time. Default off. [Turn it on](docs/usage.md#code-search)
+`decision_code` finds where a repository does something, even when the words aren't in it. The decision model walks
+an index of the repository: folders, then files, then the classes and functions in them (in 14 languages). It scores
+each against the question and opens only the branches worth opening. A folder of several repositories is searched
+one repository at a time. On SWE-bench Verified it puts the right file first for 87% of issues; Semble does for 37%.
+Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-diagram-dark.svg">
-  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: one folder opened and 54 of 157 files judged; supervise.py 0.96, loop.py 0.87, session.py 0.68, context.py 0.42; then the definitions in the best files, read and compared. Result: supervise.py 0.96 at Supervisor.after_turn, then loop.py 0.42. 97 asks, $0.0064, 11.4 s, the run recorded below.">
+  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep finds only screen text; the decision model walks the index from src/intern to files and definitions, compares the best ones, and ranks supervise.py first at Supervisor.after_turn.">
 </picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-dark.gif">
-  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. System 1 descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 90 asks, $0.0063.">
+  <img src="docs/assets/code-search-light.gif" alt="An animation of the terminal UI as decision_code searches this repository for where a run that goes in circles is detected. The decision model descends the folders, ranks files on a leaderboard, scores the definitions in the best ones, and ranks supervise.py first at Supervisor.after_turn, then loop.py. 90 asks, $0.0063.">
 </picture>
 
 _Asked where this repository decides that a run is going in circles. "Circles" is in none of that code, so grep
 lands on the wrong files; `decision_code` puts `supervise.py` first, at the method that does it._
 
+<details>
+<summary><b>Benchmarks: SWE-bench Verified and CodeScaleBench</b></summary>
+
 Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
-known answer. System 1 is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
+known answer. The decision model is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
 search. [Method](docs/architecture.md#system-2-and-system-1)
 
 **SWE-bench Verified, 100 issues across 11 Python repositories.** The question is the issue. The answer is the files
@@ -276,33 +371,39 @@ list of files, six a search on average.
 
 Every gap in right file first, right file in the top 10 and share in the top 10 holds question by question (sign
 test, p at most 0.012). Semble is 0.7.3 with its defaults, over source code. BM25 is `decision_code`'s own keyword
-stage, before System 1 judges anything. grep is the question's keywords through ripgrep, files ranked by how many
-they contain, as Semble's own benchmark runs it.
+stage, before the decision model judges anything. grep is the question's keywords through ripgrep, files ranked by
+how many they contain, as Semble's own benchmark runs it.
+
+</details>
 
 ### File search
 
 `decision_files` searches professional files (PDFs, Excel workbooks, CSV, Parquet, Word documents and scans) for
-tasks like audit. Your intern indexes the folder once, OCRing scanned pages. System 1 walks the files by page,
-section and tab beside a BM25 list of passages, judges the best of both together, then follows the strongest
-passages' terms to what the first pass missed. `sql` queries the tables and `read` shows the documents as text.
+tasks like audit. Your intern indexes the folder once, OCRing scanned pages. The decision model walks the files by
+page, section and tab beside a BM25 list of passages, and judges the best of both together. Then it follows the
+strongest passages' terms to what the first pass missed. `sql` queries the tables and `read` shows the documents
+as text. On OfficeQA Pro with Claude Sonnet 5.5 it scores the same as pi in half the turns, at 27% less a question.
 Default off. [Turn it on](docs/usage.md#workspace)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-diagram-dark.svg">
-  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 6 of 29 passages; System 1 judges both together, 7 passages; the best passages' 20 terms find 15 more, and System 1 judges all 22. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 13 asks, $0.0021, 3.1 s, the run recorded below.">
+  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for whether the client was ever the victim of a scam or theft. The decision model walks the folder while BM25 ranks passages by their words, judges both lanes together, follows the best passages' terms to more, and ranks page 1 of the fraud-risk questionnaire first.">
 </picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-dark.gif">
-  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 1.00. 13 asks, $0.0009.">
+  <img src="docs/assets/files-search-light.gif" alt="An animation of the terminal UI as decision_files searches a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? The decision model walks the PDFs' pages beside a BM25 list of passages, judges both, hops through the best passages' terms, and ranks page 1 of the fraud-risk questionnaire first at 1.00. 13 asks, $0.0009.">
 </picture>
 
 _Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder.
 "Victim", "scam" and "theft" are in none of its files; `decision_files` puts first the questionnaire page where
 management reports a 2021 cyber attack and its loss._
 
+<details>
+<summary><b>Benchmarks: OfficeQA Pro and HotpotQA</b></summary>
+
 Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
-known answer. System 1 is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
+known answer. The decision model is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
 search. [Method](docs/architecture.md#system-2-and-system-1)
 
 **OfficeQA Pro, 133 questions over 697 Treasury Bulletins, as parsed text.** The answer is the bulletin and the page
@@ -334,9 +435,9 @@ On OfficeQA Pro every gap to SAG2 in the bulletin rows at 1 and 10 and in both p
 questions, worse on 2; SAG2 is ahead at two (25 questions to 12). SAG2 is SAG-Benchmark's own code and judge, JEV on
 OpenRouter; its errors on 8 OfficeQA Pro questions count as misses. On HotpotQA, "as published" and both BM25
 columns are an earlier run's stored rows; "rerun" is SAG2's code run again, and "with Drex" the same code judged by
-Drex. The methods return pieces of very different
-sizes, so the page rows give each the same amount of text. OfficeQA Pro costs the most because its requests are the
-largest, 8,600 tokens against under 1,000 on the other sets.
+Drex. The methods return pieces of very different sizes, so the page rows give each the same amount of text.
+OfficeQA Pro costs the most because its requests are the largest, 8,600 tokens against under 1,000 on the other
+sets.
 
 Measured end to end, the agent doing the whole task on the same model and the same questions:
 
@@ -346,39 +447,42 @@ Measured end to end, the agent doing the whole task on the same model and the sa
 |---|---|---|---|
 | Answered correctly | 77 | 76 | 75 |
 | Iterations (model turns) | 16.3 | **7.4** | 14.9 |
-| $ a question, System 1 included | 0.160 | **0.138** | 0.188 |
+| $ a question, decision model included | 0.160 | **0.138** | 0.188 |
 
 The score is level. A question costs 27% less than on pi, a gap outside noise, and 14% less than Intern without
-`decision_files`, a gap within noise. A search costs about $0.02 of System 1 here, so the saving grows with the
-price of the main model.
+`decision_files`, a gap within noise. A search costs about $0.02 of the decision model here, so the saving grows
+with the price of the main model.
+
+</details>
 
 ### Web search and read
 
-Each can have System 1 judge what it returns, reading the session, before your intern sees it; both are default off,
-and so is their System 1 until a paired eval measures it ([`system1`](docs/capability-settings.md#system-1-on-web-results)).
+Each can have the decision model judge what it returns, reading the session, before your models see it. Both are
+default off, and so is their decision-model filter until a paired eval measures it
+([`system1`](docs/capability-settings.md#system-1-on-web-results)).
 
-- **`web_search`** asks the provider for three times the results, and System 1 keeps the ones the task needs, best
-  first. [Web search](docs/capabilities/web-search.md)
-- **`web_read`**, on a page longer than the preview, has System 1 keep the parts the task needs, in page order,
-  where it showed the page's start. [Web reader](docs/capabilities/web-reader.md)
+- **`web_search`** asks the provider for three times the results, and the decision model keeps the ones the task
+  needs, best first. [Web search](docs/capabilities/web-search.md)
+- **`web_read`**, on a page longer than the preview, has the decision model keep the parts the task needs, in page
+  order, where it showed the page's start. [Web reader](docs/capabilities/web-reader.md)
 
-### More System 1 based capabilities
+### More decision-model capabilities
 
-- **Memory** (default on). Before the first request, System 1 recalls the pages of earlier sessions the task needs; after
-  the session, it judges what is worth keeping. [Memory](docs/memory.md)
+- **Memory** (default on). Before the first request, the decision model recalls the pages of earlier sessions the
+  task needs; after the session, it judges what is worth keeping. [Memory](docs/memory.md)
 - **Tool-call guard** (default off). Fixed rules refuse `rm -rf ~`, force-pushes, piping a download into a shell and
-  reading your credentials; System 1 judges every other call against what you asked for. On 140 labeled calls it
-  stops all 42 risky ones, where the fixed rules alone stop 9, and none of the 62 routine ones, at 0.4 s a check
-  ([set](evals/tool_guard/)). Say in `SYSTEM1.md` what you allow. [Guard](docs/capability-settings.md#guard)
-- **Tool-result guard** (default off). System 1 removes the parts of web, browser and MCP output addressed to your intern
-  before it reads them. [Tool-result guard](docs/capability-settings.md#tool-result-guard)
+  reading your credentials; the decision model judges every other call against what you asked for. On 140 labeled
+  calls it stops all 42 risky ones and none of the 62 routine ones, at 0.4 s a check ([set](evals/tool_guard/)).
+  Say in `SYSTEM1.md` what you allow. [Guard](docs/capability-settings.md#guard)
+- **Tool-result guard** (default off). The decision model removes the parts of web, browser and MCP output addressed
+  to your models before they read them. [Tool-result guard](docs/capability-settings.md#tool-result-guard)
 
 ### Other capabilities
 
-- **Subagents** (default off). Your intern hands self-contained tasks to subagents with the `agent` tool, with its tools or
-  fewer, never more. [Subagents](docs/capability-settings.md#subagents)
-- **Prompt-cache share.** The terminal UI's masthead shows the share of System 2's prompts read from the cache.
-  [Terminal UI](docs/tui.md)
+- **Subagents** (default off). Your intern hands self-contained tasks to subagents with the `agent` tool, with its
+  tools or fewer, never more. [Subagents](docs/capability-settings.md#subagents)
+- **Prompt-cache share.** The terminal UI's masthead shows the share of the frontier model's prompts read from the
+  cache. [Terminal UI](docs/tui.md)
 - **Optional tools.** A browser, MCP servers, a Docker workspace, secrets from your keychain or password manager.
   [Capability settings](docs/capability-settings.md)
 - **Schedules.** Run a task later or on a repeat: in the desktop app, with launchd or systemd running `intern -p`,
@@ -387,20 +491,20 @@ and so is their System 1 until a paired eval measures it ([`system1`](docs/capab
 
 ## Instructions
 
-Three optional files tell your intern's System 2 and System 1 how to work. None ships with Intern: create the ones
-you want in `~/.intern/` (or `$INTERN_HOME`, if you set it). Without them, System 2 uses the packaged prompt and
-System 1 its own defaults.
+Three optional files tell your models how to work. None ships with Intern: create the ones you want in `~/.intern/`
+(or `$INTERN_HOME`, if you set it). Without them, the frontier and efficient models use the packaged prompt and the
+decision model its own defaults. The file names are kept from before the renaming.
 
 | File | Read by | Where from | What it is |
 |---|---|---|---|
-| `SYSTEM2.md` | System 2 | `~/.intern/` | Intern's system prompt, in place of the packaged one (pi's `SYSTEM.md`, still read under that name) |
-| `AGENTS.md` | System 2 | `~/.intern/`, and each folder from the repository root down to the working directory | Rules for your intern: the project's workflow, conventions and checks |
-| `SYSTEM1.md` | System 1 | `~/.intern/` only | Your guidance for System 1: how to judge, what work is normal for you, what you still want to be asked |
+| `SYSTEM2.md` | Frontier and efficient models | `~/.intern/` | Intern's system prompt, in place of the packaged one (pi's `SYSTEM.md`, still read under that name) |
+| `AGENTS.md` | Frontier and efficient models | `~/.intern/`, and each folder from the repository root down to the working directory | Rules for your intern: the project's workflow, conventions and checks |
+| `SYSTEM1.md` | Decision model | `~/.intern/` only | Your guidance for the decision model: how to judge, what work is normal for you, what you still want to be asked |
 
-System 1 reads `SYSTEM1.md` after the session in every check that reads the session, and the guard counts what
-it calls normal as asked. It never reads `AGENTS.md`, which a repository you cloned can write. When a step in
-an `AGENTS.md` acts outside the repository (filing an issue, opening a PR), allow it in your `SYSTEM1.md` too.
-A `SYSTEM1.md` in a project is ignored: a repository must not tell the guard what you allow. Yours might read:
+The decision model reads `SYSTEM1.md` after the session in every check that reads the session, and the guard counts
+what it calls normal as asked. It never reads `AGENTS.md`, which a repository you cloned can write. When a step in
+an `AGENTS.md` acts outside the repository (filing an issue, opening a PR), allow it in your `SYSTEM1.md` too. A
+`SYSTEM1.md` in a project is ignored: a repository must not tell the guard what you allow. Yours might read:
 
 ```markdown
 ## What is normal for me
@@ -416,8 +520,9 @@ Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared,
 
 A model is `provider/model`; everything after the first slash goes to the provider as is.
 
-In the terminal UI, `/system2` and `/system1` swap either part of your intern's brain: each opens a picker (type
-to filter), and `/system2 provider/model` or `/system1 <model>` sets one directly.
+In the terminal UI, `/frontier`, `/efficient` and `/decision` swap each model: each opens a picker (type to filter),
+and `/frontier provider/model` or `/decision <model>` sets one directly. `/system2`, `/auto` and `/system1` still
+work.
 
 | Provider | Key |
 |---|---|
@@ -425,30 +530,30 @@ to filter), and `/system2 provider/model` or `/system1 <model>` sets one directl
 | `openai` (Responses API), `anthropic` (Messages API) | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` |
 | `ollama`, `llamacpp`, `lmstudio`, `vllm` | none, on localhost |
 
-Model profiles tune the window, sampling and thresholds for Qwen3.8 27B, Nemotron 3.5 Lightning 30B-A3B,
-DeepSeek V4 Flash, GPT and Claude. On a Mac with Apple silicon, [Kapitsa](https://github.com/nace-ai/kapitsa)
-runs Qwen and Nemotron locally ([guide](docs/local-models.md)). Providers, profiles and the working window:
-[docs/usage.md](docs/usage.md#models).
+Model profiles tune the window, sampling and thresholds for Qwen3.8 27B, Nemotron 3.5 Lightning 30B-A3B, DeepSeek
+V4 Flash, GPT and Claude. On a Mac with Apple silicon, [Kapitsa](https://github.com/nace-ai/kapitsa) runs Qwen and
+Nemotron locally, a good fit for the efficient model ([guide](docs/local-models.md)). Providers, profiles and the
+working window: [docs/usage.md](docs/usage.md#models).
 
 ## Use it from your editor
 
 | Client | Command |
 |---|---|
-| Terminal UI, with the State and System 1's decisions on screen ([docs](docs/tui.md)) | `intern` |
+| Terminal UI, with the State and the decision model's calls on screen ([docs](docs/tui.md)) | `intern` |
 | Agent Client Protocol: T3 Code, Zed ([docs](docs/acp.md)) | `intern acp` |
 | JSON-RPC over stdio | `intern rpc --system2 M` |
 | One task, one JSON event per line | `intern -p --json --system2 M -- "task"` |
 
-`M` is a model such as `openrouter/qwen/qwen3.8-27b`. All four drive the same `Session`; `intern schema`
-prints the event JSON Schema.
+`M` is a model such as `openrouter/qwen/qwen3.8-27b`. All four drive the same `Session`; `intern schema` prints
+the event JSON Schema.
 
 ## What Intern does not do
 
 - **It is not a sandbox.** Commands run with your user's permissions, and the guard is off unless you turn it on.
-  With it on, it refuses the clearly dangerous and System 1 judges the rest, but run untrusted work in the
+  With it on, it refuses the clearly dangerous and the decision model judges the rest, but run untrusted work in the
   [Docker workspace](docs/capabilities/docker-workspace.md) or another container.
-- **It does not work without its System 1.** Your intern's System 1 is a hosted decision model. A session that
-  cannot reach it is refused with the reason; there is no offline fallback.
+- **It does not work without its decision model.** The decision model is hosted. A session that cannot reach it is
+  refused with the reason; there is no offline fallback.
 - **It does not start subagents unless you turn them on.** With `cap.subagents` on, it hands self-contained tasks
   to subagents, which inherit its capabilities and never get more. Off by default.
   [Subagents](docs/capability-settings.md#subagents)
@@ -460,10 +565,11 @@ prints the event JSON Schema.
 
 Intern collects no telemetry. What leaves your machine:
 
-- Your intern's System 2 requests, to the provider you chose.
-- Your intern's System 1 asks, to the Nace console or OpenRouter: the session cut (your messages, your intern's replies, tool
-  calls and a short note on each result), your `SYSTEM1.md` if you keep one, for the guard your requests and the call
-  being judged, and for a search what it judges (passages of your code and files, web results and pages).
+- Requests from the frontier and efficient models, to the providers you chose.
+- The decision model's asks, to the Nace console or OpenRouter. These carry the session cut (your messages, your
+  models' replies, tool calls and a short note on each result) and your `SYSTEM1.md` if you keep one. For the guard
+  they also carry your requests and the call being judged; for a search, what it judges (passages of your code and
+  files, web results and pages).
 - Calls made by tools you turn on, such as web search.
 
 Sessions are journaled, and memory kept, on your machine in `~/.intern/`.
