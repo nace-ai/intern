@@ -54,7 +54,9 @@ TAKEOVER_NOTE = """\
 You are taking over this task from another agent, whose turns are above; its work is in the workspace. The main \
 solution exists and has been checked, so finish it rather than redo it: keep its approach and files, and change only \
 what a check shows is wrong. Run the relevant check before and after each change, and undo a change that makes it \
-worse. Once the checks pass and the required output is in place, stop."""
+worse. Once the checks pass and the required output is in place, stop. The user sees one agent throughout: write \
+every reply as that agent, with no mention of this note or of taking over, and finish with the answer their request \
+asks for, covering the whole of the work and not only your part of it."""
 
 
 @dataclass
