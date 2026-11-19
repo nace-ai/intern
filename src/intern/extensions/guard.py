@@ -250,7 +250,15 @@ SECRET_DIRS = {
 }
 # shortcut: the default home only; a keys file under $INTERN_HOME elsewhere is not covered, like mcp-oauth above.
 SECRET_FILES = frozenset(
-    {".netrc", ".git-credentials", ".npmrc", ".pypirc", f"{names.HOME.removeprefix('~/')}/.env"}  # our keys file
+    {
+        ".netrc",
+        ".git-credentials",
+        ".npmrc",
+        ".pypirc",
+        f"{names.HOME.removeprefix('~/')}/.env",  # our keys file
+        f"{names.HOME.removeprefix('~/')}/free.json",  # the free credit's tokens
+        f"{names.HOME.removeprefix('~/')}/free-access.json",
+    }
 )
 SYSTEM_SECRETS = frozenset({"/etc/shadow", "/etc/gshadow", "/etc/master.passwd", "/private/etc/master.passwd"})
 # Files whose content runs at the next login or git command: writing them plants code.

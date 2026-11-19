@@ -8,6 +8,7 @@
     intern schema                                           print the event JSON Schema
     intern hold [--reason TEXT] -- cmd...                   run cmd, keeping the command it runs in from idle_stop_s
     intern models [--json]                                  list the System 2 and System 1 models to pick
+    intern free status|start|pause|resume|sign-out [--json] the free trial's sign-in and credit
     intern index [path] [--documents] [--clean]             build .intern/ index (--documents: .decision_workspace/)
     intern memory init|lint DRIVE                           create or check a memory drive
     intern steward JOURNAL... --drive DRIVE                 propose memory pages from sessions
@@ -334,6 +335,10 @@ def main(argv: list[str] | None = None) -> int:
         from intern.secrets_commands import secrets_main
 
         return secrets_main(argv[1:])
+    if argv[:1] == ["free"]:
+        from intern.free_commands import free_main
+
+        return free_main(argv[1:])
     if argv[:1] == ["steward"]:
         return steward_main(argv[1:])
     serving = argv[:1] == ["rpc"]

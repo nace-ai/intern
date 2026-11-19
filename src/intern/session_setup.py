@@ -53,6 +53,7 @@ from intern.mcp_credentials import (
 from intern.mcp_oauth import OAuthSignInRequired, OAuthStore, oauth_auth, oauth_store
 from intern.models.catalog import RunnerInfo
 from intern.models.registry import ConfigError
+from intern.nace_free import FreeStore
 from intern.needs import Needs
 from intern.processes import ProcessManager
 from intern.providers.base import NO_RETRIES, RetryPolicy
@@ -773,7 +774,8 @@ async def prepare_session(
     # reach the model, the journal or a client, however a command prints them (`env`, a test's log, a crash dump).
     own = [SecretStr(env[name]) for name in harness_only if len(env.get(name, "")) >= MIN_SECRET_CHARS]
     values = [*(secret_store or {}).values(), *own]
-    redact = SecretRedactor(values).redact if values else deps.redact
+    # The free trial's tokens are never in the environment, and they rotate hourly: read as each text is redacted.
+    redact = FreeStore(home, env).redactor(SecretRedactor(values).redact if values else deps.redact)
     retries = RetryPolicy() if settings.model_retries else NO_RETRIES
     resolver = models.resolve if settings.system2_fallbacks or models.budget is not None else resolve_model
     child_resolver = _child_resolver(resolve_model, models.budget) if subagents is not None else None

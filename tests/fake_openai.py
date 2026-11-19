@@ -6,7 +6,7 @@ import json
 import threading
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any
+from typing import Any, Self
 
 MODEL = "test-model"
 # The quiet System 1's pick among a choice's options, first found: not stuck, no risk, no read kept, no page, nothing
@@ -29,6 +29,15 @@ def quiet(questions: dict[str, Any]) -> dict[str, Any]:
     return answers
 
 
+def send_json(handler: BaseHTTPRequestHandler, payload: object, status: int = 200) -> None:
+    data = json.dumps(payload).encode()
+    handler.send_response(status)
+    handler.send_header("Content-Type", "application/json")
+    handler.send_header("Content-Length", str(len(data)))
+    handler.end_headers()
+    handler.wfile.write(data)
+
+
 @dataclass
 class Reply:
     text: str = ""
@@ -49,13 +58,18 @@ class FakeOpenAI:
                 pass
 
             def do_GET(self) -> None:
+                if server.answer(self, None):
+                    return
                 if self.path == "/v1/models":
                     self._json({"data": [{"id": MODEL, "max_model_len": server.context_length}]})
                 else:
                     self.send_error(404)
 
             def do_POST(self) -> None:
-                body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                raw = self.rfile.read(int(self.headers["Content-Length"]))
+                if server.answer(self, raw):
+                    return
+                body = json.loads(raw)
                 if self.path.endswith("/systemone"):
                     server.system1.append(body)
                     self._json({"answers": quiet(body["questions"]), "usage": {}})
@@ -70,15 +84,14 @@ class FakeOpenAI:
                 self.wfile.write(b"data: [DONE]\n\n")
 
             def _json(self, payload: dict[str, Any]) -> None:
-                data = json.dumps(payload).encode()
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.send_header("Content-Length", str(len(data)))
-                self.end_headers()
-                self.wfile.write(data)
+                send_json(self, payload)
 
         self._server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
+
+    def answer(self, handler: BaseHTTPRequestHandler, body: bytes | None) -> bool:
+        """Answer a request before the chat and System 1 routes do (a GET when `body` is None); whether it did."""
+        return False
 
     @property
     def url(self) -> str:
@@ -113,7 +126,7 @@ class FakeOpenAI:
         out.append({"choices": [], "usage": {"prompt_tokens": prompt_tokens, "completion_tokens": 12}})
         return out
 
-    def __enter__(self) -> FakeOpenAI:
+    def __enter__(self) -> Self:
         self._thread.start()
         return self
 
