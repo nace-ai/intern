@@ -26,6 +26,7 @@ from intern.onboarding import (
 from intern.providers.fake import Turn
 from intern.tui.app import HarnessApp, Models, SetupHooks
 from intern.tui.onboarding import OnboardingScreen
+from intern.tui.theme import THEMES, active_theme
 from tests.test_tui import SIZE, make_opener, transcript_text, wait_for
 
 NO_KEYCHAIN = {"PATH": "/nonexistent"}
@@ -80,7 +81,7 @@ async def test_a_first_launch_connects_openrouter_then_takes_a_pair_and_drex_and
         assert isinstance(screen, OnboardingScreen)
         about = str(screen.query_one("#setup-about").render())
         assert "Frontier models" in about and "System" not in about
-        await pilot.press("enter")  # welcome
+        await pilot.press("enter", "enter")  # welcome; the theme on screen
         assert screen.step == "provider"
         assert screen.choices[0].id == "openrouter"  # recommended, first, among every other provider
         assert any(choice.id == "anthropic" for choice in screen.choices)
@@ -92,7 +93,7 @@ async def test_a_first_launch_connects_openrouter_then_takes_a_pair_and_drex_and
         assert screen.step == "decision"
         await pilot.press("enter")  # Drex Max, on the OpenRouter key already given: no second key step
         await wait_for(lambda: screen.step == "done")
-        assert screen.trail == ["welcome", "provider", "key", "pair", "decision"]
+        assert screen.trail == ["welcome", "theme", "provider", "key", "pair", "decision"]
         await pilot.press("enter")
         await wait_for(lambda: app.session is not None)
         await app.action_quit()
@@ -141,7 +142,7 @@ async def test_choosing_your_own_asks_for_a_frontier_model_then_an_efficient_one
         await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
-        await pilot.press("enter")  # welcome
+        await pilot.press("enter", "enter")  # welcome; the theme on screen
         assert screen.choices[0].id == "openrouter" and screen.choices[0].group == "Ready to use"
         await pilot.press("enter", "enter")  # OpenRouter; the key already in the environment
         await wait_for(lambda: screen.step == "pair")
@@ -170,7 +171,7 @@ async def test_another_provider_walks_through_frontier_efficient_and_the_decisio
         await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
-        await pilot.press("enter")
+        await pilot.press("enter", "enter")
         assert screen.step == "provider"
         await pilot.press(*"anthropic", "enter")
         assert screen.step == "key"
@@ -229,7 +230,7 @@ async def test_a_refused_key_keeps_the_step_and_says_how_to_fix_it(tmp_path: Pat
     app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
     async with app.run_test(size=SIZE) as pilot:
         app.push_screen(screen)
-        await pilot.press("enter", "enter", *"sk-bad-key-000", "enter")
+        await pilot.press("enter", "enter", "enter", *"sk-bad-key-000", "enter")
         await wait_for(lambda: bool(requests) and not screen.busy)
         await pilot.pause()
         assert screen.step == "key"
@@ -238,12 +239,34 @@ async def test_a_refused_key_keeps_the_step_and_says_how_to_fix_it(tmp_path: Pat
         await app.action_quit()
 
 
+async def test_the_theme_step_previews_each_theme_keeps_the_pick_and_esc_puts_the_old_one_back(tmp_path: Path):
+    screen = OnboardingScreen(home=tmp_path, env=NO_KEYCHAIN)
+    app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
+    async with app.run_test(size=SIZE) as pilot:
+        app.push_screen(screen)
+        before = active_theme(app)
+        await pilot.press("enter")
+        assert screen.step == "theme"
+        assert [choice.id for choice in screen.choices] == [t.id for t in THEMES]
+        await pilot.press("down")
+        previewed = active_theme(app)
+        assert previewed != before  # moving through the list shows each theme
+        await pilot.press("escape")
+        assert screen.step == "welcome" and active_theme(app) == before  # going back puts it back
+        await pilot.press("enter", "down", "down", "enter")
+        assert screen.step == "provider"
+        kept = active_theme(app)
+        await app.action_quit()
+
+    assert tomllib.loads((tmp_path / "config.toml").read_text())["theme"] == kept
+
+
 async def test_subscriptions_intern_cannot_sign_in_with_are_not_offered(tmp_path: Path):
     screen = OnboardingScreen(home=tmp_path, env=NO_KEYCHAIN)
     app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
     async with app.run_test(size=SIZE) as pilot:
         app.push_screen(screen)
-        await pilot.press("enter")
+        await pilot.press("enter", "enter")
         assert screen.step == "provider"
         assert "anthropic" in {choice.id for choice in screen.choices}
         assert not {"claude-subscription", "chatgpt", "copilot"} & {choice.id for choice in screen.choices}

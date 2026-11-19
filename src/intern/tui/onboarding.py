@@ -16,14 +16,14 @@
 
 Intern runs on three models: a frontier model that starts each task and does the hard part, an efficient model that
 takes over for the rest, and a decision model that picks the moment and keeps the run on track. (The code calls them
-System 2, the hand-over target and System 1.) The screen says what Intern is, asks where the models run (OpenRouter
-first, signed in with the browser or a pasted key; any other provider or a local server too; a key is checked before
-it is kept), then offers Nace's frontier and efficient pairs on that provider (`onboarding.PAIRS`), or a frontier and
-an efficient model of the user's own; then the decision model, Drex Max first. It always sets two models: there is no
-"no efficient model" here. Nothing on it is an error to read and give up on: a refused key, a
-server that does not answer or a subscription Intern cannot sign in with each says what to do instead, on the step it
-happened. The last step saves (`onboarding.save`) and the screen dismisses with what it saved, for the app to open
-the session on.
+System 2, the hand-over target and System 1.) The screen says what Intern is, lets the user pick a theme (previewed as
+they move through the list, kept in config.toml), asks where the models run (OpenRouter first, signed in with the
+browser or a pasted key; any other provider or a local server too; a key is checked before it is kept), then offers
+Nace's frontier and efficient pairs on that provider (`onboarding.PAIRS`), or a frontier and an efficient model of the
+user's own; then the decision model, Drex Max first. It always sets two models: there is no "no efficient model" here.
+Nothing on it is an error to read and give up on: a refused key, a server that does not answer or a subscription Intern
+cannot sign in with each says what to do instead, on the step it happened. The last step saves (`onboarding.save`) and
+the screen dismisses with what it saved, for the app to open the session on.
 """
 
 from __future__ import annotations
@@ -71,11 +71,25 @@ from intern.onboarding import (
 )
 from intern.secret_store import MIN_SECRET_CHARS
 from intern.tui.pickers import Choice, fit, ranked
-from intern.tui.theme import BRAND, S_HEAD, S_INK, S_MUTED, S_MUTED_ITALIC, S_OK, S_OK_BOLD, S_WARN
+from intern.tui.theme import (
+    BRAND,
+    S_HEAD,
+    S_INK,
+    S_MUTED,
+    S_MUTED_ITALIC,
+    S_OK,
+    S_OK_BOLD,
+    S_WARN,
+    THEMES,
+    active_theme,
+    apply_theme,
+    save_theme,
+)
 from intern.tui.welcome import Mascot, wordmark
 
 Step = Literal[
     "welcome",
+    "theme",
     "provider",
     "unavailable",
     "address",
@@ -90,13 +104,14 @@ Step = Literal[
 ]
 STAGES: tuple[tuple[str, tuple[Step, ...]], ...] = (
     ("Welcome", ("welcome",)),
+    ("Theme", ("theme",)),
     ("Connect", ("provider", "unavailable", "address", "key")),
     ("Models", ("pair", "frontier", "efficient")),
     ("Decision model", ("decision", "decision-key", "decision-model")),
     ("Ready", ("done",)),
 )
 """The steps as the progress line shows them."""
-LISTING: tuple[Step, ...] = ("provider", "pair", "frontier", "efficient", "decision", "decision-model")
+LISTING: tuple[Step, ...] = ("theme", "provider", "pair", "frontier", "efficient", "decision", "decision-model")
 TYPED: tuple[Step, ...] = ("frontier", "efficient", "decision-model")
 """Listing steps where a name typed that is not listed is used as is."""
 CHOOSE = "choose"
@@ -170,6 +185,8 @@ class OnboardingScreen(Screen[Onboarded | None]):
         self.system1_model = ""
         self.handoff: str | None = None
         """The efficient model, `provider/model`; None until picked."""
+        self.theme_before: str | None = None
+        """The theme on screen when the theme step opened, put back if setup goes back past it."""
         self.pairs: tuple[Recommendation, ...] = ()
         """The frontier and efficient pairs on the connected provider."""
         self.keys: dict[str, str] = {}
@@ -268,6 +285,13 @@ class OnboardingScreen(Screen[Onboarded | None]):
             )
         )
         return "", Content("")
+
+    def _theme(self) -> tuple[str, Content]:
+        if self.theme_before is None:
+            self.theme_before = active_theme(self.app)
+        self.choices = [Choice(t.id, t.name, "Themes", note=t.blurb) for t in THEMES]
+        said = "Move through the list to see each one. /theme changes it any time."
+        return "Pick a theme", Content.styled(said, S_INK)
 
     def _pair(self) -> tuple[str, Content]:
         self.choices = [
@@ -454,6 +478,13 @@ class OnboardingScreen(Screen[Onboarded | None]):
             none = "nothing listed matches; Enter uses what you typed" if typed else "nothing listed matches"
             options.add_option(Option(Content.styled(none, S_MUTED), disabled=True))
         options.highlighted = first
+        if self.step == "theme" and not query:
+            options.highlighted = options.get_option_index(active_theme(self.app))
+
+    @on(OptionList.OptionHighlighted, "#setup-options")
+    def _on_highlight(self, message: OptionList.OptionHighlighted) -> None:
+        if self.step == "theme" and message.option.id is not None:
+            apply_theme(self.app, message.option.id)  # a preview: kept only when picked
 
     @on(Input.Changed, "#setup-filter")
     def _on_filter(self, message: Input.Changed) -> None:
@@ -505,6 +536,9 @@ class OnboardingScreen(Screen[Onboarded | None]):
             return
         if self.step == "done":
             return  # already saved: Enter goes on
+        if self.step == "theme" and self.theme_before is not None:
+            apply_theme(self.app, self.theme_before)
+            self.theme_before = None
         self.step = self.trail.pop()
         self._show()
 
@@ -521,7 +555,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
         if event.key == "enter" and self.step in ("welcome", "done", "unavailable"):
             event.stop()
             if self.step == "welcome":
-                self._go("provider")
+                self._go("theme")
             elif self.step == "unavailable":
                 self.action_back()
             else:
@@ -531,6 +565,15 @@ class OnboardingScreen(Screen[Onboarded | None]):
         if self.busy:
             return
         match self.step:
+            case "theme":
+                apply_theme(self.app, picked)
+                self.theme_before = None
+                status: Content | str = ""
+                try:
+                    save_theme(self.home, picked)
+                except (OSError, ValueError) as error:
+                    status = Content.styled(f"Theme set for now; could not save it ({error}).", S_WARN)
+                self._go("provider", status)
             case "pair":
                 pair = next((r for r in self.pairs if r.id == picked), None)
                 if pair is None:
