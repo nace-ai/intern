@@ -40,7 +40,7 @@ from textual.screen import ModalScreen
 from textual.timer import Timer
 from textual.widgets import Input, Static, TextArea
 
-from intern import capability_toggles, effort, names, secrets_commands
+from intern import capability_toggles, names, secrets_commands
 from intern.capability_settings import CapabilitySettings, GuardConfig, HandoffConfig
 from intern.config import (
     KNOWN_SYSTEM2,
@@ -96,7 +96,7 @@ from intern.loop import ModelBinding
 from intern.memory.spend import read_spend
 from intern.messages import AssistantMessage, ToolResultMessage, Usage, UserMessage
 from intern.models.catalog import DECISIONS_PREFIX, Catalog, ModelInfo, RunnerInfo, system1_choices
-from intern.models.profile import AUTO_EFFORT, EFFORT_LEVELS
+from intern.models.profile import EFFORT_LEVELS
 from intern.models.registry import ConfigError, Role
 from intern.needs import InstallFailed, Needs, Say, install
 from intern.processes import duration_text
@@ -105,7 +105,6 @@ from intern.session_cut import STATE_SHARE, CutView, cut_view
 from intern.session_setup import capability_needs, runner_choices, runner_config, runner_problem
 from intern.tui.ledger import (
     CompactionJudgement,
-    EffortJudgement,
     GuardJudgement,
     HandoverJudgement,
     Ledger,
@@ -129,7 +128,6 @@ from intern.tui.widgets import (
     Transcript,
     attachments,
     brief,
-    effort_card,
     ended_lines,
     guard_card,
     handoff_card,
@@ -218,8 +216,8 @@ COMMANDS: dict[str, str] = {
     "it; /secrets set <NAME> stores one, /secrets remove <NAME> deletes one; new sessions use them",
     "/setup": "connect your models: walks through System 2's provider, its key and model, then System 1's; saves "
     "them to config.toml and the keychain and reopens the session on them",
-    "/thinking": "the thinking level, low to max as the model takes it, for models that take one; or, on Anthropic's "
-    "API, auto: System 1 picks it for each run, from the request (also Shift+Tab; ←→ in the /system2 picker)",
+    "/thinking": "the thinking level, low to max as the model takes it, for models that take one (also Shift+Tab; "
+    "←→ in the /system2 picker)",
     "/compact": "compact the conversation now, as a run does near the window's limit: the older turns cut to "
     "System 2's summary (written first if it does not cover them), the most recent share of the window kept as it is",
     "/abort": "stop the run in progress (also Esc)",
@@ -273,15 +271,9 @@ def _switched(toggle_id: str, on: bool) -> str:
     return f"{name.replace('-', ' ')} {state}"
 
 
-AUTO_ONLY = "auto is on Anthropic's API only: elsewhere a change of level has the provider read the whole prompt again"
-"""Why a model off Anthropic's API has no `auto` level (`effort_keeps_cache`)."""
-
-
 def thinking_levels(binding: ModelBinding) -> tuple[str, ...]:
-    """What /thinking and Shift+Tab set System 2's thinking level to: the efforts the model takes, least to most, then
-    auto, where System 1 picks one of them for each run, on a provider that keeps its prompt cache when the level
-    changes (Anthropic's API)."""
-    return (*binding.effort_levels, *((AUTO_EFFORT,) if binding.takes_auto else ())) if binding.takes_effort else ()
+    """What /thinking and Shift+Tab set System 2's thinking level to: the efforts the model takes, least to most."""
+    return binding.effort_levels if binding.takes_effort else ()
 
 
 def _guard_state(guard: GuardConfig) -> GuardState:
@@ -583,7 +575,6 @@ class HarnessApp(App[None]):
             system1=status.system1,
             thinking=status.thinking,
             levels=status.levels,
-            picked=status.picked,
             note=status.note,
             cwd=self._cwd,
             journal=session.deps.journal.path if session is not None else None,
@@ -965,8 +956,6 @@ class HarnessApp(App[None]):
                 await self._show_verdict(row)
             case Decision(purpose="guard") if isinstance(row, GuardJudgement):
                 await self._show_guard(row)
-            case Decision(purpose=effort.PURPOSE) if isinstance(row, EffortJudgement):
-                await self._show_effort(row)
             case StateWriting():
                 self.status.activity = "⟲ writing the summary"
             case State():
@@ -1109,16 +1098,6 @@ class HarnessApp(App[None]):
         """The supervisor's card at the turn boundary; redrawn when a nudge follows it."""
         key = f"s1:{self.run_count}:{j.turn}"
         await self.transcript.marker(supervisor_card(j), key=key, classes="decision")
-
-    async def _show_effort(self, e: EffortJudgement) -> None:
-        """System 1's pick of the run's thinking level: its card under the prompt, and the masthead's pips up to it,
-        the glint sweeping across `auto` as it lands."""
-        await self.transcript.marker(effort_card(e), key=f"effort:{self.run_count}", classes="decision auto")
-        self.status.picked = e.level
-        if self._replaying:
-            self.status.refresh_line()
-        else:
-            self.status.glint()
 
     async def _show_guard(self, g: GuardJudgement) -> None:
         """System 1's judgement of a tool call, under the call it concerns: the latest running call of that tool,
@@ -1830,8 +1809,7 @@ class HarnessApp(App[None]):
         levels: tuple[str, ...] = ()
         if role == "system2":  # the current model's run; the whole ladder when it takes none, for the pick
             binding = self.session.deps.system2 if self.session is not None else None
-            auto = (AUTO_EFFORT,) if binding is None or binding.takes_auto else ()
-            levels = (*((binding.effort_levels if binding is not None else ()) or EFFORT_LEVELS), *auto)
+            levels = (binding.effort_levels if binding is not None else ()) or EFFORT_LEVELS
         picker = ModelPicker(title, self._choices(role), current, hint=hint, levels=levels, thinking=thinking)
         self.push_screen(
             picker,
@@ -1906,8 +1884,6 @@ class HarnessApp(App[None]):
         if kept in thinking_levels(binding):
             self._apply_thinking(binding, kept)
             return ""
-        if kept == AUTO_EFFORT:
-            return f" ({AUTO_ONLY})"
         return f" ({kept} is not a level it takes)"
 
     async def _thinking(self, level: str) -> None:
@@ -1931,23 +1907,17 @@ class HarnessApp(App[None]):
                 f"Thinking is {current}; /thinking {'|'.join(levels)} sets it, Shift+Tab cycles it."
             )
             return
-        if level == AUTO_EFFORT and level not in levels:
-            await self.transcript.notice(f"{AUTO_ONLY}; /thinking takes {', '.join(levels)} (now: {current}).", "warn")
-            return
         if level not in levels:
             await self.transcript.notice(f"/thinking takes {', '.join(levels)} (now: {current}).", "warn")
             return
         self._apply_thinking(binding, level)
         self.pending.thinking = level
         self._refresh_status()
-        if level == AUTO_EFFORT:
-            self.status.glint()
         if not self.query(Welcome):  # the entering page has the level on System 2's card
-            said = " (System 1 picks the level for each run)" if level == AUTO_EFFORT else ""
-            await self.transcript.notice(f"Thinking → {level}{said}", "ok")
+            await self.transcript.notice(f"Thinking → {level}", "ok")
 
     async def action_cycle_thinking(self) -> None:
-        """Shift+Tab: the next level round, from the model's own to low, past the highest to auto."""
+        """Shift+Tab: the next level round, from the model's own to low, past the highest to low again."""
         if isinstance(self.screen, ModalScreen):
             raise SkipAction()  # a picker has its own; the State screen none
         session = self.session

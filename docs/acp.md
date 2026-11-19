@@ -100,7 +100,7 @@ Every session advertises these `configOptions`, in this order, then the
 |---|---|---|---|---|
 | `model` | `model` | select | System 2 as `provider/model`, grouped by provider | the session's System 2 |
 | `system1` | `model_config` | select | decision models served by the console, then `decisions:<model>` for decision models on the decisions API | `drex-latest`, unless config or `--system1` says otherwise |
-| `thought_level` | `thought_level` | select | `default` (no effort sent) through Anthropic's and OpenAI's APIs and where the profile lists `effort_levels`, then the levels the model takes: `low` to `max` through Anthropic's API, `low` to `xhigh` through OpenAI's, the profile's `effort_levels`, else `low`, `medium`, `high`; then, through Anthropic's API, `auto` (System 1 picks one of those levels for each run) | the model profile's `reasoning_effort`, else `default` |
+| `thought_level` | `thought_level` | select | `default` (no effort sent) through Anthropic's and OpenAI's APIs and where the profile lists `effort_levels`, then the levels the model takes: `low` to `max` through Anthropic's API, `low` to `xhigh` through OpenAI's, the profile's `effort_levels`, else `low`, `medium`, `high` | the model profile's `reasoning_effort`, else `default` |
 | `context_window` | `model_config` | select | `auto`, or a token count: `32000`, `64000`, `128000`, `256000`, `512000`, `1000000` | `auto` |
 | `runner` | `_nace_runner` | select | where commands run: `local`, `docker`, `opensandbox`, then each runner an installed package registers | `[capabilities.runner] name`, else `local` |
 
@@ -132,14 +132,9 @@ Every session advertises these `configOptions`, in this order, then the
   packaged profiles give none to OpenAI's GPT-4.1, GPT-4o and gpt-live and to Claude Sonnet and Haiku 4.5, whose
   APIs refuse the field, so sessions on them advertise no `thought_level`, and the few the Pro models and
   chat-latest take. On Anthropic's and OpenAI's APIs and with `effort_levels`, `default` comes first and sends
-  none, so the model uses its own; it is the current value when the profile names no effort. Through
-  Anthropic's API, on a model that takes levels, `auto` comes last (0.41.0 and later): at the first request of each run System 1 picks one
-  of the model's levels from the request that started the run, and every request of that run goes with it.
-  The pick is a `decision` event with purpose `effort`, its answer `level` the level chosen; a run started at
-  `auto` costs one System 1 ask more. It is offered nowhere else: on the other providers a change of level
-  has the provider read the whole prompt again, uncached (OpenAI, Fireworks, DeepInfra, OpenRouter's
-  upstreams), and `thought_level` refuses `auto` there as any value it does not list. A profile's
-  `reasoning_effort` may be `auto` too; off Anthropic's API no effort is sent then. The packaged
+  none, so the model uses its own; it is the current value when the profile names no effort. Until [0.48.0](#0480) `auto` came last through Anthropic's API, where System 1 picked a level for each
+  run; a client that still sets it gets `default`, and a profile whose `reasoning_effort` names it loads as one
+  that names none. The packaged
   profiles list `effort_levels` for DeepSeek V4 Flash on Fireworks. It holds across a capability
   reopen but is not journaled: a loaded session starts at the profile's value. A `model` change may add or drop it; the
   `set_config_option` response always lists every option as it now stands.
@@ -406,7 +401,7 @@ known (readers must ignore keys they do not know):
 - `reasoning`: the model takes a reasoning effort, so a session on it advertises `thought_level`.
 - `efforts` (0.15.0 and later): the values that `thought_level` takes on it, in the order a session lists
   them: `default` first on Anthropic's and OpenAI's APIs and with a profile's `effort_levels`, then the
-  levels, least to most, then `auto` on Anthropic's API (0.41.0 and later).
+  levels, least to most (0.41.0 to 0.47.0 listed `auto` last on Anthropic's API).
 - `window`: the most context, in tokens, a session on it can use: the profile's `window`, else what the
   provider's listing says, no larger than the profile's `effective_window`. Absent when neither says. A
   session's `context_window` presets go up to it.
@@ -1375,3 +1370,17 @@ cheaper model it is taking over is no longer a message of the conversation, so n
 `message` event carry it: that model is sent it for the rest of the run, the journal does not keep it, and System 2
 never reads it; nor does System 1, whose State is the journal's. When a run hands over is unchanged. Still
 `PROTOCOL_VERSION` 3; ACP does not carry the event, and 0.46.1 clients keep working.
+
+### 0.48.0
+
+The `auto` thinking level is gone: System 1 no longer picks System 2's reasoning effort for each run. A change of
+level costs the prompt cache through Anthropic's API too, where only the system prompt, the tools and the first
+user message are read back after one, so a pick that changed from one run to the next paid for the conversation
+again. 0.47.0 clients keep working.
+
+- `thought_level` no longer lists `auto`, and `models --json` no longer lists it in a model's `efforts`. A client
+  that still sets `thought_level` to `auto` gets `default` (the model's own level), not an error.
+- No `decision` event has purpose `effort`.
+- A profile whose `reasoning_effort` is `auto` loads as one that names none.
+- In the terminal UI, `/thinking` and Shift+Tab set the levels the model takes, and the masthead shows the one in
+  force.

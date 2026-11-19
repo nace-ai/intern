@@ -207,10 +207,7 @@ System 2 (the model, then the thinking level) and System 1 (the model, then wher
 labels in one column, the models in the next, the rest in a third. At the end of System 2's row, the run:
 a spinner while one is in progress (`○` when none is), the latest request's tokens as a share of the
 working window, and what the run is waiting on or what needs attention. The thinking level is in a filled box with a pip per level the model takes, filled
-up to the one in force (none for the model's own), so Shift+Tab is seen to change it. At `auto` the box says
-`✦ auto` in the accent, its pips filled up to the level System 1 picked for the latest run (none before
-the first), and a glint sweeps across it while a run is in progress and for a moment once it is chosen or System
-1 picks; the pick is also a card under the run's prompt and a row of System 1's panel (below). Each system's cost
+up to the one in force (none for the model's own), so Shift+Tab is seen to change it. Each system's cost
 so far is in a fourth column. It moves as the calls are made, during a run too
 (System 2's replies and State writes, System 1's asks, memory recall's among them), and comes back with a
 resumed journal, but for code search's asks, which the journal does not keep. A
@@ -240,12 +237,6 @@ refused`, red), what the call would do (routine, one of the risks, or unclear), 
 reason under it when it refused. A call a fixed rule refused reads `✗ refused   rule · <rule>`; no
 model was asked. A number past its threshold is red. The
 supervisor card's edge is a thin muted bar.
-
-At the `auto` thinking level, System 1's pick of the run's level is a card right under the prompt, before the
-reply, its edge and its sign the accent as the masthead's `✦ auto` is: `✦ System 1 · 0.3s   thinking ▁▄▅ high
-0.54   medium 0.45   low 0.01`. The ladder is a column for each level the model takes, least to most, as tall as
-System 1's probability for it, the one picked in the accent, so a sure pick (`▁▁█`) reads apart from a close one
-(`▁▄▅`) at a glance; then the level, its probability, and the two next likeliest, muted.
 
 **A compaction** is a card where it happened, about System 2's context, and the whole of it shows there.
 First System 2 writes the summary it will continue from (the State, in the engine's words; the compaction
@@ -405,9 +396,6 @@ State in full, as the exact text it is given (its JSON laid out).
 `tui/ledger.py`). System 1 is asked for different things, and each kind reads its own way, in the
 order they came, each run under its prompt:
 
-- `✦` **thinking**: the level System 1 picked for the run at `auto`, first under its prompt, worded as its card
-  in the transcript: `thinking ▁▄▅ high 0.54   medium 0.45`, the ladder and the level in the accent, the next
-  likeliest as far as the line holds them. Its sign is in the accent too.
 - **watch**: what the supervisor (`supervise.py`) answered at the end of a turn it looked at, in a line: one bar of twelve cells,
   each mode it weighed taking its share of them in its own colour, so a call is seen to have been one of several;
   the mode it called and its probability; the modes it weighed most against that one, muted, as far as the line
@@ -430,8 +418,8 @@ order they came, each run under its prompt:
 
 Above the feed, what the asks came to: how many System 1 answered, how long one took, how many the cache answered
 and how many failed and were retried; then the count by kind, each behind the sign its rows start with (a watched turn's bar, a guarded call's tick), so
-the line is also the feed's legend. The signs are muted and only a guard's tick or cross and the thinking pick's `✦`
-are coloured, so what stands out in the feed is how a judgement went, and the level each run goes with. A search's asks are counted there (`⌕ search 97`) and stand as one row. The feed follows its end as the
+the line is also the feed's legend. The signs are muted and only a guard's tick or cross and a hand-over's `⇢`
+are coloured, so what stands out in the feed is how a judgement went, and where a run handed over. A search's asks are counted there (`⌕ search 97`) and stand as one row. The feed follows its end as the
 session grows; the newest 400 lines are drawn. System 2's context is the masthead's.
 
 The feed comes from the event stream alone (`decision`, `tool_call_start`, `tool_call_end`, `tool_guard`, `nudge`,
@@ -492,7 +480,7 @@ a notice and is off for the rest of the session, and the TUI goes on.
 | `/runner` | pick where commands run: `local`, `docker`, `opensandbox` or an installed runner, the one in use first, each that cannot run here saying why. `/runner <name>` sets it directly. The session reopens on its journal on the new runner ([runners](capabilities/runners.md)). |
 | `/setup` | the setup screen a first launch opens on: what Intern is, then System 2's provider (20+ API-key providers, local servers, any OpenAI-compatible endpoint), its key (checked with the provider first; OpenRouter also by signing in in the browser) and model, then System 1's decision model (Drex Max on OpenRouter first, Drex from the Nace console, Jev, or any decisions-API model). Saves `system2` and `[system1]` to config.toml and the keys to the keychain (`.env` in the config home where there is none), then opens or reopens the session on them. Also `/login`, `/connect`. A launch with nothing to run on opens it instead of an error, and so does one whose System 1 has no key. |
 | `/secrets` | the [secrets store](secrets.md): each entry with whether it loads now (problems first, with what to do; a key the harness reads itself, such as a model key, is marked harness only), and **Add a secret…**. Enter on a keychain entry replaces its value in a form whose value field is hidden. `/secrets set <NAME>` opens the form, `/secrets remove <NAME>` deletes one. New sessions get the change; `/reload` uses it now. Values are never shown. |
-| `/thinking <level>` | the thinking level: `low`, `medium`, `high`, `xhigh` or `max` through Anthropic's API, `low` to `xhigh` through OpenAI's, and `low`, `medium` or `high` elsewhere when the model's profile names one; or, through Anthropic's API, `auto`, where System 1 picks one of those for each run, from the request that starts it, and every request of the run goes with it (one System 1 ask a run); elsewhere a change of level has the provider read the whole prompt again, so `auto` is not offered there and `/thinking auto` says so. Shift+Tab cycles it (past the highest comes `auto` where it is offered, then the lowest), ←/→ in the `/system2` picker set it with the pick, and the masthead shows it (`default` is the model's own). It applies from the next request, during a run too, and stays across model switches, `/caps` and `/clear`; a model that lacks the level keeps its own, the switch notice says so, and the choice is back on the next model that takes it. A model whose API takes no level (GPT-4o, Claude Sonnet 4.5) has none: no box on the masthead, Shift+Tab and `/thinking` say why, and the switch notice says it takes none. |
+| `/thinking <level>` | the thinking level: `low`, `medium`, `high`, `xhigh` or `max` through Anthropic's API, `low` to `xhigh` through OpenAI's, and `low`, `medium` or `high` elsewhere when the model's profile names one. Shift+Tab cycles it (past the highest comes the lowest), ←/→ in the `/system2` picker set it with the pick, and the masthead shows it (`default` is the model's own). It applies from the next request, during a run too, and stays across model switches, `/caps` and `/clear`; a model that lacks the level keeps its own, the switch notice says so, and the choice is back on the next model that takes it. A model whose API takes no level (GPT-4o, Claude Sonnet 4.5) has none: no box on the masthead, Shift+Tab and `/thinking` say why, and the switch notice says it takes none. |
 | `/compact` | compact the conversation now, between runs, exactly as a run does once its request passes `compact_at` of the working window (75% by default): the turns before the most recent `keep_recent` share (35%) cut to System 2's summary (the State), written first when it does not cover them (trigger `compaction`), the file reads System 1 says the work needs kept verbatim, the extensions' say. Only the size check is skipped. When the whole conversation fits in the recent share there is nothing to cut, and it says so; with a 1M window that is anything under 350k tokens. The masthead reads `compacting` meanwhile and a prompt waits for it; Esc stops it before anything is cut. |
 | `/abort` | stop the run in progress |
 | `/clear` | start over: the screen cleared and a new session opened on a fresh journal, with the models and capabilities as they are. The journal so far stays on disk, to resume with `--session`. |

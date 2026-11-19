@@ -80,7 +80,7 @@ from intern.events import ContextBudget, Event, EventSink, RunEnd
 from intern.journal import CapabilitiesChangeEntry, Journal, ModelChangeEntry
 from intern.memory.spend import read_spend
 from intern.models.catalog import CACHE_TTL_S, Catalog, ModelInfo
-from intern.models.profile import DEFAULT_EFFORT, Profile
+from intern.models.profile import DEFAULT_EFFORT, RETIRED_AUTO, Profile
 from intern.models.registry import ConfigError
 from intern.models.window import recapped
 from intern.needs import InstallFailed, Needs, Say, install
@@ -977,8 +977,7 @@ class AcpAgent:
                     id="thought_level",
                     name="Thinking",
                     category="thought_level",
-                    description="The reasoning effort sent with each request; default sends none, and auto has "
-                    "System 1 pick one for each run, from its request.",
+                    description="The reasoning effort sent with each request; default sends none.",
                     type="select",
                     current_value=effort if effort in choices else choices[0],
                     options=[SessionConfigSelectOption(value=level, name=level.title()) for level in choices],
@@ -1013,6 +1012,8 @@ class AcpAgent:
                 await session.set_model(value, "system1")
             elif config_id == "thought_level" and session.deps.system2.takes_effort:
                 binding = session.deps.system2
+                if value == RETIRED_AUTO and DEFAULT_EFFORT in binding.effort_choices:
+                    value = DEFAULT_EFFORT  # a client from before 0.48.0, where System 1 picked the level
                 if value not in binding.effort_choices:
                     raise RequestError(-32602, f"thought_level takes one of {', '.join(binding.effort_choices)}")
                 effort = None if value == DEFAULT_EFFORT else value

@@ -230,11 +230,6 @@ Screen {
     border-left: wide $error;
 }
 
-/* System 1's pick of a run's thinking level, at auto: in the accent, as the masthead's box says it. */
-.decision.auto {
-    border-left: wide $brand;
-}
-
 /* A hand-over's turns, the cheaper model's until the run ends, set apart from System 2's: a hairline above and
    below them, in the accent as the panels' borders are. */
 .handed {
