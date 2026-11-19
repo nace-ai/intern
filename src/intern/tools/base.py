@@ -6,6 +6,8 @@ import asyncio
 import difflib
 import errno
 import hashlib
+import os
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
@@ -94,6 +96,31 @@ _OS_NEXT_ACTIONS: dict[int, str] = {
     errno.ENAMETOOLONG: "Use a shorter path.",
     errno.ENOSPC: "The disk is full. Free some space, or write less.",
 }
+
+
+# The refusals a command's output names, as programs print an OSError: `cp: /tmp/x.py: Operation not permitted` (C, Go;
+# GNU quotes the path), `[Errno 30] Read-only file system: '/x'` (Python), `EPERM: operation not permitted, open '/x'`
+# (Node). EACCES is left out: a command's "Permission denied" is as often a script without its execute bit, or an SSH
+# key, as a path the run may not use.
+_REFUSED_ERRNOS = {os.strerror(code).lower(): code for code in (errno.EPERM, errno.EROFS)}
+_WHY = "|".join(map(re.escape, _REFUSED_ERRNOS))
+_REFUSED_PATH = re.compile(
+    r"(?:[‘'\"](?P<quoted>[^‘’'\"\n]+)[’'\"]"  # path: why, the path quoted
+    r"|(?<![^\s(])(?=[^\s:]*[/.~])(?P<bare>[^\s:‘’'\"]+))"  # or bare, and then it has a / . or ~
+    rf": (?P<why>{_WHY})[ \t]*$"
+    rf"|(?P<why_first>{_WHY})(?:: |, \w+ )['\"](?P<named>[^'\"\n]+)['\"]",  # why: 'path', or why, open 'path'
+    re.IGNORECASE | re.MULTILINE,
+)
+
+
+def refused_path_action(output: str) -> str | None:
+    """What to do about the first path `output` says the system refused, or None when it names none."""
+    match = _REFUSED_PATH.search(output)
+    if match is None:
+        return None
+    path = match["quoted"] or match["bare"] or match["named"]
+    why = (match["why"] or match["why_first"]).lower()
+    return f"The system refused {path} ({why}). {_OS_NEXT_ACTIONS[_REFUSED_ERRNOS[why]]}"
 
 
 def os_failure(tool: str, error: OSError) -> ToolOutput:

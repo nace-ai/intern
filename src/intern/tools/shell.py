@@ -36,7 +36,7 @@ from intern.processes import (
     idle_stopped_text,
 )
 from intern.providers.base import ToolSpec
-from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail
+from intern.tools.base import Effect, Tool, ToolContext, ToolOutput, fail, refused_path_action
 
 DEFAULT_TIMEOUT_S = 120
 MAX_TIMEOUT_S = 1800
@@ -470,7 +470,7 @@ class BashTool(Tool):
         if result.exit_code != 0:
             return fail(
                 f"the command exited with code {result.exit_code}",
-                "Read the output above and fix the cause before running it again.",
+                refused_path_action(output) or "Read the output above and fix the cause before running it again.",
                 content=output,
                 retry_safe=False,
             ).model_copy(update=metadata)
