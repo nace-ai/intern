@@ -200,6 +200,8 @@ Opener = Callable[[EventSink, Models], Awaitable[Session]]
 Installer = Callable[[Needs, Say], Awaitable[None]]
 """Installs what a capability needs and this environment lacks, saying what it does (`needs.install`)."""
 
+DECIDES = " · decision model"
+"""What a capability's label has (`capability_toggles.toggles`) when the decision model takes part in it."""
 ENTERING_HIDES = ("#status", "#side")
 """What the entering page takes the place of."""
 ADD_SECRET = "+add"
@@ -409,8 +411,11 @@ class HelpScreen(ModalScreen[None]):
         page = VerticalScroll(id="help-page")
         page.border_title = Content.assemble((" Commands and keys ", S_TAB))
         page.border_subtitle = Content.assemble((" Esc", S_HEAD), (" closes ", S_MUTED))
+        here = "/dark" if self.app.current_theme.dark else "/light"  # the look in force needs no line
         with page:
-            yield HelpCard({**HELP, "Keys": KEYS})
+            yield HelpCard(
+                {**{group: {k: v for k, v in rows.items() if k != here} for group, rows in HELP.items()}, "Keys": KEYS}
+            )
 
     def action_close(self) -> None:
         self.dismiss(None)
@@ -612,7 +617,7 @@ class HarnessApp(App[None]):
             note=status.note,
             cwd=self._cwd,
             journal=session.deps.journal.path if session is not None else None,
-            capabilities=[(toggle.id, toggle.name.lower(), toggle.on) for toggle in toggles],
+            capabilities=[(t.id, t.name, t.on, DECIDES in t.label) for t in toggles],
             tools=len(session.deps.tools) if session is not None else 0,
             guard=_guard_state(self._capabilities_now().guard) if session is not None else "off",
         )
@@ -1327,6 +1332,8 @@ class HarnessApp(App[None]):
             case ("/dark" | "/light") as look:
                 self.pending.dark = look == "/dark"
                 self.theme = (DARK_THEME if self.pending.dark else LIGHT_THEME).name
+                for page in self.query(Welcome):  # its tips offer the other look now
+                    page.show(page.opening)
             case "/help":
                 self.push_screen(HelpScreen())
             case "/quit" | "/exit":
