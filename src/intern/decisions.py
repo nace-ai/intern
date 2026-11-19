@@ -200,7 +200,9 @@ class DecisionsApiBackend:
         async def send() -> httpx.Response:
             key = await bearer(self._credential, self._url)
             headers = {**names.CLIENT_HEADERS, **({"Authorization": f"Bearer {key}"} if key else {})}
-            return await client.post(self._url, headers=headers, json=request, timeout=limit)
+            response = await client.post(self._url, headers=headers, json=request, timeout=limit)
+            self._credential.observe(response.headers)
+            return response
 
         response = await send()
         if token_expired(response.status_code, response.content):

@@ -77,6 +77,7 @@ from intern import __version__, capability_toggles, names
 from intern.capability_settings import CapabilitySettings
 from intern.config import Bootstrap, Options, System2Unavailable, home_dir, process_env
 from intern.events import ContextBudget, Event, EventSink, Handoff, RunEnd, RunStart
+from intern.free_session import FreeLocked, FreeSession
 from intern.handoff import HANDOFF_ROLE
 from intern.journal import CapabilitiesChangeEntry, Journal, ModelChangeEntry
 from intern.memory.spend import read_spend
@@ -138,6 +139,8 @@ class OpenRequest:
     emit: EventSink
     capabilities: CapabilitySettings | None = None
     """A whole replacement for the configured capabilities, from the client's toggles; None keeps them."""
+    remembered: bool = False
+    """`system2` is the model the journal last ran on, not the client's pick: free credit sets it aside."""
 
 
 SessionOpener = Callable[[OpenRequest], Awaitable[Session]]
@@ -152,7 +155,7 @@ def bootstrap_opener(options: Options, env: Mapping[str, str] | None = None) -> 
     async def open_session(request: OpenRequest) -> Session:
         update: dict[str, Any] = {"cwd": request.cwd, "session_file": request.journal}
         if request.system2:
-            update["system2"] = request.system2
+            update |= {"system2": request.system2, "system2_picked": not request.remembered}
         if request.capabilities is not None:
             # Built from the configured settings, which already hold --memory, --no-memory and --handoff-to.
             update |= {"capabilities": request.capabilities, "memory": None, "memory_off": False, "handoff_to": None}
@@ -217,6 +220,11 @@ def with_handoff(caps: CapabilitySettings, to: str | None) -> CapabilitySettings
     return caps.model_copy(update={"handoff": caps.handoff.model_copy(update={"to": to})})
 
 
+def locked(error: FreeLocked) -> RequestError:
+    """A model picked for a system on free credit: `-32602` with `data.code` `free_locked`."""
+    return RequestError(-32602, str(error), {"code": error.code})
+
+
 def tokens_label(tokens: int) -> str:
     return f"{tokens / 1_000_000:.3g}M" if tokens >= 1_000_000 else f"{round(tokens / 1000)}K"
 
@@ -255,6 +263,9 @@ class UnboundSession:
     opening: bool = False
     window: str | None = None
     """A `context_window` picked before a model bound, applied once one does."""
+    system1_picked: bool = False
+    """`system1` is the client's pick, not the configured or journaled one: refused, not set aside, while System 1
+    runs on free credit."""
 
 
 @dataclass
@@ -313,6 +324,7 @@ class LiveSession:
             context_tokens=self.context_tokens,
             cost_usd=self.cost_usd,
             model=self.model,
+            free=self.session.free.wire() if self.session.free is not None else None,
         )
 
     async def flush(self) -> None:
@@ -412,9 +424,15 @@ class AcpAgent:
     # Sessions
 
     def _request(
-        self, cwd: Path, journal: Path | None, system2: str | None, emit: EventSink, caps: CapabilitySettings
+        self,
+        cwd: Path,
+        journal: Path | None,
+        system2: str | None,
+        emit: EventSink,
+        caps: CapabilitySettings,
+        remembered: bool = False,
     ) -> OpenRequest:
-        return OpenRequest(cwd, journal, system2, emit, None if caps == self._capabilities else caps)
+        return OpenRequest(cwd, journal, system2, emit, None if caps == self._capabilities else caps, remembered)
 
     async def _start(
         self,
@@ -424,19 +442,22 @@ class AcpAgent:
         caps: CapabilitySettings,
         session_id: str | None = None,
         fallback: CapabilitySettings | None = None,
+        remembered: bool = False,
     ) -> LiveSession:
         """Open a harness session, on `fallback` when it cannot open on `caps`. Raises System2Unavailable when its
         System 2 cannot bind."""
         queue: asyncio.Queue[Event] = asyncio.Queue()
         try:
-            session = await self._open(self._request(Path(cwd), journal, system2, queue.put_nowait, caps))
+            session = await self._open(self._request(Path(cwd), journal, system2, queue.put_nowait, caps, remembered))
         except System2Unavailable:
             raise
+        except FreeLocked as e:
+            raise locked(e) from None
         except ConfigError as e:
             if fallback is None:
                 raise RequestError(-32602, str(e)) from None
             print(f"{names.NAME}: {e}; the session opens on the configured settings", file=sys.stderr)
-            return await self._start(cwd, journal, system2, fallback, session_id)
+            return await self._start(cwd, journal, system2, fallback, session_id, remembered=remembered)
         packs = tuple(session.deps.system2.profile.tool_packs) if caps.tool_packs is None else DEFAULT_PACKS
         live = LiveSession(session_id or session.deps.journal.session_id, session, caps, packs, queue)
         live.pump = asyncio.create_task(self._pump(live), name=f"acp-updates-{live.id}")
@@ -501,10 +522,14 @@ class AcpAgent:
         caps: CapabilitySettings,
         session_id: str | None = None,
         fallback: CapabilitySettings | None = None,
+        remembered: bool = False,
+        system1_picked: bool = True,
     ) -> LiveSession | UnboundSession:
-        """A live session on `system2` (the configured default when None), or an unbound one when it cannot bind."""
+        """A live session on `system2` (the configured default when None), or an unbound one when it cannot bind.
+        `remembered` and not `system1_picked`: the models came from the journal, not the client, so a system on
+        free credit sets them aside rather than refuse them."""
         try:
-            live = await self._start(cwd, journal, system2, caps, session_id, fallback)
+            live = await self._start(cwd, journal, system2, caps, session_id, fallback, remembered)
         except System2Unavailable as e:
             # A new session's entry is written now, so the id the client keeps finds this journal on load.
             unbound = UnboundSession(
@@ -515,21 +540,43 @@ class AcpAgent:
                 system1=system1 or e.system1,
                 reason=str(e),
                 capabilities=caps,
+                system1_picked=system1_picked and system1 is not None,
             )
             self.unbound[unbound.id] = unbound
             return unbound
-        await self._settle(live, picked=system2 is not None, system1=system1)
+        await self._settled(live, picked=system2 is not None, system1=system1, system1_picked=system1_picked)
         return live
 
-    async def _settle(self, live: LiveSession, *, picked: bool, system1: str | None, window: str | None = None) -> None:
+    async def _settled(self, live: LiveSession, **settle: Any) -> None:
+        """`_settle`; a pick refused because its system runs on free credit closes the session it opened."""
+        try:
+            await self._settle(live, **settle)
+        except FreeLocked as e:
+            self.sessions.pop(live.id, None)
+            await self._close(live)
+            raise locked(e) from None
+
+    async def _settle(
+        self,
+        live: LiveSession,
+        *,
+        picked: bool,
+        system1: str | None,
+        system1_picked: bool = True,
+        window: str | None = None,
+    ) -> None:
         """Journal a System 2 and toggles the client picked at open, so a later load continues on them; switch
-        System 1 and apply a window picked while unbound."""
+        System 1 and apply a window picked while unbound. The bundle's models are not journaled: a load after the
+        free credit is spent continues on the user's own."""
         session = live.session
         ref = session.deps.system2.ref
-        if picked and session.deps.journal.last_models().get("system2") != ref:
+        free = session.free
+        agent_free = free is not None and free.on_free("agent")
+        if picked and not agent_free and session.deps.journal.last_models().get("system2") != ref:
             session.deps.journal.append(ModelChangeEntry(role="system2", model=ref))
         self._record(live)
-        if system1 and system1 != session.system1:
+        system1_free = free is not None and free.on_free("system1")
+        if system1 and system1 != session.system1 and (system1_picked or not system1_free):
             await session.set_model(system1, "system1")
         if window is not None:
             session.set_window_cap(window_cap(window))
@@ -546,7 +593,9 @@ class AcpAgent:
         finally:
             unbound.opening = False
         self.unbound.pop(unbound.id, None)
-        await self._settle(live, picked=True, system1=unbound.system1, window=unbound.window)
+        await self._settled(
+            live, picked=True, system1=unbound.system1, system1_picked=unbound.system1_picked, window=unbound.window
+        )
         return live
 
     async def _pump(self, live: LiveSession) -> None:
@@ -607,7 +656,17 @@ class AcpAgent:
             # The hand-over model the session last picked, unless it can no longer be bound here.
             caps, fallback = with_handoff(caps, handoff or None), caps
         system1 = meta.system1 or models.get("system1")
-        opened = await self._open_session(cwd, path, system2, system1, caps, session_id, fallback)
+        opened = await self._open_session(
+            cwd,
+            path,
+            system2,
+            system1,
+            caps,
+            session_id,
+            fallback,
+            remembered=not meta.system2,
+            system1_picked=bool(meta.system1),
+        )
         self._refresh_catalog()
         if isinstance(opened, LiveSession):
             path_entries, mapping = opened.session.deps.journal.active_path(), opened.mapping()
@@ -699,6 +758,7 @@ class AcpAgent:
         before = session.usage
         # Shared across System 1 switches, so the difference is this prompt's asks, tools' own included.
         system1_before = session.deps.decisions.usage.model_copy()
+        sources = session.free.source if session.free is not None else None
         live.handed = None
         try:
             # No await before run(): a cancel that follows this prompt finds the run started.
@@ -706,6 +766,8 @@ class AcpAgent:
         except SessionBusy as e:
             raise RequestError(SESSION_BUSY, str(e)) from None
         await live.flush()
+        if session.free is not None and session.free.source != sources:
+            await self._send_options(live)  # a run started on the user's own keys: its pickers are theirs again
         reason = acp_mapping.stop_reason(outcome.reason)
         if reason is None:
             if outcome.reason == "provider_error":
@@ -864,10 +926,13 @@ class AcpAgent:
 
     async def _open_again(self, live: LiveSession, old: Session, caps: CapabilitySettings) -> Session:
         deps = old.deps
-        request = self._request(deps.cwd, deps.journal.path, deps.system2.ref, live.queue.put_nowait, caps)
+        request = self._request(
+            deps.cwd, deps.journal.path, deps.system2.ref, live.queue.put_nowait, caps, remembered=True
+        )
         session = await self._open(request)
         try:
-            if old.system1 != session.system1:
+            system1_free = any(s.free is not None and s.free.on_free("system1") for s in (old, session))
+            if old.system1 != session.system1 and not system1_free:
                 await session.set_model(old.system1, "system1")
             effort = deps.system2.profile.reasoning_effort
             binding = session.deps.system2
@@ -922,7 +987,11 @@ class AcpAgent:
             return [*options, self._runner_option(caps), *self._capability_options(caps, DEFAULT_PACKS)]
         binding = opened.session.deps.system2
         options = self._config_options(
-            binding.ref, opened.session.system1, binding.profile.reasoning_effort, binding.effort_choices
+            binding.ref,
+            opened.session.system1,
+            binding.profile.reasoning_effort,
+            binding.effort_choices,
+            free=opened.session.free,
         )
         caps = opened.pending or opened.capabilities
         return [
@@ -934,13 +1003,18 @@ class AcpAgent:
         ]
 
     def _handoff_option(self, session: Session) -> SessionConfigOptionSelect:
-        """`off`, then the models a run can hand over to: the session's target first, then the catalog's System 2."""
+        """`off`, then the models a run can hand over to: the session's target first, then the catalog's System 2.
+        While the agent runs on free credit, only the bundle's target, and no `off`."""
         target = session.deps.handoff.binding.ref if session.deps.handoff is not None else None
-        listed = {model.id: model.name for model in self.catalog.system2} if self.catalog is not None else {}
-        if target is not None:
-            listed = {target: listed.get(target, target)} | listed
-        choices = [SessionConfigSelectOption(value=HANDOFF_OFF, name="Off")]
-        choices += [SessionConfigSelectOption(value=ref, name=name) for ref, name in listed.items()]
+        fixed = session.free.locked(HANDOFF_ROLE) if session.free is not None else None
+        if fixed is not None:
+            choices = [SessionConfigSelectOption(value=fixed, name=fixed)]
+        else:
+            listed = {model.id: model.name for model in self.catalog.system2} if self.catalog is not None else {}
+            if target is not None:
+                listed = {target: listed.get(target, target)} | listed
+            choices = [SessionConfigSelectOption(value=HANDOFF_OFF, name="Off")]
+            choices += [SessionConfigSelectOption(value=ref, name=name) for ref, name in listed.items()]
         return SessionConfigOptionSelect(
             id=HANDOFF,
             name="Hand-over",
@@ -1009,8 +1083,24 @@ class AcpAgent:
         )
 
     def _config_options(
-        self, system2: str, system1: str, effort: str | None, choices: tuple[str, ...] = ()
+        self,
+        system2: str,
+        system1: str,
+        effort: str | None,
+        choices: tuple[str, ...] = (),
+        free: FreeSession | None = None,
     ) -> list[ConfigOption]:
+        """`model` and `system1`, each listing only the bundle's model while its system runs on free credit, then
+        `thought_level`."""
+        if free is not None and (fixed := free.locked("system2")) is not None:
+            option = SessionConfigSelectOption(value=fixed, name=fixed)
+            model_choices = [SessionConfigSelectGroup(group=fixed.partition("/")[0], name="Free", options=[option])]
+        else:
+            model_choices = self._model_choices(system2)
+        if free is not None and (fixed := free.locked("system1")) is not None:
+            system1_choices = [SessionConfigSelectOption(value=fixed, name=fixed)]
+        else:
+            system1_choices = self._system1_choices(system1)
         options: list[ConfigOption] = [
             SessionConfigOptionSelect(
                 id="model",
@@ -1019,7 +1109,7 @@ class AcpAgent:
                 description="System 2: the agent model that reasons and calls tools.",
                 type="select",
                 current_value=system2,
-                options=self._model_choices(system2),
+                options=model_choices,
             ),
             SessionConfigOptionSelect(
                 id="system1",
@@ -1029,7 +1119,7 @@ class AcpAgent:
                 "decisions API.",
                 type="select",
                 current_value=system1,
-                options=self._system1_choices(system1),
+                options=system1_choices,
             ),
         ]
         if choices:
@@ -1087,6 +1177,8 @@ class AcpAgent:
                 raise RequestError(-32602, f"unknown config option {config_id!r}")
         except SessionBusy as e:
             raise RequestError(SESSION_BUSY, str(e)) from None
+        except FreeLocked as e:
+            raise locked(e) from None
         except (ConfigError, ValueError, KeyError) as e:
             raise RequestError(-32602, str(e)) from None
         return SetSessionConfigOptionResponse(config_options=self._options(live))
@@ -1160,7 +1252,7 @@ class AcpAgent:
         if config_id == "system1":
             if not value:
                 raise RequestError(-32602, "system1 takes a model name")
-            unbound.system1 = value
+            unbound.system1, unbound.system1_picked = value, True
             return unbound
         if config_id == CONTEXT_WINDOW:
             window_cap(value)

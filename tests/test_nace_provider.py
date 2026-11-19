@@ -38,6 +38,9 @@ class Tokens:
         self.invalidated += 1
         self.issued += 1
 
+    def observe(self, headers: Any) -> None:
+        return None
+
 
 def sse_reply() -> httpx.Response:
     chunks = [

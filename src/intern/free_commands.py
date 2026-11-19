@@ -98,7 +98,11 @@ async def _start(home: Path, env: Mapping[str, str], consent_version: str, brows
     set_use(home, True)
     found = await fetch_grant(FreeCredential(store, console))
     grant = found if isinstance(found, FreeGrant) else None
-    _emit(as_json, {"step": "granted", "grant": grant.model_dump() if grant else None}, _grant_text(grant))
+    _emit(
+        as_json,
+        {"step": "granted", "grant": grant.model_dump(exclude_unset=True) if grant else None},
+        _grant_text(grant),
+    )
     return EXIT_OK
 
 
@@ -114,7 +118,7 @@ async def _status(home: Path, env: Mapping[str, str]) -> dict[str, Any]:
         "signed_in": credential.store.signed_in(credential.console),
         "use": load_user_config(home).free.use,
         "status": status.model_dump() if status else None,
-        "grant": grant.model_dump() if grant else None,
+        "grant": grant.model_dump(exclude_unset=True) if grant else None,
         "error": error.model_dump() if error else None,
     }
 

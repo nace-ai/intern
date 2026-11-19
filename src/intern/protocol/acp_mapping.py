@@ -10,7 +10,7 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from acp import text_block, tool_content, tool_diff_content, update_agent_message_text, update_agent_thought_text
 from acp import update_user_message_text as user_text
@@ -103,6 +103,9 @@ class MappingContext:
     """What the session has cost so far, System 1 included."""
     model: str = ""
     """The model whose replies and tool calls the run streams now: System 2, or the one the run handed over to."""
+    free: Mapping[str, Any] | None = None
+    """`_meta.nace.free` on usage updates: the free credit's meters and what each system runs on, while it is in
+    use."""
 
 
 _STATUS = re.compile(r"\bHTTP (\d{3})\b")
@@ -323,6 +326,7 @@ def _usage(ctx: MappingContext, tokens: int, cost: bool) -> UsageUpdate:
         used=tokens,
         size=ctx.working_window,
         cost=Cost(amount=ctx.cost_usd, currency="USD") if cost else None,
+        field_meta={"nace": {"free": dict(ctx.free)}} if ctx.free is not None else None,
     )
 
 

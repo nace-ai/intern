@@ -48,6 +48,8 @@ STORE_FILE = "free.json"
 ACCESS_FILE = "free-access.json"
 LOCK_FILE = "free.lock"
 INSTALL_ID_FILE = "install-id"
+GRANT_TTL_S = 600.0
+"""How long a session open reuses the grant read before; the meters between come from response headers."""
 EARLY_S = 60.0
 """An access token this close to its expiry is renewed before it is sent, so a request never leaves with one that
 expires on the way."""
@@ -65,6 +67,12 @@ MESSAGES = {
 class Meter(BaseModel):
     used_usd: float
     limit_usd: float
+    overdraft_usd: float = 0.0
+    """What the console lets a run spend past the limit so it can finish; 0 when the console does not say."""
+
+    def runs(self) -> bool:
+        """Whether a run may start on it: more is left than the overdraft, so the run can finish."""
+        return self.limit_usd - self.used_usd > self.overdraft_usd
 
 
 class Meters(BaseModel):
@@ -72,6 +80,20 @@ class Meters(BaseModel):
     """Drex: System 1's judgments."""
     agent: Meter
     """System 2 and the hand-over model together."""
+
+
+USED_HEADER = "x-nace-free-used"
+LIMIT_HEADER = "x-nace-free-limit"
+
+
+def _header_usd(value: str | None) -> dict[str, float]:
+    """`system1=0.12;agent=0.5` as amounts by meter; a part that is not one is left out."""
+    amounts: dict[str, float] = {}
+    for part in (value or "").split(";"):
+        name, _, amount = part.partition("=")
+        with contextlib.suppress(ValueError):
+            amounts[name.strip()] = float(amount)
+    return amounts
 
 
 class HandoffTuning(BaseModel):
@@ -434,6 +456,35 @@ class FreeCredential:
         self._access: StoredAccess | None = None
         self._rejected: str | None = None
         self._lock = threading.Lock()
+        self._grant: tuple[float, FreeGrant] | None = None
+        self.meters: Meters | None = None
+        """The meters as the console last gave them: the grant's, then each response's `x-nace-free-*` headers."""
+
+    def observe(self, headers: Mapping[str, str]) -> None:
+        """Take the meters a console response carries (`x-nace-free-used`, `x-nace-free-limit`, in USD)."""
+        used, limit = _header_usd(headers.get(USED_HEADER)), _header_usd(headers.get(LIMIT_HEADER))
+        if not used and not limit:
+            return
+        meters = self.meters or Meters(system1=Meter(used_usd=0, limit_usd=0), agent=Meter(used_usd=0, limit_usd=0))
+        update: dict[str, Meter] = {}
+        for name in ("system1", "agent"):
+            meter: Meter = getattr(meters, name)
+            changed = {k: v for k, v in (("used_usd", used.get(name)), ("limit_usd", limit.get(name))) if v is not None}
+            update[name] = meter.model_copy(update=changed)
+        self.meters = meters.model_copy(update=update)
+
+    async def grant(self, transport: httpx.AsyncBaseTransport | None = None) -> FreeGrant | Refusal:
+        """The grant, read again once GRANT_TTL_S has passed; its meters are the latest the console gave."""
+        if self._grant is not None and time.monotonic() - self._grant[0] < GRANT_TTL_S:
+            grant = self._grant[1]
+        else:
+            found = await fetch_grant(self, transport)
+            if not isinstance(found, FreeGrant):
+                self._grant = None
+                return found
+            self._grant, self.meters = (time.monotonic(), found), found.meters
+            grant = found
+        return grant.model_copy(update={"meters": self.meters}) if self.meters is not None else grant
 
     def _usable(self, access: StoredAccess | None) -> bool:
         return (

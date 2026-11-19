@@ -219,6 +219,8 @@ class OpenAICompatProvider:
         credential = self.endpoint.credential
         for resend in (credential is not None, False):
             async with client.stream("POST", url, json=body, headers=await self._headers(request)) as response:
+                if credential is not None:
+                    credential.observe(response.headers)
                 if response.status_code >= 400:
                     raw = await response.aread()
                     if resend and credential is not None and token_expired(response.status_code, raw):

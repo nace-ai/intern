@@ -48,6 +48,10 @@ class CredentialSource(Protocol):
         """The server refused the last bearer as expired; the next `bearer()` gives a fresh one."""
         ...
 
+    def observe(self, headers: Mapping[str, str]) -> None:
+        """The headers of a response to a request that carried the bearer (the free credit's meters ride on them)."""
+        ...
+
 
 @dataclass(frozen=True)
 class StaticKey:
@@ -60,6 +64,9 @@ class StaticKey:
         return self.key
 
     async def invalidate(self) -> None:
+        return None
+
+    def observe(self, headers: Mapping[str, str]) -> None:
         return None
 
 
