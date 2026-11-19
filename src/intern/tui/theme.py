@@ -31,7 +31,6 @@ LIGHT = {
     "red": "#b23a3a",
     "select": "#dedcd3",
     "brand": "#00795f",
-    "glint": "#22c7a4",
 }
 DARK = {
     "paper": "#141411",
@@ -46,12 +45,10 @@ DARK = {
     "red": "#d9625f",
     "select": "#3a3a31",
     "brand": "#0fdbb4",
-    "glint": "#c2fbe9",
 }
 """`select`: text the mouse selected, a shade of the page, not ink at half strength. `brand`: the Nace accent, a mint
 (OKLCH 0.7953 0.1501 173.8) as the brand has it on the dark page and a deeper shade of the same hue on the light one,
-each strong enough against its page to be read as text. `glint`: the light that sweeps across the accent where
-System 1 is at work (the `auto` thinking level), lighter than it in both looks."""
+each strong enough against its page to be read as text."""
 
 PAPER = "$background"
 CARD = "$surface"
@@ -65,7 +62,6 @@ AMBER = "$warning"
 RED = "$error"
 SELECT = "$select"
 BRAND = "$brand"
-GLINT = "$glint"
 # Content styles, by role, so widgets never name a colour.
 S_INK = INK
 S_RULE = RULE
@@ -84,13 +80,9 @@ S_BAD_BOLD = f"bold {RED}"
 S_BOX = f"bold {INK} on {SELECT}"
 """The thinking level's box on the masthead, filled so a change of level is seen at once; `S_BOX_MUTED` its label."""
 S_BOX_MUTED = f"{MUTED} on {SELECT}"
-S_BOX_AUTO = f"bold {BRAND} on {SELECT}"
-"""The `auto` level in the box, and the pips of the level System 1 picked, in the accent: System 1's choice;
-`S_BOX_GLINT` the light that sweeps across it."""
-S_BOX_GLINT = f"bold {GLINT} on {SELECT}"
 
 S_BRAND_BOLD = f"bold {BRAND}"
-"""System 1's pick of the thinking level, wherever it shows: its sign `✦`, the level picked and its column."""
+"""A hand-over, wherever it shows: its sign `⇢`, the latest P(ready) column and the model that took over."""
 
 S_TAB = f"bold {PAPER} on {BRAND}"
 """A panel's name on its header, a tab in the accent; also the `System 1` tag on what System 1 drives in
@@ -120,7 +112,6 @@ def make_theme(name: str, c: dict[str, str], *, dark: bool) -> Theme:
             "muted": c["muted"],
             "select": c["select"],
             "brand": c["brand"],
-            "glint": c["glint"],
             "block-cursor-background": c["brand"],
             "block-cursor-foreground": c["paper"],
             "block-cursor-text-style": "none",

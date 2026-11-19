@@ -44,7 +44,6 @@ from intern.context import (
     write_state,
 )
 from intern.decisions import DecisionClient, System1Unavailable
-from intern.effort import pick as pick_effort
 from intern.events import (
     Compaction,
     ContextBudget,
@@ -90,7 +89,7 @@ from intern.messages import (
     Usage,
     UserMessage,
 )
-from intern.models.profile import AUTO_EFFORT, EFFORT_LEVELS, Profile, effort_choices, effort_levels
+from intern.models.profile import EFFORT_LEVELS, Profile, effort_choices, effort_levels
 from intern.processes import ProcessManager, RunningProcess
 from intern.providers.base import (
     Completed,
@@ -172,13 +171,7 @@ class ModelBinding:
     @property
     def effort_choices(self) -> tuple[str, ...]:
         """What the thought level can be set to (see `effort_choices`)."""
-        return effort_choices(getattr(self.provider, "effort_levels", ()), self.profile, auto=self.takes_auto)
-
-    @property
-    def takes_auto(self) -> bool:
-        """Whether the `auto` level is offered: the model takes a level, and its provider keeps the prompt cache when
-        the level changes (`effort_keeps_cache`, Anthropic's API)."""
-        return bool(self.effort_levels) and getattr(self.provider, "effort_keeps_cache", False)
+        return effort_choices(getattr(self.provider, "effort_levels", ()), self.profile)
 
     @property
     def takes_effort(self) -> bool:
@@ -310,8 +303,6 @@ class Run:
         before it in each request the cheaper model is sent for the rest of the run, at the end until there is one,
         and no longer once a compaction has cut that message. The journal does not keep the note, so the conversation
         reads on as one agent's: to System 1, to a compaction, and to System 2 at the next run."""
-        self.effort: str | None = None
-        """The effort System 1 picked for this run at the `auto` thought level; None until it is asked."""
         target = deps.handoff
         # None once the run has handed over, and on a System 2 that is the cheaper model itself.
         self.handoff = (
@@ -659,7 +650,7 @@ class Run:
 
     async def _prepare_request(self) -> ProviderRequest:
         profile = self.binding.profile
-        effort = await self._effort(profile)  # before a compaction, whose State write goes with the run's level too
+        effort = profile.reasoning_effort
         specs = self._tool_specs()
         view = self._view()
         plan = plan_compaction(view, specs, self.meter, self.window, profile.thresholds)
@@ -707,21 +698,6 @@ class Run:
             )
         )
         return request
-
-    async def _effort(self, profile: Profile) -> str | None:
-        """The effort a request goes with: the profile's; at `auto`, the one System 1 picks at the run's first request
-        (or the first after the level was set to auto), kept for the rest of the run (`effort.py`)."""
-        if profile.reasoning_effort == AUTO_EFFORT and self.binding.takes_auto and self.effort is None:
-            levels = self.binding.effort_levels
-            self.effort = await pick_effort(self.deps.decisions, self._system1_state(), levels, self.turn)
-        return self.agent_effort(profile)
-
-    def agent_effort(self, profile: Profile) -> str | None:
-        """The effort the agent's requests go with now: the profile's, or at `auto` the run's pick (None before it);
-        none at `auto` on a provider that does not take it (a profile can name it anywhere)."""
-        if profile.reasoning_effort != AUTO_EFFORT:
-            return profile.reasoning_effort
-        return self.effort if self.binding.takes_auto else None
 
     def _admit_request(self, request: ProviderRequest, binding: ModelBinding | None = None) -> int:
         """Check the final messages and schemas, including changes made by request hooks, for `binding`'s model
@@ -925,7 +901,7 @@ class Run:
             # effort: 2-5K), so the cap is what the model's context leaves, not a share of the working window.
             max_output_tokens=max(min(MAX_STATE_TOKENS, room), MIN_OUTPUT_TOKENS),
             sampling=binding.profile.sampling,
-            reasoning_effort=state_effort(self.agent_effort(binding.profile)),
+            reasoning_effort=state_effort(binding.profile.reasoning_effort),
             reasoning_replay=binding.profile.reasoning_replay,
             compat=binding.profile.compat,
             session_id=self.deps.journal.session_id,

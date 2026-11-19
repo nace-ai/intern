@@ -593,8 +593,7 @@ class Bootstrap:
             if window and profile.effective_window:
                 window = min(window, profile.effective_window)
             provider = PROVIDER_CLASSES.get(self._api(model.id), OpenAICompatProvider)
-            keeps = getattr(provider, "effort_keeps_cache", False)
-            efforts = effort_choices(getattr(provider, "effort_levels", ()), profile, auto=keeps)
+            efforts = effort_choices(getattr(provider, "effort_levels", ()), profile)
             return model.model_copy(
                 update={
                     "default": model.id == default,

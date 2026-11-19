@@ -370,8 +370,6 @@ and so is their System 1 until a paired eval measures it ([`system1`](docs/capab
   ([set](evals/tool_guard/)). Say in `SYSTEM1.md` what you allow. [Guard](docs/capability-settings.md#guard)
 - **Tool-result guard** (default off). System 1 removes the parts of web, browser and MCP output addressed to your intern
   before it reads them. [Tool-result guard](docs/capability-settings.md#tool-result-guard)
-- **Auto thinking level** (Claude models, when you pick it). At the start of each run, System 1 picks how hard
-  System 2 should think for the request. [Measurements](docs/architecture.md#system-2-and-system-1)
 
 ### Other capabilities
 

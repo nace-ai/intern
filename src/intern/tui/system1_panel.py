@@ -2,9 +2,8 @@
 
 System 1 is asked for different things, and each reads its own way (`ledger.py` gathers them from the events):
 
-- `✦` the thinking level it picked for a run, at `auto`, first under the run's prompt: a column for each level the
-  model takes, as tall as its probability, the one picked in the accent; then the level, how sure, and the next
-  likeliest;
+- `⇢` a run's hand-over, in one line: its P(ready) turn by turn as a column each, then, once the run has handed
+  over, the model that took over and the turn;
 - a turn it watched, in a line: what it weighed as one bar, each answer its share of it; its call and the
   probability; then what the loop did about it (a stuck strike, a nudge) and, once the request looks met, the
   wrap-up verdict;
@@ -39,7 +38,6 @@ from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD
 from intern.tui.ledger import (
     KINDS,
     CompactionJudgement,
-    EffortJudgement,
     GuardJudgement,
     HandoverJudgement,
     Kind,
@@ -67,7 +65,6 @@ from intern.tui.theme import (
     S_WARN_BOLD,
 )
 from intern.tui.widgets import (
-    AUTO_SIGN,
     CD,
     FILLED,
     HANDOVER_SIGN,
@@ -78,11 +75,8 @@ from intern.tui.widgets import (
     Part,
     brief,
     clip,
-    effort_runners_up,
     fit_path,
     flow,
-    ladder,
-    level,
     mode_label,
     model_name,
     readiness,
@@ -96,7 +90,6 @@ from intern.tui.widgets import (
 )
 
 SIGN: dict[Kind, str] = {
-    "thinking": AUTO_SIGN,
     "hand-over": HANDOVER_SIGN,
     "watch": FILLED,
     "guard": "✓",
@@ -209,19 +202,6 @@ def watch_lines(j: TurnJudgement, room: int) -> list[list[Part]]:
             head.append((other, S_MUTED))
             spare -= len(other)
     return with_notes(head, notes, room)
-
-
-def effort_lines(e: EffortJudgement, room: int) -> list[list[Part]]:
-    """The run's thinking level in a line: the ladder of what System 1 weighed, the level in the accent and how sure,
-    then the next likeliest as far as the line holds them."""
-    head: list[Part] = [("thinking ", S_MUTED), *ladder(e), " ", *level(e.level, e.probability, S_BRAND_BOLD)]
-    if e.cached:
-        head.append(("  cached", S_MUTED))
-    for part in effort_runners_up(e):
-        if Content.assemble(*head, part).cell_length > room:
-            break
-        head.append(part)
-    return [head]
 
 
 def subject_title(subject: str) -> str:
@@ -359,8 +339,6 @@ def other_lines(o: OtherJudgement, room: int) -> list[list[Part]]:
 def row_lines(row: Row, room: int, cwd: Path | None = None) -> tuple[Part, list[list[Part]]]:
     """A row's sign for the gutter, and its lines without it."""
     match row:
-        case EffortJudgement():
-            return (AUTO_SIGN, S_BRAND_BOLD), effort_lines(row, room)
         case HandoverJudgement():
             return (HANDOVER_SIGN, S_BRAND_BOLD if row.target else S_MUTED), handover_lines(row, room)
         case TurnJudgement():

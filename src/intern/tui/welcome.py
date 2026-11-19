@@ -187,8 +187,7 @@ class Opening:
     system1: str = "…"
     thinking: str = ""
     levels: tuple[str, ...] = ()
-    picked: str = ""
-    """The thinking level, the levels the model takes and System 1's latest pick, as the masthead has them."""
+    """The thinking level and the levels the model takes, as the masthead has them."""
     note: str = ""
     """Why there is no session, while there is none: it is opening, or it could not open."""
     cwd: Path | None = None
@@ -317,7 +316,7 @@ def model(ref: str, width: int) -> list[list[Part]]:
 def system2(o: Opening, width: int) -> list[list[Part]]:
     """System 2's card: the model it is on, how hard it thinks (in the masthead's box) and how many tools it has,
     then what they are."""
-    box: list[Part] = [*thinking_box(o.thinking, o.levels, o.picked), "  "] if o.thinking else []
+    box: list[Part] = [*thinking_box(o.thinking, o.levels), "  "] if o.thinking else []
     return [*model(o.system2, width), [*box, (f"{o.tools} tools", S_MUTED)], [], *capabilities(o, width)]
 
 
@@ -335,7 +334,7 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     last, there being no mascot to put it under."""
     model1, served = system1_parts(o.system1)
     head: list[Part] = [(" System 2 ", S_TAB), ("  thinking slow   ", S_MUTED), (o.system2, S_HEAD)]
-    box = [thinking_box(o.thinking, o.levels, o.picked)] if o.thinking else []
+    box = [thinking_box(o.thinking, o.levels)] if o.thinking else []
     lines: list[list[Part]] = [
         *([] if roomy else [*paragraph(ABOUT_SHORT, width, S_INK), []]),
         *flow([head, *box], width, gap=2),  # the box on a line of its own where it would wrap

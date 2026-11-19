@@ -203,11 +203,6 @@ class AnthropicProvider:
     """`output_config.effort` is taken for every current Claude model, profile or not: low to max on Opus 4.7 and
     later, Sonnet 5 and later, Haiku 5.5 and Fable. The API refuses what an older model lacks (xhigh before Opus
     4.7, max before 4.6) and says so."""
-    effort_keeps_cache = True
-    """A change of effort keeps the prompt cache, so the `auto` level may change it every run: every token before the
-    new message was read from the cache across low -> high -> low (Claude Haiku and Sonnet 5.5). Elsewhere the first
-    request at another level read none of it (OpenAI, Fireworks, DeepInfra, OpenRouter's upstreams; `effort.py`), so
-    `auto` is offered only where a provider says this."""
 
     def __init__(self, endpoint: Endpoint, *, transport: httpx.AsyncBaseTransport | None = None) -> None:
         self.endpoint = endpoint

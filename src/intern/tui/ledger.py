@@ -20,7 +20,6 @@ from typing import Literal
 
 from pydantic import ValidationError
 
-from intern import effort
 from intern.events import (
     Compaction,
     Decision,
@@ -43,7 +42,6 @@ from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD, RISKS
 from intern.locate.trace import KIND as SEARCH_TRACE
 from intern.locate.trace import SearchTrace
 from intern.messages import JsonObject, UserMessage
-from intern.models.profile import EFFORT_LEVELS
 from intern.supervise import MAX_NUDGES, STRIKES, STUCK, is_strike
 
 WORKING_ON = "working_on"
@@ -51,15 +49,13 @@ SEARCH_TOOLS = ("decision_code", "decision_files")
 """The tools that are System 1 searching: a row each on its panel."""
 TOP = 3
 """The places a search's row keeps, best first."""
-Kind = Literal["thinking", "hand-over", "watch", "guard", "search", "compaction", "jobs", "memory", "other"]
-KINDS: tuple[Kind, ...] = ("thinking", "hand-over", "watch", "guard", "search", "compaction", "jobs", "memory", "other")
+Kind = Literal["hand-over", "watch", "guard", "search", "compaction", "jobs", "memory", "other"]
+KINDS: tuple[Kind, ...] = ("hand-over", "watch", "guard", "search", "compaction", "jobs", "memory", "other")
 """What System 1 is asked for, in the order its panel counts them."""
 
 
 def kind_of(purpose: str) -> Kind:
     """What an ask was for, from the purpose its caller gave it."""
-    if purpose == effort.PURPOSE:
-        return "thinking"
     if purpose == "handoff":
         return "hand-over"
     if purpose in ("supervise", "wrap_up"):
@@ -203,23 +199,6 @@ class SearchJudgement:
 
 
 @dataclass
-class EffortJudgement:
-    """System 1's pick of the thinking level for a run, at `auto`: the level, and how it weighed each of the model's
-    levels."""
-
-    turn: int
-    level: str
-    probabilities: dict[str, float]
-    """Each level the model takes, least to most."""
-    duration_ms: int = 0
-    cached: bool = False
-
-    @property
-    def probability(self) -> float:
-        return self.probabilities.get(self.level, 1.0 if not self.probabilities else 0.0)
-
-
-@dataclass
 class HandoverJudgement:
     """System 1's judgement, turn by turn, of whether the cheaper model can finish the run: one row a run."""
 
@@ -288,8 +267,7 @@ class CompactionJudgement:
 
 
 Row = (
-    EffortJudgement
-    | HandoverJudgement
+    HandoverJudgement
     | TurnJudgement
     | GuardJudgement
     | RuleRefusal
@@ -446,12 +424,6 @@ class Ledger:
         run = self.current
         if turn is None or answers is None:
             return None  # a tool's own ask (a search's, the recall's): counted, and the tool's row shows it
-        if purpose == effort.PURPOSE:
-            level, probabilities = _choice(answers.get("level"))
-            ladder = {each: probabilities[each] for each in EFFORT_LEVELS if each in probabilities}
-            picked = EffortJudgement(turn, level, ladder or probabilities, event.duration_ms, event.cached)
-            run.feed.append(picked)
-            return picked
         if purpose == "handoff":
             choice, probabilities = _choice(answers.get("ready"))
             if run.handover is None:
