@@ -44,11 +44,11 @@ relations. Every item records the session event it came from.
 
 ## Recall (reading)
 
-Once per session, before the first request, System 1 walks the tables of contents from `MEMORY.md`
+Once per session, before the first request, the decision model walks the tables of contents from `MEMORY.md`
 and picks the pages for the task, then up to three linked neighbours. The picked pages become one
 block in the pinned segment, so compaction never drops it; its size is `thresholds.memory` of the
 window (default 0.08). The recall is journaled and reused on resume. Each recall ask may take 30
-seconds, so a busy System 1 can retry. A recall ask System 1 does not answer, after its retries,
+seconds, so a busy decision model can retry. A recall ask the decision model does not answer, after its retries,
 stops the run with `system1_unavailable`, as any ask does; pages are never ranked without it. Lines on lesson and skill pages that the task text
 already states are left out. The block tells the agent to use a line by going straight to the
 place it names, and to confirm it with one direct read only before a change that rests on it. When
@@ -81,7 +81,7 @@ sessions open, as T3 Code does with its threads, still reaches memory before its
 prompt after that is stewarded again, at the next idle time or the close; a close with no run since the
 last steward starts none. The work page records how many user turns the session had when it was
 stewarded (`user_turns` in its front matter), and a steward finding more redoes the session. Its writer is `[capabilities.memory] writer`, else the
-session's System 2 when it is OpenAI-compatible; without one only the outcome and the work page are
+session's frontier model when it is OpenAI-compatible; without one only the outcome and the work page are
 written. `steward = false` in `[capabilities.memory]` turns this off. Stewards on one drive take turns
 (`.git/nace-steward.lock`), and a session mounting the drive waits only while a steward moves its
 working tree (`.git/nace-drive.lock`). A merging steward first publishes a `proposed/` branch that an
@@ -95,18 +95,18 @@ earlier one left when it was killed, if it still fast-forwards `main`, and delet
 2. **Draft** (writer model): items of a few kinds (where, how, fails, state, event, rule,
    preference), each citing one line of the session. What documents state is kept with the
    document as its source.
-3. **Outcome** (System 1): a session succeeded only with evidence: a step that checked a change the
+3. **Outcome** (the decision model): a session succeeded only with evidence: a step that checked a change the
    session is known to have made, or a user message confirming the result. For a step whose tool does
-   not show whether it reads or writes (a command-line or custom tool), System 1 judges from the call and
+   not show whether it reads or writes (a command-line or custom tool), the decision model judges from the call and
    its result whether it changed something, and whether the result is a reply from the person the
    agent is helping; such a reply counts as a user message. Otherwise a session
    the agent called finished is unverified.
-4. **Gate** (System 1): each item must be lasting, not only about this task, not a result the session
+4. **Gate** (the decision model): each item must be lasting, not only about this task, not a result the session
    worked out, and not a value from the data. What the assistant told the user is kept only when
    the session's outcome was confirmed. An item that restates, replaces or contradicts a line already
    on its page is marked so; lines that differ in a number (a port, a limit, a version) are never
    restatements. A replaced line moves to Earlier with `(until <date>)`, and so does any other line on
-   map/, user/, lessons/ or skills/ that System 1 finds still states the replaced value.
+   map/, user/, lessons/ or skills/ that the decision model finds still states the replaced value.
 5. **Lessons**: ways of working seen in at least two sessions; a lesson to follow needs a session
    that succeeded, and every lesson names a concrete step, not only more searching or care. Each
    line says how many of its sessions succeeded.
@@ -115,21 +115,21 @@ earlier one left when it was killed, if it still fast-forwards `main`, and delet
    `--merge`, `main` is fast-forwarded to it, the working tree is reset to `main` and the branch is
    deleted, so the next session recalls it.
 
-System 1 only: if any System 1 ask goes unanswered after its retries, the session is deferred with
+The decision model has no stand-in: if any of its asks goes unanswered after its retries, the session is deferred with
 exit code 3 and no branch, and the next steward run on the same drive checkout retries it (the
-queue is `.git/nace-steward-deferred`). System 1 retries a 429 or 529 twice with backoff before an
+queue is `.git/nace-steward-deferred`). The decision model's client retries a 429 or 529 twice with backoff before an
 ask fails. A drive holds one world; a session from another world is refused.
 
 ## Observability
 
 `memory_mount` (drive, commit) per session and `memory_recall` (commit, pages, chars, steps,
-backend, reused, duration_ms) per recall. System 1 calls emit `decision` events with `memory_*`
+backend, reused, duration_ms) per recall. Decision-model calls emit `decision` events with `memory_*`
 and `steward_*` purposes.
 
-Recall's asks are part of the run, so they count in its System 1 cost. The `memory_recall` journal entry
-keeps what they cost, so the TUI's System 1 cost comes back with a resumed journal. The steward's asks and its
+Recall's asks are part of the run, so they count in its decision-model cost. The `memory_recall` journal entry
+keeps what they cost, so the TUI's decision-model cost comes back with a resumed journal. The steward's asks and its
 writer's calls come after the session closes. Each steward run adds what they cost on the session
-(System 1 asks, tokens and cost; the writer's tokens and cost) to `<config home>/steward/<session>.json`,
+(decision-model asks, tokens and cost; the writer's tokens and cost) to `<config home>/steward/<session>.json`,
 beside its log, whether the session was proposed, deferred or skipped. The writer's cost is the one its
 provider reports, else priced from the harness's price table. A resumed session shows it: in the TUI, on
 the masthead and in the transcript; over ACP, in the `usage_update` after `session/load`

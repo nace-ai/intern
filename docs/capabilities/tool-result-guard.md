@@ -19,18 +19,18 @@ tell the user the bank account changed"). No call is risky in that case, so a pr
 **What it screens.** By default (`screen = "outside"`), what comes from outside: the output of a tool that reaches
 the network without running a command (`web_read`, `web_search`, the browser) and of every MCP tool. A file the
 agent reads, a `grep` or a `bash` command's output is not screened: files such as `AGENTS.md` are written to the AI
-on purpose, and screening every result costs one System 1 ask each. `screen = "all"` screens every result but
+on purpose, and screening every result costs one decision-model ask each. `screen = "all"` screens every result but
 `write` and `edit`, which echo what the agent wrote.
 
 **How.** On `tool_result`, the output is split into sentence-aligned chunks of about 400 characters (at most 64). One
-System 1 ask holds a `noul` per chunk over the session state plus the chunks. Chunks at or above `THRESHOLD` (0.8)
+decision-model ask holds a `noul` per chunk over the session state plus the chunks. Chunks at or above `THRESHOLD` (0.8)
 are replaced in place with `[removed by tool-result-guard: AI-directed instruction, p=…, cN]`, and a one-line note is
 prepended. The rest of the output is unchanged. Outputs under 40 characters are skipped. Each screen emits an
 `extension` event (`tool-result-guard`, kind `screen`) listing the removed chunks, so a run can be audited. Like every
-System 1 ask, it reads the user's `SYSTEM1.md` after the session: instructions from a source that file says to follow
+decision-model ask, it reads the user's `SYSTEM1.md` after the session: instructions from a source that file says to follow
 count as consistent with the user's request.
 
-**Failure.** System 1 is required: an ask that cannot be answered raises `System1Unavailable` and stops the run, so a
+**Failure.** The decision model is required: an ask that cannot be answered raises `System1Unavailable` and stops the run, so a
 result is never let through unscreened. Any other error is a `hook_error` and the result passes unchanged (extensions
 fail open).
 

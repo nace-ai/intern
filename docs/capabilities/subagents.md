@@ -25,7 +25,7 @@ subagent makes.
 
 The reports come back as the `agent` call's result. With the tool-result guard on, what a subagent read from the web,
 the browser or MCP was screened in the subagent, before it read it; the report itself is screened only with
-`screen = "all"`. A subagent on another model is bound inside the session budget and without the session's System 2
+`screen = "all"`. A subagent on another model is bound inside the session budget and without the session's model
 fallbacks, which are the parent's backups.
 
 ## What a subagent may do
@@ -40,10 +40,10 @@ A subagent inherits the parent's capabilities. The parent may narrow them and ne
 | The guard and the tool-result guard | A guard of its own with the parent's settings, which counts its own refusals. |
 | Memory | Read only. `memory_search` passes on with the parent's tools, the drive stays write-protected, recall does not run again, and only the parent's session is stewarded. A subagent reports back; the parent decides what is kept. |
 | Code search and the workspace | The parent's index, never built again. A file the subagent changes marks it for a refresh. |
-| Budget and deadline | The parent's. A subagent calls the parent's System 2 provider, which the session budget (`[capabilities.session_budget]`) wraps, so its calls, cost and deadline count against the same caps. System 1 is the parent's client, with its cost cap and cache. |
+| Budget and deadline | The parent's. A subagent calls the parent's model provider, which the session budget (`[capabilities.session_budget]`) wraps, so its calls, cost and deadline count against the same caps. The decision model is the parent's client, with its cost cap and cache. |
 | Turns | Its own budget (`max_turns`, 40 by default, or fewer if the task asks), never above the parent's. |
 | Model | The host's default for subagents (`model`), else the parent's; the parent may name its own model or one from the host's list (`models`). Another model is bound as a model switch is, inside the session budget, and under the session's window cap. |
-| System 1 supervision | None: System 1 does not review a subagent's turns. Its asks for the guard and compaction still run. |
+| Supervision by the decision model | None: the decision model does not review a subagent's turns. Its asks for the guard and compaction still run. |
 
 Each extension says how it runs in a subagent with `Extension.for_subagent()`: a new instance, itself, or None to
 leave it out. An extension that can enforce something on a run (it overrides `tool_call`, `tool_result`,
@@ -57,7 +57,7 @@ The subagent's system prompt is the parent's, with a note saying that it works f
 final reply is seen, and that it should end with a short report citing its evidence.
 
 Its conversation opens with the user's own latest messages (up to three), as the user's, then the task, as a message
-from the harness. The guard and System 1 read only the user's own messages as what the user asked, so a task the parent model
+from the harness. The guard and the decision model read only the user's own messages as what the user asked, so a task the parent model
 wrote never stands as the user's words. A host that starts a subagent itself speaks for its user: its task is the
 user's message.
 
@@ -87,7 +87,7 @@ or run commands waits until no other such subagent runs, so two subagents never 
 | `aborted` | The parent run was aborted, or the session closed. |
 | `provider_error` | Its model call failed, the session budget or deadline among the reasons. |
 | `output_limit` | Its replies were cut off at the output limit. |
-| `failed` | A bug or a System 1 outage ended it. |
+| `failed` | A bug or a decision-model outage ended it. |
 | `stopped` | A hook or the guard stopped it. |
 
 A subagent that ends in any of these never ends the parent's run.
@@ -96,7 +96,7 @@ A subagent that ends in any of these never ends the parent's run.
 
 The parent's stream gets `subagent_start` (its id, name, task, model, tools and journal) and `subagent_end` (its
 status, turns, usage, final reply and duration; the task, reply and detail redacted as tool output is), and the
-subagent's `hook_error`s. Everything else it emits, its System 1 asks included, goes to its own journal: a file in a folder beside the parent's (`sessions/<session>.subagents/<id>.jsonl`), or memory only
+subagent's `hook_error`s. Everything else it emits, its decision-model asks included, goes to its own journal: a file in a folder beside the parent's (`sessions/<session>.subagents/<id>.jsonl`), or memory only
 when the parent's journal is. A client that counts the parent's turns and tool calls counts the parent's alone.
 
 `run_end.usage` is the parent's agent, State writes and subagents together; `run_end.subagent_usage` is the

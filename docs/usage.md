@@ -1,14 +1,15 @@
 # Using Intern
 
 The README gets you to a first run. This page is the rest: every way to start a session, the flags, the
-model providers and how a working window is chosen, System 1's settings, the tool-call guard's switches and
+model providers and how a working window is chosen, the decision model's settings, the tool-call guard's switches and
 `config.toml`. [Architecture](architecture.md) explains how the loop works; [capability settings](capability-settings.md)
 lists the optional tools and services.
 
 ## Starting a session
 
-`intern` on a terminal opens the [terminal UI](tui.md): the transcript, the State System 2 writes
-and System 1 judges against, and System 1's decisions turn by turn, with `/models` to pick each.
+`intern` on a terminal opens the [terminal UI](tui.md): the transcript, the State the frontier model writes
+and the decision model judges against, and the decision model's decisions turn by turn, with `/models` to pick
+each of the three models.
 `-p` runs a task headlessly instead; so does a pipe. With nothing configured it starts on the first of
 the harness's known models your keys reach and says so; `/frontier` changes it.
 
@@ -24,7 +25,7 @@ intern -p --system2 fireworks/accounts/fireworks/models/nemotron-lightning-3p5-3
 
 | Mode | Command |
 |---|---|
-| Terminal UI, the default on a terminal: the State and System 1's decisions on screen, model pickers (see [tui.md](tui.md)) | `intern --system2 M ["task"]` |
+| Terminal UI, the default on a terminal: the State and the decision model's decisions on screen, model pickers (see [tui.md](tui.md)) | `intern --system2 M ["task"]` |
 | One task, readable output, headless | `intern -p --system2 M "task"` |
 | One task, JSON events (one per line) | `intern -p --json --system2 M -- "task"` |
 | JSON-RPC server over stdio | `intern rpc --system2 M` |
@@ -71,7 +72,7 @@ A model is `provider/model`. Everything after the first slash is sent to the pro
 
 Every base URL can be overridden with `<NAME>_BASE_URL`, and `config.toml` can add providers.
 
-**Local models.** On a Mac with Apple silicon, run System 2 on [Kapitsa](https://github.com/nace-ai/kapitsa),
+**Local models.** On a Mac with Apple silicon, run your frontier or efficient model on [Kapitsa](https://github.com/nace-ai/kapitsa),
 the recommended local engine: it decodes Qwen and Nemotron faster than Ollama, llama.cpp and MLX on most Macs.
 [local-models.md](local-models.md) goes from install to a first task:
 
@@ -105,11 +106,12 @@ than it allows. Each reply cut off at that cap doubles it for the rest of the ru
 `output_reserve`, within the same limits: a thinking model whose hard turns outgrow the reserve gets the room on
 the next turn instead of reasoning to the limit again.
 
-**System 2 and System 1.** System 2 (`--system2`) is the agent model that reasons and calls tools.
-System 1 (`--system1`) answers the harness's small typed questions (choice, score, noul) fast, and is
-required: by default it is a decision model from the console (`drex-latest`, key in `$NACE_API_KEY`). A
-session that cannot set it up, or whose System 1 does not answer when it opens, is refused with the
-reason; there is no heuristic stand-in. An ask System 1 fails mid-run is retried with backoff for up to
+**Your three models.** The frontier model (`--system2`) starts each task: it reasons and calls tools. The
+efficient model (`--handoff-to`) takes over for the rest of a run once the decision model judges it can finish.
+The decision model (`--system1`, `[system1]` in config) answers the harness's small typed questions (choice, score, noul), and is
+required: by default it is Drex from the console (`drex-latest`, key in `$NACE_API_KEY`). A
+session that cannot set it up, or whose decision model does not answer when it opens, is refused with the
+reason; there is no heuristic stand-in. An ask the decision model fails mid-run is retried with backoff for up to
 30 minutes, then the run stops with `system1_unavailable`. A model provider that keeps failing with
 retryable errors (rate limits, an overloaded server) is waited out the same way before the run stops with
 `provider_error`; [`model_retries = false`](capability-settings.md#model-retries) stops it at the first failure
@@ -122,25 +124,25 @@ instead, for a gateway that retries itself. `--system1 drex-max-v1.1` picks anot
 a force push, and text the agent reads (a web page, a file) can talk it into sending your keys out. Turn it on for
 a session with `/caps guard` (the ACP `cap.guard` option), or for every session with
 [`[capabilities.guard] enabled = true`](capability-settings.md#guard); `system1 = false` there runs the fixed rules
-without System 1's judgement. System 1 is required either way, for supervision and the other asks. With it on,
+without the decision model's judgement. The decision model is required either way, for supervision and the other asks. With it on,
 before a tool runs, fixed rules refuse
 the clearly dangerous: deleting `/`, `~`,
 a parent of the working directory or a `.git`, wiping a disk, piping a download into a shell, force-pushing,
 discarding uncommitted work, reading or sending credentials and `.env` files, `sudo`, and writing into `.git/`,
-credential or shell-startup files. These rules are code and need no model. System 1
+credential or shell-startup files. These rules are code and need no model. The decision model
 then judges the other calls that can do harm against the session: what the user asked, what the agent did
 and what came back. A blocked call
-returns a refused result and the run continues. See [architecture](architecture.md#system-2-and-system-1).
+returns a refused result and the run continues. See [architecture](architecture.md#the-three-models).
 On a disposable machine, such as a container the agent runs in as root, `[capabilities.guard] system_writes =
-"allow"` lets writes under `/etc`, `/usr` and the other system directories through to System 1's judgement instead
+"allow"` lets writes under `/etc`, `/usr` and the other system directories through to the decision model's judgement instead
 of refusing them; deleting a system directory stays refused.
 
 ## Configuration
 
 Everything user-level lives in `$INTERN_HOME` (default `~/.intern`). An empty folder
 gives a fully isolated run. `SYSTEM2.md` there replaces
-System 2's packaged prompt (`SYSTEM.md`, its old name, is still read). `SYSTEM1.md` there is your guidance for System 1: what work is normal for you and what
-you still want to be asked. Every System 1 ask about the session reads it, and the guard counts what it calls
+the frontier model's packaged prompt (`SYSTEM.md`, its old name, is still read). `SYSTEM1.md` there is your guidance for the decision model: what work is normal for you and what
+you still want to be asked. Every decision-model ask about the session reads it, and the guard counts what it calls
 normal as asked when it is on. It is read from there only, never from a project.
 
 ```toml
@@ -152,7 +154,7 @@ backend = "console"        # the default: a decision model from the console, key
 model = "drex-latest"
 max_state_tokens = 32768   # the default; longer states keep their head and tail, with a marker
                            # no more than 3/4 of the model's window where the decisions API lists one
-retry_window_s = 1800       # the default: a failing System 1 ask is retried for 30 minutes before the run stops
+retry_window_s = 1800       # the default: a failing decision-model ask is retried for 30 minutes before the run stops
 # A decision model on the decisions API instead (OpenRouter, key in $OPENROUTER_API_KEY):
 # backend = "decisions-api"
 # model = "~typesafe/jev-latest"
@@ -165,8 +167,8 @@ memory_share = 0.5         # the default: a shell command holding more than half
 
 [capabilities.guard]
 enabled = false            # the default: no call is checked; true (or /caps guard) turns the guard on
-system1 = true             # the default: System 1 judges what the fixed rules let through; false: the rules only
-system_writes = "refuse"   # the default; "allow" in a disposable container leaves /etc, /usr writes to System 1
+system1 = true             # the default: the decision model judges what the fixed rules let through; false: the rules only
+system_writes = "refuse"   # the default; "allow" in a disposable container leaves /etc, /usr writes to the decision model
 ```
 
 Optional tools and services share the saved `[capabilities]` settings. See
@@ -178,14 +180,14 @@ and RPC server handle this automatically.
 
 ## Code search
 
-With code search, a repository becomes a tree System 1 can search: `decision_code` returns the
+With code search, a repository becomes a tree the decision model can search: `decision_code` returns the
 places where a question's subject is defined or would be changed. It is a capability, off by default
 and turned on only by `[capabilities.code_search] enabled = true` in `~/.intern/config.toml`
-([capability settings](capability-settings.md#code-search)). It asks System 1, which every session has.
+([capability settings](capability-settings.md#code-search)). It asks the decision model, which every session has.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/code-search-diagram-dark.svg">
-  <img src="assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. System 1 walks the index: one folder opened and 54 of 157 files judged; supervise.py 0.96, loop.py 0.87, session.py 0.68, context.py 0.42; then the definitions in the best files, read and compared. Result: supervise.py 0.96 at Supervisor.after_turn, then loop.py 0.42. 97 asks, $0.0064, 11.4 s, the run the README's recording shows.">
+  <img src="assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. The decision model walks the index: one folder opened and 54 of 157 files judged; supervise.py 0.96, loop.py 0.87, session.py 0.68, context.py 0.42; then the definitions in the best files, read and compared. Result: supervise.py 0.96 at Supervisor.after_turn, then loop.py 0.42. 97 asks, $0.0064, 11.4 s, the run the README's recording shows.">
 </picture>
 
 ```bash
@@ -208,7 +210,7 @@ config file. Code in another language, and a file that defines nothing, is found
 
 ## Workspace
 
-With the workspace, a folder of office files becomes a tree System 1 can search: the agent indexes the
+With the workspace, a folder of office files becomes a tree the decision model can search: the agent indexes the
 folder (`index_files`; PDFs, Word documents, workbooks and tables, with a progress bar on a terminal), then
 `decision_files` returns the places a question needs, `sql` queries the tables and `read` shows documents as text
 (`[ocr]` adds OCR of scanned pages). `grep` finds a line inside a PDF or a Word document too, in that text, and names
@@ -219,7 +221,7 @@ at the root and the documents' index `.decision_workspace/` in their folder.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/files-search-diagram-dark.svg">
-  <img src="assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? System 1 walks the files and their pages while BM25 ranks the top 6 of 29 passages; System 1 judges both together, 7 passages; the best passages' 20 terms find 15 more, and System 1 judges all 22. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 13 asks, $0.0021, 3.1 s, the run the README's recording shows.">
+  <img src="assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? The decision model walks the files and their pages while BM25 ranks the top 6 of 29 passages; it judges both together, 7 passages; the best passages' 20 terms find 15 more, and it judges all 22. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 13 asks, $0.0021, 3.1 s, the run the README's recording shows.">
 </picture>
 
 ```bash

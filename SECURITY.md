@@ -14,7 +14,7 @@ In scope:
 
 - **The tool-call guard** (`src/intern/extensions/guard.py`, the `cap.guard` capability): a command its fixed rules should refuse but let through,
   or a way to hide a dangerous call from the rules or from System 1's judgement. The rules and what each one
-  refuses are listed in [docs/architecture.md](docs/architecture.md#system-2-and-system-1).
+  refuses are listed in [docs/architecture.md](docs/architecture.md#the-three-models).
 - **Secrets**: a key from the environment, `~/.intern/.env` or the [secrets store](docs/secrets.md) that
   reaches the model, a tool's output or a log unredacted.
 - **Network capabilities**: the browser's or the web reader's URL policy letting a request reach a host it

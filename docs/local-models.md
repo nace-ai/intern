@@ -1,6 +1,6 @@
 # Local models with Kapitsa
 
-On a Mac with Apple silicon, the recommended way to run System 2 locally is
+On a Mac with Apple silicon, the recommended way to run your frontier or efficient model locally is
 [Kapitsa](https://github.com/nace-ai/kapitsa), Nace's inference engine for Qwen and Nemotron. It
 decodes faster than Ollama, llama.cpp, LM Studio and MLX on most Mac and model pairs it was measured
 on, serves OpenAI's Chat Completions API that the harness speaks, and returns reasoning and tool
@@ -88,9 +88,9 @@ intern --window 64000 --system2 kapitsa/qwen3.8-27b
 Without it, a conversation that grows past the server's context is refused with
 `context_length_exceeded` before the harness compacts it.
 
-## System 1
+## The decision model
 
-Only System 2 runs on Kapitsa here. System 1 is still a decision model from the console (`NACE_API_KEY`)
+Only your frontier and efficient models run on Kapitsa here. The decision model still comes from the console (`NACE_API_KEY`)
 or the decisions API (`OPENROUTER_API_KEY`), so a local run still needs one of those keys and a network.
 Kapitsa can serve the Drex decision models on this Mac with `kapitsa-systemone`
 ([guide](https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md)), but the harness has not been
