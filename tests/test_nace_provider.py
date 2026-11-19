@@ -192,20 +192,23 @@ async def test_the_consoles_decision_models_are_never_offered_as_system2(
     assert [m.id for m in found.system1] == ["drex-v2.0", "drex-latest"]
 
 
-GLM_EFFORTS = ["low", "high", "max"]
+GLM_EFFORTS = ["low", "medium", "high", "max"]
 DEEPSEEK_EFFORTS = ["low", "medium", "high", "xhigh", "max"]
 
 
 @pytest.mark.parametrize(
     ("ref", "window", "efforts"),
     [
-        ("nace/glm-5.3", 1_040_000, GLM_EFFORTS),
-        ("fireworks/accounts/fireworks/models/glm-5p3", 1_040_000, GLM_EFFORTS),
+        ("nace/glm-5.3", 1_048_576, GLM_EFFORTS),
+        ("fireworks/accounts/fireworks/models/glm-5p3", 1_048_576, GLM_EFFORTS),
+        ("fireworks/accounts/fireworks/routers/glm-5p3-fast", 1_048_576, GLM_EFFORTS),
         ("nace/deepseek-v4p1-flash-1017", None, DEEPSEEK_EFFORTS),
+        # Another model, which takes images: GLM 5.3's profile would tell it it cannot see them.
+        ("fireworks/accounts/fireworks/models/glm-5p3-flash", None, None),
     ],
 )
 def test_the_models_the_console_serves_run_on_their_fireworks_profiles(
-    ref: str, window: int | None, efforts: list[str]
+    ref: str, window: int | None, efforts: list[str] | None
 ):
     # Without a match, a console model would run at the 32K default window and take no thinking level.
     profile = load_profile(ref)
