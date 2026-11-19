@@ -5,7 +5,8 @@ with the summary System 2 continues from; on the right the System 1 panel (every
 each: a turn it watched, a call it guarded, a search it walked, a compaction's reads it sorted) over the State panel
 (the session as System 1 reads it); the prompt line at the bottom. Until the first prompt, the entering page takes
 their place (`welcome.py`). Enter sends a prompt, or steers the run in progress. Slash commands:
-/frontier, /efficient, /decision (also /system2, /handover, /system1), /state, /thinking, /abort, /panels, /help, /quit.
+/models (each model's own: /frontier, /efficient or /handover, /decision), /state, /thinking, /abort, /panels, /help,
+/quit.
 """
 
 from __future__ import annotations
@@ -206,12 +207,9 @@ ADD_SECRET = "+add"
 
 HELP: dict[str, dict[str, str]] = {
     "Models": {
-        "/frontier [provider/model]": "pick the frontier model, which starts each task and does the hard part "
-        "(also /system2)",
-        "/efficient [on|off|model]": "pick the efficient model a run hands over to once the decision model judges it "
-        "can finish, or turn the hand-over off; the session reopens on its journal (also /handover)",
-        "/decision [model]": "pick the decision model, which picks the moment to hand over and keeps the work on "
-        "track (also /system1)",
+        "/models": "the frontier, efficient and decision models, the efficient one gray while hand-over is off; "
+        "Enter on one picks it. /frontier <provider/model>, /efficient on|off|<provider/model> and /decision <model> "
+        "set one directly",
         "/thinking [level]": "the frontier model's thinking level, low to max as the model takes it (also Shift+Tab, "
         "and ←→ in the /frontier picker)",
         "/setup": "connect your models: provider, key and model for each; saved to config.toml and the keychain",
@@ -327,9 +325,9 @@ def _short(path: Path) -> str:
     return "~" + text[len(home) :] if text.startswith(home + os.sep) else text
 
 
-ALIASES = ("/system2", "/handover", "/system1", "/capabilities", "/exit", "/login", "/connect")
-"""Other names commands answer to: the models' older names (`/system2` is `/frontier`, `/system1` is
-`/decision`), `/handover` for `/efficient`, and the rest."""
+ALIASES = ("/frontier", "/efficient", "/handover", "/decision", "/capabilities", "/exit", "/login", "/connect")
+"""Names commands answer to that /help lists only in passing: each model's own picker, which a model typed after
+it sets directly (`/handover` is `/efficient`), and the rest."""
 COMMAND = re.compile(r"/[a-z0-9]+(?:\s|$)", re.IGNORECASE)
 """A prompt that is a command: a slash and a word, then a space or the end; `/var/folders/...` is a path."""
 
@@ -511,7 +509,7 @@ class HarnessApp(App[None]):
                 yield Prompt(
                     placeholder="Describe the task… (/help for commands; Shift+Enter or Ctrl+J for a new line)",
                     id="prompt",
-                    commands=COMMANDS,
+                    commands=(*COMMANDS, *ALIASES),
                 )
             with Vertical(id="side"):  # System 1 above the State
                 yield System1Panel()
@@ -652,7 +650,7 @@ class HarnessApp(App[None]):
             self._opening = False
             default = await self._default_system2() if self._default_system2 is not None else None
             if models.system2 is None and default:
-                self.pending.system2 = default  # /system2 changes it, config.toml keeps one
+                self.pending.system2 = default  # /frontier changes it, config.toml keeps one
                 return await self._open_with(self.pending)
             if self._setup is not None:
                 # Nothing to run on yet: setup connects it, rather than an error to read.
@@ -1294,9 +1292,11 @@ class HarnessApp(App[None]):
         name, _, rest = text.partition(" ")
         rest = rest.strip()
         match resolve_command(name):
-            case "/frontier" | "/system2":
+            case "/models":
+                await self._models()
+            case "/frontier":
                 await self._pick_or_set("system2", rest)
-            case "/decision" | "/system1":
+            case "/decision":
                 await self._pick_or_set("system1", rest)
             case "/efficient" | "/handover":
                 await self._auto(rest)
@@ -1605,6 +1605,45 @@ class HarnessApp(App[None]):
         self.pending.capabilities = caps.model_copy(update={"runner": runner})
         await self._reopen(f"runner {name}", before)
 
+    async def _models(self) -> None:
+        """`/models`: the frontier, efficient and decision models, a row each, the efficient one gray while hand-over
+        is off; Enter on one opens that model's own picker."""
+        if self._opening:
+            await self.transcript.notice("The session is still opening; try again in a moment.", "warn")
+            return
+        on = self.pending.auto
+        thinking = self._thinking_now()
+        frontier = self._current("system2") + (f"  thinking {thinking}" if thinking else "")
+        off = "hand-over is off: the frontier model runs every turn; Enter picks a model to turn it on"
+        group = "hand-over on" if on else "hand-over off"
+        choices = [
+            Choice("system2", "Frontier", group, f"Frontier  {frontier}", "starts each task and does the hard part"),
+            Choice(
+                "handoff",
+                "Efficient",
+                group,
+                f"Efficient {self._handoff_model()}" + ("" if on else "  off"),
+                "finishes a run once the decision model judges it can" if on else off,
+                dim=not on,
+            ),
+            Choice(
+                "system1",
+                "Decision",
+                group,
+                f"Decision  {self._current('system1')}",
+                "watches the run, guards risky calls and picks the moment to hand over",
+            ),
+        ]
+        picker = ModelPicker("Models", choices, "", hint="Enter opens that model's picker", typed=False, stacked=True)
+        self.push_screen(picker, callback=self._model_row_picked)
+
+    def _model_row_picked(self, picked: str | None) -> None:
+        match picked:
+            case "system2" | "system1":
+                self.call_later(self._pick_or_set, picked, "")
+            case "handoff":
+                self.call_later(self._auto, "")
+
     def _handoff_model(self) -> str:
         """The model auto mode hands over to: the one named, else the default."""
         return self._capabilities_now().handoff.to or DEFAULT_TARGET
@@ -1806,7 +1845,7 @@ class HarnessApp(App[None]):
         before = Models(**vars(self.pending))
         kept: Path | None = None
         if session is not None:
-            # The picks made in place (/system2, /system1) carry over: a fresh journal has no record of them.
+            # The picks made in place (/frontier, /decision) carry over: a fresh journal has no record of them.
             kept = before.session_file = session.deps.journal.path
             self.pending.system2, self.pending.system1 = session.deps.system2.ref, session.system1
             self.session = None

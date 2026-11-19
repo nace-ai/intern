@@ -567,7 +567,7 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         await wait_for(lambda: app.session is not None and app.catalog is not None)
         session = app.session
         assert session is not None
-        await send(app, pilot, "/system2")
+        await send(app, pilot, "/frontier")
         picker = app.screen
         assert isinstance(picker, ModelPicker)
         options = picker.query_one(OptionList)
@@ -579,7 +579,7 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         # The entering page has the model on System 2's card: the pick gets no line under it.
         assert "fake/big" in transcript_text(app) and "Frontier model →" not in transcript_text(app)
         # System 1: console and decisions-API models in their groups; a pick rebuilds System 1.
-        await send(app, pilot, "/system1")
+        await send(app, pilot, "/decision")
         picker = app.screen
         assert isinstance(picker, ModelPicker)
         options = picker.query_one(OptionList)
@@ -592,11 +592,11 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         await wait_for(lambda: session.system1 == "decisions:~typesafe/jev-latest")
         assert isinstance(session.deps.decisions.backend, Named)
         # A direct set that cannot be resolved is refused and said; the model stays.
-        await send(app, pilot, "/system2 nowhere/x")
+        await send(app, pilot, "/frontier nowhere/x")
         await wait_for(lambda: "Cannot set the frontier model to nowhere/x" in transcript_text(app))
         assert session.deps.system2.ref == "fake/big"
         # A typed name the picker does not list is accepted as typed.
-        await send(app, pilot, "/system1")
+        await send(app, pilot, "/decision")
         await pilot.press("d", "r", "e", "x", "-", "m", "a", "x", "-", "v", "1", ".", "1", "enter")
         await wait_for(lambda: session.system1 == "drex-max-v1.1")
         await app.action_quit()
@@ -1061,7 +1061,7 @@ async def test_the_thinking_level_shows_cycles_on_shift_tab_is_set_in_the_picker
         assert first.deps.system2.profile.reasoning_effort == "low"
         await send(app, pilot, "/thinking high")
         # ←/→ in the System 2 picker: the level goes with the pick; the same model keeps its session.
-        await send(app, pilot, "/system2")
+        await send(app, pilot, "/frontier")
         assert isinstance(app.screen, ModelPicker)
         line = app.screen.query_one("#picker-thinking", Static)
         assert "◀ high ▶" in plain(line)
@@ -1076,7 +1076,7 @@ async def test_the_thinking_level_shows_cycles_on_shift_tab_is_set_in_the_picker
         await wait_for(lambda: app.session is not None and app.session is not first)
         await pilot.pause()
         assert app.session is not None and app.session.deps.system2.profile.reasoning_effort == "medium"
-        await send(app, pilot, "/system2 fake/other")
+        await send(app, pilot, "/frontier fake/other")
         await wait_for(lambda: app.session is not None and app.session.deps.system2.ref == "fake/other")
         await pilot.pause()
         assert app.session.deps.system2.profile.reasoning_effort == "medium"
@@ -1105,7 +1105,7 @@ async def test_a_profile_named_effort_offers_the_common_three_and_a_kept_level_w
         assert app.session is not None and app.session.deps.system2.effort_levels == EFFORT_LEVELS
         await send(app, pilot, "/thinking max")
         assert "thinking max" in plain(app.query_one(StatusBar))
-        await send(app, pilot, "/system2 fake/plain")
+        await send(app, pilot, "/frontier fake/plain")
         await wait_for(lambda: app.session is not None and app.session.deps.system2.ref == "fake/plain")
         await pilot.pause()
         assert app.session is not None
@@ -1115,7 +1115,7 @@ async def test_a_profile_named_effort_offers_the_common_three_and_a_kept_level_w
         assert "thinking medium" in plain(app.query_one(StatusBar))
         await send(app, pilot, "/thinking xhigh")
         assert "/thinking takes low, medium, high (now: medium)" in transcript_text(app)
-        await send(app, pilot, "/system2 fake/model")
+        await send(app, pilot, "/frontier fake/model")
         await wait_for(lambda: app.session is not None and app.session.deps.system2.ref == "fake/model")
         await pilot.pause()
         assert app.session is not None and app.session.deps.system2.profile.reasoning_effort == "max"
@@ -1153,7 +1153,7 @@ async def test_clear_starts_over_on_a_fresh_journal_with_the_models_kept(tmp_pat
         await wait_for(lambda: app.session is not None)
         first = app.session
         assert first is not None
-        await send(app, pilot, "/system2 fake/other")  # a pick made in place, which a fresh journal cannot replay
+        await send(app, pilot, "/frontier fake/other")  # a pick made in place, which a fresh journal cannot replay
         await wait_for(lambda: first.deps.system2.ref == "fake/other")
         await send(app, pilot, "hello")
         await wait_for(lambda: app.run_count == 1 and not first.running)
@@ -1267,10 +1267,10 @@ async def test_without_a_default_the_pickers_open_the_session_on_the_pick(tmp_pa
         assert app.session is None and "no model given" in transcript_text(app)
         assert app.query_one(StatusBar).note == "no session"
         # A System 1 pick before the session exists is kept for it; the System 2 pick opens it on both.
-        await send(app, pilot, "/system1 drex-max-v1.1")
+        await send(app, pilot, "/decision drex-max-v1.1")
         await pilot.pause()
         assert app.session is None and app.pending.system1 == "drex-max-v1.1"
-        await send(app, pilot, "/system2")
+        await send(app, pilot, "/frontier")
         picker = app.screen
         assert isinstance(picker, ModelPicker)
         await pilot.press("f", "a", "k", "e", "/", "b", "i", "g", "enter")  # nothing listed: the typed name
@@ -1355,8 +1355,13 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
     async with app.run_test(size=SIZE) as pilot:
         await wait_for(lambda: app.session is not None)
         first = app.session
-        await send(app, pilot, "/handover")
+        # /models has the three models, the efficient one in use; Enter on it opens its own picker.
+        await send(app, pilot, "/models")
         assert isinstance(app.screen, ModelPicker)
+        rows = app.screen.choices  # pyright: ignore[reportAttributeAccessIssue]
+        assert [c.id for c in rows] == ["system2", "handoff", "system1"] and not rows[1].dim
+        await pilot.press("down", "enter")
+        await wait_for(lambda: isinstance(app.screen, ModelPicker) and app.screen.choices != rows)
         ids = [c.id for c in app.screen.choices]  # pyright: ignore[reportAttributeAccessIssue]
         assert ids[0] == "off" and app._current("system2") not in ids  # System 2 is no hand-over target
         await pilot.press("escape")
@@ -1381,6 +1386,9 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
         await pilot.pause()
         third = app.session
         assert not opened[-1].auto
+        await send(app, pilot, "/models")  # off: the efficient model grayed
+        assert isinstance(app.screen, ModelPicker) and app.screen.choices[1].dim  # pyright: ignore[reportAttributeAccessIssue]
+        await pilot.press("escape")
         await send(app, pilot, "/handover on")
         await wait_for(lambda: app.session is not None and app.session is not third)
         await pilot.pause()

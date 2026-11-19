@@ -8,9 +8,9 @@ lists the optional tools and services.
 ## Starting a session
 
 `intern` on a terminal opens the [terminal UI](tui.md): the transcript, the State System 2 writes
-and System 1 judges against, and System 1's decisions turn by turn, with `/system1` and `/system2` pickers.
+and System 1 judges against, and System 1's decisions turn by turn, with `/models` to pick each.
 `-p` runs a task headlessly instead; so does a pipe. With nothing configured it starts on the first of
-the harness's known models your keys reach and says so; `/system2` changes it.
+the harness's known models your keys reach and says so; `/frontier` changes it.
 
 ## Modes and flags
 
