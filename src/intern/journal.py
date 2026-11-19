@@ -21,6 +21,7 @@ from intern.events import (
     Decision,
     Event,
     EventSink,
+    Handoff,
     Nudge,
     ProcessCheck,
     ProcessEvent,
@@ -134,17 +135,18 @@ class MemoryRecallEntry(_EntryBase):
 
 
 RecordedEvent = Annotated[
-    Decision | ToolGuard | Nudge | State | Compaction | ProcessEvent | ProcessCheck, Field(discriminator="type")
+    Decision | ToolGuard | Nudge | Handoff | State | Compaction | ProcessEvent | ProcessCheck,
+    Field(discriminator="type"),
 ]
 
 
 class EventEntry(_EntryBase):
     """An event of a run that the conversation does not otherwise keep, where it happened: System 1's decisions
     for a turn (the supervisor's, the guard's, a compaction's choice of reads to keep), the guard's refusals, the
-    engine's nudges, every State write and compaction with its turn, its trigger and how it went, and every command
-    that started or ended (`ProcessEvent`). Kept so a
-    resumed session can show what System 1 judged and what the loop did on it; never read into the context. A
-    State's text and a compaction's summary are their own entries'; the copies here are empty."""
+    engine's nudges, a hand-over to the cheaper model, every State write and compaction with its turn, its trigger
+    and how it went, and every command that started or ended (`ProcessEvent`). Kept so a resumed session can show
+    what System 1 judged and what the loop did on it; never read into the context. A State's text and a compaction's
+    summary are their own entries'; the copies here are empty."""
 
     kind: Literal["event"] = "event"
     event: RecordedEvent
@@ -321,7 +323,7 @@ def recording(journal: Journal, emit: EventSink) -> EventSink:
     turn of the run; a tool's own asks (code search's) are part of its result."""
 
     def sink(event: Event) -> None:
-        if isinstance(event, ToolGuard | Nudge | ProcessEvent | ProcessCheck) or (
+        if isinstance(event, ToolGuard | Nudge | Handoff | ProcessEvent | ProcessCheck) or (
             isinstance(event, Decision) and event.turn is not None
         ):
             journal.append(EventEntry(event=event))

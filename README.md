@@ -184,7 +184,8 @@ what they show. Name a cheaper model and your intern's System 2 can hand the res
 turn, System 1 reads [its State](#system-1s-state), the session cut, and judges whether the work has reached that point:
 the main solution exists, a check relevant to the task has run it, and what is left is local repair and finishing.
 Two turns in a row at 0.7 or more, from turn 8 on, and the cheaper model takes over in the same workspace and
-conversation. It hands over once a run, never back, and the next message starts on System 2 again. Off by default.
+conversation. It hands over once a run, never back. The next message starts on System 2 again, which reads what the
+cheaper model did as part of the conversation. Off by default.
 
 ```bash
 intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \

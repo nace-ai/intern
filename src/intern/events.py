@@ -298,7 +298,7 @@ class Nudge(_EventBase):
 
 class Handoff(_EventBase):
     """System 2 handed the run over to a cheaper model, which takes the next turn and every one after it in this run,
-    as a child run with a journal of its own."""
+    in the same conversation: its turns are the session's own, and the next run is System 2's again."""
 
     type: Literal["handoff"] = "handoff"
     turn: int
@@ -307,7 +307,6 @@ class Handoff(_EventBase):
     transfer: Literal["context"] = "context"
     probability: float = Field(description="System 1's P(ready) at the turn it handed over.")
     tokens: int = Field(description="The size of the last request the model handed over by sent.")
-    journal: str | None = Field(default=None, description="The child run's journal, when this session's is kept.")
 
 
 class ToolGuard(_EventBase):

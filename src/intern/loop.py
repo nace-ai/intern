@@ -68,7 +68,7 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
-from intern.handoff import TAKEOVER_NOTE, HandoffTarget, Readiness, kept_messages, seed_journal
+from intern.handoff import TAKEOVER_NOTE, HandoffTarget, Readiness
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
@@ -78,7 +78,6 @@ from intern.journal import (
     StateEntry,
     SystemPromptEntry,
     new_id,
-    recording,
 )
 from intern.messages import (
     AssistantMessage,
@@ -105,7 +104,7 @@ from intern.providers.base import (
 )
 from intern.session_cut import STATE_SHARE, session_cut
 from intern.state_edits import parse as parse_state
-from intern.subagents import SubagentResult, Subagents, SubagentSettings, _Slots, child_journal_path
+from intern.subagents import SubagentResult, Subagents, SubagentSettings, _Slots, slots_for
 from intern.supervise import Supervisor
 from intern.tools.base import Tool, ToolContext, ToolOutput, fail, os_failure, refuse
 from intern.tools.files import EditTool
@@ -219,9 +218,6 @@ class EngineDeps:
     """The parallel limit and the writers' lock every subagent of the session shares; made at the first one."""
     handoff: HandoffTarget | None = None
     """The cheaper model a run hands over to once System 1 judges it can finish (`[capabilities.handoff]`)."""
-    stream: EventSink | None = None
-    """The clients' stream, without the session's journal recording `emit` adds: a hand-over's child run sends its
-    events there, so they reach clients but stay out of this conversation's journal. None: `emit`."""
 
 
 CompactOutcome = Literal["compacted", "fits", "stopped"]
@@ -290,10 +286,6 @@ class Run:
         self.final_text = ""
         self._prompt_chars = 0
         self._pending_stop: h.Stop | None = None
-        self._takeover: list[tuple[str, str]] | None = None
-        """Set at the turn that hands over in a child run: the messages that open it, after the conversation so far."""
-        self._child: Run | None = None
-        """The child run the cheaper model finishes this one in, once it hands over (`context`)."""
         self._answered = False
         """The agent has written to the user since the user's latest message."""
         self._urged = False
@@ -312,10 +304,16 @@ class Run:
             if deps.subagents is not None and not deps.child
             else None
         )
+        self._taken_over = False
+        self._takeover_before: str | None = None
+        """Once the run has handed over (`_taken_over`), the first message recorded after it: the take-over note goes
+        before it in each request the cheaper model is sent for the rest of the run, at the end until there is one,
+        and no longer once a compaction has cut that message. The journal does not keep the note, so the conversation
+        reads on as one agent's: to System 1, to a compaction, and to System 2 at the next run."""
         self.effort: str | None = None
         """The effort System 1 picked for this run at the `auto` thought level; None until it is asked."""
         target = deps.handoff
-        # A session already handed over (an earlier run) stays with the model taken over by.
+        # None once the run has handed over, and on a System 2 that is the cheaper model itself.
         self.handoff = (
             Readiness(target)
             if target is not None and target.binding.ref != deps.system2.ref and not deps.child
@@ -363,6 +361,8 @@ class Run:
         elif isinstance(message, AssistantMessage) and message.text.strip():
             self._answered = True
         entry = self.deps.journal.append(MessageEntry(message=message, run_id=self.run_id))
+        if self._taken_over and self._takeover_before is None:
+            self._takeover_before = entry.id
         self.deps.emit(MessageEvent(entry_id=entry.id, message=message))
         return entry.id
 
@@ -540,8 +540,6 @@ class Run:
         outcome = await self._loop()
         reopens = 0
         while True:
-            if self._child is not None:
-                return outcome  # the child run's own gate ran on its outcome
             gates = await self.deps.hooks.call("agent_end", lambda e, o=outcome: e.agent_end(o, self._ctx()))
             gate = next((verdict for _, verdict in gates if isinstance(verdict, h.Nudge)), None)
             if gate is None or outcome.reason != "completed" or reopens >= MAX_FINISH_REOPENS:
@@ -619,8 +617,6 @@ class Run:
                 return self._outcome("aborted")
 
             verdict = await self._handle_reply(reply)
-            if self._takeover is not None:
-                return await self._take_over(self._takeover)
             if not isinstance(verdict, h.Stop) and self._waiting_on:
                 # The agent handed over: the run holds for news (a job's end, System 1's look, the user) instead.
                 self._waiting_on = []
@@ -754,6 +750,8 @@ class Run:
     def _view(self) -> ContextView:
         view = build_view(self.deps.journal.active_path(), self.deps.instructions, self.meter, self.window)
         view.model, view.replay = self.binding.ref, self.binding.profile.reasoning_replay
+        if self._taken_over:
+            view.asides = {self._takeover_before: TAKEOVER_NOTE}
         return view
 
     def _update_state(self, view: ContextView) -> Coroutine[object, object, None] | None:
@@ -1145,10 +1143,14 @@ class Run:
         if isinstance(verdict, h.Stop) and (verdict.reason != "completed" or not nudges):
             return verdict
         if hand_over:
-            self._takeover = [*nudges, (TAKEOVER_NOTE, "handoff")]
-            return h.Continue()
+            self._hand_over()
         for text, reason in nudges:
             self._nudge(text, reason)
+        if hand_over:
+            # After the turn and its nudges, where the cheaper model's own turns begin: it starts at once, whatever
+            # this turn waited on.
+            self._taken_over = True
+            return h.Continue()
         if waiting_on and not nudges:
             self._waiting_on = waiting_on  # quiet: `_turns` holds for news before the next turn
             self._waiting_limit, self._waiting_looks = limit, looks
@@ -1163,18 +1165,16 @@ class Run:
             return await supervise, False
         return await asyncio.gather(supervise, self.handoff.after_turn(self.turn, self.deps.decisions, state))
 
-    async def _take_over(self, opening: list[tuple[str, str]]) -> h.RunOutcome:
-        """Finish the run in a child run on the cheaper model. It goes on from this conversation, copied
-        into a journal of its own, with this run's tools, extensions, System 1, control, supervisor and turn count, so
-        it sees what it would here; its events reach clients but not this journal. Its final reply ends the run and is,
-        with the user's steering, all of it this conversation keeps, so the session's next run is System 2's again."""
+    def _hand_over(self) -> None:
+        """The cheaper model takes the next turn and every one after it in this run, in this conversation: the
+        session's journal keeps its turns as it keeps System 2's, each reply under the model that wrote it, so a
+        model is sent back its own reasoning only. The run's tools, extensions, System 1, supervisor and turn count
+        go on as they were. The swap is the run's alone, as is the take-over note the cheaper model is sent
+        (`_takeover_before`): the session's next run is System 2's again, and reads these turns as its own
+        conversation going on."""
         assert self.handoff is not None and self.deps.handoff is not None
         target, readiness = self.deps.handoff, self.handoff
-        self.handoff, self._takeover = None, None
-        path = child_journal_path(self.deps.journal, f"handoff-{self.run_id}")
-        journal = seed_journal(self.deps.journal, path)
-        seeded = len(journal.active_path())
-        emit = recording(journal, self.deps.stream or self.deps.emit)
+        self.handoff = None
         self.deps.emit(
             Handoff(
                 turn=self.turn,
@@ -1182,37 +1182,14 @@ class Run:
                 target=target.binding.ref,
                 probability=readiness.probability,
                 tokens=self.meter.tokens(self._prompt_chars),
-                journal=str(path) if path is not None else None,
             )
         )
-        deps = replace(
-            self.deps,
-            system2=target.binding,
-            journal=journal,
-            emit=emit,
-            hooks=h.Hooks(self.deps.hooks.extensions, emit),
-            decisions=self.deps.decisions.emitting_to(emit),
-            handoff=None,
-        )
-        child = self._child = Run(deps, self.meter, self.control)
-        child.run_id, child.turn, child.supervisor, child.effort = self.run_id, self.turn, self.supervisor, self.effort
-        child._answered, child._urged = self._answered, self._urged
-        try:
-            for text, reason in opening:
-                child._nudge(text, reason)
-            outcome = await child._run_with_finish_gate()
-        finally:
-            self.turn = child.turn
-            self.usage += child.usage
-            self.state_usage += child.state_usage
-            for model, usage in child.by_model.items():
-                self.by_model[model] = self.by_model.get(model, Usage()) + usage
-            if child.subagent_usage is not None:
-                self.subagent_usage = (self.subagent_usage or Usage()) + child.subagent_usage
-        self.final_text = outcome.final_text
-        for message in kept_messages(journal.active_path()[seeded:]):
-            self.deps.journal.append(MessageEntry(message=message, run_id=self.run_id))
-        return outcome
+        if self.deps.subagents is not None:
+            slots_for(self.deps, self.deps.subagents)  # made on the session's own deps, so the copy below shares them
+        self.deps = replace(self.deps, system2=target.binding)
+        if self.subagents is not None:
+            self.subagents.deps = self.deps  # a subagent's default model is the model that asks for it
+        self.continuations = self.output_doublings = 0  # the cut-off replies counted were the other model's
 
     async def _run_tools(self, calls: list[ToolCall]) -> list[ToolResult]:
         by_name = {tool.name: tool for tool in self.deps.tools}

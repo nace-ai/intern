@@ -9,25 +9,24 @@ only every few turns, and the hand-over's timing is what it is for.
 The model taken over by inherits the workspace and the conversation, without the reasoning of the model before it,
 which only goes back to the model that wrote it, and goes on until the run ends. It never hands back within the run.
 
-It runs as a child run: the conversation is copied into a journal of its own, and it keeps the run's tools, System 1,
-control and turn count, so it sees what it would in the run itself. Only its final reply joins the session's
-conversation, so the next user message is System 2's again, its cached prefix intact, and may hand over anew.
+It works in the session's own journal, with the run's tools, System 1, control and turn count, so its turns are part
+of the conversation as System 2's are. The note that tells it it is taking over (`TAKEOVER_NOTE`) is the run's and
+that model's alone: it is sent, where it took over, with each of its requests until the run ends or a compaction
+cuts its first turn, and the journal does not keep it. So System 1's State and a compaction read the session as any
+single agent's, and so does System 2 at the next user message, its cached prefix up to the hand-over intact; it may
+hand over anew.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from intern.capability_settings import HandoffConfig
 from intern.decisions import ChoiceAnswer, ChoiceQuestion, DecisionClient
-from intern.journal import Entry, Journal, MessageEntry, SessionEntry
-from intern.messages import AssistantMessage, UserMessage
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from intern.loop import ModelBinding
 
 READY = ChoiceQuestion(
@@ -88,32 +87,3 @@ class Readiness:
         self.probability = ready_probability(answer)
         self.streak = self.streak + 1 if self.probability >= config.threshold else 0
         return self.streak >= config.streak and turn >= config.min_turn
-
-
-def seed_journal(parent: Journal, path: Path | None) -> Journal:
-    """The child run's journal, holding the conversation so far: the parent's active path under the same ids, so a
-    compaction's cut still names its first kept entry."""
-    session = parent.active_path()[0]
-    assert isinstance(session, SessionEntry)
-    journal = Journal(cwd=session.cwd, path=path)
-    for entry in parent.active_path()[1:]:
-        journal.append(entry.model_copy())
-    return journal
-
-
-def kept_messages(entries: Sequence[Entry]) -> list[UserMessage | AssistantMessage]:
-    """What the parent's conversation keeps of the child run's own entries: the user's messages to it (steering), then
-    its last reply with text, the text alone, since its tool calls and reasoning belong to turns that conversation
-    does not hold."""
-    messages = [e.message for e in entries if isinstance(e, MessageEntry)]
-    kept: list[UserMessage | AssistantMessage] = [
-        m for m in messages if isinstance(m, UserMessage) and m.source == "user"
-    ]
-    reply = next((m for m in reversed(messages) if isinstance(m, AssistantMessage) and m.text.strip()), None)
-    if reply is not None:
-        kept.append(
-            reply.model_copy(
-                update={"tool_calls": [], "invalid_tool_calls": [], "reasoning": None, "reasoning_blocks": []}
-            )
-        )
-    return kept

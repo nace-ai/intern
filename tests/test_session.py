@@ -4,21 +4,24 @@ from __future__ import annotations
 
 import asyncio
 import json
+from dataclasses import replace
 
 import httpx
 import pytest
 from pydantic import SecretStr
 
+from intern.capability_settings import HandoffConfig
 from intern.context import requests_section
-from intern.decisions import DecisionsApiBackend, NoulQuestion
-from intern.events import Compaction, State
-from intern.journal import CompactionEntry, MessageEntry, ModelChangeEntry
-from intern.messages import UserMessage
+from intern.decisions import Answers, ChoiceAnswer, DecisionsApiBackend, NoulQuestion, Question
+from intern.events import Compaction, Handoff, State
+from intern.handoff import TAKEOVER_NOTE, HandoffTarget
+from intern.journal import CompactionEntry, EventEntry, MessageEntry, ModelChangeEntry
+from intern.messages import AssistantMessage, UserMessage
 from intern.providers.base import ProviderRequest
 from intern.providers.fake import FakeProvider, Turn
 from intern.session import Session, SessionBusy, SessionIdle
 
-from .support import Quiet, binding, is_state_write
+from .support import Quiet, WithTools, binding, is_state_write
 
 
 def slow_then_done(seconds: float):
@@ -254,3 +257,47 @@ async def test_models_cannot_change_mid_run(make_harness):
     with pytest.raises(SessionBusy):
         await session.set_model("fake/other")
     await task
+
+
+class Ready:
+    """A System 1 that judges every turn ready for the hand-over."""
+
+    name = "ready"
+
+    async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
+        ready = ChoiceAnswer(choice="ready", probabilities={"ready": 1.0})
+        return Answers(answers={name: ready for name in questions if name == "ready"})
+
+
+async def test_a_hand_over_stays_in_the_session_and_the_next_run_is_system_2s_again(make_harness):
+    strong = [Turn(text="built", reasoning="plan", tool_calls=[("greet", {"who": "a"})]), Turn(text="second answer")]
+    harness = make_harness(strong, extensions=[WithTools()], system1=Ready())
+    cheap = FakeProvider(
+        [Turn(text="fixing", tool_calls=[("greet", {"who": "b"})]), Turn(text="all done")], "cheap/small"
+    )
+    harness.deps.handoff = HandoffTarget(
+        binding=replace(binding(cheap), ref="cheap/small"), config=HandoffConfig(min_turn=1, streak=1)
+    )
+    session = Session(harness.deps)
+
+    first = await session.run("do the task")
+
+    assert first.final_text == "all done"
+    path = harness.deps.journal.active_path()
+    replies = [e.message for e in path if isinstance(e, MessageEntry) and isinstance(e.message, AssistantMessage)]
+    assert [(m.model, m.text) for m in replies] == [
+        ("fake/model", "built"),
+        ("cheap/small", "fixing"),
+        ("cheap/small", "all done"),
+    ]
+    assert any(isinstance(e, EventEntry) and isinstance(e.event, Handoff) for e in path)  # a resumed session shows it
+
+    second = await session.run("next")
+
+    assert second.final_text == "second answer" and len(cheap.requests) == 2  # System 2 answered, not the cheaper model
+    sent = harness.provider.requests[-1].messages
+    # It was sent what the cheaper model did, as its own conversation going on: the take-over note was that model's.
+    assert [m.text for m in sent if isinstance(m, AssistantMessage)] == ["built", "fixing", "all done"]
+    told = [[TAKEOVER_NOTE in m.content for m in r.messages if isinstance(m, UserMessage)] for r in cheap.requests]
+    assert all(any(each) for each in told)
+    assert not any(TAKEOVER_NOTE in m.content for m in sent if isinstance(m, UserMessage))

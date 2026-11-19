@@ -1363,3 +1363,15 @@ gets the values it could get before. ACP does not carry the event, and 0.45.0 cl
 The process watch skips commands that are only `sleep` and numeric durations: their answer never changes, so they
 cost no scheduled System 1 looks. Their ends are still reported as before; other commands keep their schedule.
 Older clients keep working, and nothing a client sends or reads changed shape.
+
+### 0.47.0
+
+A hand-over stays in the session. The cheaper model's turns are entries of the session's own journal, each reply
+under the model that wrote it, instead of a child run's in `<session>.subagents/handoff-<run>.jsonl`; that file is no
+longer written. The next prompt is still answered by the session's System 2, which is now sent those turns as part of
+the conversation rather than the final reply alone. The journal also keeps the `handoff` event, so a resumed session
+shows where a run handed over. The event drops `journal`, which named the child run's file. The note that tells the
+cheaper model it is taking over is no longer a message of the conversation, so no `nudge` (reason `handoff`) and no
+`message` event carry it: that model is sent it for the rest of the run, the journal does not keep it, and System 2
+never reads it; nor does System 1, whose State is the journal's. When a run hands over is unchanged. Still
+`PROTOCOL_VERSION` 3; ACP does not carry the event, and 0.46.1 clients keep working.
