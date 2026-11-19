@@ -4,7 +4,7 @@ Intern can run on free credit from the Nace console, with no keys: one sign-in i
 Google, and the console pays for a fixed set of models until the credit is spent. Signing in is only for the free
 credit; with your own keys you never sign in.
 
-With both the free credit and your own keys, the free credit comes first, system by system, and your keys take over
+With both the free credit and your own keys, the free credit comes first, meter by meter, and your keys take over
 once it is spent ([below](#which-credit-a-session-runs-on)).
 
 ## Commands
@@ -50,44 +50,47 @@ those above when the grant could not be read (a revoked grant also signs you out
 
 ## Which credit a session runs on
 
-The free credit has two meters: the agent meter pays for System 2 and the model a run hands over to, the System 1
-meter for System 1. When a session opens, and when each run starts, each system runs on free credit if:
+The free credit has two meters: the agent meter pays for the frontier model and the efficient model a run hands over
+to, the decision-model meter for the decision model. When a session opens, and when each run starts, each meter's
+models run on free credit if:
 
 - `[free] use` is true (`intern free start` and `resume` set it, `pause` clears it),
 - you are signed in and the grant is active (not spent, and the console has not paused free calls), and
 - its meter has more left than its overdraft, so a run never starts on credit that cannot finish it. The console
   does not report an overdraft yet, so today this means some credit is left.
 
-Otherwise the system runs on your own configuration (`system2`, `[capabilities.handoff]`, `[system1]` and their
-keys), exactly as without a grant. With no configuration for it, the session cannot open on it, and says the free
+Otherwise those models run on your own configuration (`system2`, `[capabilities.handoff]`, `[system1]` and their
+keys), exactly as without a grant. With no configuration for them, the session cannot open on them, and says the free
 credit is used up and to add a key: `intern free status` shows what is left, and `intern secrets` or the setup screen
 adds one.
 
-So with your own keys and a fresh grant, everything runs free. When the agent credit is spent, the next run's agent
-and hand-over are yours while System 1 stays free; when the System 1 credit is spent too, System 1 is yours.
+So with your own keys and a fresh grant, everything runs free. When the agent credit is spent, the next run's frontier
+and efficient models are yours while the decision model stays free; when the decision-model credit is spent too, the
+decision model is yours.
 
-A credit that runs out in the middle of a run is not retried. System 1 goes on with your own console key
-(`NACE_API_KEY`) on the same model, and System 2 with your own Fireworks key (`FIREWORKS_API_KEY`) on the same model
+A credit that runs out in the middle of a run is not retried. The decision model goes on with your own console key
+(`NACE_API_KEY`) on the same model, and the frontier model with your own Fireworks key (`FIREWORKS_API_KEY`) on the same model
 (GLM 5.3 or DeepSeek V4.1 Flash), and the run carries on. Without that key, the run stops, saying which of your models
 the next message will run on, or that you need to add a key; the conversation is kept.
 
-The choice is made again at the start of every run, so a system on your keys goes back to free credit, in the same
+The choice is made again at the start of every run, so a model on your keys goes back to free credit, in the same
 session, once the console says its meter can pay again: a limit raised, or free calls resumed after a pause. The
-console's answers carry the meters, and the grant is read again at most every 10 minutes. You are told when a system
+console's answers carry the meters, and the grant is read again at most every 10 minutes. You are told when a model
 moves to your keys or back, and once each when a meter has 20% and 5% left.
 
-While a system runs on free credit, it runs on the grant's models (its `bundle`), not on your configuration:
+While a meter's models run on free credit, they are the grant's models (its `bundle`), not on your configuration:
 
-- System 2 is `bundle.system2`, auto mode is always on and hands over to `bundle.handoff` at the bundle's
-  threshold, streak and first turn, and memory's steward writes notes with the hand-over model.
-- System 1 is `bundle.system1`, on the console.
+- The frontier model is `bundle.system2`, auto mode is always on and hands over to the efficient model
+  `bundle.handoff` at the bundle's threshold, streak and first turn, and memory's steward writes notes with the
+  efficient model.
+- The decision model is `bundle.system1`, on the console.
 - The context window is capped at `bundle.window_tokens` and replies at `bundle.max_output_tokens`, the limits the
   console keeps to, so they are never what stops a run.
 - Picking another model is refused: `--system2`, `--system1` and `--handoff-to`, and in the desktop app the model
   pickers, say "This runs on free credit with … To pick models, use your own keys (`intern free pause`)."
 
 `intern models --json` shows the same: its `free` block has the grant's state and meters, the bundle, `use`, and
-what each system runs on (`source`), and a system on free credit lists only the bundle's model. ACP clients also get
+what each meter's models run on (`source`), and a model on free credit lists only the bundle's model. ACP clients also get
 the meters on every usage update ([ACP](acp.md#free-credit)).
 
 ## Where the tokens are

@@ -64,15 +64,15 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `schedule` | switch setting | terminal UI only: prompts on timers; `/caps schedule` | off |
 | `subagents` | switch setting | `cap.subagents`: the `agent` tool, and its limits (`max_children`, `max_parallel`, `max_turns`, `timeout_s`) and models (`model`, `models`) | off |
 | `mcp` | switch setting | one `cap.mcp.<namespace>` switch per listed connection | none listed |
-| `web_search` | capability option | options of the `web-search` pack, and `system1`: System 1 keeps the results the task needs ([below](#system-1-on-web-results)) | no backend; `system1` off |
-| `web_reader` | capability option | options of the `web-read` pack, and `system1`: System 1 keeps the parts of a long page the task needs ([below](#system-1-on-web-results)) | built-in limits; `system1` off |
+| `web_search` | capability option | options of the `web-search` pack, and `system1`: the decision model keeps the results the task needs ([below](#the-decision-model-on-web-results)) | no backend; `system1` off |
+| `web_reader` | capability option | options of the `web-read` pack, and `system1`: the decision model keeps the parts of a long page the task needs ([below](#the-decision-model-on-web-results)) | built-in limits; `system1` off |
 | `process` | session setting | the session's job manager, behind the `process` tool in `base`: running jobs, records and log bytes kept, when a long `bash` command goes on in the background (`move_after_s`), and when a silent command is stopped (`idle_stop_s`, `idle_stop_jobs`) | built-in limits; 30 s; never; jobs too |
 | `runner` | session setting | where commands run; `/runner` and the ACP `runner` option pick it per session | `local` |
 | `secrets` | session setting | secret references for commands (bindings, `inject`); the top-level [`[secrets]`](secrets.md) store is separate | none |
 | `session_budget` | session setting | one model-call budget for the session | none |
-| `system2_fallbacks` | session setting | System 2 models to fall back to | none |
-| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, in the same conversation, its turns kept in the session so that System 2, which answers the next message, reads them, and when (`threshold`, `streak`, `min_turn`); `--handoff-to`, the terminal UI's `/handover` and the ACP `handoff` option set `to`; the terminal UI's auto mode (the top-level `auto`, on unless `false`) hands over to `anthropic/claude-haiku-5-5` while `to` names none | off |
-| `model_retries` | session setting | whether a System 2 call that fails with a retryable error is made again ([below](#model-retries)) | `true` |
+| `system2_fallbacks` | session setting | models to fall back to when the frontier model's provider fails | none |
+| `handoff` | session setting | one hand-over per run to the efficient model (`to`, `effort`) once the decision model judges it can finish the task, in the same conversation, its turns kept in the session so that the frontier model, which answers the next message, reads them, and when (`threshold`, `streak`, `min_turn`); `--handoff-to`, the terminal UI's `/handover` and the ACP `handoff` option set `to`; the terminal UI's auto mode (the top-level `auto`, on unless `false`) hands over to `anthropic/claude-haiku-5-5` while `to` names none | off |
+| `model_retries` | session setting | whether a call to your models that fails with a retryable error is made again ([below](#model-retries)) | `true` |
 
 `web_search` and `web_reader` were `search` and `reader` before 0.44.0; the old table names still load.
 
@@ -133,9 +133,9 @@ For SearXNG, use `backend = "searxng"` with `searxng_url`, or retain `SEARXNG_UR
 The current SearXNG adapter does not accept `api_key_env`. See
 [search behavior and limits](capabilities/web-search.md).
 
-## System 1 on web results
+## The decision model on web results
 
-Either pack can have System 1 judge what it returns before the agent sees it, each with its own `system1` option,
+Either pack can have the decision model judge what it returns before the agent sees it, each with its own `system1` option,
 off by default:
 
 ```toml
@@ -146,9 +146,9 @@ system1 = true   # ask the provider for more, keep the results the task needs, b
 system1 = true   # of a page longer than the preview, keep the parts the task needs
 ```
 
-System 1 reads the session, as every System 1 question does: what the user asked and what the agent has done. Both
-packs' rows in `/caps` carry the `System 1` tag; the note says whether the option is on. What each keeps, and how:
-[web search](capabilities/web-search.md#system-1), [web reader](capabilities/web-reader.md#system-1).
+The decision model reads the session, as every question it is asked does: what the user asked and what the agent has done. Both
+packs' rows in `/caps` carry the `decision model` tag; the note says whether the option is on. What each keeps, and how:
+[web search](capabilities/web-search.md#the-decision-model), [web reader](capabilities/web-reader.md#the-decision-model).
 
 ## Retained URL text
 
@@ -316,8 +316,8 @@ installs it first. The extra also holds the tree-sitter grammars that chunk code
 ([the languages](usage.md#code-search)); a language whose grammar is missing is chunked by windows of
 lines, and chunked again by class and function at the first refresh after the grammar is installed.
 
-`decision_code` asks System 1, which every session has (a decision model from the console, or
-what `[system1]` or `--system1` picks). An ask System 1 does not answer, after its
+`decision_code` asks the decision model, which every session has (a decision model from the console, or
+what `[system1]` or `--system1` picks). An ask the decision model does not answer, after its
 retries, stops the run rather than reading as nothing found. The index is `.intern/index.json` in the working
 directory: built before the first turn when it is missing or stale in a git work tree (elsewhere, such as a
 home folder, only on `decision_code`'s first call: nothing is walked or written before), refreshed after
@@ -348,7 +348,7 @@ got and the best folder it did not enter. The question's words also steer the wa
 SQLite FTS5 table of every chunk (`.intern/lexical.sqlite`, identifiers split, brought up
 to date before a search, no model) gives the passages they match, and the groups
 holding the best of them have their files judged first, beside the walk; what comes
-back is still only what System 1 judged. `intern index`
+back is still only what the decision model judged. `intern index`
 builds the same index ahead of time. Code search owns no service that outlives a
 run, so Session close has nothing extra to stop. In the terminal UI each `decision_code`
 call draws its search live right under the call ([docs/tui.md](tui.md#layout)).
@@ -373,10 +373,10 @@ folder's `.decision_workspace/` (text under `derived/`, every table in `tables.d
 directory that already has one is loaded at the start. Without one, the pinned note names the folders of the
 working directory that hold documents (PDFs, Word, workbooks, Parquet; counted over its first 2,000 files, in or
 outside git), each with its count and whether it is indexed; a working directory with none, such as a code
-repository, gets no note. As with code search, the note is the session's first message's and stays as it is. Then `decision_files` searches it with System 1 (the
+repository, gets no note. As with code search, the note is the session's first message's and stays as it is. Then `decision_files` searches it with the decision model (the
 tree walk and a BM25 first stage over its passages, judged together, then one SAG2 expansion round; a
 passage is a page of a PDF, and in a text file or a Word document a piece of at most 80 lines and 4,000
-characters, which is what System 1 is shown of one, so a clause deep in a long contract is judged on its own text),
+characters, which is what the decision model is shown of one, so a clause deep in a long contract is judged on its own text),
 `sql` queries the tables, and `read` shows documents as text (`pages=`, `tab=`). It loads beside code
 search: in a repository with a folder of documents, the code index is `.intern/index.json` at the
 root and the documents' index `.decision_workspace/` in their folder. `intern index --documents
@@ -385,10 +385,10 @@ root and the documents' index `.decision_workspace/` in their folder. `intern in
 ## Guard
 
 The tool-call guard checks each tool call before it runs: fixed rules refuse what is destructive or exfiltrating
-(`sudo`, `rm -rf ~`, a force push, reading credentials, ...), then System 1 judges the other calls that can do
+(`sudo`, `rm -rf ~`, a force push, reading credentials, ...), then the decision model judges the other calls that can do
 harm against the session, what the user asked and their `SYSTEM1.md`. Before it judges an install that names a
 package the project's manifests do not list (`pip install x`, `npm install x`, `cargo add x`, `gem install x`), it
-looks the package up on PyPI, npm, crates.io or RubyGems from this machine, so System 1 can tell an established
+looks the package up on PyPI, npm, crates.io or RubyGems from this machine, so the decision model can tell an established
 package from one published last week; an install pointed at another index or registry (`--index-url`, an `.npmrc`
 with a `registry`, `PIP_INDEX_URL`) is not looked up. It is off by default; turn it on with
 `/caps guard`, the ACP `cap.guard` option, or:
@@ -396,8 +396,8 @@ with a `registry`, `PIP_INDEX_URL`) is not looked up. It is off by default; turn
 ```toml
 [capabilities.guard]
 enabled = true
-system1 = true             # the default; false runs the fixed rules alone, and no call waits for System 1
-system_writes = "refuse"   # the default; "allow" in a disposable container leaves /etc, /usr writes to System 1
+system1 = true             # the default; false runs the fixed rules alone, and no call waits for the decision model
+system_writes = "refuse"   # the default; "allow" in a disposable container leaves /etc, /usr writes to the decision model
 ```
 
 This setting is the only way to turn the guard on; `--extension guard`, a profile's `extensions` list and
@@ -405,12 +405,12 @@ This setting is the only way to turn the guard on; `--extension guard`, a profil
 Its hook runs after every other extension's, memory's included, so it judges the arguments the tool will get. The
 top-level `[guard]` table of 0.31.0 to 0.36.0 is gone: a config that still has it is refused with where its keys
 went (`mode = "full"` is `enabled = true`, `mode = "rules"` is `enabled = true` with `system1 = false`). See
-[usage](usage.md) and the rules in [architecture](architecture.md#system-2-and-system-1).
+[usage](usage.md) and the rules in [architecture](architecture.md#the-three-models).
 
 ## Tool-result guard
 
 The tool-call guard checks a call before it runs; the tool-result guard screens what a tool returns before the agent
-sees it, and System 1 removes the parts addressed to the agent (indirect prompt injection). Off by default; turn it on
+sees it, and the decision model removes the parts addressed to the agent (indirect prompt injection). Off by default; turn it on
 with `/caps tool-result-guard`, the ACP `cap.tool-result-guard` option, or:
 
 ```toml
@@ -562,7 +562,7 @@ boundary that does not concatenate failed partial replies with a backup answer.
 
 ### Model retries
 
-A System 2 call that fails with a retryable error (HTTP 429, 5xx, an overloaded server or rate limit reported in the
+A call to your models that fails with a retryable error (HTTP 429, 5xx, an overloaded server or rate limit reported in the
 stream, a dropped connection) is made again: by the provider after 2, 8 and 20 s while none of the
 reply has arrived, then by the run after 5 and 20 s and every 30 s until 30 minutes have passed since the first
 failure. Behind a gateway or broker that retries itself, those multiply with its own. Turn them off:
@@ -572,12 +572,12 @@ failure. Behind a gateway or broker that retries itself, those multiply with its
 model_retries = false
 ```
 
-Each System 2 call, State writes for compaction included, is then made once. The first retryable failure ends the
+Each call to your models, State writes for compaction included, is then made once. The first retryable failure ends the
 run with `provider_error` and the provider's error as its detail (`HTTP 529 from anthropic: ...`). Errors that are
 not retryable fail at once either way. Models in `system2_fallbacks` are still tried in order: that is a choice of
-model, not a retry. System 1's asks keep their own retries; the harness does not run without System 1.
+model, not a retry. The decision model's asks keep their own retries; the harness does not run without the decision model.
 
-Native System 1 model fallback remains under the existing `[system1]` settings:
+The decision model's native model fallback remains under the existing `[system1]` settings:
 
 ```toml
 [system1]
@@ -588,9 +588,9 @@ api_key_env = "DECISION_API_KEY"
 ```
 
 The shared budget wraps that existing backend inside DecisionClient, preserving
-its cache, retries and native model-list fallback. System 1
-internal retries/batches count as one logical backend dispatch; System 2 fallback
-targets each consume their own reservation. System 1 does not report token usage,
+its cache, retries and native model-list fallback. The decision model's
+internal retries/batches count as one logical backend dispatch; the frontier model's fallback
+targets each consume their own reservation. The decision model does not report token usage,
 so these saved budget settings do not offer a shared output-token cap.
 
 The ledger is **session cumulative**, across prompts, follow-ups and model

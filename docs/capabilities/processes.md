@@ -25,12 +25,12 @@ Each start and end is a `process` event (`ProcessEvent`, with a `ProcessInfo`: i
 state, exit code, started and ended times), reported whenever it happens, between runs too, and
 journaled as an `event` entry. ACP sends nothing for it.
 
-System 1 reads what runs beside the user's goal: its view of the session (`session_cut.py`) has a
+The decision model reads what runs beside the user's goal: its view of the session (`session_cut.py`) has a
 `processes` list while commands run, each with its kind, command, how long it has run and, for a
 job, how long it has written nothing (`quiet_s`) and its last line of output. Like the goal, it is
-never cut to fit System 1's window. The terminal UI's State panel shows it under the goal.
+never cut to fit the decision model's window. The terminal UI's State panel shows it under the goal.
 
-When System 2 writes the State for a compaction, code adds a `## Running processes` section
+When the frontier model writes the State for a compaction, code adds a `## Running processes` section
 before `## User requests` while jobs or what commands left running still run: each job's handle
 and command, and how long it has run. The turn that started a job may be among those the State
 replaces; the section keeps the handle, so the agent can still poll or stop it. The writer never
@@ -69,7 +69,7 @@ on what still runs is the agent handing over. Those calls are:
 
 - polls (or a list) of jobs that still run;
 - `bash` calls that went on in the background as waits: a long `sleep`, `tail -f`, `watch`, a CI watch, or one
-  System 1 judged waits (`until [ -f done ]; do sleep 5; done`);
+  the decision model judged waits (`until [ -f done ]; do sleep 5; done`);
 - in a quiet session only, status checks of what runs: commands that only read, at least one part a process listing
   (`ps`, `pgrep`, `nvidia-smi`…) or a read of a file a running command names or writes to (`tail -n 20 train.log`
   for a job started with `> train.log`). Nothing that writes, starts something, or runs `$( )`.
@@ -77,10 +77,10 @@ on what still runs is the agent handing over. Those calls are:
 What happens then:
 
 - In the terminal UI (`wake`) the run ends with reason `waiting` and the transcript says
-  ``⏸ Waiting on `./ci.sh`: you get the result when it ends; System 1 looks at it meanwhile.`` You
-  have the session; the job's end, or a System 1 finding, brings the agent back.
-- In a quiet session (`-p`, ACP, JSON-RPC) the run holds for news: the job's end, a System 1
-  finding, a message from the user, or System 1's next scheduled look at what runs. A look that
+  ``⏸ Waiting on `./ci.sh`: you get the result when it ends; the decision model looks at it meanwhile.`` You
+  have the session; the job's end, or a finding of the decision model's, brings the agent back.
+- In a quiet session (`-p`, ACP, JSON-RPC) the run holds for news: the job's end, a finding of the
+  decision model's, a message from the user, or its next scheduled look at what runs. A look that
   found nothing to tell is news here (`nudge`, reason `process_look`), so a job that never ends, a
   server, brings the agent back at 30 s, 1, 2, 4… minutes instead of holding the run until its
   timeout. Two exceptions. A turn of waits that all end by themselves (`sleep`, a CI watch) is not
@@ -102,26 +102,26 @@ in goes on in the background at once (below), and a held run takes its next turn
 The `process` tool's description says poll never waits, that the agent is told when a job ends,
 and that a turn that only polls running jobs ends its turn until then.
 
-## System 1's look at what runs
+## The decision model's look at what runs
 
 A command that is only `sleep N` (including durations with units or several duration arguments) is not looked at:
 its answer never changes. The agent is still told when it ends.
 
-While any command runs, System 1 is asked what each is doing (`process_watch.py`): at its
+While any command runs, the decision model is asked what each is doing (`process_watch.py`): at its
 ages of 30 s, 1, 2, 4, 8 and 16 minutes, then every 30 minutes, one ask covering every command
 running, over its view of the session with `processes`. Nothing running, no ask; a command that runs
 ten hours costs about 25. Its verdicts: `progressing`, `waiting_as_expected` (a CI watch, a sleep, a
 server, as meant), `stalled`, `failing`, `ready` (a server or watcher that is up while the agent
 waits on it as if it would end) and `unclear`. Each look is a `process_check` event; the terminal UI
-keeps a card a command, updated at each look, with System 1's judgement and not the command again
-(`» System 1 · at 4m 00s   progressing 0.88`). Commands at
+keeps a card a command, updated at each look, with the decision model's judgement and not the command again
+(`» Decision model · at 4m 00s   progressing 0.88`). Commands at
 P(stalled) + P(failing) + P(ready) of 0.6 or more are told to the agent as one harness message
 (`nudge`, reason `process_check`), with how long each has run, how long it has written nothing and
 its last line: at the run's next turn, keeping only the latest look, or between runs as
 `job_notices` says (a run of its own in the terminal UI). A command that stays stuck is told again at
 its next look, each further apart: there is no counter. Nothing here stops or moves a command. A look
-System 1 cannot answer during a run stops that run (`system1_unavailable`), as its other asks do;
-between runs, the next look tries again. The terminal UI's status bar lists, on System 1's row, the
+the decision model cannot answer during a run stops that run (`system1_unavailable`), as its other asks do;
+between runs, the next look tries again. The terminal UI's status bar lists, on the decision model's row, the
 background jobs it watches: each one's run time, its verdict at the latest look, and the next look.
 
 ## A long command goes on in the background
@@ -134,10 +134,10 @@ not started again, when the first of these comes:
   `watch`, `gh run watch` or `gh pr checks --watch`;
 - a message from the user comes in;
 - it has run `[capabilities.process] move_after_s` (30 s by default; `0` never moves one);
-- System 1, asked once it has run 2 s (so quick commands cost no ask), finds it waits or serves
+- the decision model, asked once it has run 2 s (so quick commands cost no ask), finds it waits or serves
   (a sleep, a CI watch, a poll loop, a server, a watcher) at P(waits) + P(serves) of 0.6 or more,
   from the user's requests and the command alone, as the guard judges a call;
-- System 1's look at what runs finds it stalled, failing, or up and waited on.
+- the decision model's look at what runs finds it stalled, failing, or up and waited on.
 
 The call returns `[Running in the background as job <handle> (<why>). …]` with its output so far,
 where why is `still running at 30s`, ``System 1 judged it waits (0.88)``, `System 1 found it
@@ -145,13 +145,13 @@ stuck`, ``a message from the user came in`` or ``` `sleep 60` is a wait```; the 
 `note` of the `process` events for the call (state `moved`) and its job, and the terminal UI shows
 it (``⇢ `./ci.sh` went on in the background: still running at 30s``). The agent is told when it ends (above). A command that
 works keeps the `timeout_s` it was given, and the call's result says when it will still be stopped. One that serves does
-not: System 1 judged it `serves` as it moved, or a later look found it up and `ready`, and the `timeout_s` the agent
+not: the decision model judged it `serves` as it moved, or a later look found it up and `ready`, and the `timeout_s` the agent
 gave a call it expected to block on would only kill it. It runs until it is stopped, the session closes, or 24 hours
 pass, as long as a `process` job may. In a session that tells the agent nothing between runs (`quiet`: `-p`,
 ACP, JSON-RPC), a run does not end while a command it moved still runs: a final answer waits for
 news for the agent (the command's end, a look, a message of the user's) and gets one more turn, so
 a `-p` run gets the result it would have had, by the same deadline, and relies on no prompt. A
-command that serves is not waited for, since it does not end: one System 1 judged `serves` as it
+command that serves is not waited for, since it does not end: one the decision model judged `serves` as it
 moved it, or later found up and `ready`. In the terminal UI (`wake`) the run ends at once, and the
 command's end wakes the agent. Esc (an abort) stops the run and the command. A moved command takes no input; its output
 arrives through its capture file, which the job reads as it grows and removes at its end (with
@@ -165,7 +165,7 @@ long is stopped, as its `timeout_s` would stop it: a `bash` call, one that went 
 job unless `idle_stop_jobs = false`. Any byte it writes, to stdout or stderr, starts its silence again. Output is
 counted as it arrives from the executor, before secret redaction, so a command with command secrets is not taken for
 silent while its published output waits for its end. Left alone, since their silence is what they do: a job that
-serves (moved as one, or found up and `ready` by System 1's look), a wait that ends by itself (a `sleep` of 10 s or
+serves (moved as one, or found up and `ready` by the decision model's look), a wait that ends by itself (a `sleep` of 10 s or
 more, a CI watch), and what a command left running, whose output is not read. An executor that cannot report output
 as it arrives has none of its `bash` calls stopped. A look of the watch's that comes 30 s late (the event loop was
 blocked, or the machine paused) counts every command's silence from then, since output could not be read meanwhile.

@@ -2,12 +2,13 @@
 
 The terminal UI is what `intern` opens on a terminal: the harness run interactively, on the same
 `Session` the headless CLI, the JSON-RPC server and the ACP server drive. Its point is to make the
-System 1 / System 2 integration visible: the State System 1 works from (the session as it reads it), the
-summary System 2 continues from after a compaction, and System 1's decisions, turn by turn.
+three models' work visible: the State the decision model works from (the session as it reads it), the
+summary the frontier model continues from after a compaction, the hand-over to the efficient model, and the
+decision model's decisions, turn by turn.
 
 ```bash
 uv tool install "intern-agent @ git+https://github.com/nace-ai/intern"
-intern                                       # System 2 from config.toml or $INTERN_SYSTEM2
+intern                                       # the frontier model from config.toml or $INTERN_SYSTEM2
 intern --system2 openrouter/qwen/qwen3.8-27b "Find why tests/test_parser.py fails and fix it"
 intern --session ~/.intern/sessions/20261108-213000-4242.jsonl   # resume one
 intern -p --system2 openrouter/qwen/qwen3.8-27b "task"                  # headless instead
@@ -18,24 +19,24 @@ The UI opens when neither `-p` nor `--json` is given and stdin and stdout are a 
 With no `--system2`, `$INTERN_SYSTEM2` or `system2` in `config.toml`, the UI starts on the first of
 the harness's known models your keys reach (Claude Haiku 5.5, Qwen3.8 27B on
 OpenRouter, Nemotron 3.5 Lightning), says so, and `/frontier` changes it; with no provider key at all it opens
-without a session and the first `/frontier` pick opens one. System 1 is a decision model from the console by
+without a session and the first `/frontier` pick opens one. The decision model is Drex from the console by
 default and needs `$NACE_API_KEY` in the environment; when a session cannot open, the reason is shown
 and `/decision` or `/frontier` reopens it on the pick.
 `intern tui` is the explicit form. It takes the CLI's options (`--system2`, `--system1`, `--window`,
 `--max-turns`, `--profile`, `--cwd`, `--no-context-files`, `--no-extensions`, `--extension`,
 `--no-session`, `--session`). A task on the command line is sent as the first prompt. `--session FILE` resumes a
 journal where it stands, not replayed step by step: the transcript shows its last 30 turns (the earlier ones are
-in the journal, their work in the State), the State panel the session as System 1 reads it, a compaction's
+in the journal, their work in the State), the State panel the session as the decision model reads it, a compaction's
 card the summary its journal entry keeps, the
-masthead each system's cost and the context from all of it; it continues on the models it last
-switched to. Beside System 2's cost the masthead shows the share of its prompts the provider read from its cache
-(`cache 91%`), over the session; nothing when the provider never reports its cache. When memory stewarded the session (once it went idle or closed), System 1's cost includes the
-steward's asks and System 2's its writer's calls, and a line under the conversation says what it spent
-(`◇ Memory steward: 43 System 1 asks and 12.0k in / 1.5k out to the writer stewarding this session, $0.0191
+masthead each model's cost and the context from all of it; it continues on the models it last
+switched to. Beside the frontier model's cost the masthead shows the share of its prompts the provider read from its cache
+(`cache 91%`), over the session; nothing when the provider never reports its cache. When memory stewarded the session (once it went idle or closed), the decision model's cost includes the
+steward's asks and the frontier model's its writer's calls, and a line under the conversation says what it spent
+(`◇ Memory steward: 43 decision model asks and 12.0k in / 1.5k out to the writer stewarding this session, $0.0191
 (2 runs)`). A session of 1,700 journal entries opens in about 2 seconds; drawn whole, one widget at a time,
 it took over 2 minutes. On quit the UI prints the command that resumes the session
-(`intern --session ~/.intern/sessions/<stamp>-<id>.jsonl`). Every session has System 1 (a decision model from the console by default,
-see the README); a run whose System 1 stops answering ends with `system1_unavailable` after up to 30 minutes of retries.
+(`intern --session ~/.intern/sessions/<stamp>-<id>.jsonl`). Every session has a decision model (Drex from the console by default,
+see the README); a run whose decision model stops answering ends with `system1_unavailable` after up to 30 minutes of retries.
 
 ## Entering page
 
@@ -77,13 +78,14 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
               /models models   /caps capabilities   /handover off hand-over   Shift+Tab thinking   /theme look
 ```
 
-Intern is a brain in two parts, and the page is drawn that way: on the left System 2's card over System 1's, on the
-right the capabilities, the mascot between them. System 2's card has the frontier model and how hard it thinks, and,
+Intern runs on three models, and the page is drawn that way: on the left the card of the frontier and efficient
+models (headed `System 2`) over the decision model's (headed `System 1`), on the right the capabilities, the mascot
+between them. The first card has the frontier model and how hard it thinks, and,
 while a run hands over, the efficient model under it, the hand-over between them a rule across the card with `↓
 hand-over` in its middle; it plays a run over and over, the frontier model on the hard part, the rule filling in the
 accent as the decision model's P(ready) rises to the moment it hands over, then the efficient model on the rest.
-While hand-over is off the efficient model is not there, and the frontier model works every turn. System 1's card
-has the decision model and where it is served, and its jobs, each on (`●`) or off (`○`) as a capability is (the
+While hand-over is off the efficient model is not there, and the frontier model works every turn. The decision
+model's card has the model and where it is served, and its jobs, each on (`●`) or off (`○`) as a capability is (the
 guard is off, and its line says so, when `cap.guard` is off or runs the fixed rules alone; the search while neither
 `code search` nor `workspace` is on). The capabilities' card says which models work with the tools (a run that hands
 over keeps its tools, so both do) and what a `◆` means, then what the session has switched on (`●` on, `○` off:
@@ -126,10 +128,10 @@ above its top.
 The page has the screen: the masthead and the side panels come with the first prompt, when the page goes. It follows
 the session, so a `/models` or `/caps` pick made before the first prompt shows on it: a capability switched there
 changes its line on the page, and the two lines a switch gets in a conversation (`… reopening the session…`,
-`Session reopened · …`) are not written under it; a model picked there shows on its system's card, its name whole
-on as many lines as it takes, and the line a pick gets in a conversation (`System 2 → …`) is not written either,
+`Session reopened · …`) are not written under it; a model picked there shows on its card, its name whole
+on as many lines as it takes, and the line a pick gets in a conversation (`Frontier model → …`) is not written either,
 unless it has more to say (the thinking level chosen is not one the model takes); nor is a thinking level's
-(`Thinking → …`), which System 2's card has. Whatever else is said before the first prompt (a session that could
+(`Thinking → …`), which the models' card has. Whatever else is said before the first prompt (a session that could
 not open, a switch that failed) is under it. A task on the command line, `--session` and `/reload` go
 straight to the conversation; `/clear` comes back to the page.
 
@@ -176,13 +178,13 @@ runs on.
 
 ```
 
-     ▄███▄                 INTERN  v0.25.0
-  ▄████████▄
- ▄██▀▀██▀▀███              System 2  anthropic/claude-haiku-5-5    thinking high   ▰▰▰▱▱    price unknown   ⠸ 11% of 131.1k
- ███▄▄██▄▄██               System 1  nace-ai/drex-max             decisions API             $0.0312
-  ███▀▀▀▀██
-    ████
-╭─▐System 2▌ thinking slow ─────────────────────────╮╭─▐System 1▌ thinking fast ──────────────────────╮
+     ▄███▄
+  ▄████████▄               INTERN  v0.53.0
+ ▄██▀▀██▀▀███
+ ███▄▄██▄▄██               Frontier   anthropic/claude-sonnet-5-5   thinking high ▰▰▰▱▱   price unknown   ⠸ working 11% of 131.1k
+  ███▀▀▀▀██                Efficient  anthropic/claude-haiku-5-5
+    ████                   Decision   nace-ai/drex-max              decisions API         $0.0312
+╭─▐Frontier model▌ claude-sonnet-5-5 ───────────────╮╭─▐Decision model▌ ──────────────────────────────╮
 │ › Find why tests/test_parser.py fails and fix it  ││ 131 asks · 0.4s each · 12 cached               │
 │ ▸ Thought for 3.4s                                ││ ━ watch 22   ✓ guard 8   ⌕ search 97           │
 │ Let me look at the failing test first.            ││ ⟲ compaction 4                                 │
@@ -193,7 +195,7 @@ runs on.
 │ 1 failed, 41 passed in 0.52s                      ││ ⌕ decision_code  97 asks · 291 judged          │
 │ Took 2.1s                                         ││   where are ISO weeks parsed?                  │
 │                                                   ││   → src/parser.py  0.93                        │
-│ ▎ System 1 · 0.6s   moving 0.78                   ││   ━━━━━━━━━━━━ circling 0.81  moving 0.11      │
+│ ▎ Decision model · 0.6s   moving 0.78             ││   ━━━━━━━━━━━━ circling 0.81  moving 0.11      │
 │ ▎ done 0.12   circling 0.06                       ││   strike 2/2  stuck nudge sent                 │
 │                                                   ││ ✗ $ git push --force origin main               │
 │ decision_code where are ISO weeks parsed?         ││   rewrites shared history 0.96                 │
@@ -201,12 +203,12 @@ runs on.
 │ Took 3.2s                                         ││   System 1 judged that it rewrites history     │
 │                                                   ││   that others share and that the user did not  │
 │ $ git push --force origin main                    ││   ask for it                                   │
-│ ✗ System 1 refused   rewrites shared history 0.96 ││ ⟲ 4 reads judged · 2 kept · 2 cut              │
+│ ✗ Decision model refused   rewrites shared histo… ││ ⟲ 4 reads judged · 2 kept · 2 cut              │
 │ risk 0.96   asked 0.02   0.4s                     ││   14.1k → 6.2k −56% · 6 turns cut to a summary │
 │ System 1 judged that it rewrites history that…    ││   ✓ src/parser.py  0.91                        │
 │                                                   ││                                                │
 │ refused · 0.0s                                    │╰────────────────────────────────────────────────╯
-│                                                   │╭─▐State▌ fast and slow ─────────────────────────╮
+│                                                   │╭─▐State▌ what the decision model reads ─────────╮
 │ ⟲ Compaction · turn 12 · 6 turns cut to a summary ││ 24.0k of 24.6k tokens · 98%  ━━━━━━━━━━━━━━━━  │
 │  Context ━━━━━━━━╌╌╌╌╌╌╌╌╌╌───  14.1k → 6.2k −56% ││ ┃ 15 whole   │ 10 abridged   62.9k uncut       │
 │                                                   ││ inputs ≤ 60 chars                              │
@@ -230,7 +232,7 @@ runs on.
 **Look.** paper, ink and one accent, the Nace mint (`tui/theme.py`): an off-white page, white cards, hairline rules,
 near-black text, a warm gray for what is secondary; the accent for what is Intern's own (the wordmark's shadow, the
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
-cursors, System 1's searches and compactions as they run), deepened on the light looks so it reads on paper; green
+cursors, the decision model's searches and compactions as they run), deepened on the light looks so it reads on paper; green
 only for what went right, amber for what needs a look, red for what went wrong. The mark is the mascot, the cube
 with eyes at the top of the README, in the ink in
 both looks, twelve cells by six beside the block letters, in the masthead: the brand's cube scaled to those cells
@@ -239,33 +241,34 @@ pixel wide and two tall (`widgets.EYE_PIXELS`), since eyes scaled to this size a
 as the entering page's do. Where the terminal draws sextants itself (Ghostty, kitty, WezTerm, iTerm2, foot:
 `widgets.sextants`) the mark is in those, six pixels to a cell and each one ink or not, so its edges are sharp and
 its eyes two pixels wide (`widgets.fine_mark`), and its eyes say what the run is doing (`StatusBar.face`): they
-read along a line while System 2 thinks, turn from a plus to a cross and back, a turnstile, while a tool runs, and
-are crossed out for a few seconds after a run that failed (a provider error, System 1 unavailable, an internal
+read along a line while the frontier or efficient model thinks, turn from a plus to a cross and back, a turnstile, while a tool runs, and
+are crossed out for a few seconds after a run that failed (a provider error, the decision model unavailable, an internal
 error). Elsewhere it is in half blocks, which every font has, in the nearest of its four poses. `uv run python -m
 tests.preview_tui` opens the terminal UI on scripted models to see all of it without keys. and nothing on the page says it twice: the
-System 2 panel opens on its heading alone. The panels are headed after Kahneman's two systems: System 2 `thinking slow` (it reasons and
-acts), System 1 `thinking fast` (it reviews the turns, judges the tool
-calls that can do harm and what a compaction keeps), its panel above the State's, headed `fast and slow`:
-the "and" of Kahneman's title, where the two systems meet, since the State is what System 1 sees of System 2's work.
+transcript opens on its heading alone. The panels are headed after the models: the transcript after the one
+whose turn it is (`Frontier model`, or `Efficient model` after a hand-over) and its model, which reasons and acts;
+`Decision model` (it reviews the turns, judges the tool calls that can do harm and what a compaction keeps), its
+panel above the State's, headed `what the decision model reads`, since the State is what the decision model sees of
+the others' work.
 Each panel is a window, a round border in the accent with the panel's name on it as a tab, paper on that
-accent: the entering page's cards, as the conversation has them. The prompt is to System 2 alone, so it stands
-under System 2's window, as wide, and the State's window runs down beside it. Text the mouse selects takes a shade
+accent: the entering page's cards, as the conversation has them. The prompt is to the frontier model alone, so it stands
+under the transcript's window, as wide, and the State's window runs down beside it. Text the mouse selects takes a shade
 of the page.
 
 **Masthead.** Beside the mark, the wordmark: in the entering page's block letters where the terminal is wide enough
 for them and the table beside them, else `INTERN` in type over the table. Then the version and, a blank row under it, a table:
-System 2 (the model, then the thinking level) and System 1 (the model, then where it is served), the
-labels in one column, the models in the next, the rest in a third. At the end of System 2's row, the run:
-a spinner while one is in progress (`○` when none is), the latest request's tokens as a share of the
+the frontier model (the model, then the thinking level), the efficient model, and the decision model (the model, then
+where it is served), the labels in one column, the models in the next, the rest in a third. At the end of the row of
+the model whose turn it is, the run: a spinner and `working` while one is in progress (`○` when none is), the latest request's tokens as a share of the
 working window, and what the run is waiting on or what needs attention. The thinking level is in a filled box with a pip per level the model takes, filled
-up to the one in force (none for the model's own), so Shift+Tab is seen to change it. Each system's cost
+up to the one in force (none for the model's own), so Shift+Tab is seen to change it. Each model's cost
 so far is in a fourth column. It moves as the calls are made, during a run too
-(System 2's replies and State writes, System 1's asks, memory recall's among them), and comes back with a
+(the replies and State writes, the decision model's asks, memory recall's among them), and comes back with a
 resumed journal, but for code search's asks, which the journal does not keep. A
 model whose cost is not known, its provider reporting none and the harness having no price for it,
-leaves System 2's cost `price unknown` (`≥ $…` when other calls had one).
+leaves its cost `price unknown` (`≥ $…` when other calls had one).
 
-**System 2 panel**, the transcript, headed like the other two. Prompts (`›`), the user's own, in bold on a deeper shade behind a bar in the accent, so they stand apart from
+**The transcript**, headed like the other two panels. Prompts (`›`), the user's own, in bold on a deeper shade behind a bar in the accent, so they stand apart from
 the harness's blocks when scrolling, in the light look and the dark; the model's thinking folded to one line, a spinner and `Thinking…` while it
 thinks and `▸ Thought for 3.4s` once it is done (click it to read the reasoning, click again to fold
 it); replies as Markdown, in full; each tool call the way pi shows it: the call on a lighter shaded line in softer ink (`$ command` for bash, else the
@@ -275,32 +278,32 @@ counting each second (a resumed session's calls are shown without the count, and
 result for says `no result` and how long it had run). Click a call, or press ctrl+o for the latest, to see its
 whole output.
 
-**System 1's cards.** Each of System 1's decisions is a card where it happened: one line, the System 1
-panel's row in brief, in the panel's own lowercase words: `System 1 · 0.6s` (how long System 1 took, and
+**The decision model's cards.** Each of the decision model's decisions is a card where it happened: one line, the
+decision model panel's row in brief, in the panel's own lowercase words: `Decision model · 0.6s` (how long it took, and
 `cached` when it was), then each answer as a word and its probability, then after an arrow what came of
 them, so a result does not read as one more option (`→ strike 1/2`, `→ refused`); the meters are the
 panel's. The supervisor's card comes at the boundary of a turn it looked at (every fourth, and the turn after a stuck or done verdict): the mode in its colour (`moving 0.78`), the two
 next likeliest muted (`done 0.12   circling 0.06`; none that rounds to 0.00), then what followed
 (a stuck review's strikes, a nudge). The guard (`extensions/guard.py`, which checks every tool call before it runs when `cap.guard` is on) is not a card but the last line of
-the call's shaded head, so it reads as part of the call and not as the supervisor: `✓ System 1` (`✗ System 1
+the call's shaded head, so it reads as part of the call and not as the supervisor: `✓ Decision model` (`✗ Decision model
 refused`, red), what the call would do (routine, one of the risks, or unclear), `risk` (P(any risk)) and
 `asked` (P(the user asked for it)), muted unless one is past its threshold, how long it took, and the
 reason under it when it refused. A call a fixed rule refused reads `✗ refused   rule · <rule>`; no
 model was asked. A number past its threshold is red. The
 supervisor card's edge is a thin muted bar.
 
-**A compaction** is a card where it happened, about System 2's context, and the whole of it shows there.
-First System 2 writes the summary it will continue from (the State, in the engine's words; the compaction
-waits for it): the card says `⟲ Compacting · turn 12 · System 2 is writing its summary` with a spinner and
+**A compaction** is a card where it happened, about the agent's context, and the whole of it shows there.
+First the model whose turn it is writes the summary it will continue from (the State, in the engine's words; the compaction
+waits for it): the card says `⟲ Compacting · turn 12 · writing the summary` with a spinner and
 the latest line as the model writes it (the engine's `state_writing` and `state_delta` events; edits to a
-standing summary do not stream), and the masthead says `writing the summary`. Then System 1 judges the reads being cut:
+standing summary do not stream), and the masthead says `writing the summary`. Then the decision model judges the reads being cut:
 each verdict lands as a line of its own, a spinner and a stroke sweeping its meter, then the meter filling
 to the probability as the verdict shows. The asks run at once, so the lines land a frame or less apart (a
 long list in a few seconds), the latest eight in view. Once the cut is made the card settles: `⟲ Compaction
 · turn 12 · 6 turns cut to a summary`, the context as a bar against the working window (what is left solid,
 what was cut dashed, the room left a hairline) with the tokens before and after, what the agent continues
-from (System 2's summary and its size, or a list of the cut turns' calls when no summary covered them or the
-write did not land, and the recent turns as they were), and how many of the reads being cut System 1 kept
+from (the agent's summary and its size, or a list of the cut turns' calls when no summary covered them or the
+write did not land, and the recent turns as they were), and how many of the reads being cut the decision model kept
 verbatim. Under that, a line per read: kept or why it was cut (`reference`, `done with`), P(working on) as a
 meter, and the read; the kept ones first, then the closest to being kept, eight of them. A click shows the
 summary itself, section by section (the Plan as a checklist: `✓` done, `▶` in progress, `○` pending, `·`
@@ -315,14 +318,14 @@ full once, on its call; every later line names it in a few words: what it runs, 
 the lines after its first (`python3 - <<'EOF' …`). When a background job ends, or a process a command left running,
 the agent is told at its next turn, and the transcript shows each one's line (``⚑ `npm test` ended: exited, exit
 code 0, after 4m 05s``); between runs, that end starts a run by itself, so the agent reports it without being asked.
-While commands run, System 1 looks at them now and then (30 s, 1, 2, 4, 8 and 16 minutes into each, then every 30
-minutes). Each look is a card as System 1's others are, its judgement and not the command again: how long the
-command had run, what System 1 found with its probability and what it weighed most against that (`» System 1 · at 4m
+While commands run, the decision model looks at them now and then (30 s, 1, 2, 4, 8 and 16 minutes into each, then every 30
+minutes). Each look is a card as the decision model's others are, its judgement and not the command again: how long the
+command had run, what the decision model found with its probability and what it weighed most against that (`» Decision model · at 4m
 00s   progressing 0.88   waiting as expected 0.10`). A command has one card, which each look updates; a look that
 finds it stalled, failing or waited on stays as a card of its own with an amber rail and `→ told the agent`. The
 card names the command only when several run. A command that goes on in the background says why (``⇢ `./ci.sh` went
-on in the background: System 1 judged it waits (0.88)``, or the timer, a stuck finding, a rule, your message), and
-System 1's row of the status bar lists the jobs it watches, each with its run time, its verdict at the latest look
+on in the background: the decision model judged it waits (0.88)``, or the timer, a stuck finding, a rule, your message), and
+the decision model's row of the status bar lists the jobs it watches, each with its run time, its verdict at the latest look
 and the next look (`» ./ci.sh 40s · waiting as expected · next look 20s`). A `process` call reads as what it did and
 how the job stands (`process poll 1cf1caa9`, then `running · 32s` and the output it read), not as the JSON the agent
 gets. When the agent only polls a running job, or only waits (a `sleep 300` that went on in the background), it
@@ -341,7 +344,7 @@ between the call and its output: the code-search extension's own view ([extensio
 
 ```
  decision_code where are malformed tool call arguments from the model repaired before the tool runs?
-  ⌕ System 1 walks the index                                                          ⠹ 2.0s
+  ⌕ The decision model walks the index                                                ⠹ 2.0s
   ● descend 1.3s  ──  ⠹ parts  ──  ○ read  ──  ○ compare  ──  ○ ranked
   judging every part of the kept files by its card
 
@@ -352,22 +355,22 @@ between the call and its output: the code-search extension's own view ([extensio
   │  │  └─ … 8 more parts, best 0.21                  COMPARE
   │  ├─ □ __init__.py   ━━━┼─────────── 0.26 ✗        The top files side by side, once their text …
   ├─ ◇ files 3/4, protocol  ━━━─────────── 0.05 ✗
-  └─ … 7 more pruned, best 0.05                       SYSTEM 1
+  └─ … 7 more pruned, best 0.05                       DECISION MODEL
   ┿ cut (best × 0.25)  ✓ kept  ✗ pruned  ⊘ budget     folders 1/40   ▱▱▱▱▱▱▱▱▱▱
                                                       asks 62 · judged 191 · failed 0
   ▾ fold   ▾ 54 more rows   latest 0.11 async def MemoryActions.t…   0.10 def MemoryActions.ent…
  running… 8s
 ```
 
-The tree grows top-down as System 1 judges each card: the folders and groups of files, best first, then
+The tree grows top-down as the decision model judges each card: the folders and groups of files, best first, then
 the files of the groups kept, then every part of the kept files, then the text of the best parts. Each
-bar fills to System 1's probability, a dash in the accent runs along it while the card is being asked, and the
+bar fills to the decision model's probability, a dash in the accent runs along it while the card is being asked, and the
 tick across a bar is the survivor rule's cut among its siblings (the best of them times the gap): what
 falls below it is pruned and dims, `⊘` marks a node kept but left when a budget ran out, `•` a part whose
 text was read (its text's probability beside it), and `★` the files and places of the result. A file's
 `→` is its score in the ranking. The leaderboard reorders as files are judged (▲▼ for a move, • for a
 new entry) and becomes the result, with the best place of each file it stands behind; the compare
-section fills one order at a time with the side-by-side votes over the top files; the System 1 section
+section fills one order at a time with the side-by-side votes over the top files; the decision model's section
 counts the folders and files against their budgets, the asks, what they cost and how the scores spread.
 The transcript keeps following the panel as it grows, unless you have scrolled up. The tree shows as many
 rows as the sections beside it take (18 at least); the control row under it (click) shows the rest
@@ -383,7 +386,7 @@ same way, under the call: the workspace extension's view (`extensions/workspace/
 
 ```
  decision_files When did the board approve the Zorblax merger, and who compiled it?
-  ⌕ System 1 searches the workspace                                              ✓ ranked in 2.1s
+  ⌕ The decision model searches the workspace                                    ✓ ranked in 2.1s
   ● walk ∥ bm25 1.2s  ──  ● judge 0.4s  ──  ● seeds → terms 0.0s  ──  ● judge 0.3s  ──  ● ranked
 
   WALK  folders → files → parts                    BM25  top 100 of 146 passages
@@ -396,7 +399,7 @@ same way, under the call: the workspace extension's view (`extensions/workspace/
   HOP    20 terms → 45 new passages, 43 in files the walk left
     board/minutes_march.md ─── ada quill  ▮▮▮▮▯▯ ──▶  2  ↯ staff/quill.md 0.80
 
-  RESULT  top 10, in diversity order                          SYSTEM 1
+  RESULT  top 10, in diversity order                          DECISION MODEL
    1 ★ § ops/vendors/doc_2.md · Section 2  bm25    ━━━━━━ 0.98   asks 65 · judged 223
    2 ★ § board/minutes_march.md · Minutes  bm25    ━━━━━━ 0.92 ▲3 walk files 32/120
    6   § finance/2023/doc_0.md · Sect…     ↯ 2     ━━━━━━ 0.96 ▼4 passages 146 · 3 by card
@@ -405,7 +408,7 @@ same way, under the call: the workspace extension's view (`extensions/workspace/
 
 The two lanes run at once: on the left the walk's tree grows as `decision_code`'s does (the same drawing), on
 the right the BM25 lane fills its ranked list of passages (`◆`: the walk read it too). They converge on
-System 1's judge, which judges both lanes' passages eight to an ask: a dash runs along a passage's bar while
+the decision model's judge, which judges both lanes' passages eight to an ask: a dash runs along a passage's bar while
 its ask is out and the bar fills when the answer comes back. The ten best light up as seeds (`✦`); the hop
 shows each seed's terms that reached a new passage, by weight, how many they reached and the best of them,
 `↯` when the walk had left its file (pruned or out of budget). The result closes it: the top ten in
@@ -417,8 +420,8 @@ five rows, and `▾ more rows` shows them all. The events are the same `search_t
 under the workspace extension's name, their payload the walk's trace plus the union's passages, stages and
 terms (`extensions/workspace/trace.py`).
 
-**State panel.** What System 1 works from (`tui/state_panel.py`). System 1's State is the session as it
-reads it: rebuilt from the journal for every ask, the user's latest requests as the goal and the whole history
+**State panel.** What the decision model works from (`tui/state_panel.py`). The decision model's State is the session
+as it reads it: rebuilt from the journal for every ask, the user's latest requests as the goal and the whole history
 after them, fitted to its budget (75% of `max_state_tokens`) by abridging long texts, collapsing old ones,
 shortening old calls to one line and at last leaving out the oldest (`session_cut.py`, `docs/architecture.md`).
 The panel draws that cut, built the same way from the journal half a second after messages land (off the event
@@ -428,23 +431,23 @@ loop: a long session's takes a tenth of a second) and on resume:
   `10 messages, each read whole` while none is cut, and once the cut wears some down a count of each way a message
   was kept (`┃` whole, `│` abridged, `╎` collapsed, `┊` one line, `┄` left out), what the history would take uncut
   and what tool inputs were cut to;
-- the goal: a line per request you typed, shaded as the transcript's prompts are: what System 1 reads as the
-  goal; on a panel under 22 rows it is not drawn, as the history has the requests too;
+- the goal: a line per request you typed, shaded as the transcript's prompts are: what the decision model reads as
+  the goal; on a panel under 22 rows it is not drawn, as the history has the requests too;
 - what runs: a line per command still running (`»`), with how long it has run; not drawn while nothing runs;
 - the history, oldest first, following the end: a row per prompt (`›`), harness message (`⚑`), reply and call
   (`✓` or `✗`, the tool or `$` and the command, what it was about, a check's tally in green or red). Once the
   cut wears messages down, a rail runs before the rows, the legend's stroke for how each message was kept: heavy
-  by one read whole, thinner and more broken the less of it System 1 reads, and a gap by the one row that stands
-  for a run left out; a rule marks where System 2's context starts. The newest 400 rows are drawn.
+  by one read whole, thinner and more broken the less of it the decision model reads, and a gap by the one row that stands
+  for a run left out; a rule marks where the agent's context starts. The newest 400 rows are drawn.
 
 The parts stand a blank row apart, with no name over any: what each holds says what it is.
 
-The panel is System 1's alone. The summary System 2 writes at a compaction is System 2's own context, not what
-System 1 reads, so it is not here: each compaction's card in the transcript shows it. `/state` opens System 1's
-State in full, as the exact text it is given (its JSON laid out).
+The panel is the decision model's alone. The summary the agent writes at a compaction is the agent's own context,
+not what the decision model reads, so it is not here: each compaction's card in the transcript shows it. `/state`
+opens the decision model's State in full, as the exact text it is given (its JSON laid out).
 
-**System 1 panel.** Every judgement System 1 made in the session, as a feed (`tui/system1_panel.py`, from
-`tui/ledger.py`). System 1 is asked for different things, and each kind reads its own way, in the
+**Decision model panel.** Every judgement the decision model made in the session, as a feed (`tui/system1_panel.py`,
+from `tui/ledger.py`). The decision model is asked for different things, and each kind reads its own way, in the
 order they came, each run under its prompt:
 
 - **watch**: what the supervisor (`supervise.py`) answered at the end of a turn it looked at, in a line: one bar of twelve cells,
@@ -452,31 +455,31 @@ order they came, each run under its prompt:
   the mode it called and its probability; the modes it weighed most against that one, muted, as far as the line
   holds them; then what the loop did about it (`strike 2/2`, `stuck nudge sent`) and, once the request looks met,
   the wrap-up verdict. A mode is said in a word short enough for the line: `moving` (the supervisor's `advancing`),
-  `circling` (`re_investigating`), `retrying`, `off-plan`, `done` (`finished`), `unclear`. The names System 1 is
-  asked with are the supervisor's own.
-- `✓` or `✗` **guard**: a tool call System 1 judged before it ran, allowed or refused, without the `cd … &&`
+  `circling` (`re_investigating`), `retrying`, `off-plan`, `done` (`finished`), `unclear`. The names the decision model
+  is asked with are the supervisor's own.
+- `✓` or `✗` **guard**: a tool call the decision model judged before it ran, allowed or refused, without the `cd … &&`
   before a command. One it allowed as routine is a line, the call and its `risk` at the row's end; any other has
   under it what the call would do (one of the risks, or unclear), `risk` and `asked`, and the reason when it was
-  refused. A call a fixed rule refused is listed too, as `a fixed rule, not System 1` and the rule: no model was
+  refused. A call a fixed rule refused is listed too, as `a fixed rule, not the decision model` and the rule: no model was
   asked.
-- `⌕` **search**: a `decision_code` or `decision_files` call, which is System 1 walking an index: the tool, the
+- `⌕` **search**: a `decision_code` or `decision_files` call, which is the decision model walking an index: the tool, the
   asks the walk took and the cards it judged, the question, then the three places it ranked first with their
   scores (`→` the best, and where in the file). While it runs the row says `searching…` and counts. The search's
   own view in the transcript has the walk in full.
-- `⟲` **compaction**: the reads being cut that System 1 judged, how many it kept and how many it cut, what the cut
+- `⟲` **compaction**: the reads being cut that the decision model judged, how many it kept and how many it cut, what the cut
   did to the context (`14.1k → 6.2k −56%`), and the reads it kept, each with P(still being worked on).
 - `»` a command that went on running and each look at it, `◇` memory's asks made for a turn, `·` anything else.
 
-Above the feed, what the asks came to: how many System 1 answered, how long one took, how many the cache answered
+Above the feed, what the asks came to: how many the decision model answered, how long one took, how many the cache answered
 and how many failed and were retried; then the count by kind, each behind the sign its rows start with (a watched turn's bar, a guarded call's tick), so
 the line is also the feed's legend. The signs are muted and only a guard's tick or cross and a hand-over's `⇢`
 are coloured, so what stands out in the feed is how a judgement went, and where a run handed over. A search's asks are counted there (`⌕ search 97`) and stand as one row. The feed follows its end as the
-session grows; the newest 400 lines are drawn. System 2's context is the masthead's.
+session grows; the newest 400 lines are drawn. The agent's context is the masthead's.
 
 The feed comes from the event stream alone (`decision`, `tool_call_start`, `tool_call_end`, `tool_guard`, `nudge`,
 `state`, `compaction`, `process_check`, and a search's `search_trace` extension events), so what it shows is what
 `intern -p --json` would print. The journal keeps those events where they happened (`event` entries), so a resumed
-session (`--session`, `/reload`) lists the same judgements; the System 1 cards and the compaction cards in the
+session (`--session`, `/reload`) lists the same judgements; the decision model's cards and the compaction cards in the
 transcript come back as they were for the turns it shows. Extension events are not journaled, so a resumed search
 is its question alone, without the places it found. A journal from before the events were kept resumes with an
 empty feed.
@@ -497,7 +500,7 @@ through its `ViewHost`:
 | `attach(call_id, widget)` | a widget under a running tool call, between the call and its output |
 | `with growing():` | nothing now, kept for views that wrap a change in it: the transcript keeps showing its end as anything in it grows, an attached widget too, unless the reader has scrolled up |
 | `marker(content, key)`, `notice(text, kind)` | a line in the transcript; a marker with the same key replaces the last |
-| `activity(text)` | what the run is doing, at the end of the masthead's System 2 row |
+| `activity(text)` | what the run is doing, at the end of the masthead's row for the model whose turn it is |
 
 ```python
 class Probe(Extension):
@@ -523,18 +526,18 @@ a notice and is off for the rest of the session, and the TUI goes on.
 | Command | Does |
 |---|---|
 | `/models` | the frontier, efficient and decision models, a row each with what it does; the efficient one is gray while hand-over is off. Enter on one opens its own picker, as `/frontier`, `/efficient` and `/decision` do. While the free credit runs a model, its picker and command say the model is fixed, name the free credit's three, and offer `/free pause`. |
-| `/frontier` | pick the frontier model (System 2): the models of each provider your keys reach, its frontier models first, as setup offers them; type to filter, ↑↓, Enter; `/frontier provider/model` sets it directly. A name not listed, any of `intern models`, is accepted as typed. |
-| `/decision` | pick the decision model (System 1): the decision models the console serves, then the decision models the decisions API serves as `decisions:<model>` (OpenRouter: Jev, Perplexity Decider, …); `/decision <model>` sets it directly. A model whose key is missing is refused with the reason, and the current one stays. |
-| `/state` | System 1's State in full: the exact text it is given |
-| `/caps` (`/capabilities`) | pick a capability to switch on or off: the tool packs (`base`, which has `process`, `web-search`, `web-read`; the web packs are tagged System 1, which judges their results when their `system1` option is on), the browser, code search (System 1), the workspace (System 1 over a folder of office files), the memory drive, each MCP connection the config names; grouped by what is on, each with what it gives the agent. `/caps <name>` flips one directly; `/caps memory <path>` names a drive. Switching on one that needs an extra this install lacks (the browser, code search, the workspace, an MCP connection) installs it first, into the environment the TUI runs in, as the installed `intern` lists it (with `uv pip`, else `pip`), and for the browser runs `playwright install chromium`, which downloads Chromium once; the transcript says what it installs, and a failed install says why and the command to run by hand, the capability left off. The session reopens on its journal with the change (`docs/capability-settings.md` has what each one is), the screen as it was; if it cannot open on the pick, it comes back as it was. |
-| `/efficient` (`/handover`) | auto mode, which the terminal UI opens in unless `config.toml` says `auto = false`. In it System 1 hands a run over to a cheaper model once it judges the rest within that model's reach ([hand-over](../README.md#hand-over)); the next message is System 2's again. `/handover` picks that model: `off`, then the models of each provider your keys reach, its efficient models first, as setup offers them (System 2 itself left out; any other typed); it is `anthropic/claude-haiku-5-5` until you pick one or `[capabilities.handoff] to` names one. `/handover on`, `/handover off` or `/handover <provider/model>` sets it directly, and the session reopens on its journal. Without a key for the default model auto mode runs without a hand-over and says so; a model you named that cannot open is an error. Off, System 2 runs every turn. Auto mode is not a capability: `/caps` does not list it. The masthead names the hand-over model after System 2 (`claude-sonnet-5-5 ⇢ claude-haiku-5-5`), the one whose turn it is in the ink. System 1's panel keeps a run's readiness in one row, P(ready) turn by turn, then the model that took over and the turn. When a run hands over, the transcript has a card (`⇢ System 1 · handed over at turn 5   ready ▂▆█ 0.96   → claude-haiku-5-5 finishes this run`) and sets that model's turns apart, on a shade of the accent between two hairlines, until the run ends, where a line says System 2 takes the next message; a resumed session draws the same. |
+| `/frontier` | pick the frontier model (`system2` in config.toml): the models of each provider your keys reach, its frontier models first, as setup offers them; type to filter, ↑↓, Enter; `/frontier provider/model` sets it directly. A name not listed, any of `intern models`, is accepted as typed. |
+| `/decision` | pick the decision model (`[system1]` in config.toml): the decision models the console serves, then the decision models the decisions API serves as `decisions:<model>` (OpenRouter: Jev, Perplexity Decider, …); `/decision <model>` sets it directly. A model whose key is missing is refused with the reason, and the current one stays. |
+| `/state` | The decision model's State in full: the exact text it is given |
+| `/caps` (`/capabilities`) | pick a capability to switch on or off: the tool packs (`base`, which has `process`, `web-search`, `web-read`; the web packs are tagged `decision model`, which judges their results when their `system1` option is on), the browser, code search (the decision model), the workspace (the decision model over a folder of office files), the memory drive, each MCP connection the config names; grouped by what is on, each with what it gives the agent. `/caps <name>` flips one directly; `/caps memory <path>` names a drive. Switching on one that needs an extra this install lacks (the browser, code search, the workspace, an MCP connection) installs it first, into the environment the TUI runs in, as the installed `intern` lists it (with `uv pip`, else `pip`), and for the browser runs `playwright install chromium`, which downloads Chromium once; the transcript says what it installs, and a failed install says why and the command to run by hand, the capability left off. The session reopens on its journal with the change (`docs/capability-settings.md` has what each one is), the screen as it was; if it cannot open on the pick, it comes back as it was. |
+| `/efficient` (`/handover`) | auto mode, which the terminal UI opens in unless `config.toml` says `auto = false`. In it the decision model hands a run over to the efficient model once it judges the rest within that model's reach ([hand-over](../README.md#hand-over)); the next message is the frontier model's again. `/handover` picks that model: `off`, then the models of each provider your keys reach, its efficient models first, as setup offers them (the frontier model itself left out; any other typed); it is `anthropic/claude-haiku-5-5` until you pick one or `[capabilities.handoff] to` names one. `/handover on`, `/handover off` or `/handover <provider/model>` sets it directly, and the session reopens on its journal. Without a key for the default model auto mode runs without a hand-over and says so; a model you named that cannot open is an error. Off, the frontier model runs every turn. Auto mode is not a capability: `/caps` does not list it. The masthead names the hand-over model after the frontier model (`claude-sonnet-5-5 ⇢ claude-haiku-5-5`), the one whose turn it is in the ink. The decision model's panel keeps a run's readiness in one row, P(ready) turn by turn, then the model that took over and the turn. When a run hands over, the transcript has a card (`⇢ the decision model · handed over at turn 5   ready ▂▆█ 0.96   → claude-haiku-5-5 finishes this run`) and sets that model's turns apart, on a shade of the accent between two hairlines, until the run ends, where a line says the frontier model takes the next message; a resumed session draws the same. |
 | `/schedule` | list timers with their prompt, once/repeat interval and next local run time; Enter stops one. Enable with `/caps schedule`. |
 | `/runner` | pick where commands run: `local`, `docker`, `opensandbox` or an installed runner, the one in use first, each that cannot run here saying why. `/runner <name>` sets it directly. The session reopens on its journal on the new runner ([runners](capabilities/runners.md)). |
-| `/setup` | the setup screen a first launch opens on: a welcome, then how to run Intern: **Start free** (recommended) or **Use my own keys** ([free credit](#free-credit) has the first). On your own keys: System 2's provider (20+ API-key providers, local servers, any OpenAI-compatible endpoint) and its key (checked with the provider first; OpenRouter also by signing in in the browser), then every model it lists, its frontier models first (on OpenRouter, Claude Opus 5.5). Then the efficient model: its provider (the frontier's, already connected, first, or any other, with its own key) and one of its models, its efficient ones first; or **Skip this step**, and every turn runs on the frontier model. Then System 1's decision model, by where it runs: on Nace AI, Drex Latest or any Drex model the console serves; on OpenRouter, Drex Max, any Drex model it lists, or any other decision model (Jev among them). Saves `system2`, `[system1]` and `[capabilities.handoff] to` (or, skipped, `auto = false`) to config.toml and the keys to the keychain (`.env` in the config home where there is none), then opens or reopens the session on them. Also `/login`, `/connect`. A launch with nothing to run on opens it instead of an error, and so does one whose System 1 has no key: that one starts at the decision model and asks for the efficient model after it. |
+| `/setup` | the setup screen a first launch opens on: a welcome, then how to run Intern: **Start free** (recommended) or **Use my own keys** ([free credit](#free-credit) has the first). On your own keys: The frontier model's provider (20+ API-key providers, local servers, any OpenAI-compatible endpoint) and its key (checked with the provider first; OpenRouter also by signing in in the browser), then every model it lists, its frontier models first (on OpenRouter, Claude Opus 5.5). Then the efficient model: its provider (the frontier's, already connected, first, or any other, with its own key) and one of its models, its efficient ones first; or **Skip this step**, and every turn runs on the frontier model. Then the decision model's decision model, by where it runs: on Nace AI, Drex Latest or any Drex model the console serves; on OpenRouter, Drex Max, any Drex model it lists, or any other decision model (Jev among them). Saves `system2`, `[system1]` and `[capabilities.handoff] to` (or, skipped, `auto = false`) to config.toml and the keys to the keychain (`.env` in the config home where there is none), then opens or reopens the session on them. Also `/login`, `/connect`. A launch with nothing to run on opens it instead of an error, and so does one whose the decision model has no key: that one starts at the decision model and asks for the efficient model after it. |
 | `/free` | the [free credit](#free-credit): what is left of each meter, which model runs on it or on your keys, and the hand-over explained; then what can be done. `/free start` signs in (setup's Start free), `/free pause` runs the session on your own keys and keeps the credit, `/free resume` goes back to it, `/free sign-out` revokes the sign-in. Each reopens the session on its journal. |
 | `/secrets` | the [secrets store](secrets.md): each entry with whether it loads now (problems first, with what to do; a key the harness reads itself, such as a model key, is marked harness only), and **Add a secret…**. Enter on a keychain entry replaces its value in a form whose value field is hidden. `/secrets set <NAME>` opens the form, `/secrets remove <NAME>` deletes one. New sessions get the change; `/reload` uses it now. Values are never shown. |
 | `/thinking <level>` | the thinking level: `low`, `medium`, `high`, `xhigh` or `max` through Anthropic's API, `low` to `xhigh` through OpenAI's, and `low`, `medium` or `high` elsewhere when the model's profile names one. Shift+Tab cycles it (past the highest comes the lowest), ←/→ in the `/frontier` picker set it with the pick, and the masthead shows it (`default` is the model's own). It applies from the next request, during a run too, and stays across model switches, `/caps` and `/clear`; a model that lacks the level keeps its own, the switch notice says so, and the choice is back on the next model that takes it. A model whose API takes no level (GPT-4o, Claude Sonnet 4.5) has none: no box on the masthead, Shift+Tab and `/thinking` say why, and the switch notice says it takes none. |
-| `/compact` | compact the conversation now, between runs, exactly as a run does once its request passes `compact_at` of the working window (75% by default): the turns before the most recent `keep_recent` share (35%) cut to System 2's summary (the State), written first when it does not cover them (trigger `compaction`), the file reads System 1 says the work needs kept verbatim, the extensions' say. Only the size check is skipped. When the whole conversation fits in the recent share there is nothing to cut, and it says so; with a 1M window that is anything under 350k tokens. The masthead reads `compacting` meanwhile and a prompt waits for it; Esc stops it before anything is cut. |
+| `/compact` | compact the conversation now, between runs, exactly as a run does once its request passes `compact_at` of the working window (75% by default): the turns before the most recent `keep_recent` share (35%) cut to the agent's summary (the State), written first when it does not cover them (trigger `compaction`), the file reads the decision model says the work needs kept verbatim, the extensions' say. Only the size check is skipped. When the whole conversation fits in the recent share there is nothing to cut, and it says so; with a 1M window that is anything under 350k tokens. The masthead reads `compacting` meanwhile and a prompt waits for it; Esc stops it before anything is cut. |
 | `/abort` | stop the run in progress |
 | `/clear` | start over: the screen cleared and a new session opened on a fresh journal, with the models and capabilities as they are. The journal so far stays on disk, to resume with `--session`. |
 | `/reload` | restart on the code, config and keys as they are now (an editable install's latest edits, a reinstall, a key added to `~/.intern/.env`) and resume this session on its journal, with the models, capabilities and thinking level picked here. The process starts again on the same command line, the task on it not sent twice, so everything is loaded anew: the harness, the UI, extensions, profiles, `config.toml` and `.env`. It installs nothing: a changed dependency needs `uv tool install --reinstall` (or `uv sync`) first. The screen stays up across the restart, the last frame on it until the new process paints over it. Waits for the run to finish; refused with `--no-session`, whose journal is in memory only. |
@@ -552,7 +555,7 @@ so does Ctrl+J, in any terminal;
 a paste keeps its lines, and the box grows to eight lines of text, then scrolls. A file dropped on the
 terminal lands as its path (a `file://` URL some terminals drop lands as the path), for the agent to
 `read`. The images the prompt names, dropped from anywhere, pasted or typed, show on its bottom border
-(`image logo.jpeg`), with a warning when System 2 cannot see images. A dropped image from a
+(`image logo.jpeg`), with a warning when the frontier model cannot see images. A dropped image from a
 temporary folder (a screenshot dragged from its thumbnail lives in one macOS empties within a minute or
 two) is copied to `$TMPDIR/intern-images` first, and the prompt names the copy. A drop or a paste
 lands in the prompt even when the prompt does not have the focus: dragging a file in from Finder takes

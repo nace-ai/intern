@@ -20,7 +20,7 @@ the vendor's tool list.
 
 ## Declare effects honestly
 
-Effects decide what the [guard](../architecture.md) asks System 1 about.
+Effects decide what the [guard](../architecture.md) asks the decision model about.
 Tools declared only `read` are not judged.
 
 - A tool that sends, posts, creates, edits, shares or deletes is **never** `read`.

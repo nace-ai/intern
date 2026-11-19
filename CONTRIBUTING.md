@@ -17,10 +17,10 @@ changed (`uv run pytest tests/test_<area>.py`). CI runs the full suite on every 
   eight hooks. If a change needs a new hook, say why no existing one works. See
   [Extensions and capabilities](#extensions-and-capabilities) for which kind it is and what adding one
   involves.
-- **System 1 calls go through `ctx.decisions`.** Ask System 1 only with
+- **Decision-model calls go through `ctx.decisions`.** Ask the decision model only with
   `RunContext.decisions.ask()`, never with your own HTTP client, so every call gets the cache,
-  retries and `decision` event. An ask System 1 does not answer raises `System1Unavailable`, which
-  stops the run: let it through rather than answer for System 1. If `ask()` can't do what you need,
+  retries and `decision` event. An ask the decision model does not answer raises `System1Unavailable`, which
+  stops the run: let it through rather than answer for the decision model. If `ask()` can't do what you need,
   change `DecisionClient` rather than work around it.
 - **Evidence for defaults.** A new extension or a changed default needs a paired eval run: same
   tasks and models, at least two repeats, reported with pass rate, tokens, cost and wall time.

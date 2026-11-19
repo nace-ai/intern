@@ -11,7 +11,7 @@ in `[secrets]`, and the harness does the rest:
 - the agent's commands and background jobs get it as an environment variable with the same name, alongside
   your normal environment. Keys the harness uses itself stay out of them: a model provider's `api_key_env`
   (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, ...), and any variable the config names in a `*_env`, `header_env` or
-  `env_refs` setting (search, System 1, MCP). The agent can't spend or leak your model key. If a task needs that
+  `env_refs` setting (search, the decision model, MCP). The agent can't spend or leak your model key. If a task needs that
   key too (say, a script that calls the OpenAI API), export it in your shell as before;
 - it is replaced with `[REDACTED]` in what those commands print.
 

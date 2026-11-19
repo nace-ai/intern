@@ -277,7 +277,7 @@ verdict that holds gets a nudge to act on what the work found. On by default.
 Replayed through the decision model over 42 stored runs (1,935 turns), this rule sends 23 stuck nudges and asks the
 decision model at 27% of the turns, 0.6 s a look. No blind judge has rated its nudges yet. The rule before it looked
 at every turn and nudged after three stuck verdicts in a row: over 82 stored sessions, 16 of its 19 nudges fell on
-turns an independent judge also called stuck. [How it is judged](docs/architecture.md#system-2-and-system-1)
+turns an independent judge also called stuck. [How it is judged](docs/architecture.md#the-three-models)
 
 ### Compaction
 
@@ -297,7 +297,7 @@ _`/compact` over a session of twenty reads. The models' turns and the decision m
 
 On `drex-max`, the reads the decision model keeps agree with a judge on 81% (recall 56%, precision 78%), and on 83%
 with a `SYSTEM1.md` that says how its author works (recall 70%, precision 75%)
-([method](docs/architecture.md#system-2-and-system-1)).
+([method](docs/architecture.md#the-three-models)).
 
 ### What the decision model reads
 
@@ -310,7 +310,7 @@ The decision model reads the session cut. Code, not a model, builds it from the 
 
 Long sessions are cut to fit, oldest first; the first message and the newest four turns are never left out. The cut
 is at most 24.6k tokens, and the decision model answers 95% of questions about the session from it. `/state` in the
-terminal UI shows it as the decision model reads it ([how it is built](docs/architecture.md#system-2-and-system-1)).
+terminal UI shows it as the decision model reads it ([how it is built](docs/architecture.md#the-three-models)).
 
 It judges from what the tool results show, such as a test run's tally and the start of each output, not from what
 the agent says it did. For a hand-over it answers ready, not ready or unclear with a probability for each, and
@@ -350,7 +350,7 @@ model's turns and the decision model's scores are scripted in the recording._
 
 Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
 known answer. The decision model is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
-search. [Method](docs/architecture.md#system-2-and-system-1)
+search. [Method](docs/architecture.md#the-three-models)
 
 **SWE-bench Verified, 100 issues across 11 Python repositories.** The question is the issue. The answer is the files
 the fix changed; the right function is one that holds a changed line.
@@ -416,7 +416,7 @@ are scripted in the recording._
 
 Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
 known answer. The decision model is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
-search. [Method](docs/architecture.md#system-2-and-system-1)
+search. [Method](docs/architecture.md#the-three-models)
 
 **OfficeQA Pro, 133 questions over 697 Treasury Bulletins, as parsed text.** The answer is the bulletin and the page
 the figure is on.
@@ -471,7 +471,7 @@ with the price of the main model.
 
 Each can have the decision model judge what it returns, reading the session, before your models see it. Both are
 default off, and so is their decision-model filter until a paired eval measures it
-([`system1`](docs/capability-settings.md#system-1-on-web-results)).
+([`system1`](docs/capability-settings.md#the-decision-model-on-web-results)).
 
 - **`web_search`** asks the provider for three times the results, and the decision model keeps the ones the task
   needs, best first. [Web search](docs/capabilities/web-search.md)

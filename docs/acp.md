@@ -1,8 +1,8 @@
 # Agent Client Protocol server
 
 `intern acp` serves the [Agent Client Protocol](https://agentclientprotocol.com) (ACP v1) over
-stdio, so t3code, Zed and other ACP clients can drive the harness and pick its System 2 and System 1
-models. This page is the contract: a change to anything below ships as a release (see
+stdio, so t3code, Zed and other ACP clients can drive the harness and pick its frontier, efficient and
+decision models. This page is the contract: a change to anything below ships as a release (see
 [Versioning](#versioning)), and a breaking one moves the minimum version clients pin.
 
 **Minimum version for clients: `0.25.0`.** Clients start `intern` and check `intern --version`. [0.2.1](#021) was
@@ -10,7 +10,7 @@ additive; [0.3.0](#030) changes the `system1` option and is where clients that s
 a look. [0.4.0](#040) is additive: clients that offer a window picker need it. [0.6.0](#060) is
 additive: clients that offer capability toggles need it, and [0.7.0](#070) tells them which toggles
 cannot switch on here. [0.9.0](#090) and [0.10.0](#0100) added runner toggles, which [0.19.0](#0190) replaces with one
-`runner` option. [0.14.0](#0140) removes the heuristic System 1: clients that send `heuristic` or read `fallenBack`
+`runner` option. [0.14.0](#0140) removes the heuristic stand-in for the decision model: clients that send `heuristic` or read `fallenBack`
 need a look, and a prompt may now fail with `system1_unavailable`. [0.15.0](#0150) is additive: clients that
 offer a thinking picker read each model's `efforts`. From [0.23.0](#0230) a toggle switched on installs its missing
 extra, and a toggle that cannot work here is not offered. [0.25.0](#0250) renames the harness to Intern, and
@@ -19,7 +19,7 @@ extra, and a toggle that cannot work here is not offered. [0.25.0](#0250) rename
 
 ```bash
 uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.44.1"
-intern acp                         # System 2 from config.toml or $INTERN_SYSTEM2; System 1 drex-latest
+intern acp                         # the frontier model from config.toml or $INTERN_SYSTEM2; decision model drex-latest
 intern acp --system2 openrouter/qwen/qwen3.8-27b --system1 drex-max-v1.1
 ```
 
@@ -40,9 +40,9 @@ run and exits at once. Either way every session is closed.
 | Method | What the harness does |
 |---|---|
 | `initialize` | Returns `protocolVersion: 1`, `agentInfo {name: "intern", title: "Intern", version}` and `agentCapabilities {loadSession: true, promptCapabilities {image: true, embeddedContext: true}}`. No auth methods. |
-| `session/new {cwd, mcpServers, _meta?}` | Builds one harness `Session` for this ACP session; one process serves any number of sessions. `sessionId` is the session's journal id. Returns `configOptions` and `modes`. Opens on the models and capability toggles in [`_meta.nace`](#picking-models-at-open) when given. Fails with `-32602` when System 1 cannot be set up (its key is missing) or does not answer the check at open: the harness never runs without System 1. |
-| `session/load {sessionId, cwd, mcpServers, _meta?}` | Finds the journal through `~/.intern/sessions/index.json` (falling back to a scan of `sessions/*.jsonl`), rebuilds the session on the System 2 and System 1 models and the capability toggles it last used (or those in `_meta.nace`), replays the active branch as `session/update`s, then returns `configOptions` and `modes`. Unknown ids fail with `-32002` (resource not found). |
-| `session/prompt {sessionId, prompt}` | Runs one turn to the end, including follow-ups queued while it ran, streams `session/update`s, then resolves with `stopReason` and `usage`. When [capability toggles](#capability-toggles) changed since the last prompt, the session is first reopened on them. A prompt while another runs in the same session fails with `-32000` (`session busy`); a prompt before a System 2 is bound fails with `-32602` (see [below](#when-no-system-2-can-run)). |
+| `session/new {cwd, mcpServers, _meta?}` | Builds one harness `Session` for this ACP session; one process serves any number of sessions. `sessionId` is the session's journal id. Returns `configOptions` and `modes`. Opens on the models and capability toggles in [`_meta.nace`](#picking-models-at-open) when given. Fails with `-32602` when the decision model cannot be set up (its key is missing) or does not answer the check at open: the harness never runs without the decision model. |
+| `session/load {sessionId, cwd, mcpServers, _meta?}` | Finds the journal through `~/.intern/sessions/index.json` (falling back to a scan of `sessions/*.jsonl`), rebuilds the session on the frontier, efficient and decision models and the capability toggles it last used (or those in `_meta.nace`), replays the active branch as `session/update`s, then returns `configOptions` and `modes`. Unknown ids fail with `-32002` (resource not found). |
+| `session/prompt {sessionId, prompt}` | Runs one turn to the end, including follow-ups queued while it ran, streams `session/update`s, then resolves with `stopReason` and `usage`. When [capability toggles](#capability-toggles) changed since the last prompt, the session is first reopened on them. A prompt while another runs in the same session fails with `-32000` (`session busy`); a prompt before a frontier model is bound fails with `-32602` (see [below](#when-no-frontier-model-can-run)). |
 | `session/cancel {sessionId}` | Aborts the run in progress; the pending `session/prompt` resolves with `stopReason: "cancelled"` once its last updates are sent. A cancel with nothing running is ignored. |
 | `session/set_config_option {sessionId, configId, value}` | See [Config options](#config-options). Allowed only while the session is idle; returns every option with its current value. |
 | `session/set_mode {sessionId, modeId}` | Accepts only `full-access`. |
@@ -68,16 +68,16 @@ session never has to start on the configured default first, or be rebuilt at its
 ```
 
 Every key is optional; a missing one means the default (`session/new`) or what the journal last used
-(`session/load`). A System 2 picked this way is journaled like a `model` change, and toggles like a
+(`session/load`). A frontier model picked this way is journaled like a `model` change, and toggles like a
 toggle change, so a later load without `_meta` continues on them. `capabilities` takes any of the
 [`cap.*` ids](#capability-toggles); on `session/load` it is set over the journal's toggles. `runner` takes a
 [runner](#runner) name, over the one the journal last ran on. A `_meta.nace` whose models are not strings, whose
 `capabilities` names an id the session does not offer or a value that is not a JSON boolean, or whose `runner`
 cannot run here, fails with `-32602`.
 
-### When no System 2 can run
+### When no frontier model can run
 
-`session/new` and `session/load` succeed even when the System 2 they would open on cannot be bound:
+`session/new` and `session/load` succeed even when the frontier model they would open on cannot be bound:
 none is configured, or its provider's API key is missing. The session is then open but unbound:
 
 - `model` is advertised with `currentValue` the model it would have run on (`""` when none is
@@ -86,7 +86,7 @@ none is configured, or its provider's API key is missing. The session is then op
 - `session/set_config_option model` binds it. A model that cannot bind either fails with `-32602` and
   the session stays unbound. `system1`, `context_window` and `cap.*` toggles may be set first and apply
   once a model binds.
-- `session/prompt` fails with `-32602`: `no System 2 model can run: <reason>; pick a model`.
+- `session/prompt` fails with `-32602`: `no the frontier model model can run: <reason>; pick a model`.
 - When the free credit is why (it is in use, but spent or paused, and no own key can take over), both failures carry
   `data: {code, meter}` (0.58.0 and later): `code` is `free_exhausted` with `meter` `agent`, or `free_paused` or
   `free_revoked` with `meter` `null`, the codes a [`provider_error`](#stop-reasons-and-errors) carries. A client shows
@@ -103,32 +103,32 @@ Every session advertises these `configOptions`, in this order, then the
 
 | `id` | `category` | Type | Values | Default |
 |---|---|---|---|---|
-| `model` | `model` | select | System 2 as `provider/model`, grouped by provider | the session's System 2 |
+| `model` | `model` | select | the frontier model (`system2` in config) as `provider/model`, grouped by provider | the session's frontier model |
 | `system1` | `model_config` | select | decision models served by the console, then `decisions:<model>` for decision models on the decisions API | `drex-latest`, unless config or `--system1` says otherwise |
 | `thought_level` | `thought_level` | select | `default` (no effort sent) through Anthropic's and OpenAI's APIs and where the profile lists `effort_levels`, then the levels the model takes: `low` to `max` through Anthropic's API, `low` to `xhigh` through OpenAI's, the profile's `effort_levels`, else `low`, `medium`, `high` | the model profile's `reasoning_effort`, else `default` |
 | `context_window` | `model_config` | select | `auto`, or a token count: `32000`, `64000`, `128000`, `256000`, `512000`, `1000000` | `auto` |
-| `handoff` | `_nace_handoff` | select | `off`, then the models a run can hand over to: the session's target first, then the catalog's System 2 models | `[capabilities.handoff] to` (or `--handoff-to`), else `off` |
+| `handoff` | `_nace_handoff` | select | `off`, then the models a run can hand over to: the session's target first, then the catalog's other chat models | `[capabilities.handoff] to` (or `--handoff-to`), else `off` |
 | `runner` | `_nace_runner` | select | where commands run: `local`, `docker`, `opensandbox`, then each runner an installed package registers | `[capabilities.runner] name`, else `local` |
 
-- **`model`** lists the [model catalog](#model-catalog)'s System 2 models, plus the current model. The
+- **`model`** lists the [model catalog](#model-catalog)'s chat models, the ones a frontier model is picked from, plus the current model. The
   catalog is fetched in the background when the first session opens, so `session/new` never waits on
   provider listings: until it arrives the list holds only the current model, and then every open
   session gets a `config_option_update` with the full list. Any `provider/model` the harness can
-  resolve is accepted, listed or not, so clients may offer custom models. Changing it rebinds System 2
+  resolve is accepted, listed or not, so clients may offer custom models. Changing it rebinds the frontier model
   (profile, window) and journals a `model_change` entry. Its options are ACP v1 option groups,
   `{group, name, options: [{value, name}]}`, with `group` the provider; that key is what
   `protocolVersion: 1` defines, so clients generated from a later ACP schema should not expect another
   name for it.
-- **`system1`** lists the [model catalog](#model-catalog)'s System 1 models: the decision models the console serves (`POST {console_url}/systemone` with the key in `$NACE_API_KEY`; `[system1].models`,
+- **`system1`** lists the [model catalog](#model-catalog)'s decision models (`[system1]` in config): the decision models the console serves (`POST {console_url}/systemone` with the key in `$NACE_API_KEY`; `[system1].models`,
   default `["drex-latest"]`, until the console has been listed), then the decision models the decisions
   API serves as `decisions:<model>` (`POST {base_url}/systemone` with the key in `$OPENROUTER_API_KEY`:
   Jev, `nace-ai/drex-max`, ...). Like `model`, the list fills in once the catalog arrives; until then it
-  holds only the current value. The System 1 the session started on (from `[system1]` or `--system1`,
+  holds only the current value. The decision model the session started on (from `[system1]` or `--system1`,
   as `decisions:<model>` when on the decisions API) is listed too and keeps its own endpoint and
-  fallbacks. Any model name is accepted, listed or not; there is no `heuristic` (System 1 off). Changing
-  it rebuilds the session's System 1 client, keeping its usage, and journals a `model_change` entry. A model whose key is missing is refused with
-  `-32602` and the session keeps the System 1 it had.
-- **`thought_level`** is advertised whenever System 2 takes a reasoning effort: the models on Anthropic's
+  fallbacks. Any model name is accepted, listed or not; there is no `heuristic` (the decision model off). Changing
+  it rebuilds the session's decision-model client, keeping its usage, and journals a `model_change` entry. A model whose key is missing is refused with
+  `-32602` and the session keeps the decision model it had.
+- **`thought_level`** is advertised whenever the frontier model takes a reasoning effort: the models on Anthropic's
   and OpenAI's APIs, which take one for the models they serve, and an OpenAI-compatible model when its
   profile lists `effort_levels` or sets `reasoning_effort` (some of those endpoints reject the field, so
   the profile is the only word). It sets the effort sent with each request, among the levels the model
@@ -138,13 +138,13 @@ Every session advertises these `configOptions`, in this order, then the
   packaged profiles give none to OpenAI's GPT-4.1, GPT-4o and gpt-live and to Claude Sonnet and Haiku 4.5, whose
   APIs refuse the field, so sessions on them advertise no `thought_level`, and the few the Pro models and
   chat-latest take. On Anthropic's and OpenAI's APIs and with `effort_levels`, `default` comes first and sends
-  none, so the model uses its own; it is the current value when the profile names no effort. Until [0.48.0](#0480) `auto` came last through Anthropic's API, where System 1 picked a level for each
+  none, so the model uses its own; it is the current value when the profile names no effort. Until [0.48.0](#0480) `auto` came last through Anthropic's API, where the decision model picked a level for each
   run; a client that still sets it gets `default`, and a profile whose `reasoning_effort` names it loads as one
   that names none. The packaged
   profiles list `effort_levels` for DeepSeek V4 Flash on Fireworks. It holds across a capability
   reopen but is not journaled: a loaded session starts at the profile's value. A `model` change may add or drop it; the
   `set_config_option` response always lists every option as it now stands.
-- **`context_window`** caps System 2's working window for this session. `auto` is the process default:
+- **`context_window`** caps the frontier model's working window for this session. `auto` is the process default:
   the model's window, or `--window` when the server was started with it (the option's name says which,
   for example `Auto (128K)`). The presets are listed up to what the model can use (its window, no larger
   than its profile's effective window), plus the current cap. Any positive token count is accepted,
@@ -152,7 +152,7 @@ Every session advertises these `configOptions`, in this order, then the
   changes, is journaled as a `window_cap` entry and restored on `session/load`, and the next
   `usage_update` reports the new `size`. Anything other than `auto` or a positive integer fails with
   `-32602`.
-- **`handoff`** names the cheaper model a run hands over to once System 1 judges the rest of the task within its
+- **`handoff`** names the efficient model a run hands over to once the decision model judges the rest of the task within its
   reach ([0.45.0](#0450)), or `off`. It is `[capabilities.handoff] to` for this session: the model is bound when it
   is set, from the next run, with the rest of `[capabilities.handoff]` (`effort`, `threshold`, `streak`,
   `min_turn`) as configured. Like `model`, its list fills in once the catalog arrives, any model the harness can
@@ -286,7 +286,7 @@ is `execute`, then `network` is `fetch`, then `write` is `edit`, then `read` is 
 effects is `other`.
 
 `agent_message_chunk`, `agent_thought_chunk`, `tool_call` and `tool_call_update` carry `_meta.nace.model`, the
-`provider/model` that wrote the reply or called the tool: the session's System 2, or, after a hand-over, the model
+`provider/model` that wrote the reply or called the tool: the session's frontier model, or, after a hand-over, the efficient model
 the run handed over to. The harness's own messages (a secret or a window it could not load) carry none.
 
 When a run hands over ([`handoff`](#config-options)), the client is sent one notification, in its place among the
@@ -298,8 +298,8 @@ run's updates: after the last update of the turn it handed over at, before the f
             "probability": 0.93}}
 ```
 
-`turn` is the turn it handed over after, `from` and `to` the models, and `probability` System 1's P(ready) there.
-The run goes on to its end on `to`; the next prompt is System 2's again. A client that does not know the method
+`turn` is the turn it handed over after, `from` and `to` the models, and `probability` the decision model's P(ready) there.
+The run goes on to its end on `to`; the next prompt is the frontier model's again. A client that does not know the method
 ignores it, as ACP asks of extension notifications.
 
 On `session/load` the active branch is replayed: user prompts as `user_message_chunk`, replies as
@@ -309,7 +309,7 @@ hand-over as `_nace/handoff` in its place. Messages the harness added itself (nu
 written before 0.47.0 kept no hand-overs, so none is replayed from them.
 
 A session that memory has stewarded since it last closed is then sent one more `usage_update`. Its
-`cost` is what the steward spent on the session: its System 1 asks and its writer's System 2 calls.
+`cost` is what the steward spent on the session: its decision-model asks and its writer's calls to the frontier model.
 The session's cost so far starts from it. `_meta.nace.steward` gives the totals of every steward run
 on the session, split by system. A writer whose provider reports no cost and that has no price in the
 harness's table has `costUsd` 0 with its tokens counted.
@@ -344,27 +344,27 @@ was one and `kind` is:
 - `auth`: HTTP 401 or 403;
 - `provider`: anything else.
 
-When the Nace console refused the request (System 2 on `nace`, free credit or `$NACE_API_KEY`), `data` also has
+When the Nace console refused the request (the frontier model on `nace`, free credit or `$NACE_API_KEY`), `data` also has
 `code`, the console's `error.code` (`free_exhausted`, `free_revoked`, `free_paused`, `model_not_in_plan`,
 `rate_limited`, `request_too_large`, `upstream_error`, …), and `meter` (`agent` or `system1`) when it named one. When
-the code ends the free credit (the first four), `data.next` is the System 2 the session's next prompt will run on, the
+the code ends the free credit (the first four), `data.next` is the frontier model the session's next prompt will run on, the
 user's own; `null` when no own model can run, so the client offers to add a key ([running out](#running-out)).
-`system1_unavailable` has `code` and `meter` likewise when the console refused System 1's free credit.
+`system1_unavailable` has `code` and `meter` likewise when the console refused the decision model's free credit.
 
 Clients show `rate_limit` and `quota` as limited, not as a crash. The updates sent before the error
 stay valid; the turn is journaled up to the failure.
 
-`system1_unavailable`: System 1 did not answer an ask the run needed, after retrying with backoff
+`system1_unavailable`: The decision model did not answer an ask the run needed, after retrying with backoff
 (1 s, doubling to 15 s) for about two minutes, or at once when the console refused its free credit for good. The
 message names the backend and its last error. The
-harness does not run without System 1, so nothing answered in its place; the session stays open and
-the next prompt asks again. A session whose System 1 does not answer when it opens fails
-`session/new` (or `session/load`) with `-32602`, as one whose System 1 key is missing does.
+harness does not run without the decision model, so nothing answered in its place; the session stays open and
+the next prompt asks again. A session whose the decision model does not answer when it opens fails
+`session/new` (or `session/load`) with `-32602`, as one whose decision-model key is missing does.
 
-`usage` on the prompt response is the turn's System 2 tokens: `inputTokens`, `outputTokens`,
+`usage` on the prompt response is the turn's tokens on your models: `inputTokens`, `outputTokens`,
 `cachedReadTokens`, `cachedWriteTokens`, `thoughtTokens`, `totalTokens`.
 
-`_meta.nace.usage` splits the turn's work by system, follow-ups included. Clients sum turns for a
+`_meta.nace.usage` splits the turn's work by model, follow-ups included. Clients sum turns for a
 session's totals; `usage_update`'s `cost` is the session's total for both.
 
 ```json
@@ -409,7 +409,7 @@ a hand-over; `usage_update`'s `cost` still holds all of it.
 `asks` are those the backend answered; `failed` are those it did not answer after every retry (each
 one stopped the run), and answers from the cache count in neither. Tokens and cost are the backend's.
 
-System 2's cost is the provider's where it reports one (OpenRouter). Anthropic's and OpenAI's own APIs
+The frontier model's cost is the provider's where it reports one (OpenRouter). Anthropic's and OpenAI's own APIs
 and Fireworks report only tokens, so the harness prices them from the models' published prices
 (`src/intern/models/prices.toml`): standard tier, the 5-minute cache on Anthropic and the
 default 30-minute one on OpenAI, the higher rates for a long prompt where the model has them. A model
@@ -454,7 +454,7 @@ with no price there costs 0, such as a Fireworks dedicated deployment, which is 
 ```
 
 `handoff` (0.49.0 and later) lists the values of the [`handoff` option](#config-options) a session offers, less
-`off`: the configured target first, then the System 2 models. `default` is the configured target
+`off`: the configured target first, then the catalog's other chat models. `default` is the configured target
 (`[capabilities.handoff] to`, or `--handoff-to`), absent when runs hand over to no model.
 
 `recommended` (0.51.0 and later) lists Nace's recommended combinations on a user's own keys, best first, the same
@@ -467,16 +467,16 @@ are `one-key`, `best-results` and `free-models`; a client should show what is li
 
 `runners` lists the values of the [`runner` option](#runner), in its order: `default` marks the configured one, and
 `unavailable` (only when it cannot run here) says why. `capabilities` lists the [capability toggles](#capability-toggles) a session offers, in their order,
-each with `enabled` as config.toml and the default System 2's profile turn it on. Every entry has
+each with `enabled` as config.toml and the default frontier model's profile turn it on. Every entry has
 `id`, `name`, `description` and `enabled`. From 0.7.0, `unavailable` is present when the toggle cannot
 switch on in this install and environment, with the reason: web search has no provider or key, or an extra is
 missing and there is no uv or pip to install it. From 0.23.0, an extra that switching on installs is not a reason.
 Combinations are not covered; a reopen still rejects them.
 
-Every entry has `id` and `name`. System 2 entries may also carry these keys, each only when true or
+Every entry has `id` and `name`. Chat model entries (`system2`) may also carry these keys, each only when true or
 known (readers must ignore keys they do not know):
 
-- `default`: the System 2 a session opens on unless the client picks one (`--system2`, then
+- `default`: the frontier model a session opens on unless the client picks one (`--system2`, then
   `system2`/`model` in config.toml, then `$INTERN_SYSTEM2`). At most one entry has it; none when
   no default is configured or its provider cannot be reached.
 - `reasoning`: the model takes a reasoning effort, so a session on it advertises `thought_level`.
@@ -487,10 +487,10 @@ known (readers must ignore keys they do not know):
   provider's listing says, no larger than the profile's `effective_window`. Absent when neither says. A
   session's `context_window` presets go up to it.
 
-System 2 lists every model served by a provider the harness can reach: each built-in provider and
+The chat models (`system2`) are every model served by a provider the harness can reach: each built-in provider and
 each `[providers]` entry whose API key variable is set (or that needs none), asked with `GET
 {base_url}/models` (5 s timeout each, all at once; one that fails or times out is left out), keeping
-only models System 2 can chat with: the listing decides where it says (a `type` such as `embedding` or
+only models the harness can chat with: the listing decides where it says (a `type` such as `embedding` or
 `audio`, or Fireworks' `kind` `EMBEDDING_MODEL`, first; then OpenRouter's `architecture.output_modalities`
 or Fireworks' `supports_chat`),
 else a model whose id names an embedding, speech, image, moderation or completions-only model
@@ -498,15 +498,15 @@ else a model whose id names an embedding, speech, image, moderation or completio
 left out. To those it adds `system2` from config and the concrete names in profile `match` lists (how models a provider does not
 list, such as Fireworks dedicated deployments, get in). Ids are `provider/model`; names are the
 provider's display name where it gives one, else the profile's `name` for a model from a profile. The server caches the catalog for 10
-minutes. System 1 is listed from the console (`GET {console_url}/models` with `$NACE_API_KEY`,
+minutes. The decision models (`system1`) are listed from the console (`GET {console_url}/models` with `$NACE_API_KEY`,
 retired models left out; `[system1].models` stand in when the key is missing or the console does not
 answer) and from the decisions API (`GET {base_url}/models?output_modalities=decisions` with
 `$OPENROUTER_API_KEY`, OpenRouter's filter for decision models), as `decisions:<model>`. Exit code 0,
 even when every provider fails (the lists are then shorter); 2 on a configuration error.
 
-The console is also a System 2 provider (0.50.0 and later), `nace`: `https://console.nace.ai/v1`, or
+The console is also a provider for your models (0.50.0 and later), `nace`: `https://console.nace.ai/v1`, or
 `$NACE_BASE_URL`, with `$NACE_API_KEY`. Its models are `nace/<model>`, such as `nace/glm-5.3`, listed from the
-chat models in its `GET /models` (`data`) and never from its decision models (`models`), which stay System 1's. The
+chat models in its `GET /models` (`data`) and never from its decision models (`models`), which stay the decision model's. The
 console lists no chat models yet, so `nace/` entries appear only once it serves some. A token the console issues
 (the free credit's) is sent only to `console.nace.ai`, `console.test.nace.ai` and `console.stage.nace.ai`
 over HTTPS: a `$NACE_BASE_URL` or `$DREX_BASE_URL` pointing elsewhere is a configuration error, and nothing is
@@ -520,20 +520,20 @@ per step (`code`, then `granted` or `refused` with `code`, `reason` and `message
 and `sign-out` with `--json` print one document each. [docs/free.md](free.md) has the lines, the refusal codes and
 where the tokens are kept. A client shows the consent text before `start` and passes the version it showed.
 
-Sessions run on free credit (0.54.0 and later), system by system. The agent meter pays for System 2 and the hand-over
-model, the System 1 meter for System 1. At `session/new`, `session/load`, a reopen and the start of every run, each
-system runs on free credit when `[free] use` is true, a grant is signed in and `active`, and its meter has more left
+Sessions run on free credit (0.54.0 and later), meter by meter. The agent meter pays for the frontier and efficient
+models, the decision-model meter (`system1`) for the decision model. At `session/new`, `session/load`, a reopen and
+the start of every run, each meter's models run on free credit when `[free] use` is true, a grant is signed in and `active`, and its meter has more left
 than its overdraft (so a run never starts on credit that cannot finish it). Otherwise it runs on the user's own
 configuration, as before. A user with own keys and a grant runs everything free; once the agent meter is spent, the
-next run's System 2 and hand-over are their own while System 1 stays free.
+next run's frontier and efficient models are their own while the decision model stays free.
 
-While a system runs on free credit, its models are the grant's `bundle`, whatever config, `--system2`, the journal or
+While a meter's models run on free credit, they are the grant's `bundle`, whatever config, `--system2`, the journal or
 `_meta` say:
 
-- System 2 is `bundle.system2` and the hand-over always on (auto mode), to `bundle.handoff` with
-  `bundle.handoff_tuning`; System 1 is `bundle.system1` on the console. Memory's steward writes with the hand-over
-  model.
-- System 2's working window is at most `bundle.window_tokens`, whatever `context_window` says, and no request asks for
+- The frontier model is `bundle.system2` and the hand-over always on (auto mode), to the efficient model
+  `bundle.handoff` with `bundle.handoff_tuning`; the decision model is `bundle.system1` on the console. Memory's
+  steward writes with the efficient model.
+- The working window of your models is at most `bundle.window_tokens`, whatever `context_window` says, and no request asks for
   more than `bundle.max_output_tokens` (a reply cut off at the cap does not raise it past that).
 - `model`, `system1` and `handoff` list only the bundle's model; `handoff` has no `off`.
 - Another model is refused with `-32602` and `data: {"code": "free_locked"}`: by `_meta.nace.system2` or `system1`
@@ -543,9 +543,9 @@ While a system runs on free credit, its models are the grant's `bundle`, whateve
 - The bundle's models are not journaled: a `session/load` once the credit is spent continues on the models the
   session last ran on with the user's own keys, or their configured ones.
 
-When a system's meter is spent and the user's own configuration cannot run it, the session opens as it does for a
-missing key: [unbound](#when-no-system-2-can-run) for System 2, with the reason starting `the free agent credit is
-used up; add your own key to keep going: …`, and for System 1 the `-32602` of a missing System 1 key, with the same
+When a meter is spent and the user's own configuration cannot run its models, the session opens as it does for a
+missing key: [unbound](#when-no-frontier-model-can-run) for the frontier model, with the reason starting `the free agent credit is
+used up; add your own key to keep going: …`, and for the decision model the `-32602` of a missing decision-model key, with the same
 start.
 
 ### Running out
@@ -554,10 +554,10 @@ A run starts on free credit only when the meter can pay for it to the end, so a 
 When the console still refuses a free credit during a run (`free_exhausted`, `free_revoked`, `free_paused` or
 `model_not_in_plan`), the harness does not retry it or try another of the bundle's models (0.55.0 and later):
 
-- **System 1** sends the ask again with the user's own console key (`$NACE_API_KEY`, or `$DREX_API_KEY`), on the
+- **The decision model** sends the ask again with the user's own console key (`$NACE_API_KEY`, or `$DREX_API_KEY`), on the
   same model, and so does every ask after it; the run does not notice. With no such key the prompt fails at once with
   [`system1_unavailable`](#stop-reasons-and-errors), its `data` carrying `code` and `meter`.
-- **System 2** and the hand-over model send the request again with the user's own Fireworks key
+- **The frontier model** and the efficient model send the request again with the user's own Fireworks key
   (`$FIREWORKS_API_KEY`) for the same model, `accounts/fireworks/models/glm-5p3` or `…/deepseek-v4p1-flash-1017`, and
   the run goes on. With no such key the prompt fails with [`provider_error`](#stop-reasons-and-errors), `kind`
   `quota`, `code`, `meter` and `next`, the model the next prompt will use. The turn is journaled up to the refusal:
@@ -589,7 +589,7 @@ prompt's updates are followed by a `config_option_update` with the pickers as th
 
 Every `usage_update` of a session that uses the free credit carries `_meta.nace.free`, the meters as the console last
 reported them (from the `x-nace-free-used` and `x-nace-free-limit` headers of each answer, so the gauge moves as the
-session works) and what each system runs on:
+session works) and what each meter's models run on:
 
 ```json
 {"sessionUpdate": "usage_update", "used": 18200, "size": 160000,
@@ -613,7 +613,7 @@ session works) and what each system runs on:
 
 `state` is the grant's (`active`, `paused`, `exhausted`), `signed_out`, or why the grant could not be read
 (`free_revoked`, `unavailable`); `use` is `[free] use` (false while paused with `intern free pause`); `paused` is
-present and true while the console has paused free calls; `source` is what each system would run on now. For a
+present and true while the console has paused free calls; `source` is what each meter's models would run on now. For a
 system on free credit, `system2` (with its `window` capped), `system1` and `handoff` list only the bundle's model.
 
 ## Versioning
@@ -629,25 +629,25 @@ system on free credit, `system2` (with its `window` capped), `system1` and `hand
 
 Additive; 0.2.0 clients keep working.
 
-- `session/new` and `session/load` take `_meta.nace.system2` / `system1`, and succeed when no System 2
+- `session/new` and `session/load` take `_meta.nace.system2` / `system1`, and succeed when no frontier model
   can run, opening the session unbound until the client picks a model.
 - The catalog lists the concrete ids in profiles' `match` lists, such as a Fireworks dedicated deployment;
   profiles take an optional `name` for them.
-- `nace-harness models --json` marks the default System 2 with `"default": true` and models that take
+- `nace-harness models --json` marks the default frontier model with `"default": true` and models that take
   a reasoning effort with `"reasoning": true`.
 - Documented: grouped `model` options use ACP v1's `group` key (unchanged since 0.2.0).
 
 ### 0.3.0
 
-System 1 is required; clients that showed or sent `heuristic` need a look.
+The decision model is required; clients that showed or sent `heuristic` need a look.
 
 - The `system1` option no longer lists `heuristic`, defaults to `drex-latest`, lists the console's
   decision models and the decisions API's models as `decisions:<model>`, and reports a session started on
   `--system1 decisions:<m>` as `decisions:<m>`. `heuristic` is still accepted when sent, as the
   explicit opt-out.
-- `session/new` fails with `-32602` when System 1 cannot be set up (its key is missing) instead of
+- `session/new` fails with `-32602` when the decision model cannot be set up (its key is missing) instead of
   opening on heuristics; a `system1` pick whose key is missing is refused with `-32602` and the session
-  keeps its System 1.
+  keeps its decision model.
 - `--system1` also takes a bare Drex model (`drex-max-v1.1`) for the console; `drex:<model>[,...]`
   keeps working.
 
@@ -655,9 +655,9 @@ System 1 is required; clients that showed or sent `heuristic` need a look.
 
 Additive; 0.3.0 clients keep working.
 
-- Live sessions advertise [`context_window`](#config-options), a per-session cap on System 2's working
+- Live sessions advertise [`context_window`](#config-options), a per-session cap on the frontier model's working
   window that holds across model changes and loads.
-- `nace-harness models --json` gives System 2 entries a `window` when the profile or the provider's
+- `nace-harness models --json` gives chat model entries a `window` when the profile or the provider's
   listing says it.
 - `thought_level` lists the levels the model takes: `low` to `max` through Anthropic's API, `low` to
   `xhigh` through OpenAI's, still `low`, `medium`, `high` elsewhere.
@@ -666,14 +666,14 @@ Additive; 0.3.0 clients keep working.
 
 Additive; 0.4.0 clients keep working.
 
-- The prompt response carries [`_meta.nace.usage`](#stop-reasons-and-errors): the turn's System 2 model,
-  tokens and cost, and its System 1 model, asks, failures, fallbacks, tokens and cost.
+- The prompt response carries [`_meta.nace.usage`](#stop-reasons-and-errors): the turn's frontier model,
+  tokens and cost, and its decision model, asks, failures, fallbacks, tokens and cost.
 
 ### 0.5.1
 
 Fix; 0.5.0 clients keep working.
 
-- System 2 on Anthropic's and OpenAI's own APIs has a cost: `system2.costUsd` in
+- Your models on Anthropic's and OpenAI's own APIs have a cost: `system2.costUsd` in
   [`_meta.nace.usage`](#stop-reasons-and-errors) and `usage_update`'s `cost` were 0 for them, since
   those APIs report only tokens, and are now priced from the models' published prices.
 
@@ -780,8 +780,8 @@ Additive; nothing an ACP session sends changes, so 0.10.3 clients keep working.
 
 Additive; 0.11.0 clients keep working, and show the steward's cost in the session's `cost` with no change.
 
-- What the memory steward spent on a session after it closed now reaches the client: its System 1
-  asks and its writer's System 2 calls. `session/load` sends a [`usage_update`](#updates) with
+- What the memory steward spent on a session after it closed now reaches the client: its decision-model
+  asks and its writer's calls to the frontier model. `session/load` sends a [`usage_update`](#updates) with
   that cost, and the session's cost so far starts from it. `_meta.nace.steward` on that update has the
   tokens and cost of every steward run on the session, split into `system1` and `writer`. Before, the
   steward's cost was shown nowhere.
@@ -800,29 +800,29 @@ Additive; 0.12.0 clients keep working with no change.
 
 Agent behaviour only; nothing in the protocol changes, so 0.13.0 clients keep working.
 
-- A session's first State is written once System 1 finds the work worth one, usually within a task's
-  first few turns. Before, System 1 was asked whether a State that did not exist yet was out of date,
+- A session's first State is written once the decision model finds the work worth one, usually within a task's
+  first few turns. Before, the decision model was asked whether a State that did not exist yet was out of date,
   so a chat or short session on a large window could go without a State until compaction, often for
   its whole life, while a single lookup sometimes got one. A greeting, a quick answer or a lookup
   still gets none.
 
 ### 0.14.0
 
-Breaking: System 1 is required at every step. Clients that send `heuristic` or read `fallenBack` need a
+Breaking: The decision model is required at every step. Clients that send `heuristic` or read `fallenBack` need a
 look; others keep working, and see one more prompt error.
 
-- There is no heuristic System 1. `--system1 heuristic` and a `system1` pick of `heuristic` are refused
+- There is no heuristic stand-in for the decision model. `--system1 heuristic` and a `system1` pick of `heuristic` are refused
   with "System 1 is required", and a config with `[system1] backend = "heuristic"` no longer loads. Nothing stands in for an
   answer: not for the supervisor, the guard, compaction's keep verdicts, memory recall or `decision_code`.
-- An ask System 1 fails is retried with backoff for up to 30 minutes; still unanswered, the prompt fails
+- An ask the decision model fails is retried with backoff for up to 30 minutes; still unanswered, the prompt fails
   with [`system1_unavailable`](#stop-reasons-and-errors) (`-32603`). Before, a heuristic answered and, for
   the guard, the call went through unjudged.
-- `session/new` and `session/load` check that System 1 answers (up to 15 s of retries) and fail with
+- `session/new` and `session/load` check that the decision model answers (up to 15 s of retries) and fail with
   `-32602` when it does not.
 - `fallenBack` is gone from `_meta.nace.usage.system1` and `_meta.nace.steward.system1`; `failed` counts
   the asks left unanswered after their retries.
-- The System 1 cost cap and circuit breaker are gone; a session budget
-  (`[capabilities.session_budget]`) still bounds System 1's calls and cost.
+- The decision model's cost cap and circuit breaker are gone; a session budget
+  (`[capabilities.session_budget]`) still bounds the decision model's calls and cost.
 
 ### 0.15.0
 
@@ -833,10 +833,10 @@ Additive; 0.14.0 clients keep working, and see a thinking picker on more models.
   packaged profile, and every GPT model, had none.
 - On those APIs `thought_level` lists `default` first: no effort sent, so the model uses its own. It is
   the current value when the profile names no effort, and picking it goes back to sending none.
-- `nace-harness models --json` gives System 2 entries `efforts`, the values `thought_level` takes on that
+- `nace-harness models --json` gives chat model entries `efforts`, the values `thought_level` takes on that
   model, so clients can offer the right levels before a session opens. `reasoning` now means the model
   takes an effort at all, as `thought_level` does.
-- System 2 in `models --json` and the `model` option lists only models System 2 can chat with. Before,
+- The chat models in `models --json` and the `model` option are only models the harness can chat with. Before,
   embedding, text-to-speech, transcription, image and moderation models a provider serves were listed too,
   and a session on one failed at its first prompt.
 
@@ -884,7 +884,7 @@ Fix; 0.15.3 clients keep working.
 A fix; older clients keep working with no change.
 
 - Fireworks' embedding and reranker models (`qwen3-embedding-8b`, `qwen3-reranker-8b`) are no longer listed
-  as System 2. Fireworks marks them `supports_chat`, which the catalog trusted; their `kind`,
+  as chat models. Fireworks marks them `supports_chat`, which the catalog trusted; their `kind`,
   `EMBEDDING_MODEL`, now decides first.
 
 ### 0.15.6
@@ -941,7 +941,7 @@ A rename; 0.17.0 clients keep working unless they match tool names.
   match the new ones. Earlier entries in this list use the new names.
 - The workspace index lives in `.decision_workspace/` (was `.drex_workspace/`). An existing index is moved
   there the first time its folder is opened, so nothing is rebuilt.
-- System 1's descriptions in config options and `models --json` say "decision model" and "the console"; the
+- The decision model's descriptions in config options and `models --json` say "decision model" and "the console"; the
   `system1` values, `drex:<model>` references, `_meta.nace`, `_nace_capability` and every environment
   variable are unchanged. The bundled Qwen3.8 27B profile is named "Qwen3.8 27B (Fireworks)".
 
@@ -968,12 +968,12 @@ blocking work in `asyncio.to_thread`. `[capabilities.secrets]` bindings can read
 
 ### 0.21.0
 
-System 2 writes the State only for a compaction; 0.20.0 clients keep working.
+Your models write the State only for a compaction; 0.20.0 clients keep working.
 
 - No State is written between compactions: `state_writing` and `state` events come only with a compaction
   (`trigger` `compaction`; `stale` and `first` no longer occur). `get_state`'s `state` and the State panel stay
   empty until a session's first compaction.
-- System 1 reads a cut of the session built by code instead (the user's latest requests and the session in order,
+- The decision model reads a cut of the session built by code instead (the user's latest requests and the session in order,
   tool outputs as a note with their status, size, a check's tally and their first 300 characters, fitted to its
   window). An extension's `ctx.state()` returns it: a JSON object, `goal` and `history`, where it was text.
 - The supervisor's `decision` events (purpose `supervise`) carry only the `mode` answer; `rewrite` and `worth` are
@@ -1083,7 +1083,7 @@ or readmit those images. See [host-controlled image viewing](read-images.md).
 ### 0.28.1
 
 The guard lets your intern install what its task needs from a standard package registry (PyPI, npm,
-crates.io, apt, brew) or the maker's official download. Before, System 1 could refuse these as untrusted
+crates.io, apt, brew) or the maker's official download. Before, the decision model could refuse these as untrusted
 code: `npm install -g typescript`, or the official Java runtime. Installs from an unknown index or host, or
 from a stranger's repository, are still refused unless you ask for them.
 
@@ -1096,7 +1096,7 @@ still refused. Nothing a client sends or reads changed, so every client keeps wo
 
 ### 0.29.0
 
-Additive; 0.28.0 clients keep working. System 1 has a second per-turn check: whether the request is done and
+Additive; 0.28.0 clients keep working. The decision model has a second per-turn check: whether the request is done and
 checked while the agent keeps changing what it did not ask for.
 
 - A `decision` event with purpose `wrap_up` comes beside the supervisor's `supervise` one at each turn's end, until
@@ -1120,27 +1120,27 @@ can run background jobs, and its `poll` no longer waits.
   `## User requests` while jobs or what commands left running still run.
 - `process` tool results carry the job's `command` and `elapsed_s`. `process start` returns the result of a job that
   ends within 3 s, else its handle.
-- System 1's view of the session (an extension's `ctx.state()`) has a `processes` list while commands run.
+- The decision model's view of the session (an extension's `ctx.state()`) has a `processes` list while commands run.
 - When a background job ends, or a process a command left running, the agent is told: a harness message (a `nudge`
   event, reason `process_ended`) at the run's next turn, with how it ended and the end of its output. A run does not
   end while such news is untold, so a reply that crossed a job's end gets one more turn. Between prompts an ACP session
   holds it, and tells it right after the next prompt; it starts no run of its own (the terminal UI's sessions do).
-- System 1 looks at the commands running (at 30 s, 1, 2, 4, 8 and 16 minutes of each one's age, then every 30
+- The decision model looks at the commands running (at 30 s, 1, 2, 4, 8 and 16 minutes of each one's age, then every 30
   minutes): a `process_check` event (journaled; ACP sends nothing for it) with a verdict a command. A command it finds
   stalled, failing, or up and waited on is told to the agent as a harness message (`nudge`, reason `process_check`)
-  at the run's next turn; between prompts, an ACP session holds it for the next prompt. A look System 1 cannot answer
+  at the run's next turn; between prompts, an ACP session holds it for the next prompt. A look the decision model cannot answer
   stops the run with `system1_unavailable`.
 - A `bash` command goes on in the background as a job: as it starts when it is plainly a wait (a `sleep` of 10 s or
   more first, `tail -f`, `watch`, `gh run watch`); once it has run `[capabilities.process] move_after_s` (30 s by
-  default); when System 1 finds it waits or serves, or finds it stuck; and at once when a message from the user comes
+  default); when the decision model finds it waits or serves, or finds it stuck; and at once when a message from the user comes
   in during it. Its `tool_call_update` completes with `[Running in the background as job <handle> (<why>). …]` and
-  the output so far, and the agent is told when it ends. `decision` events with purpose `background` carry System 1's
+  the output so far, and the agent is told when it ends. `decision` events with purpose `background` carry the decision model's
   word on a command still running 2 s on.
 - The agent's `process poll` no longer waits: `wait_s` is gone from its arguments (0.24.1's wait, which a user's
   message ended, is replaced). A turn that only polls (or lists) jobs that still run hands over, and the harness waits
-  instead: an ACP prompt's turn, and its `session/prompt`, hold until the job ends, System 1 finds something, the user
-  sends a message (`session/prompt` with the turn in progress), or System 1's next scheduled look at what runs (a
-  `nudge` event, reason `process_look`, when it found nothing to tell); `session/cancel` stops it. A command System 1
+  instead: an ACP prompt's turn, and its `session/prompt`, hold until the job ends, the decision model finds something, the user
+  sends a message (`session/prompt` with the turn in progress), or the decision model's next scheduled look at what runs (a
+  `nudge` event, reason `process_look`, when it found nothing to tell); `session/cancel` stops it. A command the decision model
   finds serves (a server, a watcher) is not waited for.
 - `run_end` can have reason `waiting` (the agent handed over), in sessions that wake the agent when a job ends: the
   terminal UI, not ACP or JSON-RPC.
@@ -1155,7 +1155,7 @@ Fixes for background jobs; 0.30.0 clients keep working, and nothing a client sen
   that was gone, or poll its handle and guess what had happened to it.
 - Polling a handle from before a reopen says what became of its job. An unknown handle's error lists the session's
   jobs, so a mistyped handle is corrected in one call; it no longer says the handle came from another session.
-- A `bash` command that moves to the background because it serves (System 1 judged it `serves`, or a later look found
+- A `bash` command that moves to the background because it serves (the decision model judged it `serves`, or a later look found
   it up and `ready`) is no longer stopped at the call's `timeout_s`. It runs until it is stopped, the session closes,
   or 24 hours pass. Before, a server the agent reported as up was killed at the limit it had given a call it expected
   to block on, such as 60 s. Its `tool_call_update` says so. Any other moved command keeps its `timeout_s`, and its
@@ -1163,7 +1163,7 @@ Fixes for background jobs; 0.30.0 clients keep working, and nothing a client sen
 - In the terminal UI, the nudge an agent gets before it hands over without a word (reason `process_waiting`) tells
   it, when the user asked how the job is going or whether it is stuck, to read the job's output or the file it writes
   to and answer from that. Before, it could answer "I can't tell" about a build whose output went to a log.
-- The terminal UI keeps one line per command for System 1's routine looks, updated at each look, where it added a
+- The terminal UI keeps one line per command for the decision model's routine looks, updated at each look, where it added a
   line per look. A finding the agent is told still gets its own line.
 
 ### 0.30.2
@@ -1171,9 +1171,9 @@ Fixes for background jobs; 0.30.0 clients keep working, and nothing a client sen
 A security fix; 0.30.1 clients keep working, and nothing a client sends or reads changed shape.
 
 - The harness's own keys are replaced with `[REDACTED]` in every tool's output when they come from the environment
-  or `~/.intern/.env`, as stored `[secrets]` values already were: a model provider's `api_key_env`, System 1's
+  or `~/.intern/.env`, as stored `[secrets]` values already were: a model provider's `api_key_env`, the decision model's
   `NACE_API_KEY` or `DREX_API_KEY`, and any variable the config names in a `*_env`, `header_env` or `env_refs`
-  setting. Before, a plain `env` printed System 1's key into the model's context, the journal and `tool_call_update`
+  setting. Before, a plain `env` printed the decision model's key into the model's context, the journal and `tool_call_update`
   content. Commands still get these variables, so a project's tests that need one keep working; only their printed
   values are hidden.
 
@@ -1196,7 +1196,7 @@ changed shape.
   requested again every 30 s until 30 minutes have passed since the first failure, then the prompt fails with
   [`provider_error`](#stop-reasons-and-errors) as before. Errors that are not retryable (`auth`, `quota`, a bad
   request) still fail at once, and a cancel ends the wait. Before, a rate limit held for about a minute ended the run.
-- An ask System 1 fails is retried with backoff (at most 30 s apart) for up to 30 minutes before the prompt fails with
+- An ask the decision model fails is retried with backoff (at most 30 s apart) for up to 30 minutes before the prompt fails with
   [`system1_unavailable`](#stop-reasons-and-errors); before, about two minutes.
 
 ### 0.30.5
@@ -1217,14 +1217,14 @@ Model fixes; 0.30.4 clients keep working, and nothing a client sends or reads ch
 
 ### 0.30.6
 
-A System 1 fix; 0.30.5 clients keep working.
+A decision-model fix; 0.30.5 clients keep working.
 
-- A System 1 on the decisions API whose model has a smaller window than the state it is sent is sent less: no more
+- A decision model on the decisions API whose model has a smaller window than the state it is sent is sent less: no more
   than three quarters of the window its listing gives, at the start of a session and when it is picked. Before, a
   model such as `baseten/joey-1` (16K) or `cloudflare/clef-flash` (24K) refused the state with HTTP 422 once the
   session grew past about 10K tokens, and the run stopped with `system1_unavailable`. `[system1].max_state_tokens`
   stays the most any model is sent, and models with a larger window, `drex-*` and Jev among them, are unchanged.
-- `models --json` gives a `window` for the decisions API's System 1 entries too, from its listing.
+- `models --json` gives a `window` for the decisions API's decision model entries too, from its listing.
 
 ### 0.30.7
 
@@ -1235,7 +1235,7 @@ Fewer turns while a job runs; 0.30.6 clients keep working, and nothing a client 
   a check that only reads how a job is doing (`ps`, `tail -n 20 train.log`). Before, a model that waited with
   `sleep` and checked with `ps` took a turn every second or two, each sending the whole session again. A `sleep`
   now costs one turn; a check holds 60 s at most. A wait that does not end by itself (`tail -f`, `watch`) still
-  gets System 1's routine looks, so it never holds the prompt until its timeout.
+  gets the decision model's routine looks, so it never holds the prompt until its timeout.
 - The note a command gets when it goes on in the background tells the model to wait with `process poll` rather than
   `sleep`, `ps` or `tail`.
 
@@ -1245,10 +1245,10 @@ The tool-call guard is off by default; 0.30.7 clients keep working, and nothing 
 shape.
 
 - `[guard] mode` in `~/.intern/config.toml` sets it: `off` (the new default) checks no call, `rules` runs the fixed
-  rules only, `full` runs the fixed rules and System 1's judgement, as every session did before. A user who wants
+  rules only, `full` runs the fixed rules and the decision model's judgement, as every session did before. A user who wants
   the old behaviour sets `mode = "full"`.
 - With `off`, no call is refused, so no `tool_guard` event comes, no `decision` event has purpose `guard`, and no run
-  stops with `stopped_by_guard`; with `rules`, no `tool_guard` event has layer `system1`. System 1 is still required.
+  stops with `stopped_by_guard`; with `rules`, no `tool_guard` event has layer `system1`. The decision model is still required.
 
 ### 0.32.0
 
@@ -1265,7 +1265,7 @@ A silent command can be stopped; 0.31.0 clients keep working, and nothing change
 
 A setting to turn model retries off; 0.32.0 clients keep working, and nothing a client sends or reads changed shape.
 
-- `[capabilities] model_retries = false` makes each System 2 call once, for a client whose own gateway retries. The
+- `[capabilities] model_retries = false` makes each call to your models once, for a client whose own gateway retries. The
   first retryable failure (HTTP 429, 5xx, an overloaded server, a dropped connection) ends the prompt with
   [`provider_error`](#stop-reasons-and-errors), where before the provider retried after 2, 8 and 20 s and the
   reply was requested again for up to 30 minutes. `system2_fallbacks` are still tried. The default, `true`, keeps
@@ -1301,7 +1301,7 @@ changed shape.
 
 Additive; 0.34.1 clients keep working.
 
-- When no source gives System 2's window (no profile `window`, and the provider's listing fails or does not name the
+- When no source gives the chat model's window (no profile `window`, and the provider's listing fails or does not name the
   model), the model runs at 32,768 tokens, which also caps its replies to a share of that. That used to be silent.
   The client now gets an agent message, `Window not known: MODEL: its window could not be looked up (REASON), ...`,
   when the session opens and when the model is switched (event `window_fallback`, with `model`, `window`, `reason`
@@ -1314,7 +1314,7 @@ Additive; 0.34.1 clients keep working.
 
 Additive; 0.35.0 clients keep working, and nothing a client sends or reads changed shape.
 
-- Twelve more System 2 providers, each OpenAI-compatible, by `provider/model` and the key variable it reads:
+- Twelve more providers for your models, each OpenAI-compatible, by `provider/model` and the key variable it reads:
   `gemini` (`GEMINI_API_KEY`), `xai` (`XAI_API_KEY`), `deepseek` (`DEEPSEEK_API_KEY`), `mistral`
   (`MISTRAL_API_KEY`), `moonshot` (`MOONSHOT_API_KEY`), `zai` (`ZAI_API_KEY`), `minimax` (`MINIMAX_API_KEY`),
   `huggingface` (`HF_TOKEN`), `vercel` (`AI_GATEWAY_API_KEY`), `requesty` (`REQUESTY_API_KEY`), `nebius`
@@ -1356,7 +1356,7 @@ A fix to how an index refresh is reported; 0.37.0 clients keep working, and noth
 Additive; 0.37.1 clients keep working, and nothing a client sends or reads changed shape.
 
 - Sessions offer one more boolean option, `cap.tool-result-guard` ("Tool-result guard"), off unless
-  `[capabilities.tool_result_guard] enabled = true`; `models --json` lists it too. With it on, System 1 screens what
+  `[capabilities.tool_result_guard] enabled = true`; `models --json` lists it too. With it on, the decision model screens what
   web, browser and MCP tools return (`screen = "all"`: every result but the agent's own writes) and replaces the
   chunks addressed to the agent in the result's text. Each screen is an `extension` event (`tool-result-guard`, kind
   `screen`) naming the removed chunks, and its ask a `decision` event with purpose `tool_result_guard`.
@@ -1377,10 +1377,10 @@ shape.
 
 ### 0.39.0
 
-System 1 supervises every fourth turn in one ask, where it asked twice at every turn; 0.38.1 clients keep working.
+The decision model supervises every fourth turn in one ask, where it asked twice at every turn; 0.38.1 clients keep working.
 
 - `decision` events with purpose `supervise` come at every fourth turn's end, and at the turn after one whose
-  verdict would act (stuck, or done and still changing things), not at every turn. A run's System 1 tokens
+  verdict would act (stuck, or done and still changing things), not at every turn. A run's decision-model tokens
   (`run_end.system1`) fall accordingly: on stored runs it is asked at about a quarter of the turns.
 - The `supervise` decision carries two answers: `mode` as before, and `wrap`, the choice of `working`,
   `done_polishing`, `done_unsaved` or `unclear` that the `wrap_up` decision carried. No `decision` event has purpose
@@ -1388,8 +1388,8 @@ System 1 supervises every fourth turn in one ask, where it asked twice at every 
 - The `nudge` events are unchanged in shape (`reason` `stuck_gate`, at most three a run; `wrap_up`, at most one).
   The rule that sends them changed: a look that finds the turns stuck (P(re_investigating) + P(retrying) at 0.7 or
   more), or the request done (P(done_polishing) at 0.8 or more), is repeated at the next turn, and the nudge goes
-  out when it holds. Once neither nudge can be sent any more, System 1 is not asked.
-- System 1's State (`ctx.state()` for extensions) keeps the newest eight messages whole, was six.
+  out when it holds. Once neither nudge can be sent any more, the decision model is not asked.
+- The decision model's State (`ctx.state()` for extensions) keeps the newest eight messages whole, was six.
 
 ### 0.39.1
 
@@ -1437,7 +1437,7 @@ Two fixes to OpenAI's models in the catalog; 0.40.1 clients keep working, and no
 shape.
 
 - `models --json` no longer lists OpenAI's search models (`openai/gpt-5-search-api` and its dated id). OpenAI serves
-  them on Chat Completions only, and System 2 reaches OpenAI through the Responses API, which refuses them: a session
+  them on Chat Completions only, and your models reach OpenAI through the Responses API, which refuses them: a session
   on one failed every request. A search model through another provider (OpenRouter's Sonar Pro Search) is still listed.
 - GPT-4o and GPT-4.1 (with their minis and dated ids) run at their own windows, 128K and 1,047,576 tokens, with 16K and
   32K of output, where OpenAI's listing gives none and they ran at the 32K fallback. `models --json` gives each its
@@ -1448,14 +1448,14 @@ shape.
 A thinking level more, `auto`; 0.40.2 clients keep working, and nothing a client sends or reads changed shape.
 
 - On a model served through Anthropic's API, `thought_level` takes `auto`, listed last, after the model's levels;
-  `models --json` lists it last in those models' `efforts`. At `auto`, System 1 picks one of the model's levels at the
+  `models --json` lists it last in those models' `efforts`. At `auto`, the decision model picks one of the model's levels at the
   first request of each run, from the request that started it, and every request of the run goes with that level; the
   next run asks again. A client that lists the options it is given shows it with no change.
 - Each pick is a `decision` event with purpose `effort` and one answer, `level`: a choice among the levels the model
-  takes, with its probabilities. A run at `auto` makes one System 1 ask more than one at a fixed level.
+  takes, with its probabilities. A run at `auto` makes one decision-model ask more than one at a fixed level.
 - Only there, because only there does a change of level keep the prompt cache (Claude Haiku and Sonnet 5.5: every
   token before the new message read from the cache after low → high → low). On every other provider a session can
-  pick System 2 from, the first request at a level not used lately read nothing from the cache: OpenAI's Responses API
+  pick a model from, the first request at a level not used lately read nothing from the cache: OpenAI's Responses API
   (directly or through OpenRouter), Fireworks (DeepSeek V4 Flash, gpt-oss-120b), DeepInfra (Qwen3.8-27B) and
   OpenRouter's upstreams for Qwen3.8-27B. The provider writes the level into the prompt's head, so `auto`, which may
   change it every run, would cost an uncached prompt each time ([architecture](architecture.md)).
@@ -1497,17 +1497,17 @@ Every failed or refused tool call says where it failed; 0.42.0 clients keep work
 
 ### 0.44.0
 
-System 1 can judge what `web_search` and `web_read` return, each behind its own option, off by default; 0.43.0
+The decision model can judge what `web_search` and `web_read` return, each behind its own option, off by default; 0.43.0
 clients keep working, and with both options off a client reads only the toggles' new descriptions.
 
 - `[capabilities.web_search] system1 = true`: a search asks its provider for three times `limit` (at most 20), and
-  System 1, reading the session, keeps the best `limit` the task needs, best first. Each kept hit has `relevance`, the
-  probability System 1 gave it; `warnings` says how many were kept, or that none was and the agent should search
+  the decision model, reading the session, keeps the best `limit` the task needs, best first. Each kept hit has `relevance`, the
+  probability the decision model gave it; `warnings` says how many were kept, or that none was and the agent should search
   differently. One `decision` event with purpose `web_search` per search.
-- `[capabilities.web_reader] system1 = true`: of a page longer than the preview, System 1, reading the session,
+- `[capabilities.web_reader] system1 = true`: of a page longer than the preview, the decision model, reading the session,
   keeps the parts the task needs, shown in page order with the skipped lines named, where the result was the page's
   start. A `decision` event with purpose `web_read` per 16 parts. When no part is kept, the start comes back as before.
-- The `cap.web-search` and `cap.web-read` toggles' `description` says what System 1 does for the pack, and, with
+- The `cap.web-search` and `cap.web-read` toggles' `description` says what the decision model does for the pack, and, with
   the option off, the setting that turns it on.
 - `[capabilities.search]` and `[capabilities.reader]` are now `[capabilities.web_search]` and
   `[capabilities.web_reader]`, named for the packs they set up. A config.toml with the old names loads as before; one
@@ -1523,24 +1523,24 @@ working. `intern-agent[acp]` still installs, the extra now empty.
 
 ### 0.45.0
 
-A run can hand over, once, to a cheaper model when System 1 judges that the rest of the task is within its reach; off
+A run can hand over, once, to the efficient model when the decision model judges that the rest of the task is within its reach; off
 by default, and 0.44.1 clients keep working.
 
 - `[capabilities.handoff] to = "<model>"` (or `--handoff-to`) names the model; `effort`, `threshold`, `streak` and
   `min_turn` (8 by default) say how and when. The model is bound when the session opens, so a bad reference or key
   fails then.
-- With `transfer = "context"` (the default) the cheaper model finishes the run as a child run: it goes on from the
+- With `transfer = "context"` (the default) the efficient model finishes the run as a child run: it goes on from the
   conversation with the session's tools, and its events stream to the client as the run's own. The session's journal
   keeps only the user's messages during it and its final reply, so the next prompt is answered by the session's System
   2 again. The child run's turns are kept in `<session>.subagents/handoff-<run>.jsonl`. With `transfer = "logfile"`
-  the session switches to the cheaper model, which starts afresh from a file of the turns so far.
+  the session switches to the efficient model, which starts afresh from a file of the turns so far.
 - A new `handoff` event (`turn`, `source`, `target`, `transfer`, `probability`, `tokens`, and `logfile` or `journal`)
   announces the hand-over; a client that skips event types it does not know is unaffected.
 - `run_end` gains `by_model`, the run's usage by model; its `usage` totals both models.
 
 ### 0.46.0
 
-A hand-over always continues the conversation: `transfer = "logfile"`, where the cheaper model started afresh from
+A hand-over always continues the conversation: `transfer = "logfile"`, where the efficient model started afresh from
 a file of the turns so far, is gone, and `[capabilities.handoff]` no longer has a `transfer` setting. A config.toml
 that still sets it loads as before and hands over as `context` did. The `handoff` event keeps `transfer`, now always
 `"context"`, and drops `logfile`, which only that mode set. Still `PROTOCOL_VERSION` 3: a client that reads the event
@@ -1549,24 +1549,24 @@ gets the values it could get before. ACP does not carry the event, and 0.45.0 cl
 ### 0.46.1
 
 The process watch skips commands that are only `sleep` and numeric durations: their answer never changes, so they
-cost no scheduled System 1 looks. Their ends are still reported as before; other commands keep their schedule.
+cost no scheduled the decision model looks. Their ends are still reported as before; other commands keep their schedule.
 Older clients keep working, and nothing a client sends or reads changed shape.
 
 ### 0.47.0
 
-A hand-over stays in the session. The cheaper model's turns are entries of the session's own journal, each reply
+A hand-over stays in the session. The efficient model's turns are entries of the session's own journal, each reply
 under the model that wrote it, instead of a child run's in `<session>.subagents/handoff-<run>.jsonl`; that file is no
-longer written. The next prompt is still answered by the session's System 2, which is now sent those turns as part of
+longer written. The next prompt is still answered by the session's frontier model, which is now sent those turns as part of
 the conversation rather than the final reply alone. The journal also keeps the `handoff` event, so a resumed session
 shows where a run handed over. The event drops `journal`, which named the child run's file. The note that tells the
-cheaper model it is taking over is no longer a message of the conversation, so no `nudge` (reason `handoff`) and no
-`message` event carry it: that model is sent it for the rest of the run, the journal does not keep it, and System 2
-never reads it; nor does System 1, whose State is the journal's. When a run hands over is unchanged. Still
+efficient model it is taking over is no longer a message of the conversation, so no `nudge` (reason `handoff`) and no
+`message` event carry it: that model is sent it for the rest of the run, the journal does not keep it, and the frontier model
+never reads it; nor does the decision model, whose State is the journal's. When a run hands over is unchanged. Still
 `PROTOCOL_VERSION` 3; ACP does not carry the event, and 0.46.1 clients keep working.
 
 ### 0.48.0
 
-The `auto` thinking level is gone: System 1 no longer picks System 2's reasoning effort for each run. A change of
+The `auto` thinking level is gone: The decision model no longer picks the frontier model's reasoning effort for each run. A change of
 level costs the prompt cache through Anthropic's API too, where only the system prompt, the tools and the first
 user message are read back after one, so a pick that changed from one run to the next paid for the conversation
 again. 0.47.0 clients keep working.
@@ -1600,26 +1600,26 @@ keep working, and a session where no run hands over sends what it sent before, b
 
 ### 0.50.0
 
-The Nace console is a System 2 provider, `nace` ([model catalog](#model-catalog)). Additive: 0.49.0 clients keep
+The Nace console is a provider for your models, `nace` ([model catalog](#model-catalog)). Additive: 0.49.0 clients keep
 working, and `models --json` lists what it listed before until the console serves chat models.
 
 - `--system2 nace/<model>` and `system2` in config.toml take `nace/` models, with `$NACE_API_KEY` (and
   `$NACE_BASE_URL` for another console). `nace/glm-5.3` runs on GLM 5.3's profile and
   `nace/deepseek-v4*-flash*` on DeepSeek V4 Flash's.
 - `models --json` lists the console's chat models as `nace/<model>` once it serves them, never its decision models.
-- A `401` whose `error.code` is `token_expired`, from System 2 on `nace` or from System 1, has its bearer renewed and
+- A `401` whose `error.code` is `token_expired`, from a model on `nace` or from the decision model, has its bearer renewed and
   the request sent again, once.
 - `NACE_FREE_REFRESH_TOKEN`, like `NACE_API_KEY`, is a harness key: a `[secrets]` entry of that name is kept out of
   the agent's commands, and its value is redacted from what they print.
 
 ### 0.51.0
 
-[`models --json`](#model-catalog) gains `recommended`: Nace's recommended combinations on a user's own keys (System 2,
-the hand-over model and System 1, each with the keys it needs), so a client's welcome flow offers the same list as the
+[`models --json`](#model-catalog) gains `recommended`: Nace's recommended combinations on a user's own keys (the frontier model,
+the efficient model and the decision model, each with the keys it needs), so a client's welcome flow offers the same list as the
 terminal UI's setup. Additive: 0.50.0 clients keep working and ignore the field.
 
-- The terminal UI's setup offers the combinations first, and asks for the hand-over model after System 1. What it
-  saves is `[capabilities.handoff] to`, which ACP sessions read too: a user who picks a hand-over model in the terminal
+- The terminal UI's setup offers the combinations first, and asks for the efficient model after the decision model. What it
+  saves is `[capabilities.handoff] to`, which ACP sessions read too: a user who picks an efficient model in the terminal
   UI's setup gets it in the app as the `handoff` option's value.
 
 ### 0.52.0
@@ -1653,20 +1653,20 @@ to hand over. Option ids, fields and flags are unchanged: 0.52.0 clients keep wo
 
 ### 0.54.0
 
-Sessions run on the [free credit](#free-credit), system by system: on the grant's bundle while its meter lasts, then
+Sessions run on the [free credit](#free-credit), meter by meter: on the grant's bundle while its meter lasts, then
 on the user's own configuration. Additive: 0.53.0 clients keep working. A client that sends a model, `system1` or
-`handoff` on every turn gets `-32602` with `data.code` `free_locked` while that system runs on free credit, so it
-should send none then (`models --json`'s `free.source` says which systems do).
+`handoff` on every turn gets `-32602` with `data.code` `free_locked` while that model runs on free credit, so it
+should send none then (`models --json`'s `free.source` says which meters do).
 
-- With `[free] use` true and an active grant, System 2, the hand-over (always on) and System 1 run on the bundle, and
-  memory's steward writes with the hand-over model. The window is capped at `bundle.window_tokens` and each request's
+- With `[free] use` true and an active grant, the frontier model, the hand-over to the efficient model (always on) and
+  the decision model run on the bundle, and memory's steward writes with the efficient model. The window is capped at `bundle.window_tokens` and each request's
   output at `bundle.max_output_tokens`.
-- `model`, `system1` and `handoff` list only the bundle's model while their system runs on free credit, and refuse
+- `model`, `system1` and `handoff` list only the bundle's model while their meter's models run on free credit, and refuse
   another (`handoff` refuses `off`), as do `_meta.nace.system2` and `system1`, `--system2`, `--system1` and
   `--handoff-to`.
-- A system whose meter is spent runs on the user's own configuration from the next run; with none, the session opens
+- Models whose meter is spent run on the user's own configuration from the next run; with none, the session opens
   unbound, saying the free credit is used up.
-- `usage_update` gains `_meta.nace.free` (the meters, from the console's response headers, and each system's source);
+- `usage_update` gains `_meta.nace.free` (the meters, from the console's response headers, and each meter's source);
   `models --json` gains `free` (`state`, `meters`, `bundle`, `use`, `paused`, `source`).
 
 ### 0.55.0
@@ -1742,7 +1742,7 @@ credit again (`intern free start`). Clients on the default home see no change: 0
 An unbound session whose free credit is why it cannot bind says so by code: `session/prompt` and
 `session/set_config_option model` still fail with `-32602` and the same message, and now carry
 `data: {code, meter}` (`free_exhausted` with `meter` `agent`, `free_paused`, `free_revoked`), as a
-[`provider_error`](#stop-reasons-and-errors) does ([when no System 2 can run](#when-no-system-2-can-run)). A client
+[`provider_error`](#stop-reasons-and-errors) does ([when no frontier model can run](#when-no-frontier-model-can-run)). A client
 can show the free credit's state instead of matching the wording. Older clients see the same code and message:
 0.57.3 clients keep working.
 
