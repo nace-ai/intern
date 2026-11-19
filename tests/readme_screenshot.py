@@ -271,7 +271,7 @@ async def catalog() -> Catalog:
 
 async def capture(dark: bool, svg: Path) -> None:
     with tempfile.TemporaryDirectory() as tmp:
-        app = HarnessApp(opener(Path(tmp)), catalog=catalog, picks=Models(dark=dark))
+        app = HarnessApp(opener(Path(tmp)), catalog=catalog, picks=Models(theme="dark" if dark else "light"))
         async with app.run_test(size=SIZE) as pilot:
             await wait_for(lambda: app.session is not None)
             await pilot.pause()
