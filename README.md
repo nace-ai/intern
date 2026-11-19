@@ -23,7 +23,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tb21-pareto-dark.svg">
-  <img alt="Pass rate against cost per task on Terminal-Bench 2.1, 87 tasks. Intern, Claude Opus 5.5 handing over to Hy4 Flash: 92.4% at $0.127. Opus 5.5 alone: Pi 93.7% at $0.291, Hermes 92.4% at $0.280, OpenCode 91.1% at $0.393. Hy4 Flash alone: OpenCode 83.5% at $0.0066, Pi 82.3% at $0.0068, Hermes 82.3% at $0.0075. The Pareto frontier runs from Hy4 Flash in OpenCode through Intern to Opus 5.5 in Pi." src="docs/assets/tb21-pareto-light.svg" width="100%">
+  <img alt="Pass rate against cost per task on Terminal-Bench 2.1, 87 tasks. Intern, starting on Opus 5.5 and handing over to Hy4 Flash, passes 92.4% at $0.127 a task, on the Pareto frontier between OpenCode on Hy4 Flash alone (83.5% at $0.0066) and Pi on Opus 5.5 alone (93.7% at $0.291). Hermes on Opus 5.5 also passes 92.4%, at $0.280." src="docs/assets/tb21-pareto-light.svg" width="100%">
 </picture>
 
 </div>
@@ -62,7 +62,7 @@ tenths of a cent. Scripted models on a real project; `tests/readme_screenshot.py
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
-  <img src="docs/assets/how-it-works-light.svg" alt="Your task goes to the frontier model, which reads the code, spots the bug and plans the fix. The decision model, above the turns, searches and reranks, prunes the context, filters tool output and picks the hand-over moment. When the hard part is done it hands over to the efficient model, which writes the fix, runs the tests and finishes the job. On Terminal-Bench 2.1, Opus 5.5 took about 35% of the turns and 99% of the cost; Hy4 Flash about 65% of the turns and 1% of the cost.">
+  <img src="docs/assets/how-it-works-light.svg" alt="How Intern runs a task on three models. A decision model sits between every turn: it searches and reranks, prunes the context, picks the hand-over moment and filters tool output. The frontier model reads the code, spots the bug and plans the fix; when the plan is ready it hands over to the efficient model, which writes the fix, runs the tests and finishes the job. On Terminal-Bench 2.1 with Opus 5.5 handing over to Hy4 Flash, the frontier model takes about 35% of the turns and 99% of the cost, the efficient model about 65% of the turns and 1% of the cost.">
 </picture>
 
 1. **The frontier model starts every task.** It reads the code, runs what fails and lays down the main fix.
@@ -264,7 +264,7 @@ verdict that holds gets a nudge to act on what the work found. On by default.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/supervise-dark.svg">
-  <img src="docs/assets/supervise-light.svg" alt="The decision model supervising one run of thirteen turns. It looks at turn 4: advancing, so the next look is turn 8. At turn 8 re-investigating and retrying together pass 0.7, a stuck verdict, so it looks again at turn 9; still stuck, it nudges the frontier model to make the change as its next call. Turns 10 and 11 edit and pass the tests, and the look at turn 13 calls them advancing. 0.6 s a look; replayed over 42 stored runs (1,935 turns), the rule sent 23 stuck nudges and asked the decision model at 27% of turns. The probability bars are illustrative.">
+  <img src="docs/assets/supervise-light.svg" alt="The decision model supervising one run of thirteen turns: it looks at turn 4 and calls the turns advancing, finds them stuck at turn 8 and still stuck at turn 9, then nudges the frontier model to make the change as its next call. Turns 10 and 11 edit and pass the tests, and the look at turn 13 calls them advancing.">
 </picture>
 
 Replayed through the decision model over 42 stored runs (1,935 turns), this rule sends 23 stuck nudges and asks the
@@ -323,7 +323,7 @@ Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-diagram-dark.svg">
-  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep for circles finds only two screens' text. The decision model walks the index: one folder opened and 54 of 157 files judged; supervise.py 0.96, loop.py 0.87, session.py 0.68, context.py 0.42; then the definitions in the best files, read and compared. Result: supervise.py 0.96 at Supervisor.after_turn, then loop.py 0.42. 97 asks, $0.0064, 11.4 s, from an earlier run of the same search.">
+  <img src="docs/assets/code-search-diagram-light.svg" alt="decision_code searching this repository for where a run that goes in circles is detected. grep finds only screen text; the decision model walks the index from src/intern to files and definitions, compares the best ones, and ranks supervise.py first at Supervisor.after_turn.">
 </picture>
 
 <picture>
@@ -387,7 +387,7 @@ Default off. [Turn it on](docs/usage.md#workspace)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-diagram-dark.svg">
-  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for: has the client ever been the victim of a scam or theft, and what did it cost? The decision model walks the files and their pages while BM25 ranks the top 6 of 29 passages; the decision model judges both together, 7 passages; the best passages' 20 terms find 15 more, and it judges all 22. Result: page 1 of the fraud-risk questionnaire, found by both lanes, at 0.98. 13 asks, $0.0021, 3.1 s, from an earlier run of the same search.">
+  <img src="docs/assets/files-search-diagram-light.svg" alt="decision_files searching a folder of audit papers for whether the client was ever the victim of a scam or theft. The decision model walks the folder while BM25 ranks passages by their words, judges both lanes together, follows the best passages' terms to more, and ranks page 1 of the fraud-risk questionnaire first.">
 </picture>
 
 <picture>
