@@ -102,6 +102,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 
 [tool.pyright]
 include = ["src", "tests", "evals"]
+exclude = ["tests/fixtures"]  # projects the tests run the agent in, not the harness's code
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
 venvPath = "."
