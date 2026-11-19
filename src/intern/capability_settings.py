@@ -183,17 +183,21 @@ class HandoffConfig(_Settings):
     to: ModelRef | None = None
     effort: str | None = None
     """The reasoning effort the model taken over by is sent; unset keeps what its profile (and `--profile`) say."""
-    transfer: Literal["context", "logfile"] = "context"
-    """`context`: it finishes the run as a child run that continues the conversation, without the reasoning of the
-    model before it, and only its final reply joins the session, whose next run is System 2's again; `logfile`: it
-    starts over from the user's requests and a JSON-lines file of the turns so far, which it reads with its tools, and
-    keeps the session."""
     threshold: float = Field(default=0.7, gt=0, le=1)
     """P(ready) a turn needs to count toward the hand-over."""
     streak: int = Field(default=2, ge=1)
     """Turns in a row at `threshold` or more before it hands over."""
     min_turn: int = Field(default=8, ge=1)
     """The earliest turn it hands over at."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def retired_transfer(cls, data: object) -> object:
+        """`transfer` went in 0.46.0, when `context` became the only way to hand over; a config that sets it still
+        loads."""
+        if isinstance(data, dict) and "transfer" in data:
+            return {k: v for k, v in data.items() if k != "transfer"}  # pyright: ignore[reportUnknownVariableType]
+        return data
 
 
 class MemoryConfig(_Settings):
