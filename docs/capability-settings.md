@@ -71,7 +71,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `secrets` | session setting | secret references for commands (bindings, `inject`); the top-level [`[secrets]`](secrets.md) store is separate | none |
 | `session_budget` | session setting | one model-call budget for the session | none |
 | `system2_fallbacks` | session setting | System 2 models to fall back to | none |
-| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, in the same conversation, its turns kept in the session so that System 2, which answers the next message, reads them, and when (`threshold`, `streak`, `min_turn`); `--handoff-to`, the terminal UI's `/auto` and the ACP `handoff` option set `to`; the terminal UI's auto mode (the top-level `auto`, on unless `false`) hands over to `anthropic/claude-haiku-5-5` while `to` names none | off |
+| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, in the same conversation, its turns kept in the session so that System 2, which answers the next message, reads them, and when (`threshold`, `streak`, `min_turn`); `--handoff-to`, the terminal UI's `/handover` and the ACP `handoff` option set `to`; the terminal UI's auto mode (the top-level `auto`, on unless `false`) hands over to `anthropic/claude-haiku-5-5` while `to` names none | off |
 | `model_retries` | session setting | whether a System 2 call that fails with a retryable error is made again ([below](#model-retries)) | `true` |
 
 `web_search` and `web_reader` were `search` and `reader` before 0.44.0; the old table names still load.
@@ -438,7 +438,7 @@ its next interval when its run ends, including a queued prompt dropped by Esc.
 While queued or running, its listed due time stays at the last firing.
 
 `/schedule` lists timers and lets you stop one. All timers stop on close or reopen
-(including `/caps`, `/runner`, `/auto`, `/setup`, `/reload` and `/clear`). They are
+(including `/caps`, `/runner`, `/handover`, `/setup`, `/reload` and `/clear`). They are
 kept only in memory and never restored. Subagents have no timer tools.
 
 ## Subagents

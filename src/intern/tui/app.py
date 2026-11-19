@@ -5,7 +5,7 @@ with the summary System 2 continues from; on the right the System 1 panel (every
 each: a turn it watched, a call it guarded, a search it walked, a compaction's reads it sorted) over the State panel
 (the session as System 1 reads it); the prompt line at the bottom. Until the first prompt, the entering page takes
 their place (`welcome.py`). Enter sends a prompt, or steers the run in progress. Slash commands:
-/frontier, /efficient, /decision (also /system2, /auto, /system1), /state, /thinking, /abort, /panels, /help, /quit.
+/frontier, /efficient, /decision (also /system2, /handover, /system1), /state, /thinking, /abort, /panels, /help, /quit.
 """
 
 from __future__ import annotations
@@ -166,7 +166,7 @@ class Models:
     thinking: str | None = None
     """The thinking level chosen, kept across model switches and reopens; None while none was."""
     auto: bool = False
-    """Auto mode: a run hands over to the cheaper model once System 1 judges that model can finish it (`/auto`).
+    """Auto mode: a run hands over to the cheaper model once System 1 judges that model can finish it (`/handover`).
     `main` starts it as the config says, on unless `auto = false`."""
     dark: bool = False
     """The dark look, picked with /dark."""
@@ -208,7 +208,7 @@ COMMANDS: dict[str, str] = {
     "sets it directly (also /system2)",
     "/efficient": "pick the efficient model a run hands over to once the decision model judges it can finish, or "
     "off; /efficient on, /efficient off or /efficient <provider/model> sets it directly; the next message is the "
-    "frontier model's again, and the session reopens on its journal (also /auto)",
+    "frontier model's again, and the session reopens on its journal (also /handover)",
     "/decision": "pick the decision model, which picks the moment to hand over and keeps the work on track; "
     "/decision <model> sets it directly (also /system1)",
     "/state": "show the State in full: the session as the decision model reads it",
@@ -264,7 +264,7 @@ def _runner_group(choice: RunnerInfo, current: str) -> str:
 ROLE_NAMES = {"system2": "Frontier model", "system1": "Decision model"}
 """What the transcript calls a picker's role."""
 AUTO_OFF = ("off", "none", "no")
-"""What `/auto` takes to turn auto mode off; the first is the picker's row."""
+"""What `/handover` takes to turn auto mode off; the first is the picker's row."""
 
 
 def _switched(toggle_id: str, on: bool) -> str:
@@ -319,9 +319,9 @@ def _short(path: Path) -> str:
     return "~" + text[len(home) :] if text.startswith(home + os.sep) else text
 
 
-ALIASES = ("/system2", "/auto", "/system1", "/capabilities", "/exit", "/login", "/connect")
-"""Other names commands answer to: the models' older names (`/system2` is `/frontier`, `/auto` is `/efficient`,
-`/system1` is `/decision`), and the rest."""
+ALIASES = ("/system2", "/handover", "/system1", "/capabilities", "/exit", "/login", "/connect")
+"""Other names commands answer to: the models' older names (`/system2` is `/frontier`, `/system1` is
+`/decision`), `/handover` for `/efficient`, and the rest."""
 COMMAND = re.compile(r"/[a-z0-9]+(?:\s|$)", re.IGNORECASE)
 """A prompt that is a command: a slash and a word, then a space or the end; `/var/folders/...` is a path."""
 
@@ -1274,7 +1274,7 @@ class HarnessApp(App[None]):
                 await self._pick_or_set("system2", rest)
             case "/decision" | "/system1":
                 await self._pick_or_set("system1", rest)
-            case "/efficient" | "/auto":
+            case "/efficient" | "/handover":
                 await self._auto(rest)
             case "/state":
                 self.push_screen(StateScreen(self.state_panel.cut))
@@ -1587,8 +1587,9 @@ class HarnessApp(App[None]):
         return self._capabilities_now().handoff.to or DEFAULT_TARGET
 
     async def _auto(self, rest: str) -> None:
-        """`/auto`: a picker of the models a run can hand over to, the one in use marked, with a row to turn auto
-        mode off; `/auto on`, `/auto off` or `/auto <provider/model>` sets it directly."""
+        """`/efficient` (`/handover`): a picker of the models a run can hand over to, the one in use marked, with a
+        row to turn auto mode off; `/efficient on`, `/efficient off` or `/efficient <provider/model>` sets it
+        directly."""
         if rest:
             self.run_worker(self._set_auto(rest), group="capabilities", exit_on_error=False)
             return

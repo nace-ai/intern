@@ -521,8 +521,8 @@ Still mine to ask for: pushing to `main`, merging PRs, deleting anything shared,
 A model is `provider/model`; everything after the first slash goes to the provider as is.
 
 In the terminal UI, `/frontier`, `/efficient` and `/decision` swap each model: each opens a picker (type to filter),
-and `/frontier provider/model` or `/decision <model>` sets one directly. `/system2`, `/auto` and `/system1` still
-work.
+and `/frontier provider/model` or `/decision <model>` sets one directly. `/handover` is `/efficient`; `/system2`
+and `/system1` still work.
 
 | Provider | Key |
 |---|---|
