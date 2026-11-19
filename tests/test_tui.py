@@ -1437,3 +1437,44 @@ async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_p
         assert "GITHUB_TOKEN" not in (home / "config.toml").read_text()
         assert "ghp-typed-secret-value" not in transcript_text(app)
         await app.action_quit()
+
+
+async def test_schedule_picker_cancels_and_reopen_reports_stopped_timers(tmp_path):
+    from intern.extensions.schedule import Schedule, ScheduleArgs
+
+    opened = make_opener(tmp_path, [], extensions=(Schedule,))
+    app = HarnessApp(opened, picks=Models(capabilities=CapabilitySettings()))
+    async with app.run_test(size=SIZE) as pilot:
+        await pilot.pause()
+        assert app.session is not None
+        schedule = app._schedule_extension()
+        assert schedule is not None
+        schedule.fire = lambda text: asyncio.get_running_loop().create_future()
+        schedule.add(ScheduleArgs(prompt="check first", once_after_s=60))
+        schedule.add(ScheduleArgs(prompt="check second", every_s=60))
+        await app._command("/schedule")
+        await pilot.pause()
+        assert isinstance(app.screen, ModelPicker)
+        await pilot.press("enter")
+        await pilot.pause()
+        assert [t.id for t in schedule.listing().timers] == ["t2"]
+        await app._command("/caps schedule")
+        await pilot.pause()
+        assert "1 timers stopped" in transcript_text(app)
+        assert app._capabilities_now().schedule.enabled
+        # This test opener does not use Bootstrap's resource setup; close its extension explicitly.
+        await schedule.aclose()
+
+
+async def test_schedule_off_explains_switch_and_harness_messages_are_not_user_prompts(tmp_path):
+    from intern.events import MessageEvent
+    from intern.messages import UserMessage
+
+    opened = make_opener(tmp_path, [])
+    app = HarnessApp(opened)
+    async with app.run_test(size=SIZE) as pilot:
+        await pilot.pause()
+        await app._command("/schedule")
+        assert "/caps schedule" in transcript_text(app)
+        await app._handle(MessageEvent(entry_id="timer", message=UserMessage(content="timer notice", source="harness")))
+        assert "⚑ timer notice" in transcript_text(app)

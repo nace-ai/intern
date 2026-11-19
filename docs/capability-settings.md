@@ -61,6 +61,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `memory` | switch setting | `cap.memory`: the memory extension, its drive and steward | on |
 | `guard` | switch setting | `cap.guard`: the tool-call guard extension, and its options (`system1`, `system_writes`) | off |
 | `tool_result_guard` | switch setting | `cap.tool-result-guard`: the tool-result guard extension, and what it screens (`screen`) | off |
+| `schedule` | switch setting | terminal UI only: prompts on timers; `/caps schedule` | off |
 | `subagents` | switch setting | `cap.subagents`: the `agent` tool, and its limits (`max_children`, `max_parallel`, `max_turns`, `timeout_s`) and models (`model`, `models`) | off |
 | `mcp` | switch setting | one `cap.mcp.<namespace>` switch per listed connection | none listed |
 | `web_search` | capability option | options of the `web-search` pack, and `system1`: System 1 keeps the results the task needs ([below](#system-1-on-web-results)) | no backend; `system1` off |
@@ -419,6 +420,26 @@ screen = "outside"   # the default: web, browser and MCP output; "all": every re
 ```
 
 It is a separate switch from the guard: either can be on alone. See [tool-result guard](capabilities/tool-result-guard.md).
+
+## Timers (terminal UI only)
+
+```toml
+[capabilities.schedule]
+enabled = false
+max_timers = 5
+```
+
+`enabled` adds `schedule`, `list_schedules` and `cancel_schedule` in the terminal UI
+only. `/caps schedule` switches it; ACP, JSON-RPC and `-p` never get these tools or
+the switch. `max_timers` is 1–50. A timer runs a non-empty prompt once after
+`once_after_s`, or repeats with `every_s`; give exactly one, at least 60 seconds.
+Times use the wall clock: after sleep, a missed firing runs once. A repeat starts
+its next interval when its run ends, including a queued prompt dropped by Esc.
+While queued or running, its listed due time stays at the last firing.
+
+`/schedule` lists timers and lets you stop one. All timers stop on close or reopen
+(including `/caps`, `/runner`, `/handoff`, `/setup`, `/reload` and `/clear`). They are
+kept only in memory and never restored. Subagents have no timer tools.
 
 ## Subagents
 

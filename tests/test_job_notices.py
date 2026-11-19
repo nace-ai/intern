@@ -209,3 +209,42 @@ async def test_wake_starts_a_run_for_an_end_between_runs_but_not_for_one_an_abor
         assert len(harness.recorder.of(RunStart)) == 3
     finally:
         await jobs.aclose()
+
+
+async def test_harness_follow_up_keeps_its_source_and_is_not_a_user_request(make_harness, monkeypatch):
+    import intern.session as session_module
+
+    from .test_schedule import PausedProvider
+
+    harness = make_harness([])
+    provider = PausedProvider()
+    harness.deps.system2.provider = provider
+    session = Session(harness.deps)
+    async with session:
+        task = session.start("the user's request")
+        await provider.entered.wait()
+        session.follow_up("timer work", source="harness")
+        provider.release.set()
+        await task
+        # Idle delivery, including two follow-ups sent before the first task starts, also keeps source.
+        session.follow_up("idle timer", source="harness")
+        session.follow_up("next user request")
+        await session.wait()
+        messages = [
+            e.message for e in session.entries() if isinstance(e, MessageEntry) and isinstance(e.message, UserMessage)
+        ]
+        assert [(m.content, m.source) for m in messages] == [
+            ("the user's request", "user"),
+            ("timer work", "harness"),
+            ("idle timer", "harness"),
+            ("next user request", "user"),
+        ]
+        requests_seen = []
+
+        async def judge(decisions, requests, command, turn):
+            requests_seen.extend(requests)
+            return
+
+        monkeypatch.setattr(session_module, "waits_or_serves", judge)
+        await session._waits_or_serves("sleep 300")
+        assert requests_seen == ["the user's request", "next user request"]

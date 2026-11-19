@@ -37,6 +37,7 @@ from intern.decision_failover import BudgetDecisionBackend
 from intern.executor import ClosableExecutor, Executor, JobExecutor, LocalExecutor, mount_of, shell_env
 from intern.extensions.code_search import CodeSearch
 from intern.extensions.guard import Guard
+from intern.extensions.schedule import Schedule
 from intern.extensions.tool_result_guard import ToolResultGuard
 from intern.extensions.workspace.extension import Workspace
 from intern.holds import HoldServer
@@ -404,9 +405,11 @@ async def _first_credentials(plans: list[_McpPlan]) -> dict[str, SecretStr]:
     return values
 
 
-def capability_extensions(settings: CapabilitySettings, memory: Extension | None = None) -> list[Extension]:
-    """Extensions a capability setting turns on, in the order they run: code search, the workspace, `memory` (built
-    with its drive by the caller), the tool-result guard, then the guard. Each loads only this way, never by extension
+def capability_extensions(
+    settings: CapabilitySettings, memory: Extension | None = None, *, tui: bool = False
+) -> list[Extension]:
+    """Extensions a capability setting turns on: code search, workspace, TUI timers, `memory` (built with its drive
+    by the caller), the tool-result guard, then the guard. Each loads only this way, never by extension
     name; an extra one needs is checked here, so a run fails before it starts, not at the first tool. Memory runs
     after the others so its drive write guard sees the arguments they replaced, and the guard last, so it judges the
     arguments the tool will get."""
@@ -415,6 +418,8 @@ def capability_extensions(settings: CapabilitySettings, memory: Extension | None
         if enabled:
             _require(extension.needs)
             extensions.append(extension())
+    if tui and settings.schedule.enabled:
+        extensions.append(Schedule(max_timers=settings.schedule.max_timers))
     if memory is not None:
         extensions.append(memory)
     if (screen := settings.tool_result_guard).enabled:
@@ -700,8 +705,9 @@ async def prepare_session(
     _require_sign_in(plans)
     first_credentials = await _first_credentials(plans)
 
+    schedules = [extension for extension in deps.hooks.extensions if isinstance(extension, Schedule)]
     resources: SessionResources | None = None
-    if manager is not None or browser is not None or plans or owned is not None:
+    if manager is not None or browser is not None or plans or owned is not None or schedules:
         resources = SessionResources()
         stage = "capability resources"
 
@@ -719,6 +725,8 @@ async def prepare_session(
                 # Constructor and callback only: entering BrowserSession would
                 # eagerly start Chromium instead of waiting for its first use.
                 stack.push_async_callback(browser.aclose)
+            for schedule in schedules:
+                stack.push_async_callback(schedule.aclose)
             remote: list[Tool] = []
             for plan in plans:
                 entry = plan.config

@@ -81,6 +81,7 @@ from intern.events import (
     TurnStart,
     WindowFallback,
 )
+from intern.extensions.schedule import Schedule
 from intern.hooks import RunOutcome
 from intern.journal import (
     CompactionEntry,
@@ -113,6 +114,7 @@ from intern.tui.ledger import (
 )
 from intern.tui.onboarding import Onboarded, OnboardingScreen
 from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm
+from intern.tui.schedule import TimerDelivery
 from intern.tui.state_panel import StatePanel, system2_start
 from intern.tui.system1_panel import System1Panel
 from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_INK, S_MUTED, S_OK, S_WARN
@@ -154,6 +156,8 @@ class Models:
     """A whole replacement for the saved `[capabilities]`, built from the toggles made in the UI."""
     session_file: Path | None = None
     """The journal to reopen on, so a reopened session continues the conversation."""
+    timers_stopped: int = 0
+    """One reopen notice, carried across /reload too; no timer data is restored."""
     fresh: bool = False
     """Open on a new journal, whatever `--session` named: /clear starts the conversation over."""
     thinking: str | None = None
@@ -199,6 +203,7 @@ COMMANDS: dict[str, str] = {
     "/state": "show System 1's State in full: the session as it reads it",
     "/caps": "switch a tool pack, the browser, code search, the memory drive or an MCP connection on or off; "
     "/caps <name> [path] sets one directly; the session reopens on its journal (also /capabilities)",
+    "/schedule": "list timers; Enter stops the selected timer (enable with /caps schedule)",
     "/runner": "pick where commands run: local, docker, opensandbox or an installed runner; /runner <name> sets it "
     "directly; the session reopens on its journal",
     "/secrets": "keys kept in the OS keychain or a password manager, with whether each loads; Enter on one replaces "
@@ -434,6 +439,7 @@ class HarnessApp(App[None]):
         self._installing = False
         self._resuming = False
         self._replaying = False
+        self._nudge_text: str | None = None
         self.pending = picks or Models()
         self._reloaded = reloaded
         """Started by /reload: the alternate screen is already up, with the last frame on it."""
@@ -657,6 +663,9 @@ class HarnessApp(App[None]):
         self._opening = False
         self.status.note = ""
         await self._session_opened(session)
+        if self.pending.timers_stopped:
+            await self.transcript.notice(f"{self.pending.timers_stopped} timers stopped")
+            self.pending.timers_stopped = 0
         return True
 
     async def _session_opened(self, session: Session) -> None:
@@ -893,6 +902,8 @@ class HarnessApp(App[None]):
         row = self._account(event)
         if isinstance(event, MessageEvent | Compaction | ProcessEvent):
             self._cut_soon()
+        if isinstance(event, Nudge):
+            self._nudge_text = event.text
         transcript = self.transcript
         run = self.run_count  # the run the event's rows and markers belong to
         match event:
@@ -905,6 +916,10 @@ class HarnessApp(App[None]):
                     self.status.activity = "decision_code indexing the working directory"  # before the first turn
             case MessageEvent(message=UserMessage(content=content, source="user")):
                 await self._delivered(content)
+            case MessageEvent(message=UserMessage(content=content, source="harness")):
+                if content != self._nudge_text:
+                    await transcript.notice(f"⚑ {content}")
+                self._nudge_text = None
             case TurnStart():
                 self.status.activity = ""
                 self.status.face("reading")
@@ -1199,6 +1214,8 @@ class HarnessApp(App[None]):
                 self.push_screen(StateScreen(self.state_panel.cut))
             case "/capabilities" | "/caps":
                 await self._capabilities(rest)
+            case "/schedule":
+                await self._schedule()
             case "/runner":
                 await self._runner(rest)
             case "/secrets":
@@ -1378,7 +1395,7 @@ class HarnessApp(App[None]):
             return f"cap.{word}"
         if word == "code-search":
             return "cap.code-search"
-        if word in ("browser", "workspace", "memory", "guard", "tool-result-guard", "subagents"):
+        if word in ("browser", "workspace", "memory", "guard", "tool-result-guard", "subagents", "schedule"):
             return f"cap.{word}"
         if any(entry.namespace == word.removeprefix("mcp:") for entry in self._capabilities_at_start.mcp):
             return f"{capability_toggles.MCP_PREFIX}{word.removeprefix('mcp:')}"
@@ -1406,6 +1423,49 @@ class HarnessApp(App[None]):
             stacked=True,
         )
         self.push_screen(picker, callback=self._capability_picked)
+
+    def _schedule_extension(self) -> Schedule | None:
+        if self.session is None:
+            return None
+        return next((e for e in self.session.deps.hooks.extensions if isinstance(e, Schedule)), None)
+
+    async def _schedule(self) -> None:
+        schedule = self._schedule_extension()
+        if schedule is None:
+            await self.transcript.notice("Timers are off. Turn them on with /caps schedule.")
+            return
+        timers = schedule.listing().timers
+        if not timers:
+            await self.transcript.notice("No timers set.")
+            return
+        choices = [
+            Choice(
+                id=t.id,
+                name=t.prompt,
+                group="timers",
+                label=f"{t.id} · {brief(t.prompt)}",
+                note=f"{'repeat every ' + str(t.every_s) + 's' if t.every_s is not None else 'once'} · {t.next_run_at}",
+            )
+            for t in timers
+        ]
+
+        def picked(id: str | None) -> None:
+            if id is not None:
+                result = schedule.cancel(id)
+                text = f"Timer {id} stopped" if result.status == "ok" else result.content
+                self.call_later(self.transcript.notice, text)
+
+        self.push_screen(
+            ModelPicker(
+                "Timers",
+                choices,
+                "",
+                hint="Enter stops a timer; Esc closes",
+                typed=False,
+                stacked=True,
+            ),
+            callback=picked,
+        )
 
     async def _runner(self, rest: str) -> None:
         """`/runner`: a picker of every runner, the one in force marked, each that cannot run here saying why;
@@ -1570,6 +1630,8 @@ class HarnessApp(App[None]):
             self._opening = True
             self._refresh_status()
             await self.views.close()
+            schedule = next((e for e in session.deps.hooks.extensions if isinstance(e, Schedule)), None)
+            self.pending.timers_stopped += len(schedule.listing().timers) if schedule is not None else 0
             await session.aclose()
         if await self._resume():
             if not shown:
@@ -1577,6 +1639,7 @@ class HarnessApp(App[None]):
             return
         if session is None:
             return
+        before.timers_stopped = self.pending.timers_stopped
         self.pending = before
         await self.transcript.notice("Back on the capabilities as they were.", "warn")
         if await self._resume():
@@ -1621,6 +1684,8 @@ class HarnessApp(App[None]):
         if session is not None:
             picks.system2, picks.system1 = session.deps.system2.ref, session.system1
             picks.session_file, picks.fresh = session.deps.journal.path, False
+        schedule = self._schedule_extension()
+        picks.timers_stopped += len(schedule.listing().timers) if schedule is not None else 0
         self.reload = picks
         await self.action_quit()
 
@@ -1644,6 +1709,8 @@ class HarnessApp(App[None]):
             self.session = None
             self._opening = True
             await self.views.close()
+            schedule = next((e for e in session.deps.hooks.extensions if isinstance(e, Schedule)), None)
+            self.pending.timers_stopped += len(schedule.listing().timers) if schedule is not None else 0
             await session.aclose()
         self.pending.session_file, self.pending.fresh = None, True
         await self._reset_screen()
@@ -1654,6 +1721,7 @@ class HarnessApp(App[None]):
             return
         if session is None:
             return
+        before.timers_stopped = self.pending.timers_stopped
         self.pending = before
         await self.transcript.notice("Back on the session as it was.", "warn")
         await self._open_with(self.pending)
@@ -1942,7 +2010,18 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
             picked |= {"capabilities": picks.capabilities, "memory": None, "memory_off": False, "handoff_to": None}
         if picks.session_file is not None or picks.fresh:
             picked["session_file"] = picks.session_file  # None after /clear: a new journal
-        session = await Bootstrap(opened.model_copy(update=picked), environment).session(emit)
+        picked["tui"] = True
+        delivery = TimerDelivery()
+
+        def stream(event: Event) -> None:
+            delivery.observe(event)
+            emit(event)
+
+        session = await Bootstrap(opened.model_copy(update=picked), environment).session(stream)
+        delivery.session = session
+        for extension in session.deps.hooks.extensions:
+            if isinstance(extension, Schedule):
+                extension.fire = delivery.fire
         # The user watches this session: a job's end starts a run that tells the agent, as it happens.
         session.job_notices = "wake"
         return session

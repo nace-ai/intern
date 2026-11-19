@@ -174,7 +174,7 @@ class Session:
         self._active_task: asyncio.Task | None = None
         self._run_done = asyncio.Event()
         self._run_done.set()
-        self._follow_ups: list[str] = []
+        self._follow_ups: list[UserMessage] = []
         self._compacting = False
         self._resources = resources
         self.model_budget = model_budget
@@ -370,7 +370,7 @@ class Session:
             self._waking = True
             self._task = asyncio.create_task(self.run(None))
 
-    async def run(self, prompt: str | None) -> RunOutcome:
+    async def run(self, prompt: str | None, *, source: Literal["user", "harness"] = "user") -> RunOutcome:
         """Run `prompt` to the end, then any follow-ups queued meanwhile. Returns the last outcome. None runs without a
         user's message, to tell the agent of processes that ended while no run was in progress."""
         self._ensure_open()
@@ -381,7 +381,7 @@ class Session:
         self._active_task = asyncio.current_task()
         self._run_done.clear()
         try:
-            outcome = await self._run_once(prompt)
+            outcome = await self._run_once(UserMessage(content=prompt, source=source) if prompt is not None else None)
             while self._follow_ups and not self._closing:
                 outcome = await self._run_once(self._follow_ups.pop(0))
             return outcome
@@ -408,16 +408,16 @@ class Session:
             self._handed_runs = self._runs
             self._on_close(self)
 
-    async def _run_once(self, prompt: str | None) -> RunOutcome:
+    async def _run_once(self, prompt: UserMessage | None) -> RunOutcome:
         # What ended while no run was in progress is told at this run's first turn.
         control = self._control = RunControl(ended=self._ended, checks=self._checks, hold=self.job_notices == "quiet")
         self._ended, self._checks = [], []
         run = self._run = Run(self.deps, self.meter, control)
         try:
-            outcome = await run.execute(prompt)
+            outcome = await run.execute([prompt] if prompt is not None else None)
         finally:
             # Steering that arrived after the last turn started becomes the next prompt; an end, the next run's news.
-            self._follow_ups[:0] = control.steering
+            self._follow_ups[:0] = [UserMessage(content=text) for text in control.steering]
             self._ended[:0] = control.ended
             self._checks[:0] = control.checks
             self._run = None
@@ -427,16 +427,16 @@ class Session:
         self.last_outcome = outcome
         return outcome
 
-    def start(self, prompt: str) -> asyncio.Task[RunOutcome]:
+    def start(self, prompt: str, *, source: Literal["user", "harness"] = "user") -> asyncio.Task[RunOutcome]:
         """Start a run in the background, for clients that keep sending commands while it works."""
         self._ensure_open()
         if self._waking and self._task is not None and not self._task.done():
             # The session is starting a run to tell the agent of a job's end: the prompt runs right after it.
-            self._follow_ups.append(prompt)
+            self._follow_ups.append(UserMessage(content=prompt, source=source))
             return self._task
         if self.running or (self._task is not None and not self._task.done()):
             raise SessionBusy("a run is in progress; use steer or follow_up")
-        self._task = asyncio.create_task(self.run(prompt))
+        self._task = asyncio.create_task(self.run(prompt, source=source))
         return self._task
 
     async def wait(self) -> None:
@@ -504,15 +504,15 @@ class Session:
             # Never behind a command: one still running goes on in the background, so the agent reads this now.
             self.deps.processes.move_for_user()
 
-    def follow_up(self, text: str) -> asyncio.Task[RunOutcome] | None:
-        """Queue `text` to run after the current run; starts it now when the session is idle."""
+    def follow_up(self, text: str, *, source: Literal["user", "harness"] = "user") -> asyncio.Task[RunOutcome] | None:
+        """Queue `text` after the current run, or start it now if idle; `source` stays with the recorded message."""
         self._ensure_open()
         if self._compacting:
             raise SessionBusy(COMPACTING)
-        if self.running:
-            self._follow_ups.append(text)
+        if self.running or (self._task is not None and not self._task.done()):
+            self._follow_ups.append(UserMessage(content=text, source=source))
             return None
-        return self.start(text)
+        return self.start(text, source=source)
 
     def abort(self) -> None:
         if self._control is None:
