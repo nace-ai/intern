@@ -119,8 +119,8 @@ naming:
 
 ```bash
 export NACE_API_KEY=...        # System 1: Drex from the Nace console
-export FIREWORKS_API_KEY=...   # System 2: any provider, here Fireworks
-intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
+export DEEPINFRA_API_KEY=...   # System 2: any provider, here DeepInfra
+intern --system2 deepinfra/deepseek-ai/DeepSeek-V4-Flash \
   "Find why tests/test_parser.py fails and fix it"
 ```
 
