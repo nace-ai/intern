@@ -18,6 +18,7 @@
 [![license](https://img.shields.io/badge/license-Nace_AI_Open_RAIL--M-0FDBB4?style=flat-square&labelColor=0A0A0A)](LICENSE)
 ![python](https://img.shields.io/badge/python-3.12%2B-0FDBB4?style=flat-square&labelColor=0A0A0A)
 [![by Nace](https://img.shields.io/badge/by-nace.ai-0A0A0A?style=flat-square&labelColor=0A0A0A)](https://nace.ai)
+[![discord](https://img.shields.io/badge/discord-nace--ai-0FDBB4?style=flat-square&logo=discord&logoColor=white&labelColor=0A0A0A)](https://discord.com/invite/nace-ai)
 
 [How it works](#how-it-works) · [Install](#install) · [Results](#results) · [Questions](#questions) · [Decision model](#what-the-decision-model-does) · [Capabilities](#capabilities) · [Models](#models) · [Editors](#use-it-from-your-editor)
 
@@ -576,6 +577,7 @@ Sessions are journaled, and memory kept, on your machine in `~/.intern/`.
 
 ## Contributing
 
+Questions, problems and ideas are welcome on [Discord](https://discord.com/invite/nace-ai).
 Read [CONTRIBUTING.md](CONTRIBUTING.md) first: one concern per PR, and evidence for any changed default.
 Report security issues privately, as [SECURITY.md](SECURITY.md) describes.
 
