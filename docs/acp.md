@@ -1355,4 +1355,5 @@ by default, and 0.44.1 clients keep working.
 A hand-over always continues the conversation: `transfer = "logfile"`, where the cheaper model started afresh from
 a file of the turns so far, is gone, and `[capabilities.handoff]` no longer has a `transfer` setting. A config.toml
 that still sets it loads as before and hands over as `context` did. The `handoff` event keeps `transfer`, now always
-`"context"`, and drops `logfile`, which only that mode set. 0.45.0 clients keep working.
+`"context"`, and drops `logfile`, which only that mode set. Still `PROTOCOL_VERSION` 3: a client that reads the event
+gets the values it could get before. ACP does not carry the event, and 0.45.0 clients keep working.
