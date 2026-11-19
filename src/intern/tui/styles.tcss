@@ -230,11 +230,13 @@ Screen {
     border-left: wide $error;
 }
 
-/* A hand-over's turns, the cheaper model's until the run ends, set apart from System 2's: a hairline above and
-   below them, in the accent as the panels' borders are. */
+/* A hand-over's turns, the cheaper model's until the run ends, set apart from System 2's: a shade of the accent
+   behind them, and a hairline above and below it, in the accent as the panels' borders are. */
 .handed {
     height: auto;
     margin: 0 0 1 0;
+    padding: 0 1;
+    background: $brand 7%;
     border-top: solid $brand 45%;
     border-bottom: solid $brand 45%;
 }
