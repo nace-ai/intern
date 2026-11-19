@@ -113,6 +113,29 @@ async def test_bash_reports_exit_codes_and_timeouts(ctx: ToolContext):
     assert slow.error is not None and not slow.error.retry_safe
 
 
+PYTHON = shlex.quote(sys.executable)
+
+
+@pytest.mark.parametrize(
+    ("command", "refused"),
+    [
+        ("echo 'bash: /tmp/repro.py: Operation not permitted' >&2; exit 2", "/tmp/repro.py (operation not permitted)"),
+        ("echo \"cp: cannot create regular file '/srv/a b.txt': Read-only file system\" >&2; exit 1", "/srv/a b.txt"),
+        (f"{PYTHON} -c \"raise PermissionError(1, 'Operation not permitted', '/x/y.py')\"", "/x/y.py"),
+        ("echo \"Error: EROFS: read-only file system, open '/out.json'\" >&2; exit 1", "/out.json (read-only file"),
+        ("echo 'git@github.com: Permission denied (publickey).' >&2; exit 128", None),
+        ("echo 'bash: kill: (1) - Operation not permitted' >&2; exit 1", None),
+    ],
+)
+async def test_bash_names_a_refused_path(ctx: ToolContext, command: str, refused: str | None):
+    result = await call(BashTool(), ctx, command=command)
+    assert result.status == "error" and result.error is not None
+    if refused is None:
+        assert result.error.next_action == "Read the output above and fix the cause before running it again."
+    else:
+        assert refused in result.error.next_action and "inside the working directory" in result.error.next_action
+
+
 async def test_bash_stops_a_command_past_its_memory_budget_and_the_next_one_runs(tmp_path: Path):
     budget = LocalExecutor(memory_limit=200 * 2**20)
     ctx = ToolContext(cwd=tmp_path, executor=budget, abort=asyncio.Event(), max_output_chars=10_000)
