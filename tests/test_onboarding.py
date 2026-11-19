@@ -147,7 +147,7 @@ async def test_choosing_your_own_asks_for_a_frontier_model_then_an_efficient_one
         await wait_for(lambda: screen.step == "pair")
         await pilot.press(*"choose", "enter")
         assert screen.step == "frontier"
-        await pilot.press(*"hy4", "enter")  # Hy4 (the frontier list has no Hy4 Flash first: it is not suggested)
+        await pilot.press(*"hy4", "enter")  # Hy4: Hy4 Flash is an efficient model, not on the frontier list
         assert screen.system2 == "openrouter/tencent/hy4"
         assert screen.step == "efficient"
         assert screen.choices[0].id == "openrouter/tencent/hy4-flash"  # suggested first

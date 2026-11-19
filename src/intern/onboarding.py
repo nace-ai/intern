@@ -46,6 +46,7 @@ CHECK_TIMEOUT_S = 10.0
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
 
 Kind = Literal["key", "local", "custom", "subscription"]
+Role = Literal["frontier", "efficient"]
 
 
 @dataclass(frozen=True)
@@ -62,7 +63,8 @@ class ProviderOption:
     key_url: str = ""
     """Where to make a key."""
     suggested: tuple[str, ...] = ()
-    """Models to list first and start on, best first; the first one the provider lists is the default."""
+    """The frontier models to offer, best first; the first one the provider lists is the default. None of the
+    efficient ones: each model is offered for one role."""
     unavailable: str = ""
     """Why it cannot be picked yet, said in full when it is chosen."""
     badge: str = ""
@@ -94,7 +96,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         POPULAR,
         key_env="ANTHROPIC_API_KEY",
         key_url="https://console.anthropic.com/settings/keys",
-        suggested=("claude-sonnet-5-5", "claude-haiku-5-5", "claude-opus-5-5"),
+        suggested=("claude-sonnet-5-5", "claude-opus-5-5"),
         handoff_suggested="claude-haiku-5-5",
     ),
     ProviderOption(
@@ -115,7 +117,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         POPULAR,
         key_env="OPENAI_API_KEY",
         key_url="https://platform.openai.com/api-keys",
-        suggested=("gpt-6.2-sol", "gpt-6.1-terra", "gpt-6-luna"),
+        suggested=("gpt-6.2-sol", "gpt-6.1-terra"),
         handoff_suggested="gpt-6-luna",
     ),
     ProviderOption(
@@ -125,7 +127,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         POPULAR,
         key_env="GEMINI_API_KEY",
         key_url="https://aistudio.google.com/apikey",
-        suggested=("gemini-4-neon", "gemini-4-carbon", "gemini-3.8-flash"),
+        suggested=("gemini-4-neon", "gemini-4-carbon"),
         handoff_suggested="gemini-3.8-flash",
     ),
     ProviderOption(
@@ -172,7 +174,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         MORE,
         key_env="XAI_API_KEY",
         key_url="https://console.x.ai",
-        suggested=("grok-4.7", "grok-build-0.1"),
+        suggested=("grok-4.7",),
         handoff_suggested="grok-build-0.1",
     ),
     ProviderOption(
@@ -191,7 +193,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         MORE,
         key_env="MISTRAL_API_KEY",
         key_url="https://console.mistral.ai/api-keys",
-        suggested=("mistral-large-latest", "mistral-small-latest"),
+        suggested=("mistral-large-latest",),
         handoff_suggested="mistral-small-latest",
     ),
     ProviderOption(
@@ -255,7 +257,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         MORE,
         key_env="ZAI_API_KEY",
         key_url="https://z.ai/manage-apikey/apikey-list",
-        suggested=("glm-5.3", "glm-5.3-flash"),
+        suggested=("glm-5.3",),
         handoff_suggested="glm-5.3-flash",
     ),
     ProviderOption(
@@ -265,7 +267,7 @@ SYSTEM2_PROVIDERS: tuple[ProviderOption, ...] = (
         MORE,
         key_env="MINIMAX_API_KEY",
         key_url="https://platform.minimax.io/user-center/basic-information/interface-key",
-        suggested=("MiniMax-M3", "MiniMax-M3.1-Flash"),
+        suggested=("MiniMax-M3",),
         handoff_suggested="MiniMax-M3.1-Flash",
     ),
     ProviderOption(
@@ -547,16 +549,12 @@ def handoff_suggestion(system2: str, listed: tuple[str, ...] = ()) -> str | None
 
 
 def efficient_models(system2: str, listed: tuple[str, ...] = ()) -> list[str]:
-    """The efficient models to offer for a frontier model, as `provider/model`, best first: the provider's
-    suggestion, its other efficient models, then the rest it lists. Never the frontier model itself."""
+    """The efficient models to offer for a frontier model, as `provider/model`, best first (`offered_models`).
+    Never the frontier model itself."""
     provider = system2.partition("/")[0]
     option = PROVIDER_BY_ID.get(provider)
-    if option is None:
-        return []
-    first = [option.handoff_suggested, *option.efficient] if option.handoff_suggested else list(option.efficient)
-    ordered = [m for m in first if not listed or m in listed]
-    ordered += [m for m in listed if m not in ordered and m not in option.suggested]  # no frontier picks here
-    return [ref for m in dict.fromkeys(ordered) if (ref := f"{provider}/{m}") != system2]
+    models = offered_models(option, listed, "efficient") if option is not None else []
+    return [ref for m in models if (ref := f"{provider}/{m}") != system2]
 
 
 @dataclass(frozen=True)
@@ -647,11 +645,16 @@ async def check_system1(option: System1Option, key: str, transport: httpx.AsyncB
     return KeyCheck(ok=True, message=found.message, models=listed.models)
 
 
-def suggested_models(option: ProviderOption, listed: tuple[str, ...]) -> list[str]:
-    """The models to offer, suggested ones first: those the provider listed, or all of them when it listed none
-    (it could not be asked). Then the rest of the listing in its order."""
-    suggested = [model for model in option.suggested if not listed or model in listed]
-    return [*suggested, *(model for model in listed if model not in suggested)]
+def offered_models(option: ProviderOption, listed: tuple[str, ...], role: Role) -> list[str]:
+    """The models to offer on a provider for a role, best first: its picks for it (`suggested`, or
+    `handoff_suggested` and `efficient`) that it lists, all of them when it listed none (it could not be asked).
+    The rest of its listing only on this machine, or where it has no picks for the role or lists none of them: a
+    provider's listing runs to years of models nobody should start on now, and any of them can still be typed."""
+    picks = option.suggested if role == "frontier" else (option.handoff_suggested, *option.efficient)
+    kept = [m for m in dict.fromkeys(picks) if m and (not listed or m in listed)]
+    if kept and option.kind != "local":
+        return kept
+    return [*kept, *(m for m in listed if m not in kept)]
 
 
 def key_found(name: str, env: Mapping[str, str]) -> bool:
