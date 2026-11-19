@@ -52,8 +52,11 @@ It isn't tied to one pair of models:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
-  <img src="docs/assets/tui-light.png" alt="The terminal UI after a session in which the frontier model, Claude Opus 5.5, finds and fixes a failing test, the decision model hands the run over, and the efficient model, Hy4 Flash, runs the tests and finishes.">
+  <img src="docs/assets/tui-light.png" alt="The terminal UI after one session. The masthead lists the three models and their cost: frontier Claude Opus 5.5 $0.0803, efficient Hy4 Flash $0.0030, decision model $0.0002. Asked to fix a failing test, the frontier model finds that the slug pattern drops capitals, fixes it and runs the test: 3 passed. The decision model judges the run ready at 0.88 and hands over to the efficient model at turn 2. Hy4 Flash runs the whole suite, fixes the apostrophe case it finds, reruns it (5 passed) and finishes. The decision model panel shows its three asks.">
 </picture>
+
+_Claude Opus 5.5 finds and fixes the bug, the decision model hands over, and Hy4 Flash finishes the job for a few
+tenths of a cent. Scripted models on a real project; `tests/readme_screenshot.py` makes it again._
 
 ## How it works
 
