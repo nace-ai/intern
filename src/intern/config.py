@@ -62,7 +62,7 @@ from intern.models.catalog import (
     profile_models,
 )
 from intern.models.profile import effort_choices, load_profile, profile_candidates
-from intern.models.registry import PROVIDERS, Api, ConfigError, ProviderSpec, resolve_endpoint
+from intern.models.registry import NACE_FREE_ENTRIES, PROVIDERS, Api, ConfigError, ProviderSpec, resolve_endpoint
 from intern.models.window import advertised_limits, bound_output, window_fallback, working_window
 from intern.providers.anthropic import AnthropicProvider
 from intern.providers.openai_compat import OpenAICompatProvider
@@ -266,6 +266,7 @@ def harness_keys(config: UserConfig) -> frozenset[str]:
     one of these names stays out of the agent's commands, so a model key is never the agent's to spend."""
     names = {spec.api_key_env for spec in (*PROVIDERS.values(), *config.providers.values()) if spec.api_key_env}
     names.add(DECISION_KEY_ENV)
+    names.update(NACE_FREE_ENTRIES)
 
     def walk(value: object) -> None:
         if isinstance(value, dict):

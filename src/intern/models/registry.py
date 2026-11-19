@@ -7,10 +7,13 @@ first slash is sent to the provider unchanged.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
-from typing import Literal
+from dataclasses import dataclass
+from typing import Literal, Protocol, runtime_checkable
+from urllib.parse import urlsplit
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel, ConfigDict, SecretStr, model_validator
 
 # System 2 is the agent model that reasons and calls tools; System 1 answers fast typed judgments
 # (decisions.py). Both decide things; they differ in speed and in what they are asked.
@@ -23,6 +26,74 @@ class ConfigError(Exception):
 
 Api = Literal["openai", "anthropic", "responses"]
 
+NACE_HOSTS = frozenset({"console.nace.ai", "console.test.nace.ai", "console.stage.nace.ai"})
+"""The only hosts a Nace-issued credential is sent to, and only over HTTPS: a base-URL override pointing anywhere
+else must never receive it."""
+NACE_FREE_ENTRIES = frozenset({"NACE_FREE_REFRESH_TOKEN"})
+"""The free credential's keychain entries (service `intern`, as `[secrets]` reads them): harness-only, so a
+`[secrets]` entry of the same name never hands one to the agent's commands."""
+
+
+@runtime_checkable
+class CredentialSource(Protocol):
+    """Where an endpoint's bearer comes from, asked on every request: a credential that can change while a session
+    runs, such as an access token that expires. A `nace_issued` one is sent only to `NACE_HOSTS`."""
+
+    @property
+    def nace_issued(self) -> bool: ...
+
+    async def bearer(self) -> SecretStr | None: ...
+
+    async def invalidate(self) -> None:
+        """The server refused the last bearer as expired; the next `bearer()` gives a fresh one."""
+        ...
+
+
+@dataclass(frozen=True)
+class StaticKey:
+    """A key that does not change, such as one read from the environment."""
+
+    key: SecretStr
+    nace_issued: bool = False
+
+    async def bearer(self) -> SecretStr | None:
+        return self.key
+
+    async def invalidate(self) -> None:
+        return None
+
+
+def check_host(source: CredentialSource, url: str) -> None:
+    """Refuse to send a Nace-issued credential to `url` unless it is a Nace console over HTTPS."""
+    if not source.nace_issued:
+        return
+    parts = urlsplit(url)
+    if parts.scheme != "https" or parts.hostname not in NACE_HOSTS or parts.port not in (None, 443):
+        hosts = ", ".join(sorted(NACE_HOSTS))
+        raise ConfigError(
+            f"a Nace credential is sent only to {hosts} over https, not to {parts.hostname or url!r}; unset "
+            "$NACE_BASE_URL and $DREX_BASE_URL, or point them at one of those"
+        )
+
+
+async def bearer(source: CredentialSource, url: str) -> str | None:
+    """The key a request to `url` carries now; a ConfigError, before anything is sent, for a host the source may
+    not go to."""
+    check_host(source, url)
+    key = await source.bearer()
+    return key.get_secret_value() if key else None
+
+
+def token_expired(status: int, body: bytes) -> bool:
+    """Whether a response refuses the bearer as expired (`401`, `error.code` `token_expired`): renew it and resend."""
+    if status != 401:
+        return False
+    try:
+        error = json.loads(body).get("error")
+    except (ValueError, AttributeError):
+        return False
+    return isinstance(error, dict) and error.get("code") == "token_expired"
+
 
 class ProviderSpec(BaseModel):
     base_url: str
@@ -34,6 +105,9 @@ class ProviderSpec(BaseModel):
     # A header carrying the session id, for a provider whose prompt cache is per replica: it routes a session's
     # requests to the replica that holds its prefix.
     session_header: str | None = None
+    # "env": the key in `api_key_env`, read once. "nace": a credential source asked on every request
+    # (`nace_credential`), which may be a token the console renews.
+    credential: Literal["env", "nace"] = "env"
 
 
 # Every provider speaks OpenAI chat completions except Anthropic, which uses its native Messages API (its
@@ -57,6 +131,14 @@ PROVIDERS: dict[str, ProviderSpec] = {
         base_url_env="FIREWORKS_BASE_URL",
         # Fireworks caches prompts per replica and routes on this header (docs, "Prompt caching").
         session_header="x-session-affinity",
+    ),
+    # The Nace console, which serves its agent models from Fireworks and passes the affinity header through.
+    "nace": ProviderSpec(
+        base_url="https://console.nace.ai/v1",
+        api_key_env="NACE_API_KEY",
+        base_url_env="NACE_BASE_URL",
+        session_header="x-session-affinity",
+        credential="nace",
     ),
     "together": ProviderSpec(
         base_url="https://api.together.xyz/v1", api_key_env="TOGETHER_API_KEY", base_url_env="TOGETHER_BASE_URL"
@@ -124,17 +206,39 @@ PROVIDERS: dict[str, ProviderSpec] = {
 
 
 class Endpoint(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     provider: str
     model: str
     base_url: str
     api_key: SecretStr | None = None
+    credential: CredentialSource | None = None
+    """Asked for the bearer on every request, in place of `api_key`."""
     api: Api = "openai"
     reasoning_field: str = "reasoning_content"
     session_header: str | None = None
 
+    @model_validator(mode="after")
+    def _credential_host(self) -> Endpoint:
+        if self.credential is not None:
+            check_host(self.credential, self.base_url)
+        return self
+
     @property
     def ref(self) -> str:
         return f"{self.provider}/{self.model}"
+
+    async def authorization(self) -> str | None:
+        """The key the next request carries: the credential's now, or the fixed key."""
+        if self.credential is not None:
+            return await bearer(self.credential, self.base_url)
+        return self.api_key.get_secret_value() if self.api_key else None
+
+
+def nace_credential(spec: ProviderSpec, env: Mapping[str, str]) -> CredentialSource | None:
+    """The credential a `credential = "nace"` provider runs on: the console key in its `api_key_env`."""
+    key = env.get(spec.api_key_env) if spec.api_key_env else None
+    return StaticKey(SecretStr(key)) if key else None
 
 
 def resolve_endpoint(
@@ -151,14 +255,16 @@ def resolve_endpoint(
         raise ConfigError(f"unknown provider {provider!r} in {ref!r}; known providers: {known}")
 
     base_url = (env.get(spec.base_url_env) if spec.base_url_env else None) or spec.base_url
-    key = env.get(spec.api_key_env) if spec.api_key_env else None
-    if spec.api_key_env and not key:
+    credential = nace_credential(spec, env) if spec.credential == "nace" else None
+    key = env.get(spec.api_key_env) if spec.api_key_env and credential is None else None
+    if spec.api_key_env and not key and credential is None:
         raise ConfigError(f"{provider} needs an API key in ${spec.api_key_env}")
     return Endpoint(
         provider=provider,
         model=model,
         base_url=base_url.rstrip("/"),
         api_key=SecretStr(key) if key else None,
+        credential=credential,
         api=spec.api,
         reasoning_field=spec.reasoning_field,
         session_header=spec.session_header,

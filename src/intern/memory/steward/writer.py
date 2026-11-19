@@ -308,8 +308,8 @@ class Writer:
         self.usage = Usage()
 
     async def complete(self, system: str, user: str, session: str = "", effort: str = "") -> str:
-        key = self.endpoint.api_key
-        headers = {**names.CLIENT_HEADERS, **({"Authorization": f"Bearer {key.get_secret_value()}"} if key else {})}
+        key = await self.endpoint.authorization()
+        headers = {**names.CLIENT_HEADERS, **({"Authorization": f"Bearer {key}"} if key else {})}
         payload: dict[str, object] = {
             "model": self.endpoint.model,
             "temperature": 0,
@@ -361,7 +361,8 @@ def writer_from_ref(ref: str, env: Mapping[str, str]) -> Writer | ReplayWriter:
         return ReplayWriter(Path(ref.removeprefix("replay:")).expanduser())
     endpoint = resolve_endpoint(ref, env)
     # Local servers need no key by default; a key in $<PROVIDER>_API_KEY is sent when one is set.
-    if endpoint.api_key is None and (key := env.get(f"{endpoint.provider.upper()}_API_KEY")):
+    key = env.get(f"{endpoint.provider.upper()}_API_KEY")
+    if endpoint.api_key is None and endpoint.credential is None and key:
         endpoint = endpoint.model_copy(update={"api_key": SecretStr(key)})
     return Writer(endpoint)
 

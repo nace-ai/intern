@@ -20,7 +20,7 @@ import json
 import re
 import time
 from collections import OrderedDict
-from typing import Annotated, Literal, Protocol
+from typing import Annotated, Any, Literal, Protocol
 
 import httpx
 from pydantic import BaseModel, Field, SecretStr
@@ -30,6 +30,7 @@ from intern.context import INITIAL_CHARS_PER_TOKEN, bound_output
 from intern.events import Decision, EventSink
 from intern.messages import JsonObject, System1Usage
 from intern.models.catalog import DECISIONS_PREFIX, System1Sources, decision_models
+from intern.models.registry import CredentialSource, StaticKey, bearer, check_host, token_expired
 
 
 class ChoiceQuestion(BaseModel):
@@ -136,12 +137,13 @@ class DecisionBackend(Protocol):
 
 class DecisionsApiBackend:
     """A `POST {base_url}/systemone` endpoint, as served by OpenRouter's Decisions API (Jev, `nace-ai/drex-*`)
-    and the console (`https://console.nace.ai/v1`). `models` is a failover list tried in order."""
+    and the console (`https://console.nace.ai/v1`). `models` is a failover list tried in order. `api_key` is a fixed
+    key or a credential source asked on every request."""
 
     def __init__(
         self,
         base_url: str,
-        api_key: SecretStr,
+        api_key: SecretStr | CredentialSource,
         models: list[str],
         *,
         timeout_s: float = 10.0,
@@ -150,7 +152,8 @@ class DecisionsApiBackend:
         self.name = f"decisions-api:{models[0]}"
         self._base_url = base_url
         self._url = f"{base_url.rstrip('/')}/systemone"
-        self._key = api_key
+        self._credential = StaticKey(api_key) if isinstance(api_key, SecretStr) else api_key
+        check_host(self._credential, self._url)
         self._models = models
         self._timeout_s = timeout_s
         self._transport = transport
@@ -175,7 +178,7 @@ class DecisionsApiBackend:
     async def window(self) -> int | None:
         """The smallest window its endpoint's decision-model listing gives these models (every one is sent the same
         state); None when it lists none of them, as the console does not."""
-        sources = System1Sources(decisions_url=self._base_url, decisions_key=self._key.get_secret_value())
+        sources = System1Sources(decisions_url=self._base_url, decisions_key=await bearer(self._credential, self._url))
         models = await decision_models(sources, self._transport)
         listed = {m.id.removeprefix(DECISIONS_PREFIX): m.window for m in models}
         return min((w for m in self._models if (w := listed.get(m))), default=None)
@@ -189,6 +192,21 @@ class DecisionsApiBackend:
         at = max(self._next_request, now)
         self._next_request = at + PACE_S
         await asyncio.sleep(at - now)
+
+    async def _post(self, client: httpx.AsyncClient, request: dict[str, Any], limit: Any) -> httpx.Response:
+        """One request with the bearer the credential gives now; one refused as expired is renewed and sent again,
+        once."""
+
+        async def send() -> httpx.Response:
+            key = await bearer(self._credential, self._url)
+            headers = {**names.CLIENT_HEADERS, **({"Authorization": f"Bearer {key}"} if key else {})}
+            return await client.post(self._url, headers=headers, json=request, timeout=limit)
+
+        response = await send()
+        if token_expired(response.status_code, response.content):
+            await self._credential.invalidate()
+            response = await send()
+        return response
 
     async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
         items = list(questions.items())
@@ -217,16 +235,15 @@ class DecisionsApiBackend:
             last = n == len(self._models) - 1
             timeout = httpx.USE_CLIENT_DEFAULT if last else httpx.Timeout(self._timeout_s)
             try:
-                request = {"model": model, "state": state, "questions": payload}
-                headers = {**names.CLIENT_HEADERS, "Authorization": f"Bearer {self._key.get_secret_value()}"}
-                response = await client.post(self._url, headers=headers, json=request, timeout=timeout)
+                request: dict[str, Any] = {"model": model, "state": state, "questions": payload}
+                response = await self._post(client, request, timeout)
                 for attempt in range(MAX_RETRIES):
                     if response.status_code not in RETRY_STATUSES:
                         break
                     self._paced_until = time.monotonic() + PACED_S
                     await asyncio.sleep(_retry_after(response, RATE_LIMIT_RETRY_S * 2**attempt))
                     await self.pace()
-                    response = await client.post(self._url, headers=headers, json=request, timeout=timeout)
+                    response = await self._post(client, request, timeout)
                 response.raise_for_status()
                 body = response.json()
                 raw = body["answers"]

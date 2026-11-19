@@ -1,0 +1,13 @@
+# GLM 5.3 on Fireworks serverless, and through the Nace console, which serves it from there. Not measured: no
+# Fireworks key was at hand, so these come from Fireworks' model page and the model card (2026-11-19). The page
+# gives a 1040K window and no image input; the config's max_position_embeddings is 1,048,576, so the window is the
+# page's, the smaller. The card's long-output evaluations allow 128K. Its chat template takes `reasoning_effort`
+# low, high or max and reads any other value, or none, as max; it keeps every turn's reasoning (`clear_thinking`
+# false), so reasoning goes back. A profile window means the listing is not read, so vision comes from here.
+
+match = ["fireworks/accounts/fireworks/models/glm-5p3*", "nace/glm-5.3*"]
+window = 1040000
+max_output_tokens = 131072
+effort_levels = ["low", "high", "max"]
+reasoning_replay = true
+vision = false
