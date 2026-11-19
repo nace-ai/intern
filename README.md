@@ -19,7 +19,7 @@
 ![python](https://img.shields.io/badge/python-3.12%2B-0FDBB4?style=flat-square&labelColor=0A0A0A)
 [![by Nace](https://img.shields.io/badge/by-nace.ai-0A0A0A?style=flat-square&labelColor=0A0A0A)](https://nace.ai)
 
-[How it works](#how-it-works) · [Results](#results) · [Install](#install) · [Decision model](#what-the-decision-model-does) · [Capabilities](#capabilities) · [Models](#models) · [Editors](#use-it-from-your-editor) · [Contributing](CONTRIBUTING.md)
+[How it works](#how-it-works) · [Install](#install) · [Results](#results) · [Questions](#questions) · [Decision model](#what-the-decision-model-does) · [Capabilities](#capabilities) · [Models](#models) · [Editors](#use-it-from-your-editor)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tb21-pareto-dark.svg">
@@ -40,7 +40,15 @@ open-source coding harness that runs every task on three:
 
 On Terminal-Bench 2.1 (87 tasks), Claude Opus 5.5 handing over to Hy4 Flash passes **92.4% at $0.127 a task**. Opus
 5.5 on its own passes 91.1–93.7% at $0.280–0.393 in Pi, Hermes and OpenCode, and Hy4 Flash on its own 82.3–83.5%.
-[Results](#results)
+It isn't tied to one pair of models:
+
+| Terminal-Bench 2.1 · 87 tasks | FrontierHarness v1.1 · open weights | 62 terminal tasks · one vendor |
+|---|---|---|
+| **Opus 5.5 → Hy4 Flash** | **DeepSeek V4.1 Flash → Qwen3.8 27B** | **GPT-6.1 Sol → GPT-6 Luna** |
+| 92.4% at **$0.127** a task | 65.3% at **$0.092** a task | 44/62 at **$0.143** a task |
+| Opus 5.5 alone: 91–94% at $0.28–0.39 | cheaper than all 22 harnesses on the board | Sol alone $0.233, Codex CLI $0.274 |
+
+[All results](#results)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/tui-dark.png">
@@ -74,49 +82,6 @@ calls and half the output, for 1% of the cost:
 | Cost | 99% | 1% |
 
 The [architecture](docs/architecture.md) has the details and the measurements behind each step.
-
-## Results
-
-**Terminal-Bench 2.1, 87 tasks: Claude Opus 5.5 → Hy4 Flash.** The chart at the top.
-
-| Harness and models | Pass rate | $ a task |
-|---|---|---|
-| **Intern, Opus 5.5 → Hy4 Flash** | **92.4%** | **0.127** |
-| Pi, Opus 5.5 | 93.7% | 0.291 |
-| Hermes, Opus 5.5 | 92.4% | 0.280 |
-| OpenCode, Opus 5.5 | 91.1% | 0.393 |
-| OpenCode, Hy4 Flash | 83.5% | 0.0066 |
-| Pi, Hy4 Flash | 82.3% | 0.0068 |
-| Hermes, Hy4 Flash | 82.3% | 0.0075 |
-
-Within 1.3 points of the best Opus 5.5 run, at 2.2–3.1 times less a task.
-
-**Open weights: FrontierHarness v1.1, DeepSeek → Qwen.** [FrontierHarness](https://frontierharness.org/efficiency)
-runs 22 harnesses on the same 62 tasks and model. DeepSeek-V4.1-Flash starts each task, Drex picks the turn, and
-Qwen3.8 27B finishes it.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/handoff-pareto-dark.svg">
-  <img src="docs/assets/handoff-pareto-light.svg" alt="Pass rate against cost per task on FrontierHarness v1.1, DeepSeek-V4.1-Flash. Intern with DeepSeek alone: 69.4% at $0.182, the highest pass rate. Intern handing over from DeepSeek to Qwen3.8 27B, with Drex choosing the turn: 65.3% at $0.092, cheaper than every board harness and above the board's Pareto frontier of OpenCode 1.19.4 (61.3%, $0.108), mini-SWE-agent (64.9%, $0.142) and ZCode (69.0%, $0.153). Qwen3.8 27B alone in Intern: 40.3%.">
-</picture>
-
-- DeepSeek alone in Intern: 69.4% at $0.182, the highest pass rate on the board.
-- DeepSeek → Qwen: 65.3% at $0.092. That's cheaper than every harness on the board and above its Pareto frontier,
-  and half the cost of DeepSeek alone for 4.1 points of pass rate.
-- The same Qwen running alone passes 40.3%.
-
-Qwen runs on our own deployment, billed by the GPU hour, so the cost counts only DeepSeek and the decision model.
-Our runs are one attempt a task, about ±6 points of noise; the board's are four.
-
-**One vendor: GPT-6.1 Sol → GPT-6 Luna, 62 terminal tasks, one attempt each.**
-
-| | Passed | $ a task |
-|---|---|---|
-| Codex CLI, GPT-6.1 Sol | 44/62 | 0.274 |
-| Intern, GPT-6.1 Sol alone | 44/62 | 0.233 |
-| **Intern, GPT-6.1 Sol → GPT-6 Luna** | **44/62** | **0.143** |
-
-The same tasks pass at 39% less than Sol alone and 48% less than Codex CLI.
 
 ## Install
 
@@ -171,6 +136,96 @@ intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
 </details>
 
 Every provider, flag and setting is in [docs/usage.md](docs/usage.md).
+
+> [!NOTE]
+> **Good to know.** The decision model is hosted, on OpenRouter or the Nace console, and Intern doesn't run without
+> it. The frontier and efficient models can be anything, local ones included. Intern's code is open under
+> [Nace AI Open RAIL-M](LICENSE): free for individuals, research and companies under $1M in revenue.
+
+## Results
+
+**Terminal-Bench 2.1, 87 tasks: Claude Opus 5.5 → Hy4 Flash.** The chart at the top.
+
+| Harness and models | Pass rate | $ a task |
+|---|---|---|
+| **Intern, Opus 5.5 → Hy4 Flash** | **92.4%** | **0.127** |
+| Pi, Opus 5.5 | 93.7% | 0.291 |
+| Hermes, Opus 5.5 | 92.4% | 0.280 |
+| OpenCode, Opus 5.5 | 91.1% | 0.393 |
+| OpenCode, Hy4 Flash | 83.5% | 0.0066 |
+| Pi, Hy4 Flash | 82.3% | 0.0068 |
+| Hermes, Hy4 Flash | 82.3% | 0.0075 |
+
+Within 1.3 points of the best Opus 5.5 run, at 2.2–3.1 times less a task.
+
+**Open weights: FrontierHarness v1.1, DeepSeek → Qwen.** [FrontierHarness](https://frontierharness.org/efficiency)
+runs 22 harnesses on the same 62 tasks and model. DeepSeek-V4.1-Flash starts each task, Drex picks the turn, and
+Qwen3.8 27B finishes it.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/handoff-pareto-dark.svg">
+  <img src="docs/assets/handoff-pareto-light.svg" alt="Pass rate against cost per task on FrontierHarness v1.1, DeepSeek-V4.1-Flash. Intern with DeepSeek alone: 69.4% at $0.182, the highest pass rate. Intern handing over from DeepSeek to Qwen3.8 27B, with Drex choosing the turn: 65.3% at $0.092, cheaper than every board harness and above the board's Pareto frontier of OpenCode 1.19.4 (61.3%, $0.108), mini-SWE-agent (64.9%, $0.142) and ZCode (69.0%, $0.153). Qwen3.8 27B alone in Intern: 40.3%.">
+</picture>
+
+- DeepSeek alone in Intern: 69.4% at $0.182, the highest pass rate on the board.
+- DeepSeek → Qwen: 65.3% at $0.092. That's cheaper than every harness on the board and above its Pareto frontier,
+  and half the cost of DeepSeek alone for 4.1 points of pass rate.
+- The same Qwen running alone passes 40.3%.
+
+Qwen runs on our own deployment, billed by the GPU hour, so the cost counts only DeepSeek and the decision model.
+Our runs are one attempt a task, about ±6 points of noise; the board's are four.
+
+**One vendor: GPT-6.1 Sol → GPT-6 Luna, 62 terminal tasks, one attempt each.**
+
+| | Passed | $ a task |
+|---|---|---|
+| Codex CLI, GPT-6.1 Sol | 44/62 | 0.274 |
+| Intern, GPT-6.1 Sol alone | 44/62 | 0.233 |
+| **Intern, GPT-6.1 Sol → GPT-6 Luna** | **44/62** | **0.143** |
+
+The same tasks pass at 39% less than Sol alone and 48% less than Codex CLI.
+
+## Questions
+
+<details>
+<summary><b>Why not just run the cheap model?</b></summary>
+
+On Terminal-Bench 2.1, Hy4 Flash on its own passes 82–84%. Starting each task on Opus 5.5 and handing over takes it
+to 92.4%, at less than half of what Opus costs on its own.
+
+</details>
+
+<details>
+<summary><b>Does it run fully local?</b></summary>
+
+The frontier and efficient models can: Ollama, LM Studio, llama.cpp, vLLM, or Kapitsa on a Mac. The decision model
+is hosted, and a session that cannot reach it is refused.
+
+</details>
+
+<details>
+<summary><b>What does the decision model cost?</b></summary>
+
+Drex is $0.03 per 1M input tokens, with its output free: about $0.006 a code search, and a fraction of a cent for a
+session's supervision.
+
+</details>
+
+<details>
+<summary><b>When exactly does it hand over?</b></summary>
+
+When the main solution exists, a check has run it, and what's left is local repair: P(ready) at 0.7 or more two
+turns in a row, from turn 8 on. [Hand-over](#hand-over)
+
+</details>
+
+<details>
+<summary><b>How noisy are these numbers?</b></summary>
+
+The FrontierHarness and GPT runs are one attempt a task, about ±6 points; the FrontierHarness board's own runs are
+four. Read a one- or two-point gap as a tie and the cost gaps as the result.
+
+</details>
 
 ## What the decision model does
 
@@ -260,7 +315,8 @@ what is normal in your work; `decision_code` and `decision_files` read only the 
 `decision_code` finds where a repository does something, even when the words aren't in it. The decision model walks
 an index of the repository: folders, then files, then the classes and functions in them (in 14 languages). It scores
 each against the question and opens only the branches worth opening. A folder of several repositories is searched
-one repository at a time. Default off. [Turn it on](docs/usage.md#code-search)
+one repository at a time. On SWE-bench Verified it puts the right file first for 87% of issues; Semble does for 37%.
+Default off. [Turn it on](docs/usage.md#code-search)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/code-search-diagram-dark.svg">
@@ -274,6 +330,9 @@ one repository at a time. Default off. [Turn it on](docs/usage.md#code-search)
 
 _Asked where this repository decides that a run is going in circles. "Circles" is in none of that code, so grep
 lands on the wrong files; `decision_code` puts `supervise.py` first, at the method that does it._
+
+<details>
+<summary><b>Benchmarks: SWE-bench Verified and CodeScaleBench</b></summary>
 
 Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
 known answer. The decision model is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
@@ -312,13 +371,16 @@ test, p at most 0.012). Semble is 0.7.3 with its defaults, over source code. BM2
 stage, before the decision model judges anything. grep is the question's keywords through ripgrep, files ranked by
 how many they contain, as Semble's own benchmark runs it.
 
+</details>
+
 ### File search
 
 `decision_files` searches professional files (PDFs, Excel workbooks, CSV, Parquet, Word documents and scans) for
 tasks like audit. Your intern indexes the folder once, OCRing scanned pages. The decision model walks the files by
 page, section and tab beside a BM25 list of passages, and judges the best of both together. Then it follows the
 strongest passages' terms to what the first pass missed. `sql` queries the tables and `read` shows the documents
-as text. Default off. [Turn it on](docs/usage.md#workspace)
+as text. On OfficeQA Pro with Claude Sonnet 5.5 it scores the same as pi in half the turns, at 27% less a question.
+Default off. [Turn it on](docs/usage.md#workspace)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/files-search-diagram-dark.svg">
@@ -333,6 +395,9 @@ as text. Default off. [Turn it on](docs/usage.md#workspace)
 _Asked "Has the client ever been the victim of a scam or theft, and what did it cost?" of an audit folder.
 "Victim", "scam" and "theft" are in none of its files; `decision_files` puts first the questionnaire page where
 management reports a 2021 cyber attack and its loss._
+
+<details>
+<summary><b>Benchmarks: OfficeQA Pro and HotpotQA</b></summary>
 
 Measured with no agent in the loop: each search gets a question, and its ranked results are checked against the
 known answer. The decision model is `drex-latest`, at $0.03 per 1M input tokens with its output free; a query is one
@@ -384,6 +449,8 @@ Measured end to end, the agent doing the whole task on the same model and the sa
 The score is level. A question costs 27% less than on pi, a gap outside noise, and 14% less than Intern without
 `decision_files`, a gap within noise. A search costs about $0.02 of the decision model here, so the saving grows
 with the price of the main model.
+
+</details>
 
 ### Web search and read
 
