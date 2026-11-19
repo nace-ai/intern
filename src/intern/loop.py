@@ -68,22 +68,12 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
-from intern.handoff import (
-    LOGFILE_NOTE,
-    TAKEOVER_NOTE,
-    HandoffTarget,
-    Readiness,
-    kept_messages,
-    logfile_text,
-    seed_journal,
-    trajectory,
-)
+from intern.handoff import TAKEOVER_NOTE, HandoffTarget, Readiness, kept_messages, seed_journal
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
     Journal,
     MessageEntry,
-    ModelChangeEntry,
     ObservationEntry,
     StateEntry,
     SystemPromptEntry,
@@ -1154,12 +1144,8 @@ class Run:
         if isinstance(verdict, h.Stop) and (verdict.reason != "completed" or not nudges):
             return verdict
         if hand_over:
-            assert self.deps.handoff is not None
-            if self.deps.handoff.config.transfer == "context":
-                self._takeover = [*nudges, (TAKEOVER_NOTE, "handoff")]
-                return h.Continue()
-            self._hand_over()
-            nudges = []  # they were about the turns of the model before, which the fresh start does not show
+            self._takeover = [*nudges, (TAKEOVER_NOTE, "handoff")]
+            return h.Continue()
         for text, reason in nudges:
             self._nudge(text, reason)
         if waiting_on and not nudges:
@@ -1176,29 +1162,8 @@ class Run:
             return await supervise, False
         return await asyncio.gather(supervise, self.handoff.after_turn(self.turn, self.deps.decisions, state))
 
-    def _hand_over(self) -> None:
-        """Hand the run over to the cheaper model for the next turn and every one after, started afresh from the
-        logfile (`logfile`); the session stays with it."""
-        assert self.handoff is not None and self.deps.handoff is not None
-        target, source, handoff = self.deps.handoff, self.binding, self.handoff
-        self.handoff = None
-        logfile = self._write_logfile()
-        self.deps.system2 = target.binding
-        self.deps.journal.append(ModelChangeEntry(role="system2", model=target.binding.ref))
-        self.deps.emit(
-            Handoff(
-                turn=self.turn,
-                source=source.ref,
-                target=target.binding.ref,
-                transfer=target.config.transfer,
-                probability=handoff.probability,
-                tokens=self.meter.tokens(self._prompt_chars),
-                logfile=logfile,
-            )
-        )
-
     async def _take_over(self, opening: list[tuple[str, str]]) -> h.RunOutcome:
-        """Finish the run in a child run on the cheaper model (`context`). It goes on from this conversation, copied
+        """Finish the run in a child run on the cheaper model. It goes on from this conversation, copied
         into a journal of its own, with this run's tools, extensions, System 1, control, supervisor and turn count, so
         it sees what it would here; its events reach clients but not this journal. Its final reply ends the run and is,
         with the user's steering, all of it this conversation keeps, so the session's next run is System 2's again."""
@@ -1214,7 +1179,6 @@ class Run:
                 turn=self.turn,
                 source=self.binding.ref,
                 target=target.binding.ref,
-                transfer="context",
                 probability=readiness.probability,
                 tokens=self.meter.tokens(self._prompt_chars),
                 journal=str(path) if path is not None else None,
@@ -1248,26 +1212,6 @@ class Run:
         for message in kept_messages(journal.active_path()[seeded:]):
             self.deps.journal.append(MessageEntry(message=message, run_id=self.run_id))
         return outcome
-
-    def _write_logfile(self) -> str:
-        """The session's turns as a JSON-lines file in the working directory, and the cut that starts the model taken
-        over by afresh from the user's requests and a note on that file. Returns the path as the agent sees it."""
-        records = trajectory(self.deps.journal.active_path())
-        path = self.deps.cwd / ".intern" / "handoff" / f"{self.run_id}.jsonl"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(logfile_text(records))
-        mount = mount_of(self.deps.executor)
-        shown = str(mount.to_inner(path) if mount is not None else path)
-        note = LOGFILE_NOTE.format(turns=len(records), path=shown)
-        self.deps.journal.append(
-            CompactionEntry(
-                summary=self._with_requests(note, self._requests()),
-                first_kept_id=None,
-                tokens_before=self.meter.tokens(self._prompt_chars),
-                method="drop",
-            )
-        )
-        return shown
 
     async def _run_tools(self, calls: list[ToolCall]) -> list[ToolResult]:
         by_name = {tool.name: tool for tool in self.deps.tools}

@@ -1349,3 +1349,10 @@ by default, and 0.44.1 clients keep working.
 - A new `handoff` event (`turn`, `source`, `target`, `transfer`, `probability`, `tokens`, and `logfile` or `journal`)
   announces the hand-over; a client that skips event types it does not know is unaffected.
 - `run_end` gains `by_model`, the run's usage by model; its `usage` totals both models.
+
+### 0.46.0
+
+A hand-over always continues the conversation: `transfer = "logfile"`, where the cheaper model started afresh from
+a file of the turns so far, is gone, and `[capabilities.handoff]` no longer has a `transfer` setting. A config.toml
+that still sets it loads as before and hands over as `context` did. The `handoff` event keeps `transfer`, now always
+`"context"`, and drops `logfile`, which only that mode set. 0.45.0 clients keep working.

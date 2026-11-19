@@ -70,7 +70,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `secrets` | session setting | secret references for commands (bindings, `inject`); the top-level [`[secrets]`](secrets.md) store is separate | none |
 | `session_budget` | session setting | one model-call budget for the session | none |
 | `system2_fallbacks` | session setting | System 2 models to fall back to | none |
-| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, as a child run that continues the conversation, its final reply alone joining the session so the next message is System 2's again, or from a logfile of the turns (`transfer`), and when (`threshold`, `streak`, `min_turn`); `--handoff-to` and the terminal UI's `/handoff` set `to` | off |
+| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, as a child run that continues the conversation, its final reply alone joining the session so the next message is System 2's again, and when (`threshold`, `streak`, `min_turn`); `--handoff-to` and the terminal UI's `/handoff` set `to` | off |
 | `model_retries` | session setting | whether a System 2 call that fails with a retryable error is made again ([below](#model-retries)) | `true` |
 
 `web_search` and `web_reader` were `search` and `reader` before 0.44.0; the old table names still load.

@@ -6,18 +6,16 @@ exercised it, and what remains is localized repair, validation or finishing. Sys
 until the hand-over, from the first turn whose streak could reach `min_turn`, in its own ask: the supervisor looks
 only every few turns, and the hand-over's timing is what it is for.
 
-The model taken over by inherits the workspace and either the conversation (`context`: without the reasoning of the
-model before it, which only goes back to the model that wrote it) or a fresh start from the user's requests and a
-JSON-lines file of the turns so far (`logfile`), and goes on until the run ends. It never hands back within the run.
+The model taken over by inherits the workspace and the conversation, without the reasoning of the model before it,
+which only goes back to the model that wrote it, and goes on until the run ends. It never hands back within the run.
 
-With `context` it runs as a child run: the conversation is copied into a journal of its own, and it keeps the run's
-tools, System 1, control and turn count, so it sees what it would in the run itself. Only its final reply joins the
-session's conversation, so the next user message is System 2's again, its cached prefix intact, and may hand over anew.
+It runs as a child run: the conversation is copied into a journal of its own, and it keeps the run's tools, System 1,
+control and turn count, so it sees what it would in the run itself. Only its final reply joins the session's
+conversation, so the next user message is System 2's again, its cached prefix intact, and may hand over anew.
 """
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -25,7 +23,7 @@ from typing import TYPE_CHECKING
 from intern.capability_settings import HandoffConfig
 from intern.decisions import ChoiceAnswer, ChoiceQuestion, DecisionClient
 from intern.journal import Entry, Journal, MessageEntry, SessionEntry
-from intern.messages import AssistantMessage, ToolResultMessage, UserMessage
+from intern.messages import AssistantMessage, UserMessage
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -55,13 +53,6 @@ You are taking over this task from another agent, whose turns are above; its wor
 solution exists and has been checked, so finish it rather than redo it: keep its approach and files, and change only \
 what a check shows is wrong. Run the relevant check before and after each change, and undo a change that makes it \
 worse. Once the checks pass and the required output is in place, stop."""
-
-LOGFILE_NOTE = """\
-You are taking over this task from another agent, which worked on it for {turns} turns in this same workspace: every \
-file it created or changed is still there. Its turns are in {path}, one JSON object per line, oldest first: `turn` \
-(its number), `response` (what it wrote), and `actions`, the tool calls it made, each with `tool`, `arguments`, \
-`status` and `output` (what the tool returned, possibly shortened). Read the last records first (`tail -n 5`) to see \
-where the work stands, and earlier ones only as you need them. Then carry the task through to the end."""
 
 
 @dataclass
@@ -99,25 +90,6 @@ class Readiness:
         return self.streak >= config.streak and turn >= config.min_turn
 
 
-def trajectory(entries: Sequence[Entry]) -> list[dict[str, object]]:
-    """The session's turns as the logfile holds them: each reply's text and its tool calls with their results."""
-    records: list[dict[str, object]] = []
-    actions: dict[str, dict[str, object]] = {}
-    for entry in entries:
-        if not isinstance(entry, MessageEntry):
-            continue
-        message = entry.message
-        if isinstance(message, AssistantMessage):
-            calls = [
-                {"tool": c.name, "arguments": c.arguments, "status": None, "output": None} for c in message.tool_calls
-            ]
-            actions.update((c.id, action) for c, action in zip(message.tool_calls, calls, strict=True))
-            records.append({"turn": len(records) + 1, "response": message.text, "actions": calls})
-        elif isinstance(message, ToolResultMessage) and (action := actions.get(message.result.call_id)) is not None:
-            action["status"], action["output"] = message.result.status, message.result.content
-    return records
-
-
 def seed_journal(parent: Journal, path: Path | None) -> Journal:
     """The child run's journal, holding the conversation so far: the parent's active path under the same ids, so a
     compaction's cut still names its first kept entry."""
@@ -145,7 +117,3 @@ def kept_messages(entries: Sequence[Entry]) -> list[UserMessage | AssistantMessa
             )
         )
     return kept
-
-
-def logfile_text(records: list[dict[str, object]]) -> str:
-    return "".join(json.dumps(record, ensure_ascii=False) + "\n" for record in records)
