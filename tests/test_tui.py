@@ -502,8 +502,9 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
             gap = r"\n +" if look == "hero" else " +"
             assert re.search(rf"Base Tools{gap}files and the shell", said)
             assert re.search(rf"Code Search.*?{gap}searches code for it", said)
-            # The decision model takes part in code search: its tag is on the capability's line, and on no other's.
-            assert re.search(r"Code Search.*◆ decision model", said) and not re.search(r"Base Tools.*◆", said)
+            # The decision model takes part in code search: its mark is beside the name, on no other's, and said once.
+            assert "Code Search ◆" in said and "Base Tools ◆" not in said
+            assert said.count("the decision model takes part") == 1
         # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
         # nothing under the prompt, and the panels it stands in for are away.
         assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y

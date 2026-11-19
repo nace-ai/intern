@@ -11,9 +11,9 @@
     │ Frontier   thinking high ▰▰▰▱▱       │                    │ 9 tools                              │
     │ claude-opus-5-5                      │                    │ for the frontier and efficient models│
     │ ⠋ working on the hard part  ━━━━──── │                    │                                      │
-    │ │                                    │    (the mascot,    │ ● Base Tools                         │
-    │ │  hand-over  ready ▂▄ 0.48          │     glancing       │     files and the shell              │
-    │ ▼                                    │     and blinking)  │ ○ Web Search                         │
+    │                                      │    (the mascot,    │ ● Base Tools                         │
+    │ ━━━━━ ↓ hand-over · ready 0.48 ───── │     glancing       │     files and the shell              │
+    │                                      │     and blinking)  │ ○ Web Search ◆                       │
     │ Efficient                            │                    │     searches the web                 │
     │ claude-haiku-5-5                     │                    │ ...                                  │
     │ ○ waits for the hand-over            │                    │                                      │
@@ -23,7 +23,8 @@
     │ drex-max · console                   │                    │                                      │
     │ ● Hand-over   picks when to hand over│                    │                                      │
     │ ...                                  │                    │                                      │
-    ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
+    ╰──────────────────────────────────────╯                    │ ◆ the decision model takes part      │
+                                                                ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
             Describe a task to begin.   /help commands   /models models   /caps capabilities ...
@@ -31,14 +32,14 @@
 The page is drawn as one. On the left System 2's card over System 1's, on the right the capabilities, Intern itself
 between them, the Nace cube with eyes, alive as the brand draws it (`Mascot`); the two sides as tall as each other.
 System 2's card plays the run as Intern makes it, over and over (`RunPlay`): the frontier model works the hard part,
-beside the arrow down to the efficient model the decision model's P(ready) rises until it hands over, and the
-efficient model finishes the rest. While hand-over is off the efficient model is not there, a line says so, and the
-frontier model works every turn. System 1's card has the decision model's jobs, each on or off as a capability is.
-The capabilities' card says which models work with the tools, then each capability over what it is, in a few words,
-and the decision model's tag beside those it takes part in. Above them the wordmark, in ink with the accent for its
-shadow, and what Intern is, in a sentence on a shaded band: three models while a run hands over, two while it does
-not; under them where the session works, then what to do next. All of it centred, and a third of the way down a tall
-terminal.
+on a rule across the card, `↓ hand-over` in its middle, the decision model's P(ready) fills it until it hands over,
+and the efficient model finishes the rest. While hand-over is off the efficient model is not there, a line says so,
+and the frontier model works every turn. System 1's card has the decision model's jobs, each on or off as a
+capability is. The capabilities' card says which models work with the tools, then each capability over what it is,
+in a few words, and a ◆ after those the decision model takes part in, said once under them. Above them the wordmark,
+in ink with the accent for its shadow, and what Intern is, in a sentence on a shaded band: three models while a run
+hands over, two while it does not; under them where the session works, then what to do next. All of it centred, and
+a third of the way down a tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the models and the capabilities in one column
 beside the mascot, in one frame (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is
@@ -48,14 +49,12 @@ failed) shows under it, and it goes when the conversation begins.
 
 from __future__ import annotations
 
-import math
 import textwrap
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-from rich.cells import cell_len
 from textual.app import ComposeResult
 from textual.containers import Center, Horizontal, Vertical
 from textual.content import Content
@@ -70,7 +69,6 @@ from intern.tui.theme import (
     S_BAD,
     S_BRAND_BOLD,
     S_HEAD,
-    S_HEAD_MUTED,
     S_INK,
     S_MUTED,
     S_MUTED_ITALIC,
@@ -83,7 +81,6 @@ from intern.tui.widgets import (
     ART,
     EYES,
     HANDOVER_SIGN,
-    LADDER,
     SPINNER,
     Part,
     clip,
@@ -153,6 +150,8 @@ NAMES = {"cap.tool-result-guard": "result guard"}
 others."""
 MCP_BRIEF = "remote tools"
 BRIEF_INDENT = 4
+DECIDED, LEGEND = "◆", "the decision model takes part"
+"""The mark beside a capability the decision model takes part in, and what it means, said once under the list."""
 """Where a capability's few words start on its card: further in than its name."""
 JOB_WIDTH = 14
 SETUP_NOTE = "Not connected yet: /setup connects your models"
@@ -211,8 +210,6 @@ RUN_TICK_S = 0.2
 RUN_TURNS = 4
 TURN_CELLS = 2
 """A turn's share of the line its model's turns fill (`pips`)."""
-ARROW = ("│", "│", "▼")
-"""The hand-over's arrow, down from the frontier model to the efficient one, a row a piece."""
 """The turns each model takes in the played run, a pip each."""
 CARD_GAP = 1
 """The air between System 2's card and System 1's, on the wide page."""
@@ -347,9 +344,14 @@ def switch(name: str, on: bool) -> list[Part]:
 
 
 def decided(decides: bool, on: bool) -> list[Part]:
-    """What a capability the decision model takes part in has after its name: the decision model's tag, in the accent
-    while the capability is on."""
-    return [("  ", ""), ("◆ decision model", BRAND if on else S_MUTED)] if decides else []
+    """What a capability the decision model takes part in has after its name (`LEGEND` says it once): a ◆, in the
+    accent while the capability is on."""
+    return [(f" {DECIDED}", BRAND if on else S_MUTED)] if decides else []
+
+
+def legend(o: Opening) -> list[Part]:
+    """What the ◆ beside a capability means, where one has it."""
+    return [(DECIDED, BRAND), (f" {LEGEND}", S_MUTED)] if any(decides for *_, decides in o.capabilities) else []
 
 
 def switches(o: Opening, width: int) -> list[list[Part]]:
@@ -361,17 +363,16 @@ def switches(o: Opening, width: int) -> list[list[Part]]:
 
 
 def capabilities(o: Opening, width: int) -> list[list[Part]]:
-    """The same, a line each, with what the capability is in a few words, and the decision model's tag where it takes
-    part."""
+    """The same, a line each, with what the capability is in a few words; a ◆ after the name of those the decision
+    model takes part in."""
     named = [(toggle, NAMES.get(toggle, name), on, decides) for toggle, name, on, decides in o.capabilities]
-    column = min(max((len(name) for _, name, _, _ in named), default=0), width // 3) + 4
-    briefs = [BRIEFS.get(toggle, MCP_BRIEF if toggle.startswith("cap.mcp.") else "") for toggle, *_ in named]
-    room = min(max(map(len, briefs), default=0), width - column)  # the tags in a column of their own
+    column = min(max((len(name) + 2 * decides for _, name, _, decides in named), default=0), width // 3) + 4
     lines: list[list[Part]] = []
-    for (_, name, on, decides), brief in zip(named, briefs, strict=True):
-        mark, label = switch(clip(name, column - 4), on)
-        pad = " " * (column - 1 - cell_len(label[0]))
-        lines.append([mark, label, pad, (clip(brief, room).ljust(room), S_MUTED), *decided(decides, on)])
+    for toggle, name, on, decides in named:
+        brief = BRIEFS.get(toggle, MCP_BRIEF if toggle.startswith("cap.mcp.") else "")
+        head = [*switch(clip(name, column - 4), on), *decided(decides, on)]
+        pad = " " * max(1, column - Content.assemble(*head).cell_length)
+        lines.append([*head, pad, (clip(brief, width - column), S_MUTED)])
     return lines
 
 
@@ -396,7 +397,7 @@ def tools(o: Opening, width: int) -> list[list[Part]]:
         lines.append([*switch(clip(NAMES.get(toggle, name), width - 2), on), *decided(decides, on)])
         if brief:
             lines.append([(" " * BRIEF_INDENT, ""), (clip(brief, width - BRIEF_INDENT), S_MUTED)])
-    return lines
+    return [*lines, *([[], legend(o)] if legend(o) else [])]
 
 
 # -- the played run -------------------------------------------------------------------------------------------
@@ -446,33 +447,38 @@ def run_frame(o: Opening, width: int, t: float | None) -> Content:
             "done": [done, ("done, for much less", S_MUTED), "  ", *pips(RUN_TURNS, False)],
         }.get(phase, [("○ waits for the hand-over", S_MUTED)])
     head: list[Part] = [(" Frontier ", S_TAB), *(["  ", *thinking_box(o.thinking, o.levels)] if o.thinking else [])]
-    lines: list[list[Part]] = [head, *model(o.system2, width), f_said, *handover(o, phase, through, t is None)]
+    lines: list[list[Part]] = [head, *model(o.system2, width), f_said, *handover(o, width, phase, through, t is None)]
     if o.handoff:
         lines += [[(" Efficient ", S_TAB)], *model(o.handoff, width), e_said]
     return Content("\n").join(Content.assemble(*line).truncate(width, ellipsis=True) for line in lines)
 
 
-def handover(o: Opening, phase: Phase, through: float, still: bool) -> list[list[Part]]:
-    """The hand-over between the two models: an arrow down from the frontier model to the efficient one, filling in the
-    accent as the run hands over, beside it the decision model's P(ready) rising turn by turn, the moment it hands
-    over, then the turn it did. While hand-over is off, a line saying so."""
+def handover(o: Opening, width: int, phase: Phase, through: float, still: bool) -> list[list[Part]]:
+    """The hand-over between the two models: a rule across the card, `↓ hand-over` in its middle, filling in the
+    accent from the left as the decision model's P(ready) rises turn by turn; whole at the moment it hands over, then
+    the turn it did. While hand-over is off, a line saying so."""
     if not o.handoff:
         return [[], [*switch("hand-over", False), (f"  {HANDOVER_OFF}", S_MUTED)]]
-    filled = 0 if still else {"frontier": 0, "handover": 1 + int(through * 2)}.get(phase, len(ARROW))
-    shaft = [(f" {piece}", BRAND if i < filled else S_MUTED) for i, piece in enumerate(ARROW)]
-    name: Part = ("hand-over", S_BRAND_BOLD if filled else S_HEAD_MUTED)
+    ready = 0.0
     if still:
-        said: list[Part] = [("  when ready", S_MUTED)]
+        label: list[Part] = [(" ↓ hand-over when ready ", S_MUTED)]
     elif phase == "frontier":
-        steps = [READY_FROM + (READY_AT - 0.1 - READY_FROM) * (i / RUN_TURNS) for i in range(1, RUN_TURNS + 1)]
-        seen = steps[: min(RUN_TURNS, int(through * RUN_TURNS) + 1)]
-        trail = "".join(LADDER[max(0, math.ceil(p * len(LADDER)) - 1)] for p in seen)
-        said = [("  ready ", S_MUTED), (trail, BRAND), (f" {seen[-1]:.2f}", S_INK)]
+        ready = READY_FROM + (READY_AT - 0.1 - READY_FROM) * min(RUN_TURNS, int(through * RUN_TURNS) + 1) / RUN_TURNS
+        label = [(" ↓ hand-over · ready ", S_MUTED), (f"{ready:.2f} ", S_INK)]
     elif phase == "handover":
-        said = [("  ready ", S_MUTED), (f"{READY_AT:.2f}", S_INK), (f"  {HANDOVER_SIGN} now", S_BRAND_BOLD)]
+        ready = 1.0
+        label = [(f" {HANDOVER_SIGN} hand-over · now ", S_BRAND_BOLD)]
     else:
-        said = [(f"  at turn {RUN_TURNS}", S_MUTED)]
-    return [[shaft[0]], [shaft[1], "  ", name, *said], [shaft[2]]]
+        ready = 1.0
+        label = [(f" ↓ handed over at turn {RUN_TURNS} ", S_MUTED)]
+    rule = max(0, width - Content.assemble(*label).cell_length)
+    left, filled = rule // 2, round(ready * rule)
+
+    def piece(start: int, cells: int) -> list[Part]:
+        lit = max(0, min(cells, filled - start))
+        return [("━" * lit, BRAND), ("─" * (cells - lit), S_RULE)]
+
+    return [[], [*piece(0, left), *label, *piece(left, rule - left)], []]
 
 
 class RunPlay(Static):
@@ -527,7 +533,8 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     ]
     if roomy:
         lines += [[], [(" State ", S_TAB), ("  what the decision model reads", S_MUTED)], *paragraph(STATE, width)]
-        lines += [[], *capabilities(o, width), [(f"{o.tools} tools", S_MUTED)] * bool(o.capabilities)]
+        tools: list[Part] = [(f"{o.tools} tools", S_MUTED), *([("   ", ""), *legend(o)] if legend(o) else [])]
+        lines += [[], *capabilities(o, width), tools * bool(o.capabilities)]
     else:
         lines += [[], *switches(o, width), *where(o, width)]
     return stacked(lines)
