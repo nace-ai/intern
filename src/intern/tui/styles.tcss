@@ -431,6 +431,39 @@ ModelPicker, StateScreen, HelpScreen {
     border: none;
 }
 
+/* The /theme picker (theme_picker.py): the screen behind takes each theme as it is highlighted, so it is barely
+   dimmed; the highlighted row is a shade of the page, not the accent, so each row's swatch and blurb still read. */
+ThemePicker {
+    align: center middle;
+    background: $background 15%;
+}
+
+#theme-picker {
+    width: 76;
+    max-width: 96%;
+    height: auto;
+    border: round $rule;
+    background: $surface;
+    padding: 0 1;
+}
+
+#theme-title, #theme-hint {
+    height: auto;
+}
+
+#theme-options {
+    height: auto;
+    margin: 1 0;
+    background: $surface;
+    border: none;
+}
+
+#theme-options > .option-list--option-highlighted {
+    background: $select;
+    color: $foreground;
+    text-style: none;
+}
+
 #state-full {
     width: 90%;
     height: 90%;

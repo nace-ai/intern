@@ -60,7 +60,6 @@ from intern.tui.outline import EMPHASIS, LIST_ITEM, QUOTE, Outline, Status, pars
 from intern.tui.theme import (
     BRAND,
     CARD,
-    DARK,
     INK,
     LIGHT,
     PAPER,
@@ -82,6 +81,7 @@ from intern.tui.theme import (
     S_WARN_BOLD,
     S_WORDMARK,
     WORDMARK,
+    app_palette,
 )
 
 TITLE_ARGUMENTS = ("path", "command", "pattern", "query", "url", "question")
@@ -669,12 +669,12 @@ class StatusBar(Static):
         self._face_until = time.monotonic() + hold_s if hold_s else 0.0
 
     def _page(self) -> str:
-        """The card's colour in the look in force (`/dark`), which the mark's half tones blend with."""
+        """The card's colour in the look in force (`/theme`), which the mark's half tones blend with."""
         return self._look()["card"]
 
     def _look(self) -> dict[str, str]:
         """The colours of the look in force."""
-        return DARK if self.is_mounted and self.app.current_theme.dark else LIGHT
+        return app_palette(self.app) if self.is_mounted else LIGHT
 
     def flash(self, text: str) -> None:
         """A few words after the run's context for a moment: what just went to the clipboard."""
