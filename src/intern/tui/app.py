@@ -32,7 +32,7 @@ from textual import events, on
 from textual.actions import SkipAction
 from textual.app import App, ComposeResult
 from textual.binding import Binding, BindingType
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.content import Content
 from textual.driver import Driver
 from textual.message import Message
@@ -118,7 +118,7 @@ from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm
 from intern.tui.schedule import TimerDelivery
 from intern.tui.state_panel import StatePanel, system2_start
 from intern.tui.system1_panel import System1Panel
-from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_INK, S_MUTED, S_OK, S_WARN
+from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_HEAD, S_INK, S_MUTED, S_OK, S_TAB, S_WARN
 from intern.tui.views import ViewHost, Views
 from intern.tui.welcome import SETUP_NOTE, GuardState, Opening, Welcome
 from intern.tui.widgets import (
@@ -397,6 +397,22 @@ class StateScreen(ModalScreen[None]):
                 yield Static(Content.styled(said, S_MUTED), classes="state-note")
                 text = json.dumps(json.loads(self.cut.text), indent=2, ensure_ascii=False)
                 yield TextArea(text, read_only=True, soft_wrap=True, show_line_numbers=False, id="state-cut")
+
+    def action_close(self) -> None:
+        self.dismiss(None)
+
+
+class HelpScreen(ModalScreen[None]):
+    """/help: the commands and the keys, over the session; Esc or q closes it."""
+
+    BINDINGS: ClassVar[list[BindingType]] = [Binding("escape", "close", "Close"), Binding("q", "close", "Close")]
+
+    def compose(self) -> ComposeResult:
+        page = VerticalScroll(id="help-page")
+        page.border_title = Content.assemble((" Commands and keys ", S_TAB))
+        page.border_subtitle = Content.assemble((" Esc", S_HEAD), (" closes ", S_MUTED))
+        with page:
+            yield HelpCard({**HELP, "Keys": KEYS})
 
     def action_close(self) -> None:
         self.dismiss(None)
@@ -1312,7 +1328,7 @@ class HarnessApp(App[None]):
                 self.pending.dark = look == "/dark"
                 self.theme = (DARK_THEME if self.pending.dark else LIGHT_THEME).name
             case "/help":
-                await self.transcript.add(HelpCard({**HELP, "Keys": KEYS}))
+                self.push_screen(HelpScreen())
             case "/quit" | "/exit":
                 await self.action_quit()
             case _:

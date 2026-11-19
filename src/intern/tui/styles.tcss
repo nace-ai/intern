@@ -352,7 +352,7 @@ Screen {
     text-style: none !important;
 }
 
-ModelPicker, StateScreen {
+ModelPicker, StateScreen, HelpScreen {
     align: center middle;
     background: $background 60%;
 }
@@ -390,6 +390,15 @@ ModelPicker, StateScreen {
 #state-full {
     width: 90%;
     height: 90%;
+    border: round $rule;
+    background: $surface;
+    padding: 1 1 0 1;
+}
+
+#help-page {
+    width: 90%;
+    height: auto;
+    max-height: 90%;
     border: round $rule;
     background: $surface;
     padding: 1 1 0 1;

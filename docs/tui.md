@@ -117,8 +117,8 @@ changes its line on the page, and the two lines a switch gets in a conversation 
 `Session reopened · …`) are not written under it; a model picked there shows on its system's card, its name whole
 on as many lines as it takes, and the line a pick gets in a conversation (`System 2 → …`) is not written either,
 unless it has more to say (the thinking level chosen is not one the model takes); nor is a thinking level's
-(`Thinking → …`), which System 2's card has. Whatever else is said before the first prompt (`/help`, a session
-that could not open, a switch that failed) is under it. A task on the command line, `--session` and `/reload` go
+(`Thinking → …`), which System 2's card has. Whatever else is said before the first prompt (a session that could
+not open, a switch that failed) is under it. A task on the command line, `--session` and `/reload` go
 straight to the conversation; `/clear` comes back to the page.
 
 ## Layout
@@ -487,7 +487,7 @@ a notice and is off for the rest of the session, and the TUI goes on.
 | `/reload` | restart on the code, config and keys as they are now (an editable install's latest edits, a reinstall, a key added to `~/.intern/.env`) and resume this session on its journal, with the models, capabilities and thinking level picked here. The process starts again on the same command line, the task on it not sent twice, so everything is loaded anew: the harness, the UI, extensions, profiles, `config.toml` and `.env`. It installs nothing: a changed dependency needs `uv tool install --reinstall` (or `uv sync`) first. The screen stays up across the restart, the last frame on it until the new process paints over it. Waits for the run to finish; refused with `--no-session`, whose journal is in memory only. |
 | `/panels` | hide or show the right-hand panels |
 | `/dark`, `/light` | the dark look (paper and ink swapped, each a little grayed down, and a brighter accent) or the light one, the default; `/reload` keeps it |
-| `/help`, `/quit` | the commands and the keys; close the session and exit (closing the terminal window, or a SIGTERM, quits the same way, so the session is still stewarded) |
+| `/help`, `/quit` | the commands and the keys, on a page over the session that Esc closes; close the session and exit (closing the terminal window, or a SIGTERM, quits the same way, so the session is still stewarded) |
 
 Enter sends the prompt, or, while a run is in progress, steers it: the text shows as `queued` and goes
 into the run before its next model call, where its line then moves. Esc aborts the run and sends what is
