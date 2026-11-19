@@ -29,6 +29,9 @@ from intern.decisions import ChoiceAnswer, ChoiceQuestion, DecisionClient
 if TYPE_CHECKING:
     from intern.loop import ModelBinding
 
+DEFAULT_TARGET = "anthropic/claude-haiku-5-5"
+"""What the terminal UI's auto mode hands a run over to while `[capabilities.handoff]` names no model."""
+
 READY = ChoiceQuestion(
     instructions="The state is an agent's session so far, oldest first; its last entries are the latest turn. A "
     "strong model has been doing the task. A weaker, cheaper model will take over from here and finish it, in the "

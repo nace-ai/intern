@@ -8,6 +8,7 @@ from intern.events import (
     Compaction,
     Decision,
     ExtensionEvent,
+    Handoff,
     Nudge,
     RunStart,
     State,
@@ -23,6 +24,7 @@ from intern.supervise import STRIKES
 from intern.tui.ledger import (
     CompactionJudgement,
     GuardJudgement,
+    HandoverJudgement,
     Ledger,
     RuleRefusal,
     SearchJudgement,
@@ -278,3 +280,20 @@ def test_the_ledger_groups_keep_verdicts_by_compaction_and_only_counts_a_tools_o
     assert ledger.usage.total == 5
     # An event about a turn the ledger never saw changes nothing.
     assert ledger.observe(Nudge(turn=99, reason="stuck_gate", text="x")) is None
+
+
+def test_the_ledger_keeps_a_runs_hand_over_in_one_row_from_the_first_ask_to_the_model_that_took_over():
+    def ready(turn: int, p: float) -> Decision:
+        choice = "ready" if p >= 0.5 else "not_ready"
+        answer: JsonObject = {"choice": choice, "probabilities": {"ready": p, "not_ready": round(1 - p, 2)}}
+        return supervise(turn, "advancing").model_copy(update={"purpose": "handoff", "answers": {"ready": answer}})
+
+    ledger = Ledger()
+    ledger.observe(run_start("r1"))
+    for turn, p in ((7, 0.2), (8, 0.8), (9, 0.9)):
+        row = ledger.observe(ready(turn, p))
+    handed = Handoff(turn=9, source="a/strong", target="b/cheap", probability=0.9, tokens=1)
+    assert ledger.observe(handed) is row and ledger.current.feed == [row]
+    assert isinstance(row, HandoverJudgement)
+    assert (row.ready, row.target, row.handed_at) == ([0.2, 0.8, 0.9], "b/cheap", 9)
+    assert ledger.usage.asks["hand-over"] == 3

@@ -173,7 +173,7 @@ message from you, shown as a `⚑` notice. A repeat counts its next interval fro
 never pile up. Timers are at least one minute apart, at most five per session by default
 (`[capabilities.schedule] max_timers`), and `/schedule` lists them and stops one.
 
-Timers live only in the open session: closing it, or anything that reopens it (`/caps`, `/runner`, `/handoff`,
+Timers live only in the open session: closing it, or anything that reopens it (`/caps`, `/runner`, `/auto`,
 `/setup`, `/reload`, `/clear`), stops them all and the transcript says how many. Other clients (`-p`, JSON-RPC,
 ACP) never get them. See [timers](../tui.md#timers).
 

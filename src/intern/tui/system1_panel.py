@@ -41,6 +41,7 @@ from intern.tui.ledger import (
     CompactionJudgement,
     EffortJudgement,
     GuardJudgement,
+    HandoverJudgement,
     Kind,
     Ledger,
     OtherJudgement,
@@ -69,6 +70,7 @@ from intern.tui.widgets import (
     AUTO_SIGN,
     CD,
     FILLED,
+    HANDOVER_SIGN,
     JOB,
     MODE_STYLE,
     TRACK,
@@ -82,6 +84,8 @@ from intern.tui.widgets import (
     ladder,
     level,
     mode_label,
+    model_name,
+    readiness,
     runners_up,
     short_path,
     shrink,
@@ -93,6 +97,7 @@ from intern.tui.widgets import (
 
 SIGN: dict[Kind, str] = {
     "thinking": AUTO_SIGN,
+    "hand-over": HANDOVER_SIGN,
     "watch": FILLED,
     "guard": "✓",
     "search": "⌕",
@@ -328,6 +333,16 @@ def compaction_lines(c: CompactionJudgement, room: int, cwd: Path | None) -> lis
     return lines
 
 
+def handover_lines(h: HandoverJudgement, room: int) -> list[list[Part]]:
+    """The run's hand-over in a line: System 1's P(ready) turn by turn, and, once the run has handed over, to which
+    model and at which turn."""
+    head: list[Part] = [("hand-over ", S_MUTED), *readiness(h)]
+    if h.target:
+        said = f"  → {model_name(h.target)} at turn {h.handed_at}"
+        head.append((clip(said, max(8, room - Content.assemble(*head).cell_length)), S_BRAND_BOLD))
+    return [head]
+
+
 def other_lines(o: OtherJudgement, room: int) -> list[list[Part]]:
     """Any other ask in a line: what it was about, then System 1's answer."""
     said = o.choice.replace("_", " ")
@@ -346,6 +361,8 @@ def row_lines(row: Row, room: int, cwd: Path | None = None) -> tuple[Part, list[
     match row:
         case EffortJudgement():
             return (AUTO_SIGN, S_BRAND_BOLD), effort_lines(row, room)
+        case HandoverJudgement():
+            return (HANDOVER_SIGN, S_BRAND_BOLD if row.target else S_MUTED), handover_lines(row, room)
         case TurnJudgement():
             return " ", watch_lines(row, room)
         case GuardJudgement():

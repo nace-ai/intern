@@ -5,7 +5,7 @@ with the summary System 2 continues from; on the right the System 1 panel (every
 each: a turn it watched, a call it guarded, a search it walked, a compaction's reads it sorted) over the State panel
 (the session as System 1 reads it); the prompt line at the bottom. Until the first prompt, the entering page takes
 their place (`welcome.py`). Enter sends a prompt, or steers the run in progress. Slash commands:
-/system2, /system1, /handoff, /state, /thinking, /abort, /panels, /help, /quit.
+/system2, /system1, /auto, /state, /thinking, /abort, /panels, /help, /quit.
 """
 
 from __future__ import annotations
@@ -82,6 +82,7 @@ from intern.events import (
     WindowFallback,
 )
 from intern.extensions.schedule import Schedule
+from intern.handoff import DEFAULT_TARGET
 from intern.hooks import RunOutcome
 from intern.journal import (
     CompactionEntry,
@@ -106,6 +107,7 @@ from intern.tui.ledger import (
     CompactionJudgement,
     EffortJudgement,
     GuardJudgement,
+    HandoverJudgement,
     Ledger,
     Row,
     RuleRefusal,
@@ -130,9 +132,11 @@ from intern.tui.widgets import (
     effort_card,
     ended_lines,
     guard_card,
+    handoff_card,
     images_in,
     look_card,
     meter,
+    model_name,
     rule_card,
     supervisor_card,
     tokens_text,
@@ -162,6 +166,9 @@ class Models:
     """Open on a new journal, whatever `--session` named: /clear starts the conversation over."""
     thinking: str | None = None
     """The thinking level chosen, kept across model switches and reopens; None while none was."""
+    auto: bool = False
+    """Auto mode: a run hands over to the cheaper model once System 1 judges that model can finish it (`/auto`).
+    `main` starts it as the config says, on unless `auto = false`."""
     dark: bool = False
     """The dark look, picked with /dark."""
 
@@ -198,8 +205,9 @@ ADD_SECRET = "+add"
 COMMANDS: dict[str, str] = {
     "/system2": "pick the System 2 model, the agent; /system2 <provider/model> sets it directly",
     "/system1": "pick the System 1 model, the judge; /system1 <model> sets it directly",
-    "/handoff": "pick the cheaper model System 2 hands a run over to once System 1 judges it can finish, or off; "
-    "/handoff <provider/model> or /handoff off sets it directly; the session reopens on its journal",
+    "/auto": "auto mode, on unless the config says auto = false: System 1 hands a run over to a cheaper model once "
+    "it judges that model can finish it; the next message is System 2's again. /auto picks that model or off; "
+    "/auto on, /auto off or /auto <provider/model> sets it directly; the session reopens on its journal",
     "/state": "show System 1's State in full: the session as it reads it",
     "/caps": "switch a tool pack, the browser, code search, the memory drive or an MCP connection on or off; "
     "/caps <name> [path] sets one directly; the session reopens on its journal (also /capabilities)",
@@ -250,8 +258,8 @@ def _runner_group(choice: RunnerInfo, current: str) -> str:
     return "unavailable" if choice.unavailable else "can run here"
 
 
-HANDOFF_OFF = ("off", "none", "no")
-"""What `/handoff` takes to turn the hand-over off; the first is the picker's row."""
+AUTO_OFF = ("off", "none", "no")
+"""What `/auto` takes to turn auto mode off; the first is the picker's row."""
 
 
 def _switched(toggle_id: str, on: bool) -> str:
@@ -445,6 +453,8 @@ class HarnessApp(App[None]):
         """Started by /reload: the alternate screen is already up, with the last frame on it."""
         self._width = 0
         """The terminal's width at the last resize."""
+        self._handoff_missing = ""
+        """Why auto mode's hand-over model could not be opened, as last told."""
         self.reload: Models | None = None
         """Set by /reload: what the restarted process reopens on. `main` restarts it once the app has exited."""
         self.journal_path: Path | None = None
@@ -676,6 +686,11 @@ class HarnessApp(App[None]):
             except (ConfigError, ValueError) as e:
                 await self.transcript.notice(f"The session's last System 1, {system1}, cannot be set up: {e}", "warn")
         self._keep_thinking(session.deps.system2)
+        if self.pending.auto and (missing := session.handoff_missing) and missing != self._handoff_missing:
+            self._handoff_missing = missing  # said once, not at every reopen
+            await self.transcript.notice(
+                f"Auto mode runs without a hand-over: {missing}. /auto <provider/model> names another model.", "warn"
+            )
         if not self._resuming:  # a reopened session's conversation is already on the screen
             self._replaying = True  # its compactions drawn settled, not landing again
             try:
@@ -754,14 +769,20 @@ class HarnessApp(App[None]):
             await self._begin()
         start = replies[-RESUME_TURNS] if len(replies) > RESUME_TURNS else 0
         run_id, nudge, summary = None, None, ""
+        handed: HandoverJudgement | None = None  # a hand-over before the turns drawn, its own turns among them
         for i, entry in enumerate(entries):
             drawn = i >= start
             if isinstance(entry, MessageEntry) and entry.run_id is not None and entry.run_id != run_id:
                 run_id = entry.run_id  # a run began: its own ledger, under the prompt that began it
+                await self._hand_back()
+                handed = None
                 self.run_count += 1
                 first = entry.message
                 asked = first.content if isinstance(first, UserMessage) and first.source == "user" else ""
                 self.ledger.runs.append(RunLedger(run_id=run_id, prompt=asked))
+            if drawn and handed is not None and isinstance(entry, MessageEntry):
+                await self.transcript.hand_over(handoff_card(handed))
+                self.status.handed, handed = True, None
             match entry:
                 case EventEntry(event=event):
                     if isinstance(event, Compaction):  # the summary is its entry's, just before it
@@ -769,8 +790,8 @@ class HarnessApp(App[None]):
                     nudge = event.text if isinstance(event, Nudge) else None
                     if drawn:
                         await self._handle(event)
-                    else:
-                        self._account(event)
+                    elif isinstance(row := self._account(event), HandoverJudgement) and isinstance(event, Handoff):
+                        handed = row
                     continue
                 case MessageEntry(message=AssistantMessage(usage=usage) as reply):
                     self._spend(usage)
@@ -823,6 +844,7 @@ class HarnessApp(App[None]):
                     )
                     self.ledger.observe(end)
                     self.transcript.tool_end(end)
+        await self._hand_back()  # the session's last run is over, however it ended
         self.call_after_refresh(self.transcript.scroll_end, animate=False)  # at the end, where the session left off
         self._feed()
 
@@ -836,6 +858,9 @@ class HarnessApp(App[None]):
                 (binding.profile.reasoning_effort or THINKING_DEFAULT) if binding.takes_effort else ""
             )
             self.status.levels = binding.effort_levels
+            handoff = self.session.deps.handoff
+            runs = handoff is not None and handoff.binding.ref != binding.ref
+            self.status.handoff = model_name(handoff.binding.ref) if handoff is not None and runs else ""
         else:
             self.status.system2 = self.pending.system2 or "none"
             self.status.system1 = self.pending.system1 or "none"
@@ -1021,18 +1046,17 @@ class HarnessApp(App[None]):
                 await transcript.notice(f"Window not known: {message}", "warn")
             case HookError(hook=hook, extension=extension, error=error):
                 await transcript.notice(f"Extension {extension} failed in {hook}: {error}", "error")
-            case Handoff(turn=turn, target=target, probability=probability):
-                await transcript.notice(
-                    f"Handed over to {target} at turn {turn}: System 1 judged the rest within its reach "
-                    f"(P(ready) {probability:.2f}). It finishes this run; the next message is System 2's again.",
-                    "ok",
-                )
+            case Handoff() if isinstance(row, HandoverJudgement):
+                await transcript.hand_over(handoff_card(row))
+                self.status.handed = True
+                self.status.refresh_line()
             case SubagentStart(name=name, tools=tools):
                 await transcript.notice(f"Subagent {name} started with {', '.join(tools) or 'no tools'}", "info")
             case SubagentEnd(name=name, status=status, turns=turns):
                 kind = "ok" if status == "completed" else "warn"
                 await transcript.notice(f"Subagent {name}: {status}, {turns} turns", kind)
             case RunEnd(reason=reason, detail=detail, turns=turns, usage=usage, system1=system1):
+                await self._hand_back()
                 await transcript.finish_reply()
                 transcript.run_ended()
                 spent2, spent1 = self.run_spent  # what went uncounted: calls with no event of their own (code search)
@@ -1071,6 +1095,14 @@ class HarnessApp(App[None]):
             # In the transcript: the context it cut and the reads System 1 kept; on System 1's panel, a row.
             key = f"compaction:{run}:{row.turn}"
             await transcript.compaction(row, key, self.status.window, self._cwd, live=not self._replaying)
+        self.status.refresh_line()
+
+    async def _hand_back(self) -> None:
+        """A run that handed over has ended: the next message is System 2's again, and the transcript says so."""
+        self.status.handed = False
+        if self.transcript.handed:
+            back = model_name(self.session.deps.system2.ref if self.session is not None else self.status.system2)
+            await self.transcript.hand_back(Content.assemble((f"⇠ {back} takes the next message", S_MUTED)))
         self.status.refresh_line()
 
     async def _show_verdict(self, j: TurnJudgement) -> None:
@@ -1208,8 +1240,8 @@ class HarnessApp(App[None]):
                 await self._pick_or_set("system2", rest)
             case "/system1":
                 await self._pick_or_set("system1", rest)
-            case "/handoff":
-                await self._handoff(rest)
+            case "/auto":
+                await self._auto(rest)
             case "/state":
                 self.push_screen(StateScreen(self.state_panel.cut))
             case "/capabilities" | "/caps":
@@ -1512,47 +1544,54 @@ class HarnessApp(App[None]):
         self.pending.capabilities = caps.model_copy(update={"runner": runner})
         await self._reopen(f"runner {name}", before)
 
-    async def _handoff(self, rest: str) -> None:
-        """`/handoff`: a picker of System 2's models, the hand-over's model marked, with a row to turn it off;
-        `/handoff <provider/model>` or `/handoff off` sets it directly."""
+    def _handoff_model(self) -> str:
+        """The model auto mode hands over to: the one named, else the default."""
+        return self._capabilities_now().handoff.to or DEFAULT_TARGET
+
+    async def _auto(self, rest: str) -> None:
+        """`/auto`: a picker of the models a run can hand over to, the one in use marked, with a row to turn auto
+        mode off; `/auto on`, `/auto off` or `/auto <provider/model>` sets it directly."""
         if rest:
-            target = None if rest.lower() in HANDOFF_OFF else rest
-            self.run_worker(self._set_handoff(target), group="capabilities", exit_on_error=False)
+            self.run_worker(self._set_auto(rest), group="capabilities", exit_on_error=False)
             return
         if self._opening:
             await self.transcript.notice("The session is still opening; try again in a moment.", "warn")
             return
-        current = self._capabilities_now().handoff.to
-        choices = [
-            Choice(id=HANDOFF_OFF[0], name="off", group="hand-over", label="off", note="System 2 runs every turn")
-        ]
+        off = "System 2 runs every turn"
+        choices = [Choice(id=AUTO_OFF[0], name="off", group="auto mode", label="off", note=off)]
         choices += [choice for choice in self._choices("system2") if choice.id != self._current("system2")]
-        hint = "Enter picks the model a run hands over to; the session reopens on its journal"
-        picker = ModelPicker("Hand-over · the cheaper model that finishes a run", choices, current or "", hint=hint)
-        self.push_screen(picker, callback=self._handoff_picked)
+        hint = "Enter picks the cheaper model a run hands over to, or off; the session reopens on its journal"
+        current = self._handoff_model() if self.pending.auto else AUTO_OFF[0]
+        picker = ModelPicker("Auto · the cheaper model that finishes a run", choices, current, hint=hint)
+        self.push_screen(picker, callback=self._auto_picked)
 
-    def _handoff_picked(self, picked: str | None) -> None:
+    def _auto_picked(self, picked: str | None) -> None:
         if picked:
-            target = None if picked == HANDOFF_OFF[0] else picked
-            self.run_worker(self._set_handoff(target), group="capabilities", exit_on_error=False)
+            self.run_worker(self._set_auto(picked), group="capabilities", exit_on_error=False)
 
-    async def _set_handoff(self, target: str | None) -> None:
-        """Hand runs over to `target` (None: never) and reopen the session on it."""
+    async def _set_auto(self, value: str) -> None:
+        """Auto mode off, on (with the hand-over model as it was), or on with `value` as that model; the session
+        reopens on it."""
         caps = self._capabilities_now()
-        if target == caps.handoff.to:
-            await self.transcript.notice(f"The hand-over is already {target or 'off'}.")
+        on = value.lower() not in AUTO_OFF
+        named = value if on and value.lower() != "on" else None
+        target = named or self._handoff_model()
+        if on == self.pending.auto and (not on or target == self._handoff_model()):
+            await self.transcript.notice(f"Auto is already {f'on, handing over to {target}' if on else 'off'}.")
             return
-        if target is not None and target == self._current("system2"):
-            await self.transcript.notice(f"{target} is System 2 already: pick a cheaper model.", "warn")
-            return
-        try:
-            handoff = HandoffConfig.model_validate({**caps.handoff.model_dump(), "to": target})
-        except ValidationError:
-            await self.transcript.notice(f"Not a model: {target!r}; a hand-over model is provider/model.", "warn")
+        if named is not None and named == self._current("system2"):
+            await self.transcript.notice(f"{named} is System 2 already: pick a cheaper model.", "warn")
             return
         before = Models(**vars(self.pending))
-        self.pending.capabilities = caps.model_copy(update={"handoff": handoff})
-        await self._reopen(f"hand-over to {target}" if target else "hand-over off", before)
+        if named is not None:
+            try:
+                handoff = HandoffConfig.model_validate({**caps.handoff.model_dump(), "to": named})
+            except ValidationError:
+                await self.transcript.notice(f"Not a model: {named!r}; a hand-over model is provider/model.", "warn")
+                return
+            self.pending.capabilities = caps.model_copy(update={"handoff": handoff})
+        self.pending.auto = on
+        await self._reopen(f"auto on, hand-over to {target}" if on else "auto off", before)
 
     def _capability_picked(self, picked: str | None) -> None:
         if picked:
@@ -1982,9 +2021,9 @@ class HarnessApp(App[None]):
 def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | None = None) -> None:
     """Run the TUI on a session built the way the CLI builds one; a resumed journal's models win over config."""
     reloaded = os.environ.pop(RELOAD_ENV, None)
-    picks = PICKS.validate_json(reloaded) if reloaded else Models()
     environment = process_env() if env is None else dict(env)
     bootstrap = Bootstrap(options, environment)
+    picks = PICKS.validate_json(reloaded) if reloaded else Models(auto=bootstrap.config.auto)
     current = [bootstrap]
     """The Bootstrap the catalog and the default are read from, made again once setup adds keys."""
 
@@ -2005,9 +2044,15 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
             system2 = Journal(cwd=str(options.cwd), path=journal).last_models().get("system2")
             opened = options.model_copy(update={"system2": system2}) if system2 else options
         picked: dict[str, object] = {k: v for k, v in (("system2", picks.system2), ("system1", picks.system1)) if v}
-        if picks.capabilities is not None:
+        caps = picks.capabilities
+        if picks.auto:
+            picked["handoff_default"] = DEFAULT_TARGET
+        else:  # off: System 2 runs every turn, whatever model the config names for the hand-over
+            caps = caps if caps is not None else current[0].capability_settings()
+            caps = caps.model_copy(update={"handoff": caps.handoff.model_copy(update={"to": None})})
+        if caps is not None:
             # The picked object already holds --memory, --no-memory and --handoff-to, folded in at start.
-            picked |= {"capabilities": picks.capabilities, "memory": None, "memory_off": False, "handoff_to": None}
+            picked |= {"capabilities": caps, "memory": None, "memory_off": False, "handoff_to": None}
         if picks.session_file is not None or picks.fresh:
             picked["session_file"] = picks.session_file  # None after /clear: a new journal
         picked["tui"] = True

@@ -52,6 +52,7 @@ from intern.tui.ledger import (
     CompactionJudgement,
     EffortJudgement,
     GuardJudgement,
+    HandoverJudgement,
     KeepVerdict,
     RuleRefusal,
     TurnJudgement,
@@ -634,6 +635,10 @@ class StatusBar(Static):
         super().__init__("", id="status")
         self.system2 = "…"
         self.system1 = "…"
+        self.handoff = ""
+        """The model auto mode hands a run over to, by its own name; none when it hands over to none."""
+        self.handed = False
+        """A run has handed over: that model's turn until the run ends."""
         self.context = 0
         self.window = 0
         self.cost2 = 0.0
@@ -728,7 +733,11 @@ class StatusBar(Static):
     def refresh_line(self) -> None:
         model1, served = system1_parts(self.system1)
         state = (SPINNER[self._frame % len(SPINNER)], S_OK) if self.running else ("○", S_MUTED)
-        width = max(len(self.system2), len(model1)) + COLUMN_GAP
+        # System 2, then the model auto mode hands a run over to: the one whose turn it is in the ink.
+        model2: list[Part] = [(self.system2, S_MUTED if self.handed else S_INK)]
+        if self.handoff:
+            model2 += [(f" {HANDOVER_SIGN} ", S_MUTED), (self.handoff, S_BRAND_BOLD if self.handed else S_MUTED)]
+        width = max(Content.assemble(*model2).cell_length, len(model1)) + COLUMN_GAP
 
         frame = self._glint_frame()
         self._glinting = frame is not None
@@ -741,11 +750,12 @@ class StatusBar(Static):
             cost2 = f"{cost2}{SEP}{cache}" if cost2 else cache
         money = max(len(cost2), len(cost1)) + COLUMN_GAP
 
-        def table_row(label: str, value: tuple[str, str], rest: list[Part], cost: str, tail: list[Part]) -> list[Part]:
+        def table_row(label: str, value: list[Part], rest: list[Part], cost: str, tail: list[Part]) -> list[Part]:
             pad = " " * (detail - Content.assemble(*rest).cell_length)
             return [
                 (label.ljust(LABEL_WIDTH), S_MUTED),
-                (value[0].ljust(width), value[1]),
+                *value,
+                " " * (width - Content.assemble(*value).cell_length),
                 *rest,
                 pad,
                 (cost.ljust(money), S_MUTED),
@@ -762,8 +772,8 @@ class StatusBar(Static):
         elif self.note:
             run.append((self.note, S_MUTED if self.note.startswith("Not connected yet") else S_BAD))
         table = [
-            table_row("System 2", (self.system2, S_INK), thinking, cost2, [state, " ", *joined(run)]),
-            table_row("System 1", (model1, S_INK), where, cost1, [(self.watching, S_MUTED)] if self.watching else []),
+            table_row("System 2", model2, thinking, cost2, [state, " ", *joined(run)]),
+            table_row("System 1", [(model1, S_INK)], where, cost1, [(self.watching, S_MUTED)] if self.watching else []),
         ]
         # With the room, the entering page's block letters between the mark and the table; else the name in type.
         letters = wordmark(page=CARD)
@@ -1256,8 +1266,10 @@ class Following(VerticalScroll, can_focus=False):
 
 def stay(block: Widget) -> None:
     """A block the reader opens or folds stays where it is: the transcript stops following, as after a scroll up."""
-    if isinstance(block.parent, Following):
-        block.parent.release_anchor()
+    for ancestor in block.ancestors:  # its parent, or the transcript around a hand-over's turns
+        if isinstance(ancestor, Following):
+            ancestor.release_anchor()
+            return
 
 
 class Transcript(Following):
@@ -1271,10 +1283,34 @@ class Transcript(Following):
         self._last_tool: ToolBlock | None = None
         self._markers: dict[str, Static] = {}
         self._compactions: dict[str, CompactionCard] = {}
+        self._handed: Vertical | None = None
+        """The turns the cheaper model takes after a hand-over, set apart until the run ends."""
         self.border_title = Content.assemble((" System 2 ", S_TAB), (" thinking slow ", S_MUTED))
 
     async def add(self, widget: Widget) -> None:
-        await self.mount(widget)
+        await (self._handed or self).mount(widget)
+
+    @property
+    def handed(self) -> bool:
+        return self._handed is not None
+
+    async def hand_over(self, content: Content) -> None:
+        """The run handed over: what follows, until `hand_back`, is the cheaper model's, under `content`."""
+        await self.finish_reply()
+        await self.hand_back()
+        region = Vertical(classes="handed")
+        await self.mount(region)
+        self._handed = region
+        await region.mount(Static(content, classes="handed-head"))
+
+    async def hand_back(self, content: Content | None = None) -> None:
+        """The run the cheaper model finished is over: what follows is System 2's again."""
+        if self._handed is None:
+            return
+        await self.finish_reply()
+        if content is not None:
+            await self._handed.mount(Static(content, classes="handed-foot"))
+        self._handed = None
 
     async def user(self, text: str, queued: bool = False) -> Static:
         """A user message; `queued` while a run in progress has not taken it yet."""
@@ -1362,6 +1398,7 @@ class Transcript(Following):
         self._tools.clear()
         self._markers.clear()
         self._compactions.clear()
+        self._handed = None
         await self.remove_children()
         self.anchor()  # following again, even if the reader had scrolled up
 
@@ -1541,6 +1578,38 @@ def effort_card(e: EffortJudgement) -> Content:
     levels += effort_runners_up(e)
     return Content.assemble(
         (f"{AUTO_SIGN} ", S_BRAND_BOLD), card("System 1", seconds(e.duration_ms, e.cached), levels, [])
+    )
+
+
+HANDOVER_SIGN = "⇢"
+
+
+def model_name(ref: str) -> str:
+    """A model as the hand-over says it: its own name, without the provider before it."""
+    return ref.rsplit("/", 1)[-1]
+
+
+def readiness(h: HandoverJudgement) -> list[Part]:
+    """System 1's P(ready) turn by turn as a column each, the latest in the accent, then that one in figures: how the
+    work came to the point where the cheaper model can finish it."""
+    if not h.ready:
+        return []
+    columns = [LADDER[max(0, math.ceil(p * len(LADDER)) - 1)] for p in h.ready[-READY_SHOWN:]]
+    trail: list[Part] = [("".join(columns[:-1]), S_MUTED), (columns[-1], S_BRAND_BOLD), " "]
+    return [("ready ", S_MUTED), *trail, (f"{h.ready[-1]:.2f}", S_INK)]
+
+
+READY_SHOWN = 12
+"""The turns a readiness trail shows, newest last."""
+
+
+def handoff_card(h: HandoverJudgement) -> Content:
+    """The hand-over as a card where it happened: the turn, how sure System 1 was and how it got there, then who
+    finishes the run."""
+    outcome: list[Part] = [(f"{model_name(h.target)} finishes this run", S_BRAND_BOLD)]
+    return Content.assemble(
+        (f"{HANDOVER_SIGN} ", S_BRAND_BOLD),
+        card("System 1", f"handed over at turn {h.handed_at}", readiness(h), outcome),
     )
 
 
