@@ -504,7 +504,7 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         # capability it searches for is on, and the guard while its capability is off, as it is by default.
         assert all(job in said for job in ("○ Hand-over", "● Watch", "○ Guard", "○ Search", "● Compaction"))
         assert "Intern uses two models" in " ".join(said.split())  # what it is, with no efficient model to hand to
-        assert "● Base Tools" in said and "/models models" in said
+        assert "● Base Tools" in said and "/handover on hand-over" in said  # the tips: how to turn the hand-over on
         if look != "compact":  # with the room, what each capability is: under it on the wide page, else beside it
             gap = r"\n +" if look == "hero" else " +"
             assert re.search(rf"Base Tools{gap}files and the shell", said)

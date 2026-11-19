@@ -57,7 +57,7 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
   │                                        │       ▄███████████▄        │  ● Base Tools                          │
   │  ━━━━━ ↓ hand-over · ready 0.48 ────── │     ▄████▀▀▀▀▀▄█████▄      │      files and the shell               │
   │                                        │    ██████ ██ █████████     │  ○ Web Search ◆                        │
-  │  Efficient                /handover off│    ███████████████████     │      searches the web                  │
+  │  Efficient                             │    ███████████████████     │      searches the web                  │
   │  claude-haiku-5-5                      │     ▀███████████████▀      │  ● Code Search ◆                       │
   │  ○ waits for the hand-over             │       ▀▀█████████▀▀        │      searches code for it              │
   ╰────────────────────────────────────────╯          ▀▀███▀▀           │  ● Memory                              │
@@ -74,30 +74,29 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
   ╰────────────────────────────────────────╯                            ╰────────────────────────────────────────╯
                                     ~/work/parser  ·  session 20261108-21…
 
-                          /models models   /caps capabilities   Shift+Tab thinking   /dark look
+              /models models   /caps capabilities   /handover off hand-over   Shift+Tab thinking   /dark look
 ```
 
 Intern is a brain in two parts, and the page is drawn that way: on the left System 2's card over System 1's, on the
 right the capabilities, the mascot between them. System 2's card has the frontier model and how hard it thinks, and,
-while a run hands over, the efficient model under it, `/handover off` at the end of its tab's line, the hand-over
-between them a rule across the card with `↓ hand-over` in its middle; it plays a run over and over, the frontier
-model on the hard part, the rule filling in the accent as the decision model's P(ready) rises to the moment it hands
-over, then the efficient model on the rest. While hand-over is off the efficient model is not there, a line says `○
-Hand-over off · /handover on`, and the frontier model works every turn. System 1's card has the decision model and
-where it is served, and its jobs, each on (`●`) or off (`○`) as a capability is (the guard is off, and its line says
-so, when `cap.guard` is off or runs the fixed rules alone; the search while neither `code search` nor `workspace` is
-on). The capabilities' card says which models work with the tools (a run that hands over keeps its tools, so both
-do) and what a `◆` means, then what the session has switched on (`●` on, `○` off: `/caps` changes them), each
-capability over what it is in a few words, a line of air between them, with a `◆` after those the decision model
-takes part in. The capabilities' card stands exactly beside the models' cards, top and bottom, the mascot at their
-middle, and scrolls the list, its head staying: with the wheel, or the arrows once it is clicked (what is typed next
-goes to the prompt); its scrollbar shows only while the pointer is on it or it has the focus. Above them the
-wordmark in block letters, in the ink with a shadow in the accent, and what Intern is, in a sentence on a shaded
-band: three models while a run hands over, two while not. Under them the working directory and the session's
-journal, then the keys worth knowing first, the look last (the prompt under it says to describe the task, and that
-`/help` lists the commands): `/dark` in the light look, `/light` in the dark one (while the session is opening, or
-when it could not open, that line says so instead). All of it is centred, and stands a third of the way down a tall
-terminal.
+while a run hands over, the efficient model under it, the hand-over between them a rule across the card with `↓
+hand-over` in its middle; it plays a run over and over, the frontier model on the hard part, the rule filling in the
+accent as the decision model's P(ready) rises to the moment it hands over, then the efficient model on the rest.
+While hand-over is off the efficient model is not there, and the frontier model works every turn. System 1's card
+has the decision model and where it is served, and its jobs, each on (`●`) or off (`○`) as a capability is (the
+guard is off, and its line says so, when `cap.guard` is off or runs the fixed rules alone; the search while neither
+`code search` nor `workspace` is on). The capabilities' card says which models work with the tools (a run that hands
+over keeps its tools, so both do) and what a `◆` means, then what the session has switched on (`●` on, `○` off:
+`/caps` changes them), each capability over what it is in a few words, a line of air between them, with a `◆` after
+those the decision model takes part in. The capabilities' card stands exactly beside the models' cards, top and
+bottom, the mascot at their middle, and scrolls the list, its head staying: with the wheel, or the arrows once it is
+clicked (what is typed next goes to the prompt); its scrollbar shows only while the pointer is on it or it has the
+focus. Above them the wordmark in block letters, in the ink with a shadow in the accent, and what Intern is, in a
+sentence on a shaded band: three models while a run hands over, two while not. Under them the working directory and
+the session's journal, then the keys worth knowing first, `/handover off` or `/handover on` among them, the look
+last (the prompt under it says to describe the task, and that `/help` lists the commands): `/dark` in the light
+look, `/light` in the dark one (while the session is opening, or when it could not open, that line says so instead).
+All of it is centred, and stands a third of the way down a tall terminal.
 
 The mascot is the README's mark, the Nace cube with two eyes in the window on its top face, in one colour, the ink
 (`tui/sprites/`: sheets of frames from the Nace brand playground's Intern kit, with `sprites.json` saying which

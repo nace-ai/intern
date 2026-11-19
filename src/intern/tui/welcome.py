@@ -14,7 +14,7 @@
     │                                      │    (the mascot,    │ ● Base Tools                         │
     │ ━━━━━ ↓ hand-over · ready 0.48 ───── │     glancing       │     files and the shell              │
     │                                      │     and blinking)  │ ○ Web Search ◆                       │
-    │ Efficient               /handover off│                    │     searches the web                 │
+    │ Efficient                            │                    │     searches the web                 │
     │ claude-haiku-5-5                     │                    │ ...                                  │
     │ ○ waits for the hand-over            │                    │                                      │
     ╰──────────────────────────────────────╯                    │                                      │
@@ -26,21 +26,20 @@
     ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
-                    /models models   /caps capabilities   Shift+Tab thinking   /dark look
+        /models models   /caps capabilities   /handover off hand-over   Shift+Tab thinking   /dark look
 
 The page is drawn as one. On the left System 2's card over System 1's, on the right the capabilities, Intern itself
 between them, the Nace cube with eyes, alive as the brand draws it (`Mascot`); the cards on either side as tall as
 each other, the mascot at their middle. System 2's card plays the run as Intern makes it, over and over (`RunPlay`):
 the frontier model works the hard part, on a rule across the card, `↓ hand-over` in its middle, the decision model's
 P(ready) fills it until it hands over, and the efficient model finishes the rest. While hand-over is off the
-efficient model is not there, a line says so, and the frontier model works every turn. System 1's card has the
-decision model's jobs, each on or off as a capability is. The capabilities' card says which models work with the
-tools, then each capability over what it is, in a few words, a line of air between them, and a ◆ after those the
-decision model takes part in, its legend at the top; the card stands exactly beside the models' cards, top and
-bottom, and scrolls the rest (`CapabilityCard`). Above them the wordmark, in ink with the accent for its shadow, and
-what Intern is, in a sentence on a shaded band: three models while a run hands over, two while it does not; under
-them where the session works, then the keys worth knowing first. All of it centred, and a third of the way down a
-tall terminal.
+efficient model is not there, and the frontier model works every turn. System 1's card has the decision model's
+jobs, each on or off as a capability is. The capabilities' card says which models work with the tools, then each
+capability over what it is, in a few words, a line of air between them, and a ◆ after those the decision model takes
+part in, its legend at the top; the card stands exactly beside the models' cards, top and bottom, and scrolls the
+rest (`CapabilityCard`). Above them the wordmark, in ink with the accent for its shadow, and what Intern is, in a
+sentence on a shaded band: three models while a run hands over, two while it does not; under them where the session
+works, then the keys worth knowing first. All of it centred, and a third of the way down a tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the models and the capabilities in one column
 beside the mascot, in one frame (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is
@@ -126,9 +125,8 @@ GuardState = Literal["off", "rules", "full"]
 """The guard capability: off, on with the fixed rules alone (`[capabilities.guard] system1 = false`), or on."""
 GUARD: dict[GuardState, str] = {"off": "off · /caps guard", "rules": "fixed rules only"}
 """What the guard's line says when the decision model does not judge calls."""
-HANDOVER_OFF = "off · /handover on"
-TURN_OFF = "/handover off"
-"""What turns the hand-over off, beside the efficient model while a run hands over."""
+HANDOVER_OFF = "off"
+"""What the hand-over's line says while no efficient model is set; the tips say how to turn it on."""
 """What the hand-over's line says while no efficient model is set."""
 STATE = (
     "What the decision model judges from: the session as it reads it, your requests as the goal and then the "
@@ -457,18 +455,16 @@ def run_frame(o: Opening, width: int, t: float | None) -> Content:
     head: list[Part] = [(" Frontier ", S_TAB), *(["  ", *thinking_box(o.thinking, o.levels)] if o.thinking else [])]
     lines: list[list[Part]] = [head, *model(o.system2, width), f_said, *handover(o, width, phase, through, t is None)]
     if o.handoff:
-        tab = " Efficient "
-        head = [(tab, S_TAB), (TURN_OFF.rjust(width - len(tab)), S_MUTED)]  # how to turn it off, at the line's end
-        lines += [head, *model(o.handoff, width), e_said]
+        lines += [[(" Efficient ", S_TAB)], *model(o.handoff, width), e_said]
     return Content("\n").join(Content.assemble(*line).truncate(width, ellipsis=True) for line in lines)
 
 
 def handover(o: Opening, width: int, phase: Phase, through: float, still: bool) -> list[list[Part]]:
     """The hand-over between the two models: a rule across the card, `↓ hand-over` in its middle, filling in the
     accent from the left as the decision model's P(ready) rises turn by turn; whole at the moment it hands over, then
-    the turn it did. While hand-over is off, a line saying so."""
+    the turn it did. Nothing while hand-over is off: System 1's card and the tips say so."""
     if not o.handoff:
-        return [[], [*switch("hand-over", False), (f"  {HANDOVER_OFF}", S_MUTED)]]
+        return []
     ready = 0.0
     if still:
         label: list[Part] = [(" ↓ hand-over when ready ", S_MUTED)]
@@ -533,11 +529,7 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     box = [thinking_box(o.thinking, o.levels)] if o.thinking else []
     models: list[list[Part]] = [
         *flow([head, *box], width, gap=2),  # the box on a line of its own where it would wrap
-        *(
-            [[(" Efficient ", S_TAB), "  ", (model_label(o.handoff), S_HEAD), (f" · {TURN_OFF}", S_MUTED)]]
-            if o.handoff
-            else []
-        ),
+        *([[(" Efficient ", S_TAB), "  ", (model_label(o.handoff), S_HEAD)]] if o.handoff else []),
     ]
     lines: list[list[Part]] = [
         *([] if roomy else [*paragraph(ABOUT_SHORT if o.handoff else ABOUT_ALONE, width, S_INK), []]),
@@ -554,12 +546,13 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
 
 
 def tips(o: Opening, width: int, dark: bool = False) -> Content:
-    """The keys worth knowing first and the look there is to switch to (`/light` in the dark one); while there is no
-    session, why, first."""
+    """The keys worth knowing first, how to turn the hand-over off or on, and the look there is to switch to (`/light`
+    in the dark one); while there is no session, why, first."""
     waiting = o.note.endswith("…")
     style = S_MUTED_ITALIC if waiting else S_HEAD if o.note == SETUP_NOTE else S_BAD
     lead: list[list[Part]] = [[(o.note, style)]] if o.note else []
-    hints = [*HINTS, ("/light" if dark else "/dark", "look")]
+    handover = ("/handover off" if o.handoff else "/handover on", "hand-over")
+    hints = [*HINTS[:2], handover, *HINTS[2:], ("/light" if dark else "/dark", "look")]
     return stacked(flow([*lead, *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in hints)], width))
 
 
