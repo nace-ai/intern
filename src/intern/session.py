@@ -135,6 +135,8 @@ class Session:
         deps.emit = recording(deps.journal, deps.emit)
         deps.decisions.emit = deps.emit
         self.job_notices: JobNotices = job_notices
+        self.handoff_missing: str | None = None
+        """Why the session opened without the default hand-over model (`Options.handoff_default`), when it did."""
         self._ended: list[ProcessInfo] = []
         """Processes that ended while no run was in progress (or after a run's last turn), not yet told."""
         self._waking = False

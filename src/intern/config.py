@@ -151,6 +151,11 @@ class UserConfig(BaseModel):
     system1: System1Config = Field(default_factory=System1Config, validation_alias=AliasChoices("system1", "decider"))
     providers: dict[str, ProviderSpec] = Field(default_factory=dict)
     capabilities: CapabilitySettings = Field(default_factory=CapabilitySettings)
+    auto: bool = Field(
+        default=True,
+        description="The terminal UI opens in auto mode: a run hands over to a cheaper model once System 1 judges that "
+        "model can finish it. `/auto` changes it for the session.",
+    )
     commands: CommandsConfig = Field(default_factory=CommandsConfig)
     secrets: dict[str, StoreEntry] = Field(default_factory=dict)
     """Where each stored secret comes from: `"keychain"` or a command; see `secret_store`."""
@@ -194,6 +199,11 @@ class Options(BaseModel):
     system2: str | None = None
     system1: str | None = Field(default=None, description="decisions:<model>[,<fallback>...] or drex:<model>[,...]")
     handoff_to: str | None = Field(default=None, description="Sets [capabilities.handoff] to.")
+    handoff_default: str | None = Field(
+        default=None,
+        description="The hand-over model while [capabilities.handoff] names none (the terminal UI's auto mode). One "
+        "that cannot be bound is left out, and the session's `handoff_missing` says why.",
+    )
     window_cap: int | None = None
     max_turns: int | None = None
     profile: Path | None = None
@@ -634,17 +644,21 @@ class Bootstrap:
         except ValueError as error:
             raise ConfigError(str(error)) from None
         system2.profile = system2.profile.model_copy(update={"tool_packs": packs})
-        handoff = None
-        if (plan := capabilities.handoff).to:
+        handoff, handoff_missing = None, None
+        plan = capabilities.handoff
+        if to := plan.to or options.handoff_default:
             try:
-                target = await self.bind(plan.to)
+                target = await self.bind(to)
             except ConfigError as e:
-                raise ConfigError(f"[capabilities.handoff] to {plan.to}: {e}") from None
-            update: dict[str, object] = {"tool_packs": packs}
-            if plan.effort:
-                update["reasoning_effort"] = plan.effort
-            target.profile = target.profile.model_copy(update=update)
-            handoff = HandoffTarget(binding=target, config=plan)
+                if plan.to:
+                    raise ConfigError(f"[capabilities.handoff] to {plan.to}: {e}") from None
+                handoff_missing = str(e)  # the default is nobody's choice: the session opens without a hand-over
+            else:
+                update: dict[str, object] = {"tool_packs": packs}
+                if plan.effort:
+                    update["reasoning_effort"] = plan.effort
+                target.profile = target.profile.model_copy(update=update)
+                handoff = HandoffTarget(binding=target, config=plan)
         memory = self.memory()
 
         names = [*(system2.profile.extensions if options.extensions else []), *options.extra_extensions]
@@ -726,7 +740,7 @@ class Bootstrap:
         if memory is not None and journal_path is not None and capabilities.memory.steward:
             on_close = self._steward_on_close(journal_path, memory.root, ref)
         try:
-            return Session(
+            session = Session(
                 prepared.deps,
                 resolve_model=prepared.resolve_model,
                 resources=prepared.resources,
@@ -736,6 +750,8 @@ class Bootstrap:
                 on_close=on_close,
                 idle_s=capabilities.memory.steward_idle_s,
             )
+            session.handoff_missing = handoff_missing
+            return session
         except BaseException:
             if prepared.resources is not None:
                 await prepared.resources.aclose()

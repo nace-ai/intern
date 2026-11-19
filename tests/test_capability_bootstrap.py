@@ -378,3 +378,33 @@ def test_a_negative_system1_retry_window_is_refused(tmp_path):
     (tmp_path / "config.toml").write_text("[system1]\nretry_window_s = -1\n")
     with pytest.raises(ConfigError, match="retry_window_s"):
         load_user_config(tmp_path)
+
+
+async def test_a_default_hand_over_model_that_cannot_open_is_left_out_and_a_named_one_still_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    primary, _ = make_binding("fake/primary", [Turn(text="ok")])
+    cheap, _ = make_binding("fake/cheap", [Turn(text="ok")])
+    bindings = {"fake/primary": primary}
+    bootstrap = make_bootstrap(tmp_path, monkeypatch, bindings)
+
+    async def bind(self: Bootstrap, ref: str) -> ModelBinding:
+        if ref not in bindings:
+            raise ConfigError(f"{ref} needs an API key")
+        return replace(bindings[ref], profile=bindings[ref].profile.model_copy(deep=True))
+
+    monkeypatch.setattr(Bootstrap, "bind", bind)
+    # The terminal UI's auto mode names a default nobody chose: without its key the session still opens.
+    bootstrap.options = bootstrap.options.model_copy(update={"handoff_default": "fake/cheap"})
+    async with await bootstrap.session(lambda event: None) as session:
+        assert session.deps.handoff is None and session.handoff_missing == "fake/cheap needs an API key"
+    bindings["fake/cheap"] = cheap
+    async with await bootstrap.session(lambda event: None) as session:
+        assert session.deps.handoff is not None and session.deps.handoff.binding.ref == "fake/cheap"
+        assert session.handoff_missing is None
+    # A model the user named is their choice: one that cannot open is an error, as before.
+    del bindings["fake/cheap"]
+    named = CapabilitySettings.model_validate({"handoff": {"to": "fake/cheap"}})
+    bootstrap.options = bootstrap.options.model_copy(update={"capabilities": named})
+    with pytest.raises(ConfigError, match=r"\[capabilities.handoff\] to fake/cheap"):
+        await bootstrap.session(lambda event: None)

@@ -235,6 +235,23 @@ Screen {
     border-left: wide $brand;
 }
 
+/* A hand-over's turns, the cheaper model's until the run ends, set apart from System 2's: a hairline above and
+   below them, in the accent as the panels' borders are. */
+.handed {
+    height: auto;
+    margin: 0 0 1 0;
+    border-top: solid $brand 45%;
+    border-bottom: solid $brand 45%;
+}
+
+.handed-head {
+    margin: 0 0 1 0;
+}
+
+.handed-foot {
+    color: $muted;
+}
+
 /* System 1's look at a background command that it told the agent of. */
 .decision.told {
     border-left: wide $warning;

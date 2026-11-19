@@ -1346,7 +1346,7 @@ async def test_the_runner_is_one_choice_picked_with_slash_runner(tmp_path: Path)
         assert len(opened) == count
 
 
-async def test_the_hand_over_model_is_picked_with_slash_handoff_and_its_turn_is_told(tmp_path: Path):
+async def test_auto_mode_hands_over_to_the_model_slash_auto_picks_until_it_turns_it_off(tmp_path: Path):
     from intern.events import Handoff
 
     journal = tmp_path / "journal.jsonl"
@@ -1357,40 +1357,47 @@ async def test_the_hand_over_model_is_picked_with_slash_handoff_and_its_turn_is_
         opened.append(Models(**vars(picks)))
         return await inner(emit, picks)
 
-    app = HarnessApp(recording, capabilities=CapabilitySettings(), memory=tmp_path / "drive")
+    app = HarnessApp(recording, capabilities=CapabilitySettings(), memory=tmp_path / "drive", picks=Models(auto=True))
     async with app.run_test(size=SIZE) as pilot:
         await wait_for(lambda: app.session is not None)
         first = app.session
-        await send(app, pilot, "/handoff")
+        await send(app, pilot, "/auto")
         assert isinstance(app.screen, ModelPicker)
         ids = [c.id for c in app.screen.choices]  # pyright: ignore[reportAttributeAccessIssue]
         assert ids[0] == "off" and app._current("system2") not in ids  # System 2 is no hand-over target
         await pilot.press("escape")
         await pilot.pause()
         # A typed model is the hand-over's, and the session reopens on the same journal with it.
-        await send(app, pilot, "/handoff openrouter/qwen/qwen3.8-27b")
+        await send(app, pilot, "/auto openrouter/qwen/qwen3.8-27b")
         await wait_for(lambda: app.session is not None and app.session is not first)
         await pilot.pause()
         picks = opened[-1]
         assert picks.capabilities is not None and picks.capabilities.handoff.to == "openrouter/qwen/qwen3.8-27b"
-        assert picks.session_file == journal
-        assert "hand-over to openrouter/qwen/qwen3.8-27b" in transcript_text(app)
+        assert picks.auto and picks.session_file == journal
+        assert "auto on, hand-over to openrouter/qwen/qwen3.8-27b" in transcript_text(app)
         # Not a provider/model: refused with why, and nothing reopens.
         count = len(opened)
-        await send(app, pilot, "/handoff qwen")
+        await send(app, pilot, "/auto qwen")
         await wait_for(lambda: "Not a model: 'qwen'" in transcript_text(app))
         assert len(opened) == count
-        # Off turns it off.
+        # Off, and the model named stays for when it is on again.
         second = app.session
-        await send(app, pilot, "/handoff off")
+        await send(app, pilot, "/auto off")
         await wait_for(lambda: app.session is not None and app.session is not second)
         await pilot.pause()
-        assert opened[-1].capabilities is not None and opened[-1].capabilities.handoff.to is None
+        third = app.session
+        assert not opened[-1].auto
+        await send(app, pilot, "/auto on")
+        await wait_for(lambda: app.session is not None and app.session is not third)
+        await pilot.pause()
+        assert opened[-1].auto and opened[-1].capabilities is not None
+        assert opened[-1].capabilities.handoff.to == "openrouter/qwen/qwen3.8-27b"
         # The hand-over, when a run makes it, is told in the transcript.
         await app._handle(
             Handoff(turn=9, source="a/strong", target="b/cheap", transfer="context", probability=0.82, tokens=1)
         )
-        await wait_for(lambda: "Handed over to b/cheap at turn 9" in transcript_text(app))
+        await wait_for(lambda: "handed over at turn 9" in transcript_text(app))
+        assert "cheap finishes this run" in transcript_text(app)
 
 
 async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_path: Path, monkeypatch):

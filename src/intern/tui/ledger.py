@@ -26,6 +26,7 @@ from intern.events import (
     Decision,
     Event,
     ExtensionEvent,
+    Handoff,
     MessageEvent,
     Nudge,
     ProcessCheck,
@@ -50,8 +51,8 @@ SEARCH_TOOLS = ("decision_code", "decision_files")
 """The tools that are System 1 searching: a row each on its panel."""
 TOP = 3
 """The places a search's row keeps, best first."""
-Kind = Literal["thinking", "watch", "guard", "search", "compaction", "jobs", "memory", "other"]
-KINDS: tuple[Kind, ...] = ("thinking", "watch", "guard", "search", "compaction", "jobs", "memory", "other")
+Kind = Literal["thinking", "hand-over", "watch", "guard", "search", "compaction", "jobs", "memory", "other"]
+KINDS: tuple[Kind, ...] = ("thinking", "hand-over", "watch", "guard", "search", "compaction", "jobs", "memory", "other")
 """What System 1 is asked for, in the order its panel counts them."""
 
 
@@ -59,6 +60,8 @@ def kind_of(purpose: str) -> Kind:
     """What an ask was for, from the purpose its caller gave it."""
     if purpose == effort.PURPOSE:
         return "thinking"
+    if purpose == "handoff":
+        return "hand-over"
     if purpose in ("supervise", "wrap_up"):
         return "watch"
     if purpose in ("guard", "workspace_table_load"):
@@ -217,6 +220,18 @@ class EffortJudgement:
 
 
 @dataclass
+class HandoverJudgement:
+    """System 1's judgement, turn by turn, of whether the cheaper model can finish the run: one row a run."""
+
+    turn: int
+    ready: list[float] = field(default_factory=list)
+    """P(ready) at each turn it was asked, oldest first."""
+    target: str = ""
+    """The model the run handed over to, once it has."""
+    handed_at: int | None = None
+
+
+@dataclass
 class OtherJudgement:
     """An ask with no row of its own kind, in one line: what a command that went on running is (`background`), a
     look at a running command (`processes`), whatever else an extension asked for a turn."""
@@ -274,6 +289,7 @@ class CompactionJudgement:
 
 Row = (
     EffortJudgement
+    | HandoverJudgement
     | TurnJudgement
     | GuardJudgement
     | RuleRefusal
@@ -308,6 +324,7 @@ class RunLedger:
     """What the user asked for: the run's first message."""
     feed: list[Row] = field(default_factory=list)
     """Every row of the run, in the order System 1 was first asked for it."""
+    handover: HandoverJudgement | None = None
     turns: dict[int, TurnJudgement] = field(default_factory=dict)
     compactions: dict[int, CompactionJudgement] = field(default_factory=dict)
     guards: list[GuardJudgement] = field(default_factory=list)
@@ -379,6 +396,13 @@ class Ledger:
                 refusal = RuleRefusal(turn, call_id, name, rule, reason, arguments=self.current.calls.get(call_id))
                 self.current.feed.append(refusal)
                 return refusal
+            case Handoff(turn=turn, target=target, probability=probability):
+                run = self.current
+                if run.handover is None:  # a journal from before the asks were kept
+                    run.handover = HandoverJudgement(turn, [probability])
+                    run.feed.append(run.handover)
+                run.handover.target, run.handover.handed_at = target, turn
+                return run.handover
             case StateWriting(turn=turn):
                 compaction = self._compaction(turn)
                 compaction.writing, compaction.draft = True, ""
@@ -428,6 +452,13 @@ class Ledger:
             picked = EffortJudgement(turn, level, ladder or probabilities, event.duration_ms, event.cached)
             run.feed.append(picked)
             return picked
+        if purpose == "handoff":
+            choice, probabilities = _choice(answers.get("ready"))
+            if run.handover is None:
+                run.handover = HandoverJudgement(turn)
+                run.feed.append(run.handover)
+            run.handover.ready.append(probabilities.get("ready", float(choice == "ready")))
+            return run.handover
         if purpose == "supervise":
             return self._supervised(turn, event, answers)
         if purpose == "wrap_up":

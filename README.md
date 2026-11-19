@@ -58,7 +58,8 @@ scripted; System 1's looks, nudge and search are live, on `drex-max`._
 - **Web results System 1 judges.** `web_search` and `web_read` can have System 1 keep only what the task needs.
   Off by default. [Web search and read](#web-search-and-read)
 - **Hand-over to a cheaper model.** System 1 picks the turn where a cheaper model can finish the run: on
-  FrontierHarness, the cheapest result on the board at 65.3%. Off by default. [Hand-over](#hand-over)
+  FrontierHarness, the cheapest result on the board at 65.3%. On in the terminal UI (auto mode), off elsewhere
+  until you name the model. [Hand-over](#hand-over)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
@@ -185,7 +186,11 @@ turn, System 1 reads [its State](#system-1s-state), the session cut, and judges 
 the main solution exists, a check relevant to the task has run it, and what is left is local repair and finishing.
 Two turns in a row at 0.7 or more, from turn 8 on, and the cheaper model takes over in the same workspace and
 conversation. It hands over once a run, never back. The next message starts on System 2 again, which reads what the
-cheaper model did as part of the conversation. Off by default.
+cheaper model did as part of the conversation.
+
+The terminal UI opens in auto mode: runs hand over to `anthropic/claude-haiku-5-5` unless you name another model.
+`/auto` picks the model or turns the mode off, and `auto = false` in `~/.intern/config.toml` starts it off. Headless
+runs hand over only when you name the model:
 
 ```bash
 intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
@@ -193,8 +198,8 @@ intern --system2 fireworks/accounts/fireworks/models/deepseek-v4-flash \
 ```
 
 Or in `~/.intern/config.toml`: `[capabilities.handoff]` with `to = "<provider/model>"`, and `threshold`, `streak`,
-`min_turn` and `effort` to tune it ([settings](docs/capability-settings.md)). In the terminal UI, `/handoff` picks the
-model (or `off`), and the transcript tells you the turn a run hands over at.
+`min_turn` and `effort` to tune it ([settings](docs/capability-settings.md)). The transcript tells you the turn a
+run hands over at.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/handoff-pareto-dark.svg">
