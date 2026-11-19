@@ -126,7 +126,8 @@ from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm
 from intern.tui.schedule import TimerDelivery
 from intern.tui.state_panel import StatePanel, system2_start
 from intern.tui.system1_panel import System1Panel
-from intern.tui.theme import DARK_THEME, LIGHT_THEME, S_HEAD, S_INK, S_MUTED, S_OK, S_TAB, S_WARN
+from intern.tui.theme import S_HEAD, S_INK, S_MUTED, S_OK, S_TAB, S_WARN, THEMES, apply_theme, save_theme, theme_info
+from intern.tui.theme_picker import ThemePicker
 from intern.tui.views import ViewHost, Views
 from intern.tui.welcome import SETUP_NOTE, GuardState, Opening, Welcome
 from intern.tui.widgets import (
@@ -177,8 +178,9 @@ class Models:
     auto: bool = False
     """Auto mode: a run hands over to the cheaper model once System 1 judges that model can finish it (`/handover`).
     `main` starts it as the config says, on unless `auto = false`."""
-    dark: bool = False
-    """The dark look, picked with /dark."""
+    theme: str | None = None
+    """The theme's id (`tui/theme.py`), picked with /theme or saved in config.toml; None, or one not known, is the
+    default."""
     entering: bool = False
     """The entering page was up at /reload: the restarted process opens on it again, not on the conversation."""
 
@@ -246,8 +248,10 @@ HELP: dict[str, dict[str, str]] = {
     },
     "Screen": {
         "/panels": "show or hide the decision model and State panels (also F2)",
-        "/dark": "the dark look, kept on /reload",
-        "/light": "the light look, the default",
+        "/theme [name]": "pick the look: Light, Dark, Sand or Midnight, each shown as you move to it; Enter keeps it "
+        "in config.toml, Esc goes back",
+        "/dark": "the Dark theme, kept as /theme keeps one",
+        "/light": "the Light theme, the default, kept as /theme keeps one",
         "/help": "this list",
     },
 }
@@ -505,9 +509,7 @@ class HarnessApp(App[None]):
     ) -> None:
         super().__init__()
         # Before the stylesheet is read: it names the theme's own variables ($rule, $wash, $muted).
-        self.register_theme(LIGHT_THEME)
-        self.register_theme(DARK_THEME)
-        self.theme = (DARK_THEME if picks is not None and picks.dark else LIGHT_THEME).name
+        apply_theme(self, picks.theme if picks is not None else None)
         self._open = open_session
         self._load_catalog = catalog
         self._default_system2 = default_system2
@@ -1404,17 +1406,42 @@ class HarnessApp(App[None]):
                 await self._reload()
             case "/panels":
                 self.action_toggle_panels()
+            case "/theme":
+                await self._theme(rest)
             case ("/dark" | "/light") as look:
-                self.pending.dark = look == "/dark"
-                self.theme = (DARK_THEME if self.pending.dark else LIGHT_THEME).name
-                for page in self.query(Welcome):  # its tips offer the other look now
-                    page.show(page.opening)
+                await self._keep_theme(look.removeprefix("/"))
             case "/help":
                 self.push_screen(HelpScreen())
             case "/quit" | "/exit":
                 await self.action_quit()
             case _:
                 await self.transcript.notice(f"Unknown command {name}; /help lists them.", "warn")
+
+    # -- theme -----------------------------------------------------------------------------------------------
+
+    async def _theme(self, rest: str) -> None:
+        """`/theme`: the picker, which shows each theme as it is highlighted; `/theme <id or name>` sets one."""
+        if not rest:
+            self.push_screen(ThemePicker(), callback=self._theme_picked)
+            return
+        if rest.casefold() not in {key for info in THEMES for key in (info.id, info.name.casefold())}:
+            known = ", ".join(info.id for info in THEMES)
+            await self.transcript.notice(f"No theme {rest}; the themes are {known}.", "warn")
+            return
+        await self._keep_theme(rest)
+
+    def _theme_picked(self, theme_id: str | None) -> None:
+        if theme_id is not None:
+            self.run_worker(self._keep_theme(theme_id), group="theme", exit_on_error=False)
+
+    async def _keep_theme(self, theme_id: str) -> None:
+        """Switch to the theme and keep it: for /reload, and in config.toml for the next launch."""
+        self.pending.theme = apply_theme(self, theme_id)
+        try:
+            await asyncio.to_thread(save_theme, self._secrets_home(), self.pending.theme)
+        except (OSError, ValueError) as e:  # an unwritable home, or a config.toml that is not TOML
+            name = theme_info(self.pending.theme).name
+            await self.transcript.notice(f"{name} is on for this session but not saved: {e}", "warn")
 
     # -- setup -----------------------------------------------------------------------------------------------
 
@@ -2391,7 +2418,8 @@ def main(options: Options, env: Mapping[str, str] | None = None, prompt: str | N
     reloaded = os.environ.pop(RELOAD_ENV, None)
     environment = process_env() if env is None else dict(env)
     bootstrap = Bootstrap(options, environment)
-    picks = PICKS.validate_json(reloaded) if reloaded else Models(auto=bootstrap.config.auto)
+    config = bootstrap.config
+    picks = PICKS.validate_json(reloaded) if reloaded else Models(auto=config.auto, theme=config.theme)
     current = [bootstrap]
     """The Bootstrap the catalog and the default are read from, made again once setup adds keys."""
 

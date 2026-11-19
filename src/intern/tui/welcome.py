@@ -64,8 +64,6 @@ from intern import __version__
 from intern.tui.ledger import Kind
 from intern.tui.theme import (
     BRAND,
-    DARK,
-    LIGHT,
     S_BAD,
     S_BRAND_BOLD,
     S_HEAD,
@@ -76,6 +74,7 @@ from intern.tui.theme import (
     S_RULE,
     S_TAB,
     WORDMARK,
+    app_palette,
 )
 from intern.tui.widgets import (
     ART,
@@ -161,6 +160,7 @@ HINTS = (
     ("/models", "models"),
     ("/caps", "capabilities"),
     ("Shift+Tab", "thinking"),
+    ("/theme", "look"),
 )
 """The keys worth knowing first; then the look to switch to (`tips`). The prompt itself says to describe the task
 and that /help lists the commands."""
@@ -282,7 +282,7 @@ class Mascot(Static):
             self._began = time.monotonic() + TICK_S
 
     def _tick(self) -> None:
-        """Draw Intern again when its frame, its size or the look (`/dark`) is another."""
+        """Draw Intern again when its frame, its size or the look (`/theme`) is another."""
         ticks = int((time.monotonic() - self._began) / TICK_S)
         if self.app.animation_level == "none":
             name, index = "poses", EYES.index("rest")
@@ -291,7 +291,7 @@ class Mascot(Static):
         else:
             sequence = reel()["states"][self._state]["sequence"]
             name, index = self._state, sequence[ticks % len(sequence)]
-        look = DARK if self.app.current_theme.dark else LIGHT
+        look = app_palette(self.app)
         shown = (name, index, *self._cells, look["paper"], look["ink"], look["brand"], sextants())
         if self._shown != shown:
             self._shown = shown

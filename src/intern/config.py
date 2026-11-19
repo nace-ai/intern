@@ -180,6 +180,11 @@ class UserConfig(BaseModel):
         description="The terminal UI opens in auto mode: a run hands over to a cheaper model once System 1 judges that "
         "model can finish it. `/handover` changes it for the session.",
     )
+    theme: str | None = Field(
+        default=None,
+        description="The terminal UI's theme by id (`light`, `dark`, `sand`, `midnight`); `/theme` sets it. An unknown "
+        "one opens in the default.",
+    )
     commands: CommandsConfig = Field(default_factory=CommandsConfig)
     free: FreeConfig = Field(default_factory=FreeConfig)
     secrets: dict[str, StoreEntry] = Field(default_factory=dict)
@@ -189,6 +194,12 @@ class UserConfig(BaseModel):
     @classmethod
     def secret_entries(cls, value: Any) -> Any:
         return check_entries(value)
+
+    @field_validator("theme", mode="before")
+    @classmethod
+    def any_theme(cls, value: Any) -> Any:
+        """A theme that is not a name is the default's, not a config error: a look never stops a session."""
+        return value if isinstance(value, str) else None
 
     @model_validator(mode="before")
     @classmethod

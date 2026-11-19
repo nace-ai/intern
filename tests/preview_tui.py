@@ -4,7 +4,7 @@
 
 Type anything and press Enter: the model takes a moment over each turn (the mark reads), runs two slow commands (its
 eyes turn, a turnstile) and replies. A prompt with "fail" in it ends in a provider error (its eyes are crossed out).
-`/dark` and `/light` switch the look; Ctrl+Q quits. Not a test: nothing here is collected.
+`/theme` picks the look (`/dark` and `/light` too); Ctrl+Q quits. Not a test: nothing here is collected.
 """
 
 from __future__ import annotations
@@ -60,5 +60,6 @@ def script() -> Slow:
 
 
 if __name__ == "__main__":
-    opener = make_opener(Path(tempfile.mkdtemp()), [], system1=FakeDecision(), providers={"fake/model": script()})
-    HarnessApp(opener).run()
+    scratch = Path(tempfile.mkdtemp())
+    opener = make_opener(scratch, [], system1=FakeDecision(), providers={"fake/model": script()})
+    HarnessApp(opener, home=scratch / "home").run()  # a theme picked here is not saved to your own config

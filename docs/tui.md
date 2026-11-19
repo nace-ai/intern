@@ -74,7 +74,7 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
   ╰────────────────────────────────────────╯                            ╰────────────────────────────────────────╯
                                     ~/work/parser  ·  session 20261108-21…
 
-              /models models   /caps capabilities   /handover off hand-over   Shift+Tab thinking   /dark look
+              /models models   /caps capabilities   /handover off hand-over   Shift+Tab thinking   /theme look
 ```
 
 Intern is a brain in two parts, and the page is drawn that way: on the left System 2's card over System 1's, on the
@@ -230,7 +230,7 @@ runs on.
 **Look.** paper, ink and one accent, the Nace mint (`tui/theme.py`): an off-white page, white cards, hairline rules,
 near-black text, a warm gray for what is secondary; the accent for what is Intern's own (the wordmark's shadow, the
 panels' tabs, the bar beside the user's messages and the goal, the prompt's border while it has the focus, the
-cursors, System 1's searches and compactions as they run), deepened on the light look so it reads on paper; green
+cursors, System 1's searches and compactions as they run), deepened on the light looks so it reads on paper; green
 only for what went right, amber for what needs a look, red for what went wrong. The mark is the mascot, the cube
 with eyes at the top of the README, in the ink in
 both looks, twelve cells by six beside the block letters, in the masthead: the brand's cube scaled to those cells
@@ -539,7 +539,8 @@ a notice and is off for the rest of the session, and the TUI goes on.
 | `/clear` | start over: the screen cleared and a new session opened on a fresh journal, with the models and capabilities as they are. The journal so far stays on disk, to resume with `--session`. |
 | `/reload` | restart on the code, config and keys as they are now (an editable install's latest edits, a reinstall, a key added to `~/.intern/.env`) and resume this session on its journal, with the models, capabilities and thinking level picked here. The process starts again on the same command line, the task on it not sent twice, so everything is loaded anew: the harness, the UI, extensions, profiles, `config.toml` and `.env`. It installs nothing: a changed dependency needs `uv tool install --reinstall` (or `uv sync`) first. The screen stays up across the restart, the last frame on it until the new process paints over it. Waits for the run to finish; refused with `--no-session`, whose journal is in memory only. |
 | `/panels` | hide or show the right-hand panels |
-| `/dark`, `/light` | the dark look (paper and ink swapped, each a little grayed down, and a brighter accent) or the light one, the default; `/reload` keeps it |
+| `/theme` | pick the look from four themes: Light (paper, ink and deep mint, the default), Dark (charcoal page, bright mint accent), Sand (warm sand page, brown ink) and Midnight (deep blue night, periwinkle accent). Each row has a swatch, and the screen behind the picker takes each theme as the highlight reaches it; Enter keeps it, Esc goes back to the one you had. A kept theme is saved as `theme = "<id>"` at the top of `~/.intern/config.toml` (comments and the rest of the file as they were) and opens every launch after; an unknown id opens in Light. `/theme <id or name>` sets one directly. |
+| `/dark`, `/light` | shortcuts for `/theme dark` and `/theme light`, saved the same way |
 | `/help`, `/quit` | the commands and the keys, on a page over the session that Esc closes; close the session and exit (closing the terminal window, or a SIGTERM, quits the same way, so the session is still stewarded) |
 
 Enter sends the prompt, or, while a run is in progress, steers it: the text shows as `queued` and goes
