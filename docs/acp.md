@@ -14,7 +14,7 @@ cannot switch on here. [0.9.0](#090) and [0.10.0](#0100) added runner toggles, w
 need a look, and a prompt may now fail with `system1_unavailable`. [0.15.0](#0150) is additive: clients that
 offer a thinking picker read each model's `efforts`. From [0.23.0](#0230) a toggle switched on installs its missing
 extra, and a toggle that cannot work here is not offered. [0.25.0](#0250) renames the harness to Intern, and
-[0.27.0](#0270) removes its old names.
+[0.27.0](#0270) removes its old names. [0.49.0](#0490) is additive: clients that show or pick the hand-over need it.
 
 ```bash
 uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.44.1"
@@ -81,7 +81,7 @@ none is configured, or its provider's API key is missing. The session is then op
 
 - `model` is advertised with `currentValue` the model it would have run on (`""` when none is
   configured) and the catalog as options; `system1` and the `cap.*` toggles as usual; no
-  `thought_level` or `context_window`.
+  `thought_level`, `context_window` or `handoff`.
 - `session/set_config_option model` binds it. A model that cannot bind either fails with `-32602` and
   the session stays unbound. `system1`, `context_window` and `cap.*` toggles may be set first and apply
   once a model binds.
@@ -102,6 +102,7 @@ Every session advertises these `configOptions`, in this order, then the
 | `system1` | `model_config` | select | decision models served by the console, then `decisions:<model>` for decision models on the decisions API | `drex-latest`, unless config or `--system1` says otherwise |
 | `thought_level` | `thought_level` | select | `default` (no effort sent) through Anthropic's and OpenAI's APIs and where the profile lists `effort_levels`, then the levels the model takes: `low` to `max` through Anthropic's API, `low` to `xhigh` through OpenAI's, the profile's `effort_levels`, else `low`, `medium`, `high` | the model profile's `reasoning_effort`, else `default` |
 | `context_window` | `model_config` | select | `auto`, or a token count: `32000`, `64000`, `128000`, `256000`, `512000`, `1000000` | `auto` |
+| `handoff` | `_nace_handoff` | select | `off`, then the models a run can hand over to: the session's target first, then the catalog's System 2 models | `[capabilities.handoff] to` (or `--handoff-to`), else `off` |
 | `runner` | `_nace_runner` | select | where commands run: `local`, `docker`, `opensandbox`, then each runner an installed package registers | `[capabilities.runner] name`, else `local` |
 
 - **`model`** lists the [model catalog](#model-catalog)'s System 2 models, plus the current model. The
@@ -146,6 +147,15 @@ Every session advertises these `configOptions`, in this order, then the
   changes, is journaled as a `window_cap` entry and restored on `session/load`, and the next
   `usage_update` reports the new `size`. Anything other than `auto` or a positive integer fails with
   `-32602`.
+- **`handoff`** names the cheaper model a run hands over to once System 1 judges the rest of the task within its
+  reach ([0.45.0](#0450)), or `off`. It is `[capabilities.handoff] to` for this session: the model is bound when it
+  is set, from the next run, with the rest of `[capabilities.handoff]` (`effort`, `threshold`, `streak`,
+  `min_turn`) as configured. Like `model`, its list fills in once the catalog arrives, any model the harness can
+  resolve is accepted, listed or not, and a model that cannot be bound (its key is missing) fails with `-32602` and
+  changes nothing. A change is journaled as a `model_change` entry with role `handoff` (model `""` for `off`), holds
+  across a capability reopen, and is restored on `session/load`, unless the model can no longer be bound there, when
+  the session opens on the configured one. Unbound sessions do not advertise it. When a run hands over, the client
+  is sent [`_nace/handoff`](#updates).
 
 ```toml
 # ~/.intern/config.toml
@@ -157,7 +167,7 @@ base_url = "https://openrouter.ai/api/v1"  # the decisions API, for decisions:<m
 api_key_env = "OPENROUTER_API_KEY"
 ```
 
-An unknown `configId`, a `thought_level` or `context_window` value it does not take, or a model the harness cannot resolve (for
+An unknown `configId`, a `thought_level`, `context_window` or `handoff` value it does not take, or a model the harness cannot resolve (for
 example, its provider's API key is missing) fails with `-32602` (invalid params) and the harness's
 message. A change during a run fails with `-32000` (`session busy`).
 
@@ -262,16 +272,35 @@ a configured `[capabilities.session_budget]` starts a new ledger.
 | `tool_call_end` | `tool_call_update`, `status` `completed` (`ok`) or `failed` (`error`, `refused`), `content` the result text the model saw; for a `write` or `edit` that changed a text file, also a `diff` item `{path, oldText, newText}` (`oldText` null for a new file); none for binary files, files over 256k characters before and after together, or the Docker workspace's tools |
 | `context_budget` | `usage_update {used: tokens in the request, size: working window}` |
 | `run_end` | `usage_update {used, size, cost: {amount: session cost so far, currency: "USD"}}` |
+| `handoff` | the extension notification `_nace/handoff` (below), not a `session/update` |
 | everything else | nothing |
 
 Tool `kind` comes from the tool's declared effects: `grep` and `find` are `search`; otherwise `exec`
 is `execute`, then `network` is `fetch`, then `write` is `edit`, then `read` is `read`; a tool with no
 effects is `other`.
 
+`agent_message_chunk`, `agent_thought_chunk`, `tool_call` and `tool_call_update` carry `_meta.nace.model`, the
+`provider/model` that wrote the reply or called the tool: the session's System 2, or, after a hand-over, the model
+the run handed over to. The harness's own messages (a secret or a window it could not load) carry none.
+
+When a run hands over ([`handoff`](#config-options)), the client is sent one notification, in its place among the
+run's updates: after the last update of the turn it handed over at, before the first of the model it handed over to.
+
+```json
+{"jsonrpc": "2.0", "method": "_nace/handoff",
+ "params": {"sessionId": "…", "turn": 9, "from": "anthropic/claude-opus-5-5", "to": "anthropic/claude-haiku-5-5",
+            "probability": 0.93}}
+```
+
+`turn` is the turn it handed over after, `from` and `to` the models, and `probability` System 1's P(ready) there.
+The run goes on to its end on `to`; the next prompt is System 2's again. A client that does not know the method
+ignores it, as ACP asks of extension notifications.
+
 On `session/load` the active branch is replayed: user prompts as `user_message_chunk`, replies as
 `agent_thought_chunk` and `agent_message_chunk`, and each tool call as a `tool_call` followed by its
-`tool_call_update` (without a diff: diffs are not journaled). Messages the harness added itself
-(nudges) are not replayed.
+`tool_call_update` (without a diff: diffs are not journaled), each with the `_meta.nace.model` that wrote it, and each
+hand-over as `_nace/handoff` in its place. Messages the harness added itself (nudges) are not replayed. Journals
+written before 0.47.0 kept no hand-overs, so none is replayed from them.
 
 A session that memory has stewarded since it last closed is then sent one more `usage_update`. Its
 `cost` is what the steward spent on the session: its System 1 asks and its writer's System 2 calls.
@@ -346,6 +375,23 @@ session's totals; `usage_update`'s `cost` is the session's total for both.
 }
 ```
 
+When a run of the prompt handed over, `handoff` is the model it handed over to and what that model spent, with the
+same fields as `system2` (its replies and the State it wrote), and `system2` is the rest, the run's subagents
+included. The two add up to the prompt's `usage`. Without a hand-over there is no `handoff` key and
+`system2` is everything, as before 0.49.0. A client that reads only `system2` shows less than the prompt cost after
+a hand-over; `usage_update`'s `cost` still holds all of it.
+
+```json
+{
+  "system2": {"model": "anthropic/claude-opus-5-5", "inputTokens": 61200, "outputTokens": 2400, "cachedReadTokens": 52000,
+              "cachedWriteTokens": 3100, "thoughtTokens": 900, "costUsd": 0.1043},
+  "handoff": {"model": "anthropic/claude-haiku-5-5", "inputTokens": 30400, "outputTokens": 800, "cachedReadTokens": 0,
+              "cachedWriteTokens": 30000, "thoughtTokens": 0, "costUsd": 0.0418},
+  "system1": {"model": "drex-latest", "asks": 9, "failed": 0, "inputTokens": 18400, "outputTokens": 260,
+              "costUsd": 0.0041}
+}
+```
+
 `asks` are those the backend answered; `failed` are those it did not answer after every retry (each
 one stopped the run), and answers from the cache count in neither. Tokens and cost are the backend's.
 
@@ -380,9 +426,15 @@ with no price there costs 0, such as a Fireworks dedicated deployment, which is 
     {"id": "docker", "name": "Docker", "description": "bash, the file tools and background jobs run in a container ...", "default": false},
     {"id": "opensandbox", "name": "OpenSandbox", "description": "...", "default": false,
      "unavailable": "OpenSandbox needs $OPEN_SANDBOX_API_KEY; a server without a key takes api_key_env = \"\""}
-  ]
+  ],
+  "handoff": {"models": ["anthropic/claude-haiku-5-5", "anthropic/claude-opus-5-5", "vllm/my-model"],
+              "default": "anthropic/claude-haiku-5-5"}
 }
 ```
+
+`handoff` (0.49.0 and later) lists the values of the [`handoff` option](#config-options) a session offers, less
+`off`: the configured target first, then the System 2 models. `default` is the configured target
+(`[capabilities.handoff] to`, or `--handoff-to`), absent when runs hand over to no model.
 
 `runners` lists the values of the [`runner` option](#runner), in its order: `default` marks the configured one, and
 `unavailable` (only when it cannot run here) says why. `capabilities` lists the [capability toggles](#capability-toggles) a session offers, in their order,
@@ -1384,3 +1436,23 @@ again. 0.47.0 clients keep working.
 - A profile whose `reasoning_effort` is `auto` loads as one that names none.
 - In the terminal UI, `/thinking` and Shift+Tab set the levels the model takes, and the masthead shows the one in
   force.
+
+### 0.49.0
+
+ACP clients see and pick the hand-over ([0.45.0](#0450)), which ACP did not carry before. Additive: 0.48.0 clients
+keep working, and a session where no run hands over sends what it sent before, but for `_meta.nace.model` on updates.
+
+- A [`handoff` option](#config-options) (category `_nace_handoff`, select): `off`, then the models a run can hand
+  over to, the session's target first. Setting it is `[capabilities.handoff] to` for the session: bound at once (a
+  model that cannot be bound fails with `-32602` and changes nothing), journaled as a `model_change` of role
+  `handoff`, kept across a capability reopen and restored on `session/load`. Older harnesses load such a journal and
+  ignore the entry.
+- The extension notification [`_nace/handoff`](#updates) `{sessionId, turn, from, to, probability}` when a run hands
+  over, in its place among the run's updates, and replayed there on `session/load`. ACP asks clients to ignore an
+  extension notification they do not know.
+- `agent_message_chunk`, `agent_thought_chunk`, `tool_call` and `tool_call_update` carry `_meta.nace.model`, the
+  model that wrote them, live and on replay.
+- [`_meta.nace.usage`](#stop-reasons-and-errors) gains `handoff` (model, tokens, `costUsd`) after a prompt whose run
+  handed over, from `run_end.by_model`, and `system2` then leaves that model's share out. A client that reads only
+  `system2` shows less for such a turn than it did; the prompt's `usage` and `usage_update`'s `cost` are unchanged.
+- [`models --json`](#model-catalog) gains `handoff: {models, default}`.

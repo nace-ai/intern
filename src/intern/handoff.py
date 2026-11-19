@@ -31,6 +31,8 @@ if TYPE_CHECKING:
 
 DEFAULT_TARGET = "anthropic/claude-haiku-5-5"
 """What the terminal UI's auto mode hands a run over to while `[capabilities.handoff]` names no model."""
+HANDOFF_ROLE = "handoff"
+"""The `model_change` role a session's choice of hand-over model is journaled under; its model is empty for none."""
 
 READY = ChoiceQuestion(
     instructions="The state is an agent's session so far, oldest first; its last entries are the latest turn. A "
@@ -65,6 +67,15 @@ class HandoffTarget:
 
     binding: ModelBinding
     config: HandoffConfig
+
+    @classmethod
+    def of(cls, binding: ModelBinding, config: HandoffConfig, tool_packs: list[str]) -> HandoffTarget:
+        """`binding` as the target: on System 2's tool packs, and at `config.effort` when it names one."""
+        update: dict[str, object] = {"tool_packs": tool_packs}
+        if config.effort:
+            update["reasoning_effort"] = config.effort
+        binding.profile = binding.profile.model_copy(update=update)
+        return cls(binding=binding, config=config)
 
 
 def ready_probability(answer: object) -> float:

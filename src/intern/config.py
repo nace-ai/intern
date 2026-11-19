@@ -55,6 +55,7 @@ from intern.models.catalog import (
     NACE_CONSOLE_URL,
     CapabilityInfo,
     Catalog,
+    HandoffChoices,
     ModelInfo,
     System1Sources,
     list_models,
@@ -615,11 +616,17 @@ class Bootstrap:
             )
             for toggle in capability_toggles.toggles(caps, caps, packs)
         ]
+        target = caps.handoff.to
+        handoff = HandoffChoices(
+            models=list(dict.fromkeys([*([target] if target else []), *(model.id for model in catalog.system2)])),
+            default=target,
+        )
         return catalog.model_copy(
             update={
                 "system2": [marked(model) for model in catalog.system2],
                 "capabilities": capabilities,
                 "runners": runner_choices(caps.runner),
+                "handoff": handoff,
             }
         )
 
@@ -653,11 +660,7 @@ class Bootstrap:
                     raise ConfigError(f"[capabilities.handoff] to {plan.to}: {e}") from None
                 handoff_missing = str(e)  # the default is nobody's choice: the session opens without a hand-over
             else:
-                update: dict[str, object] = {"tool_packs": packs}
-                if plan.effort:
-                    update["reasoning_effort"] = plan.effort
-                target.profile = target.profile.model_copy(update=update)
-                handoff = HandoffTarget(binding=target, config=plan)
+                handoff = HandoffTarget.of(target, plan, packs)
         memory = self.memory()
 
         names = [*(system2.profile.extensions if options.extensions else []), *options.extra_extensions]
