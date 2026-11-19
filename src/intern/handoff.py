@@ -58,6 +58,13 @@ worse. Once the checks pass and the required output is in place, stop. The user 
 every reply as that agent, with no mention of this note or of taking over, and finish with the answer their request \
 asks for, covering the whole of the work and not only your part of it."""
 
+FALLBACK_NOTE = """\
+You are taking over this task from another agent, whose turns are above, because its model could not go on: {detail}. \
+Whatever it made is in the workspace, but it may be unfinished or untested. Carry on with the task from where it \
+stands, check your work against each requirement, and stop once the required output is in place. The user sees one \
+agent throughout: write every reply as that agent, with no mention of this note or of taking over, and finish with the \
+answer their request asks for, covering the whole of the work and not only your part of it."""
+
 
 @dataclass
 class HandoffTarget:
