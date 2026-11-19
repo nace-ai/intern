@@ -75,6 +75,8 @@ from intern.tools.files import ReadTool
 
 HOME_ENV = f"{names.ENV_PREFIX}HOME"
 SYSTEM2_ENV = f"{names.ENV_PREFIX}SYSTEM2"
+COMMAND = names.NAME
+"""The command a user runs: the terminal UI connects their models on its first launch."""
 MEMORY_ENV = f"{names.ENV_PREFIX}MEMORY"
 DRIVE_DIR = "memory"
 # System 1 on the console (`drex:<model>`): https://console.nace.ai serves /v1/systemone.
@@ -649,8 +651,8 @@ class Bootstrap:
         ref = self.default_system2()
         if not ref:
             raise System2Unavailable(
-                f"no model given: pass --system2 provider/model, set ${SYSTEM2_ENV}, "
-                f"or set system2 in {self.home / CONFIG_FILE}",
+                f"no model given: run `{COMMAND}` in a terminal to connect your models, pass --system2 "
+                f"provider/model, set ${SYSTEM2_ENV}, or set system2 in {self.home / CONFIG_FILE}",
                 ref="",
                 system1=self.system1_choice(),
             )

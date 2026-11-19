@@ -1525,3 +1525,19 @@ free credit.
 - The tokens are kept in the OS keychain and in `~/.intern/free.json` and `free-access.json` (mode 0600), shared by
   every harness process on the machine, renewed by one at a time, and redacted from what the agent's commands print.
 - `config.toml` takes `[free] use`, which `pause` and `resume` set.
+
+### 0.53.0
+
+Intern speaks of three models: the **frontier model** (System 2) starts each task and does the hard part, the
+**efficient model** (the hand-over target) finishes the rest, and the **decision model** (System 1) picks the moment
+to hand over. Option ids, fields and flags are unchanged: 0.52.0 clients keep working.
+
+- [`models --json`](#model-catalog)'s `recommended` lists frontier and efficient pairs on one OpenRouter key:
+  `opus-hy4` (Claude Opus 5.5 → Hy4 Flash), `hy4` (Hy4 → Hy4 Flash) and `gpt` (GPT-6.2 Astra → GPT-6 Luna), each
+  with Drex Max as the decision model. The ids `one-key`, `best-results` and `free-models` are gone: a client that
+  shows the list as given keeps working; one that looked for those ids by name finds none.
+- The `cap.*` options' descriptions say "the decision model" where they said "System 1".
+- A session that opens with no model configured says to run `intern` in a terminal to connect one; the message
+  still starts `no model given`.
+- The terminal UI's setup always sets a pair, and its screens, masthead, transcript and commands use the three names;
+  `/frontier`, `/efficient` and `/decision` sit beside `/system2`, `/auto` and `/system1`, which keep working.
