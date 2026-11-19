@@ -102,6 +102,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 
 [tool.pyright]
 include = ["src", "tests", "evals"]
+exclude = ["tests/fixtures"]  # sample projects the README recordings run on, not Intern code
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
 venvPath = "."
