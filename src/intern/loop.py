@@ -67,7 +67,7 @@ from intern.events import (
 )
 from intern.evidence import keep_reads, reduce_output
 from intern.executor import Executor, mount_of
-from intern.handoff import TAKEOVER_NOTE, HandoffTarget, Readiness
+from intern.handoff import FALLBACK_NOTE, TAKEOVER_NOTE, HandoffTarget, Readiness
 from intern.instructions import SYSTEM1_LABEL, SYSTEM1_SHARE, Instructions
 from intern.journal import (
     CompactionEntry,
@@ -303,6 +303,7 @@ class Run:
         before it in each request the cheaper model is sent for the rest of the run, at the end until there is one,
         and no longer once a compaction has cut that message. The journal does not keep the note, so the conversation
         reads on as one agent's: to System 1, to a compaction, and to System 2 at the next run."""
+        self._takeover_note = TAKEOVER_NOTE
         target = deps.handoff
         # None once the run has handed over, and on a System 2 that is the cheaper model itself.
         self.handoff = (
@@ -603,11 +604,17 @@ class Run:
                 request = await self._prepare_request()
                 reply = await self._call_model_with_retries(request)
             except ProviderError as e:
+                if self._can_fall_back():
+                    self._fall_back(str(e))
+                    continue
                 return self._outcome("provider_error", str(e))
             if reply is None:
                 return self._outcome("aborted")
 
             verdict = await self._handle_reply(reply)
+            if isinstance(verdict, h.Stop) and verdict.reason == "provider_error" and self._can_fall_back():
+                self._fall_back(verdict.detail or "the provider refused the reply")
+                continue
             if not isinstance(verdict, h.Stop) and self._waiting_on:
                 # The agent handed over: the run holds for news (a job's end, System 1's look, the user) instead.
                 self._waiting_on = []
@@ -727,7 +734,7 @@ class Run:
         view = build_view(self.deps.journal.active_path(), self.deps.instructions, self.meter, self.window)
         view.model, view.replay = self.binding.ref, self.binding.profile.reasoning_replay
         if self._taken_over:
-            view.asides = {self._takeover_before: TAKEOVER_NOTE}
+            view.asides = {self._takeover_before: self._takeover_note}
         return view
 
     def _update_state(self, view: ContextView) -> Coroutine[object, object, None] | None:
@@ -1141,7 +1148,22 @@ class Run:
             return await supervise, False
         return await asyncio.gather(supervise, self.handoff.after_turn(self.turn, self.deps.decisions, state))
 
-    def _hand_over(self) -> None:
+    def _can_fall_back(self) -> bool:
+        return (
+            self.handoff is not None
+            and self.deps.handoff is not None
+            and self.deps.handoff.config.fallback
+            and not self.control.abort.is_set()
+        )
+
+    def _fall_back(self, detail: str) -> None:
+        """Hand over on a provider error or refusal that would end the run, instead of ending it: the cheaper model
+        takes the next turn, told why."""
+        self._hand_over(fallback=detail)
+        self._takeover_note = FALLBACK_NOTE.format(detail=detail.rstrip("."))
+        self._taken_over = True
+
+    def _hand_over(self, fallback: str | None = None) -> None:
         """The cheaper model takes the next turn and every one after it in this run, in this conversation: the
         session's journal keeps its turns as it keeps System 2's, each reply under the model that wrote it, so a
         model is sent back its own reasoning only. The run's tools, extensions, System 1, supervisor and turn count
@@ -1156,6 +1178,8 @@ class Run:
                 turn=self.turn,
                 source=self.binding.ref,
                 target=target.binding.ref,
+                reason="fallback" if fallback is not None else "ready",
+                detail=fallback,
                 probability=readiness.probability,
                 tokens=self.meter.tokens(self._prompt_chars),
             )

@@ -305,6 +305,12 @@ class Handoff(_EventBase):
     source: str
     target: str
     transfer: Literal["context"] = "context"
+    reason: Literal["ready", "fallback"] = Field(
+        default="ready",
+        description="`ready`: System 1 judged the rest within the cheaper model's reach; `fallback`: a provider error "
+        "or refusal would have ended the run.",
+    )
+    detail: str | None = Field(default=None, description="The provider's error, for a `fallback`.")
     probability: float = Field(description="System 1's P(ready) at the turn it handed over.")
     tokens: int = Field(description="The size of the last request the model handed over by sent.")
 

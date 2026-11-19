@@ -196,6 +196,9 @@ class HandoffConfig(_Settings):
     """Turns in a row at `threshold` or more before it hands over."""
     min_turn: int = Field(default=8, ge=1)
     """The earliest turn it hands over at."""
+    fallback: bool = True
+    """A provider error or refusal that would end System 2's run hands it over instead, at any turn, without asking
+    System 1."""
 
     @model_validator(mode="before")
     @classmethod

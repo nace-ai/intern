@@ -1531,6 +1531,11 @@ def handoff_card(h: HandoverJudgement) -> Content:
     """The hand-over as a card where it happened: the turn, how sure System 1 was and how it got there, then who
     finishes the run."""
     outcome: list[Part] = [(f"{model_name(h.target)} finishes this run", S_BRAND_BOLD)]
+    if h.fallback is not None:
+        return Content.assemble(
+            (f"{HANDOVER_SIGN} ", S_BRAND_BOLD),
+            card("System 2", f"could not go on at turn {h.handed_at}", [(h.fallback, S_WARN)], outcome),
+        )
     return Content.assemble(
         (f"{HANDOVER_SIGN} ", S_BRAND_BOLD),
         card("System 1", f"handed over at turn {h.handed_at}", readiness(h), outcome),

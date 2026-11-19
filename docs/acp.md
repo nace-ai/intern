@@ -1384,3 +1384,13 @@ again. 0.47.0 clients keep working.
 - A profile whose `reasoning_effort` is `auto` loads as one that names none.
 - In the terminal UI, `/thinking` and Shift+Tab set the levels the model takes, and the masthead shows the one in
   force.
+
+### 0.49.0
+
+A run with a hand-over configured no longer ends on a provider error or a refusal from System 2: it hands over to the
+cheaper model at that turn, without asking System 1, and the cheaper model carries on from where the run stands, sent
+a note that says why instead of the usual take-over note. `[capabilities.handoff] fallback = false` keeps the old stop.
+The `handoff` event gains `reason` (`"ready"` as before, or `"fallback"`) and `detail` (the provider's error, for a
+fallback); the terminal UI's hand-over card then shows the error in place of System 1's readiness. Still
+`PROTOCOL_VERSION` 3; a client that does not read the new fields sees a hand-over as before, and 0.48.0 clients keep
+working.

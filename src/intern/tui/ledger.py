@@ -208,6 +208,8 @@ class HandoverJudgement:
     target: str = ""
     """The model the run handed over to, once it has."""
     handed_at: int | None = None
+    fallback: str | None = None
+    """The provider's error, when the run handed over on one rather than on System 1's judgement."""
 
 
 @dataclass
@@ -374,12 +376,14 @@ class Ledger:
                 refusal = RuleRefusal(turn, call_id, name, rule, reason, arguments=self.current.calls.get(call_id))
                 self.current.feed.append(refusal)
                 return refusal
-            case Handoff(turn=turn, target=target, probability=probability):
+            case Handoff(turn=turn, target=target, probability=probability, reason=reason, detail=detail):
                 run = self.current
-                if run.handover is None:  # a journal from before the asks were kept
-                    run.handover = HandoverJudgement(turn, [probability])
+                if run.handover is None:  # a journal from before the asks were kept, or a fallback before any ask
+                    run.handover = HandoverJudgement(turn, [probability] if reason == "ready" else [])
                     run.feed.append(run.handover)
                 run.handover.target, run.handover.handed_at = target, turn
+                if reason == "fallback":
+                    run.handover.fallback = detail or "the provider refused the reply"
                 return run.handover
             case StateWriting(turn=turn):
                 compaction = self._compaction(turn)
