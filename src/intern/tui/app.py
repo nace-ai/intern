@@ -618,7 +618,6 @@ class HarnessApp(App[None]):
             cwd=self._cwd,
             journal=session.deps.journal.path if session is not None else None,
             capabilities=[(t.id, t.name, t.on, DECIDES in t.label) for t in toggles],
-            tools=len(session.deps.tools) if session is not None else 0,
             guard=_guard_state(self._capabilities_now().guard) if session is not None else "off",
         )
 

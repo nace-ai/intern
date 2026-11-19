@@ -51,8 +51,8 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
   ░     for much less, and a decision model picks the moment to hand over and keeps the work on track.     ░
   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
   ╭─ System 2 ─────────────────────────────╮                            ╭─ Capabilities ─────────────────────────╮
-  │  Frontier   thinking high ▰▰▰▱▱        │                            │  9 tools                               │
-  │  claude-opus-5-5                       │                            │  for the frontier and efficient models │
+  │  Frontier   thinking high ▰▰▰▱▱        │                            │  For the frontier and efficient models │
+  │  claude-opus-5-5                       │                            │  ◆ uses the decision model             │
   │  ⠋ working on the hard part  ━━━━────  │          ▄▄███▄▄           │                                        │
   │                                        │       ▄███████████▄        │  ● Base Tools                          │
   │  ━━━━━ ↓ hand-over · ready 0.48 ────── │     ▄████▀▀▀▀▀▄█████▄      │      files and the shell               │
@@ -70,7 +70,7 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
   │  ● Watch       nudges it out of circles│                            │                                        │
   │  ○ Guard       off · /caps guard       │                            │                                        │
   │  ● Search      finds the places to read│                            │                                        │
-  │  ● Compaction  keeps what still matters│                            │  ◆ uses the decision model             │
+  │  ● Compaction  keeps what still matters│                            │                                        │
   ╰────────────────────────────────────────╯                            ╰────────────────────────────────────────╯
                                     ~/work/parser  ·  session 20261108-21…
 
@@ -86,16 +86,17 @@ While hand-over is off the efficient model is not there, a line says `○ Hand-o
 frontier model works every turn. System 1's card has the decision model and where it is served, and its jobs, each
 on (`●`) or off (`○`) as a capability is (the guard is off, and its line says so, when `cap.guard` is off or runs
 the fixed rules alone; the search while neither `code search` nor `workspace` is on). The capabilities' card says
-how many tools the session has and which models work with them (a run that hands over keeps its tools, so both do),
-then what the session has switched on (`●` on, `○` off: `/caps` changes them), each capability over what it is in a
-few words, a line of air between them, with a `◆` after those the decision model takes part in and its legend on the
-card's bottom edge. The capabilities' card stands exactly beside the models' cards, top and bottom, the mascot at
-their middle, and scrolls the rest: with the wheel, or the arrows once it is clicked (what is typed next goes to the
-prompt). Above them the wordmark in block letters, in the ink with a shadow in the accent, and what Intern is, in a
-sentence on a shaded band: three models while a run hands over, two while not. Under them the working directory and
-the session's journal, then what to do and the keys worth knowing first, the look last: `/dark` in the light look,
-`/light` in the dark one (while the session is opening, or when it could not open, that line says so instead). All
-of it is centred, and stands a third of the way down a tall terminal.
+which models work with the tools (a run that hands over keeps its tools, so both do) and what a `◆` means, then what
+the session has switched on (`●` on, `○` off: `/caps` changes them), each capability over what it is in a few words,
+a line of air between them, with a `◆` after those the decision model takes part in. The capabilities' card stands
+exactly beside the models' cards, top and bottom, the mascot at their middle, and scrolls the list, its head
+staying: with the wheel, or the arrows once it is clicked (what is typed next goes to the prompt); its scrollbar
+shows only while the pointer is on it or it has the focus. Above them the wordmark in block letters, in the ink with
+a shadow in the accent, and what Intern is, in a sentence on a shaded band: three models while a run hands over, two
+while not. Under them the working directory and the session's journal, then what to do and the keys worth knowing
+first, the look last: `/dark` in the light look, `/light` in the dark one (while the session is opening, or when it
+could not open, that line says so instead). All of it is centred, and stands a third of the way down a tall
+terminal.
 
 The mascot is the README's mark, the Nace cube with two eyes in the window on its top face, in one colour, the ink
 (`tui/sprites/`: sheets of frames from the Nace brand playground's Intern kit, with `sprites.json` saying which

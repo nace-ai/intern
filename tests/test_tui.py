@@ -18,9 +18,11 @@ import pytest
 pytest.importorskip("textual", reason="needs the tui extra")
 
 from textual.app import App
+from textual.containers import VerticalScroll
 from textual.content import Content
 from textual.errors import NoWidget
 from textual.events import Paste
+from textual.widget import Widget
 from textual.widgets import OptionList, Static, TextArea
 
 from intern.capability_settings import CapabilitySettings
@@ -189,6 +191,11 @@ def plain(widget: object) -> str:
     """A widget's text, the non-breaking spaces inside a card's labelled levels read as spaces."""
     content = getattr(widget, "content", "")
     return (content.plain if isinstance(content, Content) else str(content)).replace(" ", " ")
+
+
+def shown(widget: Widget) -> bool:
+    """Whether a widget is drawn: it and everything it is in have their display on."""
+    return all(getattr(node, "display", True) for node in widget.ancestors_with_self)
 
 
 def transcript_text(app: HarnessApp) -> str:
@@ -489,7 +496,7 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         await pilot.pause()
         page = app.query_one(Welcome)
         assert page.has_class(look)  # the mascot between its two systems, all of it in a frame, or the frame alone
-        said = "\n".join(plain(part) for part in page.query(Static) if part.display)
+        said = "\n".join(plain(part) for part in page.query(Static) if shown(part))
         # The three models, each on the one the session opened with, and what the decision model is asked for.
         # The efficient model is not there while hand-over is off.
         assert "fake/model" in said and "drex-latest" in said and "Efficient" not in said
@@ -504,8 +511,7 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
             assert re.search(rf"Code Search.*?{gap}searches code for it", said)
             # The decision model takes part in code search: its mark is beside the name, on no other's, and said once.
             assert "Code Search ◆" in said and "Base Tools ◆" not in said
-            edge = str(page.query_one(CapabilityCard).border_subtitle) if look == "hero" else ""
-            assert (said + edge).count(LEGEND) == 1
+            assert said.count(LEGEND) == 1
         # It is the first thing seen, so all of it is on the screen, whatever the terminal: nothing above the top,
         # nothing under the prompt, and the panels it stands in for are away.
         assert page.region.y >= 0 and page.region.bottom <= app.query_one("#prompt").region.y
@@ -513,7 +519,7 @@ async def test_the_entering_page_has_the_screen_until_the_conversation_begins(
         if look == "hero":
             # The capabilities scroll rather than stretch the page: clicked, the arrows move them, and what is typed
             # next goes to the prompt.
-            card = page.query_one(CapabilityCard)
+            card = page.query_one(CapabilityCard).query_one(VerticalScroll)
             assert card.max_scroll_y > 0
             await pilot.click(card)
             await pilot.press("down", "down")

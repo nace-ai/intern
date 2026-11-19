@@ -144,15 +144,27 @@ Screen {
     margin-top: 1;
 }
 
-/* The capabilities' card scrolls its list, and says what the ◆ means on its bottom edge. */
-#welcome-tools {
+/* The capabilities' card: its head stays, its list scrolls, the scrollbar showing only while the pointer is on it
+   or it has the focus. */
+#welcome-tools-head {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#welcome-tools-scroll {
+    height: 1fr;
     overflow-x: hidden;
     scrollbar-size-vertical: 1;
     scrollbar-background: $background;
+    scrollbar-background-hover: $background;
+    scrollbar-background-active: $background;
+    scrollbar-color: $background;
+}
+
+#welcome-tools-scroll:hover, #welcome-tools-scroll:focus {
     scrollbar-color: $brand 35%;
     scrollbar-color-hover: $brand 60%;
     scrollbar-color-active: $brand;
-    border-subtitle-align: left;
 }
 
 #welcome-tools-list {

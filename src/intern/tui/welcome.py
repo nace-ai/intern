@@ -8,8 +8,8 @@
     ░     for much less, and a decision model picks the moment to hand over and keeps the work on track.    ░
 
     ╭─ System 2 ───────────────────────────╮                    ╭─ Capabilities ───────────────────────╮
-    │ Frontier   thinking high ▰▰▰▱▱       │                    │ 9 tools                              │
-    │ claude-opus-5-5                      │                    │ for the frontier and efficient models│
+    │ Frontier   thinking high ▰▰▰▱▱       │                    │ For the frontier and efficient models│
+    │ claude-opus-5-5                      │                    │ ◆ uses the decision model            │
     │ ⠋ working on the hard part  ━━━━──── │                    │                                      │
     │                                      │    (the mascot,    │ ● Base Tools                         │
     │ ━━━━━ ↓ hand-over · ready 0.48 ───── │     glancing       │     files and the shell              │
@@ -23,8 +23,7 @@
     │ drex-max · console                   │                    │                                      │
     │ ● Hand-over   picks when to hand over│                    │                                      │
     │ ...                                  │                    │                                      │
-    ╰──────────────────────────────────────╯                    │ ◆ uses the decision model            │
-                                                                ╰──────────────────────────────────────╯
+    ╰──────────────────────────────────────╯                    ╰──────────────────────────────────────╯
                                ~/work/parser · session 20261108-21...
 
             Describe a task to begin.   /help commands   /models models   /caps capabilities ...
@@ -37,11 +36,10 @@ P(ready) fills it until it hands over, and the efficient model finishes the rest
 efficient model is not there, a line says so, and the frontier model works every turn. System 1's card has the
 decision model's jobs, each on or off as a capability is. The capabilities' card says which models work with the
 tools, then each capability over what it is, in a few words, a line of air between them, and a ◆ after those the
-decision model takes part in, its legend on the card's edge; the card stands exactly beside the models' cards, top
-and bottom, and scrolls the rest (`CapabilityCard`). Above them the wordmark, in ink with the accent for its shadow,
-and what Intern is, in a sentence on a shaded band: three models while a run hands over, two while it does not;
-under them where the session works, then what to do next. All of it centred, and a third of the way down a tall
-terminal.
+decision model takes part in, its legend at the top; the card stands exactly beside the models' cards, top and
+bottom, and scrolls the rest (`CapabilityCard`). Above them the wordmark, in ink with the accent for its shadow, and
+what Intern is, in a sentence on a shaded band: three models while a run hands over, two while it does not; under
+them where the session works, then what to do next. All of it centred, and a third of the way down a tall terminal.
 
 That is the page on a wide terminal (`hero`). A narrower one has the models and the capabilities in one column
 beside the mascot, in one frame (`framed`); one too small for that, the frame alone, a line a job (`compact`). It is
@@ -241,7 +239,6 @@ class Opening:
     journal: Path | None = None
     capabilities: list[tuple[str, str, bool, bool]] = field(default_factory=list)
     """Each capability's toggle id, its name, whether it is on, and whether the decision model takes part in it."""
-    tools: int = 0
     guard: GuardState = "off"
 
 
@@ -361,7 +358,7 @@ def switches(o: Opening, width: int) -> list[list[Part]]:
     if not o.capabilities:
         return []
     items = [switch(NAMES.get(toggle, name), on) for toggle, name, on, _ in o.capabilities]
-    return flow([*items, [(f"{o.tools} tools", S_MUTED)]], width, gap=2)
+    return flow(items, width, gap=2)
 
 
 def capabilities(o: Opening, width: int) -> list[list[Part]]:
@@ -389,12 +386,16 @@ def model(ref: str, width: int) -> list[list[Part]]:
     return [*lines, [(ref, S_HEAD)]]
 
 
+def tools_head(o: Opening, width: int) -> list[list[Part]]:
+    """The top of the capabilities' card, which stays as the list under it scrolls: which models work with the tools
+    (a run that hands over keeps its tools), then what the ◆ means."""
+    shared = "For the frontier and efficient models" if o.handoff else "For the frontier model"
+    return [[(clip(shared, width), S_MUTED)], *([legend(o)] if legend(o) else [])]
+
+
 def tools(o: Opening, width: int) -> list[list[Part]]:
-    """The capabilities' card: how many tools the session has and which models work with them (a run that hands over
-    keeps its tools), then each capability over what it is, in a few words, a line of air between them; the legend
-    for the ◆ is on the card's edge (`CapabilityCard`)."""
-    shared = "for the frontier and efficient models" if o.handoff else "for the frontier model"
-    lines: list[list[Part]] = [[(f"{o.tools} tools", S_HEAD)], [(clip(shared, width), S_MUTED)], []]
+    """The capabilities' list: each capability over what it is, in a few words, a line of air between them."""
+    lines: list[list[Part]] = []
     for toggle, name, on, decides in o.capabilities:
         brief = BRIEFS.get(toggle, MCP_BRIEF if toggle.startswith("cap.mcp.") else "")
         lines.append([*switch(clip(NAMES.get(toggle, name), width - 2), on), *decided(decides, on)])
@@ -537,8 +538,7 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     ]
     if roomy:
         lines += [[], [(" State ", S_TAB), ("  what the decision model reads", S_MUTED)], *paragraph(STATE, width)]
-        tools: list[Part] = [(f"{o.tools} tools", S_MUTED), *([("   ", ""), *legend(o)] if legend(o) else [])]
-        lines += [[], *capabilities(o, width), tools * bool(o.capabilities)]
+        lines += [[], *capabilities(o, width), *([legend(o)] if legend(o) else [])]
     else:
         lines += [[], *switches(o, width), *where(o, width)]
     return stacked(lines)
@@ -554,20 +554,23 @@ def tips(o: Opening, width: int, dark: bool = False) -> Content:
     return stacked(flow([[lead], *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in hints)], width))
 
 
-class CapabilityCard(VerticalScroll):
-    """The capabilities' card on the wide page: as tall as the models beside it, its list scrolling past that, with
-    the wheel or, once clicked, the arrows; the ◆'s legend on its bottom edge, always in sight."""
+class CapabilityCard(Vertical):
+    """The capabilities' card on the wide page, beside the models': which models use the tools and what the ◆ means,
+    then the list, which scrolls what the card does not hold, with the wheel or, once clicked, the arrows. Its
+    scrollbar shows while the pointer is on it or it has the focus."""
 
     def __init__(self) -> None:
         super().__init__(id="welcome-tools", classes="card")
         self.border_title = "Capabilities"
 
     def compose(self) -> ComposeResult:
-        yield Static(id="welcome-tools-list")
+        yield Static(id="welcome-tools-head")
+        with VerticalScroll(id="welcome-tools-scroll"):
+            yield Static(id="welcome-tools-list")
 
     def show(self, o: Opening, width: int) -> None:
-        self.query_one(Static).update(stacked(tools(o, width)))
-        self.border_subtitle = Content.assemble(*legend(o)) if legend(o) else ""
+        self.query_one("#welcome-tools-head", Static).update(stacked(tools_head(o, width)))
+        self.query_one("#welcome-tools-list", Static).update(stacked(tools(o, width)))
 
 
 class Welcome(Vertical):
