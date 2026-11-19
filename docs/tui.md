@@ -53,7 +53,7 @@ What `intern` opens on, until the conversation begins (`tui/welcome.py`):
   ╭─ System 2 ─────────────────────────────╮                            ╭─ Capabilities ─────────────────────────╮
   │  Frontier   thinking high ▰▰▰▱▱        │                            │  9 tools                               │
   │  claude-opus-5-5                       │                            │  for the frontier and efficient models │
-  │  ⠋ working on the hard part  ▰▰▱▱      │          ▄▄███▄▄           │                                        │
+  │  ⠋ working on the hard part  ━━━━────  │          ▄▄███▄▄           │                                        │
   │  │                                     │       ▄███████████▄        │  ● Base Tools                          │
   │  │  hand-over  ready ▂▄ 0.48           │     ▄████▀▀▀▀▀▄█████▄      │      files and the shell               │
   │  ▼                                     │    ██████ ██ █████████     │  ○ Web Search                          │

@@ -10,7 +10,7 @@
     ╭─ System 2 ───────────────────────────╮                    ╭─ Capabilities ───────────────────────╮
     │ Frontier   thinking high ▰▰▰▱▱       │                    │ 9 tools                              │
     │ claude-opus-5-5                      │                    │ for the frontier and efficient models│
-    │ ⠋ working on the hard part  ▰▰▱▱     │                    │                                      │
+    │ ⠋ working on the hard part  ━━━━──── │                    │                                      │
     │ │                                    │    (the mascot,    │ ● Base Tools                         │
     │ │  hand-over  ready ▂▄ 0.48          │     glancing       │     files and the shell              │
     │ ▼                                    │     and blinking)  │ ○ Web Search                         │
@@ -209,6 +209,8 @@ RUN_PHASES: tuple[tuple[float, Phase], ...] = ((4.0, "frontier"), (5.5, "handove
 RUN_TICK_S = 0.2
 """A frame of the played run: five a second, enough for its spinner and the arrow filling."""
 RUN_TURNS = 4
+TURN_CELLS = 2
+"""A turn's share of the line its model's turns fill (`pips`)."""
 ARROW = ("│", "│", "▼")
 """The hand-over's arrow, down from the frontier model to the efficient one, a row a piece."""
 """The turns each model takes in the played run, a pip each."""
@@ -412,8 +414,9 @@ def phase_at(t: float) -> tuple[Phase, float]:
 
 
 def pips(done: int, lit: bool) -> list[Part]:
-    """The turns a model has taken in the played run, a pip each."""
-    return [("▰" * done, BRAND if lit else S_MUTED), ("▱" * (RUN_TURNS - done), S_RULE)]
+    """The turns a model has taken in the played run, on a thin line filling up, two cells a turn: not the thinking
+    level's boxes beside the frontier model."""
+    return [("━" * TURN_CELLS * done, BRAND if lit else S_MUTED), ("─" * TURN_CELLS * (RUN_TURNS - done), S_RULE)]
 
 
 def run_frame(o: Opening, width: int, t: float | None) -> Content:
