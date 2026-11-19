@@ -30,7 +30,7 @@ from textual.actions import SkipAction
 from textual.app import ComposeResult
 from textual.binding import Binding, BindingType
 from textual.color import Color
-from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.containers import Grid, Horizontal, Vertical, VerticalScroll
 from textual.content import Content
 from textual.geometry import Offset
 from textual.message import Message
@@ -1232,6 +1232,25 @@ def stay(block: Widget) -> None:
         if isinstance(ancestor, Following):
             ancestor.release_anchor()
             return
+
+
+class HelpCard(Grid):
+    """What /help lists, a heading over each group: a command or key on each row, what it does beside it, wrapping
+    under itself rather than under the names."""
+
+    def __init__(self, sections: Mapping[str, Mapping[str, str]]) -> None:
+        super().__init__(classes="help")
+        self.sections = sections
+
+    def compose(self) -> ComposeResult:
+        for title, rows in self.sections.items():
+            yield Static(Content(title), classes="help-head")
+            for name, does in rows.items():
+                command, _, takes = name.partition(" ")  # what a command takes, in the gray: `/runner [name]`
+                yield Static(
+                    Content.assemble((command, "bold"), (f" {takes}" if takes else "", S_MUTED)), classes="help-name"
+                )
+                yield Static(Content(does), classes="help-does")
 
 
 class Transcript(Following):

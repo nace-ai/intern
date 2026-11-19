@@ -123,6 +123,7 @@ from intern.tui.views import ViewHost, Views
 from intern.tui.welcome import SETUP_NOTE, GuardState, Opening, Welcome
 from intern.tui.widgets import (
     JOB,
+    HelpCard,
     Prompt,
     StatusBar,
     Transcript,
@@ -203,43 +204,50 @@ ENTERING_HIDES = ("#status", "#side")
 ADD_SECRET = "+add"
 """The /secrets row that adds an entry; no secret can have this name."""
 
-COMMANDS: dict[str, str] = {
-    "/frontier": "pick the frontier model, which starts each task and does the hard part; /frontier <provider/model> "
-    "sets it directly (also /system2)",
-    "/efficient": "pick the efficient model a run hands over to once the decision model judges it can finish, or "
-    "off; /efficient on, /efficient off or /efficient <provider/model> sets it directly; the next message is the "
-    "frontier model's again, and the session reopens on its journal (also /handover)",
-    "/decision": "pick the decision model, which picks the moment to hand over and keeps the work on track; "
-    "/decision <model> sets it directly (also /system1)",
-    "/state": "show the State in full: the session as the decision model reads it",
-    "/caps": "switch a tool pack, the browser, code search, the memory drive or an MCP connection on or off; "
-    "/caps <name> [path] sets one directly; the session reopens on its journal (also /capabilities)",
-    "/schedule": "list timers; Enter stops the selected timer (enable with /caps schedule)",
-    "/runner": "pick where commands run: local, docker, opensandbox or an installed runner; /runner <name> sets it "
-    "directly; the session reopens on its journal",
-    "/secrets": "keys kept in the OS keychain or a password manager, with whether each loads; Enter on one replaces "
-    "it; /secrets set <NAME> stores one, /secrets remove <NAME> deletes one; new sessions use them",
-    "/setup": "connect your models: the frontier model's provider, key and model, the efficient model, then the "
-    "decision model; saves them to config.toml and the keychain and reopens the session on them",
-    "/thinking": "the frontier model's thinking level, low to max as the model takes it, for models that take one "
-    "(also Shift+Tab; ←→ in the /frontier picker)",
-    "/compact": "compact the conversation now, as a run does near the window's limit: the older turns cut to "
-    "the summary (written first if it does not cover them), the most recent share of the window kept as it is",
-    "/abort": "stop the run in progress (also Esc)",
-    "/clear": "start over: the screen cleared, a new session on a fresh journal; the models and capabilities stay",
-    "/reload": "restart on the code and config as they are now and resume this session: the models, capabilities "
-    "and thinking level stay",
-    "/panels": "show or hide the decision model and State panels (also F2)",
-    "/dark": "the dark look: paper and ink swapped; kept on /reload",
-    "/light": "the light look, paper and ink (the default)",
-    "/help": "this list",
-    "/quit": "close the session and exit (also Ctrl+Q)",
+HELP: dict[str, dict[str, str]] = {
+    "Models": {
+        "/frontier [provider/model]": "pick the frontier model, which starts each task and does the hard part "
+        "(also /system2)",
+        "/efficient [on|off|model]": "pick the efficient model a run hands over to once the decision model judges it "
+        "can finish, or turn the hand-over off; the session reopens on its journal (also /handover)",
+        "/decision [model]": "pick the decision model, which picks the moment to hand over and keeps the work on "
+        "track (also /system1)",
+        "/thinking [level]": "the frontier model's thinking level, low to max as the model takes it (also Shift+Tab, "
+        "and ←→ in the /frontier picker)",
+        "/setup": "connect your models: provider, key and model for each; saved to config.toml and the keychain",
+    },
+    "Session": {
+        "/abort": "stop the run in progress (also Esc)",
+        "/compact": "compact the conversation now, as a run does near the window's limit",
+        "/state": "the State in full: the session as the decision model reads it",
+        "/clear": "start over on a fresh journal; the models and capabilities stay",
+        "/reload": "restart on the code and config as they are now and resume this session",
+        "/quit": "close the session and exit (also Ctrl+Q)",
+    },
+    "Capabilities": {
+        "/caps [name] [path]": "switch a tool pack, the browser, code search, the memory drive or an MCP connection "
+        "on or off; the session reopens on its journal (also /capabilities)",
+        "/runner [name]": "pick where commands run: local, docker, opensandbox or an installed runner; the session "
+        "reopens on its journal",
+        "/secrets [set|remove NAME]": "keys in the OS keychain or a password manager, with whether each loads; Enter "
+        "on one replaces it; new sessions use them",
+        "/schedule": "the timers; Enter stops one (switch them on with /caps schedule)",
+    },
+    "Screen": {
+        "/panels": "show or hide the decision model and State panels (also F2)",
+        "/dark": "the dark look, kept on /reload",
+        "/light": "the light look, the default",
+        "/help": "this list",
+    },
 }
+"""What /help lists, by what each command is for: each as it is typed, with what it takes."""
+COMMANDS = tuple(usage.split()[0] for rows in HELP.values() for usage in rows)
+"""The commands by name, in /help's order: the prompt suggests the first that starts with what is typed."""
 KEYS: dict[str, str] = {
     "Esc": "abort the run in progress, or clear the prompt",
     "Shift+Tab": "cycle the thinking level",
     "F2": "show or hide the decision model and State panels",
-    "Ctrl+O": "expand or fold the latest tool call's output (a click on a call or a thought shows it all)",
+    "Ctrl+O": "expand or fold the latest tool call's output; a click on a call or a thought shows it all",
     "Ctrl+C": "copy what is selected in the prompt, or clear it",
     "Ctrl+X": "cut what is selected in the prompt (Ctrl+Z undoes, Ctrl+Y redoes)",
     "Shift+arrows": "select in the prompt; F7 selects all, a double click a word, a triple click the line",
@@ -1304,8 +1312,7 @@ class HarnessApp(App[None]):
                 self.pending.dark = look == "/dark"
                 self.theme = (DARK_THEME if self.pending.dark else LIGHT_THEME).name
             case "/help":
-                lines = [f"{c:<11} {d}" for c, d in COMMANDS.items()] + [""] + [f"{k:<11} {d}" for k, d in KEYS.items()]
-                await self.transcript.notice("\n".join(lines))
+                await self.transcript.add(HelpCard({**HELP, "Keys": KEYS}))
             case "/quit" | "/exit":
                 await self.action_quit()
             case _:
