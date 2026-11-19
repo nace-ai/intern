@@ -54,7 +54,7 @@ def test_every_shipped_extension_is_exactly_one_kind():
 
 def test_every_capability_extension_names_a_real_switch():
     settings = CapabilitySettings()
-    switches = {toggle.id for toggle in toggles(settings, settings, ["base"])}
+    switches = {toggle.id for toggle in toggles(settings, settings, ["base"], base=True)}
     assert {entry.toggle for entry in CAPABILITY_EXTENSIONS.values()} <= switches
 
 

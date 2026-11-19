@@ -144,6 +144,13 @@ class WorkspaceConfig(_Settings):
     enabled: bool = False
 
 
+class ScheduleConfig(_Settings):
+    """Timers that run prompts while the terminal UI stays open; never built by other clients."""
+
+    enabled: bool = False
+    max_timers: int = Field(default=5, ge=1, le=50)
+
+
 class GuardConfig(_Settings):
     """The tool-call guard (the guard extension): checks each tool call before it runs; the only way to turn it on."""
 
@@ -423,6 +430,7 @@ class CapabilitySettings(_Settings):
     workspace: WorkspaceConfig = Field(default_factory=WorkspaceConfig)
     guard: GuardConfig = Field(default_factory=GuardConfig)
     tool_result_guard: ToolResultGuardConfig = Field(default_factory=ToolResultGuardConfig)
+    schedule: ScheduleConfig = Field(default_factory=ScheduleConfig)
     subagents: SubagentsConfig = Field(default_factory=SubagentsConfig)
     handoff: HandoffConfig = Field(default_factory=HandoffConfig)
     runner: RunnerConfig = Field(default_factory=RunnerConfig)

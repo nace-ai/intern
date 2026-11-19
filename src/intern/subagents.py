@@ -4,8 +4,8 @@ A child is a run of the same engine with a clean conversation. What it may do fo
 parent's capabilities, and the parent may narrow them but never widen them.
 
 - **Tools** are the parent's own tool objects, or a subset the spec names. A tool the parent does not have is refused,
-  and two are never passed on: `process` (a job would outlive the child, with nobody watching it) and the tool that
-  starts subagents (children start none: the depth is 1).
+  except session-owned jobs and timers (they would outlive the child), and the tool that starts subagents
+  (children start none: the depth is 1).
 - **Safety** is always the parent's: the same executor (sandbox or runner), secret redaction, retry policy and System 1
   client (its cost cap and cache). Each parent extension that gates tool calls or results says how it runs in a child
   (`Extension.for_subagent`); one that gates and does not say stops the child from starting, so a third-party safety
@@ -46,8 +46,8 @@ if TYPE_CHECKING:
 
 AGENT_TOOL = "agent"
 """The name of the tool that starts subagents. A child never gets it, so children start none."""
-NEVER_PASSED = frozenset({AGENT_TOOL, "process"})
-"""Tools a child never gets, whatever the spec asks: `process` jobs would outlive the child."""
+NEVER_PASSED = frozenset({AGENT_TOOL, "process", "schedule", "list_schedules", "cancel_schedule"})
+"""Tools a child never gets, whatever the spec asks: jobs and timers belong to the parent session."""
 PARALLEL_EFFECTS = frozenset({"read", "network"})
 """A child whose tools have only these effects may run beside others; one that can write or run commands waits for
 every other such child, so two children never change the same files at once."""

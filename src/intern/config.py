@@ -39,6 +39,7 @@ from intern.extensions.code_search import CodeSearch
 from intern.extensions.guard import Guard
 from intern.extensions.memory import Memory
 from intern.extensions.memory.reminders import MemoryActions
+from intern.extensions.schedule import Schedule
 from intern.extensions.tool_result_guard import ToolResultGuard
 from intern.extensions.workspace.extension import Workspace
 from intern.handoff import HandoffTarget
@@ -189,6 +190,7 @@ class Options(BaseModel):
     """What a client asked for; anything left as None comes from the config home."""
 
     cwd: Path
+    tui: bool = Field(default=False, description="Build terminal-UI-only capabilities; set by the TUI host.")
     system2: str | None = None
     system1: str | None = Field(default=None, description="decisions:<model>[,<fallback>...] or drex:<model>[,...]")
     handoff_to: str | None = Field(default=None, description="Sets [capabilities.handoff] to.")
@@ -313,6 +315,12 @@ class CapabilityExtension:
 
 
 CAPABILITY_EXTENSIONS: dict[str, CapabilityExtension] = {
+    Schedule.name: CapabilityExtension(
+        Schedule,
+        "cap.schedule",
+        "schedule is a terminal-UI capability, not loaded as an extension: use /caps schedule "
+        "or set [capabilities.schedule] enabled = true",
+    ),
     CodeSearch.name: CapabilityExtension(
         CodeSearch,
         "cap.code-search",
@@ -643,7 +651,7 @@ class Bootstrap:
         fixed_extensions = [_extension(name) for name in names]
         extensions = [
             *fixed_extensions,
-            *capability_extensions(capabilities, Memory(memory) if memory is not None else None),
+            *capability_extensions(capabilities, Memory(memory) if memory is not None else None, tui=options.tui),
         ]
         hooks = Hooks(extensions, emit)
         try:

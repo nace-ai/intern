@@ -7,7 +7,7 @@ Intern has no scheduler of its own that keeps running when it is closed. Use the
 |---|---|---|
 | The Intern desktop app | Its scheduled tasks | the app is running (its window may be closed) |
 | Nothing open | Your OS scheduler (launchd, systemd) runs `intern -p` | you are logged in |
-| The terminal UI | A one-off wait: ask the agent | the session is open |
+| The terminal UI | A one-off wait, or timers (`/caps schedule`): ask the agent | the session is open |
 
 Words used here: **System 2** is the model that does the work (`--system2`); **System 1** is the fast model that
 watches it. A **headless** run (`intern -p`) does one task with no terminal UI and exits.
@@ -166,6 +166,16 @@ A user timer runs while you are logged in. To keep it running after you log out:
 For a one-off wait, ask: "in 20 minutes, check whether CI passed". The agent starts a background `sleep` and
 hands the session back to you; when it ends, the session wakes the agent, which then checks. The wait ends when
 you close the session.
+
+For repeats, turn on timers with `/caps schedule` (off by default). Then ask: "every hour, check the nightly
+build". The agent sets a timer with its `schedule` tool; each time it is due, the session runs the prompt with no
+message from you, shown as a `⚑` notice. A repeat counts its next interval from the end of its run, so runs
+never pile up. Timers are at least one minute apart, at most five per session by default
+(`[capabilities.schedule] max_timers`), and `/schedule` lists them and stops one.
+
+Timers live only in the open session: closing it, or anything that reopens it (`/caps`, `/runner`, `/handoff`,
+`/setup`, `/reload`, `/clear`), stops them all and the transcript says how many. Other clients (`-p`, JSON-RPC,
+ACP) never get them. See [timers](../tui.md#timers).
 
 ## Limits
 

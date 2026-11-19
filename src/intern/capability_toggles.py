@@ -72,7 +72,7 @@ def toggles(
     """One toggle per capability in capability order: the tool packs (`base` only when asked), the browser, code
     search, the workspace, memory, the guard, the tool-result guard, subagents, each MCP connection `at_start` (the
     configured settings) names, so one switched off is still listed. Where commands run is no toggle: it is the
-    session's runner (`intern.runners`)."""
+    session's runner (`intern.runners`). `base=True` includes the TUI-only schedule row too."""
     packs = packs_in_force(caps, profile_packs)
     rows = [
         Toggle(
@@ -114,6 +114,16 @@ def toggles(
             id=f"{PREFIX}subagents", name="Subagents", label="subagents", note=SUBAGENTS_NOTE, on=caps.subagents.enabled
         ),
     ]
+    if base:
+        rows.append(
+            Toggle(
+                id="cap.schedule",
+                name="Timers",
+                label="schedule",
+                on=caps.schedule.enabled,
+                note="schedule, list_schedules, cancel_schedule: prompts on timers while this session stays open",
+            )
+        )
     for entry in at_start.mcp:
         names = list(entry.remote_tools)
         listed = ", ".join(names[:4]) + (f" and {len(names) - 4} more" if len(names) > 4 else "")
@@ -160,6 +170,8 @@ def flip(
         case "cap.tool-result-guard":
             screen = caps.tool_result_guard.model_copy(update={"enabled": on})
             return caps.model_copy(update={"tool_result_guard": screen})
+        case "cap.schedule":
+            return caps.model_copy(update={"schedule": caps.schedule.model_copy(update={"enabled": on})})
         case "cap.subagents":
             return caps.model_copy(update={"subagents": caps.subagents.model_copy(update={"enabled": on})})
         case _:

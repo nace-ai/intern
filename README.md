@@ -375,7 +375,8 @@ and so is their System 1 until a paired eval measures it ([`system1`](docs/capab
   [Terminal UI](docs/tui.md)
 - **Optional tools.** A browser, MCP servers, a Docker workspace, secrets from your keychain or password manager.
   [Capability settings](docs/capability-settings.md)
-- **Schedules.** Run a task later or on a repeat: in the desktop app, or with launchd or systemd running `intern -p`.
+- **Schedules.** Run a task later or on a repeat: in the desktop app, with launchd or systemd running `intern -p`,
+  or, in the terminal UI, with timers (default off) that last while the session is open.
   [Schedules](docs/capabilities/schedules.md)
 
 ## Instructions
