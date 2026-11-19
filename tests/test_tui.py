@@ -864,11 +864,27 @@ async def test_reload_quits_with_what_to_reopen_on_and_a_new_app_resumes_the_con
     assert first.journal_path == journal
     # What `main` hands the restarted process: the picks, through the environment, as JSON.
     picks = PICKS.validate_json(PICKS.dump_json(first.reload))
-    second = HarnessApp(make_opener(tmp_path, [Turn(text="Six.")], journal=journal), picks=picks)
+    second = HarnessApp(make_opener(tmp_path, [Turn(text="Six.")], journal=journal), picks=picks, reloaded=True)
     async with second.run_test(size=SIZE) as pilot:
         await wait_for(lambda: second.session is not None)
         await pilot.pause()
-        assert "› what is 2+2" in transcript_text(second)
+        assert "› what is 2+2" in transcript_text(second) and not second.query(Welcome)  # back in the conversation
+        await second.action_quit()
+
+
+async def test_a_reload_from_the_entering_page_comes_back_to_it(tmp_path: Path):
+    journal = tmp_path / "session.jsonl"
+    first = HarnessApp(make_opener(tmp_path, [], journal=journal))
+    async with first.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: first.session is not None)
+        await send(first, pilot, "/reload")
+    assert first.reload is not None
+    picks = PICKS.validate_json(PICKS.dump_json(first.reload))
+    second = HarnessApp(make_opener(tmp_path, [], journal=journal), picks=picks, reloaded=True)
+    async with second.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: second.session is not None)
+        await pilot.pause()
+        assert second.query(Welcome) and not second.query_one(StatusBar).display
         await second.action_quit()
 
 

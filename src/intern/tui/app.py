@@ -172,6 +172,8 @@ class Models:
     `main` starts it as the config says, on unless `auto = false`."""
     dark: bool = False
     """The dark look, picked with /dark."""
+    entering: bool = False
+    """The entering page was up at /reload: the restarted process opens on it again, not on the conversation."""
 
 
 @dataclass(frozen=True)
@@ -489,7 +491,7 @@ class HarnessApp(App[None]):
         """The session's journal, kept on quit so `main` can say how to resume it."""
         self._system1_choices = list(system1_choices or [])
         self._first_prompt = first_prompt
-        self._entering = welcome and first_prompt is None and not reloaded
+        self._entering = welcome and first_prompt is None and (not reloaded or self.pending.entering)
         """The entering page is up, in place of the masthead and the side panels: until the conversation begins."""
         self.session: Session | None = None
         self.catalog: Catalog | None = None
@@ -1836,6 +1838,7 @@ class HarnessApp(App[None]):
             picks.session_file, picks.fresh = session.deps.journal.path, False
         schedule = self._schedule_extension()
         picks.timers_stopped += len(schedule.listing().timers) if schedule is not None else 0
+        picks.entering = self._entering  # back on the page it was on
         self.reload = picks
         await self.action_quit()
 
