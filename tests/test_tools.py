@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import os
 import shlex
 import sys
+import threading
+import tracemalloc
 from pathlib import Path
 
 import pytest
@@ -271,6 +274,54 @@ async def test_grep_and_find_with_and_without_ripgrep(ctx: ToolContext, monkeypa
     assert none.content.startswith("No matches")
     files = await call(FindTool(), ctx, pattern="*.py")
     assert files.content == "src/app.py"
+
+
+@pytest.fixture(params=[True, False], ids=["ripgrep", "python"])
+def either_grep(request, monkeypatch) -> None:
+    if not request.param:
+        monkeypatch.setattr(search, "_ripgrep", lambda: None)
+    elif search._ripgrep() is None:
+        pytest.skip("ripgrep is not installed")
+
+
+@pytest.mark.usefixtures("either_grep")
+async def test_grep_stops_at_max_matches_instead_of_holding_every_match(ctx: ToolContext):
+    (ctx.cwd / "big.log").write_text("".join(f"MATCH number {i:07d} of a long log\n" for i in range(1_000_000)))
+    tracemalloc.start()
+    try:
+        found = await call(GrepTool(), ctx, pattern="MATCH", path="big.log", max_matches=2)
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    first, second, footer = found.content.splitlines()
+    assert first.endswith("MATCH number 0000000 of a long log") and second.endswith("0000001 of a long log")
+    assert "there are more" in footer
+    assert peak < 8_000_000  # the file is 34 MB, and so is the list of its matches
+
+
+@pytest.mark.usefixtures("either_grep")
+async def test_grep_never_opens_a_pipe(ctx: ToolContext):
+    (ctx.cwd / "logs").mkdir()
+    (ctx.cwd / "logs" / "app.log").write_text("hello\n")
+    pipe = ctx.cwd / "logs" / "pipe"
+    os.mkfifo(pipe)
+    opened = False
+
+    def end_the_pipe() -> None:  # so a grep that does open the pipe fails this test instead of hanging the run
+        nonlocal opened
+        opened = True
+        os.close(os.open(pipe, os.O_WRONLY))
+
+    rescue = threading.Timer(2, end_the_pipe)
+    rescue.start()
+    try:
+        inside = await call(GrepTool(), ctx, pattern="hello", path="logs")
+        named = await call(GrepTool(), ctx, pattern="hello", path="logs/pipe")
+    finally:
+        rescue.cancel()
+    assert not opened
+    assert inside.content == "logs/app.log:1:hello"
+    assert named.status == "error" and "not a regular file" in named.content
 
 
 async def test_grep_rejects_bad_patterns(ctx: ToolContext):
