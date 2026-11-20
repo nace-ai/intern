@@ -41,7 +41,7 @@ from textual.screen import ModalScreen
 from textual.timer import Timer
 from textual.widgets import Input, Static, TextArea
 
-from intern import capability_toggles, names, secrets_commands
+from intern import capability_toggles, handover_record, names, secrets_commands
 from intern.capability_settings import CapabilitySettings, GuardConfig, HandoffConfig
 from intern.config import (
     KNOWN_SYSTEM2,
@@ -1183,7 +1183,7 @@ class HarnessApp(App[None]):
                 kind = "ok" if status == "completed" else "warn"
                 await transcript.notice(f"Subagent {name}: {status}, {turns} turns", kind)
             case RunEnd(reason=reason, detail=detail, error=error, turns=turns, usage=usage, system1=system1):
-                await self._hand_back()
+                await self._hand_back(live=True)
                 await transcript.finish_reply()
                 transcript.run_ended()
                 spent2, spent1 = self.run_spent  # what went uncounted: calls with no event of their own (code search)
@@ -1234,15 +1234,29 @@ class HarnessApp(App[None]):
         self.status.free = self._agent_meter()  # each response's headers move the meter
         self.status.refresh_line()
 
-    async def _hand_back(self) -> None:
+    def _handed_record(self) -> handover_record.InShort | None:
+        """What the frontier model is sent, at the next message, of the turns the efficient model took in the run
+        now over: their record, in short. None for a hand-over journaled before there was a record, whose turns it
+        is sent as they are."""
+        if self.session is None:
+            return None
+        run_id = self.ledger.current.run_id
+        stretches = handover_record.stretches(self.session.deps.journal.active_path())
+        stretch = next((s for s in stretches if s.run_id == run_id), None)
+        if stretch is None or stretch.rule != handover_record.RULE:
+            return None
+        return handover_record.in_short(stretch, self.session.deps.cwd)
+
+    async def _hand_back(self, *, live: bool = False) -> None:
         """A run that handed over has ended: the next message is the frontier model's again, and the transcript says
-        so."""
+        so, and folds the efficient model's turns into what the frontier model is sent of them; `live` when the
+        run ended just now."""
         self.status.handed = False
         ref = self.session.deps.system2.ref if self.session is not None else self.status.system2
         back = model_label(ref, self.status.labels)
         if self.transcript.handed:
             line = f"⇠ The frontier model ({back}) takes the next message"
-            await self.transcript.hand_back(Content.assemble((line, S_MUTED)))
+            await self.transcript.hand_back(Content.assemble((line, S_MUTED)), record=self._handed_record(), live=live)
         self.transcript.working(self._role(), back)
         self.status.refresh_line()
 

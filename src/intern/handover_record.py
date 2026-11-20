@@ -274,9 +274,10 @@ def _failed(result: ToolResult | None) -> str:
     return f" → {result.status}: {_clip(said[0] if said else 'no message', LINE_CHARS)}"
 
 
-def _actions(unit: Unit, cwd: Path) -> Iterator[tuple[str, str | None]]:
-    """Each thing a turn did, with the file it wrote or edited (None for the rest). A file tool gets a line, its
-    contents being on disk; a command, or any other tool, is given with what it printed."""
+def _actions(unit: Unit, cwd: Path) -> Iterator[tuple[list[str], list[str], str | None]]:
+    """Each thing a turn did: its own lines, the lines of what it gave back, and the file it wrote or edited (None
+    for the rest). A file tool gets a line, its contents being on disk; a command, or any other tool, is given with
+    what it printed."""
     results = unit.results
     edits: dict[str, int] = {}
     calls: list[ToolCall] = unit.message.tool_calls
@@ -290,22 +291,26 @@ def _actions(unit: Unit, cwd: Path) -> Iterator[tuple[str, str | None]]:
         if call.name == "write":
             content = str(arguments.get("content", ""))
             count = content.count("\n") + (1 if content and not content.endswith("\n") else 0)
-            yield f"wrote {path} ({_count(count, 'line')}){_failed(result)}", path if not _failed(result) else None
+            yield (
+                [f"wrote {path} ({_count(count, 'line')}){_failed(result)}"],
+                [],
+                path if not _failed(result) else None,
+            )
         elif call.name == "edit":
             if _failed(result):
-                yield f"edit of {path}{_failed(result)}", None
+                yield [f"edit of {path}{_failed(result)}"], [], None
             elif path in edits:
-                yield f"edited {path} ({_count(edits.pop(path), 'change')})", path
+                yield [f"edited {path} ({_count(edits.pop(path), 'change')})"], [], path
         elif call.name == "read":
-            yield f"read {path}{_failed(result)}", None
+            yield [f"read {path}{_failed(result)}"], [], None
         elif call.name == "bash":
             command = _command(str(arguments.get("command", "")), cwd)
             ran = [f"ran: {command[0]}"] if len(command) == 1 else ["ran:", *(f"    {line}" for line in command)]
-            yield "\n".join([*ran, *_outcome(result)]), None
+            yield ran, _outcome(result), None
         else:
             given = json.dumps(arguments, ensure_ascii=False, sort_keys=True) if arguments else ""
             used = f"{call.name}: {_clip(given, COMMAND_LINE_CHARS)}" if given else call.name
-            yield "\n".join([used, *_outcome(result)]), None
+            yield [used], _outcome(result), None
 
 
 def _on_disk(files: list[FileChange], named: set[str]) -> str | None:
@@ -320,16 +325,22 @@ def _on_disk(files: list[FileChange], named: set[str]) -> str | None:
     return "on disk: " + "; ".join(parts) if parts else None
 
 
-def turn_record(unit: Unit, files: list[FileChange], cwd: Path) -> str:
-    """One turn as the record has it: what the model said, whole, then each thing it did."""
-    lines = [f"Turn {unit.number}. {unit.message.text.strip()}".rstrip()]
+def _turn(unit: Unit, files: list[FileChange], cwd: Path) -> Iterator[tuple[list[str], list[str]]]:
+    """What a turn's record has under what the model said: each thing it did with what that gave back, then what
+    the turn changed on disk beyond the files those name."""
     named: set[str] = set()
-    for line, path in _actions(unit, cwd):
-        lines.append(f"  - {line}")
+    for did, gave, path in _actions(unit, cwd):
+        yield did, gave
         if path is not None:
             named.add(path)
     if (disk := _on_disk(files, named)) is not None:
-        lines.append(f"  - {disk}")
+        yield [disk], []
+
+
+def turn_record(unit: Unit, files: list[FileChange], cwd: Path) -> str:
+    """One turn as the record has it: what the model said, whole, then each thing it did."""
+    lines = [f"Turn {unit.number}. {unit.message.text.strip()}".rstrip()]
+    lines += ["  - " + "\n".join([*did, *gave]) for did, gave in _turn(unit, files, cwd)]
     return "\n".join(lines)
 
 
@@ -359,12 +370,42 @@ def _changed(stretch: Stretch, cwd: Path) -> str:
         gone = sorted(path for path, change in latest.items() if change == "deleted")
         text = "Files these turns created or changed: " + (", ".join(kept) or "none") + "."
         return text + (f" Deleted: {', '.join(gone)}." if gone else "")
-    named = sorted({path for unit in stretch.turns for _, path in _actions(unit, cwd) if path is not None})
+    named = sorted({path for unit in stretch.turns for _, _, path in _actions(unit, cwd) if path is not None})
     return (
         "Files these turns wrote or edited with the file tools: "
         + (", ".join(named) or "none")
         + ". Their shell commands may have changed others."
     )
+
+
+@dataclass
+class InShort:
+    """A hand-over's record in short, for a reader and not for System 2: the terminal UI folds the turns into it."""
+
+    turns: list[tuple[int, str, list[tuple[str, str]]]]
+    """Each turn but the reply the run ended on: its number, what it said, and each thing it did (a command by its
+    first line) with what that gave back (`exit code 0, 3 lines of output`), where the record has it."""
+    files: str
+    """The record's last line: the files the turns created or changed."""
+    reply: bool
+    """The run ended on a reply, which System 2 is sent whole after the record."""
+
+
+def in_short(stretch: Stretch, cwd: Path) -> InShort:
+    final = stretch.final()
+    turns: list[tuple[int, str, list[tuple[str, str]]]] = []
+    for unit in stretch.turns:
+        if unit is final:
+            continue
+        did = [
+            (
+                lines[0] if len(lines) == 1 else f"{lines[0]} {lines[1].strip()} …",
+                gave[0].strip().removesuffix(":") if gave else "",
+            )
+            for lines, gave in _turn(unit, stretch.files.get(unit.number, []), cwd)
+        ]
+        turns.append((unit.number, unit.message.text.strip(), did))
+    return InShort(turns, _changed(stretch, cwd), final is not None)
 
 
 def apply(view: ContextView, path: list[Entry], cwd: Path) -> None:
