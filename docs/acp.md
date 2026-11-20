@@ -1714,3 +1714,16 @@ the meter can pay again (a limit raised, or free calls resumed after a pause), w
 keys until the session was opened again ([running out](#running-out)). `usage_update`'s `_meta.nace.free.source`
 then reads `free` again, the move is told in its `notice`, and the pickers come back in a `config_option_update`.
 Nothing new on the wire: 0.57.0 clients keep working.
+
+### 0.58.0
+
+`[capabilities.handoff] system2_reads = "record"` sends System 2, at the messages after a hand-over, a record of the
+cheaper model's turns in their place ([settings](capability-settings.md#what-system-2-reads-after-a-hand-over)). Off
+unless set. Additive: 0.57.1 clients keep working, and ACP carries none of it.
+
+- The `handoff` event gains `system2_reads` (`"record"` or null) and `record_rule` (the version of the rule the
+  record is built by, or null), in the journal and in `-p --json`. What System 2 is sent follows that event.
+- A new event, `files_changed` (`turn`; `files`, each with `path`, `change` (`created`, `changed` or `deleted`) and
+  `lines`), is journaled and printed by `-p --json` after each turn that changed files in the working directory,
+  only after a hand-over with the setting on.
+- `session/load` replays what it did: the journal keeps every turn in full.

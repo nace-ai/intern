@@ -944,6 +944,7 @@ class Bootstrap:
             spill_dir=self.home / "spill" / journal.session_id,
             emit=emit,
             handoff=handoff,
+            system2_reads=handoff_plan.system2_reads,
         )
         if memory is not None:
             emit(MemoryMount(drive=str(memory.root), commit=memory.commit))

@@ -196,6 +196,9 @@ class HandoffConfig(_Settings):
     """Turns in a row at `threshold` or more before it hands over."""
     min_turn: int = Field(default=8, ge=1)
     """The earliest turn it hands over at."""
+    system2_reads: Literal["record"] | None = None
+    """What System 2 is sent of the cheaper model's turns at the messages after a hand-over: `record`, a record in
+    their place; unset, every turn in full (`intern.handover_record`)."""
 
     @model_validator(mode="before")
     @classmethod

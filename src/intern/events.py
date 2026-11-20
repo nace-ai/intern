@@ -307,6 +307,31 @@ class Handoff(_EventBase):
     transfer: Literal["context"] = "context"
     probability: float = Field(description="System 1's P(ready) at the turn it handed over.")
     tokens: int = Field(description="The size of the last request the model handed over by sent.")
+    system2_reads: Literal["record"] | None = Field(
+        default=None,
+        description="What System 2 is sent of the turns after this hand-over at the messages that follow: `record`, "
+        "a record in their place (`intern.handover_record`); None, every turn in full. Set from "
+        "`[capabilities.handoff] system2_reads` as it stood at the hand-over, and what the view follows from then on.",
+    )
+    record_rule: int | None = Field(
+        default=None, description="The version of the rule that record is built by; None when there is no record."
+    )
+
+
+class FileChange(BaseModel):
+    path: str = Field(description="Relative to the working directory.")
+    change: Literal["created", "changed", "deleted"]
+    lines: int | None = Field(default=None, description="Its lines now; None when deleted, binary or too large.")
+
+
+class FilesChanged(_EventBase):
+    """The files in the working directory that one turn after a hand-over created, changed or deleted, as found on
+    disk whatever tool or command did it. Emitted after a hand-over journaled with `system2_reads = record`, for the
+    record System 2 is sent of those turns."""
+
+    type: Literal["files_changed"] = "files_changed"
+    turn: int
+    files: list[FileChange]
 
 
 class ToolGuard(_EventBase):
@@ -495,6 +520,7 @@ Event = Annotated[
     | Decision
     | Nudge
     | Handoff
+    | FilesChanged
     | ToolGuard
     | ProcessEvent
     | ProcessCheck

@@ -582,6 +582,7 @@ class Session:
                 raise SessionBusy("a run started while the model was resolving; retry while idle")
             target = HandoffTarget.of(binding, config, list(self.deps.system2.profile.tool_packs))
         self.deps.handoff = target
+        self.deps.system2_reads = config.system2_reads
         self.deps.journal.append(ModelChangeEntry(role=HANDOFF_ROLE, model=ref or ""))
         return target
 

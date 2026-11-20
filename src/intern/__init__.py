@@ -1,3 +1,3 @@
 """Intern: a general-purpose agent harness for small language models."""
 
-__version__ = "0.57.1"
+__version__ = "0.58.0"

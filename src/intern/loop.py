@@ -19,6 +19,7 @@ from functools import cache
 from pathlib import Path
 from typing import Literal, NamedTuple
 
+from intern import handover_record
 from intern import hooks as h
 from intern.async_tasks import join_tasks
 from intern.context import (
@@ -48,6 +49,7 @@ from intern.events import (
     Compaction,
     ContextBudget,
     EventSink,
+    FilesChanged,
     Handoff,
     MessageEvent,
     Nudge,
@@ -211,6 +213,9 @@ class EngineDeps:
     """The parallel limit and the writers' lock every subagent of the session shares; made at the first one."""
     handoff: HandoffTarget | None = None
     """The cheaper model a run hands over to once System 1 judges it can finish (`[capabilities.handoff]`)."""
+    system2_reads: handover_record.Reads | None = None
+    """What System 2 is sent of the turns after a hand-over made from now on (`[capabilities.handoff]
+    system2_reads`); None: every turn in full. The hand-over's event carries it, and the view follows the event."""
 
 
 CompactOutcome = Literal["compacted", "fits", "stopped"]
@@ -298,6 +303,9 @@ class Run:
             else None
         )
         self._taken_over = False
+        self._workspace: handover_record.Snapshot | None = None
+        """The working directory as the last turn left it, once the run has handed over and System 2 will be sent a
+        record of its turns: what each turn changes on disk is journaled for that record."""
         self._takeover_before: str | None = None
         """Once the run has handed over (`_taken_over`), the first message recorded after it: the take-over note goes
         before it in each request the cheaper model is sent for the rest of the run, at the end until there is one,
@@ -729,11 +737,23 @@ class Run:
         return chars
 
     def _view(self) -> ContextView:
-        view = build_view(self.deps.journal.active_path(), self.deps.instructions, self.meter, self.window)
+        path = self.deps.journal.active_path()
+        view = build_view(path, self.deps.instructions, self.meter, self.window)
         view.model, view.replay = self.binding.ref, self.binding.profile.reasoning_replay
         if self._taken_over:
             view.asides = {self._takeover_before: TAKEOVER_NOTE}
+        else:
+            # System 2's own run: the turns of earlier hand-overs as their events say. The cheaper model reads all.
+            handover_record.apply(view, path, self.deps.cwd)
         return view
+
+    def _files_changed(self) -> None:
+        """Journal what this turn of the cheaper model changed in the working directory."""
+        before, self._workspace = self._workspace, handover_record.snapshot(self.deps.cwd)
+        if before is None or self._workspace is None:
+            return  # a working directory too large to look at after every turn
+        if files := handover_record.changes(before, self._workspace, self.deps.cwd):
+            self.deps.emit(FilesChanged(turn=self.turn, files=files))
 
     def _update_state(self, view: ContextView) -> Coroutine[object, object, None] | None:
         """The update of the State over the turns it does not cover yet, as of now (None: it covers them all): edits
@@ -1044,6 +1064,8 @@ class Run:
             self.final_text = message.text
 
         results = await self._run_tools(message.tool_calls) if message.tool_calls else []
+        if self._workspace is not None:
+            self._files_changed()
         waiting_on, limit, looks = (
             self._handed_over(message.tool_calls) if not message.invalid_tool_calls else ([], None, False)
         )
@@ -1156,6 +1178,7 @@ class Run:
         assert self.handoff is not None and self.deps.handoff is not None
         target, readiness = self.deps.handoff, self.handoff
         self.handoff = None
+        reads = self.deps.system2_reads
         self.deps.emit(
             Handoff(
                 turn=self.turn,
@@ -1163,11 +1186,15 @@ class Run:
                 target=target.binding.ref,
                 probability=readiness.probability,
                 tokens=self.meter.tokens(self._prompt_chars),
+                system2_reads=reads,
+                record_rule=handover_record.RULE if reads is not None else None,
             )
         )
         if self.deps.subagents is not None:
             slots_for(self.deps, self.deps.subagents)  # made on the session's own deps, so the copy below shares them
         self.deps = replace(self.deps, system2=target.binding)
+        if reads is not None:
+            self._workspace = handover_record.snapshot(self.deps.cwd)
         if self.subagents is not None:
             self.subagents.deps = self.deps  # a subagent's default model is the model that asks for it
         self.continuations = self.output_doublings = 0  # the cut-off replies counted were the other model's
