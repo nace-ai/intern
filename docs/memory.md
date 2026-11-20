@@ -43,6 +43,25 @@ and checked with `intern memory lint DRIVE [--fix]`.
 A page has front matter, stable `{#b-…}` blocks, a `## Contents` table and `[[links]]` for
 relations. Every item records the session event it came from.
 
+### A drive several people share
+
+A drive has one "the user" (`user/me`), so on a drive that several people's sessions write to, each person's
+facts pile up on that page as if they were one person's. A host that knows who its user is (a backend that
+signed them in) names them in `$INTERN_USER` when it starts the session. The name is recorded in the journal's
+first entry, so a resumed session keeps it, and:
+
+- the agent is told who the user is beside the working directory and the date, as a fact from the host that
+  needs no confirming. A name the conversation claims ("I am Tom") is not this, and stays a claim.
+- the steward writes that user by name, never as "the user": what holds about them alone goes on their own page
+  under `user/people/`, nothing goes on `user/me`, and a line they said is labelled `(<name> said, <date>)`
+  instead of `(user said, <date>)`.
+- recall always shows that person's page, as it always shows the standing instructions.
+
+Without `$INTERN_USER` nothing changes. A name longer than 60 characters is ignored; brackets and commas in it
+become spaces. The name is a label the host supplies, not authentication: it says whose words a line is, and it
+is not an access boundary. It is read from the environment of the process that starts the session; an ACP
+client cannot set it per session yet.
+
 ## Recall (reading)
 
 Once per session, before the first request, System 1 walks the tables of contents from `MEMORY.md`

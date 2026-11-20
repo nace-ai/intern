@@ -58,7 +58,7 @@ from intern.free_session import (
 )
 from intern.handoff import HANDOFF_ROLE, HandoffTarget
 from intern.hooks import Extension, Hooks, build_extension, resolve_extension
-from intern.instructions import FileInstructions
+from intern.instructions import FileInstructions, user_name
 from intern.journal import Journal
 from intern.loop import EngineDeps, ModelBinding
 from intern.memory.drive import Drive, GitError, create, half_made
@@ -96,6 +96,8 @@ SYSTEM2_ENV = f"{names.ENV_PREFIX}SYSTEM2"
 COMMAND = names.NAME
 """The command a user runs: the terminal UI connects their models on its first launch."""
 MEMORY_ENV = f"{names.ENV_PREFIX}MEMORY"
+# The session's user, named by the host that starts the session (a backend that signed them in); see docs/memory.md.
+USER_ENV = f"{names.ENV_PREFIX}USER"
 DRIVE_DIR = "memory"
 # System 1 on the console (`drex:<model>`): https://console.nace.ai serves /v1/systemone.
 DECISION_URL_ENV = "DREX_BASE_URL"
@@ -950,8 +952,8 @@ class Bootstrap:
         if options.persist:
             stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
             journal_path = options.session_file or self.home / "sessions" / f"{stamp}-{uuid4().hex}.jsonl"
-        journal = Journal(cwd=str(options.cwd), path=journal_path)
-        instructions = FileInstructions(self.home, context_files=options.context_files).load(options.cwd)
+        journal = Journal(cwd=str(options.cwd), path=journal_path, user=user_name(self.env.get(USER_ENV, "")))
+        instructions = FileInstructions(self.home, context_files=options.context_files).load(options.cwd, journal.user)
         pack_tools = load_packs(system2.profile.tool_packs)
         fixed_tools = with_extension_tools(pack_tools, fixed_extensions)
         configured_read = next((tool for tool in fixed_tools if tool.name == "read"), None)

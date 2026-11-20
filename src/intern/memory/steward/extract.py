@@ -12,6 +12,7 @@ from urllib.parse import unquote, urlparse
 
 from pydantic import BaseModel, SecretStr
 
+from intern.instructions import user_name
 from intern.journal import Entry, Journal, MemoryRecallEntry, MessageEntry, ObservationEntry, SessionEntry
 from intern.memory.format import SKILL_PAGE, clip, inert, is_folder_file
 from intern.memory.steward.place import (
@@ -268,6 +269,8 @@ class Extract(BaseModel):
     used: list[str] = []
     # The session as System 1 sees it (ctx.state(), `session_cut`), in the steward's smaller share.
     run_state: str = ""
+    # The session's user as the host named them (`SessionEntry.user`); empty when it named none.
+    user: str = ""
 
 
 def result_values(outputs: list[str], calls: list[str], asked: list[str]) -> list[str]:
@@ -1022,6 +1025,7 @@ def extract(journal: Journal, drive_root: Path | None = None, world: str = "") -
             places=touched,
             world=world,
             used=list(dict.fromkeys(used)),
+            user=user_name(session.user),
         )
     )
 

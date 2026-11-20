@@ -54,11 +54,27 @@ class Instructions(BaseModel):
 
 
 class InstructionSource(Protocol):
-    def load(self, cwd: Path) -> Instructions: ...
+    def load(self, cwd: Path, user: str = "") -> Instructions: ...
 
 
-def environment_line(cwd: Path) -> str:
-    return f"Working directory: {cwd}. OS: {platform.system()}. Today: {date.today().isoformat()}."
+# What the agent is told when the host names the session's user. A name the user types is a claim an agent may doubt,
+# and one that memory shared by several people seems to contradict; this one is the host's, like a signed-in account.
+USER_LINE = (
+    " This session's user is {user}: the host that started the session says so, so it needs no confirming."
+    " Memory may be shared with other people; another name in it is that other person, not this user."
+)
+USER_CHARS = 60
+
+
+def user_name(raw: str) -> str:
+    """A user's name as it goes into a prompt and a memory line's label: one line, no brackets or commas."""
+    name = " ".join("".join(" " if c in ",()[]{}<>" else c for c in raw).split())
+    return name if len(name) <= USER_CHARS else ""
+
+
+def environment_line(cwd: Path, user: str = "") -> str:
+    line = f"Working directory: {cwd}. OS: {platform.system()}. Today: {date.today().isoformat()}."
+    return line + (USER_LINE.format(user=user) if user else "")
 
 
 def _project_files(cwd: Path) -> list[Path]:
@@ -85,7 +101,7 @@ class FileInstructions:
         self.home = home
         self.context_files = context_files
 
-    def load(self, cwd: Path) -> Instructions:
+    def load(self, cwd: Path, user: str = "") -> Instructions:
         base = BASE_PROMPT
         pinned: list[PinnedDoc] = []
         system1 = ""
@@ -100,4 +116,4 @@ class FileInstructions:
                 if path.is_file() and path.resolve() not in seen:
                     seen.add(path.resolve())
                     pinned.append(PinnedDoc(source=str(path), content=path.read_text().strip()))
-        return Instructions(system=base, environment=environment_line(cwd), pinned=pinned, system1=system1)
+        return Instructions(system=base, environment=environment_line(cwd, user), pinned=pinned, system1=system1)

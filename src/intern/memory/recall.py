@@ -50,7 +50,8 @@ _MONTH_WORD = re.compile(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a
 
 TRUST_HEADER = (
     "Memory from earlier sessions in this world, built from what the user said, what tools returned and what "
-    "the agent did. Each line ends with where it comes from and when: (user said, D), (assistant told, D), "
+    "the agent did. Each line ends with where it comes from and when: (user said, D) or (<name> said, D) for a "
+    "user the host named, (assistant told, D), "
     "(from <what it was read from>, D) for what a tool returned, (agent did on <what>, D). A line that also says "
     "'unverified session', 'partial session' or 'failed session' comes from a session whose result nothing "
     "confirmed. A line is here to save a lookup: when it answers what the task needs, use it, and go straight to "
@@ -217,14 +218,30 @@ async def _ask(
     return await decisions.ask(purpose, state, questions, timeout_s=RECALL_TIMEOUT_S)
 
 
-async def recall(drive: Drive, task: str, decisions: DecisionClient, budget_chars: int, state: str = "") -> Recall:
-    # System 1 reads the session (ctx.state(), `session_cut`), as every caller does.
+def _own(drive: Drive, user: str) -> Page | None:
+    # The page of the session's user, when the host named them and memory holds a page under that name.
+    wanted = user.lower()
+    for _, page in _entries(drive, (USER_FOLDER,)):
+        names = [page.meta.get("name", ""), *page.meta.get("aliases", "").split(",")]
+        if page.kind == "subject" and wanted in (n.strip().lower() for n in names):
+            return page
+    return None
+
+
+async def recall(
+    drive: Drive, task: str, decisions: DecisionClient, budget_chars: int, state: str = "", user: str = ""
+) -> Recall:
+    # System 1 reads the session (ctx.state(), `session_cut`), as every caller does. `user` is the session's user as
+    # the host named them: their own page is shown whatever the task says, as "the user" page is theirs.
     task_state = clip(task, TASK_STATE_CHARS)
     run_state = state or f"Task:\n{task_state}"
     index_lines = ""
     if any(drive.index(folder) is not None for folder in (MAP_FOLDER, USER_FOLDER, SKILL_FOLDER)):
         picked, skills, timed, steps = await _maps(drive, task_state, run_state, decisions)
         rules = [p for path in ALWAYS if path != ENVIRONMENT_MAP and (p := drive.page(path)) is not None]
+        if user and (own := _own(drive, user)) is not None:
+            rules.append(own)
+            picked = [p for p in picked if p.path != own.path]
         mains = [*rules, *skills, *picked, *[p for p in [drive.page(ENVIRONMENT_MAP)] if p is not None]]
         if timed:
             mains += _timeline(drive, task)
