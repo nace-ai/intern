@@ -228,6 +228,11 @@ class Options(BaseModel):
         "agent runs on free credit a pick other than the bundle's is refused, and a journal's is set aside.",
     )
     system1: str | None = Field(default=None, description="decisions:<model>[,<fallback>...] or drex:<model>[,...]")
+    system1_picked: bool = Field(
+        default=True,
+        description="`system1` is a pick (`--system1`, a client's), not the one a journal last ran on. While System 1 "
+        "runs on free credit a pick other than the bundle's is refused, and a journal's is set aside.",
+    )
     handoff_to: str | None = Field(default=None, description="Sets [capabilities.handoff] to.")
     handoff_default: str | None = Field(
         default=None,
@@ -461,7 +466,7 @@ class Bootstrap:
             free.check("system2", options.system2)
         if options.handoff_to:
             free.check(HANDOFF_ROLE, options.handoff_to)
-        if options.system1:
+        if options.system1 and options.system1_picked:
             free.check("system1", options.system1)
 
     async def _to_own(self, session: Session, system: System) -> bool:

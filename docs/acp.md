@@ -73,7 +73,8 @@ toggle change, so a later load without `_meta` continues on them. `capabilities`
 [`cap.*` ids](#capability-toggles); on `session/load` it is set over the journal's toggles. `runner` takes a
 [runner](#runner) name, over the one the journal last ran on. A `_meta.nace` whose models are not strings, whose
 `capabilities` names an id the session does not offer or a value that is not a JSON boolean, or whose `runner`
-cannot run here, fails with `-32602`.
+cannot run here, fails with `-32602`. A session that names its `system1` opens on it directly: the configured
+System 1 does not need its key for that session.
 
 ### When no System 2 can run
 
