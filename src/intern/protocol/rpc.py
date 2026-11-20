@@ -10,8 +10,11 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import json
+import os
+import queue
 import signal
 import sys
+import threading
 from collections.abc import Awaitable, Callable
 from typing import Any, TextIO
 
@@ -31,6 +34,8 @@ SESSION_BUSY = -32000
 SESSION_IDLE = -32001
 CONFIG_ERROR = -32002
 INTERNAL_ERROR = -32603
+# How long a server ending on a signal waits for a client to take what is still to be written.
+DRAIN_TIMEOUT_S = 2.0
 
 
 class TextParams(BaseModel):
@@ -67,11 +72,58 @@ class Writer:
         self._stream = stream
 
     def send(self, payload: dict[str, Any]) -> None:
-        self._stream.write(json.dumps(payload) + "\n")
+        self._write(json.dumps(payload) + "\n")
+
+    def _write(self, line: str) -> None:
+        self._stream.write(line)
         self._stream.flush()
 
     def event(self, event: Event) -> None:
         self.send({"jsonrpc": "2.0", "method": "event", "params": event.model_dump(mode="json")})
+
+    async def drained(self) -> None:
+        """Returns once every line sent so far is written."""
+
+
+class PipeWriter(Writer):
+    """Writes on a thread of its own, in order, straight to the stream's descriptor. A client that stops reading
+    fills the pipe, and a write then waits for it: made on the event loop, that froze the server, which no longer
+    saw SIGTERM or stdin closing. Lines the client has not taken yet wait in memory instead.
+
+    The thread writes with `os.write`, not through the stream, so one left waiting on a full pipe holds no lock the
+    interpreter needs to exit."""
+
+    def __init__(self, stream: TextIO) -> None:
+        super().__init__(stream)
+        stream.flush()
+        self._descriptor = stream.fileno()
+        self._loop = asyncio.get_running_loop()
+        self._lines: queue.SimpleQueue[bytes | asyncio.Event] = queue.SimpleQueue()
+        self._failed: OSError | None = None
+        threading.Thread(target=self._run, name="rpc-stdout", daemon=True).start()
+
+    def _write(self, line: str) -> None:
+        if self._failed is not None:
+            raise self._failed  # the client closed its end, as a write on the stream would say
+        self._lines.put(line.encode(self._stream.encoding or "utf-8"))
+
+    def _run(self) -> None:
+        while True:
+            item = self._lines.get()
+            if isinstance(item, asyncio.Event):
+                with contextlib.suppress(RuntimeError):  # the loop is closed: nobody waits any more
+                    self._loop.call_soon_threadsafe(item.set)
+            elif self._failed is None:
+                try:
+                    while item:
+                        item = item[os.write(self._descriptor, item) :]
+                except OSError as e:
+                    self._failed = e
+
+    async def drained(self) -> None:
+        reached = asyncio.Event()
+        self._lines.put(reached)
+        await reached.wait()
 
 
 class RpcServer:
@@ -203,7 +255,23 @@ async def serve(
 
 
 async def _serve(make_session: Callable[[Callable[[Event], None]], Awaitable[Session]], stdin: TextIO) -> None:
-    writer = Writer(sys.stdout)
+    try:
+        writer = PipeWriter(sys.stdout)
+    except (AttributeError, OSError, ValueError):  # stdout has no descriptor: an in-memory stream
+        writer = Writer(sys.stdout)
+    try:
+        await _serve_on(writer, make_session, stdin)
+    except BaseException:
+        # Ended by a signal or an error: what is queued is written while the client still reads, not waited for.
+        with contextlib.suppress(TimeoutError):
+            await asyncio.wait_for(writer.drained(), DRAIN_TIMEOUT_S)
+        raise
+    await writer.drained()
+
+
+async def _serve_on(
+    writer: Writer, make_session: Callable[[Callable[[Event], None]], Awaitable[Session]], stdin: TextIO
+) -> None:
     server = RpcServer(writer)
     server.session = await make_session(writer.event)
     async with server.session:

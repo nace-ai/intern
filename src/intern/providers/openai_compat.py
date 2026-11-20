@@ -107,6 +107,13 @@ class _Reply:
         pending.arguments += function.get("arguments") or ""
 
 
+def _first_choice(data: dict[str, Any]) -> list[dict[str, Any]]:
+    """The choices of a chunk or a reply that belong to choice 0. A request with `n` above 1 (a profile's
+    `extra_body`), or a server that sends several anyway, gets alternatives of one reply: read as one they run each
+    other's text and tool arguments together, so only the first is the reply."""
+    return [choice for choice in data.get("choices") or [] if not choice.get("index")]
+
+
 def _image_message(images: list[ImagePart]) -> dict[str, Any]:
     """The images a turn's tool calls showed, as the user message after their results: chat completions
     take images only in user messages."""
@@ -227,14 +234,16 @@ class OpenAICompatProvider:
                         await credential.invalidate()
                         continue
                     # A credential source means the Nace console, whose refusals name a code.
-                    code, meter = (console_error(raw) if credential is not None else None) or (None, None)
+                    refused = console_error(raw) if credential is not None else None
                     raise ProviderError(
                         f"HTTP {response.status_code} from {self.endpoint.provider}: "
                         f"{raw.decode(errors='replace')[:500]}",
                         status=response.status_code,
-                        retryable=response.status_code in RETRYABLE_STATUS and code not in FREE_FINAL,
-                        code=code,
-                        meter=meter,
+                        retryable=response.status_code in RETRYABLE_STATUS
+                        and (refused is None or refused.code not in FREE_FINAL),
+                        code=refused.code if refused else None,
+                        meter=refused.meter if refused else None,
+                        console_message=refused.message if refused else None,
                     ) from None
                 reply = _Reply()
                 splitter = ThinkSplitter() if request.compat.think_tags else None
@@ -271,7 +280,7 @@ class OpenAICompatProvider:
                 raise ProviderError(f"stream error from {self.endpoint.provider}: {chunk['error']}")
             if chunk.get("usage"):
                 reply.usage = chunk["usage"]
-            for choice in chunk.get("choices") or []:
+            for choice in _first_choice(chunk):
                 delta = choice.get("delta") or {}
                 for item in self._content(delta, reply, splitter):
                     yield item
@@ -289,7 +298,7 @@ class OpenAICompatProvider:
             raise ProviderError(f"error from {self.endpoint.provider}: {data['error']}")
         reply.usage = data.get("usage")
         items: list[StreamItem] = []
-        for choice in data.get("choices") or []:
+        for choice in _first_choice(data):
             message = choice.get("message") or {}
             items += self._content(message, reply, splitter)
             for position, call in enumerate(message.get("tool_calls") or []):
@@ -332,9 +341,13 @@ class OpenAICompatProvider:
 
         calls: list[ToolCall] = []
         invalid: list[InvalidToolCall] = []
-        for _, pending in sorted(reply.calls.items()):
+        last = max(reply.calls, default=None)
+        for index, pending in sorted(reply.calls.items()):
             call_id = pending.id or f"call_{new_id()}"
             arguments, error = parse_arguments(pending.arguments)
+            if reply.finish == "length" and index == last and not pending.arguments.strip():
+                # The output limit ended the reply before this call's arguments: `{}` would run the tool on defaults.
+                arguments, error = None, "the reply hit the output limit before the call was finished"
             if not pending.name:
                 invalid.append(
                     InvalidToolCall(id=call_id, name="", raw_arguments=pending.arguments, error="no tool name")

@@ -23,6 +23,7 @@ on a scanned PDF) costs that file, not the build or the agent running it. What i
 
 from __future__ import annotations
 
+import fcntl
 import itertools
 import multiprocessing
 import os
@@ -33,6 +34,7 @@ import time
 from collections.abc import Callable, Iterator
 from concurrent.futures import FIRST_COMPLETED, Future, ProcessPoolExecutor, wait
 from concurrent.futures.process import BrokenProcessPool
+from contextlib import contextmanager
 from pathlib import Path
 from stat import S_ISREG
 from typing import IO
@@ -297,6 +299,33 @@ def build(
     root = root.resolve()
     home = (home or root / names.PROJECT_DIR).resolve()
     home.mkdir(parents=True, exist_ok=True)
+    with _alone(home):
+        return _build(root, home, processors, vectors, report, progress)
+
+
+@contextmanager
+def _alone(home: Path) -> Iterator[None]:
+    """Hold ``home`` for one build. Another process building the same index (a second session in the folder) waits
+    here until this one has saved it, then finds every entry and table made and has nothing left to read. Side by
+    side they wrote one `tables.duckdb`, which DuckDB lets one process open: the second skipped every table as
+    unreadable and saved an index without them, as if it had worked. The lock is on the directory itself (no file to
+    keep out of git) and ends with its process."""
+    held = os.open(home, os.O_RDONLY)
+    try:
+        fcntl.flock(held, fcntl.LOCK_EX)
+        yield
+    finally:
+        os.close(held)
+
+
+def _build(
+    root: Path,
+    home: Path,
+    processors: Processors,
+    vectors: Vectorizer | None,
+    report: Report,
+    progress: ProgressFn | None,
+) -> Index:
     ignore(root, home)
     available = processors(root, home)
     try:
@@ -429,7 +458,13 @@ def _process(root: Path, home: Path, available: list[Processor], report: Report,
     for job in todo:
         if not getattr(job[2], "parallel", False):
             finish(job, _derive(job[2], root / job[0], home))
-    _in_workers([job for job in todo if getattr(job[2], "parallel", False)], root, home, finish)
+    parallel = [job for job in todo if getattr(job[2], "parallel", False)]
+    if parallel:
+        # The tables are loaded. While PDFs are read (an hour, where they are OCR'd) no processor holds the tables'
+        # file, which one process may open at a time: another session's `sql` reads it meanwhile.
+        for processor in available:
+            getattr(processor, "close", lambda: None)()
+    _in_workers(parallel, root, home, finish)
     _drop(prior, index, home, available, report)
     order = {rel: n for n, (rel, _) in enumerate(files)}
     index.files = dict(sorted(index.files.items(), key=lambda kv: order.get(kv[0], len(order))))

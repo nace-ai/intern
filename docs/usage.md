@@ -114,8 +114,10 @@ reason; there is no heuristic stand-in. An ask System 1 fails mid-run is retried
 retryable errors (rate limits, an overloaded server) is waited out the same way before the run stops with
 `provider_error`; [`model_retries = false`](capability-settings.md#model-retries) stops it at the first failure
 instead, for a gateway that retries itself. `--system1 drex-max-v1.1` picks another console model;
-`--system1 decisions:<model>[,<fallback>...]` a decision model on the decisions API (OpenRouter: `~typesafe/jev-latest`, `nace-ai/drex-max`, ...; key in `$OPENROUTER_API_KEY`).
-`intern models` lists every choice the console and the decisions API serve. The old names
+`--system1 decisions:<model>[,<fallback>...]` a decision model on the decisions API (OpenRouter: `~typesafe/jev-latest`, `nace-ai/drex-max`, ...; key in `$OPENROUTER_API_KEY`);
+`--system1 kapitsa:<model>` the one `kapitsa-systemone` serves on this Mac, with no key
+([Local models](local-models.md#system-1)).
+`intern models` lists every choice the console, the decisions API and `kapitsa-systemone` serve. The old names
 `--model`/`-m`, `--decider`, `model =` and `[decider]` still work.
 
 **The tool-call guard.** It is a capability, off by default: no tool call is checked or refused, not even `sudo` or
@@ -156,6 +158,10 @@ retry_window_s = 1800       # the default: a failing System 1 ask is retried for
 # A decision model on the decisions API instead (OpenRouter, key in $OPENROUTER_API_KEY):
 # backend = "decisions-api"
 # model = "~typesafe/jev-latest"
+# base_url = "http://localhost:9000/v1"   # one on this machine needs no key
+# Or kapitsa-systemone on this Mac, with no key (docs/local-models.md#system-1):
+# backend = "kapitsa"
+# model = "drex-max-v1"
 
 [providers.office]
 base_url = "http://gpu-box:8000/v1"
