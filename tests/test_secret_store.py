@@ -117,7 +117,7 @@ def test_keychain_entries_are_read_fresh_each_session_so_a_changed_value_applies
     from intern import secret_store
 
     values = iter(["first-keychain-value", "second-keychain-value"])
-    monkeypatch.setattr(secret_store, "read_entry", lambda name, entry, env, cwd=None: SecretStr(next(values)))
+    monkeypatch.setattr(secret_store, "read_entry", lambda name, entry, env, **_: SecretStr(next(values)))
     read = [secret_store.read_store({"FRESH_TOKEN": "keychain"}, {})[0]["FRESH_TOKEN"] for _ in range(2)]
     assert [value.get_secret_value() for value in read] == ["first-keychain-value", "second-keychain-value"]
 

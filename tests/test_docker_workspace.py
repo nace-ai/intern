@@ -3,11 +3,12 @@ from __future__ import annotations
 import asyncio
 import os
 import shlex
-from pathlib import Path
+import sys
+from pathlib import Path, PurePosixPath
 
 import pytest
 
-from intern.executor import ExecResult
+from intern.executor import ExecResult, LocalExecutor, WorkspaceMount
 from intern.runners.docker import DockerExecutor, DockerOptions
 from intern.tools.base import ToolContext, ToolOutput
 from intern.workspace_tools import workspace_tools
@@ -71,3 +72,37 @@ async def test_real_docker_shell_and_every_filesystem_tool_share_workspace(tmp_p
     assert not isinstance(denied, ToolOutput)
     assert (await tools["read"].run(denied, ctx)).status == "error"
     assert (tmp_path / "sub/a.txt").read_text() == "hello\nchanged\n"
+
+
+class MountedLocal(LocalExecutor):
+    """The local executor with a mount at ``root``: the sandboxed file tools' worker runs as it would in a container."""
+
+    def __init__(self, root: Path) -> None:
+        super().__init__()
+        self.mount = WorkspaceMount(root, PurePosixPath(str(root)))
+
+    async def run(self, command: str, **kwargs) -> ExecResult:
+        argv = shlex.split(command)
+        return await super().run(shlex.join([sys.executable, *argv[1:]]), **kwargs)
+
+
+async def test_sandboxed_file_tools_reach_the_rest_of_the_mount_from_a_subfolder_and_nothing_outside(tmp_path: Path):
+    root = tmp_path / "work"
+    (root / "sub").mkdir(parents=True)
+    (root / "sibling.txt").write_text("before\n")
+    ctx = ToolContext(cwd=root / "sub", executor=MountedLocal(root), abort=asyncio.Event(), max_output_chars=5000)
+    tools = {t.name: t for t in workspace_tools()}
+
+    async def call(name: str, **arguments) -> ToolOutput:
+        args = tools[name].parse(arguments)
+        assert not isinstance(args, ToolOutput)
+        return await tools[name].run(args, ctx)
+
+    written = await call("write", path="../sibling.txt", content="after\n")
+    assert written.status == "ok" and written.content.endswith("work/sibling.txt")
+    edited = await call("edit", path="../sibling.txt", old_string="after", new_string="twice")
+    assert edited.status == "ok" and (root / "sibling.txt").read_text() == "twice\n"
+    found = await call("grep", path="..", pattern="twice")
+    assert found.content.endswith("work/sibling.txt:1:twice")
+    outside = await call("write", path="../../outside.txt", content="no\n")
+    assert outside.status == "error" and not (root.parent / "outside.txt").exists()

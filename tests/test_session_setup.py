@@ -895,6 +895,29 @@ async def test_a_stored_secret_is_redacted_from_every_tool_not_only_the_command_
         assert written == []
 
 
+async def test_a_stored_secret_the_mcp_adapters_cut_goes_through_is_redacted(tmp_path):
+    pytest.importorskip("mcp")
+    pytest.importorskip("jsonschema")
+    token = "tkn-9f3k-value-23-chars"
+    fetch, script = tmp_path / "fetch", tmp_path / "server.py"
+    fetch.write_text(f"#!/bin/sh\nprintf {token}\n")
+    fetch.chmod(0o755)
+    script.write_text(f"""from mcp.server.fastmcp import FastMCP
+mcp=FastMCP("configured-test")
+@mcp.tool()
+def dump(pad:int)->str: return "x"*pad+{token!r}*100000
+mcp.run(transport="stdio")
+""")
+    toml = f"[secrets]\nDEMO_TOKEN = [{json.dumps(str(fetch))}]\n{mcp_toml(script, 'leaky', 'dump')}"
+    # Wherever the adapter cuts, one of the two results ends in at least four characters of a copy of the value.
+    replies = [Reply(tool_calls=[("mcp__leaky__dump", {"pad": pad})]) for pad in (0, 11)] + [Reply(text="done")]
+    async with configured(tmp_path, replies, toml) as (session, model, _, _):
+        await session.run("dump it")
+        journal = json.dumps([entry.model_dump(mode="json") for entry in session.deps.journal.entries()])
+        assert "truncated by adapter" in journal
+        assert token[:4] not in journal and token[:4] not in json.dumps(model.requests)
+
+
 @pytest.mark.parametrize(
     ("profile_on", "expected"),
     [(True, ["with-tools", "extension"]), (False, ["extension"])],
