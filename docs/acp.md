@@ -1789,3 +1789,17 @@ System 1 can be the Drex model `kapitsa-systemone` serves on the user's Mac
 `session/set_config_option system1` takes it; its name reads `<model> (Kapitsa)`. `decisions:<model>` needs no key
 either when `[system1] base_url` is on this machine; before, such a pick was refused with `-32602`. 0.58.4 clients
 keep working.
+
+### 0.60.0
+
+At the messages after a hand-over, System 2 is sent a record of the cheaper model's turns in their place, where
+before it was sent every turn ([what the record holds](capability-settings.md#what-system-2-reads-after-a-hand-over)).
+A session journaled before this release is sent as before. Additive on the wire: 0.59.0 clients keep working, and
+ACP carries none of it.
+
+- The `handoff` event gains `record_rule`, the version of the rule the record is built by, in the journal and in
+  `-p --json`.
+- A new event, `files_changed` (`turn`; `files`, each with `path`, `change` (`created`, `changed` or `deleted`) and
+  `lines`), is journaled and printed by `-p --json` after each turn of the cheaper model that changed files in the
+  working directory.
+- `session/load` replays what it did: the journal keeps every turn in full.

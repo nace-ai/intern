@@ -71,7 +71,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `secrets` | session setting | secret references for commands (bindings, `inject`); the top-level [`[secrets]`](secrets.md) store is separate | none |
 | `session_budget` | session setting | one model-call budget for the session | none |
 | `system2_fallbacks` | session setting | System 2 models to fall back to | none |
-| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, in the same conversation, its turns kept in the session so that System 2, which answers the next message, reads them, and when (`threshold`, `streak`, `min_turn`); `--handoff-to`, the terminal UI's `/handover` and the ACP `handoff` option set `to`; the terminal UI's auto mode (the top-level `auto`, on unless `false`) hands over to `anthropic/claude-haiku-5-5` while `to` names none | off |
+| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, in the same conversation, its turns kept in the session, of which System 2, which answers the next message, is sent a record ([below](#what-system-2-reads-after-a-hand-over)), and when (`threshold`, `streak`, `min_turn`); `--handoff-to`, the terminal UI's `/handover` and the ACP `handoff` option set `to`; the terminal UI's auto mode (the top-level `auto`, on unless `false`) hands over to `anthropic/claude-haiku-5-5` while `to` names none | off |
 | `model_retries` | session setting | whether a System 2 call that fails with a retryable error is made again ([below](#model-retries)) | `true` |
 
 `web_search` and `web_reader` were `search` and `reader` before 0.44.0; the old table names still load.
@@ -440,6 +440,37 @@ While queued or running, its listed due time stays at the last firing.
 `/schedule` lists timers and lets you stop one. All timers stop on close or reopen
 (including `/caps`, `/runner`, `/handover`, `/setup`, `/reload` and `/clear`). They are
 kept only in memory and never restored. Subagents have no timer tools.
+
+## What System 2 reads after a hand-over
+
+The cheaper model's turns are entries of the session like any other. System 2, which answers the next message, is
+not sent them one by one, with every command's output and every written file's contents: it is sent a record of
+them, one message of plain text, followed by the cheaper model's last reply as it was written. The record is built
+from the journal by a fixed rule, with no model call, and is the same bytes on every later request, so the
+provider's cache holds. For each turn it gives:
+
+- what the model said, whole;
+- each command: its own text up to 12 lines, then its exit code and what it printed up to 40 lines. Of a longer
+  text it keeps the start and the end, with a line between saying how many lines are left out. What a here-document
+  writes into a file is left out, as file contents are;
+- each file written, edited or read, by its path, with the lines written or the number of edits, without the
+  contents: the files are on disk;
+- what the turn created, changed or deleted in the working directory, whatever tool or command did it.
+
+It ends with every file those turns created or changed. It opens by saying what it is: that file contents are to be
+read from disk, that the part cut from a long output is no longer available, and that the reasoning behind those
+turns was not kept, so that a reason is given only where a turn states one.
+
+Only what System 2 is sent changes. The journal keeps every turn in full, and the terminal UI, a resumed session
+and the cheaper model's own requests show them all. The record stays until a compaction cuts those turns; one that
+cuts through them leaves a record of the turns still held.
+
+The `handoff` event journals the version of the rule the record is built by (`record_rule`), and System 2 is sent
+what that event says: a hand-over journaled before there was a record, or under another version of the rule, is
+sent in full, so a session's requests do not change under it. After a hand-over each turn that changed files also
+journals a `files_changed` event, the files it created, changed or deleted, found by comparing the working
+directory before and after the turn. Hidden folders and dependency folders are not looked at, nor is a working
+directory of more than 5,000 files.
 
 ## Subagents
 
