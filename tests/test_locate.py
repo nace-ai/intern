@@ -337,6 +337,29 @@ def test_in_a_git_work_tree_what_git_ignores_is_not_indexed(tmp_path: Path):
     assert not wi.stale(tmp_path, index)  # output a command leaves where git ignores it costs no rebuild
 
 
+@pytest.mark.parametrize("in_git", [True, False])
+def test_credentials_and_what_a_link_points_to_outside_the_folder_stay_out_of_the_index(tmp_path: Path, in_git: bool):
+    root, outside = tmp_path / "repo", tmp_path / "home"
+    (root / ".aws").mkdir(parents=True)
+    (outside / ".ssh").mkdir(parents=True)
+    (outside / ".ssh" / "notes.txt").write_text("OUTSIDE-LINKED-TEXT\n")
+    (root / "app.py").write_text('"""App."""\n')
+    (root / "credentials.py").write_text('"""Reads the login from the keychain."""\n')  # code, not a secret
+    (root / "docs.txt").symlink_to(outside / ".ssh" / "notes.txt")  # a repository's link to the user's own file
+    (root / "linked").symlink_to(outside / ".ssh", target_is_directory=True)
+    for name in ("prod.env", "credentials.json", "id_rsa", ".aws/credentials", "tls.pem"):
+        (root / name).write_text("password = IN-A-SECRET-FILE\n")
+    if in_git:
+        subprocess.run(["git", "init", "-q", str(root)], check=True)
+
+    index = build(root)
+    assert set(index.files) == {"app.py", "credentials.py"}
+    saved = root / ".intern" / "index.json"
+    assert "IN-A-SECRET-FILE" not in saved.read_text() and "OUTSIDE-LINKED-TEXT" not in saved.read_text()
+    assert saved.stat().st_mode & 0o077 == 0  # it holds the text of the files: the user's alone
+    assert not wi.stale(root, index)
+
+
 def test_a_folder_with_more_files_than_an_index_holds_fails_the_build(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(wi, "MAX_FILES", 2)
     for name in ("a.py", "b.py", "c.py"):

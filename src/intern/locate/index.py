@@ -148,6 +148,22 @@ class Index(BaseModel):
         return next((c for c in entry.chunks if c.key == key), None) if entry else None
 
 
+#: Folders that hold credentials, and file names that say so: such a file is not indexed (`secret_looking`). Source
+#: named after what it handles (credentials.py, secrets.ts) is code and is indexed; a public key is not a secret.
+_SECRET_FOLDERS = frozenset({".aws", ".ssh", ".gnupg", ".kube", ".docker", ".azure", ".password-store"})
+_SECRET_NAME = re.compile(
+    r"""^(?:
+        .*\.env(?:\.(?!example$|sample$|template$|dist$|defaults$)[\w-]+)?
+      | (?:.*[._-])?(?:credentials?|secrets?|passwords?|htpasswd)
+        (?:\.(?:json|ya?ml|toml|ini|cfg|conf|txt|csv|xml|properties))?
+      | client_secret.*\.json
+      | service[._-]?account.*\.json
+      | id_(?:rsa|dsa|ecdsa|ed25519)
+      | .*\.(?:pem|key|p12|pfx|jks|keystore|kdbx|ppk|tfvars|tfstate)
+    )$""",
+    re.X,
+)
+
 #: What a build gets its processors from, given the indexed root and the index's home directory (the home may be
 #: below the root, so a processor naming things by relative path takes the root); a processor may hold a resource
 #: (a database connection) and close it when the build ends.
@@ -187,16 +203,25 @@ def walk(root: Path) -> Iterator[tuple[str, os.stat_result]]:
     keeps out of git (build output, data, scratch, other checkouts) is neither indexed nor searched."""
     listed = _git_files(root)
     for rel in listed if listed else _walk_files(root):
-        if rel.rsplit("/", 1)[-1].startswith("."):
+        if rel.rsplit("/", 1)[-1].startswith(".") or secret_looking(rel):
             continue
         try:
-            stat = (root / rel).stat()
+            # Not followed: a link's target is indexed under its own name when it is under the root, and one that
+            # leaves the root (to ~/.ssh/id_rsa, in a repository someone else wrote) is not the root's to index.
+            stat = (root / rel).lstat()
         except OSError:
             continue
         # An empty file has nothing to index (placeholders by the hundred); a pipe or device is not a file to read.
         # How large a file may be is its processor's call (`_processor_for`).
         if S_ISREG(stat.st_mode) and stat.st_size > 0:
             yield rel, stat
+
+
+def secret_looking(rel: str) -> bool:
+    """Whether the file at ``rel`` is, by its name, one that holds credentials (prod.env, credentials.json, id_rsa,
+    .aws/credentials): its text would go into the index and the cards System 1 reads, so it is not indexed."""
+    *folders, name = rel.lower().split("/")
+    return bool(_SECRET_FOLDERS.intersection(folders) or _SECRET_NAME.search(name))
 
 
 def sample(root: Path, limit: int = SAMPLE_FILES) -> list[str]:
@@ -492,8 +517,11 @@ def _pool(
 def _write(path: Path, index: Index) -> None:
     """Replace ``path`` whole, so a reader never sees half an index."""
     tmp = path.with_suffix(".tmp")
+    # The user's alone (0600): it holds text of every indexed file, and the folder may be on a shared machine.
     # Bytes straight from the serializer: model_dump_json's str and its encoding were 1.2 GB more at audit-app's size.
-    tmp.write_bytes(index.__pydantic_serializer__.to_json(index))
+    with os.fdopen(os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "wb") as f:
+        os.fchmod(f.fileno(), 0o600)  # also when a .tmp an interrupted build left was wider
+        f.write(index.__pydantic_serializer__.to_json(index))
     tmp.replace(path)
 
 
