@@ -423,10 +423,11 @@ async def _forgetting(
     transcripts = tracked_files(root, main_commit(root), ".txt")
     transcripts.pop(f"{SESSIONS_FOLDER}{ex.session_id}.txt", None)
     found: list[tuple[int, Spot]] = []
+    spans = _spans(ex, [users[i] for i in flagged])
+    apart = [t.text for t in ex.turns if not _within(spans, t.order)]
     for i in flagged:
         spots = candidates(files, transcripts, users[i].text, MAX_FORGET_LINES)
-        before = [t.text for t in ex.turns if t.order < users[i].order]
-        spots += earlier(before, users[i].text, MAX_FORGET_SESSION_LINES)
+        spots += earlier(apart, users[i].text, MAX_FORGET_SESSION_LINES)
         found += [(i, s) for s in spots if all(s != f for _, f in found)]
     listed = "\n".join(f'u{i}. "{clip(users[i].text, FORGET_MESSAGE_CHARS)}"' for i in flagged)
     picked = await _picked(decision, FORGOTTEN, NOTE_KEEP, f"User messages:\n{listed}", found)
@@ -459,18 +460,24 @@ async def _picked(
     return [(i, s) for k, (i, s) in enumerate(found) if _noul(answers.get(f"c{k}")) >= bar]
 
 
-def _scrub(ex: Extract, asked: list[Turn], removal: Removal, said: list[str]) -> Extract:
-    # The request and what the session did about it until the user spoke again (its replies, its searches for the
-    # thing and what they returned), any removed line the session repeated and what the session itself said of it
-    # before the request leave everything written from it.
+def _spans(ex: Extract, asked: list[Turn]) -> list[tuple[int, int | None]]:
+    # What a session did about a request to forget: all of it when the request opens the session, since a later
+    # message then answers a question about the request; otherwise what came before the user spoke again.
     spoke = sorted(t.order for t in ex.turns if t.role == "user")
-    spans = [(t.order, next((o for o in spoke if o > t.order), None)) for t in asked]
+    return [(t.order, next((o for o in spoke[1:] if o > t.order and t.order != spoke[0]), None)) for t in asked]
 
-    def about(order: int) -> bool:
-        return any(start <= order and (end is None or order < end) for start, end in spans)
 
-    marked = [t for t in ex.turns if about(t.order)]
-    steps = [s for s in ex.steps if about(s.order)]
+def _within(spans: list[tuple[int, int | None]], order: int) -> bool:
+    return any(start <= order and (end is None or order < end) for start, end in spans)
+
+
+def _scrub(ex: Extract, asked: list[Turn], removal: Removal, said: list[str]) -> Extract:
+    # The request and what the session did about it (its replies, its searches for the thing and what they
+    # returned), any removed line the session repeated and what the session itself said of it apart from that
+    # leave everything written from it.
+    spans = _spans(ex, asked)
+    marked = [t for t in ex.turns if _within(spans, t.order)]
+    steps = [s for s in ex.steps if _within(spans, s.order)]
     done = {s.pointer for s in steps}
     said = [*said, *(body(s.line) for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER))]
     said += [text.strip() for s in steps for text in (s.call, s.result, s.output)]

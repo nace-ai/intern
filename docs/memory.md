@@ -192,12 +192,13 @@ index. Earlier commits of the drive still hold it; only rewriting its git histor
   removed line, or a gone page's title or path, becomes `[removed at the user's request]`. A page's summary line
   is built again from the lines that stay, and a kind of work left with no session leaves the schema. A session
   whose task line goes is forgotten whole: its transcript and its work page are deleted. The request itself,
-  everything the session did until the user spoke again (its replies, the searches it ran for the thing and what
-  they returned) and every restatement in the session are removed from what the steward writes, so the session's
-  own transcript and work page do not repeat it. Work asked for in the same message as the request is therefore
-  not remembered either. So is what the session said before the request, when the user
-  tells something and takes it back in one session: System 1 picks among the earlier sentences that share the
-  request's words (at most 20). The log says how many lines went, never which. The removal lands in the
+  everything the session did about it (its replies, the searches it ran for the thing and what they returned) and
+  every restatement in the session are removed from what the steward writes, so the session's own transcript and
+  work page do not repeat it. When the request opens the session, that is the whole session, since a later
+  message then answers a question about the request; otherwise it is what came before the user spoke again. Work
+  asked for in the same message as the request is therefore not remembered either. So is what the rest of the
+  session said of the thing, as when the user tells something and takes it back in one session: System 1 picks
+  among the session's other sentences that share the request's words (at most 20). The log says how many lines went, never which. The removal lands in the
   session's commit, so the next session no longer sees it.
 - **By command.** `intern memory forget DRIVE "words" [--page user/people/sam]` lists every line that holds all
   the words (a page title too, which removes its page, and a transcript's task line, which removes its session)

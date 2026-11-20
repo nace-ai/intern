@@ -156,8 +156,8 @@ def candidates(files: dict[str, str], transcripts: dict[str, str], text: str, mo
 
 
 def earlier(turns: list[str], text: str, most: int) -> list[Spot]:
-    # The sentences a session said before a request in it that share a word with the request, long enough to be
-    # taken out of what is written from the session.
+    # The sentences a session said, apart from a request in it and what it did about the request, that share a
+    # word with the request, long enough to be taken out of what is written from the session.
     want = stems(text) - _ASKING
     found = [s for turn in turns for s in sentences(turn) if len(s) >= MIN_COVERED_CHARS]
     shared = sorted(((len(want & stems(s)), s) for s in dict.fromkeys(found)), key=lambda p: -p[0])
