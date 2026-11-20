@@ -44,6 +44,22 @@ _SECRET_IN_PROSE = re.compile(
     r"(?i)\b(?:token|secret|password|passwd|passphrase|credential|(?:api|access|secret|private|signing)[ _-]?key)\b"
     r"[^\n]{0,60}?(?<![\w/.~-])([A-Za-z0-9][\w-]{19,})(?![\w/.~-])"
 )
+# A password is short and may hold any character (password: hunter2, PASSWORD='S3cr3t!pa$$w0rd'), so a name that
+# says password takes a shorter value than a token's, quoted or up to the next space.
+_PASSWORD_ASSIGNMENT = re.compile(
+    r"(?i)\b[\w-]*passw(?:or)?d[\w-]*[\"']?\s*[=:]\s*(?:\"([^\"\n]{7,})\"|'([^'\n]{7,})'|([^\s\"',;()\[\]{}]{7,}))"
+)
+# A line of a .env or a shell (DB_PASSWORD=correcthorsebatterystaple): what such a name is set to is the password
+# itself, with a digit or without. Not a path, a $VARIABLE, or a word that stands for "fill this in".
+_ENV_PASSWORD = re.compile(
+    r"\b[A-Z][A-Z0-9_]*(?:PASSWORD|PASSWD|SECRET)=[\"']?([^\s\"'$<>{}()\[\],;/~.][^\s\"',;)]{7,})"
+)
+_FILL_IN = frozenset({"password", "changeme", "change-me", "change_me", "required", "optional", "redacted"})
+# A long hex value set in a .env or a shell is a key or a session token (SESSION=9f86d0...), whatever its name,
+# unless the name says it is a hash of something.
+_ENV_HEX = re.compile(
+    r"\b(?![A-Z0-9_]*(?:SHA|COMMIT|HASH|REV|DIGEST|CHECKSUM|MD5))[A-Z][A-Z0-9_]*=[\"']?([0-9a-fA-F]{32,})\b"
+)
 _LETTER = re.compile(r"[A-Za-z]")
 _URL_PASSWORD = re.compile(r"://[^/\s:@]+:([^@\s/]{4,})@")
 # A vendor key in the <prefix>_live_ / <prefix>_test_ style needs a digit in its tail, so an identifier such as
@@ -52,6 +68,9 @@ _SECRET_SHAPE = re.compile(
     r"\b(?:sk-[\w-]{20,}|[rsp]k_(?:live|test)_\w{10,}|[a-z]{2,10}_(?:live|test)_(?=[A-Za-z]*\d)[A-Za-z0-9]{10,}"
     r"|gh[pousr]_\w{20,}|xox[abprs]-[\w-]{10,}|AKIA[0-9A-Z]{16}|AIza[\w-]{35})\b"
     r"|-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----"
+    # A webhook's address is all it takes to post to it.
+    r"|https://hooks\.slack\.com/(?:services|workflows|triggers)/[\w/-]{20,}"
+    r"|https://discord(?:app)?\.com/api/webhooks/[\w/-]{20,}"
 )
 _DIGIT = re.compile(r"\d")
 
@@ -642,11 +661,13 @@ def _replaced(value: object, clean: Callable[[str], str]) -> object:
 
 def secrets_in(text: str) -> set[str]:
     found = {
-        m[1]
-        for pattern in (_SECRET_ASSIGNMENT, _SECRET_IN_PROSE)
+        value
+        for pattern in (_SECRET_ASSIGNMENT, _SECRET_IN_PROSE, _PASSWORD_ASSIGNMENT)
         for m in pattern.finditer(text)
-        if _DIGIT.search(m[1]) and _LETTER.search(m[1])
+        if (value := next(group for group in m.groups() if group)) and _DIGIT.search(value) and _LETTER.search(value)
     }
+    found |= {m[1] for m in _ENV_PASSWORD.finditer(text) if m[1].lower() not in _FILL_IN}
+    found |= {m[1] for m in _ENV_HEX.finditer(text) if _DIGIT.search(m[1]) and _LETTER.search(m[1])}
     found |= {m[1] for m in _URL_PASSWORD.finditer(text)}
     found |= {m[0] for m in _SECRET_SHAPE.finditer(text)}
     return {value for value in found if value != REDACTED}

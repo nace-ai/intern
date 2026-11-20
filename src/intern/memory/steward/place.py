@@ -84,7 +84,10 @@ def project_name(root: Path, cwd: Path) -> str:
 def place_for_path(path: Path, cwd: Path) -> tuple[str, PlaceKind, Path]:
     root = project_root(path, cwd)
     if root is not None and (name := project_name(root, cwd)):
-        return f"map/{_safe(name)}", "project", root
+        # The name is the repository's own word (its manifest's `name`): one that says "environment" does not get
+        # the page every session recalls.
+        name = _safe(name)
+        return f"map/{name}-project" if name in RESERVED else f"map/{name}", "project", root
     parts = PurePosixPath(path.relative_to(cwd).as_posix()).parts
     if len(parts) > 1:
         name = _safe(parts[0])
