@@ -47,10 +47,44 @@ Judgment = tuple[Literal["waits", "serves"], float]
 """System 1's word that a running `bash` command waits or serves, with P(waits) + P(serves)."""
 ENDED_LINES = ("Background job ", "A process the command ")  # how the line of each process in an end notice begins
 NOTICE_OUTPUT_CHARS = 1_500  # the end of a job's output the notice of its end quotes
+JOB_MARK_ENV = "INTERN_JOB_MARK"
+"""Set to a value of its own in each local job's environment: how what the job started is found once it has left the
+job's process group (`setsid`, a daemon)."""
 IDLE_POLL_S = 1.0  # how often the idle watch looks for commands that have written nothing for `idle_stop_s`
 IDLE_LATE_S = 30.0
 """A look this late means the event loop could not read output meanwhile (it was blocked, or the machine paused): the
 silence of every command is counted from then, not stopped for."""
+
+
+def marked_processes(mark: str) -> list[int]:
+    """The processes of this machine whose environment holds the job mark `mark`, wherever they are in the process
+    tree: from /proc on Linux, from one `ps` on macOS. Only this user's processes show their environment, and one
+    that cleared its own (`env -i`, a container, a service manager's child) is not found. Empty when neither can be
+    read."""
+    wanted = f"{JOB_MARK_ENV}={mark}".encode()
+    found: list[int] = []
+    if Path("/proc/self/environ").exists():
+        for entry in Path("/proc").iterdir():
+            if entry.name.isdigit():
+                with contextlib.suppress(OSError):
+                    if wanted in (entry / "environ").read_bytes().split(b"\0"):
+                        found.append(int(entry.name))
+    else:
+        try:
+            listed = subprocess.run(
+                ["/bin/ps", "-axEww", "-o", "pid=,command="],
+                capture_output=True,
+                check=False,
+                timeout=5,
+                env={"LC_ALL": "C", "PATH": "/usr/bin:/bin"},
+            ).stdout
+        except (OSError, subprocess.TimeoutExpired):
+            return []
+        for line in listed.splitlines():
+            fields = line.split()
+            if fields and fields[0].isdigit() and wanted in fields:
+                found.append(int(fields[0]))
+    return [pid for pid in found if pid != os.getpid()]
 
 
 class OutputFilter(Protocol):
@@ -154,6 +188,8 @@ class _Job:
     done: asyncio.Event = field(default_factory=asyncio.Event)
     task: asyncio.Task[None] | None = None
     kill_sent: bool = False
+    mark: str = field(default_factory=lambda: uuid.uuid4().hex)
+    """A local job's `JOB_MARK_ENV`, which everything it starts inherits."""
     end_seen: bool = False
     """The agent was shown that it ended: a poll, a list or its terminate after the end, or the notice of it."""
     output_filter: OutputFilter | None = None
@@ -612,18 +648,26 @@ class ProcessManager:
                     self._watch(job.handle, job.idle.set)
                 job.task = asyncio.create_task(self._supervise_remote(job, timeout_s, abort))
                 return self._snapshot(job, None)
+            mark = uuid.uuid4().hex
             process = await asyncio.create_subprocess_exec(
                 "bash",
                 "-c",
                 command,
                 cwd=cwd,
-                env=shell_env(os.environ if env is None else env),
+                env={**shell_env(os.environ if env is None else env), JOB_MARK_ENV: mark},
                 stdin=asyncio.subprocess.PIPE if stdin else asyncio.subprocess.DEVNULL,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
                 start_new_session=True,
             )
-            job = _Job(handle=handle, command=shown, process=process, output_filter=output_filter, takes_input=stdin)
+            job = _Job(
+                handle=handle,
+                command=shown,
+                process=process,
+                output_filter=output_filter,
+                takes_input=stdin,
+                mark=mark,
+            )
             self._jobs[job.handle] = job
             self._report("started", self._info(job))
             if self.idle_stop_jobs:
@@ -698,6 +742,19 @@ class ProcessManager:
         if not job.kill_sent:
             await self._signal(job, signal.SIGKILL)
             job.kill_sent = True
+            await self._kill_detached(job)
+
+    @staticmethod
+    async def _kill_detached(job: _Job) -> None:
+        """Kill what the job started that left its process group (a child that called `setsid`, a daemon whose parent
+        exited), which the group's signal does not reach. They are found by the mark in their environment."""
+        for _ in range(3):  # one that forks while it is looked for is found by the next look
+            pids = await asyncio.to_thread(marked_processes, job.mark)
+            if not pids:
+                return
+            for pid in pids:
+                with contextlib.suppress(ProcessLookupError, PermissionError):
+                    os.kill(pid, signal.SIGKILL)
 
     async def _stop(self, job: _Job) -> None:
         if job.moved is not None:

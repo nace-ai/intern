@@ -224,8 +224,14 @@ stopped, the state is `out_of_memory` and the log says how much it held.
 When a command exits, times out, is cancelled or its manager closes, any remaining
 members of its process group receive a termination signal, a bounded grace period,
 and a final kill signal. Redirecting output or ignoring termination cannot retain
-that owned group. A child that deliberately creates a new session requires a
-stronger operating-system isolation boundary.
+that owned group. A child of a job that left the group (it called `setsid`, or is a
+daemon whose parent exited) is killed too: every job's environment holds a mark of its
+own (`INTERN_JOB_MARK`), and the processes still carrying it are found (in `/proc` on
+Linux, with one `ps` on macOS) and killed, without the grace period. One that cleared
+its environment (`env -i`), runs as another user or was started by another service (a
+container, `launchd`, `systemd-run`) is not found: that requires a stronger
+operating-system isolation boundary. This covers jobs, not what a `bash` call left
+running.
 
 Jobs run where the session's commands run. With the local executor they are the
 owned process groups above, and that is not a sandbox. With an executor that runs
