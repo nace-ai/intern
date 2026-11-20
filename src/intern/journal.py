@@ -231,6 +231,15 @@ class Journal:
                             stacklevel=2,
                         )
                         break
+                    # Appends only ever link an entry to an earlier one. A file that says otherwise was edited or
+                    # damaged, and following its links could loop forever.
+                    if entry.id in self._entries or (
+                        entry.parent_id is not None and entry.parent_id not in self._entries
+                    ):
+                        raise ValueError(
+                            f"Journal {path} line {index + 1}: the entry repeats an id or its parent is not an "
+                            "earlier entry; the file was changed outside the harness."
+                        )
                     self._entries[entry.id] = entry
                     self._order.append(entry.id)
                 offset += len(line)
