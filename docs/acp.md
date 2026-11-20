@@ -1753,3 +1753,12 @@ When the Nace console refuses a request without ending the free credit (`rate_li
 words ("The model provider is busy. Retry after 1 seconds"), where before it showed `provider_error: HTTP 429 from
 nace:` and the console's JSON body. The harness event `run_end.error` gains an optional `message`, the console's
 `error.message`. Nothing changes on ACP: 0.58.0 clients keep working.
+
+### 0.58.2
+
+The memory steward's writer turns reasoning off on DeepSeek V4 Flash (Fireworks and `nace/`), where before it asked for
+low effort: at low that model still reasoned 9,000 to 21,000 tokens per note, a lessons draft could outrun the
+writer's two-minute timeout, and the steward deferred the session again and again. A full simulated week now
+completes, with steward time over its first 34 sessions down from 5,172 to 442 seconds. A profile names how to turn
+reasoning off with `thinking_off`; sessions never send it, and the model's efforts in `models --json` and the effort
+picker are unchanged. Nothing changes on ACP: 0.58.1 clients keep working.
