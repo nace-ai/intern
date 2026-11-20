@@ -228,6 +228,29 @@ async def test_decisions_api_splits_asks_over_the_question_cap_and_merges_the_an
     assert abs(result.cost_usd - 0.003) < 1e-9
 
 
+async def test_when_one_request_of_a_split_ask_fails_the_answered_ones_are_kept_and_paid_for_once():
+    sizes: list[int] = []
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        asked = json.loads(r.content)["questions"]
+        sizes.append(len(asked))
+        if sizes.count(1) == 1 and len(asked) == 1:
+            return httpx.Response(503)  # the one-question request, the first time
+        usage = {"cost": 0.01 * len(asked), "input_tokens": 10 * len(asked)}
+        return httpx.Response(200, json={"answers": {k: {"type": "noul", "noul": 0.5} for k in asked}, "usage": usage})
+
+    backend = DecisionsApiBackend("https://x/v1", SecretStr("k"), ["decider"], transport=httpx.MockTransport(handler))
+    questions: dict[str, Question] = {f"q{i}": NoulQuestion(instructions=f"claim {i}") for i in range(17)}
+    events: list = []
+    c = client(backend, events, retry_window_s=5)
+    answers = await c.ask("triage", "state", questions)
+    assert list(answers) == list(questions)
+    assert sorted(sizes) == [1, 1, 16]  # the 16 answered are not asked for again
+    assert c.usage.cost_usd == pytest.approx(0.17) and c.usage.input_tokens == 170
+    assert [(e.ok, round(e.cost_usd, 2)) for e in events] == [(False, 0.16), (True, 0.01)]
+    assert "503" in events[0].error
+
+
 async def test_decisions_api_keeps_one_connection_across_asks():
     """A search makes hundreds of asks; none should pay for a new connection and TLS handshake."""
     peers: set[tuple[str, int]] = set()
