@@ -18,6 +18,7 @@ TRACE_MATCHES = 5
 PINNED = "(already in context)"
 _SOURCE = re.compile(r"^(?:evt#)?([0-9a-z]+)(?::([0-9a-z]+))?$")
 _WORD = re.compile(r"[a-z0-9]{3,}")
+_STEP_ID = re.compile(r"^[us]\d+ \[[^\]]*\] @[0-9a-z]+ ", re.MULTILINE)
 Folder = Literal["map/", "user/", "lessons/", "skills/", "work/", "sessions/"]
 
 
@@ -228,7 +229,9 @@ def _excerpt(session: str, text: str, step: str | None, line: str) -> str:
         note = f"The steps of entry {step} sharing most words with the traced line:"
     elif not hits and want:
         hits = best(list(range(4, len(rows))))
-        note = "This session has no step ids; the lines sharing most words with the traced line:"
+        note = "The traced step is not found by id here; the lines sharing most words with the traced line:"
+    elif not hits and step and _STEP_ID.search(text):
+        note = f"Step {step} is not in this transcript, whose middle may have been cut; pass the traced line as query."
     elif not hits:
         note = "This session has no step ids; pass the traced line as query to find it." if step else ""
     around = TRACE_AROUND if len(hits) == 1 else 0

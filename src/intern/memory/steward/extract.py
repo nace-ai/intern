@@ -934,7 +934,8 @@ def extract(journal: Journal, drive_root: Path | None = None, world: str = "") -
                     elif call.name in MEMORY_TOOLS:
                         page = call.arguments.get("path")
                         if call.arguments.get("action") == "read" and isinstance(page, str) and page.strip():
-                            used.append(page.strip().split("#", 1)[0].removesuffix(".md"))
+                            name = page.strip().strip("[]").split("#", 1)[0].removesuffix(".md")
+                            used.append(name.removeprefix(f"{skip}/") if skip else name)
                     elif call.name not in BASE_TOOLS:
                         detail = f"(args: {', '.join(sorted(call.arguments))})" if call.arguments else "(no args)"
                         place: tuple[str, PlaceKind] = (page_for_tool(call.name), "tool")
