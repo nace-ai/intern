@@ -608,7 +608,7 @@ class Run:
             except ProviderError as e:
                 outcome = self._outcome("provider_error", str(e))
                 if e.code is not None:
-                    outcome.error = h.RunError(code=e.code, meter=e.meter)
+                    outcome.error = h.RunError(code=e.code, meter=e.meter, message=e.console_message)
                 return outcome
             if reply is None:
                 return self._outcome("aborted")

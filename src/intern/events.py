@@ -453,12 +453,13 @@ class SubagentEnd(_EventBase):
 
 
 class RunError(BaseModel):
-    """What the Nace console said when it refused a request the run needed (its `error.code` and `meter`), and for a
-    free credit refused for good, the System 2 the session's next run will use in its place (None: no own model can
-    run)."""
+    """What the Nace console said when it refused a request the run needed (its `error.code`, `meter` and `message`),
+    and for a free credit refused for good, the System 2 the session's next run will use in its place (None: no own
+    model can run)."""
 
     code: str
     meter: str | None = None
+    message: str | None = None
     next: str | None = None
 
 
