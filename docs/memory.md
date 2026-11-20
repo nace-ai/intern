@@ -37,7 +37,7 @@ and checked with `intern memory lint DRIVE [--fix]`.
 - `user/`: the user, the people, organisations and things they deal with, and standing instructions.
 - `lessons/` and `skills/`: ways of working learned across sessions.
 - `work/`: one page per session with what was asked, what was done and how it ended.
-- `sessions/`: session transcripts, searchable with the `memory_search` tool.
+- `sessions/`: session transcripts, searchable with the `memory_search` tool, as the pages are.
 
 A page has front matter, stable `{#b-…}` blocks, a `## Contents` table and `[[links]]` for
 relations. Every item records the session event it came from.
@@ -69,7 +69,13 @@ These come from the `memory` extension, which runs after the profile's extension
   once per line. When a line names a document or record that holds what the call needs, the agent is
   asked to read it first. Reads are not held, and neither is a call that already runs the command a
   line quotes, unless the line warns against it.
-- **`memory_search`** finds earlier sessions by words when no page holds what the task needs.
+- **`memory_search`** finds pages and earlier sessions by words when the recalled pages do not hold what the
+  task needs. It ranks with BM25 (SQLite FTS5): each page block and each chunk of about 2,000 characters of a
+  transcript is one passage, and a page's path, title and block heading weigh twice its text. Page blocks are
+  listed first, each with its file and block id, then sessions, each ranked by its best chunk, with its task,
+  outcome and matching lines. `folder` limits a search to `map/`, `user/`, `lessons/`, `skills/`, `work/` or
+  `sessions/`. The index is read from `main`'s commit, as recall is, and kept in `.git/nace-search.sqlite`; the
+  first search of a session indexes only the files whose blob changed since the last one.
 
 ## Steward (writing)
 
