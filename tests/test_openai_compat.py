@@ -239,3 +239,14 @@ async def test_model_requests_say_they_come_from_intern():
 
     await collect(provider(handler), request())
     assert seen[0]["X-Nace-Client"] == "intern" and seen[0]["X-Title"] == "Intern"
+
+
+async def test_a_tool_call_cut_off_at_the_output_limit_before_its_arguments_is_not_run():
+    body = sse(
+        delta(tool_calls=[{"index": 0, "id": "c1", "function": {"name": "list", "arguments": "{}"}}]),
+        delta(tool_calls=[{"index": 1, "id": "c2", "function": {"name": "publish", "arguments": ""}}]),
+        delta(finish_reason="length"),
+    )
+    _, message = await collect(provider(lambda r: httpx.Response(200, content=body)), request())
+    assert [c.id for c in message.tool_calls] == ["c1"]  # the call that finished still runs
+    assert [c.name for c in message.invalid_tool_calls] == ["publish"]

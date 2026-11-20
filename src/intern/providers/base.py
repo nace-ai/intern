@@ -91,6 +91,7 @@ class ProviderError(Exception):
         retryable: bool = False,
         code: str | None = None,
         meter: str | None = None,
+        console_message: str | None = None,
     ) -> None:
         super().__init__(message)
         self.status = status
@@ -99,6 +100,8 @@ class ProviderError(Exception):
         """The Nace console's `error.code` (`free_exhausted`, `rate_limited`, …), for a request to it."""
         self.meter = meter
         """The free credit's meter the console named: `agent` or `system1`."""
+        self.console_message = console_message
+        """The console's `error.message`: what the refusal means, in words."""
 
 
 class Provider(Protocol):

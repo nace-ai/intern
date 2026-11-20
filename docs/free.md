@@ -69,8 +69,12 @@ and hand-over are yours while System 1 stays free; when the System 1 credit is s
 A credit that runs out in the middle of a run is not retried. System 1 goes on with your own console key
 (`NACE_API_KEY`) on the same model, and System 2 with your own Fireworks key (`FIREWORKS_API_KEY`) on the same model
 (GLM 5.3 or DeepSeek V4.1 Flash), and the run carries on. Without that key, the run stops, saying which of your models
-the next message will run on, or that you need to add a key; the conversation is kept. You are told once when a system
-moves to your keys, and once each when a meter has 20% and 5% left.
+the next message will run on, or that you need to add a key; the conversation is kept.
+
+The choice is made again at the start of every run, so a system on your keys goes back to free credit, in the same
+session, once the console says its meter can pay again: a limit raised, or free calls resumed after a pause. The
+console's answers carry the meters, and the grant is read again at most every 10 minutes. You are told when a system
+moves to your keys or back, and once each when a meter has 20% and 5% left.
 
 While a system runs on free credit, it runs on the grant's models (its `bundle`), not on your configuration:
 
@@ -90,7 +94,8 @@ the meters on every usage update ([ACP](acp.md#free-credit)).
 
 The sign-in gives an access token, good for an hour, and a refresh token that renews it. The refresh token is kept
 in the OS keychain (service `intern`, account `NACE_FREE_REFRESH_TOKEN`), or in `~/.intern/free.json` where there is
-no keychain. The access token is kept in `~/.intern/free-access.json` with its expiry, so every Intern process on
+no keychain. A config home other than `~/.intern` keeps its own sign-in under its own service
+([secrets](secrets.md)), so two homes never share, rotate or sign out of each other's. The access token is kept in `~/.intern/free-access.json` with its expiry, so every Intern process on
 the machine (the desktop app's, the terminal UI, `intern models` probes) shares one. Both files are readable by you
 only.
 
