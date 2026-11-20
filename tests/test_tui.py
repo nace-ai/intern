@@ -11,6 +11,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -25,7 +26,7 @@ from textual.events import Paste
 from textual.widget import Widget
 from textual.widgets import OptionList, Static, TextArea
 
-from intern.capability_settings import CapabilitySettings
+from intern.capability_settings import CapabilitySettings, HandoffConfig
 from intern.cli import main as cli_main
 from intern.config import Options, System2Unavailable
 from intern.decisions import (
@@ -50,6 +51,7 @@ from intern.events import (
     ToolGuard,
 )
 from intern.executor import LocalExecutor
+from intern.handoff import HandoffTarget
 from intern.hooks import Extension, Hooks
 from intern.instructions import FileInstructions
 from intern.journal import Journal
@@ -79,6 +81,7 @@ from intern.tui.state_panel import StatePanel
 from intern.tui.welcome import LEGEND, CapabilityCard, Welcome
 from intern.tui.widgets import (
     CompactionCard,
+    HandedFold,
     Prompt,
     StatusBar,
     ToolBlock,
@@ -86,6 +89,7 @@ from intern.tui.widgets import (
 )
 
 from .support import Filled, Quiet, binding, is_state_write
+from .test_handover_record import Judge
 from .test_tui_logic import SAMPLE_STATE, guard, run_start
 
 SIZE = (160, 48)
@@ -258,6 +262,26 @@ async def test_a_prompt_runs_and_the_reply_tool_calls_and_system_1_rows_show(tmp
         assert "s   moving 0.80" in text
         assert "completed · 5 turns" in text
         assert not status.running
+        await app.action_quit()
+
+
+async def test_escape_sequences_a_command_prints_or_a_model_writes_never_reach_the_terminal(tmp_path: Path):
+    # A command sets the clipboard (OSC 52) and the window title and clears the screen; the model's reply tries too.
+    attack = r"printf 'one\033]52;c;aGk=\007two\033]0;pwned\033\\\033[2Jthree\033c\n'"
+    script = [Turn(tool_calls=[("bash", {"command": attack})]), Turn(text="done\x1b]0;pwned\x07\x1b[2J here")]
+    app = HarnessApp(make_opener(tmp_path, script))
+    async with app.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: app.session is not None)
+        await send(app, pilot, "run it")
+        await wait_for(lambda: app._run_task is not None and app._run_task.done())  # pyright: ignore[reportPrivateUsage]
+        await pilot.pause()
+        block = app.query_one(Transcript).query(ToolBlock).first()
+        block.toggle()
+        await pilot.pause()
+        assert "onetwothreec" in plain(block.out)  # what it printed is still read, without the sequences
+        screen = "\n".join(strip.text for strip in app.screen._compositor.render_strips())  # pyright: ignore[reportPrivateUsage]
+        assert "onetwothreec" in screen and "done here" in screen
+        assert not [c for c in screen if c != "\n" and (ord(c) < 32 or 0x7F <= ord(c) < 0xA0)]
         await app.action_quit()
 
 
@@ -1454,8 +1478,53 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
         )
         await wait_for(lambda: "Handed over to the efficient model (cheap) at turn 9" in transcript_text(app))
         await app._handle(TurnStart(turn=10))
-        await wait_for(lambda: "Efficient · cheap · turn 10" in transcript_text(app))
+        await wait_for(lambda: [plain(head) for head in app.query(".turn-head")][-1:] == ["cheap"])
         assert "Efficient model" in str(app.transcript.border_title)
+
+
+async def test_a_hand_overs_turns_fold_into_their_record_once_the_run_is_over_and_a_click_shows_them(tmp_path: Path):
+    journal = tmp_path / "session.jsonl"
+    cheap = FakeProvider(
+        [Turn(text="fixing", tool_calls=[("bash", {"command": "echo 12 passed"})]), Turn(text="all done")],
+        "cheap/small",
+    )
+    started = [Turn(text="built", tool_calls=[("bash", {"command": "echo hi"})])]
+    opener = make_opener(tmp_path, started, system1=Judge(), journal=journal)
+
+    async def open_session(emit: EventSink, models: Models) -> Session:
+        session = await opener(emit, models)
+        target = replace(binding(cheap), ref="cheap/small")
+        session.deps.handoff = HandoffTarget(binding=target, config=HandoffConfig(min_turn=1, streak=1))
+        return session
+
+    first = HarnessApp(open_session)
+    async with first.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: first.session is not None)
+        await send(first, pilot, "go")
+        await wait_for(lambda: first._run_task is not None and first._run_task.done())  # pyright: ignore[reportPrivateUsage]
+        await wait_for(lambda: bool(first.query(HandedFold)) and "Files these" in plain(first.query_one(HandedFold)))
+        fold = first.query_one(HandedFold)
+        folded = plain(fold)
+        # What the frontier model is sent of the turn: what it said, its command and what that gave back.
+        assert "fixing" in folded and "ran: echo 12 passed → exit code 0, 1 line of output" in folded
+        call = first.query(ToolBlock).last()
+        replies = [reply.source.strip() for reply in first.query(".reply") if shown(reply)]  # pyright: ignore[reportAttributeAccessIssue]
+        assert not shown(call) and replies == ["built", "all done"]  # the turn folded away, the last reply not
+        await pilot.click(HandedFold)
+        await pilot.pause()
+        assert shown(call)  # the turn itself, a click away
+        await first.action_quit()
+    second = HarnessApp(make_opener(tmp_path, [Turn(text="ok")], journal=journal))
+    async with second.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: second.session is not None)
+        await pilot.pause()
+        assert plain(second.query_one(HandedFold)) == folded  # a resumed session opens on the same fold
+        call = second.query(ToolBlock).last()
+        assert not shown(call)
+        await pilot.press("ctrl+o")  # the keyboard's way to the turns: the latest call is among them
+        await pilot.pause()
+        assert shown(call)
+        await second.action_quit()
 
 
 async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_path: Path, monkeypatch):
