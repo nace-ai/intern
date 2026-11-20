@@ -184,6 +184,8 @@ async def test_choosing_your_own_asks_for_a_frontier_model_then_an_efficient_one
 
 async def test_another_provider_walks_through_frontier_efficient_and_the_decision_model_key(tmp_path: Path):
     home = tmp_path / "home"
+    home.mkdir()
+    (home / "config.toml").write_text("[free]\nuse = true\n")  # on the free credit until now
     env = {**NO_KEYCHAIN}
     opened: list[Models] = []
     app = setup_app(tmp_path, env, [], opened)
@@ -213,6 +215,8 @@ async def test_another_provider_walks_through_frontier_efficient_and_the_decisio
     config = tomllib.loads((home / "config.toml").read_text())
     assert config["system2"] == "anthropic/claude-sonnet-5-5"
     assert config["capabilities"] == {"handoff": {"to": "anthropic/claude-haiku-5-5"}}
+    # Own keys picked over the free credit pause it, or the session would open on the grant's models again.
+    assert config["free"] == {"use": False}
     kept = read_env_file(home / ".env")
     assert kept == {"ANTHROPIC_API_KEY": "sk-ant-test-key-123", "OPENROUTER_API_KEY": "sk-or-v1-test-key"}
 
@@ -275,6 +279,8 @@ async def test_skipping_the_efficient_model_runs_every_turn_on_the_frontier_mode
 
 async def test_starting_at_the_decision_model_asks_for_the_efficient_model_after_it(tmp_path: Path):
     home = tmp_path / "home"
+    home.mkdir()
+    (home / "config.toml").write_text("[free]\nuse = true\n")
     env = {**NO_KEYCHAIN, "ANTHROPIC_API_KEY": "sk-ant-in-env", "OPENROUTER_API_KEY": "sk-or-v1-in-env"}
     screen = OnboardingScreen(
         home=home, env=env, start="system1", system2="anthropic/claude-sonnet-5-5", transport=provider([])
@@ -295,6 +301,7 @@ async def test_starting_at_the_decision_model_asks_for_the_efficient_model_after
 
     config = tomllib.loads((home / "config.toml").read_text())
     assert config["capabilities"] == {"handoff": {"to": "anthropic/claude-haiku-5-5"}}
+    assert config["free"] == {"use": True}  # connecting only a decision model leaves the free credit on
 
 
 async def test_a_refused_key_keeps_the_step_and_says_how_to_fix_it(tmp_path: Path):

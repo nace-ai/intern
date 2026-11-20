@@ -809,6 +809,9 @@ class Setup:
     """Providers to write to `[providers.<id>]`, by id: a custom endpoint, or a local server at another address."""
     handoff: str | None = None
     """The `provider/model` runs hand over to; None for no hand-over."""
+    pause_free: bool = False
+    """The user's own keys were picked over the free credit: `[free] use = false`, as `/free pause` sets, so the session
+    opens on these picks instead of the grant's."""
 
     @property
     def system1_choice(self) -> str:
@@ -850,8 +853,8 @@ def _write_handoff(document: tomlkit.TOMLDocument, handoff: str | None) -> None:
 
 def write_config(home: Path, setup: Setup) -> Path:
     """Write the picks to `config.toml`: `system2`, the `[system1]` table's backend and model (and where its key
-    is), the hand-over model, and a `[providers]` entry for each provider that needs one. Everything else in the file
-    stays as it was."""
+    is), the hand-over model, a `[providers]` entry for each provider that needs one, and the free credit paused when
+    the picks replace it. Everything else in the file stays as it was."""
     path = home / CONFIG_FILE
     document = tomlkit.parse(path.read_text()) if path.is_file() else tomlkit.document()
     if "model" in document:
@@ -875,6 +878,8 @@ def write_config(home: Path, setup: Setup) -> Path:
         entry["base_url"] = spec.base_url
         _table(document, "providers")[provider_id] = entry
     _write_handoff(document, setup.handoff)
+    if setup.pause_free and isinstance(free := document.get("free"), Table):
+        free["use"] = False
     home.mkdir(parents=True, exist_ok=True)
     path.write_text(tomlkit.dumps(document))
     return path

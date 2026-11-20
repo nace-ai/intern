@@ -1051,7 +1051,9 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
                 providers[p.id] = PROVIDERS[p.id].model_copy(update={"base_url": address})
         # A key typed in that is already exported with the same value needs no keeping.
         keys = {name: value for name, value in self.keys.items() if self.env.get(name) != value}
-        setup = Setup(self.system2, self.option, self.system1_model, keys, providers, self.handoff)
+        # Own keys picked over the free credit pause it; a setup only for the decision model leaves it be.
+        pause_free = not self.from_decision
+        setup = Setup(self.system2, self.option, self.system1_model, keys, providers, self.handoff, pause_free)
         self.busy = True
         self._status("Saving…")
         try:
