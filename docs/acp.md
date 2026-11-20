@@ -1687,3 +1687,9 @@ resumes or signs out of it ([terminal UI](tui.md#free-credit)). Nothing changes 
 System 2 and the hand-over model run on the free credit: the harness asks the console for the bundle's model by the
 id the grant names (`nace/glm-5.3`), where before it sent `glm-5.3`, which the console refuses as
 `model_not_in_plan`. Nothing changes on ACP: 0.56.0 clients keep working, and the model ids they see are the same.
+
+### 0.56.2
+
+The memory steward writes again on GLM 5.3: its writer asks for low reasoning effort when the model's profile lists
+it, where before GLM 5.3 thought past the writer's two-minute timeout and every session's memory was deferred.
+Nothing changes on ACP: 0.56.1 clients keep working.
