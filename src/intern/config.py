@@ -59,6 +59,7 @@ from intern.instructions import FileInstructions
 from intern.journal import Journal
 from intern.loop import EngineDeps, ModelBinding
 from intern.memory.drive import Drive, GitError, create
+from intern.memory.launches import Launches
 from intern.memory.spend import STEWARD_DIR
 from intern.memory.steward.writer import writer_from_ref
 from intern.models.catalog import (
@@ -92,6 +93,8 @@ COMMAND = names.NAME
 """The command a user runs: the terminal UI connects their models on its first launch."""
 MEMORY_ENV = f"{names.ENV_PREFIX}MEMORY"
 DRIVE_DIR = "memory"
+STEWARDS = Launches()
+"""The stewards this process starts as its sessions close: one at a time, each waited for."""
 # System 1 on the console (`drex:<model>`): https://console.nace.ai serves /v1/systemone.
 DECISION_URL_ENV = "DREX_BASE_URL"
 DECISION_KEY_ENV = "DREX_API_KEY"
@@ -601,15 +604,13 @@ class Bootstrap:
                 argv += ["--writer", writer]
         log = self.home / STEWARD_DIR / f"{journal.stem}.log"
 
-        def start(session: Session) -> None:
-            if session.last_outcome is None or not journal.is_file():
-                return
+        def launch() -> subprocess.Popen[bytes] | None:
             # A steward that cannot start costs this session's memory, never its close.
             with contextlib.suppress(OSError):
                 log.parent.mkdir(parents=True, exist_ok=True)
                 with log.open("ab") as out:
                     # Its own process group, so the steward outlives the client and a Ctrl-C to it.
-                    subprocess.Popen(
+                    return subprocess.Popen(
                         argv,
                         stdin=subprocess.DEVNULL,
                         stdout=out,
@@ -617,6 +618,12 @@ class Bootstrap:
                         env={**os.environ, **self.env},
                         start_new_session=True,
                     )
+            return None
+
+        def start(session: Session) -> None:
+            if session.last_outcome is None or not journal.is_file():
+                return
+            STEWARDS.start(launch)
 
         return start
 
