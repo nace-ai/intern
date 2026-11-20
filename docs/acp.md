@@ -1771,3 +1771,10 @@ endings or one rare word. Lines that hold the names and numbers of the removed l
 session itself said of the thing, its searches for it and their results. A line of another transcript that names a
 forgotten session by its id becomes the marker. [Memory](memory.md) has the details. Nothing changes on ACP: 0.58.2
 clients keep working.
+
+### 0.58.4
+
+In the terminal UI, setup on your own keys while the free credit is in use pauses the free credit (`[free] use =
+false`, as `/free pause` does), so the session reopens on the models just picked. Before, it reopened on the free
+credit's models and refused the picks. A setup that only connects a decision model leaves the free credit as it was;
+`/free resume` goes back to it. Nothing changes on ACP: 0.58.3 clients keep working.

@@ -1462,6 +1462,8 @@ class HarnessApp(App[None]):
                 await self._submit(prompt)
             return
         note = f"frontier {done.setup.system2} · decision {done.setup.system1_choice}"
+        if done.setup.pause_free and (free := self._free()) is not None and free.plan.use:
+            note += " · free credit paused (/free resume goes back to it)"
         await self._reopen(note, before, shown=bool(self.query(Welcome)))  # the entering page has the models
 
     async def _setup_command(self) -> None:
