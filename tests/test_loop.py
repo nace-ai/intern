@@ -287,6 +287,31 @@ async def test_provider_errors_end_the_run_with_a_typed_reason(make_harness):
     assert "HTTP 500" in (outcome.detail or "")
 
 
+@pytest.mark.parametrize("empty", [Turn(), Turn(reasoning="I should inspect the project.")])
+async def test_an_empty_reply_is_asked_again_and_is_not_a_completed_run(make_harness, empty):
+    # A reply with no text and no tool call (or reasoning only) ended the run as `completed` with nothing for the user.
+    harness = make_harness([empty, Turn(text="actual answer")])
+    outcome = await harness.run("Please inspect and answer my question.")
+    assert outcome.reason == "completed" and outcome.final_text == "actual answer"
+    assert [n.reason for n in harness.recorder.of(Nudge)] == ["empty_reply"]
+
+
+async def test_a_model_that_stays_silent_ends_the_run_as_a_failure(make_harness):
+    harness = make_harness(lambda _: Turn())
+    outcome = await harness.run()
+    assert outcome.reason == "provider_error" and "empty reply" in (outcome.detail or "")
+    assert outcome.final_text == ""
+    assert len(harness.provider.requests) == harness.deps.system2.profile.max_continuations + 1
+
+
+async def test_an_empty_reply_after_the_agent_answered_still_ends_the_run(make_harness):
+    # The user has their answer; a last reply with nothing to add is the end of the run, not a failure.
+    harness = make_harness([Turn(text="The answer is 4.", tool_calls=[("bash", {"command": "true"})]), Turn()])
+    outcome = await harness.run()
+    assert outcome.reason == "completed" and outcome.final_text == "The answer is 4."
+    assert not harness.recorder.of(Nudge)
+
+
 async def test_abort_stops_a_run_waiting_on_a_slow_tool(make_harness):
     harness = make_harness(lambda _: Turn(tool_calls=[("bash", {"command": "sleep 30"})]))
     control = RunControl()

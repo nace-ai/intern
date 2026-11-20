@@ -134,6 +134,11 @@ REASONING_CUT_OFF_NUDGE = (
     "again: take the next step now, with brief reasoning before the call. Write a large file in parts, e.g. "
     "several edits instead of one write."
 )
+# A reply with no text and no tool call, when the user has had no word yet, is not an answer: the model is asked again.
+EMPTY_REPLY_NUDGE = (
+    "Your reply was empty: no answer and no tool call came out. Take the next step with a tool call now, or, if the "
+    "work is done, reply to the user: say what you did and what you found."
+)
 BUDGET_NUDGE = (
     "You have no turns left and cannot call tools any more. Reply to the user now: say what is done, what is "
     "not done, and what they should check or do themselves. Do not claim anything you did not do."
@@ -275,6 +280,8 @@ class Run:
         self.state_usage = Usage()  # the State writes' share of `usage`
         self.by_model: dict[str, Usage] = {}
         self.continuations = 0
+        self.empty_replies = 0
+        """Replies in a row with no text and no tool call, while the user had no answer yet."""
         self.output_doublings = 0
         self.final_text = ""
         self._prompt_chars = 0
@@ -1085,6 +1092,18 @@ class Run:
                 only_reasoning = not message.text.strip() and bool(message.reasoning or message.reasoning_blocks)
                 nudges.append((REASONING_CUT_OFF_NUDGE if only_reasoning else CUT_OFF_NUDGE, "output_limit"))
 
+        # Nothing came out (or reasoning only) and the user has had no word since their message: that is not a finished
+        # run. The model is asked again, as after a cut-off reply, and the run fails if it stays silent.
+        silent = (
+            not self._answered
+            and not message.tool_calls
+            and not message.invalid_tool_calls
+            and message.stop not in ("length", "error")
+        )
+        self.empty_replies = self.empty_replies + 1 if silent else 0
+        if silent and self.empty_replies <= self.binding.profile.max_continuations:
+            nudges.append((EMPTY_REPLY_NUDGE, "empty_reply"))
+
         verdict: h.Verdict
         if self._pending_stop is not None:
             verdict = self._pending_stop
@@ -1099,6 +1118,11 @@ class Run:
             verdict = h.Stop(
                 reason="output_limit",
                 detail=f"the reply was cut off at the output limit {self.continuations + 1} times in a row",
+            )
+        elif silent:
+            verdict = h.Stop(
+                reason="provider_error",
+                detail=f"the model gave an empty reply {self.empty_replies} times in a row: no answer and no tool call",
             )
         else:
             verdict = h.Stop(reason="completed")
