@@ -90,6 +90,15 @@ async def test_a_stream_cut_before_the_reply_finished_is_an_error():
         await collect(provider(lambda r: httpx.Response(200, content=body)), request(retries=NO_RETRIES))
 
 
+async def test_a_stream_cut_in_the_middle_of_an_event_is_retried_like_one_cut_between_events():
+    replies = [b'data: {"choices":', sse(delta(content="ok"), delta(finish_reason="stop"))]
+    _, message = await collect(
+        provider(lambda r: httpx.Response(200, content=replies.pop(0))),
+        request(retries=RetryPolicy(provider_waits_s=(0.0,))),
+    )
+    assert message.text == "ok" and not replies
+
+
 async def test_text_tool_call_ids_are_unique_across_replies():
     text = '<tool_call>{"name": "bash", "arguments": {"command": "ls"}}</tool_call>'
     body = sse(delta(content=text), delta(finish_reason="stop"))
