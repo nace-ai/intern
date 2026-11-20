@@ -29,6 +29,10 @@ PIECE_LINES = 80
 PIECE_CHARS = 4000
 #: A Python file is chunked by symbols; a class with no methods is one chunk.
 _PY_SUFFIXES = frozenset({".py", ".pyi"})
+#: Characters of Python source parsed into a syntax tree at most. A longer file is data or generated code, and its
+#: tree is many times its text: a 30 MB module of literals took 4.7 GB to parse and a 2 MB one 460 MB, in the agent's
+#: own process before its first turn. Past this a file is indexed by windows of lines and its imports are not read.
+MAX_AST_CHARS = 1_000_000
 _MD_SUFFIXES = frozenset({".md", ".markdown", ".rst", ".txt"})
 _KEYED_SUFFIXES = frozenset({".json", ".yaml", ".yml", ".toml", ".ini", ".cfg"})
 _TEXT_SUFFIXES = frozenset(
@@ -169,6 +173,8 @@ class PythonProcessor:
     def process(self, path: Path, workspace: Path) -> Derivative:
         source = path.read_text(errors="replace")
         lines = source.splitlines()
+        if len(source) > MAX_AST_CHARS:
+            return windows(lines)
         try:
             tree = ast.parse(source)
         except (SyntaxError, ValueError):

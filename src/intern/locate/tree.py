@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING, Literal
 from pydantic import BaseModel
 
 from intern.locate import cards, grouping
+from intern.locate.processors import MAX_AST_CHARS
 
 if TYPE_CHECKING:
     import numpy as np
@@ -94,7 +95,10 @@ def import_names(root: Path, path: str) -> list[str]:
     """The dotted names a Python file imports, relative imports made absolute from its path, in the order found.
     The index keeps them with the file's entry, so a refresh parses only the files that changed."""
     try:
-        tree = ast.parse((root / path).read_text(errors="replace"))
+        source = (root / path).read_text(errors="replace")
+        if len(source) > MAX_AST_CHARS:
+            return []
+        tree = ast.parse(source)
     except (SyntaxError, ValueError, OSError):
         return []
     package = path[:-3].split("/")[:-1]
