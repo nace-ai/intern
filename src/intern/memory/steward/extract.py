@@ -58,6 +58,8 @@ _DIGIT = re.compile(r"\d")
 BASE_TOOLS = frozenset({"read", "write", "edit", "bash", "grep", "find"})
 READ_TOOLS = frozenset({"read", "grep", "find"})
 WRITE_TOOLS = frozenset({"write", "edit"})
+# Memory's own tools (memory_search before it became memory): reading memory is never a place to remember.
+MEMORY_TOOLS = frozenset({"memory", "memory_search"})
 # Programs that only move around, print or shuffle text say nothing about the environment.
 SHELL_BASICS = frozenset(
     [
@@ -929,6 +931,10 @@ def extract(journal: Journal, drive_root: Path | None = None, world: str = "") -
                             if (target := _under(Path(value), cwd, skip)) is not None:
                                 verb, change = ("write", True) if call.name in WRITE_TOOLS else ("read", False)
                                 wait(call.id, observe_file(target, verb, change, call.name, entry.id, False), entry.id)
+                    elif call.name in MEMORY_TOOLS:
+                        page = call.arguments.get("path")
+                        if call.arguments.get("action") == "read" and isinstance(page, str) and page.strip():
+                            used.append(page.strip().split("#", 1)[0].removesuffix(".md"))
                     elif call.name not in BASE_TOOLS:
                         detail = f"(args: {', '.join(sorted(call.arguments))})" if call.arguments else "(no args)"
                         place: tuple[str, PlaceKind] = (page_for_tool(call.name), "tool")

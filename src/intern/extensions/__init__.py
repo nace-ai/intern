@@ -11,7 +11,7 @@ Extensions behind a capability are not in the registry: their capability's switc
 `config.CAPABILITY_EXTENSIONS` refuses them when named as an extension. Code search (`code_search/`:
 `decision_code` and its TUI window) and the workspace (`workspace/`: `index_files`, `decision_files`, `sql`, a
 document-aware `read`) by `[capabilities.code_search]` and `[capabilities.workspace]`; memory (`memory/`: recall,
-the drive write guard, reminders and `memory_search`) by `[capabilities.memory]`, loaded with its drive
+the drive write guard, reminders and the `memory` tool) by `[capabilities.memory]`, loaded with its drive
 (docs/memory.md). See docs/capability-settings.md.
 """
 

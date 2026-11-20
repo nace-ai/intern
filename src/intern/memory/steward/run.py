@@ -109,7 +109,7 @@ from intern.memory.steward.writer import (
     trace,
 )
 
-STEWARD_VERSION = "48"
+STEWARD_VERSION = "49"
 KEEP = 0.7
 NOTE_KEEP = 0.5
 MAYBE_CORRECTION = 0.3
@@ -1143,7 +1143,7 @@ def _transcript(ex: Extract, outcome: str) -> str:
     # The whole session as the steward saw it, for the agent's memory search when no page holds what it needs.
     task = " ".join(ex.task.split())
     head = [f"session: {ex.session_id}", f"date: {ex.date}", f"outcome: {outcome}", f"task: {task}"]
-    return "\n".join(head) + "\n\n" + trace(ex, outcome) + "\n"
+    return "\n".join(head) + "\n\n" + trace(ex, outcome, ids=True) + "\n"
 
 
 def _usage(
