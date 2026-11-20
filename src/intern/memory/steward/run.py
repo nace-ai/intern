@@ -187,8 +187,8 @@ FORGET = (
     "change a file, record, message or anything else in the work itself."
 )
 FORGOTTEN = (
-    "Does line {name} say what user message {message} asked to forget, or what it said is wrong? A line that only "
-    "shares a name or a subject with it does not."
+    "Does line {name} say something that user message {message} asked to forget, or said is wrong? A line that says "
+    "something else about the same person or thing, which the message did not ask to forget, does not."
 )
 FOLLOWED = (
     "Does line {name} repeat what the lines being forgotten say, which user message {message} asked to forget or "
