@@ -11,6 +11,7 @@ import base64
 import contextlib
 import json
 import os
+import re
 import signal
 import stat
 import sys
@@ -1342,6 +1343,52 @@ class PendingReplies:
         await self._settled.wait()
 
 
+_REQUEST_ID = re.compile(rb'"id"\s*:\s*(-?\d+|"(?:[^"\\]|\\.)*")')
+
+
+class BoundedLines(asyncio.StreamReader):
+    """The client's lines, none longer than STDIO_LIMIT_BYTES. `StreamReader.readline` raises on a longer one, which
+    ends the SDK's receive loop and the server with every session. Here the line is read past and thrown away, its
+    request is answered with an error, and the next line is served.
+
+    A StreamReader because the SDK takes no other reader; it reads only `readline`, which is `reader`'s."""
+
+    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        super().__init__()
+        self._reader = reader
+        self._writer = writer
+
+    async def readline(self) -> bytes:
+        head: bytes | None = None  # the start of a line that is too long, while the rest of it is read past
+        while True:
+            try:
+                line = await self._reader.readuntil(b"\n")
+            except asyncio.IncompleteReadError as e:
+                return b"" if head is not None else e.partial  # stdin closed
+            except asyncio.LimitOverrunError as e:
+                chunk = await self._reader.readexactly(e.consumed)
+                head = chunk[:65536] if head is None else head
+                continue
+            if head is None:
+                return line
+            self._refuse(head)
+            head = None
+
+    def _refuse(self, head: bytes) -> None:
+        """Answer the request whose line was too long. Its id is read from the start of the line, before `params`,
+        where clients put it; one that put it after gets `id: null`."""
+        found = _REQUEST_ID.search(head.partition(b'"params"')[0])
+        request_id = json.loads(found.group(1)) if found else None
+        megabytes = STDIO_LIMIT_BYTES // (1024 * 1024)
+        error = {
+            "code": -32600,
+            "message": f"the message is longer than {megabytes} MB, the most one line may hold",
+            "data": {"reason": "message_too_large", "limitBytes": STDIO_LIMIT_BYTES},
+        }
+        reply = {"jsonrpc": "2.0", "id": request_id, "error": error}
+        self._writer.write((json.dumps(reply) + "\n").encode())
+
+
 async def serve(agent: AcpAgent) -> None:
     """Serve ACP on stdin/stdout until stdin closes or SIGTERM, then close every session.
 
@@ -1358,7 +1405,8 @@ async def serve(agent: AcpAgent) -> None:
             raise ConfigError(
                 "acp talks over pipes: start it from an ACP client, not with stdin or stdout redirected to a file"
             )
-        reader, writer = await stdio_streams(limit=STDIO_LIMIT_BYTES)
+        stdin, writer = await stdio_streams(limit=STDIO_LIMIT_BYTES)
+        reader = BoundedLines(stdin, writer)
         if os.name == "posix":
             # The transport holds the stdout descriptor now; stray prints go to stderr, never into the protocol.
             sys.stdout = sys.stderr

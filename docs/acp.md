@@ -53,6 +53,11 @@ and the prompt names its path, so the agent can `read` it (a model sees it when 
 or its provider's model listing says it takes images).
 Audio is refused.
 
+One message (one line) may be at most 50 MB, images in base64 included: about 37 MB of image files in one
+prompt. A longer line is not read: its request fails with `-32600`,
+`data: {"reason": "message_too_large", "limitBytes": 52428800}`, and the server keeps serving. The reply carries
+the request's `id` when the line has it before `params`, as clients write it; otherwise `id` is `null`.
+
 `mcpServers` from the client are not used in v1: MCP servers come from the harness's own
 `[[capabilities.mcp]]` config. `fs/*` and `terminal/*` client methods are not used: tools run in the
 harness, on the session's `cwd`.
