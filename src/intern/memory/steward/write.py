@@ -973,6 +973,18 @@ class PageUse(BaseModel):
 class Usage(BaseModel):
     sessions: int = 0
     pages: dict[str, PageUse] = Field(default_factory=dict)
+    # The steward session in which a graveyard file was archived, or a transcript last written.
+    archived: dict[str, int] = Field(default_factory=dict)
+    transcripts: dict[str, int] = Field(default_factory=dict)
+
+
+def expired(seen: dict[str, int], names: list[str], now: int, keep: int) -> list[str]:
+    # A file first counted gets the full keep; with keep 0 nothing goes, though the count goes on.
+    for name in set(seen) - set(names):
+        del seen[name]
+    for name in names:
+        seen.setdefault(name, now)
+    return sorted(n for n in names if keep > 0 and now - seen[n] >= keep)
 
 
 def read_usage(text: str | None) -> Usage:

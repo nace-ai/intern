@@ -18,7 +18,9 @@ from intern.decisions import (
     System1Unavailable,
 )
 from intern.journal import Journal
-from intern.memory.drive import main_commit, tracked_files
+from intern.memory.drive import main_commit, tracked_files, tracked_names
+from intern.memory.forget import MARKER, MIN_COVERED_CHARS, Removal, Spot, body, candidates, widened
+from intern.memory.forget import apply as apply_removal
 from intern.memory.format import (
     FOLDER_INDEX,
     RELATIONS_ID,
@@ -46,6 +48,7 @@ from intern.memory.steward.extract import (
     QUOTE_CHARS,
     Extract,
     Observation,
+    Turn,
     UserNote,
     describe,
     extract,
@@ -55,6 +58,7 @@ from intern.memory.steward.git import branch_exists, commit_proposal
 from intern.memory.steward.write import (
     BLOCKS,
     GENERAL_LESSONS,
+    GRAVEYARD,
     LEAD_BLOCKS,
     OTHER_WORK,
     SESSIONS_FOLDER,
@@ -67,6 +71,7 @@ from intern.memory.steward.write import (
     Placed,
     StewardError,
     archive,
+    expired,
     forget,
     is_history,
     item_body,
@@ -104,7 +109,7 @@ from intern.memory.steward.writer import (
     trace,
 )
 
-STEWARD_VERSION = "47"
+STEWARD_VERSION = "48"
 KEEP = 0.7
 NOTE_KEEP = 0.5
 MAYBE_CORRECTION = 0.3
@@ -153,6 +158,21 @@ CORRECTION = (
     "Is user message {name} a correction of how the agent worked, such as the right place, command, file, call "
     "or procedure to use?"
 )
+FORGET = (
+    "Does user message {name} ask to forget, delete or stop keeping something memory may hold, or say that something "
+    "memory holds is wrong without saying what is right?"
+)
+FORGOTTEN = (
+    "Does line {name} say what user message {message} asked to forget, or what it said is wrong? A line that only "
+    "shares a name or a subject with it does not."
+)
+# Only a session whose user used one of these words is asked FORGET, so other sessions cost no extra ask.
+_FORGET_CUE = re.compile(
+    r"\b(forget|forgot|delete|remove|erase|drop|wrong|incorrect|not true|no longer|isn'?t|wasn'?t|never)\b", re.I
+)
+MAX_FORGET_PAGE_LINES = 40
+MAX_FORGET_TRANSCRIPT_LINES = 20
+FORGET_MESSAGE_CHARS = 600
 LASTING = (
     "Will item {name} still be true and useful in a later session in the same world, for a different task or "
     "question? Yes for where things are, how they work, what fails, facts about the user and the people and things "
@@ -283,6 +303,13 @@ class Proposal:
     removed: list[str] = field(default_factory=list)
 
 
+@dataclass(frozen=True)
+class Keep:
+    # In steward sessions; 0 keeps them for good.
+    graveyard: int = 0
+    transcripts: int = 0
+
+
 class _Decision:
     def __init__(self, decisions: DecisionClient, run_state: str = "") -> None:
         self.decisions = decisions
@@ -327,6 +354,81 @@ def _state(ex: Extract) -> str:
 
 def _noul(answer: Answer | None) -> float:
     return answer.noul if isinstance(answer, NoulAnswer) else 0.0
+
+
+async def _forgetting(
+    decision: _Decision, ex: Extract, files: dict[str, str], root: Path
+) -> tuple[Removal, dict[str, str], Extract]:
+    # A user's request to forget, or word that a line is wrong: System 1 finds the lines it means, and the session's
+    # own record of the request is scrubbed before anything is written from it.
+    users = [t for t in ex.turns if t.role == "user"]
+    asked = [i for i, t in enumerate(users) if _FORGET_CUE.search(t.text)]
+    if not asked:
+        return Removal(), {}, ex
+    listed = "\n".join(f'u{i}. "{clip(users[i].text, FORGET_MESSAGE_CHARS)}"' for i in asked)
+    questions: dict[str, Question] = {f"u{i}": NoulQuestion(instructions=FORGET.format(name=f"u{i}")) for i in asked}
+    answers = await decision.ask("steward_forget", f"User messages:\n{listed}", questions)
+    flagged = [i for i in asked if _noul(answers.get(f"u{i}")) >= KEEP]
+    if not flagged:
+        return Removal(), {}, ex
+    transcripts = tracked_files(root, main_commit(root), ".txt")
+    transcripts.pop(f"{SESSIONS_FOLDER}{ex.session_id}.txt", None)
+    found: list[tuple[int, Spot]] = []
+    for i in flagged:
+        spots = candidates(files, transcripts, users[i].text, MAX_FORGET_PAGE_LINES, MAX_FORGET_TRANSCRIPT_LINES)
+        found += [(i, s) for s in spots if all(s != f for _, f in found)]
+    removal = Removal()
+    if found:
+        listed = "\n".join(f'u{i}. "{clip(users[i].text, FORGET_MESSAGE_CHARS)}"' for i in flagged)
+        held = "\n".join(
+            f"c{k}. [{s.file}] {clip(strip_source(s.line), CITED_CHARS)}" for k, (_, s) in enumerate(found)
+        )
+        questions = {
+            f"c{k}": NoulQuestion(instructions=FORGOTTEN.format(name=f"c{k}", message=f"u{i}"))
+            for k, (i, _) in enumerate(found)
+        }
+        answers = await decision.ask(
+            "steward_forgotten", f"User messages:\n{listed}\n\nLines memory holds:\n{held}", questions
+        )
+        kept = [s for k, (_, s) in enumerate(found) if _noul(answers.get(f"c{k}")) >= NOTE_KEEP]
+        removal = widened(files, transcripts, Removal(lines=kept))
+    return removal, transcripts, _scrub(ex, [users[i] for i in flagged], removal)
+
+
+def _scrub(ex: Extract, asked: list[Turn], removal: Removal) -> Extract:
+    # The request, the reply to it and any removed line the session repeated leave everything written from it.
+    pointers = {t.pointer for t in asked}
+    marked: list[Turn] = []
+    after = False
+    for turn in ex.turns:
+        if turn.pointer in pointers or (after and turn.role == "assistant"):
+            marked.append(turn)
+        after = turn.pointer in pointers
+    said = [body(s.line) for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER)]
+    texts = {t.text for t in marked if t.text.strip()} | {b for b in said if len(b) >= MIN_COVERED_CHARS}
+    scrubbed = Extract.model_validate(_replaced(ex.model_dump(), sorted(texts, key=len, reverse=True)))
+    gone = {t.pointer for t in marked}
+    for turn in scrubbed.turns:
+        turn.text = MARKER if turn.pointer in gone else turn.text
+    for note in scrubbed.notes:
+        note.text = MARKER if note.pointer in gone else note.text
+    return scrubbed
+
+
+def _resolved(path: Path) -> Path:
+    return path.expanduser().resolve()
+
+
+def _replaced(value: object, texts: list[str]) -> object:
+    if isinstance(value, str):
+        for text in texts:
+            value = value.replace(text, MARKER)
+        return value
+    if isinstance(value, dict):
+        return {k: _replaced(v, texts) for k, v in value.items()}  # pyright: ignore[reportUnknownVariableType]
+    if isinstance(value, list):
+        return [_replaced(v, texts) for v in value]  # pyright: ignore[reportUnknownVariableType]
+    return value
 
 
 async def _triage(decision: _Decision, ex: Extract) -> tuple[str, list[Observation], list[UserNote], list[Gap]]:
@@ -1041,19 +1143,31 @@ def _transcript(ex: Extract, outcome: str) -> str:
     return "\n".join(head) + "\n\n" + trace(ex, outcome) + "\n"
 
 
-def _usage(root: Path, files: dict[str, str], ex: Extract, written: list[str]) -> tuple[str, dict[str, str], list[str]]:
+def _usage(
+    root: Path, files: dict[str, str], ex: Extract, written: list[str], keep: Keep
+) -> tuple[str, dict[str, str], list[str], list[str]]:
     # Each session counts which pages it used; a page unused and unwritten for long moves to graveyard/.
-    known = root.expanduser().resolve() / USAGE_FILE
-    usage = read_usage(known.read_text() if known.is_file() else None)
+    # Opted in, graveyard files and transcripts older than their keep are deleted: the drive's last copy.
+    root = root.expanduser().resolve()
+    known = root / USAGE_FILE
+    old = read_usage(known.read_text() if known.is_file() else None)
     live = [name[:-3] for name in files if is_page_file(name)]
-    usage = tally(usage, live, ex.used, written)
+    usage = tally(old, live, ex.used, written)
+    usage.archived, usage.transcripts = old.archived, old.transcripts
     gone = [p for p in stale(usage) if p not in written]
-    if not gone:
-        return usage.model_dump_json(indent=1), {}, []
-    archived, removed = archive(files, gone)
+    archived, removed = archive(files, gone) if gone else ({}, [])
     for path in gone:
         usage.pages.pop(path, None)
-    return usage.model_dump_json(indent=1), archived, removed
+    for name in archived:
+        if name.startswith(GRAVEYARD):
+            usage.archived[name] = usage.sessions
+    buried = [n for n in files | archived if n.startswith(GRAVEYARD) and is_page_file(n.removeprefix(GRAVEYARD))]
+    removed += expired(usage.archived, buried, usage.sessions, keep.graveyard)
+    own = f"{SESSIONS_FOLDER}{ex.session_id}.txt"
+    usage.transcripts[own] = usage.sessions
+    held = [n for n in tracked_names(root, main_commit(root), ".txt") if n.startswith(SESSIONS_FOLDER)]
+    pruned = [n for n in expired(usage.transcripts, [*{*held, own}], usage.sessions, keep.transcripts) if n != own]
+    return usage.model_dump_json(indent=1), archived, removed, pruned
 
 
 async def _work(decision: _Decision, ex: Extract, story: Story | None, kinds: list[str]) -> str:
@@ -1163,12 +1277,23 @@ async def propose(
     decisions: DecisionClient,
     writer: Writer | ReplayWriter | None = None,
     world: str = "",
+    keep: Keep | None = None,
 ) -> Proposal:
     files, ex, (forgot, gone) = _prepare(journal_path, drive_root, world)
+    root = _resolved(drive_root)
+    removal, transcripts, ex = await _forgetting(_Decision(decisions, ex.run_state), ex, files, root)
+    if not removal.empty:
+        # Applied first, so nothing written below compares with, restates or links what was forgotten.
+        rewritten, dropped = apply_removal(files, transcripts, removal)
+        forgot |= rewritten
+        gone = [*gone, *dropped]
+        files = {n: t for n, t in (files | rewritten).items() if n not in dropped and n.endswith(".md")}
 
     decision = _Decision(decisions, ex.run_state)
     await _step_changes(decision, ex)
     outcome, kept, lessons, gaps = await _triage(decision, ex)
+    if not removal.empty:
+        gaps.append(Gap(f"forgot {len(removal.lines)} lines at the user's request; not quoted", ""))
     items: list[Placed] = []
     story: Story | None = None
     kinds = parse_schema(files[SCHEMA_FILE]).work_kinds if SCHEMA_FILE in files else []
@@ -1198,7 +1323,7 @@ async def propose(
         changed[WORLD_FILE] = world_file(ex.world)
     merged = files | changed
     touched = [name[:-3] for name in changed if is_page_file(name)]
-    usage, archived, removed = _usage(drive_root, merged, ex, touched)
+    usage, archived, removed, pruned = _usage(drive_root, merged, ex, touched, keep or Keep())
     changed |= archived
     merged = {name: text for name, text in (merged | archived).items() if name not in removed}
     built = build_indexes(merged)
@@ -1216,13 +1341,15 @@ async def propose(
         raise StewardError("the proposal does not pass lint:\n" + "\n".join(problems))
     changed[USAGE_FILE] = usage
     changed[f"{SESSIONS_FOLDER}{ex.session_id}.txt"] = _transcript(ex, outcome)
-    changed = {name: text for name, text in forgot.items() if name not in removed} | changed
+    changed = {name: text for name, text in forgot.items() if name not in removed and name not in pruned} | changed
     return Proposal(
         session_id=ex.session_id,
         branch=f"proposed/{ex.session_id}",
         files=changed,
         gaps=gaps + written.gaps,
-        removed=[name for name in removed if name in files] + [name for name in gone if name not in changed],
+        removed=list(
+            dict.fromkeys([name for name in removed if name in files] + [n for n in gone if n not in changed] + pruned)
+        ),
     )
 
 

@@ -111,10 +111,13 @@ def create(root: Path) -> None:
     )
 
 
-def tracked_files(root: Path, commit: str) -> dict[str, str]:
-    names = [
-        n for n in git(root, "ls-tree", "-r", "-z", "--name-only", commit).decode().split("\0") if n.endswith(".md")
-    ]
+def tracked_names(root: Path, commit: str, suffix: str = ".md") -> list[str]:
+    names = git(root, "ls-tree", "-r", "-z", "--name-only", commit).decode().split("\0")
+    return [n for n in names if n.endswith(suffix)]
+
+
+def tracked_files(root: Path, commit: str, suffix: str = ".md") -> dict[str, str]:
+    names = tracked_names(root, commit, suffix)
     if not names:
         return {}
     out = git(root, "cat-file", "--batch", stdin="".join(f"{commit}:{n}\n" for n in names).encode())
