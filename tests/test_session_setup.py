@@ -118,6 +118,12 @@ async def configured(
             yield session, model, home, work
 
 
+def needs_workspace_extra() -> None:
+    """Skip a test that opens a session with the workspace on, where its extra is not installed."""
+    for module in ("numpy", "networkx", "scipy", "duckdb", "pymupdf", "openpyxl", "docx"):
+        pytest.importorskip(module, reason="needs the workspace extra")
+
+
 def outputs(session: Session) -> list[str]:
     return [
         entry.message.result.content
@@ -762,6 +768,8 @@ async def test_host_reader_image_mode_survives_bootstrap_and_preserves_host_view
 
 
 async def test_workspace_cannot_silently_restore_disabled_read_image_attachments(tmp_path, monkeypatch):
+    needs_workspace_extra()
+
     class HostImages(Extension):
         def tools(self) -> list[Tool]:
             return [ReadTool(attach_images=False)]
@@ -773,6 +781,7 @@ async def test_workspace_cannot_silently_restore_disabled_read_image_attachments
 
 
 async def test_workspace_keeps_default_image_attachment_through_bootstrap(tmp_path):
+    needs_workspace_extra()
     from PIL import Image
 
     profile = tmp_path / "vision.toml"
