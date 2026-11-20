@@ -273,6 +273,7 @@ a configured `[capabilities.session_budget]` starts a new ledger.
 | `tool_call_end` | `tool_call_update`, `status` `completed` (`ok`) or `failed` (`error`, `refused`), `content` the result text the model saw; for a `write` or `edit` that changed a text file, also a `diff` item `{path, oldText, newText}` (`oldText` null for a new file); none for binary files, files over 256k characters before and after together, or the Docker workspace's tools |
 | `context_budget` | `usage_update {used: tokens in the request, size: working window}`, with [`_meta.nace.free`](#free-credit) while the free credit is in use |
 | `run_end` | `usage_update {used, size, cost: {amount: session cost so far, currency: "USD"}}`, with `_meta.nace.free` likewise |
+| `free_notice` | `usage_update {used, size}` whose `_meta.nace.free` has `notice`, the text to show ([running out](#running-out)) |
 | `handoff` | the extension notification `_nace/handoff` (below), not a `session/update` |
 | everything else | nothing |
 
@@ -328,7 +329,7 @@ harness's table has `costUsd` 0 with its tokens counted.
 | `turn_budget` | `stopReason: "max_turn_requests"` |
 | `output_limit` | `stopReason: "max_tokens"` |
 | `provider_error` | JSON-RPC error `-32001`, `data.kind` below |
-| `system1_unavailable` | JSON-RPC error `-32603`, `data: {"reason": "system1_unavailable"}` |
+| `system1_unavailable` | JSON-RPC error `-32603`, `data: {"reason": "system1_unavailable", code?, meter?}` |
 | `internal_error` | JSON-RPC error `-32603` |
 
 A provider error carries `data: {kind, detail, status}`, where `status` is the HTTP status when there
@@ -339,11 +340,19 @@ was one and `kind` is:
 - `auth`: HTTP 401 or 403;
 - `provider`: anything else.
 
+When the Nace console refused the request (System 2 on `nace`, free credit or `$NACE_API_KEY`), `data` also has
+`code`, the console's `error.code` (`free_exhausted`, `free_revoked`, `free_paused`, `model_not_in_plan`,
+`rate_limited`, `request_too_large`, `upstream_error`, …), and `meter` (`agent` or `system1`) when it named one. When
+the code ends the free credit (the first four), `data.next` is the System 2 the session's next prompt will run on, the
+user's own; `null` when no own model can run, so the client offers to add a key ([running out](#running-out)).
+`system1_unavailable` has `code` and `meter` likewise when the console refused System 1's free credit.
+
 Clients show `rate_limit` and `quota` as limited, not as a crash. The updates sent before the error
 stay valid; the turn is journaled up to the failure.
 
 `system1_unavailable`: System 1 did not answer an ask the run needed, after retrying with backoff
-(1 s, doubling to 15 s) for about two minutes. The message names the backend and its last error. The
+(1 s, doubling to 15 s) for about two minutes, or at once when the console refused its free credit for good. The
+message names the backend and its last error. The
 harness does not run without System 1, so nothing answered in its place; the session stays open and
 the next prompt asks again. A session whose System 1 does not answer when it opens fails
 `session/new` (or `session/load`) with `-32602`, as one whose System 1 key is missing does.
@@ -533,7 +542,38 @@ While a system runs on free credit, its models are the grant's `bundle`, whateve
 When a system's meter is spent and the user's own configuration cannot run it, the session opens as it does for a
 missing key: [unbound](#when-no-system-2-can-run) for System 2, with the reason starting `the free agent credit is
 used up; add your own key to keep going: …`, and for System 1 the `-32602` of a missing System 1 key, with the same
-start. A meter that runs out during a run is not handled here yet: the run fails as the console refuses it.
+start.
+
+### Running out
+
+A run starts on free credit only when the meter can pay for it to the end, so a meter usually runs out between runs.
+When the console still refuses a free credit during a run (`free_exhausted`, `free_revoked`, `free_paused` or
+`model_not_in_plan`), the harness does not retry it or try another of the bundle's models (0.55.0 and later):
+
+- **System 1** sends the ask again with the user's own console key (`$NACE_API_KEY`, or `$DREX_API_KEY`), on the
+  same model, and so does every ask after it; the run does not notice. With no such key the prompt fails at once with
+  [`system1_unavailable`](#stop-reasons-and-errors), its `data` carrying `code` and `meter`.
+- **System 2** and the hand-over model send the request again with the user's own Fireworks key
+  (`$FIREWORKS_API_KEY`) for the same model, `accounts/fireworks/models/glm-5p3` or `…/deepseek-v4p1-flash-1017`, and
+  the run goes on. With no such key the prompt fails with [`provider_error`](#stop-reasons-and-errors), `kind`
+  `quota`, `code`, `meter` and `next`, the model the next prompt will use. The turn is journaled up to the refusal:
+  sending the next prompt ("Continue on your keys") picks it up there on that model.
+
+Either way the next run starts on the user's own configuration for that system, as when a meter is spent between
+runs, and its pickers come back in a `config_option_update`.
+
+Each move to the user's keys is told once, as is each meter crossing 20% and 5% left, in a `usage_update` whose
+`_meta.nace.free` has `notice`, a sentence to show as it is:
+
+```json
+{"sessionUpdate": "usage_update", "used": 18200, "size": 160000,
+ "_meta": {"nace": {"free": {
+   "meters": {"system1": {"usedUsd": 0.12, "limitUsd": 1.0}, "agent": {"usedUsd": 4.02, "limitUsd": 4.0}},
+   "source": {"system1": "free", "agent": "own"},
+   "notice": "Free agent credit used up; continuing on your keys with glm-5p3"}}}}
+```
+
+A meter already under a share when the session opens is not told again.
 
 When a run starts on the user's own keys after the one before ran on free credit, the prompt's updates are followed by
 a `config_option_update` with the pickers as they are now.
@@ -1619,3 +1659,18 @@ should send none then (`models --json`'s `free.source` says which systems do).
   unbound, saying the free credit is used up.
 - `usage_update` gains `_meta.nace.free` (the meters, from the console's response headers, and each system's source);
   `models --json` gains `free` (`state`, `meters`, `bundle`, `use`, `paused`, `source`).
+
+### 0.55.0
+
+A free credit that runs out during a run no longer fails it the way the console refused it
+([running out](#running-out)). Additive: 0.54.0 clients keep working; the new `data` fields and `notice` are ignored
+by a client that does not read them, and the errors keep their codes and `kind`.
+
+- System 1 moves to the user's own console key, on the same model, and System 2 to the user's own Fireworks key for
+  the same model, and the run goes on. With no such key, a refused System 1 stops the run at once (no retry window,
+  where before it retried for up to 30 minutes), and a refused System 2 ends the prompt with `provider_error`.
+- `provider_error`'s `data` gains `code` and `meter` when the Nace console refused the request, and `next` (the
+  model the next prompt will use, or `null`) when the free credit ended; `system1_unavailable`'s gains `code` and
+  `meter`. The console's `free_*` and `model_not_in_plan` refusals are not retried.
+- `usage_update`'s `_meta.nace.free` gains `notice`: once for each move to the user's keys, and once each when a
+  meter crosses 20% and 5% left. Harness event `free_notice` (`kind` `switch` or `low`, `meter`, `text`).

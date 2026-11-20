@@ -8,7 +8,7 @@ Three question types cover what the harness needs to ask:
 
 Any backend can answer them. System 1 is required: the harness never answers a question itself. An ask
 that fails (an error, a timeout, a missing or wrong-type answer) is retried with backoff; one that still
-fails raises `System1Unavailable`, and the run stops.
+fails raises `System1Unavailable`, and the run stops. A free credit the console refuses for good raises it at once.
 """
 
 from __future__ import annotations
@@ -30,7 +30,15 @@ from intern.context import INITIAL_CHARS_PER_TOKEN, bound_output
 from intern.events import Decision, EventSink
 from intern.messages import JsonObject, System1Usage
 from intern.models.catalog import DECISIONS_PREFIX, System1Sources, decision_models
-from intern.models.registry import CredentialSource, StaticKey, bearer, check_host, token_expired
+from intern.models.registry import (
+    FREE_FINAL,
+    CredentialSource,
+    StaticKey,
+    bearer,
+    check_host,
+    console_error,
+    token_expired,
+)
 
 
 class ChoiceQuestion(BaseModel):
@@ -246,6 +254,9 @@ class DecisionsApiBackend:
                     await asyncio.sleep(_retry_after(response, RATE_LIMIT_RETRY_S * 2**attempt))
                     await self.pace()
                     response = await self._post(client, request, timeout)
+                refused = console_error(response.content) if response.status_code >= 400 else None
+                if refused is not None and refused[0] in FREE_FINAL:
+                    raise FreeRefused(*refused, response.text[:500])
                 response.raise_for_status()
                 body = response.json()
                 raw = body["answers"]
@@ -270,8 +281,24 @@ class DecisionsApiBackend:
         raise RuntimeError(f"every decision model failed: {last_error}")
 
 
+class FreeRefused(Exception):
+    """The console refused System 1's free credit for good (`registry.FREE_FINAL`): no retry or other model changes
+    that, so the ask is not retried."""
+
+    def __init__(self, code: str, meter: str | None, detail: str) -> None:
+        super().__init__(f"the console refused the free credit ({code}): {detail}")
+        self.code = code
+        self.meter = meter
+
+
 class System1Unavailable(Exception):
-    """System 1 did not answer within its retry window; nothing may stand in for it, so the run stops."""
+    """System 1 did not answer within its retry window, or the console refused its free credit for good; nothing may
+    stand in for it, so the run stops. `code` and `meter` are the console's, for a refused free credit."""
+
+    def __init__(self, message: str, *, code: str | None = None, meter: str | None = None) -> None:
+        super().__init__(message)
+        self.code = code
+        self.meter = meter
 
 
 def compact(answer: Answer) -> JsonObject:
@@ -470,6 +497,13 @@ class DecisionClient:
                 answers = {n: a for n, a in result.answers.items() if n in questions and _fits(questions[n], a)}
                 if missing := sorted(set(questions) - set(answers)):
                     raise ValueError(f"no usable answer for {', '.join(missing)}")
+            except FreeRefused as e:
+                self.last_error = str(e)
+                report(False, False, result, None, self.last_error)
+                self.usage.failed += 1
+                raise System1Unavailable(
+                    f"The decision model ({backend_name}) did not answer {purpose}: {e}", code=e.code, meter=e.meter
+                ) from e
             except Exception as e:
                 self.last_error = f"{type(e).__name__}: {e}"
                 report(False, False, result, None, self.last_error)

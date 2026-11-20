@@ -771,8 +771,11 @@ class AcpAgent:
         reason = acp_mapping.stop_reason(outcome.reason)
         if reason is None:
             if outcome.reason == "provider_error":
-                failure = acp_mapping.provider_failure(outcome.detail)
-                raise RequestError(PROVIDER_ERROR, failure.detail, failure.model_dump())
+                failure = acp_mapping.provider_failure(outcome.detail, outcome.error)
+                raise RequestError(PROVIDER_ERROR, failure.detail, failure.data())
+            if outcome.reason == "system1_unavailable":
+                data = acp_mapping.system1_failure(outcome.error)
+                raise RequestError(-32603, outcome.detail or outcome.reason, data)
             raise RequestError(-32603, outcome.detail or outcome.reason, {"reason": outcome.reason})
         used = session.usage - before
         usage = acp_mapping.prompt_usage(

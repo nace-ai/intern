@@ -34,6 +34,7 @@ from pydantic.alias_generators import to_camel
 from intern.events import (
     ContextBudget,
     Event,
+    FreeNotice,
     Handoff,
     ReasoningDelta,
     RunEnd,
@@ -44,6 +45,7 @@ from intern.events import (
 )
 from intern.events import StopReason as RunStopReason
 from intern.events import ToolCallStart as HarnessToolCallStart
+from intern.hooks import RunError
 from intern.journal import Entry, EventEntry, MessageEntry
 from intern.memory.spend import StewardSpend
 from intern.messages import (
@@ -55,6 +57,7 @@ from intern.messages import (
     Usage,
     UserMessage,
 )
+from intern.models.registry import FREE_FINAL
 from intern.tools.base import Effect
 
 Update = UserMessageChunk | AgentMessageChunk | AgentThoughtChunk | ToolCallStart | ToolCallProgress | UsageUpdate
@@ -87,6 +90,19 @@ class ProviderFailure(BaseModel):
     kind: ProviderErrorKind
     detail: str
     status: int | None = None
+    code: str | None = None
+    """The Nace console's `error.code`, when it refused the request."""
+    meter: str | None = None
+    next: str | None = None
+    """For a free credit refused for good: the System 2 the next run will use, None when no own model can run."""
+
+    def data(self) -> dict[str, Any]:
+        """The fields a console refusal adds only when it names them; `next` whenever the free credit ended."""
+        data = self.model_dump(exclude={"code", "meter", "next"})
+        data.update(self.model_dump(include={"code", "meter"}, exclude_none=True))
+        if self.code in FREE_FINAL:
+            data["next"] = self.next
+        return data
 
 
 @dataclass(frozen=True)
@@ -113,8 +129,26 @@ _RATE_LIMIT = re.compile(r"rate.?limit|too many requests", re.IGNORECASE)
 _QUOTA = re.compile(r"quota|credits?\b|insufficient|billing|payment required", re.IGNORECASE)
 
 
-def provider_failure(detail: str | None) -> ProviderFailure:
-    """Classify a `provider_error` detail, so clients can show a rate limit or a spent quota as limited."""
+def provider_failure(detail: str | None, error: RunError | None = None) -> ProviderFailure:
+    """Classify a `provider_error` detail, so clients can show a rate limit or a spent quota as limited; with the
+    console's `error`, its code, meter and next model."""
+    failure = _classified(detail)
+    if error is not None:
+        failure.code, failure.meter, failure.next = error.code, error.meter, error.next
+    return failure
+
+
+def system1_failure(error: RunError | None) -> dict[str, Any]:
+    """`system1_unavailable`'s JSON-RPC `data`: the reason, and the console's code and meter when it refused."""
+    data: dict[str, Any] = {"reason": "system1_unavailable"}
+    if error is not None:
+        data["code"] = error.code
+        if error.meter is not None:
+            data["meter"] = error.meter
+    return data
+
+
+def _classified(detail: str | None) -> ProviderFailure:
     text = detail or "the provider failed"
     match = _STATUS.search(text)
     status = int(match.group(1)) if match else None
@@ -320,13 +354,14 @@ def _tool_end(call_id: str, status: str, content: str, diff: FileDiff | None = N
     )
 
 
-def _usage(ctx: MappingContext, tokens: int, cost: bool) -> UsageUpdate:
+def _usage(ctx: MappingContext, tokens: int, cost: bool, notice: str | None = None) -> UsageUpdate:
+    free = {**ctx.free, **({"notice": notice} if notice else {})} if ctx.free is not None else None
     return UsageUpdate(
         session_update="usage_update",
         used=tokens,
         size=ctx.working_window,
         cost=Cost(amount=ctx.cost_usd, currency="USD") if cost else None,
-        field_meta={"nace": {"free": dict(ctx.free)}} if ctx.free is not None else None,
+        field_meta={"nace": {"free": free}} if free is not None else None,
     )
 
 
@@ -356,6 +391,8 @@ def event_updates(event: Event, ctx: MappingContext) -> list[Outgoing]:
             return [update_agent_message_text(f"Window not known: {message}\n\n")]
         case ContextBudget(tokens=tokens):
             return [_usage(ctx, tokens, cost=False)]
+        case FreeNotice(text=text):
+            return [_usage(ctx, ctx.context_tokens, cost=False, notice=text)]
         case RunEnd():
             return [_usage(ctx, ctx.context_tokens, cost=True)]
         case _:

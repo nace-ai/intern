@@ -102,6 +102,25 @@ def token_expired(status: int, body: bytes) -> bool:
     return isinstance(error, dict) and error.get("code") == "token_expired"
 
 
+FREE_FINAL = frozenset({"free_exhausted", "free_expired", "free_revoked", "free_paused", "model_not_in_plan"})
+"""The console's refusals of the free credit that no retry and no other model of the bundle changes: the system moves
+to the user's own key or stops. `free_expired` is not sent while a credit has no lifetime; it reads as
+`free_exhausted`."""
+
+
+def console_error(body: bytes) -> tuple[str, str | None] | None:
+    """`error.code` and `error.meter` of a refusal in the console's format (`{"error": {"code", "meter"?}}`); None for
+    any other body."""
+    try:
+        error = json.loads(body).get("error")
+    except (ValueError, AttributeError):
+        return None
+    if not isinstance(error, dict) or not isinstance(code := error.get("code"), str):
+        return None
+    meter = error.get("meter")
+    return code, meter if isinstance(meter, str) else None
+
+
 class ProviderSpec(BaseModel):
     base_url: str
     api_key_env: str | None = None

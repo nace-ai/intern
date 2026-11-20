@@ -72,6 +72,8 @@ class FakeConsole(FakeOpenAI):
         self.revocations = 0
         self.bearers: list[str] = []
         """The bearer each chat and System 1 request carried."""
+        self.refused: list[str] = []
+        """The meter of each chat and System 1 request refused as `free_exhausted`."""
         self.refreshes: dict[str, Refresh] = {}
         self.accesses: dict[str, Access] = {}
         self.revoked: set[int] = set()
@@ -134,6 +136,18 @@ class FakeConsole(FakeOpenAI):
                 return True
         return False
 
+    def _spent(self, handler: BaseHTTPRequestHandler, meter: str) -> bool:
+        """Whether `meter` has nothing left, as the console reserves before a call; if so, the refusal is sent."""
+        with self.lock:
+            used, limit = (self.grant["meters"][meter][k] for k in ("used_usd", "limit_usd"))
+            if used < limit:
+                return False
+            self.refused.append(meter)
+        error = free_error("free_exhausted", f"The free {meter} credit is used up.")
+        error["error"]["meter"] = meter
+        send_json(handler, error, 402)
+        return True
+
     def answer(self, handler: BaseHTTPRequestHandler, body: bytes | None) -> bool:
         path = handler.path
         if body is None:
@@ -148,7 +162,8 @@ class FakeConsole(FakeOpenAI):
             return True
         if path in ("/v1/chat/completions", "/v1/systemone"):
             self.bearers.append(handler.headers.get("Authorization", "").removeprefix("Bearer "))
-            return not self._authorized(handler)  # an authorized request goes on to the fake model
+            # An authorized request on a meter with credit left goes on to the fake model.
+            return not self._authorized(handler) or self._spent(handler, "agent" if "chat" in path else "system1")
         form = {name: values[0] for name, values in parse_qs(body.decode()).items()}
         if path == "/oauth/device_authorization":
             self._device(handler, form)

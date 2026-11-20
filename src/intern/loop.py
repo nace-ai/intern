@@ -504,6 +504,8 @@ class Run:
             outcome = await self._run_with_finish_gate()
         except System1Unavailable as e:
             outcome = self._outcome("system1_unavailable", str(e))
+            if e.code is not None:
+                outcome.error = h.RunError(code=e.code, meter=e.meter)
         except Exception as e:
             # A bug must still end the run with a typed reason, so clients and evals never hang.
             traceback.print_exc(file=sys.stderr)
@@ -603,7 +605,10 @@ class Run:
                 request = await self._prepare_request()
                 reply = await self._call_model_with_retries(request)
             except ProviderError as e:
-                return self._outcome("provider_error", str(e))
+                outcome = self._outcome("provider_error", str(e))
+                if e.code is not None:
+                    outcome.error = h.RunError(code=e.code, meter=e.meter)
+                return outcome
             if reply is None:
                 return self._outcome("aborted")
 

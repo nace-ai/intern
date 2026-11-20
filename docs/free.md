@@ -64,6 +64,12 @@ adds one.
 So with your own keys and a fresh grant, everything runs free. When the agent credit is spent, the next run's agent
 and hand-over are yours while System 1 stays free; when the System 1 credit is spent too, System 1 is yours.
 
+A credit that runs out in the middle of a run is not retried. System 1 goes on with your own console key
+(`NACE_API_KEY`) on the same model, and System 2 with your own Fireworks key (`FIREWORKS_API_KEY`) on the same model
+(GLM 5.3 or DeepSeek V4.1 Flash), and the run carries on. Without that key, the run stops, saying which of your models
+the next message will run on, or that you need to add a key; the conversation is kept. You are told once when a system
+moves to your keys, and once each when a meter has 20% and 5% left.
+
 While a system runs on free credit, it runs on the grant's models (its `bundle`), not on your configuration:
 
 - System 2 is `bundle.system2`, auto mode is always on and hands over to `bundle.handoff` at the bundle's
