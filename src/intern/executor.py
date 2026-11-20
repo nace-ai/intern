@@ -199,6 +199,11 @@ async def run_command(
     )
 
 
+#: What stands where the middle of a long output was left out. `secrets` looks for it: the cut is made on raw
+#: output, so it can go through a secret value.
+OMITTED = "\n[... {omitted} bytes omitted ...]\n"
+
+
 class _HeadTail:
     """Keeps the first and last part of a stream without holding all of it in memory."""
 
@@ -236,7 +241,7 @@ class _HeadTail:
         tail = b"".join(self.tail).decode(errors="replace")
         if not self.omitted:
             return head + tail
-        return f"{head}\n[... {self.omitted} bytes omitted ...]\n{tail}"
+        return head + OMITTED.format(omitted=self.omitted) + tail
 
 
 def shell_env(
@@ -457,9 +462,11 @@ class LocalExecutor:
             done, _ = await asyncio.wait(stoppers, timeout=timeout_s, return_when=asyncio.FIRST_COMPLETED)
             if pump_failed in done:
                 raise pump_failed.result()
-            timed_out = not done
-            aborted = abort_task is not None and abort_task in done and exited not in done
-            over_memory = watcher is not None and watcher in done and exited not in done
+            # `exited` learns of the exit up to EXIT_POLL_S late: a command that has already ended was not stopped.
+            ended = exited in done or process.returncode is not None
+            timed_out = not done and not ended
+            aborted = abort_task is not None and abort_task in done and not ended
+            over_memory = watcher is not None and watcher in done and not ended
             if timed_out or aborted or over_memory:
                 await stop_process_group(process)
                 await exited

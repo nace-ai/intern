@@ -17,6 +17,7 @@ import shlex
 import shutil
 import sys
 import tempfile
+import textwrap
 import time
 import uuid
 from collections.abc import Iterable, Mapping
@@ -44,6 +45,7 @@ from intern import __version__
 from intern.config import KNOWN_SYSTEM2
 from intern.events import ProcessVerdict, ToolCallEnd, ToolCallStart
 from intern.extensions.guard import ASKED_THRESHOLD, RISK_THRESHOLD
+from intern.handover_record import InShort
 from intern.messages import JsonObject
 from intern.processes import ENDED_LINES, duration_text
 from intern.supervise import STRIKES
@@ -510,6 +512,20 @@ def call_title(name: str, arguments: JsonObject) -> str:
     return title if len(title) <= TITLE_CHARS else title[: TITLE_CHARS - 3] + "..."
 
 
+_ESCAPE_SEQUENCE = re.compile(
+    r"(?:\x1b\[|\x9b)[0-?]*[ -/]*[@-~]"  # CSI: colours, cursor moves, clear-screen
+    r"|(?:\x1b\]|\x9d)[^\x07\x1b\x9c\n]*(?:\x07|\x1b\\|\x9c)"  # OSC: window title, clipboard (OSC 52), links
+)
+_CONTROL_CHARACTER = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
+
+
+def printable(text: str) -> str:
+    """`text` as the terminal may be sent it: whole escape sequences removed, then every control character left but
+    newline and tab. What a tool printed or a model wrote must not reach the terminal as commands (set the
+    clipboard or the title, clear the screen), and Textual passes ESC through."""
+    return _CONTROL_CHARACTER.sub("", _ESCAPE_SEQUENCE.sub("", text))
+
+
 def bounded(text: str, limit: int = OUTPUT_CHARS) -> str:
     if len(text) <= limit:
         return text
@@ -557,6 +573,8 @@ def system1_parts(ref: str) -> tuple[str, str]:
         return ref.removeprefix("decisions:"), "decisions API"
     if ref.startswith("drex:"):
         return ref.removeprefix("drex:"), "console"
+    if ref.startswith("kapitsa:"):
+        return ref.removeprefix("kapitsa:"), "this machine"
     return (ref, "") if ref in ("…", "none") else (ref, "console")
 
 
@@ -1063,6 +1081,81 @@ class Thinking(Static):
         self.update(Content.assemble(*parts))
 
 
+FOLD_INDENT = 6
+"""Where a turn's lines start in the fold of a hand-over's turns, after its number."""
+FOLD_STEP_S = 0.04
+"""A run that just ended: its turns come into the fold one after another, this far apart."""
+
+
+class HandedFold(Static):
+    """A hand-over's turns once its run is over, folded into the record of them the frontier model is sent at the
+    next message (`handover_record`): what each turn said and a line for each thing it did, then the files. The
+    reply the run ended on stays under it, whole, as that model is sent it. A click shows the turns themselves,
+    another folds them again."""
+
+    def __init__(self, record: InShort, hidden: list[Widget], *, live: bool) -> None:
+        super().__init__("", classes="handed-fold")
+        self.record = record
+        self.hidden = hidden
+        self.expanded = False
+        self._shown = 0 if live else len(record.turns)
+        self._timer: Timer | None = None
+
+    def on_mount(self) -> None:
+        if self._shown < len(self.record.turns) and self.app.animation_level != "none":
+            self._timer = self.set_interval(FOLD_STEP_S, self._step)
+        else:
+            self._shown = len(self.record.turns)
+        self._render_fold()
+
+    def _step(self) -> None:
+        self._shown += 1
+        if self._shown >= len(self.record.turns) and self._timer is not None:
+            self._timer.stop()
+            self._timer = None
+        if not self.expanded:
+            self._render_fold()
+
+    def toggle(self) -> None:
+        stay(self)
+        self.expanded = not self.expanded
+        for widget in self.hidden:
+            widget.display = self.expanded
+        self._render_fold()
+
+    def on_click(self, event: events.Click) -> None:
+        event.stop()
+        self.toggle()
+
+    def on_resize(self) -> None:
+        self._render_fold()
+
+    def _render_fold(self) -> None:
+        turns = self.record.turns
+        span = f"Turn {turns[0][0]}" if len(turns) == 1 else f"Turns {turns[0][0]} to {turns[-1][0]}"
+        if self.expanded:
+            self.update(Content.assemble(("▾ ", S_INK), (span, S_MUTED), ("   click to fold", S_MUTED)))
+            return
+        parts: list[Part] = [("▸ ", S_INK), (f"{span} as the frontier model reads them", S_INK)]
+        parts.append(("   click for the turns themselves", S_MUTED))
+        room = max((self.content_size.width or 100) - FOLD_INDENT, 20)  # its own wrapping, to keep the indent
+        for number, said, did in turns[: self._shown]:
+            lines: list[Part] = [
+                (line, S_INK) for part in said.splitlines() if part.strip() for line in textwrap.wrap(part, room)
+            ]
+            for action, gave in did:  # a command cut to what leaves room for what it gave back
+                tail = f" → {gave}" if gave else ""
+                keep = max(room - len(tail), 20)
+                short = action if len(action) <= keep else action[: keep - 1].rstrip() + "…"
+                lines.append((short + tail, S_MUTED))
+            parts.append((f"\n{number:>{FOLD_INDENT - 2}}  ", S_BRAND_BOLD))
+            for i, line in enumerate(lines):
+                parts.extend(["\n" + " " * FOLD_INDENT, line] if i else [line])
+        if self._shown >= len(turns):
+            parts.append((f"\n{self.record.files}", S_MUTED))
+        self.update(Content.assemble(*parts))
+
+
 class ReplyBlock(Markdown):
     """The agent's reply, rendered as Markdown while it streams."""
 
@@ -1113,7 +1206,7 @@ class ToolBlock(Vertical):
     def __init__(self, event: ToolCallStart, *, live: bool = True) -> None:
         super().__init__(classes="tool")
         self.name_ = event.name
-        self.title = tool_header(event.name, event.arguments)
+        self.title = printable(tool_header(event.name, event.arguments))
         self.head = Static(Content(self.title), classes="head")
         self.out = Static(Content.assemble(("running…", S_MUTED)), classes="out")
         self.content_text = ""
@@ -1172,6 +1265,7 @@ class ToolBlock(Vertical):
         self.content_text = event.content
         if self.name_ == "process":
             self.lead, self.content_text = process_result(event.content)
+        self.lead, self.content_text = printable(self.lead), printable(self.content_text)
         self.status = event.status
         self.duration_ms = event.duration_ms
         self.set_class(event.status != "ok", "failed")
@@ -1295,17 +1389,32 @@ class Transcript(Following):
         self._handed = region
         await region.mount(Static(content, classes="handed-head"))
 
-    async def hand_back(self, content: Content | None = None) -> None:
-        """The run the efficient model finished is over: what follows is the frontier model's again."""
+    async def hand_back(
+        self, content: Content | None = None, *, record: InShort | None = None, live: bool = False
+    ) -> None:
+        """The run the efficient model finished is over: what follows is the frontier model's again. With `record`,
+        what the frontier model is sent of that model's turns, they fold into it (`HandedFold`); `live` when the
+        run ended just now."""
         if self._handed is None:
             return
         await self.finish_reply()
+        region, self._handed = self._handed, None
+        if record is not None and record.turns:
+            drawn = list(region.children)
+            heads = [i for i, widget in enumerate(drawn) if widget.has_class("turn-head")]
+            turns = drawn[1 : heads[-1] if record.reply and heads else None]  # the reply the run ended on stays
+            # A message the user sent meanwhile is theirs, not a turn's: it stays in sight.
+            hidden = [widget for widget in turns if widget.display and not widget.has_class("user")]
+            if hidden and (heads or not record.reply):
+                for widget in hidden:
+                    widget.display = False
+                await region.mount(HandedFold(record, hidden, live=live), after=drawn[0])
         if content is not None:
-            await self._handed.mount(Static(content, classes="handed-foot"))
-        self._handed = None
+            await region.mount(Static(content, classes="handed-foot"))
 
     async def user(self, text: str, queued: bool = False) -> Static:
         """A user message; `queued` while a run in progress has not taken it yet."""
+        text = printable(text)
         parts: list[Part] = [("› ", "bold"), (text.replace("\n", "\n  "), "bold")]  # its lines under its first
         if queued:
             parts.append(("  queued", S_MUTED))
@@ -1314,7 +1423,7 @@ class Transcript(Following):
         return line
 
     async def notice(self, text: str, kind: str = "info") -> None:
-        await self.add(Static(Content(text), classes=f"notice {kind}"))
+        await self.add(Static(Content(printable(text)), classes=f"notice {kind}"))
 
     async def begin_turn(self, head: Content | None = None) -> None:
         """A turn starts: the reply before it is finished, and `head`, who takes the turn, goes above it."""
@@ -1337,14 +1446,14 @@ class Transcript(Following):
         if self._reply is None:
             self._reply = ReplyBlock()
             await self.add(self._reply)
-        await self._reply.stream(delta)
+        await self._reply.stream(printable(delta))
 
     async def reasoning(self, delta: str, *, live: bool = True) -> None:
         """The model's reasoning, folded to one line (`Thinking`); `live` False for a resumed session's."""
         if self._reasoning is None:
             self._reasoning = Thinking(live=live)
             await self.add(self._reasoning)
-        self._reasoning.append(delta)
+        self._reasoning.append(printable(delta))
 
     async def tool_start(self, event: ToolCallStart, *, live: bool = True) -> None:
         """A call's block; `live` when it runs now (its clock moves), not when a resumed session replays it."""
@@ -1372,8 +1481,14 @@ class Transcript(Following):
             card.end()
 
     def toggle_last_tool(self) -> None:
-        if self._last_tool is not None and self._last_tool.status != "running":
-            self._last_tool.toggle()
+        block = self._last_tool
+        if block is None or block.status == "running":
+            return
+        folds = [fold for fold in self.query(HandedFold) if block in fold.hidden and not fold.expanded]
+        if folds:  # folded away with its hand-over's turns: those come back first
+            folds[0].toggle()
+        else:
+            block.toggle()
 
     def tool(self, call_id: str) -> ToolBlock | None:
         """The call's block while it runs."""
@@ -1565,12 +1680,10 @@ def model_label(ref: str, labels: Mapping[str, str] | None = None) -> str:
     return (labels or {}).get(ref) or KNOWN_SYSTEM2.get(ref) or model_name(ref)
 
 
-def turn_head(efficient: bool, model: str, turn: int | None = None, *, handoff: bool = True) -> Content:
-    """Who takes a turn, on a line above it: `Frontier · Claude Opus 5.5` (`Model · …` while hand-over is off), or
-    after a hand-over `Efficient · Hy4 Flash` in the accent, as the hand-over's shading is; then the turn's number,
-    where it is known."""
-    role: Part = ("Efficient", S_BRAND_BOLD) if efficient else ("Frontier" if handoff else "Model", S_HEAD_MUTED)
-    return Content.assemble(role, (f" · {model}", S_MUTED), (f" · turn {turn}" if turn else "", S_MUTED))
+def turn_head(efficient: bool, model: str) -> Content:
+    """Who takes a turn, on a line above it: the model by its name, `Claude Opus 5.5`, the efficient one's after a
+    hand-over in the accent, as the hand-over's shading is."""
+    return Content.assemble((model, S_BRAND_BOLD if efficient else S_HEAD_MUTED))
 
 
 def readiness(h: HandoverJudgement) -> list[Part]:
