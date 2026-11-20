@@ -141,6 +141,12 @@ class _Slots:
     writer: asyncio.Lock = field(default_factory=asyncio.Lock)
 
 
+def _release(lock: asyncio.Lock, acquired: asyncio.Task[Literal[True]]) -> None:
+    """Give `lock` back if the task that waited for it got it."""
+    if not acquired.cancelled() and acquired.exception() is None:
+        lock.release()
+
+
 def slots_for(deps: EngineDeps, settings: SubagentSettings) -> _Slots:
     """The session's shared slots, made anew when `max_parallel` changed since they were made."""
     slots = deps.subagent_slots
@@ -415,19 +421,18 @@ class Subagents:
         stopped = asyncio.create_task(child.abort.wait())
         try:
             await asyncio.wait({writer, stopped}, return_when=asyncio.FIRST_COMPLETED)
-        finally:
-            stopped.cancel()
-            if not writer.done():
-                writer.cancel()
-            await asyncio.gather(writer, stopped, return_exceptions=True)
-        if writer.cancelled() or writer.exception() is not None:
-            return self._ended(child, "aborted", None)
-        try:
-            if child.abort.is_set():
+            if not writer.done() or child.abort.is_set():
                 return self._ended(child, "aborted", None)
             return await slot()
         finally:
-            slots.writer.release()
+            # However this ends, a cancel of this task at any await above included, the lock is given back if it was
+            # taken: at once, or when the cancelled wait for it ends, should it have got the lock first.
+            stopped.cancel()
+            if writer.done():
+                _release(slots.writer, writer)
+            else:
+                writer.cancel()
+                writer.add_done_callback(lambda task: _release(slots.writer, task))
 
     async def _execute(self, child: _Child) -> SubagentResult:
         from intern.context import TokenMeter
