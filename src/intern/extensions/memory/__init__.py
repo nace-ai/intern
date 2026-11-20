@@ -10,11 +10,11 @@ from intern import hooks as h
 from intern.decisions import System1Unavailable
 from intern.events import MemoryRecall
 from intern.extensions.memory.reminders import MemoryActions
+from intern.extensions.memory.search import MemorySearchTool
 from intern.journal import MemoryRecallEntry, MessageEntry
 from intern.memory.recall import recall
 from intern.messages import ToolCall, UserMessage
 from intern.tools.base import Tool
-from intern.tools.search import MemorySearchTool
 
 #: Tools that write a file at their `path` (`sql_export`: the workspace's, a sql result to a file).
 WRITE_TOOLS = frozenset({"write", "edit", "sql_export"})
@@ -30,7 +30,7 @@ class Memory(MemoryActions):
         return ReadOnlyMemory(self.drive) if h.own_answer(self, Memory) else h.UNSET
 
     def tools(self) -> list[Tool]:
-        return [MemorySearchTool(self.drive.root)]
+        return [MemorySearchTool(self.drive)]
 
     async def before_agent_start(self, ctx: h.RunContext) -> None:
         await self._recall(ctx)

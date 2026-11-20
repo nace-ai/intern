@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import fnmatch
-import math
 import os
 import re
 import shutil
@@ -131,71 +130,6 @@ class GrepTool(Tool):
                 if regex.search(line):
                     matches.append(f"{_relative(file, ctx.cwd)}:{number}:{line[:MAX_LINE_CHARS]}")
         return matches
-
-
-MEMORY_SESSIONS = "sessions"
-MAX_SESSION_LINES = 8
-_QUERY_WORD = re.compile(r"[\w.@-]{2,}")
-
-
-class MemorySearchArgs(BaseModel):
-    query: str = Field(description="Words to look for: names, ids, values, commands or what was asked.")
-    max_sessions: int = Field(default=5, ge=1, le=20)
-
-
-class MemorySearchTool(Tool):
-    name = "memory_search"
-    description = (
-        "Search the transcripts of earlier sessions in this world for words, when no memory page holds what the "
-        "task needs. Returns the best-matching sessions, each with its task, outcome and matching lines."
-    )
-    Args = MemorySearchArgs
-    effects: ClassVar[frozenset[Effect]] = frozenset({"read"})
-    cancel_on_abort = True
-
-    def __init__(self, drive: Path) -> None:
-        self.folder = drive / MEMORY_SESSIONS
-
-    async def run(self, args: MemorySearchArgs, ctx: ToolContext) -> ToolOutput:
-        words = {w.lower() for w in _QUERY_WORD.findall(args.query)}
-        if not words:
-            return fail("the query has no words to search for", "Pass names, ids or values.", argument="query")
-        return ToolOutput(content=await asyncio.to_thread(self._search, words, args.max_sessions))
-
-    def _search(self, words: set[str], most: int) -> str:
-        sessions: list[tuple[str, str, set[str]]] = []
-        for file in sorted(self.folder.glob("*.txt")) if self.folder.is_dir() else []:
-            try:
-                text = file.read_text()
-            except (UnicodeDecodeError, OSError):
-                continue
-            lowered = text.lower()
-            sessions.append((text, lowered, {w for w in words if w in lowered}))
-        # A word few sessions use tells them apart; one every session uses says little.
-        weight = {w: math.log((1 + len(sessions)) / (1 + sum(w in s[2] for s in sessions))) + 1 for w in words}
-        ranked: list[tuple[tuple[float, str], str, list[str]]] = []
-        for text, _, found in sessions:
-            if not found:
-                continue
-            head, _, body = text.partition("\n\n")
-            lines = body.splitlines()
-            scored = sorted(
-                ((sum(weight[w] for w in found if w in line.lower()), i) for i, line in enumerate(lines)),
-                key=lambda s: -s[0],
-            )
-            hits = [lines[i] for score, i in scored if score > 0]
-            date = next((line[6:] for line in head.splitlines() if line.startswith("date: ")), "")
-            ranked.append(((sum(weight[w] for w in found), date), head, hits))
-        if not ranked:
-            return f"No earlier session mentions {' '.join(sorted(words))}."
-        ranked.sort(key=lambda r: r[0], reverse=True)
-        parts = []
-        for _, head, hits in ranked[:most]:
-            lines = [f"  {line.strip()[:MAX_LINE_CHARS]}" for line in hits[:MAX_SESSION_LINES]]
-            more = f"\n  [{len(hits) - len(lines)} more matching lines]" if len(hits) > len(lines) else ""
-            short = "\n".join(line[:MAX_LINE_CHARS] for line in head.splitlines())
-            parts.append(short + ("\n" + "\n".join(lines) if lines else "") + more)
-        return "\n\n".join(parts)
 
 
 class FindArgs(BaseModel):
