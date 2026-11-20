@@ -107,6 +107,13 @@ class _Reply:
         pending.arguments += function.get("arguments") or ""
 
 
+def _first_choice(data: dict[str, Any]) -> list[dict[str, Any]]:
+    """The choices of a chunk or a reply that belong to choice 0. A request with `n` above 1 (a profile's
+    `extra_body`), or a server that sends several anyway, gets alternatives of one reply: read as one they run each
+    other's text and tool arguments together, so only the first is the reply."""
+    return [choice for choice in data.get("choices") or [] if not choice.get("index")]
+
+
 def _image_message(images: list[ImagePart]) -> dict[str, Any]:
     """The images a turn's tool calls showed, as the user message after their results: chat completions
     take images only in user messages."""
@@ -273,7 +280,7 @@ class OpenAICompatProvider:
                 raise ProviderError(f"stream error from {self.endpoint.provider}: {chunk['error']}")
             if chunk.get("usage"):
                 reply.usage = chunk["usage"]
-            for choice in chunk.get("choices") or []:
+            for choice in _first_choice(chunk):
                 delta = choice.get("delta") or {}
                 for item in self._content(delta, reply, splitter):
                     yield item
@@ -291,7 +298,7 @@ class OpenAICompatProvider:
             raise ProviderError(f"error from {self.endpoint.provider}: {data['error']}")
         reply.usage = data.get("usage")
         items: list[StreamItem] = []
-        for choice in data.get("choices") or []:
+        for choice in _first_choice(data):
             message = choice.get("message") or {}
             items += self._content(message, reply, splitter)
             for position, call in enumerate(message.get("tool_calls") or []):
