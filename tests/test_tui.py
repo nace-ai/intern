@@ -261,6 +261,26 @@ async def test_a_prompt_runs_and_the_reply_tool_calls_and_system_1_rows_show(tmp
         await app.action_quit()
 
 
+async def test_escape_sequences_a_command_prints_or_a_model_writes_never_reach_the_terminal(tmp_path: Path):
+    # A command sets the clipboard (OSC 52) and the window title and clears the screen; the model's reply tries too.
+    attack = r"printf 'one\033]52;c;aGk=\007two\033]0;pwned\033\\\033[2Jthree\033c\n'"
+    script = [Turn(tool_calls=[("bash", {"command": attack})]), Turn(text="done\x1b]0;pwned\x07\x1b[2J here")]
+    app = HarnessApp(make_opener(tmp_path, script))
+    async with app.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: app.session is not None)
+        await send(app, pilot, "run it")
+        await wait_for(lambda: app._run_task is not None and app._run_task.done())  # pyright: ignore[reportPrivateUsage]
+        await pilot.pause()
+        block = app.query_one(Transcript).query(ToolBlock).first()
+        block.toggle()
+        await pilot.pause()
+        assert "onetwothreec" in plain(block.out)  # what it printed is still read, without the sequences
+        screen = "\n".join(strip.text for strip in app.screen._compositor.render_strips())  # pyright: ignore[reportPrivateUsage]
+        assert "onetwothreec" in screen and "done here" in screen
+        assert not [c for c in screen if c != "\n" and (ord(c) < 32 or 0x7F <= ord(c) < 0xA0)]
+        await app.action_quit()
+
+
 class Paced(FakeProvider):
     """Streams a word every few milliseconds, as a model does: the reply's Markdown is still being drawn when the
     next words arrive."""
