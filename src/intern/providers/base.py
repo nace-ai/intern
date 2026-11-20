@@ -5,7 +5,10 @@ from __future__ import annotations
 import asyncio
 import base64
 import contextlib
+import math
 from collections.abc import AsyncGenerator, AsyncIterator, Callable, Sequence
+from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Literal, Protocol
 
@@ -90,14 +93,36 @@ class ProviderError(Exception):
         retryable: bool = False,
         code: str | None = None,
         meter: str | None = None,
+        retry_after_s: float | None = None,
     ) -> None:
         super().__init__(message)
+        self.retry_after_s = retry_after_s
+        """How long the server asked to be left alone (its `Retry-After`), when it said."""
         self.status = status
         self.retryable = retryable
         self.code = code
         """The Nace console's `error.code` (`free_exhausted`, `rate_limited`, …), for a request to it."""
         self.meter = meter
         """The free credit's meter the console named: `agent` or `system1`."""
+
+
+RETRY_AFTER_CAP_S = 60.0
+"""The longest `Retry-After` a provider waits out itself. A longer one raises at once, so that a backup model or the
+run's own, longer retries take over instead of a call that sleeps for as long as a server names."""
+
+
+def retry_after_s(headers: httpx.Headers) -> float | None:
+    """The seconds a `Retry-After` header asks for, given as a number or as an HTTP date; None without a usable one."""
+    raw = headers.get("retry-after", "").strip()
+    try:
+        seconds = float(raw)
+    except ValueError:
+        try:
+            when = parsedate_to_datetime(raw)
+        except ValueError:
+            return None
+        seconds = (when.replace(tzinfo=when.tzinfo or UTC) - datetime.now(UTC)).total_seconds()
+    return max(seconds, 0.0) if math.isfinite(seconds) else None
 
 
 class Provider(Protocol):
@@ -111,7 +136,8 @@ async def retrying(
 ) -> AsyncIterator[StreamItem]:
     """The items of one `attempt()`, made again after each of `waits_s` while it fails with a retryable error before
     yielding anything. Once an item is out the reply cannot be taken back, so a later failure raises at once; a
-    network error is raised as a retryable `ProviderError`."""
+    network error is raised as a retryable `ProviderError`. A server that says how long to stay away
+    (`retry_after_s`) is left alone at least that long, or, past `RETRY_AFTER_CAP_S`, not asked again here."""
     for wait in (*waits_s, None):
         emitted = False
         try:
@@ -122,10 +148,12 @@ async def retrying(
             return
         except (ProviderError, *TRANSIENT_ERRORS) as error:
             retryable = not isinstance(error, ProviderError) or error.retryable
-            if emitted or not retryable or wait is None:
+            after = (error.retry_after_s if isinstance(error, ProviderError) else None) or 0.0
+            if emitted or not retryable or wait is None or after > RETRY_AFTER_CAP_S:
                 if isinstance(error, ProviderError):
                     raise
                 raise ProviderError(f"{type(error).__name__} from {provider}: {error}", retryable=True) from error
+            wait = max(wait, after)
         await asyncio.sleep(wait)
 
 

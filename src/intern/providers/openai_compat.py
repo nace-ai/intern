@@ -38,6 +38,7 @@ from intern.providers.base import (
     TextChunk,
     image_base64,
     missing_image_note,
+    retry_after_s,
     retrying,
     sse_lines,
 )
@@ -235,6 +236,7 @@ class OpenAICompatProvider:
                         retryable=response.status_code in RETRYABLE_STATUS and code not in FREE_FINAL,
                         code=code,
                         meter=meter,
+                        retry_after_s=retry_after_s(response.headers),
                     ) from None
                 reply = _Reply()
                 splitter = ThinkSplitter() if request.compat.think_tags else None
