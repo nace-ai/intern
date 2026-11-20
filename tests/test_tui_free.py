@@ -1,7 +1,7 @@
 """The terminal UI on the free credit, against a fake console: Start free in setup through the sign-in to Ready and a
 session on the grant's models, a refused sign-in going on to the user's own keys, Start free hidden while the trial
-takes no sign-ins, the model commands locked while the free credit runs them, `/free` pausing it, and a spent
-credit's card."""
+takes no sign-ins, the model commands locked while the free credit runs them, `/free` pausing it, a spent credit's
+card, and the console's other refusals said in words."""
 
 from __future__ import annotations
 
@@ -23,8 +23,9 @@ from intern.tui.onboarding import OnboardingScreen
 from intern.tui.pickers import ModelPicker
 from intern.tui.welcome import Welcome
 from tests import test_free_sessions, test_nace_free
-from tests.fake_console import GRANT
-from tests.test_free_sessions import OWN, READ, with_own_keys
+from tests.fake_console import GRANT, console_error
+from tests.fake_openai import MODEL
+from tests.test_free_sessions import OWN, READ, add_config, with_own_keys
 from tests.test_nace_free import start
 from tests.test_tui import SIZE, plain, send, transcript_text, wait_for
 
@@ -217,7 +218,51 @@ async def test_a_spent_agent_credit_with_no_key_of_your_own_ends_on_a_card_point
     async with app.run_test(size=SIZE) as pilot:
         await wait_for(lambda: app.session is not None)
         await send(app, pilot, "read my notes")
-        await wait_for(lambda: "Free agent credit used up" in transcript_text(app))
+        await wait_for(lambda: "doesn't come back" in transcript_text(app))
         text = transcript_text(app)
-        assert "doesn't come back" in text and "/setup" in text
+        assert "Free agent credit used up" in text and "/setup" in text
+        assert "HTTP 402" not in text and '"error"' not in text  # in words, not the console's body
+        await app.action_quit()
+
+
+async def test_a_spent_agent_credit_with_a_model_of_your_own_ends_saying_the_next_message_runs_on_it(
+    env, console, own, work, capsys
+):
+    (work / "notes.txt").write_text("notes\n")
+    console.replies = [READ]
+    console.charge["system2"] = 3.6
+    await asyncio.to_thread(start, env, capsys)
+    app = free_app(with_own_keys(env, own), work)
+    async with app.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: app.session is not None)
+        await send(app, pilot, "read my notes")
+        await wait_for(lambda: "Free agent credit used up" in transcript_text(app))
+        await pilot.pause()
+        text = transcript_text(app)
+        assert MODEL in text and "HTTP 402" not in text and '"error"' not in text
+        await app.action_quit()
+
+
+@pytest.mark.parametrize(
+    "refusal",
+    [
+        console_error(429, "rate_limit_error", "rate_limited", "The model provider is busy. Retry after 1 seconds.", 1),
+        console_error(502, "api_error", "upstream_error", "The model provider failed. Retry."),
+    ],
+)
+async def test_a_console_refusal_that_leaves_the_credit_ends_the_run_saying_why_in_words(
+    env, console, work, capsys, refusal
+):
+    console.chat_error = refusal
+    await asyncio.to_thread(start, env, capsys)
+    add_config(env, "\n[capabilities]\nmodel_retries = false\n")  # the run ends on the first refusal
+    app = free_app(env, work)
+    async with app.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: app.session is not None)
+        await send(app, pilot, "read my notes")
+        await wait_for(lambda: " turns · " in transcript_text(app))
+        text = transcript_text(app)
+        said = refusal[1]["error"]["message"].removesuffix(".")
+        assert said in text  # the console's own words
+        assert "HTTP 4" not in text and "HTTP 5" not in text and '"error"' not in text and "{" not in text
         await app.action_quit()
