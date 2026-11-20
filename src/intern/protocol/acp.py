@@ -246,6 +246,21 @@ def session_meta(meta: Mapping[str, Any]) -> SessionMeta:
         raise RequestError(-32602, f"_meta.nace is invalid: {e}") from None
 
 
+def unreadable_journal(path: Path, error: ValidationError) -> RequestError:
+    """The reply to a `session/load` whose journal has an entry this version cannot read: an internal error
+    naming the file, not "Invalid params" (the client's params were fine), and without the entry's raw bytes,
+    which no reply can carry."""
+    first = error.errors(include_url=False, include_input=False)[0]
+    where = ".".join(str(part) for part in first["loc"])
+    reason = f"{where}: {first['msg']}" if where else first["msg"]
+    return RequestError(
+        -32603,
+        f"the session's journal has an entry this version of {names.TITLE} cannot read ({reason}): "
+        f"the file is damaged or was written by a newer version: {path}",
+        {"reason": "journal_unreadable", "journal": str(path)},
+    )
+
+
 @dataclass
 class UnboundSession:
     """An ACP session no System 2 could be bound for (none configured, or its key is missing). It takes
@@ -647,7 +662,10 @@ class AcpAgent:
         path = self._index.find(session_id)
         if path is None:
             raise RequestError.resource_not_found(session_id)
-        journal = Journal(cwd=cwd, path=path)
+        try:
+            journal = Journal(cwd=cwd, path=path)
+        except ValidationError as e:
+            raise unreadable_journal(path, e) from None
         models = journal.last_models()
         system2 = meta.system2 or models.get("system2")
         caps = self._picks(journal, meta.capabilities, meta.runner)
