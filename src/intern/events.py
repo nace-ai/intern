@@ -394,6 +394,16 @@ class SecretUnavailable(_EventBase):
     message: str
 
 
+class FreeNotice(_EventBase):
+    """Something the user should hear about the free credit, once a session: a system moved to their own keys
+    (`switch`), or a meter crossed 20% or 5% left (`low`)."""
+
+    type: Literal["free_notice"] = "free_notice"
+    kind: Literal["switch", "low"]
+    meter: Literal["agent", "system1"]
+    text: str
+
+
 class WindowFallback(_EventBase):
     """No source gave System 2's window, so it runs at the 32K default and its replies are capped to a share of
     that. Sent when the session opens and when the model is switched."""
@@ -491,6 +501,7 @@ Event = Annotated[
     | HookError
     | SecretUnavailable
     | WindowFallback
+    | FreeNotice
     | SubagentStart
     | SubagentEnd
     | RunEnd,

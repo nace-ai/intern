@@ -433,6 +433,8 @@ class Session:
             self._control = None
             self.usage += run.usage
             self._runs += 1
+        if self.free is not None:
+            self.free.after_run(outcome)
         self.last_outcome = outcome
         return outcome
 

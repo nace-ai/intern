@@ -82,10 +82,22 @@ TRANSIENT_ERRORS: tuple[type[Exception], ...] = (httpx.TransportError, OSError)
 
 
 class ProviderError(Exception):
-    def __init__(self, message: str, *, status: int | None = None, retryable: bool = False) -> None:
+    def __init__(
+        self,
+        message: str,
+        *,
+        status: int | None = None,
+        retryable: bool = False,
+        code: str | None = None,
+        meter: str | None = None,
+    ) -> None:
         super().__init__(message)
         self.status = status
         self.retryable = retryable
+        self.code = code
+        """The Nace console's `error.code` (`free_exhausted`, `rate_limited`, …), for a request to it."""
+        self.meter = meter
+        """The free credit's meter the console named: `agent` or `system1`."""
 
 
 class Provider(Protocol):

@@ -1,6 +1,8 @@
 """Sessions on the free credit, against a fake console: each system on the bundle while its meter lasts and on the
 user's own configuration otherwise, the pickers locked to the bundle (CLI and ACP), the caps in every request, an
-unbound session that says the credit is spent, and the meters the console reports on the way to the client."""
+unbound session that says the credit is spent, and the meters the console reports on the way to the client. A meter
+that runs out during a run moves the system to the user's own key for the same model, or ends the run at once saying
+what the next one will use; each switch and low meter is told once."""
 
 from __future__ import annotations
 
@@ -15,13 +17,13 @@ import pytest
 from acp import RequestError, text_block
 from acp.schema import UsageUpdate
 
-from intern import cli, config
+from intern import cli, config, decisions
 from intern.config import Bootstrap, Options, System2Unavailable
-from intern.events import Event
-from intern.protocol.acp import AcpAgent, bootstrap_opener
+from intern.events import Decision, Event, FreeNotice
+from intern.protocol.acp import PROVIDER_ERROR, AcpAgent, bootstrap_opener
 from tests import test_nace_free
 from tests.fake_console import GRANT
-from tests.fake_openai import MODEL, FakeOpenAI
+from tests.fake_openai import MODEL, FakeOpenAI, Reply
 from tests.test_acp import FakeClient
 from tests.test_nace_free import free, start
 
@@ -264,3 +266,139 @@ def test_models_json_shows_the_free_credit_and_only_the_bundle_for_a_system_on_i
     assert listed["system2"][0]["window"] == BUNDLE["window_tokens"]
     assert listed["handoff"] == {"models": [BUNDLE["handoff"]], "default": BUNDLE["handoff"]}
     assert [m["id"] for m in listed["system1"]] == ["own-console-judge"]  # the user's own
+
+
+OWN_FIREWORKS = """
+[providers.fireworks]
+base_url = "{url}"
+api_key_env = "FIREWORKS_API_KEY"
+"""
+OWN_CONSOLE = """
+[system1]
+console_url = "{url}"
+"""
+READ = Reply(tool_calls=[("read", {"path": "notes.txt"})])
+JUDGED = [READ] * 4
+"""Turns enough for System 1's first look at the run (`supervise.EVERY`)."""
+
+
+def add_config(env: dict[str, str], text: str) -> None:
+    path = home_of(env) / "config.toml"
+    path.write_text(path.read_text() + text)
+
+
+async def open_watched(env: dict[str, str], work: Path):
+    events: list[Event] = []
+    session = await Bootstrap(Options(cwd=work, persist=False), env).session(events.append)
+    return session, events
+
+
+def notices(events: list[Event]) -> list[FreeNotice]:
+    return [event for event in events if isinstance(event, FreeNotice)]
+
+
+async def test_a_system1_meter_spent_mid_run_moves_the_ask_to_the_own_console_key_without_failing_it(
+    env, console, own, work, capsys
+):
+    (work / "notes.txt").write_text("notes\n")
+    console.replies = list(JUDGED)
+    await asyncio.to_thread(signed_in, env, capsys)
+    add_config(env, OWN_CONSOLE.format(url=own.url))
+    session, events = await open_watched({**env, "NACE_API_KEY": "test-key"}, work)
+    async with session:
+        console.spend("system1", 1.0)  # spent since the session read its meters
+        assert (await session.run("read my notes")).reason == "completed"
+        assert session.free is not None and session.free.source.system1 == "own"
+        assert (await session.run("again")).reason == "completed"
+    assert console.refused and set(console.refused) == {"system1"}
+    assert own.system1 and {ask["model"] for ask in own.system1} >= {BUNDLE["system1"]}
+    decisions = [event for event in events if isinstance(event, Decision)]
+    assert decisions and all(decision.ok for decision in decisions)
+    [switch] = notices(events)
+    assert (switch.kind, switch.meter) == ("switch", "system1")
+    # System 2 stayed on its free credit throughout.
+    assert len(console.requests) == len(JUDGED) + 2 and own.requests == []
+
+
+async def test_an_agent_meter_spent_mid_run_goes_on_with_the_same_model_on_the_own_fireworks_key(
+    env, console, own, work, capsys
+):
+    (work / "notes.txt").write_text("notes\n")
+    console.replies = [READ]
+    console.charge["system2"] = 3.6  # the run's first reply spends the agent meter
+    await asyncio.to_thread(signed_in, env, capsys)
+    env = with_own_keys(env, own)
+    add_config(env, OWN_FIREWORKS.format(url=own.url))
+    session, events = await open_watched({**env, "FIREWORKS_API_KEY": "test-key"}, work)
+    async with session:
+        outcome = await session.run("read my notes")
+        assert outcome.reason == "completed" and outcome.error is None
+        assert [r["model"] for r in own.requests] == ["accounts/fireworks/models/glm-5p3"]
+        # The next run is on the user's own System 2.
+        assert (await session.run("again")).reason == "completed"
+        assert session.deps.system2.ref == OWN
+    assert len(console.requests) == 1 and console.refused == ["agent"]
+    assert [r["model"] for r in own.requests] == ["accounts/fireworks/models/glm-5p3", MODEL]
+    [switch] = notices(events)
+    assert (switch.kind, switch.meter) == ("switch", "agent") and "glm-5p3" in switch.text
+
+
+@pytest.mark.parametrize("keys", ["own", "none"])
+async def test_an_agent_meter_spent_mid_run_with_no_key_for_its_model_ends_the_turn_saying_what_runs_next(
+    env, console, own, work, capsys, keys
+):
+    (work / "notes.txt").write_text("notes\n")
+    console.replies = [READ]
+    console.charge["system2"] = 3.6
+    await asyncio.to_thread(signed_in, env, capsys)
+    env = with_own_keys(env, own) if keys == "own" else env
+    agent, client = acp_agent(env, work)
+    opened = await agent.new_session(cwd=str(work))
+    with pytest.raises(RequestError) as ended:
+        await asyncio.wait_for(agent.prompt(prompt=[text_block("read my notes")], session_id=opened.session_id), 30)
+    assert ended.value.code == PROVIDER_ERROR
+    data = ended.value.data
+    assert isinstance(data, dict)
+    assert (data["kind"], data["status"], data["code"], data["meter"]) == ("quota", 402, "free_exhausted", "agent")
+    assert data["next"] == (OWN if keys == "own" else None)
+    assert console.refused == ["agent"]  # not retried
+
+    if keys == "own":
+        response = await agent.prompt(prompt=[text_block("go on")], session_id=opened.session_id)
+        assert response.stop_reason == "end_turn" and own.requests
+        told = [u.field_meta["nace"]["free"].get("notice") for u in client.of(UsageUpdate)]
+        assert len([notice for notice in told if notice]) == 1
+    await agent.aclose()
+
+
+async def test_a_system1_meter_spent_mid_run_with_no_own_console_key_stops_the_run_at_once(
+    env, console, work, capsys, monkeypatch
+):
+    monkeypatch.setattr(decisions, "RETRY_WINDOW_S", 1800.0)  # the real window, which tests otherwise shorten
+    (work / "notes.txt").write_text("notes\n")
+    console.replies = list(JUDGED)
+    await asyncio.to_thread(signed_in, env, capsys)
+    agent, _ = acp_agent(env, work)
+    opened = await agent.new_session(cwd=str(work))
+    console.spend("system1", 1.0)
+    with pytest.raises(RequestError) as stopped:
+        # A refusal that fell into the retry window would not answer in time.
+        await asyncio.wait_for(agent.prompt(prompt=[text_block("read my notes")], session_id=opened.session_id), 30)
+    assert stopped.value.code == -32603
+    assert stopped.value.data == {"reason": "system1_unavailable", "code": "free_exhausted", "meter": "system1"}
+    assert len(console.requests) == len(JUDGED)
+    await agent.aclose()
+
+
+async def test_a_low_agent_meter_is_told_once_at_20_and_once_at_5_percent_left(env, console, work, capsys):
+    await asyncio.to_thread(signed_in, env, capsys)
+    agent, client = acp_agent(env, work)
+    opened = await agent.new_session(cwd=str(work))
+    for used in (3.3, 3.4, 3.85, 3.9):  # 17.5%, 15%, 3.75% and 2.5% of $4 left
+        console.spend("agent", used)
+        response = await agent.prompt(prompt=[text_block("hi")], session_id=opened.session_id)
+        assert response.stop_reason == "end_turn"
+    told = [u.field_meta["nace"]["free"].get("notice") for u in client.of(UsageUpdate)]
+    low = [notice for notice in told if notice]
+    assert len(low) == 2 and "20%" in low[0] and "5%" in low[1]
+    await agent.aclose()

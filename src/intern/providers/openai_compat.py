@@ -28,7 +28,7 @@ from intern.messages import (
     UserMessage,
 )
 from intern.models.prices import priced
-from intern.models.registry import Endpoint, token_expired
+from intern.models.registry import FREE_FINAL, Endpoint, console_error, token_expired
 from intern.providers.base import (
     Completed,
     ProviderError,
@@ -226,11 +226,15 @@ class OpenAICompatProvider:
                     if resend and credential is not None and token_expired(response.status_code, raw):
                         await credential.invalidate()
                         continue
+                    # A credential source means the Nace console, whose refusals name a code.
+                    code, meter = (console_error(raw) if credential is not None else None) or (None, None)
                     raise ProviderError(
                         f"HTTP {response.status_code} from {self.endpoint.provider}: "
                         f"{raw.decode(errors='replace')[:500]}",
                         status=response.status_code,
-                        retryable=response.status_code in RETRYABLE_STATUS,
+                        retryable=response.status_code in RETRYABLE_STATUS and code not in FREE_FINAL,
+                        code=code,
+                        meter=meter,
                     ) from None
                 reply = _Reply()
                 splitter = ThinkSplitter() if request.compat.think_tags else None

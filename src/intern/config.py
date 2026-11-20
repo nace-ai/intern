@@ -42,7 +42,17 @@ from intern.extensions.memory.reminders import MemoryActions
 from intern.extensions.schedule import Schedule
 from intern.extensions.tool_result_guard import ToolResultGuard
 from intern.extensions.workspace.extension import Workspace
-from intern.free_session import FreePlan, FreeSession, System, free_plan
+from intern.free_session import (
+    FreeModel,
+    FreePlan,
+    FreeSession,
+    FreeSystem1,
+    OwnRoute,
+    Refused,
+    System,
+    free_plan,
+    own_route,
+)
 from intern.handoff import HANDOFF_ROLE, HandoffTarget
 from intern.hooks import Extension, Hooks, build_extension, resolve_extension
 from intern.instructions import FileInstructions
@@ -67,6 +77,7 @@ from intern.models.registry import NACE_FREE_ENTRIES, PROVIDERS, Api, ConfigErro
 from intern.models.window import advertised_limits, bound_output, window_fallback, working_window
 from intern.nace_free import Bundle, FreeCredential, free_credential
 from intern.providers.anthropic import AnthropicProvider
+from intern.providers.base import Provider
 from intern.providers.openai_compat import OpenAICompatProvider
 from intern.providers.openai_responses import OpenAIResponsesProvider
 from intern.secret_store import StoreEntry, check_entries, read_store
@@ -476,11 +487,36 @@ class Bootstrap:
     async def bind(self, ref: str) -> ModelBinding:
         return await self._bind(ref, None)
 
-    async def bind_free(self, ref: str, bundle: Bundle | None) -> ModelBinding:
-        """`ref` on the free credit when `bundle` is given, else on the user's own configuration (`bind`)."""
-        return await self.bind(ref) if bundle is None else await self._bind(ref, bundle)
+    async def bind_free(self, ref: str, bundle: Bundle | None, refused: Refused | None = None) -> ModelBinding:
+        """`ref` on the free credit when `bundle` is given, else on the user's own configuration (`bind`). With
+        `refused`, a credit the console refuses for good moves it to the user's own key for the same model, if any."""
+        return await self.bind(ref) if bundle is None else await self._bind(ref, bundle, refused)
 
-    async def _bind(self, ref: str, free: Bundle | None) -> ModelBinding:
+    def _own_route(self, ref: str) -> OwnRoute | None:
+        """The free credit's model `ref` on the user's own Fireworks key; None without one."""
+        try:
+            endpoint = resolve_endpoint(own_route(ref), self.env, self.config.providers)
+        except ConfigError:
+            return None
+        provider = PROVIDER_CLASSES.get(endpoint.api, OpenAICompatProvider)(endpoint)
+        return OwnRoute(ref=endpoint.ref, wire_model=endpoint.model, provider=provider)
+
+    def _own_console(self, model: str) -> DecisionBackend | None:
+        """System 1 `model` on the user's own console key; None without one."""
+        cfg = self.config.system1
+        url, key = self._console(cfg)
+        return DecisionsApiBackend(url, SecretStr(key), [model], timeout_s=cfg.timeout_s) if key else None
+
+    def _next_system2(self, bundle: Bundle | None) -> str | None:
+        """The System 2 of the user's own configuration, when its key is set."""
+        ref = self.own_system2(bundle)
+        try:
+            resolve_endpoint(ref, self.env, self.config.providers)
+        except ConfigError:
+            return None
+        return ref
+
+    async def _bind(self, ref: str, free: Bundle | None, refused: Refused | None = None) -> ModelBinding:
         """`ref` bound to its provider; with `free`, on the free credit, its window and replies no larger than the
         bundle allows, so the gateway's limits are never what stops a run."""
         endpoint = resolve_endpoint(ref, self.env, self.config.providers, free=free is not None)
@@ -495,7 +531,9 @@ class Bootstrap:
                 profile.effective_window = min(profile.effective_window or free.window_tokens, free.window_tokens)
         profile.vision = profile.vision or limits.vision is True  # the provider says it takes images
         window = working_window(limits.window, limits.source, profile, self.options.window_cap, limits.lookup_error)
-        provider = PROVIDER_CLASSES.get(endpoint.api, OpenAICompatProvider)(endpoint)
+        provider: Provider = PROVIDER_CLASSES.get(endpoint.api, OpenAICompatProvider)(endpoint)
+        if free is not None and refused is not None:
+            provider = FreeModel(provider, lambda: self._own_route(ref), refused)
         return ModelBinding(
             provider=provider,
             ref=endpoint.ref,
@@ -751,8 +789,11 @@ class Bootstrap:
         options = self.options
         capabilities = self.capability_settings()
         plan = await self.free_plan()
-        free = FreeSession(plan, plan.sources(), switch=self._to_own)
         bundle = plan.bundle
+        free = FreeSession(plan, plan.sources(), switch=self._to_own, next_system2=lambda: self._next_system2(bundle))
+        in_use = plan.use is True and plan.credential is not None
+        if in_use:
+            emit = free.watching(emit)
         self._free_locks(free)
         agent_free = bundle if free.on_free("agent") else None
         system1_label = bundle.system1 if bundle is not None and free.on_free("system1") else self.system1_choice()
@@ -772,7 +813,7 @@ class Bootstrap:
                 system1=system1_label,
             )
         try:
-            system2 = await self.bind_free(ref, agent_free)
+            system2 = await self.bind_free(ref, agent_free, free.refused)
         except ConfigError as e:
             raise System2Unavailable(unavailable(str(e)), ref=ref, system1=system1_label) from None
         try:
@@ -788,7 +829,7 @@ class Bootstrap:
             handoff_plan = HandoffConfig(to=agent_free.handoff, **tuning)
         if to := handoff_plan.to or options.handoff_default:
             try:
-                target = await self.bind_free(to, agent_free)
+                target = await self.bind_free(to, agent_free, free.refused)
             except ConfigError as e:
                 if handoff_plan.to and agent_free is None:
                     raise ConfigError(f"[capabilities.handoff] to {handoff_plan.to}: {e}") from None
@@ -808,12 +849,14 @@ class Bootstrap:
         def resolve_system1(choice: str) -> DecisionBackend:
             on_free = bundle is not None and choice == bundle.system1 and free.on_free("system1")
             if on_free and bundle is not None and plan.credential is not None:
-                return self._free_system1(plan.credential, bundle.system1)
+                model = bundle.system1
+                own = self._own_console(model)
+                return FreeSystem1(self._free_system1(plan.credential, model), own, model, free.refused)
             return self.system1_backend(choice)
 
         async def resolve_model(model: str) -> ModelBinding:
             on_free = bundle is not None and free.on_free("agent") and model in (bundle.system2, bundle.handoff)
-            return await self.bind_free(model, bundle if on_free else None)
+            return await self.bind_free(model, bundle if on_free else None, free.refused)
 
         try:
             system1 = resolve_system1(system1_label) if free.on_free("system1") else self._system1()
@@ -900,7 +943,7 @@ class Bootstrap:
                 idle_s=capabilities.memory.steward_idle_s,
             )
             session.handoff_missing = handoff_missing
-            session.free = free if plan.use is True and plan.credential is not None else None
+            session.free = free if in_use else None
             return session
         except BaseException:
             if prepared.resources is not None:
