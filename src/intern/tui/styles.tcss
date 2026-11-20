@@ -98,12 +98,12 @@ Screen {
     height: auto;
 }
 
-#welcome-wordmark, #welcome-title, #welcome-about, #welcome-foot, #welcome-tips {
+#welcome-wordmark, #welcome-title, #welcome-about, #welcome-credit, #welcome-foot, #welcome-tips {
     width: auto;
     height: auto;
 }
 
-#welcome-title, #welcome-about, #welcome-row, #welcome-foot, #welcome-tips {
+#welcome-title, #welcome-about, #welcome-row, #welcome-credit, #welcome-foot, #welcome-tips {
     margin-top: 1;
 }
 

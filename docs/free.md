@@ -17,6 +17,8 @@ intern free resume                      # use the free credit again
 intern free sign-out                    # revoke the sign-in on the console and forget it here
 ```
 
+In the terminal UI, setup's **Start free** and `/free` do the same ([terminal UI](tui.md#free-credit)).
+
 `start` opens the console's sign-in page and prints its address and a code to check there (`--no-browser` only
 prints them, for a remote machine or SSH). It waits until you have signed in and agreed, then turns the free credit
 on (`[free] use = true` in `~/.intern/config.toml`). `pause` and `resume` set that line, keeping the rest of the file

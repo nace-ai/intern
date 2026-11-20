@@ -58,6 +58,7 @@ from intern.events import (
     Decision,
     Event,
     EventSink,
+    FreeNotice,
     Handoff,
     HookError,
     Indexing,
@@ -83,8 +84,10 @@ from intern.events import (
     WindowFallback,
 )
 from intern.extensions.schedule import Schedule
+from intern.free_commands import FreeReport, console_of, report, set_use, sign_out
+from intern.free_session import METER_NAMES, SWITCH_REASONS, FreeSession, System
 from intern.handoff import DEFAULT_TARGET
-from intern.hooks import RunOutcome
+from intern.hooks import RunError, RunOutcome
 from intern.journal import (
     CompactionEntry,
     Entry,
@@ -98,9 +101,10 @@ from intern.memory.spend import read_spend
 from intern.messages import AssistantMessage, ToolResultMessage, Usage, UserMessage
 from intern.models.catalog import DECISIONS_PREFIX, Catalog, ModelInfo, RunnerInfo, system1_choices
 from intern.models.profile import EFFORT_LEVELS
-from intern.models.registry import ConfigError, Role
+from intern.models.registry import FREE_FINAL, ConfigError, Role
+from intern.nace_free import FreeStore
 from intern.needs import InstallFailed, Needs, Say, install
-from intern.onboarding import PROVIDER_BY_ID, offered_models
+from intern.onboarding import FREE_ABOUT, PROVIDER_BY_ID, free_names, offered_models
 from intern.onboarding import Role as OfferedRole
 from intern.processes import duration_text
 from intern.session import Session, SessionBusy
@@ -116,7 +120,7 @@ from intern.tui.ledger import (
     RunLedger,
     TurnJudgement,
 )
-from intern.tui.onboarding import Onboarded, OnboardingScreen
+from intern.tui.onboarding import Onboarded, OnboardingScreen, StartedFree, free_blocked
 from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm
 from intern.tui.schedule import TimerDelivery
 from intern.tui.state_panel import StatePanel, system2_start
@@ -219,6 +223,8 @@ HELP: dict[str, dict[str, str]] = {
         "/thinking [level]": "the frontier model's thinking level, low to max as the model takes it (also Shift+Tab, "
         "and ←→ in the /frontier picker)",
         "/setup": "connect your models: provider, key and model for each; saved to config.toml and the keychain",
+        "/free [start|pause|resume|sign-out]": "the free credit: what is left and what each model runs on; start it, "
+        "pause it to run on your own keys, resume it, or sign out",
     },
     "Session": {
         "/abort": "stop the run in progress (also Esc)",
@@ -627,6 +633,7 @@ class HarnessApp(App[None]):
             return replace(
                 shown, system2=status.system2, system1=status.system1, handoff=status.handoff, note=status.note
             )
+        free = self._free()
         toggles = self._toggles(self._capabilities_now()) if session is not None else []
         return Opening(
             system2=status.system2,
@@ -639,6 +646,8 @@ class HarnessApp(App[None]):
             journal=session.deps.journal.path if session is not None else None,
             capabilities=[(t.id, t.name, t.on, DECIDES in t.label) for t in toggles],
             guard=_guard_state(self._capabilities_now().guard) if session is not None else "off",
+            free=free is not None and free.on_free("agent"),
+            credit=self._credit_line(),
         )
 
     def _jobs_strip(self) -> None:
@@ -923,6 +932,7 @@ class HarnessApp(App[None]):
                 (binding.profile.reasoning_effort or THINKING_DEFAULT) if binding.takes_effort else ""
             )
             self.status.levels = binding.effort_levels
+            self.status.free = self._agent_meter()
             handoff = self.session.deps.handoff
             runs = handoff is not None and handoff.binding.ref != binding.ref
             self.status.handoff = handoff.binding.ref if handoff is not None and runs else ""
@@ -931,7 +941,7 @@ class HarnessApp(App[None]):
         else:
             self.status.system2 = self.pending.system2 or "none"
             self.status.system1 = self.pending.system1 or "none"
-            self.status.thinking = ""
+            self.status.thinking = self.status.free = ""
             self.status.note = (
                 "opening the session…" if self._opening else SETUP_NOTE if self._setup is not None else "no session"
             )
@@ -1131,6 +1141,8 @@ class HarnessApp(App[None]):
                 await transcript.notice(f"Secret not loaded: {message}", "warn")
             case WindowFallback(message=message):
                 await transcript.notice(f"Window not known: {message}", "warn")
+            case FreeNotice(kind=kind, text=text):
+                await transcript.notice(f"◇ {text}", "warn" if kind == "low" else "ok")
             case HookError(hook=hook, extension=extension, error=error):
                 await transcript.notice(f"Extension {extension} failed in {hook}: {error}", "error")
             case Handoff(target=target) if isinstance(row, HandoverJudgement):
@@ -1185,6 +1197,7 @@ class HarnessApp(App[None]):
             # In the transcript: the context it cut and the reads System 1 kept; on System 1's panel, a row.
             key = f"compaction:{run}:{row.turn}"
             await transcript.compaction(row, key, self.status.window, self._cwd, live=not self._replaying)
+        self.status.free = self._agent_meter()  # each response's headers move the meter
         self.status.refresh_line()
 
     async def _hand_back(self) -> None:
@@ -1313,8 +1326,13 @@ class HarnessApp(App[None]):
         self.status.running = False
         self.status.refresh_line()
         self.call_later(self._queued.clear)  # after the run's last events: what is still queued was never sent
-        if not task.cancelled() and (error := task.exception()) is not None:
+        if task.cancelled():
+            return
+        if (error := task.exception()) is not None:
             self.call_later(self.transcript.notice, f"The run failed: {type(error).__name__}: {error}", "error")
+            return
+        if (ended := task.result().error) is not None and ended.code in FREE_FINAL:
+            self.call_later(self._free_ended, ended)
 
     async def _command(self, text: str) -> None:
         name, _, rest = text.partition(" ")
@@ -1340,6 +1358,8 @@ class HarnessApp(App[None]):
                 await self._secrets(rest)
             case "/setup" | "/login" | "/connect":
                 await self._setup_command()
+            case "/free":
+                await self._free_command(rest)
             case "/thinking":
                 await self._thinking(rest)
             case "/compact":
@@ -1374,22 +1394,25 @@ class HarnessApp(App[None]):
         screen = OnboardingScreen(
             home=self._secrets_home(),
             env=self._setup.env(),
-            start="system1" if start == "system1" else "welcome",
+            start="system1" if start == "system1" else "free" if start == "free" else "welcome",
             system2=system2,
             transport=self._setup.transport,
         )
         self.push_screen(screen, callback=self._set_up)
 
-    def _set_up(self, done: Onboarded | None) -> None:
+    def _set_up(self, done: Onboarded | StartedFree | None) -> None:
         self._setting_up = False
         self.run_worker(self._after_setup(done), group="set-model", exit_on_error=False)
 
-    async def _after_setup(self, done: Onboarded | None) -> None:
+    async def _after_setup(self, done: Onboarded | StartedFree | None) -> None:
         if done is None:
             if self.session is None:
                 await self.transcript.notice(
                     "No models connected yet. Type /setup whenever you're ready: it takes about a minute.", "ok"
                 )
+            return
+        if isinstance(done, StartedFree):
+            await self._on_free_credit("on free credit", Models(**vars(self.pending)))
             return
         assert self._setup is not None
         self._setup.configured(done.setup.keys)
@@ -1416,6 +1439,176 @@ class HarnessApp(App[None]):
         if await self._busy():
             return
         self._open_setup()
+
+    # -- free credit -----------------------------------------------------------------------------------------
+
+    def _free(self) -> FreeSession | None:
+        """What the session's systems run on, while it uses the free credit."""
+        return self.session.free if self.session is not None else None
+
+    def _meter_left(self, system: System) -> str:
+        """`$3.42 of $4.00`: what is left of `system`'s free meter, while it runs on it; empty otherwise."""
+        free = self._free()
+        meters = free.plan.meters() if free is not None and free.on_free(system) else None
+        if meters is None:
+            return ""
+        meter = getattr(meters, system)
+        return f"${max(meter.limit_usd - meter.used_usd, 0):.2f} of ${meter.limit_usd:.2f}"
+
+    def _agent_meter(self) -> str:
+        """The masthead's free credit: the agent meter, while the frontier model runs on it."""
+        left = self._meter_left("agent")
+        return f"free {left}" if left else ""
+
+    def _credit_line(self) -> str:
+        """The entering page's line under the models: each meter a system runs on."""
+        free = self._free()
+        parts = [f"agent {left}"] if (left := self._meter_left("agent")) else []
+        if (left := self._meter_left("system1")) and free is not None and (bundle := free.bundle) is not None:
+            parts.append(f"{free_names(bundle.system2, bundle.handoff, bundle.system1)['decision']} {left}")
+        return " · ".join(["Free credit", *parts]) if parts else ""
+
+    async def _said_locked(self, role: str) -> bool:
+        """Whether `role`'s model is fixed because its system runs on free credit, saying why and the way out."""
+        free = self._free()
+        if free is None or free.locked(role) is None or free.bundle is None:
+            return False
+        named = free_names(free.bundle.system2, free.bundle.handoff, free.bundle.system1)
+        models = f"{named['frontier']}, {named['efficient']} and {named['decision']}"
+        what = {"system2": "frontier", "handoff": "efficient", "system1": "decision"}[role]
+        await self.transcript.notice(
+            f"The {what} model is fixed: this session runs on free credit, with {models}. To pick models, use your "
+            "own keys: /free pause.",
+            "warn",
+        )
+        return True
+
+    def _free_env(self) -> Mapping[str, str]:
+        return self._setup.env() if self._setup is not None else process_env()
+
+    async def _free_command(self, rest: str) -> None:
+        """`/free`: the free credit, and what each model runs on; `/free start|pause|resume|sign-out`."""
+        match rest.strip().lower():
+            case "" | "status":
+                self.run_worker(self._show_free(), group="free", exit_on_error=False)
+            case "start":
+                if self._setup is None:
+                    await self.transcript.notice(f"Sign in from a terminal: {names.NAME} free start.", "warn")
+                elif not await self._busy():
+                    self._open_setup("free")
+            case "pause" | "resume" as verb:
+                self.run_worker(self._use_free(verb == "resume"), group="free", exit_on_error=False)
+            case "sign-out" | "signout":
+                self.run_worker(self._free_sign_out(), group="free", exit_on_error=False)
+            case _:
+                await self.transcript.notice("/free, or /free start, pause, resume or sign-out.", "warn")
+
+    async def _show_free(self) -> None:
+        try:
+            found = await report(self._secrets_home(), self._free_env())
+        except (httpx.HTTPError, ConnectionError, ConfigError) as error:
+            await self.transcript.notice(f"The free credit could not be read: {error}", "warn")
+            return
+        await self.transcript.marker(self._free_card(found), classes="decision")
+
+    def _free_card(self, found: FreeReport) -> Content:
+        """The grant, its meters, what each model runs on now, the hand-over, and what can be done."""
+        free, grant = self._free(), found.grant
+        if not found.signed_in:
+            head = "not signed in"
+        elif grant is None:
+            head = found.error.message or found.error.code if found.error is not None else "could not be read"
+        elif found.use is not True:
+            head = f"{grant.state} · paused, on your own keys"
+        else:
+            head = grant.state
+        lines: list[list[tuple[str, str] | str]] = [[("◇ Free credit", S_HEAD), (f" · {head}", S_MUTED)]]
+        if grant is not None:
+            for label, meter, pays in (
+                ("Agent", grant.meters.agent, "the frontier and efficient models"),
+                ("Decision", grant.meters.system1, "the decision model"),
+            ):
+                left = f"${max(meter.limit_usd - meter.used_usd, 0):.2f} of ${meter.limit_usd:.2f} left"
+                lines.append([(f"  {label:<10}", S_MUTED), (left, S_INK), (f" · {pays}", S_MUTED)])
+            lines.append([])
+            bundle = grant.bundle
+            named = free_names(bundle.system2, bundle.handoff, bundle.system1)
+            labels = self.status.labels
+            rows: tuple[tuple[str, System, str, str], ...] = (
+                ("Frontier", "agent", named["frontier"], model_label(self._current("system2"), labels)),
+                ("Efficient", "agent", named["efficient"], model_label(self.status.handoff, labels) or "off"),
+                ("Decision", "system1", named["decision"], model_label(self._current("system1"), labels)),
+            )
+            for label, system, on_free, own in rows:
+                if free is not None and free.on_free(system):
+                    said = [(on_free, S_HEAD), (" on free credit", S_OK)]
+                else:
+                    said = [(own or "none", S_HEAD), (" on your keys", S_MUTED)]
+                lines.append([(f"  {label:<10}", S_MUTED), *said])
+            lines += [[], *([("  " + line, S_INK)] for line in FREE_ABOUT.format(**named).split("\n"))]
+        blocked = free_blocked(found)
+        offer: list[tuple[str, str] | str]
+        if not found.signed_in and blocked:
+            offer = [(blocked, S_WARN)]
+        elif not found.signed_in:
+            offer = [("/free start", S_HEAD), (" signs in with GitHub or Google: no keys, no card", S_MUTED)]
+        elif found.use is True:
+            offer = [("/free pause", S_HEAD), (" runs on your own keys, keeping the credit · ", S_MUTED)]
+        else:
+            offer = [("/free resume", S_HEAD), (" runs on the free credit again · ", S_MUTED)]
+        if found.signed_in:
+            offer.append(("/free sign-out", S_HEAD))
+        lines += [[], ["  ", *offer]]
+        return Content("\n").join(Content.assemble(*line) for line in lines)
+
+    async def _use_free(self, use: bool) -> None:
+        """`/free pause` or `/free resume`: `[free] use` set, and the session reopened on what it now runs on."""
+        if await self._busy():
+            return
+        env, home = self._free_env(), self._secrets_home()
+        if use and not FreeStore(home, env).signed_in(console_of(env)):
+            await self.transcript.notice("Not signed in to the free credit: /free start signs in.", "warn")
+            return
+        before = Models(**vars(self.pending))
+        await asyncio.to_thread(set_use, home, use)
+        await self._on_free_credit("free credit resumed" if use else "free credit paused: on your own keys", before)
+
+    async def _free_sign_out(self) -> None:
+        if await self._busy():
+            return
+        before = Models(**vars(self.pending))
+        revoked = await sign_out(self._secrets_home(), self._free_env())
+        said = "Signed out of the free credit." if revoked else "Signed out here; the console did not confirm it."
+        await self.transcript.notice(said, "ok")
+        await self._on_free_credit("signed out of the free credit", before)
+
+    async def _on_free_credit(self, note: str, before: Models) -> None:
+        """Open or reopen the session on what the free credit now says each system runs on. The models picked in the
+        session go: on free credit the grant's are fixed, and back on your keys your configuration's apply."""
+        self.pending.system2 = self.pending.system1 = None
+        if self.session is None:
+            await self._open_with(self.pending)
+            return
+        await self._reopen(note, before, shown=bool(self.query(Welcome)))
+
+    async def _free_ended(self, error: RunError) -> None:
+        """A run the free credit ended for good: which of your models the next message runs on, or, with none,
+        a card saying what ran out and how to keep going."""
+        system: System = "system1" if error.meter == "system1" else "agent"
+        what = SWITCH_REASONS.get(error.code, f"Free {METER_NAMES[system]} credit used up")
+        if error.next:
+            name = model_label(error.next, self.status.labels)
+            await self.transcript.notice(f"◇ {what}. Your next message runs on your keys with {name}.", "ok")
+            return
+        gone = "Free credit doesn't come back. " if error.code in ("free_exhausted", "free_expired") else ""
+        card = Content.assemble(
+            (f"◇ {what}\n", S_HEAD),
+            (gone, S_INK),
+            ("Add your own keys with ", S_INK),
+            ("/setup", S_HEAD),
+            (" to keep going: this conversation stays, and continues on them.", S_INK),
+        )
+        await self.transcript.marker(card, classes="decision refused")
 
     # -- secrets ---------------------------------------------------------------------------------------------
 
@@ -1683,6 +1876,8 @@ class HarnessApp(App[None]):
         """`/efficient` (`/handover`): a picker of the models a run can hand over to, the one in use marked, with a
         row to turn auto mode off; `/efficient on`, `/efficient off` or `/efficient <provider/model>` sets it
         directly."""
+        if await self._said_locked("handoff"):
+            return
         if rest:
             self.run_worker(self._set_auto(rest), group="capabilities", exit_on_error=False)
             return
@@ -1944,6 +2139,8 @@ class HarnessApp(App[None]):
         return choices
 
     async def _pick_or_set(self, role: Role, value: str) -> None:
+        if await self._said_locked(role):
+            return
         if value:
             self.run_worker(self._set_model(value, role), group="set-model", exit_on_error=False)
             return

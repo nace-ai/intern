@@ -241,6 +241,10 @@ class Opening:
     capabilities: list[tuple[str, str, bool, bool]] = field(default_factory=list)
     """Each capability's toggle id, its name, whether it is on, and whether the decision model takes part in it."""
     guard: GuardState = "off"
+    free: bool = False
+    """The frontier and efficient models run on free credit: they are the grant's, and the hand-over always on."""
+    credit: str = ""
+    """What is left of each free meter a model runs on (`Free credit · agent $3.42 of $4.00 · Drex $0.81 of $1.00`)."""
 
 
 Phase = Literal["frontier", "handover", "efficient", "done"]
@@ -506,6 +510,7 @@ class RunPlay(Static):
 
     def show(self, opening: Opening, width: int) -> None:
         self._opening, self._width = opening, width
+        self.border_title = "System 2 · free credit" if opening.free else "System 2"
         self._tick()
 
     def _tick(self) -> None:
@@ -554,7 +559,7 @@ def tips(o: Opening, width: int, dark: bool = False) -> Content:
     waiting = o.note.endswith("…")
     style = S_MUTED_ITALIC if waiting else S_HEAD if o.note == SETUP_NOTE else S_BAD
     lead: list[list[Part]] = [[(o.note, style)]] if o.note else []
-    handover = ("/handover off" if o.handoff else "/handover on", "hand-over")
+    handover = ("/free", "free credit") if o.free else ("/handover off" if o.handoff else "/handover on", "hand-over")
     hints = [*HINTS[:2], handover, *HINTS[2:], ("/light" if dark else "/dark", "look")]
     return stacked(flow([*lead, *([(key, S_INK), (f" {does}", S_MUTED)] for key, does in hints)], width))
 
@@ -608,6 +613,8 @@ class Welcome(Vertical):
                 yield Static(id="welcome-where")
             yield CapabilityCard()
         with Center():
+            yield Static(id="welcome-credit")
+        with Center():
             yield Static(id="welcome-foot")
         with Center():
             yield Static(id="welcome-tips")
@@ -647,7 +654,8 @@ class Welcome(Vertical):
         above the screen."""
         o = self.opening
         columns, rows = self._fitted = self.app.size
-        width, room = self.size.width or columns - 4, rows - PROMPT_ROWS
+        credit_rows = 2 * bool(o.credit)  # the credit line, and its air
+        width, room = self.size.width or columns - 4, rows - PROMPT_ROWS - credit_rows
         about = about_lines(o, min(width - 2, ABOUT_WIDTH) - 2 * ABOUT_PAD)
         about_rows = len(about) + 2  # the band's air above and under
         inside = min(width, FRAME_MAX) - FRAME
@@ -685,6 +693,9 @@ class Welcome(Vertical):
         band = self.query_one("#welcome-about", Static)
         band.update(Content("\n").join(about))
         band.styles.width = 2 * CARD_WIDTH + 2 * SIDE_GAP + mascot_columns if hero_look else min(width, FRAME_MAX)
+        credit = self.query_one("#welcome-credit", Static)
+        credit.display = bool(o.credit)
+        credit.update(Content.styled(clip(o.credit, width), S_INK))
         self.query_one("#welcome-where", Static).update(stacked(where(o, SPRITE_COLUMNS)))
         foot: list[Part] = [part for line in where(o, FOOT_WIDTH) for part in (*line, ("  ·  ", S_MUTED))][:-1]
         self.query_one("#welcome-foot", Static).update(Content.assemble(*foot))

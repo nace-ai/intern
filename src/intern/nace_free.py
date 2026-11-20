@@ -601,14 +601,22 @@ async def fetch_status(console: str, transport: httpx.AsyncBaseTransport | None 
 _credentials: dict[tuple[Path, str], FreeCredential] = {}
 
 
-def free_credential(spec: ProviderSpec, env: Mapping[str, str]) -> FreeCredential | None:
-    """The free credential for the `nace` provider's console, one per config home and console in a process, so
-    System 1 and System 2 share one access token; None when that console has no sign-in here."""
-    from intern.config import home_dir
-
-    base = (env.get(spec.base_url_env) if spec.base_url_env else None) or spec.base_url
-    console, home = console_url(base), home_dir(env)
+def shared_credential(home: Path, console: str, env: Mapping[str, str]) -> FreeCredential:
+    """The one free credential for `console` and config home `home` in this process, signed in or not: sessions,
+    the terminal UI's sign-in and its sign-out share its access token."""
+    console = console.rstrip("/")
     credential = _credentials.get((home, console))
     if credential is None:
         credential = _credentials[(home, console)] = FreeCredential(FreeStore(home, env), console)
+    return credential
+
+
+def free_credential(spec: ProviderSpec, env: Mapping[str, str]) -> FreeCredential | None:
+    """The free credential for the `nace` provider's console, so System 1 and System 2 share one access token; None
+    when that console has no sign-in here."""
+    from intern.config import home_dir
+
+    base = (env.get(spec.base_url_env) if spec.base_url_env else None) or spec.base_url
+    console = console_url(base)
+    credential = shared_credential(home_dir(env), console, env)
     return credential if credential.store.signed_in(console) else None

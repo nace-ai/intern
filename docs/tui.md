@@ -133,6 +133,45 @@ unless it has more to say (the thinking level chosen is not one the model takes)
 not open, a switch that failed) is under it. A task on the command line, `--session` and `/reload` go
 straight to the conversation; `/clear` comes back to the page.
 
+## Free credit
+
+Setup's first choice is how to run Intern ([free credit](free.md)):
+
+```
+                         ▗▄▄ INTERN ▄▄▖
+            ✓ Welcome ── ● How to run ── ○ Sign in ── ○ Ready
+  ╭──────────────────────────────────────────────────────────────╮
+  │ How do you want to run Intern?                               │
+  │   Start free                        recommended              │
+  │     Free credit on Nace's models. No keys, no card.          │
+  │     Sign in with GitHub or Google to claim it, once.         │
+  │   Use my own keys                                            │
+  │     Any provider; pick your models. No sign-in.              │
+  ╰──────────────────────────────────────────────────────────────╯
+```
+
+**Start free** shows what Nace sees on free credit, and Enter agrees: the version of that text goes with the sign-in,
+as `intern free start --accept` sends it. Then the console's sign-in page opens in the browser, the step shows its
+address and the code to confirm there (Ctrl+O opens the page again) and waits; Esc stops it, and nothing is kept.
+Signed in, **Ready** names the three models the grant runs on (the frontier model, the efficient model it hands over
+to, the decision model), what is left of the agent credit, and how the hand-over makes it last; Enter opens the
+session on them. A machine already signed in picks the credit up again with no sign-in. Start free is not offered
+while the console takes no new sign-ins or serves no free calls, nor once the credit is spent, and the step says
+why. A refused sign-in says why in plain words (a GitHub account under 30 days old, an unverified Google email, a
+network that cannot claim it, …) and offers **Use my own keys** on the same screen; one that may work a second time
+(declined in the browser, the code expired) offers **Try again** too. **Use my own keys** is the setup below, with
+no sign-in anywhere.
+
+On free credit the entering page's System 2 card is titled `System 2 · free credit`, with the grant's frontier and
+efficient models on it, and a line under the cards says what is left (`Free credit · agent $3.42 of $4.00 · Drex
+$0.81 of $1.00`); its keys name `/free` in place of `/handover`. On your own keys with hand-over on, the card has the
+efficient model under the frontier one, as above. The masthead has the agent meter at the end of the row of the model
+whose turn it is (`free $3.42 of $4.00`), while the frontier model runs on it. The harness's notices are a line
+each: a meter with 20% or 5% left, and a system that moved to your keys. A run the free credit ended with no key of
+yours to go on with ends on a card saying what ran out, that free credit does not come back, and that `/setup` adds
+your keys, the conversation staying to continue on them; with your keys, a line says which model the next message
+runs on.
+
 ## Layout
 
 ```
@@ -483,7 +522,7 @@ a notice and is off for the rest of the session, and the TUI goes on.
 
 | Command | Does |
 |---|---|
-| `/models` | the frontier, efficient and decision models, a row each with what it does; the efficient one is gray while hand-over is off. Enter on one opens its own picker, as `/frontier`, `/efficient` and `/decision` do. |
+| `/models` | the frontier, efficient and decision models, a row each with what it does; the efficient one is gray while hand-over is off. Enter on one opens its own picker, as `/frontier`, `/efficient` and `/decision` do. While the free credit runs a model, its picker and command say the model is fixed, name the free credit's three, and offer `/free pause`. |
 | `/frontier` | pick the frontier model (System 2): the frontier models of each provider your keys reach, as setup offers them (not its efficient models, nor the years of older ones its listing still has; all of them on this machine or an endpoint of your own); type to filter, ↑↓, Enter; `/frontier provider/model` sets it directly. A name not listed, any of `intern models`, is accepted as typed. |
 | `/decision` | pick the decision model (System 1): the decision models the console serves, then the decision models the decisions API serves as `decisions:<model>` (OpenRouter: Jev, Perplexity Decider, …); `/decision <model>` sets it directly. A model whose key is missing is refused with the reason, and the current one stays. |
 | `/state` | System 1's State in full: the exact text it is given |
@@ -491,7 +530,8 @@ a notice and is off for the rest of the session, and the TUI goes on.
 | `/efficient` (`/handover`) | auto mode, which the terminal UI opens in unless `config.toml` says `auto = false`. In it System 1 hands a run over to a cheaper model once it judges the rest within that model's reach ([hand-over](../README.md#hand-over)); the next message is System 2's again. `/handover` picks that model: `off`, then the efficient models of each provider your keys reach, as setup offers them (System 2 itself left out; any other typed); it is `anthropic/claude-haiku-5-5` until you pick one or `[capabilities.handoff] to` names one. `/handover on`, `/handover off` or `/handover <provider/model>` sets it directly, and the session reopens on its journal. Without a key for the default model auto mode runs without a hand-over and says so; a model you named that cannot open is an error. Off, System 2 runs every turn. Auto mode is not a capability: `/caps` does not list it. The masthead names the hand-over model after System 2 (`claude-sonnet-5-5 ⇢ claude-haiku-5-5`), the one whose turn it is in the ink. System 1's panel keeps a run's readiness in one row, P(ready) turn by turn, then the model that took over and the turn. When a run hands over, the transcript has a card (`⇢ System 1 · handed over at turn 5   ready ▂▆█ 0.96   → claude-haiku-5-5 finishes this run`) and sets that model's turns apart, on a shade of the accent between two hairlines, until the run ends, where a line says System 2 takes the next message; a resumed session draws the same. |
 | `/schedule` | list timers with their prompt, once/repeat interval and next local run time; Enter stops one. Enable with `/caps schedule`. |
 | `/runner` | pick where commands run: `local`, `docker`, `opensandbox` or an installed runner, the one in use first, each that cannot run here saying why. `/runner <name>` sets it directly. The session reopens on its journal on the new runner ([runners](capabilities/runners.md)). |
-| `/setup` | the setup screen a first launch opens on: what Intern is, then Nace's recommended combinations (one OpenRouter key for everything, Claude Sonnet handing over to Haiku, or the free credit's GLM 5.3 and DeepSeek), each setting System 2, the hand-over model and System 1 and asking only for the keys not already there. Or each in turn: System 2's provider (20+ API-key providers, local servers, any OpenAI-compatible endpoint), its key (checked with the provider first; OpenRouter also by signing in in the browser) and model (its frontier models only), then System 1's decision model (Drex Max on OpenRouter first, Drex from the Nace console, Jev, or any decisions-API model), then the hand-over model (the provider's efficient models, its cheaper sibling first, `off` last). Saves `system2`, `[system1]` and `[capabilities.handoff] to` (or, for `off`, `auto = false`) to config.toml and the keys to the keychain (`.env` in the config home where there is none), then opens or reopens the session on them. Also `/login`, `/connect`. A launch with nothing to run on opens it instead of an error, and so does one whose System 1 has no key. |
+| `/setup` | the setup screen a first launch opens on: what Intern is, then how to run it: **Start free** (recommended) or **Use my own keys** ([free credit](#free-credit) has the first). On your own keys: Nace's recommended combinations (one OpenRouter key for everything, Claude Sonnet handing over to Haiku, or the free credit's GLM 5.3 and DeepSeek), each setting System 2, the hand-over model and System 1 and asking only for the keys not already there. Or each in turn: System 2's provider (20+ API-key providers, local servers, any OpenAI-compatible endpoint), its key (checked with the provider first; OpenRouter also by signing in in the browser) and model (its frontier models only), then System 1's decision model (Drex Max on OpenRouter first, Drex from the Nace console, Jev, or any decisions-API model), then the hand-over model (the provider's efficient models, its cheaper sibling first, `off` last). Saves `system2`, `[system1]` and `[capabilities.handoff] to` (or, for `off`, `auto = false`) to config.toml and the keys to the keychain (`.env` in the config home where there is none), then opens or reopens the session on them. Also `/login`, `/connect`. A launch with nothing to run on opens it instead of an error, and so does one whose System 1 has no key. |
+| `/free` | the [free credit](#free-credit): what is left of each meter, which model runs on it or on your keys, and the hand-over explained; then what can be done. `/free start` signs in (setup's Start free), `/free pause` runs the session on your own keys and keeps the credit, `/free resume` goes back to it, `/free sign-out` revokes the sign-in. Each reopens the session on its journal. |
 | `/secrets` | the [secrets store](secrets.md): each entry with whether it loads now (problems first, with what to do; a key the harness reads itself, such as a model key, is marked harness only), and **Add a secret…**. Enter on a keychain entry replaces its value in a form whose value field is hidden. `/secrets set <NAME>` opens the form, `/secrets remove <NAME>` deletes one. New sessions get the change; `/reload` uses it now. Values are never shown. |
 | `/thinking <level>` | the thinking level: `low`, `medium`, `high`, `xhigh` or `max` through Anthropic's API, `low` to `xhigh` through OpenAI's, and `low`, `medium` or `high` elsewhere when the model's profile names one. Shift+Tab cycles it (past the highest comes the lowest), ←/→ in the `/frontier` picker set it with the pick, and the masthead shows it (`default` is the model's own). It applies from the next request, during a run too, and stays across model switches, `/caps` and `/clear`; a model that lacks the level keeps its own, the switch notice says so, and the choice is back on the next model that takes it. A model whose API takes no level (GPT-4o, Claude Sonnet 4.5) has none: no box on the masthead, Shift+Tab and `/thinking` say why, and the switch notice says it takes none. |
 | `/compact` | compact the conversation now, between runs, exactly as a run does once its request passes `compact_at` of the working window (75% by default): the turns before the most recent `keep_recent` share (35%) cut to System 2's summary (the State), written first when it does not cover them (trigger `compaction`), the file reads System 1 says the work needs kept verbatim, the extensions' say. Only the size check is skipped. When the whole conversation fits in the recent share there is nothing to cut, and it says so; with a 1M window that is anything under 350k tokens. The masthead reads `compacting` meanwhile and a prompt waits for it; Esc stops it before anything is cut. |
