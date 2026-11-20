@@ -199,6 +199,11 @@ async def run_command(
     )
 
 
+#: What stands where the middle of a long output was left out. `secrets` looks for it: the cut is made on raw
+#: output, so it can go through a secret value.
+OMITTED = "\n[... {omitted} bytes omitted ...]\n"
+
+
 class _HeadTail:
     """Keeps the first and last part of a stream without holding all of it in memory."""
 
@@ -236,7 +241,7 @@ class _HeadTail:
         tail = b"".join(self.tail).decode(errors="replace")
         if not self.omitted:
             return head + tail
-        return f"{head}\n[... {self.omitted} bytes omitted ...]\n{tail}"
+        return head + OMITTED.format(omitted=self.omitted) + tail
 
 
 def shell_env(
