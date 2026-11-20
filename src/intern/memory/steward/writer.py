@@ -13,6 +13,7 @@ from pydantic import SecretStr
 from intern import names
 from intern.memory.steward.extract import INJECTION, Extract, file_pages
 from intern.messages import Usage
+from intern.models.profile import effort_levels, load_profile
 from intern.models.registry import ConfigError, Endpoint, resolve_endpoint
 from intern.providers.openai_compat import reply_usage
 
@@ -44,6 +45,9 @@ TITLE_CHARS = 80
 MAX_STORY = 4
 TRACE_CHARS = 60_000
 TIMEOUT_S = 120.0
+# Every write asks for little thought: left to its own effort, GLM 5.3 thinks past TIMEOUT_S on a session's trace
+# and no memory is written, and an open-ended rewrite can think until the output limit and return no answer at all.
+EFFORT = "low"
 RETRIES = 4
 RETRY_WAIT_S = 5.0
 RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
@@ -172,7 +176,6 @@ Answer with JSON only:
 {{"merged": [{{"lines": ["<id>", "<id>"], "text": "<sentence>"}}], "dropped": ["<id>"]}}"""
 MERGED_CHARS = 2 * ITEM_CHARS
 TOPIC_CHARS = 40
-CONDENSE_EFFORT = "low"
 SKILL_NAME_CHARS = 60
 
 _VALUE = re.compile(
@@ -306,6 +309,8 @@ class Writer:
         self.name = endpoint.ref
         self._transport = transport
         self.usage = Usage()
+        # An OpenAI-compatible endpoint is sent an effort only on its profile's word: some refuse the field.
+        self._efforts = effort_levels((), load_profile(endpoint.ref))
 
     async def complete(self, system: str, user: str, session: str = "", effort: str = "") -> str:
         key = await self.endpoint.authorization()
@@ -318,8 +323,7 @@ class Writer:
         if self.endpoint.provider == "vllm":
             # Qwen thinks by default; notes need no reasoning trace and come back much faster without it.
             payload["chat_template_kwargs"] = {"enable_thinking": False}
-        elif effort:
-            # An open-ended rewrite can think until the output limit and return no answer at all.
+        elif effort in self._efforts:
             payload["reasoning_effort"] = effort
         url = f"{self.endpoint.base_url}/chat/completions"
         async with httpx.AsyncClient(timeout=TIMEOUT_S, transport=self._transport) as client:
@@ -622,7 +626,7 @@ async def draft(
     # The writer now and then answers with JSON that does not parse; asked again, it answers well.
     raw, answer = "", None
     for _ in range(DRAFT_ATTEMPTS):
-        raw = await writer.complete(system, user, ex.session_id)
+        raw = await writer.complete(system, user, ex.session_id, effort=EFFORT)
         if (answer := _items_json(raw)) is not None:
             break
     if answer is None:
@@ -689,7 +693,7 @@ async def learn(writer: Writer | ReplayWriter, sessions: list[Past], skills: lis
     system = LESSONS.format(max_lessons=MAX_LESSONS, item_chars=ITEM_CHARS)
     user = f"Skills already in memory:\n{chr(10).join(held) or '(none yet)'}\n\nSessions:\n" + "\n".join(parts)
     names = {s.name.lower(): s.name for s in skills}
-    raw = await writer.complete(system, user, key)
+    raw = await writer.complete(system, user, key, effort=EFFORT)
     try:
         found = json.loads(_FENCE.sub("", raw.strip()))["lessons"]
     except (json.JSONDecodeError, KeyError, TypeError) as e:
@@ -727,7 +731,7 @@ async def condense(
         f"{name}:\n" + "\n".join(f"{ident}. {text}" for ident, text in lines) for name, lines in sections.items()
     )
     system = CONDENSE.format(need=need, merged_chars=MERGED_CHARS)
-    raw = await writer.complete(system, f"Page lines:\n\n{listed}", key, effort=CONDENSE_EFFORT)
+    raw = await writer.complete(system, f"Page lines:\n\n{listed}", key, effort=EFFORT)
     try:
         answer = json.loads(_FENCE.sub("", raw.strip()))
     except json.JSONDecodeError as e:
