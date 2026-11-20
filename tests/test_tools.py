@@ -95,6 +95,27 @@ async def test_edit_refuses_ambiguous_matches_unless_asked(ctx: ToolContext):
     assert (ctx.cwd / "a.txt").read_text() == "x = 2\nx = 2\n"
 
 
+async def test_edit_does_not_undo_a_change_another_program_saved_meanwhile(ctx: ToolContext, monkeypatch):
+    target = ctx.cwd / "settings.txt"
+    target.write_text("target=old\nother=original\n")
+    read_bytes, saved = Path.read_bytes, False
+
+    def read_then_another_program_saves(path: Path) -> bytes:
+        nonlocal saved
+        data = read_bytes(path)
+        if path == target and not saved:
+            saved = True
+            target.write_text("target=old\nother=EXTERNAL\n")
+        return data
+
+    monkeypatch.setattr(Path, "read_bytes", read_then_another_program_saves)
+    result = await call(EditTool(), ctx, path="settings.txt", old_string="target=old", new_string="target=NEW")
+    assert result.status == "error" and "changed on disk" in result.content
+    assert target.read_text() == "target=old\nother=EXTERNAL\n"
+    again = await call(EditTool(), ctx, path="settings.txt", old_string="target=old", new_string="target=NEW")
+    assert again.status == "ok" and target.read_text() == "target=NEW\nother=EXTERNAL\n"
+
+
 async def test_edit_points_at_a_whitespace_near_miss(ctx: ToolContext):
     (ctx.cwd / "a.py").write_text("def f():\n    if x:\n        return 1\n")
     result = await call(EditTool(), ctx, path="a.py", old_string="if x:\n    return 1", new_string="pass")
