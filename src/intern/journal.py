@@ -21,6 +21,7 @@ from intern.events import (
     Decision,
     Event,
     EventSink,
+    FilesChanged,
     Handoff,
     Nudge,
     ProcessCheck,
@@ -135,7 +136,7 @@ class MemoryRecallEntry(_EntryBase):
 
 
 RecordedEvent = Annotated[
-    Decision | ToolGuard | Nudge | Handoff | State | Compaction | ProcessEvent | ProcessCheck,
+    Decision | ToolGuard | Nudge | Handoff | FilesChanged | State | Compaction | ProcessEvent | ProcessCheck,
     Field(discriminator="type"),
 ]
 
@@ -323,7 +324,7 @@ def recording(journal: Journal, emit: EventSink) -> EventSink:
     turn of the run; a tool's own asks (code search's) are part of its result."""
 
     def sink(event: Event) -> None:
-        if isinstance(event, ToolGuard | Nudge | Handoff | ProcessEvent | ProcessCheck) or (
+        if isinstance(event, ToolGuard | Nudge | Handoff | FilesChanged | ProcessEvent | ProcessCheck) or (
             isinstance(event, Decision) and event.turn is not None
         ):
             journal.append(EventEntry(event=event))

@@ -225,6 +225,11 @@ def locked(error: FreeLocked) -> RequestError:
     return RequestError(-32602, str(error), {"code": error.code})
 
 
+def unbound_refused(message: str, code: str | None, meter: str | None) -> RequestError:
+    """No System 2 can be bound: `-32602`, with `data.code` and `data.meter` when the free credit is why."""
+    return RequestError(-32602, message, {"code": code, "meter": meter} if code else None)
+
+
 def tokens_label(tokens: int) -> str:
     return f"{tokens / 1_000_000:.3g}M" if tokens >= 1_000_000 else f"{round(tokens / 1000)}K"
 
@@ -266,6 +271,10 @@ class UnboundSession:
     system1_picked: bool = False
     """`system1` is the client's pick, not the configured or journaled one: refused, not set aside, while System 1
     runs on free credit."""
+    code: str | None = None
+    """Why the free credit could not bind it (`free_exhausted`, `free_paused`, `free_revoked`); None otherwise."""
+    meter: str | None = None
+    """The meter `code` names, if any."""
 
 
 @dataclass
@@ -541,6 +550,8 @@ class AcpAgent:
                 reason=str(e),
                 capabilities=caps,
                 system1_picked=system1_picked and system1 is not None,
+                code=e.code,
+                meter=e.meter,
             )
             self.unbound[unbound.id] = unbound
             return unbound
@@ -589,7 +600,7 @@ class AcpAgent:
         try:
             live = await self._start(unbound.cwd, unbound.journal, system2, unbound.capabilities, unbound.id)
         except System2Unavailable as e:
-            raise RequestError(-32602, str(e)) from None
+            raise unbound_refused(str(e), e.code, e.meter) from None
         finally:
             unbound.opening = False
         self.unbound.pop(unbound.id, None)
@@ -744,7 +755,8 @@ class AcpAgent:
         self, prompt: list[PromptBlock], session_id: str, message_id: str | None = None, **kwargs: Any
     ) -> PromptResponse:
         if (unbound := self.unbound.get(session_id)) is not None:
-            raise RequestError(-32602, f"no System 2 model can run: {unbound.reason}; pick a model")
+            reason = f"no System 2 model can run: {unbound.reason}; pick a model"
+            raise unbound_refused(reason, unbound.code, unbound.meter)
         live = self._live(session_id)
         if self.stopping:
             return PromptResponse(stop_reason="cancelled")

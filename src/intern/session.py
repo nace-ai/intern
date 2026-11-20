@@ -531,12 +531,13 @@ class Session:
         self._follow_ups.clear()
         self._control.abort.set()
 
-    async def set_model(self, ref: str, role: Role = "system2") -> ModelBinding | None:
+    async def set_model(self, ref: str, role: Role = "system2", *, rebind: bool = False) -> ModelBinding | None:
         """Switch a role's model while idle and journal the change. System 2 returns its new binding; System 1
         (a model) rebuilds the decision client and returns None. A role on free credit takes only the bundle's
-        model (FreeLocked otherwise), which changes nothing."""
+        model (FreeLocked otherwise), which changes nothing; with `rebind`, as when its system returns to free
+        credit, the model is bound again."""
         self._ensure_open()
-        if self.free is not None and self.free.check(role, ref):
+        if not rebind and self.free is not None and self.free.check(role, ref):
             return None if role == "system1" else self.deps.system2
         if role == "system1":
             await self._set_system1(ref)
@@ -559,12 +560,15 @@ class Session:
             self.deps.emit(fallback)
         return binding
 
-    async def set_handoff(self, ref: str | None, config: HandoffConfig) -> HandoffTarget | None:
+    async def set_handoff(
+        self, ref: str | None, config: HandoffConfig, *, rebind: bool = False
+    ) -> HandoffTarget | None:
         """Name the model the session's runs hand over to while idle, or none, and journal the change (as a
         `model_change` of role `handoff`, its model empty for none). A model that cannot be bound changes nothing. On
-        free credit only the bundle's hand-over model is taken (FreeLocked otherwise), which changes nothing."""
+        free credit only the bundle's hand-over model is taken (FreeLocked otherwise), which changes nothing; with
+        `rebind`, as `set_model`'s, it is bound again."""
         self._ensure_open()
-        if self.free is not None and self.free.check(HANDOFF_ROLE, ref):
+        if not rebind and self.free is not None and self.free.check(HANDOFF_ROLE, ref):
             return self.deps.handoff
         if self.running:
             raise SessionBusy("cannot change models while a run is in progress")
