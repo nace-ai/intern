@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import contextlib
+import json
 from collections.abc import AsyncGenerator, AsyncIterator, Callable, Sequence
 from pathlib import Path
 from typing import Literal, Protocol
@@ -139,7 +140,23 @@ async def sse_lines(response: httpx.Response) -> AsyncIterator[str]:
             line, buffer = buffer.split("\n", 1)
             yield line.rstrip("\r")
     if buffer:
-        yield buffer.rstrip("\r")
+        line = buffer.rstrip("\r")
+        if line.startswith("data:") and not _whole(line[len("data:") :].strip()):
+            # The connection closed inside an event. Like a stream that ends between events, that is worth a retry;
+            # handed on, the half line would fail as undecodable data, which is not.
+            raise ProviderError("the stream ended in the middle of an event", retryable=True)
+        yield line
+
+
+def _whole(data: str) -> bool:
+    """Whether an event's data, on a last line that no newline ended, all arrived."""
+    if data in ("", "[DONE]"):
+        return True
+    try:
+        json.loads(data)
+    except json.JSONDecodeError:
+        return False
+    return True
 
 
 def image_base64(image: ImagePart) -> str | None:
