@@ -408,6 +408,28 @@ async def test_unknown_sessions_are_not_found(tmp_path: Path, work: Path):
     assert unloadable.value.code == -32002
 
 
+@pytest.mark.parametrize("bad", [b"\x00\xff not json \xfe", b'{"kind":"from-a-newer-version","id":"x"}'])
+async def test_loading_a_journal_with_an_unreadable_entry_answers_with_an_error_a_client_can_read(
+    tmp_path: Path, work: Path, bad: bytes
+):
+    agent, _, _ = make_agent(tmp_path, [Turn(text="hi")])
+    session = await agent.new_session(cwd=str(work))
+    await agent.prompt(prompt=[text_block("first")], session_id=session.session_id)
+    await agent.aclose()
+    [path] = (tmp_path / "home" / "sessions").glob("*.jsonl")
+    first, *rest = path.read_bytes().splitlines(keepends=True)
+    path.write_bytes(first + bad + b"\n" + b"".join(rest))
+
+    agent, _, _ = make_agent(tmp_path, [])
+    with pytest.raises(RequestError) as unreadable:
+        await agent.load_session(cwd=str(work), session_id=session.session_id)
+    # The reply is written as JSON, and it does not blame the client's params.
+    error = json.loads(json.dumps(unreadable.value.to_error_obj()))
+    assert error["code"] == -32603 and error["data"] == {"reason": "journal_unreadable", "journal": str(path)}
+    assert "cannot read" in error["message"] and str(path) in error["message"]
+    await agent.aclose()
+
+
 async def test_load_replays_the_conversation_and_continues_on_its_model(tmp_path: Path, work: Path):
     script = lambda request: Turn(text=f"reply {len(request.messages)}")  # noqa: E731
     agent, _, _ = make_agent(tmp_path, script)
