@@ -599,6 +599,11 @@ class Bootstrap:
                 pass
             else:
                 argv += ["--writer", writer]
+        memory = self.capability_settings().memory
+        if memory.graveyard_sessions:
+            argv += ["--keep-graveyard", str(memory.graveyard_sessions)]
+        if memory.transcript_sessions:
+            argv += ["--keep-transcripts", str(memory.transcript_sessions)]
         log = self.home / STEWARD_DIR / f"{journal.stem}.log"
 
         def start(session: Session) -> None:

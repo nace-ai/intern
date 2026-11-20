@@ -218,6 +218,10 @@ class MemoryConfig(_Settings):
     """Seconds after a run ends with no new one before the session so far is stewarded; 0 waits for the close."""
     writer: ModelRef | None = None
     """The provider/model the steward phrases notes with; unset is the session's System 2."""
+    graveyard_sessions: Annotated[int, Field(ge=0)] = 0
+    """Steward sessions an archived page stays in graveyard/ before it is deleted; 0 keeps it."""
+    transcript_sessions: Annotated[int, Field(ge=0)] = 0
+    """Steward sessions a session's transcript stays in sessions/ before it is deleted; 0 keeps it."""
 
 
 RunnerName = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_.:-]+$", max_length=256)]

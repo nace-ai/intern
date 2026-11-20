@@ -128,6 +128,39 @@ exit code 3 and no branch, and the next steward run on the same drive checkout r
 queue is `.git/nace-steward-deferred`). System 1 retries a 429 or 529 twice with backoff before an
 ask fails. A drive holds one world; a session from another world is refused.
 
+## Forgetting
+
+Removal is hard: what goes leaves `main`'s current files, including `graveyard/` and `sessions/`, and the search
+index. Earlier commits of the drive still hold it; only rewriting its git history removes it from there.
+
+- **Asked in a session.** When the user asks to forget something, or says a remembered thing is wrong and should
+  go, the steward finds it before it writes anything. System 1 first marks the messages that ask, then picks the
+  lines they mean among the page lines and earlier transcript lines that share their words (at most 40 and 20).
+  The lines go, a page left with nothing goes, links to a gone page go, and a transcript line that quotes a
+  removed line, or a gone page's title or path, becomes `[removed at the user's request]`. A session whose task
+  line goes is forgotten whole: its transcript and its work page are deleted. The request itself, the reply after it and every
+  restatement in the session are removed from what the steward writes, so the session's own transcript and work
+  page do not repeat it. The log says how many lines went, never which. The removal lands in the session's
+  commit, so the next session no longer sees it.
+- **By command.** `intern memory forget DRIVE "words" [--page user/people/sam]` lists every line that holds all
+  the words (a page title too, which removes its page, and a transcript's task line, which removes its session)
+  and the transcript lines that quote them; `--apply`
+  removes them in one commit on `main` (`Steward: forget`), taking the steward's turn on the drive.
+- **Cleanup**, off by default: an archived page stays in `graveyard/` and a transcript in `sessions/` until
+  deleted.
+
+```toml
+[capabilities.memory]
+graveyard_sessions = 200    # steward sessions after archiving; 0 keeps it
+transcript_sessions = 500   # steward sessions after the transcript was last written; 0 keeps it
+```
+
+The steward counts in its sessions (`.wiki/usage.json`), and gets these as `--keep-graveyard N` and
+`--keep-transcripts N`. A file it has not counted before gets the full period from the session that first sees it.
+
+The search index uses SQLite's `secure_delete` and merges its segments after a removal, so the removed text is not
+left in the file; a merge or `forget` updates an index that exists without waiting for the next search.
+
 ## Observability
 
 `memory_mount` (drive, commit) per session and `memory_recall` (commit, pages, chars, steps,
