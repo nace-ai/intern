@@ -22,30 +22,59 @@ SKIP_DIRS = frozenset(
 )
 MAX_LINE_CHARS = 300
 SEARCH_TIMEOUT_S = 60
+BINARY_SNIFF_BYTES = 8192
+# The longest line of ripgrep's output that is read: a match is cut to MAX_LINE_CHARS, so only its path can be long.
+MAX_OUTPUT_LINE_BYTES = 1 << 20
 
 
 def _ripgrep() -> str | None:
     return shutil.which("rg")
 
 
-async def _run(argv: list[str], cwd: Path) -> tuple[int, str]:
+async def _run(argv: list[str], cwd: Path, max_lines: int | None = None) -> tuple[int, str]:
+    """Run ``argv`` and give its exit code and output. With ``max_lines``, the command is stopped once it has printed
+    that many lines, which is then a success: the rest of its output is never read or held."""
     process = await asyncio.create_subprocess_exec(
         *argv,
         cwd=cwd,
         stdin=asyncio.subprocess.DEVNULL,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
+        limit=MAX_OUTPUT_LINE_BYTES,
     )
+    stopped = False
+
+    async def head(stream: asyncio.StreamReader, count: int) -> bytes:
+        nonlocal stopped
+        lines: list[bytes] = []
+        while len(lines) < count and (line := await stream.readline()):
+            lines.append(line)
+        if len(lines) == count and process.returncode is None:
+            stopped = True
+            process.kill()
+        return b"".join(lines)
+
     try:
-        stdout, stderr = await asyncio.wait_for(process.communicate(), SEARCH_TIMEOUT_S)
+        if max_lines is None:
+            stdout, stderr = await asyncio.wait_for(process.communicate(), SEARCH_TIMEOUT_S)
+        else:
+            assert process.stdout is not None and process.stderr is not None
+            # Both pipes are read at once, so a command that fills one never waits on it while the other is read.
+            reading = asyncio.gather(head(process.stdout, max_lines), process.stderr.read())
+            stdout, stderr = await asyncio.wait_for(reading, SEARCH_TIMEOUT_S)
+            await process.wait()
     except TimeoutError:
         return -1, "search timed out"
+    except ValueError:
+        return -1, "the search printed a line too long to read"
     finally:
         # Also reached on cancellation, when the run is aborted: never leave ripgrep walking behind a dead call.
         if process.returncode is None:
             process.kill()
             await process.wait()
     code = process.returncode if process.returncode is not None else -1
+    if stopped:
+        code = 0
     return code, (stdout if code in (0, 1) else stderr).decode(errors="replace")
 
 
@@ -57,6 +86,35 @@ def _walk(root: Path) -> Iterator[Path]:
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
         for name in sorted(files):
             yield Path(folder) / name
+
+
+def _grep_files(
+    root: Path, cwd: Path, glob: str | None, regex: re.Pattern[str], max_lines: int, abort: asyncio.Event
+) -> list[str]:
+    """The first ``max_lines`` matching lines under ``root``, read a line at a time. Only regular files are opened
+    (a pipe would never end), and a binary file, or one that is not UTF-8, is passed over."""
+    matches: list[str] = []
+    for file in _walk(root):
+        if abort.is_set():
+            break
+        if (glob and not fnmatch.fnmatch(file.name, glob)) or not file.is_file():
+            continue
+        found: list[str] = []
+        try:
+            with file.open("rb") as lines:
+                if b"\x00" in lines.read(BINARY_SNIFF_BYTES):
+                    continue
+                lines.seek(0)
+                for number, raw in enumerate(lines, 1):
+                    line = raw.decode().rstrip("\r\n")
+                    if regex.search(line):
+                        found.append(f"{_relative(file, cwd)}:{number}:{line[:MAX_LINE_CHARS]}")
+                        if len(matches) + len(found) >= max_lines:
+                            return matches + found
+        except (UnicodeDecodeError, OSError):
+            continue
+        matches += found
+    return matches
 
 
 def _relative(path: Path, cwd: Path) -> str:
@@ -85,6 +143,12 @@ class GrepTool(Tool):
         root = ctx.resolve(args.path)
         if not root.exists():
             return fail(f"{args.path} does not exist", "Search an existing directory, e.g. '.'.", argument="path")
+        if not (root.is_dir() or root.is_file()):
+            return fail(
+                f"{args.path} is not a regular file or a directory (it is a pipe, device or socket)",
+                "Search a regular file or a directory.",
+                argument="path",
+            )
         try:
             regex = re.compile(args.pattern, re.IGNORECASE if args.ignore_case else 0)
         except re.error as e:
@@ -96,7 +160,7 @@ class GrepTool(Tool):
             return ToolOutput(content=f"No matches for {args.pattern!r} in {args.path}.")
         shown = matches[: args.max_matches]
         footer = (
-            f"\n[{len(shown)} of {len(matches)} matches shown; narrow the pattern, path or glob.]"
+            f"\n[The first {len(shown)} matches are shown and there are more; narrow the pattern, path or glob.]"
             if len(matches) > len(shown)
             else ""
         )
@@ -105,7 +169,9 @@ class GrepTool(Tool):
     async def matches(
         self, args: GrepArgs, ctx: ToolContext, root: Path, regex: re.Pattern[str]
     ) -> list[str] | ToolOutput:
-        """The matching lines under ``root``, as `path:line:text` (an extension adds what it can read)."""
+        """The matching lines under ``root``, as `path:line:text` (an extension adds what it can read): no more than
+        one past ``args.max_matches``, which is enough to say that there are more."""
+        wanted = args.max_matches + 1
         rg = _ripgrep()
         if rg:
             argv = [rg, "--line-number", "--no-heading", "--color", "never"]
@@ -114,22 +180,12 @@ class GrepTool(Tool):
             argv += ["-g", args.glob] if args.glob else []
             # Always pass a path: without one ripgrep reads stdin when stdin is not a terminal.
             argv += ["-e", args.pattern, "--", _relative(root, ctx.cwd)]
-            code, output = await _run(argv, ctx.cwd)
+            code, output = await _run(argv, ctx.cwd, max_lines=wanted)
             if code not in (0, 1):
                 return fail(f"grep failed: {output.strip()[:300]}", "Check the pattern and path.")
             return [line.removeprefix("./") for line in output.splitlines()]
-        matches = []
-        for file in _walk(root):
-            if args.glob and not fnmatch.fnmatch(file.name, args.glob):
-                continue
-            try:
-                text = file.read_text()
-            except (UnicodeDecodeError, OSError):
-                continue
-            for number, line in enumerate(text.splitlines(), 1):
-                if regex.search(line):
-                    matches.append(f"{_relative(file, ctx.cwd)}:{number}:{line[:MAX_LINE_CHARS]}")
-        return matches
+        # In a thread: reading files here would hold every session until the search ended.
+        return await asyncio.to_thread(_grep_files, root, ctx.cwd, args.glob, regex, wanted, ctx.abort)
 
 
 class FindArgs(BaseModel):
