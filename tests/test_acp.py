@@ -76,7 +76,7 @@ from intern.models.registry import ConfigError, ProviderSpec
 from intern.models.window import working_window
 from intern.needs import InstallFailed, Needs, Say
 from intern.protocol import acp_mapping
-from intern.protocol.acp import AcpAgent, Installer, OpenRequest, SessionIndex, prompt_text
+from intern.protocol.acp import STDIO_LIMIT_BYTES, AcpAgent, Installer, OpenRequest, SessionIndex, prompt_text
 from intern.providers.fake import FakeProvider, Script, Turn
 from intern.session import Session
 from intern.tools import load_packs
@@ -1716,6 +1716,26 @@ def test_requests_sent_before_stdin_closes_are_all_answered(tmp_path: Path, work
         assert process.wait(timeout=20) == 0
     [reply] = [m for m in rest if m.get("id") == 2]
     assert reply["result"]["stopReason"] == "cancelled"
+
+
+def test_a_line_longer_than_the_limit_is_answered_with_an_error_and_the_server_keeps_serving(
+    tmp_path: Path, work: Path
+):
+    initialize = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": 1}}
+    # A prompt with more inline data than one line may hold, as a client sending large images does.
+    prompt = {"sessionId": "any", "prompt": [{"type": "text", "text": "A" * (STDIO_LIMIT_BYTES + 1024)}]}
+    too_long = {"jsonrpc": "2.0", "id": 7, "method": "session/prompt", "params": prompt}
+    result = subprocess.run(
+        [sys.executable, "-m", "intern", "acp", "--system2", "vllm/x"],
+        env={**os.environ, "INTERN_HOME": str(tmp_path / "home")},
+        cwd=work, input=json.dumps(too_long) + "\n" + json.dumps(initialize) + "\n",
+        capture_output=True, text=True, timeout=120,
+    )  # fmt: skip
+    assert result.returncode == 0
+    refused, served = [json.loads(line) for line in result.stdout.splitlines()]
+    assert refused["id"] == 7 and refused["error"]["code"] == -32600
+    assert refused["error"]["data"] == {"reason": "message_too_large", "limitBytes": STDIO_LIMIT_BYTES}
+    assert served["id"] == 1 and served["result"]["agentInfo"]["name"] == "intern"  # the next request is served
 
 
 def test_acp_refuses_stdio_that_is_not_a_pipe(tmp_path: Path, work: Path):
