@@ -1343,15 +1343,19 @@ class PendingReplies:
 
 
 async def serve(agent: AcpAgent) -> None:
-    """Serve ACP on stdin/stdout until stdin closes or SIGTERM, then close every session.
+    """Serve ACP on stdin/stdout until stdin closes or SIGTERM or SIGHUP, then close every session.
 
     When stdin closes, requests already received still get their replies: runs in progress are aborted (their
     prompts answer `cancelled`), and the server exits once every reply is written, or after DRAIN_TIMEOUT_S.
     """
     loop = asyncio.get_running_loop()
     main = asyncio.current_task()
+    # SIGHUP too (the client's terminal or ssh session went away): unhandled it kills the server with no cleanup,
+    # and the commands its sessions were running live on.
+    ending = (signal.SIGTERM, signal.SIGHUP)
     with contextlib.suppress(NotImplementedError):
-        loop.add_signal_handler(signal.SIGTERM, lambda: main.cancel() if main else None)
+        for sig in ending:
+            loop.add_signal_handler(sig, lambda: main.cancel() if main else None)
     stdout = sys.stdout
     try:
         if not _streamable(sys.stdin) or not _streamable(sys.stdout):
@@ -1377,7 +1381,8 @@ async def serve(agent: AcpAgent) -> None:
         sys.stdout = stdout
         await agent.aclose()
         with contextlib.suppress(NotImplementedError):
-            loop.remove_signal_handler(signal.SIGTERM)
+            for sig in ending:
+                loop.remove_signal_handler(sig)
 
 
 def main(options: Options, env: Mapping[str, str] | None = None) -> None:

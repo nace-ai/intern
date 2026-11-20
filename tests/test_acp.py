@@ -5,8 +5,10 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar, cast
@@ -1638,6 +1640,56 @@ async def test_an_edit_in_a_turn_reaches_the_client_as_a_diff(tmp_path: Path, wo
     journal = agent.sessions[session.session_id].session.deps.journal
     assert journal.path is not None and "old line" not in journal.path.read_text()
     await agent.aclose()
+
+
+def test_sighup_ends_the_server_cleanly_and_stops_the_command_a_session_was_running(tmp_path: Path, work: Path):
+    # What the server gets when the terminal or ssh session its client ran in goes away.
+    pid_file = tmp_path / "command.pid"
+    command = f"echo $$ > {pid_file}; exec sleep 300"
+    requests = [
+        {"jsonrpc": "2.0", "id": 0, "method": "initialize", "params": {"protocolVersion": 1}},
+        {"jsonrpc": "2.0", "id": 1, "method": "session/new", "params": {"cwd": str(work), "mcpServers": []}},
+    ]
+    with FakeOpenAI([Reply(tool_calls=[("bash", {"command": command})]), Reply(text="never")]) as server:
+        env = {**os.environ, "VLLM_BASE_URL": server.url, "INTERN_HOME": str(tmp_path / "home")}
+        env |= server.system1_env
+        process = subprocess.Popen(
+            [sys.executable, "-m", "intern", "acp", "--no-context-files", "--no-memory", "--system2", f"vllm/{MODEL}"],
+            env=env, cwd=work, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True,
+        )  # fmt: skip
+        stdin, stdout = process.stdin, process.stdout
+        assert stdin is not None and stdout is not None
+        command_pid = None
+        try:
+            stdin.write("".join(json.dumps(r) + "\n" for r in requests))
+            stdin.flush()
+            while (message := json.loads(stdout.readline())).get("id") != 1:
+                pass
+            prompt = {"sessionId": message["result"]["sessionId"], "prompt": [{"type": "text", "text": "wait"}]}
+            stdin.write(json.dumps({"jsonrpc": "2.0", "id": 2, "method": "session/prompt", "params": prompt}) + "\n")
+            stdin.flush()
+            deadline = time.monotonic() + 20
+            while not (pid_file.exists() and pid_file.read_text().strip()):  # until the command runs
+                assert time.monotonic() < deadline
+                time.sleep(0.02)
+            command_pid = int(pid_file.read_text())
+            process.send_signal(signal.SIGHUP)
+            assert process.wait(timeout=20) == 0  # closed its sessions and left, not killed by the signal
+            while _alive(command_pid):
+                assert time.monotonic() < deadline, "the command outlived the server"
+                time.sleep(0.02)
+        finally:
+            process.kill()
+            if command_pid is not None and _alive(command_pid):
+                os.kill(command_pid, signal.SIGKILL)
+
+
+def _alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    return True
 
 
 # Stdin closing: requests already received still get their replies.

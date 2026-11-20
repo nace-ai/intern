@@ -32,7 +32,7 @@ each session, and journals are found by session id. Every install can serve ACP:
 stdout carries only the protocol. Warnings and logs go to stderr. stdin and stdout must be pipes (or a
 terminal); redirected to a file, the command exits with code 2. When stdin closes, every request
 already received is still answered: runs in progress are aborted (their prompts answer `cancelled`)
-and the server exits once the replies are written (at most 10 s later). On SIGTERM it aborts every
+and the server exits once the replies are written (at most 10 s later). On SIGTERM or SIGHUP it aborts every
 run and exits at once. Either way every session is closed.
 
 ## Lifecycle
