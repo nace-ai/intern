@@ -516,6 +516,7 @@ class Run:
                 run_id=self.run_id,
                 reason=outcome.reason,
                 detail=self.deps.redact(outcome.detail) if self.deps.redact and outcome.detail else outcome.detail,
+                error=outcome.error,
                 turns=self.turn,
                 usage=self.usage,
                 agent_usage=self.usage - self.state_usage - (self.subagent_usage or Usage()),

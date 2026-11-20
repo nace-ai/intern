@@ -70,6 +70,7 @@ from intern.events import (
     ReasoningDelta,
     Reduced,
     RunEnd,
+    RunError,
     RunStart,
     SecretUnavailable,
     State,
@@ -87,7 +88,7 @@ from intern.extensions.schedule import Schedule
 from intern.free_commands import FreeReport, console_of, report, set_use, sign_out
 from intern.free_session import METER_NAMES, SWITCH_REASONS, FreeSession, System
 from intern.handoff import DEFAULT_TARGET
-from intern.hooks import RunError, RunOutcome
+from intern.hooks import RunOutcome
 from intern.journal import (
     CompactionEntry,
     Entry,
@@ -265,6 +266,12 @@ KEYS: dict[str, str] = {
     "Ctrl+Q": "quit",
 }
 """The keys, listed by /help after the commands."""
+
+
+def free_refusal(error: RunError) -> str:
+    """What the console's refusal for good of a free credit means, from its code and meter."""
+    system: System = "system1" if error.meter == "system1" else "agent"
+    return SWITCH_REASONS.get(error.code, f"Free {METER_NAMES[system]} credit used up")
 
 
 def _drive(value: str) -> Path:
@@ -1156,7 +1163,7 @@ class HarnessApp(App[None]):
             case SubagentEnd(name=name, status=status, turns=turns):
                 kind = "ok" if status == "completed" else "warn"
                 await transcript.notice(f"Subagent {name}: {status}, {turns} turns", kind)
-            case RunEnd(reason=reason, detail=detail, turns=turns, usage=usage, system1=system1):
+            case RunEnd(reason=reason, detail=detail, error=error, turns=turns, usage=usage, system1=system1):
                 await self._hand_back()
                 await transcript.finish_reply()
                 transcript.run_ended()
@@ -1167,7 +1174,13 @@ class HarnessApp(App[None]):
                     self.status.face("failed", FAILED_FACE_S)
                 else:
                     self.status.face("idle")
-                line = REASONS.get(reason, reason) + (f": {detail}" if detail else "")
+                if error is not None and error.code in FREE_FINAL:
+                    line = free_refusal(error)
+                    if error.next:
+                        name = model_label(error.next, self.status.labels)
+                        line += f"; your next message runs on your keys with {name}"
+                else:
+                    line = REASONS.get(reason, reason) + (f": {detail}" if detail else "")
                 line += (
                     f" · {turns} turns · {tokens_text(usage.input_tokens)} in / {tokens_text(usage.output_tokens)} out"
                 )
@@ -1592,17 +1605,13 @@ class HarnessApp(App[None]):
         await self._reopen(note, before, shown=bool(self.query(Welcome)))
 
     async def _free_ended(self, error: RunError) -> None:
-        """A run the free credit ended for good: which of your models the next message runs on, or, with none,
-        a card saying what ran out and how to keep going."""
-        system: System = "system1" if error.meter == "system1" else "agent"
-        what = SWITCH_REASONS.get(error.code, f"Free {METER_NAMES[system]} credit used up")
+        """A run the free credit ended for good with none of your models to go on: a card saying what ran out and how
+        to keep going. With one, the run's stop line says which."""
         if error.next:
-            name = model_label(error.next, self.status.labels)
-            await self.transcript.notice(f"◇ {what}. Your next message runs on your keys with {name}.", "ok")
             return
         gone = "Free credit doesn't come back. " if error.code in ("free_exhausted", "free_expired") else ""
         card = Content.assemble(
-            (f"◇ {what}\n", S_HEAD),
+            (f"◇ {free_refusal(error)}\n", S_HEAD),
             (gone, S_INK),
             ("Add your own keys with ", S_INK),
             ("/setup", S_HEAD),

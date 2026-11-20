@@ -24,7 +24,7 @@ import httpx
 
 from intern import names
 from intern.decisions import Answers, DecisionBackend, FreeRefused, Question
-from intern.events import EventSink, FreeNotice
+from intern.events import EventSink, FreeNotice, RunEnd, RunError, StopReason
 from intern.hooks import RunOutcome
 from intern.models.catalog import FreeInfo, FreeSources
 from intern.models.registry import FREE_FINAL, ConfigError, ProviderSpec
@@ -245,10 +245,13 @@ class FreeSession:
         self._low(tell=False)
 
     def watching(self, emit: EventSink) -> EventSink:
-        """`emit`, and after each event a notice for a meter that has crossed a low share since the last one."""
+        """`emit`, and after each event a notice for a meter that has crossed a low share since the last one. A run's
+        end that the free credit caused says which model the next run will use."""
         self.emit = emit
 
         def sink(event: Any) -> None:
+            if isinstance(event, RunEnd) and event.error is not None:
+                event = event.model_copy(update={"error": self._with_next(event.reason, event.error)})
             emit(event)
             self._low(tell=True)
 
@@ -319,8 +322,13 @@ class FreeSession:
             return
         system: System = "system1" if outcome.reason == "system1_unavailable" else "agent"
         self.refused(system, error.code, error.meter, None)
-        if system == "agent" and self.next_system2 is not None:
-            error.next = self.next_system2()
+        outcome.error = self._with_next(outcome.reason, error)
+
+    def _with_next(self, reason: StopReason, error: RunError) -> RunError:
+        """`error`, with the System 2 the next run will use when System 2's free credit was refused for good."""
+        if error.code not in FREE_FINAL or reason == "system1_unavailable" or self.next_system2 is None:
+            return error
+        return error.model_copy(update={"next": self.next_system2()})
 
     @property
     def bundle(self) -> Bundle | None:

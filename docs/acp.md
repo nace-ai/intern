@@ -1714,3 +1714,11 @@ the meter can pay again (a limit raised, or free calls resumed after a pause), w
 keys until the session was opened again ([running out](#running-out)). `usage_update`'s `_meta.nace.free.source`
 then reads `free` again, the move is told in its `notice`, and the pickers come back in a `config_option_update`.
 Nothing new on the wire: 0.57.0 clients keep working.
+
+### 0.57.2
+
+When free credit ends a run for good, the terminal UI's stop line says so in words ("Free agent credit used up;
+your next message runs on your keys with …"), where before it showed the console's JSON body. The harness event
+`run_end` gains an optional `error`, the console's `code`, `meter` and `next`, as the prompt's
+[`provider_error`](#stop-reasons-and-errors) `data` already carries them. Nothing changes on ACP: 0.57.1 clients keep
+working.
