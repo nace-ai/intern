@@ -21,11 +21,11 @@ from intern.free_commands import free_main
 from intern.messages import UserMessage
 from intern.models import registry
 from intern.models.registry import PROVIDERS, ConfigError, nace_credential, resolve_endpoint
-from intern.nace_free import DeviceSignIn, FreeCredential, Tokens
+from intern.nace_free import DeviceSignIn, FreeCredential, FreeStore, Tokens
 from intern.providers.base import NO_RETRIES, Completed, ProviderError, ProviderRequest
 from intern.providers.openai_compat import OpenAICompatProvider
 from tests.fake_console import GRANT, FakeConsole
-from tests.test_secrets_commands import FAKE_SECURITY
+from tests.test_secrets_commands import FAKE_SECURITY, items
 
 CONSENT = "2026-11-18"
 
@@ -67,7 +67,7 @@ def home_of(env: dict[str, str]) -> Path:
 
 
 def keychain(env: dict[str, str]) -> list[str]:
-    return sorted(path.name for path in Path(env["FAKE_KEYCHAIN"]).iterdir())
+    return items(Path(env["FAKE_KEYCHAIN"]))
 
 
 def free(argv: list[str], env: dict[str, str], capsys) -> tuple[int, list[dict]]:
@@ -257,6 +257,24 @@ def test_sign_out_revokes_the_sign_in_on_the_console_and_forgets_it(env, console
     assert console.revoked == {1}
     home = home_of(env)
     assert not (home / "free.json").exists() and not (home / "free-access.json").exists() and keychain(env) == []
+
+
+def test_two_config_homes_keep_their_own_sign_ins_and_signing_out_of_one_leaves_the_other(
+    env, console, capsys, tmp_path
+):
+    other = {**env, "INTERN_HOME": str(tmp_path / "other")}  # the same keychain, another home
+    assert start(env, capsys)[0] == 0
+    assert start(other, capsys)[0] == 0
+    mine, theirs = (FreeStore(home_of(e), e).read_refresh(console.origin) for e in (env, other))
+    assert mine is not None and theirs is not None
+    family = console.refreshes[mine.get_secret_value()].family
+    assert console.refreshes[theirs.get_secret_value()].family != family
+
+    assert free(["sign-out"], env, capsys)[0] == 0
+    console.expire_access()  # the other home's next call refreshes, with its own token
+    code, [report] = free(["status"], other, capsys)
+    assert (code, report["signed_in"], report["grant"]) == (0, True, GRANT)
+    assert console.revoked == {family}
 
 
 def test_pause_and_resume_keep_the_config_file_as_written(env, capsys):

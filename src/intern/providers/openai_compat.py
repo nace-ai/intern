@@ -227,14 +227,16 @@ class OpenAICompatProvider:
                         await credential.invalidate()
                         continue
                     # A credential source means the Nace console, whose refusals name a code.
-                    code, meter = (console_error(raw) if credential is not None else None) or (None, None)
+                    refused = console_error(raw) if credential is not None else None
                     raise ProviderError(
                         f"HTTP {response.status_code} from {self.endpoint.provider}: "
                         f"{raw.decode(errors='replace')[:500]}",
                         status=response.status_code,
-                        retryable=response.status_code in RETRYABLE_STATUS and code not in FREE_FINAL,
-                        code=code,
-                        meter=meter,
+                        retryable=response.status_code in RETRYABLE_STATUS
+                        and (refused is None or refused.code not in FREE_FINAL),
+                        code=refused.code if refused else None,
+                        meter=refused.meter if refused else None,
+                        console_message=refused.message if refused else None,
                     ) from None
                 reply = _Reply()
                 splitter = ThinkSplitter() if request.compat.think_tags else None
@@ -332,9 +334,13 @@ class OpenAICompatProvider:
 
         calls: list[ToolCall] = []
         invalid: list[InvalidToolCall] = []
-        for _, pending in sorted(reply.calls.items()):
+        last = max(reply.calls, default=None)
+        for index, pending in sorted(reply.calls.items()):
             call_id = pending.id or f"call_{new_id()}"
             arguments, error = parse_arguments(pending.arguments)
+            if reply.finish == "length" and index == last and not pending.arguments.strip():
+                # The output limit ended the reply before this call's arguments: `{}` would run the tool on defaults.
+                arguments, error = None, "the reply hit the output limit before the call was finished"
             if not pending.name:
                 invalid.append(
                     InvalidToolCall(id=call_id, name="", raw_arguments=pending.arguments, error="no tool name")

@@ -5,7 +5,8 @@ refresh them when they expire and never start a sign-in themselves: a session wh
 no longer be refreshed fails with a message that names the login command.
 
 Tokens live in `<config home>/mcp-oauth/<namespace>.json`, mode 0600, which the guard's credential rules keep
-the agent's own tools from reading or writing. The MCP SDK is an optional extra, so it is imported on use.
+the agent's own tools from reading or writing when the guard is on and the home is the default one. Whatever a
+tool does read of them is redacted (`StoredTokens`). The MCP SDK is an optional extra, so it is imported on use.
 """
 
 from __future__ import annotations
@@ -26,6 +27,8 @@ import httpx
 from pydantic import SecretStr
 
 from intern.capability_settings import McpConfig, McpOAuthConfig
+from intern.secret_store import MIN_SECRET_CHARS
+from intern.secrets import SecretRedactor
 
 if TYPE_CHECKING:
     from mcp.shared.auth import OAuthClientInformationFull, OAuthClientMetadata, OAuthToken
@@ -122,6 +125,56 @@ class OAuthStore:
         data = self._load()
         data["client_info"] = client_info.model_dump(mode="json")
         self._save(data)
+
+
+#: The fields of a token file that are credentials.
+_SECRET_FIELDS = frozenset({"access_token", "refresh_token", "id_token", "client_secret", "registration_access_token"})
+
+
+def _secret_fields(data: object) -> set[str]:
+    if isinstance(data, dict):
+        found = {
+            v for k, v in data.items() if k in _SECRET_FIELDS and isinstance(v, str) and len(v) >= MIN_SECRET_CHARS
+        }
+        return found.union(*(_secret_fields(value) for value in data.values()))
+    return set()
+
+
+class StoredTokens:
+    """Every credential in the token files under one home, to redact from what the agent's tools return: the files
+    are the user's, so `read` or `cat` can open them, and only a guard that is on (and a default home) refuses."""
+
+    def __init__(self, home: Path) -> None:
+        self.directory = home / STORE_DIR
+        self._seen: object = None
+        self._redactor = SecretRedactor([])
+
+    def _files(self) -> list[Path]:
+        try:
+            return sorted(path for path in self.directory.iterdir() if path.is_file())
+        except OSError:
+            return []
+
+    def redact(self, text: str) -> str:
+        """`text` without the tokens as they are now. They are read again only when a file has changed: a session
+        refreshes them while it runs, and so can another session or `intern mcp login`."""
+        files = self._files()
+        seen: list[object] = []
+        for path in files:
+            with contextlib.suppress(OSError):
+                found = path.stat()
+                seen.append((path.name, found.st_ino, found.st_mtime_ns, found.st_size))
+        if seen != self._seen:
+            secrets: set[str] = set()
+            for path in files:
+                with contextlib.suppress(OSError, ValueError):
+                    secrets |= _secret_fields(json.loads(path.read_text()))
+            self._redactor, self._seen = SecretRedactor([SecretStr(secret) for secret in secrets]), seen
+        return self._redactor.redact(text)
+
+    def redactor(self, then: Callable[[str], str] | None) -> Callable[[str], str]:
+        """`then`, and after it the stored tokens."""
+        return lambda text: self.redact(then(text) if then is not None else text)
 
 
 def redirect_uri(config: McpOAuthConfig) -> str:

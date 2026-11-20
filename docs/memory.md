@@ -37,7 +37,8 @@ and checked with `intern memory lint DRIVE [--fix]`.
 - `user/`: the user, the people, organisations and things they deal with, and standing instructions.
 - `lessons/` and `skills/`: ways of working learned across sessions.
 - `work/`: one page per session with what was asked, what was done and how it ended.
-- `sessions/`: session transcripts, searchable with the `memory_search` tool, as the pages are.
+- `sessions/`: session transcripts, searchable with the `memory` tool, as the pages are. Each line carries its
+  journal entry id (`@<entry>`, from steward 49 on), which a page line's `[source: evt#<session>:<entry>]` names.
 
 A page has front matter, stable `{#b-…}` blocks, a `## Contents` table and `[[links]]` for
 relations. Every item records the session event it came from.
@@ -69,13 +70,27 @@ These come from the `memory` extension, which runs after the profile's extension
   once per line. When a line names a document or record that holds what the call needs, the agent is
   asked to read it first. Reads are not held, and neither is a call that already runs the command a
   line quotes, unless the line warns against it.
-- **`memory_search`** finds pages and earlier sessions by words when the recalled pages do not hold what the
-  task needs. It ranks with BM25 (SQLite FTS5): each page block and each chunk of about 2,000 characters of a
-  transcript is one passage, and a page's path, title and block heading weigh twice its text. Page blocks are
-  listed first, each with its file and block id, then sessions, each ranked by its best chunk, with its task,
-  outcome and matching lines. `folder` limits a search to `map/`, `user/`, `lessons/`, `skills/`, `work/` or
-  `sessions/`. The index is read from `main`'s commit, as recall is, and kept in `.git/nace-search.sqlite`; the
-  first search of a session indexes only the files whose blob changed since the last one.
+- **The `memory` tool** looks through memory when the recalled pages do not hold what the task needs. It is
+  read-only and reads `main`'s commit, as recall did, never the working tree. A page recall pinned is marked
+  `(already in context)` and is not shown again in full. Its `action`:
+  - `list` (`path`: a folder, empty for the whole memory): the folder's pages with their one-line summaries and
+    sizes, and its subfolders, from the tables of contents.
+  - `read` (`path`: `user/people/sam` or `user/people/sam#b-events`): a page with its source tags and links, or
+    one block. A page longer than the tool output's budget shows its lead and its blocks to read one at a time.
+  - `search` (`query`, `folder`, `max_results`): pages and earlier sessions by words, ranked with BM25 (SQLite
+    FTS5). Each page block and each chunk of about 2,000 characters of a transcript is one passage, and a page's
+    path, title and block heading weigh twice its text. Page blocks are listed first as `page#block`, then
+    sessions, each ranked by its best chunk, with its task, outcome and matching lines. `folder` limits a search
+    to `map/`, `user/`, `lessons/`, `skills/`, `work/` or `sessions/`. The index is kept in
+    `.git/nace-search.sqlite`; the first search of a session indexes only the files whose blob changed since the
+    last one.
+  - `trace` (`source`: a line's `evt#<session>:<entry>`, or a session id): the session's work page and the
+    transcript lines around that step. A transcript from before steward 49 has no entry ids; with the traced line
+    as `query`, it shows the lines sharing most words with it. A session no longer in memory (forgotten, or
+    removed by cleanup) is said to be gone.
+
+  The steward does not record the tool as a place to remember, and a page read with it counts as used, as a
+  recalled page does, so it does not go to `graveyard/`.
 
 ## Steward (writing)
 
@@ -88,7 +103,11 @@ prompt after that is stewarded again, at the next idle time or the close; a clos
 last steward starts none. The work page records how many user turns the session had when it was
 stewarded (`user_turns` in its front matter), and a steward finding more redoes the session. Its writer is `[capabilities.memory] writer`, else the
 session's System 2 when it is OpenAI-compatible; without one only the outcome and the work page are
-written. `steward = false` in `[capabilities.memory]` turns this off. Stewards on one drive take turns
+written. The writer is asked for low reasoning effort when its model profile lists `low`: at its own
+effort a thinking model such as GLM 5.3 can outrun the writer's two-minute timeout. A profile that says how
+to turn reasoning off (`thinking_off`, set for DeepSeek V4 Flash on Fireworks) has the writer send that
+instead: at low effort that model still reasons ten to twenty thousand tokens over one note. `steward = false` in
+`[capabilities.memory]` turns this off. Stewards on one drive take turns
 (`.git/nace-steward.lock`), and a session mounting the drive waits only while a steward moves its
 working tree (`.git/nace-drive.lock`). A merging steward first publishes a `proposed/` branch that an
 earlier one left when it was killed, if it still fast-forwards `main`, and deletes it otherwise.
@@ -114,8 +133,10 @@ earlier one left when it was killed, if it still fast-forwards `main`, and delet
    restatements. A replaced line moves to Earlier with `(until <date>)`, and so does any other line on
    map/, user/, lessons/ or skills/ that System 1 finds still states the replaced value.
 5. **Lessons**: ways of working seen in at least two sessions; a lesson to follow needs a session
-   that succeeded, and every lesson names a concrete step, not only more searching or care. Each
-   line says how many of its sessions succeeded.
+   that succeeded, and every lesson names a concrete step, not only more searching or care. A
+   lesson cites story lines, or whole sessions, which cite every line of their story. A drafted
+   lesson turned down before the gate is recorded as a gap with the reason. Each line says how
+   many of its sessions succeeded.
 6. **Commit**: pages are written, indexes regenerated, lint passes, and one commit is made on
    `proposed/<session>` for review, built on `main` without touching the working tree. With
    `--merge`, `main` is fast-forwarded to it, the working tree is reset to `main` and the branch is
@@ -125,6 +146,85 @@ System 1 only: if any System 1 ask goes unanswered after its retries, the sessio
 exit code 3 and no branch, and the next steward run on the same drive checkout retries it (the
 queue is `.git/nace-steward-deferred`). System 1 retries a 429 or 529 twice with backoff before an
 ask fails. A drive holds one world; a session from another world is refused.
+
+## Skill folders
+
+With `skill_folders = true` in `[capabilities.memory]` (off by default), the steward also keeps the
+script, table or template a session worked with, so a later session runs it instead of writing it again.
+A skill folder is `skills/<name>/`: `SKILL.md` is a skill page (lead "name: when to use it", then Steps,
+Pitfalls, Checks and a Files block), and beside it up to six files of kinds `.py`, `.sh`, `.js`, `.csv`,
+`.tsv`, `.json`, `.txt` or `.tmpl`, each at most 32,000 characters. Lint enforces both.
+
+- **Build.** A session whose outcome succeeded can start a folder. The writer reads the session's
+  whole files (what `write` and `edit` left, heredocs, inline `python3 -` scripts, each marked with
+  whether it ran and exited cleanly) and the user's messages in full, after secrets are redacted. A
+  script is one that ran cleanly, changed only to take its paths as arguments and to read its table
+  from beside it; a table or template is the user's own rules or wording, with `{field}` placeholders.
+- **Update.** System 1 first picks the held folder the session's work belongs to, if any. A later session
+  in that folder only changes files or adds lines; a line it replaces moves to Earlier. A session that
+  did not succeed can only change what the user told it.
+- **Gate.** Each file is checked without running it: Python must parse, JSON load, CSV keep its
+  columns, `bash -n` pass. Code must be close to a script that ran cleanly in a session that succeeded,
+  or to the file already held; a table or template must not state values the user never gave.
+  Then System 1 asks, per file, whether it is the procedure rather than this task's data or result, and
+  for a new folder whether the work will come again. A new folder needs at least one file kept.
+- **Recall.** A picked folder page is shown with its files' absolute paths in the drive, to run or
+  read in place. Its front matter counts the sessions that succeeded with it (`succeeded`); below two,
+  its steps, pitfalls and checks are shown under Suggestions, and its files are listed either way.
+  Running or reading a folder file counts as using its page. Recall writes nothing.
+- An archived or forgotten folder page takes its files with it: they are deleted, not moved to `graveyard/`.
+  Forgetting does not look inside a folder's files; to remove what one holds, forget the folder's page
+  (`intern memory forget DRIVE --page skills/<name>/SKILL --apply`).
+
+## Forgetting
+
+Removal is hard: what goes leaves `main`'s current files, including `graveyard/` and `sessions/`, and the search
+index. Earlier commits of the drive still hold it; only rewriting its git history removes it from there.
+
+- **Asked in a session.** When the user asks to forget something, or says a remembered thing is wrong and should
+  go, the steward finds it before it writes anything. System 1 first marks the messages that ask, however they
+  word it ("wipe", "strike", "I should not have shared"). It then picks the lines they mean among the page lines
+  and earlier transcript lines that share their words, whatever the words' endings (at most 40 and 20). A line
+  that shares one word is offered when few lines hold that word, so the name of a project is enough. System 1 is
+  then asked once more about the lines that hold the names and numbers of the picked lines (at most 20 and 10):
+  an address goes from every line that states it, though the request never spelled it out.
+  A line of two to six sentences is offered sentence by sentence, so only what was asked goes: a message that told
+  a physiotherapy slot and a Friday meeting rule keeps the rule. A page sentence that says something else beside
+  it (two facts merged into one line) is reworded by the writer to keep the rest, and the new wording replaces it
+  when it holds no value the sentence did not and System 1 finds it says nothing that was asked; otherwise the
+  sentence goes whole. A transcript is never reworded: its sentences go, each replaced by
+  `[removed at the user's request]`. The lines go, a page left with nothing goes, links to a gone page go, and
+  what a transcript line quotes of a removed line or sentence becomes the marker; a transcript line that names a
+  gone page's title or path becomes the marker whole. A page's summary line is built again from the lines that
+  stay, and a kind of work left with no session leaves the schema. A session whose task line goes whole, every
+  sentence of it, is forgotten whole: its transcript and its work page are deleted, and a line of another
+  transcript that names it by its id (a search that listed it) becomes the marker too. The request itself,
+  everything the session did about it (its replies, the searches it ran for the thing and what they returned) and
+  every restatement in the session are removed from what the steward writes, so the session's own transcript and
+  work page do not repeat it. When the request opens the session, that is the whole session, since a later
+  message then answers a question about the request; otherwise it is what came before the user spoke again. Work
+  asked for in the same message as the request is therefore not remembered either. So is what the rest of the
+  session said of the thing, as when the user tells something and takes it back in one session: System 1 picks
+  among the session's other sentences that share the request's words (at most 20). The log says how many lines went, never which. The removal lands in the
+  session's commit, so the next session no longer sees it.
+- **By command.** `intern memory forget DRIVE "words" [--page user/people/sam]` lists every line that holds all
+  the words (a page title too, which removes its page, and a transcript's task line, which removes its session)
+  and the transcript lines that quote them; `--apply`
+  removes them in one commit on `main` (`Steward: forget`), taking the steward's turn on the drive.
+- **Cleanup**, off by default: an archived page stays in `graveyard/` and a transcript in `sessions/` until
+  deleted.
+
+```toml
+[capabilities.memory]
+graveyard_sessions = 200    # steward sessions after archiving; 0 keeps it
+transcript_sessions = 500   # steward sessions after the transcript was last written; 0 keeps it
+```
+
+The steward counts in its sessions (`.wiki/usage.json`), and gets these as `--keep-graveyard N` and
+`--keep-transcripts N`. A file it has not counted before gets the full period from the session that first sees it.
+
+The search index uses SQLite's `secure_delete` and merges its segments after a removal, so the removed text is not
+left in the file; a merge or `forget` updates an index that exists without waiting for the next search.
 
 ## Observability
 
