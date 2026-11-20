@@ -159,8 +159,9 @@ CORRECTION = (
     "or procedure to use?"
 )
 FORGET = (
-    "Does user message {name} ask to forget, delete or stop keeping something memory may hold, or say that something "
-    "memory holds is wrong without saying what is right?"
+    "Does user message {name} ask the agent to forget something, or to remove or stop keeping it in its memory, or "
+    "say that something the agent remembers is wrong without saying what is right? No when it asks to delete or "
+    "change a file, record, message or anything else in the work itself."
 )
 FORGOTTEN = (
     "Does line {name} say what user message {message} asked to forget, or what it said is wrong? A line that only "
@@ -405,7 +406,7 @@ def _scrub(ex: Extract, asked: list[Turn], removal: Removal) -> Extract:
             marked.append(turn)
         after = turn.pointer in pointers
     said = [body(s.line) for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER)]
-    texts = {t.text for t in marked if t.text.strip()} | {b for b in said if len(b) >= MIN_COVERED_CHARS}
+    texts = {b for b in [*(t.text.strip() for t in marked), *said] if len(b) >= MIN_COVERED_CHARS}
     scrubbed = Extract.model_validate(_replaced(ex.model_dump(), sorted(texts, key=len, reverse=True)))
     gone = {t.pointer for t in marked}
     for turn in scrubbed.turns:
