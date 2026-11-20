@@ -29,7 +29,16 @@ from intern.events import (
 )
 from intern.handoff import HANDOFF_ROLE, HandoffTarget
 from intern.hooks import RunOutcome
-from intern.journal import Entry, EventEntry, Journal, MessageEntry, ModelChangeEntry, WindowCapEntry, recording
+from intern.journal import (
+    Entry,
+    EventEntry,
+    Journal,
+    MessageEntry,
+    ModelChangeEntry,
+    ObservationEntry,
+    WindowCapEntry,
+    recording,
+)
 from intern.loop import CompactOutcome, EngineDeps, ModelBinding, Run, RunControl, system1_state
 from intern.messages import AssistantMessage, ToolResultMessage, Usage, UserMessage
 from intern.models.registry import Role
@@ -634,10 +643,11 @@ class Session:
 
     def entries(self, after_id: str | None = None) -> list[Entry]:
         entries = self.deps.journal.entries()
-        if after_id is None:
-            return entries
-        ids = [e.id for e in entries]
-        return entries[ids.index(after_id) + 1 :] if after_id in ids else entries
+        if after_id is not None:
+            ids = [e.id for e in entries]
+            entries = entries[ids.index(after_id) + 1 :] if after_id in ids else entries
+        # A client gets each observation whole; the journal keeps its content in the file, not in memory.
+        return [self.deps.journal.get(e.id) if isinstance(e, ObservationEntry) else e for e in entries]
 
     def state(self) -> SessionState:
         path = self.deps.journal.active_path()

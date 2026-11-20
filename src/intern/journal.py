@@ -65,7 +65,10 @@ class MessageEntry(_EntryBase):
 
 
 class ObservationEntry(_EntryBase):
-    """The full output of a tool call whose result the model saw only in bounded form."""
+    """The full output of a tool call whose result the model saw only in bounded form.
+
+    A journal with a file keeps the content in the file only: the entries it lists have it empty, and `Journal.get`
+    reads it back. A long session's memory then does not grow with every large output it ever saw."""
 
     kind: Literal["observation"] = "observation"
     call_id: str
@@ -176,6 +179,8 @@ class Journal:
         self.path = path
         self._entries: dict[str, Entry] = {}
         self._order: list[str] = []
+        self._archived: dict[str, tuple[int, int]] = {}
+        """Where each observation's row is in the file (offset, length): its content is read from there."""
         self.leaf_id: str | None = None
         self._disk_size = 0
         self._needs_separator = False
@@ -231,6 +236,9 @@ class Journal:
                             stacklevel=2,
                         )
                         break
+                    if isinstance(entry, ObservationEntry):
+                        self._archived[entry.id] = (offset, len(line))
+                        entry = entry.model_copy(update={"content": ""})
                     self._entries[entry.id] = entry
                     self._order.append(entry.id)
                 offset += len(line)
@@ -241,6 +249,7 @@ class Journal:
     def append[E: _EntryBase](self, entry: E) -> E:
         """Attach `entry` under the current leaf and make it the new leaf."""
         entry.parent_id = self.leaf_id
+        kept: _EntryBase = entry
         if self.path is not None:
             if self._write_failed:
                 raise OSError("A prior journal write failed; reopen the session before continuing.")
@@ -260,8 +269,12 @@ class Journal:
                 self._write_failed = True
                 raise
             self._needs_separator = False
+            if isinstance(entry, ObservationEntry):
+                # The file has the content now; memory keeps only where it is.
+                self._archived[entry.id] = (self._disk_size - len(row), len(row))
+                kept = entry.model_copy(update={"content": ""})
         # A published in-memory entry must have made it through persistence first.
-        self._entries[entry.id] = entry  # pyright: ignore[reportArgumentType]
+        self._entries[entry.id] = kept  # pyright: ignore[reportArgumentType]
         self._order.append(entry.id)
         self.leaf_id = entry.id
         return entry
@@ -288,10 +301,18 @@ class Journal:
         self.leaf_id = entry_id
 
     def get(self, entry_id: str) -> Entry:
-        return self._entries[entry_id]
+        """The entry, whole: an observation's content is read from the file."""
+        entry = self._entries[entry_id]
+        where = self._archived.get(entry_id)
+        if where is None or self.path is None:
+            return entry
+        with self.path.open("rb") as stream:
+            stream.seek(where[0])
+            return _entry_adapter.validate_json(stream.read(where[1]))
 
     def entries(self) -> list[Entry]:
-        """Every entry in append order, all branches included."""
+        """Every entry in append order, all branches included. An observation's content is empty when the journal
+        has a file; `get` reads it."""
         return [self._entries[i] for i in self._order]
 
     def active_path(self) -> list[Entry]:
@@ -314,7 +335,8 @@ class Journal:
     def observation(self, call_id: str) -> str | None:
         for entry in reversed(self.active_path()):
             if isinstance(entry, ObservationEntry) and entry.call_id == call_id:
-                return entry.content
+                whole = self.get(entry.id)
+                return whole.content if isinstance(whole, ObservationEntry) else entry.content
         return None
 
 

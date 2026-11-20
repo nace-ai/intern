@@ -863,8 +863,8 @@ def extract(journal: Journal, drive_root: Path | None = None, world: str = "") -
     for order, entry in enumerate(path):
         if isinstance(entry, MemoryRecallEntry):
             used.extend(entry.pages)
-        if isinstance(entry, ObservationEntry):
-            outputs.append(entry.content)
+        if isinstance(entry, ObservationEntry) and isinstance(whole := journal.get(entry.id), ObservationEntry):
+            outputs.append(whole.content)  # the journal keeps an observation's content in its file
         if not isinstance(entry, MessageEntry):
             continue
         match entry.message:
