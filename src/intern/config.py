@@ -58,7 +58,7 @@ from intern.hooks import Extension, Hooks, build_extension, resolve_extension
 from intern.instructions import FileInstructions
 from intern.journal import Journal
 from intern.loop import EngineDeps, ModelBinding
-from intern.memory.drive import Drive, GitError, create
+from intern.memory.drive import Drive, GitError, create, half_made
 from intern.memory.spend import STEWARD_DIR
 from intern.memory.steward.writer import writer_from_ref
 from intern.models.catalog import (
@@ -571,7 +571,7 @@ class Bootstrap:
         if path is None:
             return None
         # Only the default drive is created; a named one that is missing is a mistake to report.
-        if path == self.home / DRIVE_DIR and not path.exists():
+        if path == self.home / DRIVE_DIR and (not path.exists() or half_made(path)):
             try:
                 create(path)
             except GitError as e:
