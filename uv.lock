@@ -445,6 +445,7 @@ workspace = [
     { name = "pymupdf" },
     { name = "python-docx" },
     { name = "pytz" },
+    { name = "scipy" },
     { name = "xlrd" },
 ]
 
@@ -479,6 +480,7 @@ requires-dist = [
     { name = "pytz", marker = "extra == 'workspace'", specifier = ">=2024.1" },
     { name = "rapidocr-onnxruntime", marker = "extra == 'ocr'", specifier = ">=1.4" },
     { name = "scipy", marker = "extra == 'code-search'", specifier = ">=1.11" },
+    { name = "scipy", marker = "extra == 'workspace'", specifier = ">=1.11" },
     { name = "textual", specifier = ">=8,<9" },
     { name = "tomlkit", specifier = ">=0.13" },
     { name = "tree-sitter", marker = "extra == 'code-search'", specifier = ">=0.25,<0.27" },
