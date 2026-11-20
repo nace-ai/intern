@@ -8,7 +8,8 @@ screen (`tui/onboarding.py`) walks through them and this module does the work be
 - `RECOMMENDED`: Nace's frontier and efficient pairs on one OpenRouter key, which `models --json` lists.
 - `SYSTEM2_PROVIDERS`: every way to reach the frontier model, grouped as the screen lists them, each with the
   variable its key lives in, where to make one, the frontier models to suggest first and the efficient ones.
-- `SYSTEM1_OPTIONS`: the decision models to pick from, by where they run: Drex on Nace AI, then OpenRouter's.
+- `SYSTEM1_OPTIONS`: the decision models to pick from, by where they run: Drex on Nace AI, then OpenRouter's, then
+  the one kapitsa-systemone serves on this machine.
 - `check_key`: ask the provider whether a key works before keeping it, and list its models while at it.
 - `save`: keep each key (the OS keychain, named in `[secrets]`; `.env` in the config home where there is no
   keychain) and write the picks to `config.toml`, keeping its comments and layout.
@@ -39,10 +40,14 @@ from tomlkit.items import Table
 from intern.config import CONFIG_FILE, DEFAULT_SYSTEM1_MODEL, ENV_FILE
 from intern.models.catalog import (
     DECISIONS_PREFIX,
+    KAPITSA_PREFIX,
+    KAPITSA_URL,
     NACE_CONSOLE_URL,
     KeyNeeded,
     RecommendedInfo,
+    System1Sources,
     console_listed,
+    kapitsa_models,
     language_model,
 )
 from intern.models.registry import PROVIDERS, ConfigError, ProviderSpec
@@ -341,9 +346,9 @@ class System1Option:
     id: str
     name: str
     blurb: str
-    backend: Literal["decisions-api", "console"]
+    backend: Literal["decisions-api", "console", "kapitsa"]
     model: str
-    """The model; empty for an option that lists its backend's models to pick from."""
+    """The model; empty for an option that lists its backend's models to pick from (kapitsa-systemone's one)."""
     key_env: str
     key_url: str
     only: str = ""
@@ -352,7 +357,12 @@ class System1Option:
     @property
     def choice(self) -> str:
         """How `--system1` and the pickers name it."""
-        return f"{DECISIONS_PREFIX}{self.model}" if self.backend == "decisions-api" else self.model
+        return system1_choice(self.backend, self.model)
+
+
+def system1_choice(backend: str, model: str) -> str:
+    prefix = {"decisions-api": DECISIONS_PREFIX, "kapitsa": KAPITSA_PREFIX}.get(backend, "")
+    return f"{prefix}{model}"
 
 
 SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
@@ -401,6 +411,15 @@ SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
         "",
         "OPENROUTER_API_KEY",
         "https://openrouter.ai/settings/keys",
+    ),
+    System1Option(
+        "kapitsa",
+        "Kapitsa",
+        "Drex on this Mac with kapitsa-systemone, no key",
+        "kapitsa",
+        "",
+        "",
+        "https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md",
     ),
 )
 SYSTEM1_BY_ID = {option.id: option for option in SYSTEM1_OPTIONS}
@@ -648,7 +667,13 @@ async def check_system2(
 
 
 async def check_system1(option: System1Option, key: str, transport: httpx.AsyncBaseTransport | None = None) -> KeyCheck:
-    """Whether System 1's key works; for the decisions API, with the decision models it lists."""
+    """Whether System 1's key works; for the decisions API, with the decision models it lists. Kapitsa takes no key:
+    whether kapitsa-systemone runs, with the model it serves."""
+    if option.backend == "kapitsa":
+        served = await kapitsa_models(System1Sources(kapitsa_url=KAPITSA_URL), transport)
+        if not served:
+            return KeyCheck(ok=False, message=f"kapitsa-systemone is not running at {KAPITSA_URL}")
+        return KeyCheck(ok=True, models=tuple(m.id.removeprefix(KAPITSA_PREFIX) for m in served))
     if option.backend == "console":
         return await check_key(f"{NACE_CONSOLE_URL}/models", key, transport=transport)
     found = await check_key(f"{OPENROUTER_URL}/key", key, transport=transport)
@@ -815,8 +840,7 @@ class Setup:
 
     @property
     def system1_choice(self) -> str:
-        model = self.system1_model or self.system1.model
-        return f"{DECISIONS_PREFIX}{model}" if self.system1.backend == "decisions-api" else model
+        return system1_choice(self.system1.backend, self.system1_model or self.system1.model)
 
 
 def _table(document: tomlkit.TOMLDocument | Table, *names: str, super_table: bool = False) -> Table:
@@ -869,7 +893,7 @@ def write_config(home: Path, setup: Setup) -> Path:
     if option.backend == "decisions-api":
         system1["base_url"] = OPENROUTER_URL
         system1["api_key_env"] = option.key_env
-    else:
+    elif option.backend == "console":
         system1["console_key_env"] = option.key_env
     for provider_id, spec in setup.providers.items():
         entry = tomlkit.table()

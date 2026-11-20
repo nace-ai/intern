@@ -45,6 +45,7 @@ model = "own-judge"
 models = ["own-console-judge"]
 base_url = "{url}"
 api_key_env = "MINE_KEY"
+kapitsa_url = "http://127.0.0.1:9/v1"  # not a kapitsa-systemone that runs on this machine
 """
 
 

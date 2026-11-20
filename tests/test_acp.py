@@ -833,6 +833,8 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
                 {"id": "qwen3-embedding-8b", "kind": "EMBEDDING_MODEL", "supports_chat": True},
             ]
             return httpx.Response(200, json={"data": served})
+        if request.url.host == "127.0.0.1" and request.url.path == "/health":
+            return httpx.Response(200, json={"status": "ok", "model": "drex-max-v1"})
         return httpx.Response(500)
 
     found = await catalog.list_models(
@@ -843,7 +845,10 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
             for ref in ("openrouter/qwen/qwen3.8-27b", "groq/llama-x", "nowhere/model", "vllm/local")
         ],
         system1=catalog.System1Sources(
-            console_key="console-key", console_models=("drex-latest", "drex-latest", "drex-2"), decisions_key="or-key"
+            console_key="console-key",
+            console_models=("drex-latest", "drex-latest", "drex-2"),
+            decisions_key="or-key",
+            kapitsa_url=catalog.KAPITSA_URL,
         ),
         transport=httpx.MockTransport(listing),
     )
@@ -861,13 +866,14 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
     # their failures are left out.
     assert "api.openai.com" not in asked and "api.groq.com" not in asked and "localhost" in asked
     # System 1: the console's decision models, the configured names first and retired ones left out, then the
-    # decisions API's decision models as decisions:<model>.
+    # decisions API's decision models as decisions:<model>, then the one kapitsa-systemone serves on this machine.
     assert [(m.id, m.name) for m in found.system1] == [
         ("drex-latest", "drex-latest"),
         ("drex-2", "drex-2"),
         ("drex-v2.0", "drex-v2.0"),
         ("decisions:~typesafe/jev-latest", "TypeSafe: Jev Latest"),
         ("decisions:nace-ai/drex-max", "nace-ai/drex-max"),
+        ("kapitsa:drex-max-v1", "drex-max-v1 (Kapitsa)"),
     ]
 
 
@@ -889,7 +895,10 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
     home.mkdir()
     deployment = "fireworks/accounts/example/deployments/qwen3p8-27b"
     claude = "anthropic/claude-unprofiled"
-    config = f'model = "{claude}"\n[system1]\nmodels = ["drex-latest", "drex-mini"]\n'
+    # No kapitsa-systemone: one running on this machine would be listed too.
+    config = (
+        f'model = "{claude}"\n[system1]\nmodels = ["drex-latest", "drex-mini"]\nkapitsa_url = "http://127.0.0.1:9/v1"\n'
+    )
     # A dedicated deployment reaches the catalog through a user profile's concrete id.
     (home / "profiles").mkdir()
     (home / "profiles" / "mine.toml").write_text(
@@ -1607,6 +1616,13 @@ def test_bootstrap_requires_system_1_and_serves_picks_from_the_console_or_the_de
     assert console._url == "https://console.example/v1/systemone"  # pyright: ignore[reportPrivateUsage]
     with pytest.raises(ConfigError, match="must be"):
         Bootstrap(options.model_copy(update={"system1": "what:ever"}), home).system1_choice()
+    # A decisions API on this machine, such as kapitsa-systemone, takes no key.
+    local_home = tmp_path / "local"
+    local_home.mkdir()
+    (local_home / "config.toml").write_text('[system1]\nbase_url = "http://127.0.0.1:8001/v1"\n')
+    local = Bootstrap(options, {"INTERN_HOME": str(local_home)}).system1_backend("decisions:drex-max-v1")
+    assert isinstance(local, DecisionsApiBackend)
+    assert local._url == "http://127.0.0.1:8001/v1/systemone"  # pyright: ignore[reportPrivateUsage]
 
 
 # Diffs: write and edit carry the file before and after to the client.

@@ -557,6 +557,8 @@ def system1_parts(ref: str) -> tuple[str, str]:
         return ref.removeprefix("decisions:"), "decisions API"
     if ref.startswith("drex:"):
         return ref.removeprefix("drex:"), "console"
+    if ref.startswith("kapitsa:"):
+        return ref.removeprefix("kapitsa:"), "this machine"
     return (ref, "") if ref in ("…", "none") else (ref, "console")
 
 
