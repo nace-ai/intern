@@ -114,8 +114,10 @@ earlier one left when it was killed, if it still fast-forwards `main`, and delet
    restatements. A replaced line moves to Earlier with `(until <date>)`, and so does any other line on
    map/, user/, lessons/ or skills/ that System 1 finds still states the replaced value.
 5. **Lessons**: ways of working seen in at least two sessions; a lesson to follow needs a session
-   that succeeded, and every lesson names a concrete step, not only more searching or care. Each
-   line says how many of its sessions succeeded.
+   that succeeded, and every lesson names a concrete step, not only more searching or care. A
+   lesson cites story lines, or whole sessions, which cite every line of their story. A drafted
+   lesson turned down before the gate is recorded as a gap with the reason. Each line says how
+   many of its sessions succeeded.
 6. **Commit**: pages are written, indexes regenerated, lint passes, and one commit is made on
    `proposed/<session>` for review, built on `main` without touching the working tree. With
    `--merge`, `main` is fast-forwarded to it, the working tree is reset to `main` and the branch is
