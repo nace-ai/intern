@@ -241,6 +241,8 @@ class DecisionsApiBackend:
         }
         state = _without_media(state)
         last_error: Exception | None = None
+        # What models before the one that answers were paid for answers nothing could use.
+        wasted = Answers(answers={})
         client = self._client()
         for n, model in enumerate(self._models):
             # A model with another after it keeps timeout_s for its answer, so one that hangs fails over within the
@@ -263,6 +265,8 @@ class DecisionsApiBackend:
                 response.raise_for_status()
                 body = response.json()
                 raw = body["answers"]
+                if not isinstance(raw, dict):
+                    raise ValueError(f"{model} answered with no answers object")
                 for name, q in questions.items():
                     # The protocol scores as the expected level index, 0..n-1; the harness scale is 0..1.
                     if isinstance(q, ScoreQuestion) and isinstance(a := raw.get(name), dict) and "score" in a:
@@ -273,12 +277,22 @@ class DecisionsApiBackend:
                         a["probabilities"] = [float(p.get(str(i), 0.0)) for i in levels] if isinstance(p, dict) else []
                         a["legend"] = q.criteria  # the servers echo the levels, as a dict or a list
                 usage = body.get("usage") or {}
-                return Answers(
+                result = Answers(
                     answers=raw,
-                    cost_usd=float(usage.get("cost") or 0),
-                    input_tokens=int(usage.get("input_tokens") or 0),
-                    output_tokens=int(usage.get("output_tokens") or 0),
+                    cost_usd=wasted.cost_usd + float(usage.get("cost") or 0),
+                    input_tokens=wasted.input_tokens + int(usage.get("input_tokens") or 0),
+                    output_tokens=wasted.output_tokens + int(usage.get("output_tokens") or 0),
                 )
+                # An answer that is missing or does not fit its question is a failure of this model, like an
+                # error: the next model is asked, and what this one cost goes with the answers that come. The
+                # last model's are returned as they are, so the client records their cost and asks again.
+                unusable = [
+                    n for n, q in questions.items() if n not in result.answers or not _fits(q, result.answers[n])
+                ]
+                if unusable and not last:
+                    wasted = result
+                    raise ValueError(f"{model} gave no usable answer for {', '.join(sorted(unusable))}")
+                return result
             except (httpx.HTTPError, KeyError, ValueError, TypeError) as e:
                 last_error = e
         raise RuntimeError(f"every decision model failed: {last_error}")
