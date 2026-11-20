@@ -38,6 +38,7 @@ from intern.events import (
     Handoff,
     ReasoningDelta,
     RunEnd,
+    RunError,
     SecretUnavailable,
     TextDelta,
     ToolCallEnd,
@@ -45,7 +46,6 @@ from intern.events import (
 )
 from intern.events import StopReason as RunStopReason
 from intern.events import ToolCallStart as HarnessToolCallStart
-from intern.hooks import RunError
 from intern.journal import Entry, EventEntry, MessageEntry
 from intern.memory.spend import StewardSpend
 from intern.messages import (

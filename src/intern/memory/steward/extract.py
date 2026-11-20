@@ -13,7 +13,7 @@ from urllib.parse import unquote, urlparse
 from pydantic import BaseModel, SecretStr
 
 from intern.journal import Entry, Journal, MemoryRecallEntry, MessageEntry, ObservationEntry, SessionEntry
-from intern.memory.format import clip, inert
+from intern.memory.format import SKILL_PAGE, clip, inert, is_folder_file
 from intern.memory.steward.place import (
     ENVIRONMENT_PAGE,
     PlaceKind,
@@ -58,6 +58,8 @@ _DIGIT = re.compile(r"\d")
 BASE_TOOLS = frozenset({"read", "write", "edit", "bash", "grep", "find"})
 READ_TOOLS = frozenset({"read", "grep", "find"})
 WRITE_TOOLS = frozenset({"write", "edit"})
+# Memory's own tools (memory_search before it became memory): reading memory is never a place to remember.
+MEMORY_TOOLS = frozenset({"memory", "memory_search"})
 # Programs that only move around, print or shuffle text say nothing about the environment.
 SHELL_BASICS = frozenset(
     [
@@ -723,8 +725,13 @@ def extract(journal: Journal, drive_root: Path | None = None, world: str = "") -
             target = (value if value.is_absolute() else cwd / value).resolve()
         except (OSError, RuntimeError):
             return
-        if skip in target.parents and target.suffix == ".md":
-            used.append(target.relative_to(skip).with_suffix("").as_posix())
+        if skip not in target.parents:
+            return
+        name = target.relative_to(skip).as_posix()
+        if target.suffix == ".md":
+            used.append(name[:-3])
+        elif is_folder_file(name):
+            used.append(f"{name.rsplit('/', 1)[0]}/{SKILL_PAGE}")
 
     def observe(
         kind: Literal["url", "file", "shell", "tool"],
@@ -929,6 +936,11 @@ def extract(journal: Journal, drive_root: Path | None = None, world: str = "") -
                             if (target := _under(Path(value), cwd, skip)) is not None:
                                 verb, change = ("write", True) if call.name in WRITE_TOOLS else ("read", False)
                                 wait(call.id, observe_file(target, verb, change, call.name, entry.id, False), entry.id)
+                    elif call.name in MEMORY_TOOLS:
+                        page = call.arguments.get("path")
+                        if call.arguments.get("action") == "read" and isinstance(page, str) and page.strip():
+                            name = page.strip().strip("[]").split("#", 1)[0].removesuffix(".md")
+                            used.append(name.removeprefix(f"{skip}/") if skip else name)
                     elif call.name not in BASE_TOOLS:
                         detail = f"(args: {', '.join(sorted(call.arguments))})" if call.arguments else "(no args)"
                         place: tuple[str, PlaceKind] = (page_for_tool(call.name), "tool")
