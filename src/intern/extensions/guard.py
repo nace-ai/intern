@@ -402,7 +402,9 @@ SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "ash", "fish"})
 _INTERPRETER = re.compile(r"^(python[\d.]*|perl|ruby|node|php|pwsh)$")
 _HEREDOC = re.compile(r"(?<!<)<<(-?)\s*(['\"]?)([A-Za-z_][\w.-]*)\2")
 _SHELL_BEFORE_HEREDOC = re.compile(r"(^|[;&|(]\s*)(sudo\s+)?(ba|z|da|k)?sh(\s+-\S+)*\s*$")
-_FORK_BOMB = re.compile(r"([\w:.]+)\s*\(\)\s*\{\s*\1\s*\|\s*\1\s*&\s*\}")
+# The name is tried only where a name starts (the lookbehind), not at each of its characters: a search that
+# also started inside every name took time that grew with the square of a long word's length.
+_FORK_BOMB = re.compile(r"(?<![\w:.])([\w:.]+)\s*\(\)\s*\{\s*\1\s*\|\s*\1\s*&\s*\}")
 
 
 @dataclass

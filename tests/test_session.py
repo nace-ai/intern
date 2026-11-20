@@ -296,8 +296,9 @@ async def test_a_hand_over_stays_in_the_session_and_the_next_run_is_system_2s_ag
 
     assert second.final_text == "second answer" and len(cheap.requests) == 2  # System 2 answered, not the cheaper model
     sent = harness.provider.requests[-1].messages
-    # It was sent what the cheaper model did, as its own conversation going on: the take-over note was that model's.
-    assert [m.text for m in sent if isinstance(m, AssistantMessage)] == ["built", "fixing", "all done"]
+    # It was sent a record of what the cheaper model did, then its reply (`test_handover_record`): the take-over
+    # note was that model's.
+    assert [m.text for m in sent if isinstance(m, AssistantMessage)] == ["built", "all done"]
     told = [[TAKEOVER_NOTE in m.content for m in r.messages if isinstance(m, UserMessage)] for r in cheap.requests]
     assert all(any(each) for each in told)
     assert not any(TAKEOVER_NOTE in m.content for m in sent if isinstance(m, UserMessage))

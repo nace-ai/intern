@@ -17,6 +17,14 @@ SCHEMA_FILE = ".wiki/schema.md"
 WORLD_FILE = ".wiki/world.md"
 UNREAD_FOLDERS = (".wiki/", "graveyard/")
 
+# A skill folder: skills/<name>/SKILL.md is its page, and the files the work needs sit beside it as plain text.
+SKILL_ROOT = "skills/"
+SKILL_PAGE = "SKILL"
+CODE_SUFFIXES = (".py", ".sh", ".js")
+FOLDER_SUFFIXES = (*CODE_SUFFIXES, ".csv", ".tsv", ".json", ".txt", ".tmpl")
+MAX_FOLDER_FILE_CHARS = 32_000
+MAX_FOLDER_FILES = 6
+
 LEAD_ID = "b-lead"
 TOC_ID = "b-toc"
 RELATIONS_ID = "b-rel"
@@ -207,6 +215,17 @@ def is_page_file(name: str) -> bool:
         and not name.startswith(UNREAD_FOLDERS)
         and "/" in name
     )
+
+
+def is_folder_skill(path: str) -> bool:
+    parts = path.split("/")
+    return len(parts) == 3 and f"{parts[0]}/" == SKILL_ROOT and parts[2] == SKILL_PAGE
+
+
+def is_folder_file(name: str) -> bool:
+    # A file of a skill folder other than its page: skills/<name>/<file>.
+    parts = name.split("/")
+    return len(parts) == 3 and f"{parts[0]}/" == SKILL_ROOT and not name.endswith(".md")
 
 
 def folder_of(path: str) -> str:

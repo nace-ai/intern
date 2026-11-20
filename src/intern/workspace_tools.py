@@ -30,6 +30,9 @@ def path(value):
     if not candidate.is_relative_to(mount):
         raise ValueError('Filesystem tools are restricted to '+str(mount))
     return candidate
+def shown(p):
+    # A path in the mount but outside the working directory (../sibling.txt) is allowed: name it in full.
+    return str(p.relative_to(root)) if p.is_relative_to(root) else str(p)
 def emit(content):
     print(json.dumps({'status':'ok','content':content}))
 def files(p):
@@ -75,12 +78,12 @@ try:
             os.replace(temp,p)
         finally:
             if os.path.exists(temp): os.unlink(temp)
-        emit('Saved '+str(p.relative_to(root)))
+        emit('Saved '+shown(p))
     elif operation in ('grep','find'):
         rows=[];regex=re.compile(args['pattern'],re.I if args.get('ignore_case') else 0) if operation=='grep' else None
         cap=args.get('max_matches',args.get('limit',1000))
         for item in files(p):
-            relative=str(item.relative_to(root))
+            relative=shown(item)
             if operation=='find':
                 if fnmatch.fnmatch(relative,args['pattern']) or fnmatch.fnmatch(item.name,args['pattern']):
                     rows.append(relative)
