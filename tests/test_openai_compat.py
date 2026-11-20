@@ -90,6 +90,36 @@ async def test_a_stream_cut_before_the_reply_finished_is_an_error():
         await collect(provider(lambda r: httpx.Response(200, content=body)), request(retries=NO_RETRIES))
 
 
+async def test_when_a_server_sends_several_choices_only_the_first_is_the_reply():
+    def choice(index: int, **fields: Any) -> dict[str, Any]:
+        return {"index": index, "delta": fields, "finish_reason": None}
+
+    def call(call_id: str, path: str) -> list[dict[str, Any]]:
+        return [{"index": 0, "id": call_id, "function": {"name": "read", "arguments": json.dumps({"path": path})}}]
+
+    streamed = sse(
+        {"choices": [choice(0, content="Option A"), choice(1, content="Option B")]},
+        {"choices": [choice(0, tool_calls=call("c1", "a")), choice(1, tool_calls=call("c2", "b"))]},
+        {"choices": [{"index": 0, "delta": {}, "finish_reason": "tool_calls"}]},
+        {"choices": [{"index": 1, "delta": {}, "finish_reason": "length"}]},
+    )
+    _, message = await collect(provider(lambda r: httpx.Response(200, content=streamed)), request())
+    assert message.text == "Option A"
+    assert message.tool_calls == [ToolCall(id="c1", name="read", arguments={"path": "a"})]
+    assert message.stop == "tool_calls" and not message.invalid_tool_calls
+
+    whole = {
+        "choices": [
+            {"index": 0, "message": {"content": "Option A"}, "finish_reason": "stop"},
+            {"index": 1, "message": {"content": "Option B"}, "finish_reason": "length"},
+        ]
+    }
+    _, message = await collect(
+        provider(lambda r: httpx.Response(200, json=whole)), request(compat=Compat(stream=False))
+    )
+    assert message.text == "Option A" and message.stop == "stop"
+
+
 async def test_text_tool_call_ids_are_unique_across_replies():
     text = '<tool_call>{"name": "bash", "arguments": {"command": "ls"}}</tool_call>'
     body = sse(delta(content=text), delta(finish_reason="stop"))
