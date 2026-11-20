@@ -112,6 +112,12 @@ class Profile(BaseModel):
         "or says more than the model takes: they replace the API's run, and `[]` is none (GPT-4o, Claude Sonnet "
         "4.5, whose APIs refuse the field). Sessions offer them after `default`, which sends none. Unset: the API's.",
     )
+    thinking_off: dict[str, JsonValue] | None = Field(
+        default=None,
+        description="Request fields that turn the model's reasoning off, where its API has a way that is not one of "
+        'the effort levels (`{reasoning_effort = "none"}`). The memory steward\'s writer sends them, as a note needs '
+        "no reasoning; a session never does. Unset: the writer asks for low effort.",
+    )
     reasoning_replay: bool = True
     max_turns: int = 150
     max_continuations: int = 3
