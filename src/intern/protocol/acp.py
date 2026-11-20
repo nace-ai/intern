@@ -141,6 +141,10 @@ class OpenRequest:
     """A whole replacement for the configured capabilities, from the client's toggles; None keeps them."""
     remembered: bool = False
     """`system2` is the model the journal last ran on, not the client's pick: free credit sets it aside."""
+    system1: str | None = None
+    """The System 1 the session opens on; None is the configured one, which then has to be set up here."""
+    system1_remembered: bool = False
+    """`system1` is the one the session last ran on, not the client's pick: free credit sets it aside."""
 
 
 SessionOpener = Callable[[OpenRequest], Awaitable[Session]]
@@ -156,6 +160,9 @@ def bootstrap_opener(options: Options, env: Mapping[str, str] | None = None) -> 
         update: dict[str, Any] = {"cwd": request.cwd, "session_file": request.journal}
         if request.system2:
             update |= {"system2": request.system2, "system2_picked": not request.remembered}
+        if request.system1:
+            # Opened on it, not switched to it afterwards: the configured System 1 need not be set up for this one.
+            update |= {"system1": request.system1, "system1_picked": not request.system1_remembered}
         if request.capabilities is not None:
             # Built from the configured settings, which already hold --memory, --no-memory and --handoff-to.
             update |= {"capabilities": request.capabilities, "memory": None, "memory_off": False, "handoff_to": None}
@@ -431,8 +438,12 @@ class AcpAgent:
         emit: EventSink,
         caps: CapabilitySettings,
         remembered: bool = False,
+        *,
+        system1: str | None = None,
+        system1_picked: bool = True,
     ) -> OpenRequest:
-        return OpenRequest(cwd, journal, system2, emit, None if caps == self._capabilities else caps, remembered)
+        picks = None if caps == self._capabilities else caps
+        return OpenRequest(cwd, journal, system2, emit, picks, remembered, system1, not system1_picked)
 
     async def _start(
         self,
@@ -443,12 +454,18 @@ class AcpAgent:
         session_id: str | None = None,
         fallback: CapabilitySettings | None = None,
         remembered: bool = False,
+        *,
+        system1: str | None = None,
+        system1_picked: bool = True,
     ) -> LiveSession:
         """Open a harness session, on `fallback` when it cannot open on `caps`. Raises System2Unavailable when its
         System 2 cannot bind."""
         queue: asyncio.Queue[Event] = asyncio.Queue()
+        system1s: dict[str, Any] = {"system1": system1, "system1_picked": system1_picked}
         try:
-            session = await self._open(self._request(Path(cwd), journal, system2, queue.put_nowait, caps, remembered))
+            session = await self._open(
+                self._request(Path(cwd), journal, system2, queue.put_nowait, caps, remembered, **system1s)
+            )
         except System2Unavailable:
             raise
         except FreeLocked as e:
@@ -457,7 +474,7 @@ class AcpAgent:
             if fallback is None:
                 raise RequestError(-32602, str(e)) from None
             print(f"{names.NAME}: {e}; the session opens on the configured settings", file=sys.stderr)
-            return await self._start(cwd, journal, system2, fallback, session_id, remembered=remembered)
+            return await self._start(cwd, journal, system2, fallback, session_id, remembered=remembered, **system1s)
         packs = tuple(session.deps.system2.profile.tool_packs) if caps.tool_packs is None else DEFAULT_PACKS
         live = LiveSession(session_id or session.deps.journal.session_id, session, caps, packs, queue)
         live.pump = asyncio.create_task(self._pump(live), name=f"acp-updates-{live.id}")
@@ -529,7 +546,17 @@ class AcpAgent:
         `remembered` and not `system1_picked`: the models came from the journal, not the client, so a system on
         free credit sets them aside rather than refuse them."""
         try:
-            live = await self._start(cwd, journal, system2, caps, session_id, fallback, remembered)
+            live = await self._start(
+                cwd,
+                journal,
+                system2,
+                caps,
+                session_id,
+                fallback,
+                remembered,
+                system1=system1,
+                system1_picked=system1_picked,
+            )
         except System2Unavailable as e:
             # A new session's entry is written now, so the id the client keeps finds this journal on load.
             unbound = UnboundSession(
@@ -571,13 +598,16 @@ class AcpAgent:
         session = live.session
         ref = session.deps.system2.ref
         free = session.free
+        journal = session.deps.journal
         agent_free = free is not None and free.on_free("agent")
-        if picked and not agent_free and session.deps.journal.last_models().get("system2") != ref:
-            session.deps.journal.append(ModelChangeEntry(role="system2", model=ref))
+        if picked and not agent_free and journal.last_models().get("system2") != ref:
+            journal.append(ModelChangeEntry(role="system2", model=ref))
         self._record(live)
         system1_free = free is not None and free.on_free("system1")
         if system1 and system1 != session.system1 and (system1_picked or not system1_free):
             await session.set_model(system1, "system1")
+        elif system1 and system1_picked and not system1_free and journal.last_models().get("system1") != system1:
+            journal.append(ModelChangeEntry(role="system1", model=system1))  # opened on it: no switch journaled it
         if window is not None:
             session.set_window_cap(window_cap(window))
 
@@ -587,7 +617,15 @@ class AcpAgent:
             raise RequestError(SESSION_BUSY, "the session is opening on another model")
         unbound.opening = True
         try:
-            live = await self._start(unbound.cwd, unbound.journal, system2, unbound.capabilities, unbound.id)
+            live = await self._start(
+                unbound.cwd,
+                unbound.journal,
+                system2,
+                unbound.capabilities,
+                unbound.id,
+                system1=unbound.system1,
+                system1_picked=unbound.system1_picked,
+            )
         except System2Unavailable as e:
             raise RequestError(-32602, str(e)) from None
         finally:
@@ -929,8 +967,17 @@ class AcpAgent:
 
     async def _open_again(self, live: LiveSession, old: Session, caps: CapabilitySettings) -> Session:
         deps = old.deps
+        # On the System 1 it had, unless that was the free bundle's, which is never carried to the user's own.
+        on_free = old.free is not None and old.free.on_free("system1")
         request = self._request(
-            deps.cwd, deps.journal.path, deps.system2.ref, live.queue.put_nowait, caps, remembered=True
+            deps.cwd,
+            deps.journal.path,
+            deps.system2.ref,
+            live.queue.put_nowait,
+            caps,
+            remembered=True,
+            system1=None if on_free else old.system1,
+            system1_picked=False,
         )
         session = await self._open(request)
         try:

@@ -565,6 +565,41 @@ async def test_the_server_opens_sessions_when_the_configured_model_has_no_key(tm
             assert await asyncio.wait_for(process.wait(), 20) == 0
 
 
+async def test_a_session_opens_on_the_system_1_its_meta_asks_for_when_the_configured_one_has_no_key(
+    tmp_path: Path, work: Path
+):
+    home = tmp_path / "home"
+    home.mkdir()
+    client = FakeClient()
+    console_keys = ("NACE_API_KEY", "DREX_API_KEY", "DREX_BASE_URL")
+    env = {k: v for k, v in os.environ.items() if k not in console_keys}
+    with FakeOpenAI([Reply(text="hello")]) as server:
+        # The decisions API is set up and has its key; the configured System 1, on the console, has none.
+        (home / "config.toml").write_text(f'[system1]\nbase_url = "{server.url}"\n')
+        env |= {"INTERN_HOME": str(home), "VLLM_BASE_URL": server.url, "OPENROUTER_API_KEY": "test-key"}
+        async with spawn_agent_process(
+            lambda _agent: client,  # pyright: ignore[reportArgumentType, reportReturnType]
+            sys.executable, "-m", "intern", "acp", "--no-context-files", "--no-memory", "--system2", f"vllm/{MODEL}",
+            env=env, cwd=work,
+        ) as (conn, process):  # fmt: skip
+            await conn.initialize(protocol_version=1)
+            with pytest.raises(RequestError) as unset:  # the configured one still needs its key
+                await conn.new_session(cwd=str(work), mcp_servers=[])
+            assert unset.value.code == -32602 and "NACE_API_KEY" in str(unset.value)
+            session = await conn.new_session(cwd=str(work), mcp_servers=[], nace={"system1": "decisions:chosen"})
+            assert session.config_options is not None
+            assert settings(session.config_options)[1].current_value == "decisions:chosen"
+            response = await conn.prompt(prompt=[text_block("hi")], session_id=session.session_id)
+            assert response.stop_reason == "end_turn" and client.text() == "hello "
+            # A load, which names no System 1, continues on it.
+            loaded = await conn.load_session(cwd=str(work), session_id=session.session_id, mcp_servers=[])
+            assert loaded.config_options is not None
+            assert settings(loaded.config_options)[1].current_value == "decisions:chosen"
+            assert process.stdin is not None
+            process.stdin.close()
+            assert await asyncio.wait_for(process.wait(), 20) == 0
+
+
 def test_the_index_finds_journals_by_their_first_entry_when_it_has_no_entry(tmp_path: Path):
     sessions = tmp_path / "sessions"
     journal = Journal(cwd=str(tmp_path), path=sessions / "20260101-000000-1.jsonl")
