@@ -208,6 +208,36 @@ async def test_completion_stops_quiet_term_ignoring_descendant(tmp_path: Path, c
         await manager.aclose()
 
 
+@pytest.mark.parametrize("parent", ["stays", "exits"])
+async def test_a_descendant_that_left_the_process_group_is_stopped_with_its_job(tmp_path: Path, parent: str):
+    pid_path = tmp_path / "daemon.pid"
+    # A daemon: its own session (so the group's signal misses it), no pipes, TERM ignored. With "exits" its parent is
+    # gone before the job ends, so nothing in the process tree leads to it either.
+    daemon = (
+        "import os,signal,time\n"
+        "if os.fork()==0:\n"
+        " os.setsid(); signal.signal(signal.SIGTERM,signal.SIG_IGN)\n"
+        " os.close(0); os.close(1); os.close(2)\n"
+        f" open({str(pid_path)!r},'w').write(str(os.getpid())); time.sleep(60)\n"
+        + ("else: time.sleep(60)" if parent == "stays" else "")
+    )
+    waits = f"; while [ ! -s {shlex.quote(str(pid_path))} ]; do sleep 0.01; done" if parent == "exits" else ""
+    pid: int | None = None
+    try:
+        async with ProcessManager() as manager:
+            job = await manager.start(f"{shlex.quote(sys.executable)} -c {shlex.quote(daemon)}{waits}", cwd=tmp_path)
+            pid = await _wait_for_pid(pid_path)
+            if parent == "stays":
+                await manager.terminate(job.handle)
+            else:
+                assert (await manager.poll(job.handle, wait_s=5)).state == "exited"
+            assert not await asyncio.to_thread(_is_running, pid)
+    finally:
+        if pid is not None:
+            with contextlib.suppress(ProcessLookupError):
+                os.kill(pid, signal.SIGKILL)
+
+
 def test_event_loop_shutdown_stops_quiet_descendant(tmp_path: Path):
     pid_path = tmp_path / "shutdown-descendant.pid"
     child = (
