@@ -459,12 +459,17 @@ class FreeCredential:
         self._grant: tuple[float, FreeGrant] | None = None
         self.meters: Meters | None = None
         """The meters as the console last gave them: the grant's, then each response's `x-nace-free-*` headers."""
+        self.heard = 0
+        """How many times the console has given the meters, by a grant read or a response's headers."""
+        self.read = 0
+        """How many times the grant has been read from the console."""
 
     def observe(self, headers: Mapping[str, str]) -> None:
         """Take the meters a console response carries (`x-nace-free-used`, `x-nace-free-limit`, in USD)."""
         used, limit = _header_usd(headers.get(USED_HEADER)), _header_usd(headers.get(LIMIT_HEADER))
         if not used and not limit:
             return
+        self.heard += 1
         meters = self.meters or Meters(system1=Meter(used_usd=0, limit_usd=0), agent=Meter(used_usd=0, limit_usd=0))
         update: dict[str, Meter] = {}
         for name in ("system1", "agent"):
@@ -483,6 +488,7 @@ class FreeCredential:
                 self._grant = None
                 return found
             self._grant, self.meters = (time.monotonic(), found), found.meters
+            self.heard, self.read = self.heard + 1, self.read + 1
             grant = found
         return grant.model_copy(update={"meters": self.meters}) if self.meters is not None else grant
 

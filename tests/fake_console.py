@@ -79,8 +79,11 @@ class FakeConsole(FakeOpenAI):
         self.accesses: dict[str, Access] = {}
         self.revoked: set[int] = set()
         self.status = {"grants": "open", "inference": "open", "message": None}
+        """What `/v1/free/status` answers. With `inference` paused, every chat and System 1 call is refused as
+        `free_paused` and the grant reads `paused`."""
         self.grant: dict[str, Any] = copy.deepcopy(GRANT)
         """What `/v1/free/grant` answers; its meters grow by `charge` with each call, as the headers say."""
+        self.grant_reads = 0
         self.charge = {"system2": 0.0, "system1": 0.0}
         """What one chat (`system2`) or System 1 call costs its meter, in USD."""
         self._issued = 0
@@ -168,7 +171,9 @@ class FakeConsole(FakeOpenAI):
             elif path == "/v1/free/grant":
                 if self._authorized(handler):
                     with self.lock:
-                        send_json(handler, self.grant)
+                        self.grant_reads += 1
+                        paused = self.status["inference"] == "paused"
+                        send_json(handler, {**self.grant, "state": "paused"} if paused else self.grant)
             else:
                 return False
             return True
@@ -176,6 +181,9 @@ class FakeConsole(FakeOpenAI):
             self.bearers.append(handler.headers.get("Authorization", "").removeprefix("Bearer "))
             # An authorized request for a bundle model on a meter with credit left goes on to the fake model.
             if not self._authorized(handler):
+                return True
+            if self.status["inference"] == "paused":
+                send_json(handler, free_error("free_paused", "The free trial is paused."), 503)
                 return True
             if "chat" in path and not self._in_plan(handler, body):
                 return True

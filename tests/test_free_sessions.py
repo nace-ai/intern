@@ -17,7 +17,7 @@ import pytest
 from acp import RequestError, text_block
 from acp.schema import UsageUpdate
 
-from intern import cli, config, decisions
+from intern import cli, config, decisions, nace_free
 from intern.config import Bootstrap, Options, System2Unavailable
 from intern.events import Decision, Event, FreeNotice
 from intern.protocol.acp import PROVIDER_ERROR, AcpAgent, bootstrap_opener
@@ -341,6 +341,58 @@ async def test_an_agent_meter_spent_mid_run_goes_on_with_the_same_model_on_the_o
     assert [r["model"] for r in own.requests] == ["accounts/fireworks/models/glm-5p3", MODEL]
     [switch] = notices(events)
     assert (switch.kind, switch.meter) == ("switch", "agent") and "glm-5p3" in switch.text
+
+
+async def test_a_system_moved_to_own_keys_goes_back_to_free_credit_at_the_run_after_its_meter_has_room_again(
+    env, console, own, work, capsys
+):
+    (work / "notes.txt").write_text("notes\n")
+    console.replies = [READ]
+    console.charge["system2"] = 3.6  # the run's first reply spends the agent meter
+    await asyncio.to_thread(signed_in, env, capsys)
+    env = with_own_keys(env, own)
+    add_config(env, OWN_FIREWORKS.format(url=own.url))
+    session, events = await open_watched({**env, "FIREWORKS_API_KEY": "test-key"}, work)
+    async with session:
+        reads = console.grant_reads
+        assert (await session.run("read my notes")).reason == "completed"
+        assert console.refused == ["agent"] and len(own.requests) == 1  # went on with GLM on the Fireworks key
+        console.grant["meters"]["agent"]["limit_usd"] = 20.0  # an admin raises the limit
+        # A run long enough for System 1 to look, which stays on free credit: its answers carry the meters.
+        own.replies = list(JUDGED)
+        assert (await session.run("again")).reason == "completed"
+        assert session.deps.system2.ref == OWN
+        assert (await session.run("and again")).reason == "completed"
+        assert session.deps.system2.ref == BUNDLE["system2"]
+        assert session.free is not None and session.free.source.agent == "free"
+        assert console.grant_reads == reads  # no call to the console to learn it
+    assert len(console.requests) == 2 and console.refused == ["agent"]
+    assert [(notice.kind, notice.meter) for notice in notices(events)] == [("switch", "agent")] * 2
+
+
+@pytest.mark.parametrize("paused", ["mid_run", "between_runs"])
+async def test_a_session_that_fell_back_while_free_inference_was_paused_goes_back_to_free_credit_once_it_reopens(
+    env, console, own, work, capsys, monkeypatch, paused
+):
+    await asyncio.to_thread(signed_in, env, capsys)
+    env = with_own_keys(env, own)
+    add_config(env, OWN_FIREWORKS.format(url=own.url))
+    session, _ = await open_watched({**env, "FIREWORKS_API_KEY": "test-key"}, work)
+    async with session:
+        assert (await session.run("hi")).reason == "completed"
+        console.status["inference"] = "paused"
+        if paused == "between_runs":
+            monkeypatch.setattr(nace_free, "GRANT_TTL_S", 0.0)  # the grant read before has gone stale
+        assert (await session.run("go on")).reason == "completed"
+        assert (await session.run("and on")).reason == "completed"
+        assert (session.deps.system2.ref, session.system1) == (OWN, OWN_SYSTEM1)
+        console.status["inference"] = "open"
+        monkeypatch.setattr(nace_free, "GRANT_TTL_S", 0.0)
+        before = len(console.requests)
+        assert (await session.run("now")).reason == "completed"
+        assert (session.deps.system2.ref, session.system1) == (BUNDLE["system2"], BUNDLE["system1"])
+        assert session.free is not None and session.free.source.model_dump() == {"agent": "free", "system1": "free"}
+    assert len(console.requests) == before + 1
 
 
 @pytest.mark.parametrize("keys", ["own", "none"])

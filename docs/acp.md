@@ -562,8 +562,13 @@ When the console still refuses a free credit during a run (`free_exhausted`, `fr
 Either way the next run starts on the user's own configuration for that system, as when a meter is spent between
 runs, and its pickers come back in a `config_option_update`.
 
-Each move to the user's keys is told once, as is each meter crossing 20% and 5% left, in a `usage_update` whose
-`_meta.nace.free` has `notice`, a sentence to show as it is:
+A system on the user's own configuration goes back to free credit at the first run that starts once the console has
+said its meter can pay again (0.57.1 and later): an answer's meters with room (an admin raised the limit), or a
+grant read that is `active` again after a pause or with room. The grant is read again at most every 10 minutes; the
+start of a run makes no call to the console of its own.
+
+Each move to the user's keys, and each move back, is told once, as is each meter crossing 20% and 5% left, in a
+`usage_update` whose `_meta.nace.free` has `notice`, a sentence to show as it is:
 
 ```json
 {"sessionUpdate": "usage_update", "used": 18200, "size": 160000,
@@ -575,8 +580,8 @@ Each move to the user's keys is told once, as is each meter crossing 20% and 5% 
 
 A meter already under a share when the session opens is not told again.
 
-When a run starts on the user's own keys after the one before ran on free credit, the prompt's updates are followed by
-a `config_option_update` with the pickers as they are now.
+When a run starts on the user's own keys after the one before ran on free credit, or the other way round, the
+prompt's updates are followed by a `config_option_update` with the pickers as they are now.
 
 Every `usage_update` of a session that uses the free credit carries `_meta.nace.free`, the meters as the console last
 reported them (from the `x-nace-free-used` and `x-nace-free-limit` headers of each answer, so the gauge moves as the
@@ -1701,3 +1706,11 @@ becomes `memory`, whose `action` lists a folder's pages, reads a page or one blo
 line to the session step it was recorded from. Session tool calls, and `tool_call` updates, now show `memory` with
 an `action` where they showed `memory_search`. Additive for clients: 0.56.2 clients keep working; one that matched
 the name `memory_search` should match `memory` too.
+
+### 0.57.1
+
+A session that moved a system to the user's own keys goes back to free credit at the next run once the console says
+the meter can pay again (a limit raised, or free calls resumed after a pause), where before it stayed on the user's
+keys until the session was opened again ([running out](#running-out)). `usage_update`'s `_meta.nace.free.source`
+then reads `free` again, the move is told in its `notice`, and the pickers come back in a `config_option_update`.
+Nothing new on the wire: 0.57.0 clients keep working.
