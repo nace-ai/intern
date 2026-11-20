@@ -98,7 +98,7 @@ async def test_a_session_with_a_grant_runs_every_system_on_the_bundle_within_its
         assert window == BUNDLE["window_tokens"] and profile.output_cap(window, 3) == BUNDLE["max_output_tokens"]
         assert handoff.binding.window.working <= BUNDLE["window_tokens"]
     [request] = console.requests
-    assert request["model"] == "glm-5.3" and request["max_tokens"] == BUNDLE["max_output_tokens"]
+    assert request["model"] == BUNDLE["system2"] and request["max_tokens"] == BUNDLE["max_output_tokens"]
     assert console.system1 and {ask["model"] for ask in console.system1} == {"drex-latest"}
     assert console.bearers and all(bearer.startswith("nace_at_test_") for bearer in console.bearers)
     assert own.requests == [] and own.system1 == []

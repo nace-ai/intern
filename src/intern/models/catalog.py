@@ -234,6 +234,8 @@ def _listed(endpoint: Endpoint, body: Any) -> list[ModelInfo]:
             and responses_model(endpoint, model_id)
         ):
             name = item.get("name") or item.get("display_name") or model_id
+            if endpoint.prefixed_ids:
+                model_id = model_id.removeprefix(f"{endpoint.provider}/")
             models.append(ModelInfo(id=f"{endpoint.provider}/{model_id}", name=str(name), window=context_length(item)))
     return models
 

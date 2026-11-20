@@ -311,7 +311,7 @@ class Writer:
         key = await self.endpoint.authorization()
         headers = {**names.CLIENT_HEADERS, **({"Authorization": f"Bearer {key}"} if key else {})}
         payload: dict[str, object] = {
-            "model": self.endpoint.model,
+            "model": self.endpoint.wire_model,
             "temperature": 0,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
         }

@@ -42,8 +42,9 @@ LOCKED = "free_locked"
 LOW_SHARES = (0.2, 0.05)
 """What is left of a meter, as a share of its limit, when the user hears that it is running low."""
 FIREWORKS_MODELS = "fireworks/accounts/fireworks/models/"
-# shortcut: the console's routes for the bundle's models are Fireworks' names (`glm-5p3`), and these the harness's own
-# names for them; a model the console serves under another name has no own route until it is listed here.
+# The bundle names its models as the console serves them (`nace/glm-5.3`); the console routes each to Fireworks under
+# Fireworks' own name (drex's free policy, `models.<id>.route`), which the grant does not say. A bundle model not
+# listed here has no own route under another name.
 FIREWORKS_NAMES = {"glm-5.3": "glm-5p3", "deepseek-v4.1-flash": "deepseek-v4p1-flash-1017"}
 
 

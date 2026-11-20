@@ -150,7 +150,7 @@ class OpenAIResponsesProvider:
         if request.reasoning_effort:
             reasoning["effort"] = request.reasoning_effort
         body: dict[str, Any] = {
-            "model": self.endpoint.model,
+            "model": self.endpoint.wire_model,
             "input": items,
             "stream": True,
             "store": False,

@@ -8,6 +8,7 @@ It follows the console's contract (drex `docs/oauth.md` and `docs/free-trial.md`
 from __future__ import annotations
 
 import copy
+import json
 import threading
 import time
 from dataclasses import dataclass
@@ -136,6 +137,17 @@ class FakeConsole(FakeOpenAI):
                 return True
         return False
 
+    def _in_plan(self, handler: BaseHTTPRequestHandler, body: bytes) -> bool:
+        """Whether the chat names one of the bundle's agent models, by its exact id; if not, the refusal is sent."""
+        with self.lock:
+            bundle = self.grant["bundle"]
+            served = {bundle["system2"], bundle["handoff"]}
+        if json.loads(body or b"{}").get("model") in served:
+            return True
+        message = "This model isn't in the free plan. Send the model the free bundle names."
+        send_json(handler, free_error("model_not_in_plan", message), 403)
+        return False
+
     def _spent(self, handler: BaseHTTPRequestHandler, meter: str) -> bool:
         """Whether `meter` has nothing left, as the console reserves before a call; if so, the refusal is sent."""
         with self.lock:
@@ -162,8 +174,12 @@ class FakeConsole(FakeOpenAI):
             return True
         if path in ("/v1/chat/completions", "/v1/systemone"):
             self.bearers.append(handler.headers.get("Authorization", "").removeprefix("Bearer "))
-            # An authorized request on a meter with credit left goes on to the fake model.
-            return not self._authorized(handler) or self._spent(handler, "agent" if "chat" in path else "system1")
+            # An authorized request for a bundle model on a meter with credit left goes on to the fake model.
+            if not self._authorized(handler):
+                return True
+            if "chat" in path and not self._in_plan(handler, body):
+                return True
+            return self._spent(handler, "agent" if "chat" in path else "system1")
         form = {name: values[0] for name, values in parse_qs(body.decode()).items()}
         if path == "/oauth/device_authorization":
             self._device(handler, form)

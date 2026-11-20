@@ -134,6 +134,8 @@ class ProviderSpec(BaseModel):
     # "env": the key in `api_key_env`, read once. "nace": a credential source asked on every request
     # (`nace_credential`), which may be a token the console renews.
     credential: Literal["env", "nace"] = "env"
+    # The provider's own model ids keep its name (the console serves `nace/glm-5.3`), so the whole ref is sent.
+    prefixed_ids: bool = False
 
 
 # Every provider speaks OpenAI chat completions except Anthropic, which uses its native Messages API (its
@@ -165,6 +167,7 @@ PROVIDERS: dict[str, ProviderSpec] = {
         base_url_env="NACE_BASE_URL",
         session_header="x-session-affinity",
         credential="nace",
+        prefixed_ids=True,
     ),
     "together": ProviderSpec(
         base_url="https://api.together.xyz/v1", api_key_env="TOGETHER_API_KEY", base_url_env="TOGETHER_BASE_URL"
@@ -243,6 +246,7 @@ class Endpoint(BaseModel):
     api: Api = "openai"
     reasoning_field: str = "reasoning_content"
     session_header: str | None = None
+    prefixed_ids: bool = False
 
     @model_validator(mode="after")
     def _credential_host(self) -> Endpoint:
@@ -253,6 +257,11 @@ class Endpoint(BaseModel):
     @property
     def ref(self) -> str:
         return f"{self.provider}/{self.model}"
+
+    @property
+    def wire_model(self) -> str:
+        """The model id the provider is sent and lists."""
+        return self.ref if self.prefixed_ids else self.model
 
     async def authorization(self) -> str | None:
         """The key the next request carries: the credential's now, or the fixed key."""
@@ -298,6 +307,7 @@ def resolve_endpoint(
     return Endpoint(
         provider=provider,
         model=model,
+        prefixed_ids=spec.prefixed_ids,
         base_url=base_url.rstrip("/"),
         api_key=SecretStr(key) if key else None,
         credential=credential,

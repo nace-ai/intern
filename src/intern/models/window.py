@@ -103,14 +103,14 @@ async def _from_models_listing(client: httpx.AsyncClient, endpoint: Endpoint) ->
     if endpoint.api == "anthropic":
         # Anthropic's Models API describes one model at a time: `max_input_tokens` is its window, `max_tokens`
         # its output cap.
-        response = await client.get(f"{endpoint.base_url}/models/{endpoint.model}")
+        response = await client.get(f"{endpoint.base_url}/models/{endpoint.wire_model}")
         response.raise_for_status()
         item = response.json()
         return context_length(item), _output_cap(item), takes_images(item)
     response = await client.get(f"{endpoint.base_url}/models")
     response.raise_for_status()
     for item in response.json().get("data") or []:
-        if isinstance(item, dict) and item.get("id") == endpoint.model:
+        if isinstance(item, dict) and item.get("id") == endpoint.wire_model:
             return context_length(item), _output_cap(item), takes_images(item)  # pyright: ignore[reportUnknownArgumentType]
     return None, None, None
 

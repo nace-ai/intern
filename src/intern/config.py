@@ -499,7 +499,7 @@ class Bootstrap:
         except ConfigError:
             return None
         provider = PROVIDER_CLASSES.get(endpoint.api, OpenAICompatProvider)(endpoint)
-        return OwnRoute(ref=endpoint.ref, wire_model=endpoint.model, provider=provider)
+        return OwnRoute(ref=endpoint.ref, wire_model=endpoint.wire_model, provider=provider)
 
     def _own_console(self, model: str) -> DecisionBackend | None:
         """System 1 `model` on the user's own console key; None without one."""
@@ -537,7 +537,7 @@ class Bootstrap:
         return ModelBinding(
             provider=provider,
             ref=endpoint.ref,
-            wire_model=endpoint.model,
+            wire_model=endpoint.wire_model,
             profile=profile,
             window=window,
         )

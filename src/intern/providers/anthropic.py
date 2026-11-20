@@ -224,7 +224,7 @@ class AnthropicProvider:
         system, messages, own_reply = wire_messages(request.messages, self.endpoint.ref)
         mark_cache(system, messages, own_reply)
         body: dict[str, Any] = {
-            "model": self.endpoint.model,
+            "model": self.endpoint.wire_model,
             "max_tokens": request.max_output_tokens,
             "messages": messages,
             # Long outputs must stream: the API refuses large max_tokens on non-streaming requests.
