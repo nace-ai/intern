@@ -342,6 +342,30 @@ def test_saving_keeps_the_rest_of_the_config(tmp_path: Path):
     assert saved.keys == {"NACE_API_KEY": "env-file"}
 
 
+def test_saving_keeps_capability_settings_written_inline(tmp_path: Path):
+    """`capabilities = {...}` on one line is the same settings as `[capabilities]`; setup changes only the hand-over."""
+    inline = (
+        "capabilities = {guard = {enabled = true}, memory = {enabled = false}, "
+        'handoff = {to = "openrouter/old", at = 0.5}}\n'
+    )
+    (tmp_path / "config.toml").write_text(inline)
+    setup = Setup("ollama/qwen3:30b", SYSTEM1_BY_ID["drex-console"], handoff="anthropic/claude-haiku-5-5")
+    config = tomllib.loads(save(tmp_path, setup, NO_KEYCHAIN).config.read_text())
+    assert config["capabilities"] == {
+        "guard": {"enabled": True},
+        "memory": {"enabled": False},
+        "handoff": {"to": "anthropic/claude-haiku-5-5", "at": 0.5},
+    }
+
+    (tmp_path / "config.toml").write_text(inline)
+    config = tomllib.loads(save(tmp_path, replace(setup, handoff=None), NO_KEYCHAIN).config.read_text())
+    assert config["capabilities"] == {"guard": {"enabled": True}, "memory": {"enabled": False}, "handoff": {"at": 0.5}}
+
+    (tmp_path / "config.toml").write_text("capabilities = {guard = {enabled = true}}\n")
+    config = tomllib.loads(save(tmp_path, setup, NO_KEYCHAIN).config.read_text())
+    assert config["capabilities"] == {"guard": {"enabled": True}, "handoff": {"to": "anthropic/claude-haiku-5-5"}}
+
+
 async def test_a_local_server_that_does_not_answer_is_said_with_what_to_check():
     def down(request: httpx.Request) -> httpx.Response:
         raise httpx.ConnectError("refused", request=request)

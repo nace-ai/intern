@@ -34,7 +34,7 @@ from uuid import uuid4
 
 import httpx
 import tomlkit
-from tomlkit.items import Table
+from tomlkit.items import AbstractTable, InlineTable
 
 from intern.config import CONFIG_FILE, DEFAULT_SYSTEM1_MODEL, ENV_FILE
 from intern.models.catalog import (
@@ -816,14 +816,17 @@ class Setup:
         return f"{DECISIONS_PREFIX}{model}" if self.system1.backend == "decisions-api" else model
 
 
-def _table(document: tomlkit.TOMLDocument | Table, *names: str, super_table: bool = False) -> Table:
-    """The first of `names` the document has as a table (an old name for it included), else a new one under the
-    first name."""
+def _table(
+    document: tomlkit.TOMLDocument | AbstractTable, *names: str, super_table: bool = False
+) -> AbstractTable:
+    """The first of `names` the document has as a table (an old name for it included, and one written inline as
+    `name = {...}`), else a new one under the first name: inline when its parent is, so the file stays valid."""
     for name in names:
         existing = document.get(name)
-        if isinstance(existing, Table):
+        if isinstance(existing, AbstractTable):
             return existing
-    created = tomlkit.table(is_super_table=super_table)
+    inline = isinstance(document, InlineTable)
+    created = tomlkit.inline_table() if inline else tomlkit.table(is_super_table=super_table)
     document[names[0]] = created
     return created
 
@@ -838,7 +841,9 @@ def _write_handoff(document: tomlkit.TOMLDocument, handoff: str | None) -> None:
         return
     document["auto"] = False
     capabilities = document.get("capabilities")
-    if not isinstance(capabilities, Table) or not isinstance(table := capabilities.get("handoff"), Table):
+    if not isinstance(capabilities, AbstractTable):
+        return
+    if not isinstance(table := capabilities.get("handoff"), AbstractTable):
         return
     if "to" in table:
         del table["to"]
@@ -869,11 +874,12 @@ def write_config(home: Path, setup: Setup) -> Path:
     else:
         system1["console_key_env"] = option.key_env
     for provider_id, spec in setup.providers.items():
-        entry = tomlkit.table()
+        providers = _table(document, "providers")
+        entry = tomlkit.inline_table() if isinstance(providers, InlineTable) else tomlkit.table()
         for key, value in spec.model_dump(exclude_defaults=True).items():
             entry[key] = value
         entry["base_url"] = spec.base_url
-        _table(document, "providers")[provider_id] = entry
+        providers[provider_id] = entry
     _write_handoff(document, setup.handoff)
     home.mkdir(parents=True, exist_ok=True)
     path.write_text(tomlkit.dumps(document))
