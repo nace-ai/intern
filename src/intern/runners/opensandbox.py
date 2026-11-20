@@ -330,31 +330,37 @@ class OpenSandboxExecutor:
             mark, after = shlex.quote(self._scratch(".intern-synced")), shlex.quote(self._scratch(".intern-sync-next"))
             changes = self._scratch("harness-changed.tar")
             # The next mark is set before listing, so a change made while this runs is sent again next time,
-            # never lost.
+            # never lost. It replaces the mark only once the changes are on this machine: a failed download or
+            # unpack leaves the old mark, and the next sync sends the same changes again.
             changed = await self._must(
                 sandbox,
                 f"touch {after} && cd {target} && find . -type f \\( -newer {mark} -o -cnewer {mark} \\) -print0 "
-                f"| tar --null -cf {shlex.quote(changes)} -T - && mv {after} {mark} && echo ok",
+                f"| tar --null -cf {shlex.quote(changes)} -T - && echo ok",
             )
             if "ok" not in changed:
                 raise RuntimeError("OpenSandbox could not list the workspace's changes")
             archive = await sandbox.files.read_bytes(changes)
             await asyncio.to_thread(self._unpack, archive)
+            await self._must(sandbox, f"mv {after} {mark}")
 
     async def _send_own(self, sandbox: Any) -> None:
         """`copy` mode: the sandbox is the source of truth, so host files reach it only here, and only the ones the
         harness itself writes into the workspace (`.intern-resources/`, the web reader's retained sources)."""
         if self.options.workspace_mode != "copy":
             return
-        archive = await asyncio.to_thread(self._pack_own)
-        if archive is None:
+        packed = await asyncio.to_thread(self._pack_own)
+        if packed is None:
             return
+        archive, newest = packed
         upload = self._scratch("harness-own.tar")
         await sandbox.files.write_file(upload, archive)
         target = shlex.quote(self.options.sandbox_path)
         await self._must(sandbox, f"tar -xf {shlex.quote(upload)} -C {target} && rm {shlex.quote(upload)}")
+        # Only now are they sent: a failed upload leaves the mark, and the next command sends them again.
+        self._own_sent = max(self._own_sent, newest)
 
-    def _pack_own(self) -> bytes | None:
+    def _pack_own(self) -> tuple[bytes, int] | None:
+        """The harness's own files changed since the last upload that worked, as a tar, and the newest one's time."""
         root = self.workspace / OWN
         files = sorted(root.rglob("*")) if root.is_dir() else []
         changed = [p for p in files if p.is_file() and not p.is_symlink() and p.stat().st_mtime_ns > self._own_sent]
@@ -364,8 +370,7 @@ class OpenSandboxExecutor:
         with tarfile.open(fileobj=buffer, mode="w") as archive:
             for path in changed:
                 archive.add(path, arcname=str(path.relative_to(self.workspace)), recursive=False)
-        self._own_sent = max(path.stat().st_mtime_ns for path in changed)
-        return buffer.getvalue()
+        return buffer.getvalue(), max(path.stat().st_mtime_ns for path in changed)
 
     def _unpack(self, archive: bytes) -> None:
         with tarfile.open(fileobj=io.BytesIO(archive), mode="r") as tar:
@@ -467,20 +472,30 @@ class OpenSandboxExecutor:
         return OpenSandboxJob(self, sandbox, execution.id)
 
     async def aclose(self) -> None:
-        """Copy the last changes back, then kill the sandbox."""
+        """Copy the last changes back, then kill the sandbox. If the copy-back fails twice the sandbox is left
+        running, since it holds the only copy of those changes, and the error says so; the server removes it when
+        its `timeout_s` runs out."""
         async with self._starting:
             self._closed = True
             sandbox, self._sandbox = self._sandbox, None
         if sandbox is None:
             return
         try:
-            # Not suppressed: a lost copy-back loses the session's work, and session close reports it.
-            await self._sync_back(sandbox)
-        finally:
             try:
-                await sandbox.kill()
-            finally:
-                await sandbox.close()
+                await self._sync_back(sandbox)
+            except Exception:
+                try:
+                    await self._sync_back(sandbox)
+                except Exception as error:
+                    # Not suppressed: a lost copy-back loses the session's work, and session close reports it.
+                    raise RuntimeError(
+                        f"OpenSandbox could not copy the last changes back ({error}). The sandbox "
+                        f"{getattr(sandbox, 'id', '')} was not killed, so the changes are still in it at "
+                        f"{self.options.sandbox_path} until its timeout_s runs out."
+                    ) from error
+            await sandbox.kill()
+        finally:
+            await sandbox.close()
 
 
 class OpenSandboxJob:
