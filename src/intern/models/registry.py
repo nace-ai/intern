@@ -30,7 +30,7 @@ NACE_HOSTS = frozenset({"console.nace.ai", "console.test.nace.ai", "console.stag
 """The only hosts a Nace-issued credential is sent to, and only over HTTPS: a base-URL override pointing anywhere
 else must never receive it."""
 NACE_FREE_ENTRIES = frozenset({"NACE_FREE_REFRESH_TOKEN"})
-"""The free credential's keychain entries (service `intern`, as `[secrets]` reads them): harness-only, so a
+"""The free credential's keychain entries (the config home's service, as `[secrets]` reads them): harness-only, so a
 `[secrets]` entry of the same name never hands one to the agent's commands."""
 
 
@@ -108,17 +108,28 @@ to the user's own key or stops. `free_expired` is not sent while a credit has no
 `free_exhausted`."""
 
 
-def console_error(body: bytes) -> tuple[str, str | None] | None:
-    """`error.code` and `error.meter` of a refusal in the console's format (`{"error": {"code", "meter"?}}`); None for
-    any other body."""
+@dataclass(frozen=True)
+class ConsoleError:
+    """A refusal in the console's format (`{"error": {"code", "message", "meter"?}}`)."""
+
+    code: str
+    meter: str | None
+    message: str | None
+    """What the console says the refusal means, in words, on one line."""
+
+
+def console_error(body: bytes) -> ConsoleError | None:
+    """`error.code`, `error.meter` and `error.message` of a refusal in the console's format; None for any other
+    body."""
     try:
         error = json.loads(body).get("error")
     except (ValueError, AttributeError):
         return None
     if not isinstance(error, dict) or not isinstance(code := error.get("code"), str):
         return None
-    meter = error.get("meter")
-    return code, meter if isinstance(meter, str) else None
+    meter, message = error.get("meter"), error.get("message")
+    words = " ".join(message.split())[:300] if isinstance(message, str) else ""
+    return ConsoleError(code, meter if isinstance(meter, str) else None, words or None)
 
 
 class ProviderSpec(BaseModel):

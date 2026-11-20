@@ -212,6 +212,13 @@ class EditTool(Tool):
         first_line = _line_of(text, text.find(old))
         updated = text.replace(old, new) if args.replace_all else text.replace(old, new, 1)
         data = updated.encode("utf-8", errors="surrogateescape")
+        if path.read_bytes() != before:
+            # Another program saved the file since it was read: writing now would put its change back as it was.
+            return fail(
+                f"{args.path} changed on disk during the edit, so nothing was written",
+                "Read the file again and make the edit on its new contents.",
+                argument="path",
+            )
         path.write_bytes(data)
         replaced = count if args.replace_all else 1
         noun = "occurrence" if replaced == 1 else "occurrences"

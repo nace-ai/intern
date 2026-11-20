@@ -41,7 +41,7 @@ from textual.screen import ModalScreen
 from textual.timer import Timer
 from textual.widgets import Input, Static, TextArea
 
-from intern import capability_toggles, names, secrets_commands
+from intern import capability_toggles, handover_record, names, secrets_commands
 from intern.capability_settings import CapabilitySettings, GuardConfig, HandoffConfig
 from intern.config import (
     KNOWN_SYSTEM2,
@@ -70,6 +70,7 @@ from intern.events import (
     ReasoningDelta,
     Reduced,
     RunEnd,
+    RunError,
     RunStart,
     SecretUnavailable,
     State,
@@ -87,7 +88,7 @@ from intern.extensions.schedule import Schedule
 from intern.free_commands import FreeReport, console_of, report, set_use, sign_out
 from intern.free_session import METER_NAMES, SWITCH_REASONS, FreeSession, System
 from intern.handoff import DEFAULT_TARGET
-from intern.hooks import RunError, RunOutcome
+from intern.hooks import RunOutcome
 from intern.journal import (
     CompactionEntry,
     Entry,
@@ -99,7 +100,7 @@ from intern.journal import (
 from intern.loop import ModelBinding
 from intern.memory.spend import read_spend
 from intern.messages import AssistantMessage, ToolResultMessage, Usage, UserMessage
-from intern.models.catalog import DECISIONS_PREFIX, Catalog, ModelInfo, RunnerInfo, system1_choices
+from intern.models.catalog import DECISIONS_PREFIX, KAPITSA_PREFIX, Catalog, ModelInfo, RunnerInfo, system1_choices
 from intern.models.profile import EFFORT_LEVELS
 from intern.models.registry import FREE_FINAL, ConfigError, Role
 from intern.nace_free import FreeStore
@@ -267,6 +268,29 @@ KEYS: dict[str, str] = {
 """The keys, listed by /help after the commands."""
 
 
+def free_refusal(error: RunError) -> str:
+    """What the console's refusal for good of a free credit means, from its code and meter."""
+    system: System = "system1" if error.meter == "system1" else "agent"
+    return SWITCH_REASONS.get(error.code, f"Free {METER_NAMES[system]} credit used up")
+
+
+CONSOLE_REFUSALS = {
+    "rate_limited": "Nace's console is limiting requests for now; send again in a moment",
+    "upstream_error": "The model provider failed or could not be reached; nothing was charged",
+    "request_too_large": "The conversation is over the free trial's size limit; /compact it and send again",
+    "overloaded": "Nace's console is overloaded; send again in a moment",
+    "internal_error": "Something failed on Nace's side; send again",
+}
+"""What a console refusal that leaves the free credit as it is means, for a console that gave no `message`."""
+
+
+def console_refusal(error: RunError) -> str:
+    """What a console refusal that leaves the free credit as it is means: the console's own words, else its code's."""
+    if error.message:
+        return error.message.removesuffix(".")
+    return CONSOLE_REFUSALS.get(error.code, f"Nace's console refused the request ({error.code})")
+
+
 def _drive(value: str) -> Path:
     """A typed memory drive path, `~` expanded."""
     return Path(value).expanduser()
@@ -355,6 +379,7 @@ def resolve_command(name: str) -> str:
 
 CONSOLE_GROUP = "Console · decision models"
 DECISIONS_GROUP = "decisions API · OpenRouter"
+KAPITSA_GROUP = "On this machine · Kapitsa"
 
 
 def system2_choice(model: ModelInfo) -> Choice:
@@ -387,6 +412,8 @@ def offered(models: Iterable[ModelInfo], role: OfferedRole, keep: str = "") -> l
 
 
 def system1_choice(model: ModelInfo) -> Choice:
+    if model.id.startswith(KAPITSA_PREFIX):
+        return Choice(model.id, model.name, KAPITSA_GROUP, label=model.id.removeprefix(KAPITSA_PREFIX))
     if model.id.startswith(DECISIONS_PREFIX):
         label = model.id.removeprefix(DECISIONS_PREFIX)
         note = "" if model.name.casefold() in (model.id.casefold(), label.casefold()) else model.name
@@ -836,14 +863,14 @@ class HarnessApp(App[None]):
         if any(isinstance(e, MessageEntry) for e in entries):
             await self._begin()
         start = replies[-RESUME_TURNS] if len(replies) > RESUME_TURNS else 0
-        run_id, nudge, summary, turn = None, None, "", 0
+        run_id, nudge, summary = None, None, ""
         handed: HandoverJudgement | None = None  # a hand-over before the turns drawn, its own turns among them
         for i, entry in enumerate(entries):
             drawn = i >= start
             if isinstance(entry, MessageEntry) and entry.run_id is not None and entry.run_id != run_id:
                 run_id = entry.run_id  # a run began: its own ledger, under the prompt that began it
                 await self._hand_back()
-                handed, turn = None, 0
+                handed = None
                 self.run_count += 1
                 first = entry.message
                 asked = first.content if isinstance(first, UserMessage) and first.source == "user" else ""
@@ -864,7 +891,6 @@ class HarnessApp(App[None]):
                         handed = row
                     continue
                 case MessageEntry(message=AssistantMessage(usage=usage) as reply):
-                    turn += 1
                     self._spend(usage, efficient=self._by_efficient(reply.model))
                     run = self.ledger.current
                     run.model = run.model or reply.model  # the frontier model: a run starts on it
@@ -877,7 +903,7 @@ class HarnessApp(App[None]):
                         self.ledger.observe(start_call)  # a search's row on System 1's panel, a refusal's call
                     if not drawn:
                         continue
-                    await self.transcript.begin_turn(self._turn_head(turn, reply.model))
+                    await self.transcript.begin_turn(self._turn_head(reply.model))
                     if reply.reasoning:
                         await self.transcript.reasoning(reply.reasoning, live=False)
                     if reply.text:
@@ -964,13 +990,13 @@ class HarnessApp(App[None]):
         """System 2's name on the transcript's tab: the frontier model only while there is one to hand over to."""
         return "Frontier model" if self.status.handoff else "Model"
 
-    def _turn_head(self, turn: int | None = None, model: str = "") -> Content:
+    def _turn_head(self, model: str = "") -> Content:
         """Who takes a turn: the frontier model, or the efficient one once the run has handed over; `model`, the
         reply's own, where it is known (a resumed session's turns)."""
         handed = self.ledger.current.handover
         efficient = self.status.handed
         ref = model or (handed.target if efficient and handed is not None and handed.target else self.status.system2)
-        return turn_head(efficient, model_label(ref, self.status.labels), turn, handoff=bool(self.status.handoff))
+        return turn_head(efficient, model_label(ref, self.status.labels))
 
     def _spend(self, system2: Usage | None = None, system1: float = 0.0, *, efficient: bool = False) -> None:
         """Count what System 2's call (a reply, a State write) and System 1's asks cost on the masthead, and how much
@@ -1042,10 +1068,10 @@ class HarnessApp(App[None]):
                 if content != self._nudge_text:
                     await transcript.notice(f"⚑ {content}")
                 self._nudge_text = None
-            case TurnStart(turn=turn):
+            case TurnStart():
                 self.status.activity = ""
                 self.status.face("reading")
-                await transcript.begin_turn(self._turn_head(turn))
+                await transcript.begin_turn(self._turn_head())
             case TextDelta(text=text):
                 await transcript.text(text)
             case ReasoningDelta(text=text):
@@ -1156,8 +1182,8 @@ class HarnessApp(App[None]):
             case SubagentEnd(name=name, status=status, turns=turns):
                 kind = "ok" if status == "completed" else "warn"
                 await transcript.notice(f"Subagent {name}: {status}, {turns} turns", kind)
-            case RunEnd(reason=reason, detail=detail, turns=turns, usage=usage, system1=system1):
-                await self._hand_back()
+            case RunEnd(reason=reason, detail=detail, error=error, turns=turns, usage=usage, system1=system1):
+                await self._hand_back(live=True)
                 await transcript.finish_reply()
                 transcript.run_ended()
                 spent2, spent1 = self.run_spent  # what went uncounted: calls with no event of their own (code search)
@@ -1167,7 +1193,15 @@ class HarnessApp(App[None]):
                     self.status.face("failed", FAILED_FACE_S)
                 else:
                     self.status.face("idle")
-                line = REASONS.get(reason, reason) + (f": {detail}" if detail else "")
+                if error is not None and error.code in FREE_FINAL:
+                    line = free_refusal(error)
+                    if error.next:
+                        name = model_label(error.next, self.status.labels)
+                        line += f"; your next message runs on your keys with {name}"
+                elif error is not None:
+                    line = console_refusal(error)
+                else:
+                    line = REASONS.get(reason, reason) + (f": {detail}" if detail else "")
                 line += (
                     f" · {turns} turns · {tokens_text(usage.input_tokens)} in / {tokens_text(usage.output_tokens)} out"
                 )
@@ -1200,15 +1234,29 @@ class HarnessApp(App[None]):
         self.status.free = self._agent_meter()  # each response's headers move the meter
         self.status.refresh_line()
 
-    async def _hand_back(self) -> None:
+    def _handed_record(self) -> handover_record.InShort | None:
+        """What the frontier model is sent, at the next message, of the turns the efficient model took in the run
+        now over: their record, in short. None for a hand-over journaled before there was a record, whose turns it
+        is sent as they are."""
+        if self.session is None:
+            return None
+        run_id = self.ledger.current.run_id
+        stretches = handover_record.stretches(self.session.deps.journal.active_path())
+        stretch = next((s for s in stretches if s.run_id == run_id), None)
+        if stretch is None or stretch.rule != handover_record.RULE:
+            return None
+        return handover_record.in_short(stretch, self.session.deps.cwd)
+
+    async def _hand_back(self, *, live: bool = False) -> None:
         """A run that handed over has ended: the next message is the frontier model's again, and the transcript says
-        so."""
+        so, and folds the efficient model's turns into what the frontier model is sent of them; `live` when the
+        run ended just now."""
         self.status.handed = False
         ref = self.session.deps.system2.ref if self.session is not None else self.status.system2
         back = model_label(ref, self.status.labels)
         if self.transcript.handed:
             line = f"⇠ The frontier model ({back}) takes the next message"
-            await self.transcript.hand_back(Content.assemble((line, S_MUTED)))
+            await self.transcript.hand_back(Content.assemble((line, S_MUTED)), record=self._handed_record(), live=live)
         self.transcript.working(self._role(), back)
         self.status.refresh_line()
 
@@ -1430,6 +1478,8 @@ class HarnessApp(App[None]):
                 await self._submit(prompt)
             return
         note = f"frontier {done.setup.system2} · decision {done.setup.system1_choice}"
+        if done.setup.pause_free and (free := self._free()) is not None and free.plan.use:
+            note += " · free credit paused (/free resume goes back to it)"
         await self._reopen(note, before, shown=bool(self.query(Welcome)))  # the entering page has the models
 
     async def _setup_command(self) -> None:
@@ -1592,17 +1642,13 @@ class HarnessApp(App[None]):
         await self._reopen(note, before, shown=bool(self.query(Welcome)))
 
     async def _free_ended(self, error: RunError) -> None:
-        """A run the free credit ended for good: which of your models the next message runs on, or, with none,
-        a card saying what ran out and how to keep going."""
-        system: System = "system1" if error.meter == "system1" else "agent"
-        what = SWITCH_REASONS.get(error.code, f"Free {METER_NAMES[system]} credit used up")
+        """A run the free credit ended for good with none of your models to go on: a card saying what ran out and how
+        to keep going. With one, the run's stop line says which."""
         if error.next:
-            name = model_label(error.next, self.status.labels)
-            await self.transcript.notice(f"◇ {what}. Your next message runs on your keys with {name}.", "ok")
             return
         gone = "Free credit doesn't come back. " if error.code in ("free_exhausted", "free_expired") else ""
         card = Content.assemble(
-            (f"◇ {what}\n", S_HEAD),
+            (f"◇ {free_refusal(error)}\n", S_HEAD),
             (gone, S_INK),
             ("Add your own keys with ", S_INK),
             ("/setup", S_HEAD),
