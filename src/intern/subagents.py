@@ -10,8 +10,9 @@ parent's capabilities, and the parent may narrow them but never widen them.
   client (its cost cap and cache). Each parent extension that gates tool calls or results says how it runs in a child
   (`Extension.for_subagent`); one that gates and does not say stops the child from starting, so a third-party safety
   extension is never silently left out.
-- **Memory** is read-only: `memory_search` passes on as any tool, the drive stays write-protected, recall does not run
-  again, and only the parent's session is stewarded. The child reports back; the parent decides what is kept.
+- **Memory** is read-only: the `memory` tool passes on as any tool (without the parent's recalled pages), the drive
+  stays write-protected, recall does not run again, and only the parent's session is stewarded. The child reports
+  back; the parent decides what is kept.
 - **Budget and deadline** are the parent's: the child calls the parent's System 2 provider, which the session's budget
   wraps, so its calls and cost count against the same caps and the same deadline. A child also has its own turn
   budget, never above the parent's, and an optional wall-clock limit.
@@ -168,7 +169,7 @@ def child_extensions(parent: Sequence[h.Extension]) -> list[h.Extension]:
 def child_tools(parent: Sequence[Tool], names: Sequence[str] | None) -> list[Tool]:
     """The parent's tools a child gets: all it may pass on, or those named, in the parent's order."""
     by_name = {tool.name: tool for tool in parent}
-    passable = [tool for tool in parent if tool.name not in NEVER_PASSED]
+    passable = [tool.for_subagent() for tool in parent if tool.name not in NEVER_PASSED]
     if names is None:
         return passable
     allowed = {tool.name for tool in passable}

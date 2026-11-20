@@ -180,6 +180,9 @@ def _usage(raw: dict[str, Any]) -> Usage:
     )
 
 
+CUT_OFF = "the reply hit the output limit before the call was finished"
+
+
 @dataclass
 class _Block:
     type: str
@@ -188,6 +191,7 @@ class _Block:
     parts: list[str] = field(default_factory=list)
     signature: str = ""
     data: str = ""
+    closed: bool = False
 
 
 @dataclass
@@ -317,6 +321,9 @@ class AnthropicProvider:
                     item = self._delta(reply, event)
                     if item is not None:
                         yield item
+                case "content_block_stop":
+                    if (ended := reply.blocks.get(event.get("index", -1))) is not None:
+                        ended.closed = True
                 case "message_delta":
                     reply.stop = (event.get("delta") or {}).get("stop_reason") or reply.stop
                     reply.usage.update({k: v for k, v in (event.get("usage") or {}).items() if v is not None})
@@ -361,6 +368,7 @@ class AnthropicProvider:
         signed: list[Block] = []
         calls: list[ToolCall] = []
         invalid: list[InvalidToolCall] = []
+        cut_off = _STOP_KINDS.get(reply.stop or "") == "length"
         for _, block in sorted(reply.blocks.items()):
             joined = "".join(block.parts)
             if block.type == "text":
@@ -375,6 +383,10 @@ class AnthropicProvider:
                 arguments, error = parse_arguments(joined)
                 if not block.name:
                     invalid.append(InvalidToolCall(id=block.id, name="", raw_arguments=joined, error="no tool name"))
+                elif cut_off and not block.closed:
+                    # The output limit ended the reply inside this call. With no argument sent yet it would parse as
+                    # `{}` and run on the tool's defaults.
+                    invalid.append(InvalidToolCall(id=block.id, name=block.name, raw_arguments=joined, error=CUT_OFF))
                 elif arguments is None:
                     invalid.append(
                         InvalidToolCall(id=block.id, name=block.name, raw_arguments=joined, error=error or "")
