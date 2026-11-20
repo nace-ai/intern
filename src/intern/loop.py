@@ -831,9 +831,11 @@ class Run:
         # The cut is the plan's, not the State's: the recent turns stay raw even where the State describes them.
         summary, method = (view.state, "state") if view.covered >= len(older) else (None, "drop")
         # System 1 says which of the reads being cut the current step works on; those stay verbatim.
-        kept = await keep_reads(
-            older, view.kept, self._system1_state(), self.deps.decisions, self.window, turn=self.turn
+        kept = await self._abortable(
+            keep_reads(older, view.kept, self._system1_state(), self.deps.decisions, self.window, turn=self.turn)
         )
+        if kept is None:
+            return view  # stopped while System 1 was asked: cut nothing
         if summary is None:
             # No State covers the cut: list what the cut turns did, with the user's requests as a State has them.
             previous = without_code_sections(view.state) if view.state else None
@@ -845,10 +847,12 @@ class Run:
             kept=kept,
         )
         for extension in self.deps.hooks.extensions:
-            decision = await self.deps.hooks.invoke(
-                "session_compact", extension, lambda e, p=proposal: e.session_compact(p, self._ctx())
+            decision = await self._abortable(
+                self.deps.hooks.invoke(
+                    "session_compact", extension, lambda e, p=proposal: e.session_compact(p, self._ctx())
+                )
             )
-            if isinstance(decision, h.Veto):
+            if self.control.abort.is_set() or isinstance(decision, h.Veto):
                 return view
             if decision is not None:
                 proposal = decision
@@ -1211,7 +1215,27 @@ class Run:
         # A big test/build log becomes a receipt of its evidence; hooks see the whole output; the window
         # bound applies to what is left.
         result = reduce_output(call, result, self.deps.spill_dir, self.turn, self.deps.emit) or result
-        result = await self.deps.hooks.chain("tool_result", result, lambda e, r: e.tool_result(call, r, self._ctx()))
+        # Abortable: a hook may wait on System 1 (the tool-result guard does), and Esc frees the prompt whatever runs.
+        # A result that is already the stop's own (the call was refused or cut short at the abort) goes through whole.
+        hooked = self.deps.hooks.chain("tool_result", result, lambda e, r: e.tool_result(call, r, self._ctx()))
+        checked = await hooked if self.control.abort.is_set() else await self._abortable(hooked)
+        if checked is None:
+            # The call ran, but its result was not checked to the end: it is not shown, to the model or a client.
+            stopped = fail(
+                "the run was aborted while this call's result was checked, so the result is not shown",
+                "The call itself ran. Check what it did before you run it again.",
+                retry_safe=False,
+                kind="stopped",
+            )
+            checked = ToolResult(
+                call_id=call.id,
+                tool_name=call.name,
+                status=stopped.status,
+                content=stopped.content,
+                error=stopped.error,
+                duration_ms=result.duration_ms,
+            )
+        result = checked
         limit = self._tool_result_chars()
         content, cut = bound_output(result.content, limit)
         if cut:
