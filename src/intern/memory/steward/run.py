@@ -19,7 +19,18 @@ from intern.decisions import (
 )
 from intern.journal import Journal
 from intern.memory.drive import main_commit, tracked_files, tracked_names
-from intern.memory.forget import MARKER, MIN_COVERED_CHARS, Removal, Spot, body, candidates, widened
+from intern.memory.forget import (
+    MARKER,
+    MIN_COVERED_CHARS,
+    SESSION,
+    Removal,
+    Spot,
+    body,
+    candidates,
+    earlier,
+    followers,
+    widened,
+)
 from intern.memory.forget import apply as apply_removal
 from intern.memory.format import (
     CODE_SUFFIXES,
@@ -179,12 +190,22 @@ FORGOTTEN = (
     "Does line {name} say what user message {message} asked to forget, or what it said is wrong? A line that only "
     "shares a name or a subject with it does not."
 )
+FOLLOWED = (
+    "Does line {name} repeat what the lines being forgotten say, which user message {message} asked to forget or "
+    "said is wrong? A line that only shares a name or a subject with them does not."
+)
 # Only a session whose user used one of these words is asked FORGET, so other sessions cost no extra ask.
 _FORGET_CUE = re.compile(
-    r"\b(forget|forgot|delete|remove|erase|drop|wrong|incorrect|not true|no longer|isn'?t|wasn'?t|never)\b", re.I
+    r"\b(forget|forgot|delete|remove|erase|drop|wipe|scrub|strike|purge|clear|discard|disregard|ignore|redact|"
+    r"scratch|wrong|incorrect|mistake|mistaken|not true|no longer|isn'?t|wasn'?t|never|take (it|that|this) back|"
+    r"off the record|get rid|(don'?t|do not|not|not be|stop) (keep|kept|remember|store|retain|record|save)\w*|"
+    r"should(n'?t| not) have)\b",
+    re.I,
 )
-MAX_FORGET_PAGE_LINES = 40
-MAX_FORGET_TRANSCRIPT_LINES = 20
+# Page lines offered for one request; half as many transcript lines are offered beside them.
+MAX_FORGET_LINES = 40
+MAX_FORGET_SESSION_LINES = 20
+MAX_FOLLOWED_LINES = 20
 FORGET_MESSAGE_CHARS = 600
 LASTING = (
     "Will item {name} still be true and useful in a later session in the same world, for a different task or "
@@ -386,8 +407,9 @@ def _noul(answer: Answer | None) -> float:
 async def _forgetting(
     decision: _Decision, ex: Extract, files: dict[str, str], root: Path
 ) -> tuple[Removal, dict[str, str], Extract]:
-    # A user's request to forget, or word that a line is wrong: System 1 finds the lines it means, and the session's
-    # own record of the request is scrubbed before anything is written from it.
+    # A user's request to forget, or word that a line is wrong: System 1 finds the lines it means, in memory and in
+    # what the session said before the request, then the lines that repeat what those say in other words. The
+    # session's own record of the request is scrubbed before anything is written from it.
     users = [t for t in ex.turns if t.role == "user"]
     asked = [i for i, t in enumerate(users) if _FORGET_CUE.search(t.text)]
     if not asked:
@@ -402,28 +424,44 @@ async def _forgetting(
     transcripts.pop(f"{SESSIONS_FOLDER}{ex.session_id}.txt", None)
     found: list[tuple[int, Spot]] = []
     for i in flagged:
-        spots = candidates(files, transcripts, users[i].text, MAX_FORGET_PAGE_LINES, MAX_FORGET_TRANSCRIPT_LINES)
+        spots = candidates(files, transcripts, users[i].text, MAX_FORGET_LINES)
+        before = [t.text for t in ex.turns if t.order < users[i].order]
+        spots += earlier(before, users[i].text, MAX_FORGET_SESSION_LINES)
         found += [(i, s) for s in spots if all(s != f for _, f in found)]
-    removal = Removal()
-    if found:
-        listed = "\n".join(f'u{i}. "{clip(users[i].text, FORGET_MESSAGE_CHARS)}"' for i in flagged)
-        held = "\n".join(
-            f"c{k}. [{s.file}] {clip(strip_source(s.line), CITED_CHARS)}" for k, (_, s) in enumerate(found)
-        )
-        questions = {
-            f"c{k}": NoulQuestion(instructions=FORGOTTEN.format(name=f"c{k}", message=f"u{i}"))
-            for k, (i, _) in enumerate(found)
-        }
-        answers = await decision.ask(
-            "steward_forgotten", f"User messages:\n{listed}\n\nLines memory holds:\n{held}", questions
-        )
-        kept = [s for k, (_, s) in enumerate(found) if _noul(answers.get(f"c{k}")) >= NOTE_KEEP]
-        removal = widened(files, transcripts, Removal(lines=kept))
-    return removal, transcripts, _scrub(ex, [users[i] for i in flagged], removal)
+    listed = "\n".join(f'u{i}. "{clip(users[i].text, FORGET_MESSAGE_CHARS)}"' for i in flagged)
+    picked = await _picked(decision, FORGOTTEN, NOTE_KEEP, f"User messages:\n{listed}", found)
+    more: list[tuple[int, Spot]] = []
+    for i in flagged:
+        seen = [s for _, s in [*found, *more]]
+        mine = [s for j, s in picked if j == i]
+        more += [(i, s) for s in followers(files, transcripts, users[i].text, mine, seen, MAX_FOLLOWED_LINES)]
+    if more:
+        going = "\n".join(f"- {clip(strip_source(s.line), CITED_CHARS)}" for _, s in picked)
+        # A line found only through another line shares no word with the request, so it needs a surer answer.
+        state = f"User messages:\n{listed}\n\nLines being forgotten:\n{going}"
+        picked += await _picked(decision, FOLLOWED, KEEP, state, more)
+    said = [s.line for _, s in picked if s.file == SESSION]
+    removal = widened(files, transcripts, Removal(lines=[s for _, s in picked if s.file != SESSION]))
+    return removal, transcripts, _scrub(ex, [users[i] for i in flagged], removal, said)
 
 
-def _scrub(ex: Extract, asked: list[Turn], removal: Removal) -> Extract:
-    # The request, the reply to it and any removed line the session repeated leave everything written from it.
+async def _picked(
+    decision: _Decision, question: str, bar: float, state: str, found: list[tuple[int, Spot]]
+) -> list[tuple[int, Spot]]:
+    if not found:
+        return []
+    held = "\n".join(f"c{k}. [{s.file}] {clip(strip_source(s.line), CITED_CHARS)}" for k, (_, s) in enumerate(found))
+    questions: dict[str, Question] = {
+        f"c{k}": NoulQuestion(instructions=question.format(name=f"c{k}", message=f"u{i}"))
+        for k, (i, _) in enumerate(found)
+    }
+    answers = await decision.ask("steward_forgotten", f"{state}\n\nLines memory holds:\n{held}", questions)
+    return [(i, s) for k, (i, s) in enumerate(found) if _noul(answers.get(f"c{k}")) >= bar]
+
+
+def _scrub(ex: Extract, asked: list[Turn], removal: Removal, said: list[str]) -> Extract:
+    # The request, the reply to it, any removed line the session repeated and what the session itself said of it
+    # before the request leave everything written from it.
     pointers = {t.pointer for t in asked}
     marked: list[Turn] = []
     after = False
@@ -431,7 +469,7 @@ def _scrub(ex: Extract, asked: list[Turn], removal: Removal) -> Extract:
         if turn.pointer in pointers or (after and turn.role == "assistant"):
             marked.append(turn)
         after = turn.pointer in pointers
-    said = [body(s.line) for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER)]
+    said = [*said, *(body(s.line) for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER))]
     texts = {b for b in [*(t.text.strip() for t in marked), *said] if len(b) >= MIN_COVERED_CHARS}
     scrubbed = Extract.model_validate(_replaced(ex.model_dump(), sorted(texts, key=len, reverse=True)))
     gone = {t.pointer for t in marked}

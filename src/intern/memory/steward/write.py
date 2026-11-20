@@ -570,6 +570,14 @@ def with_rules(lead: str, page: Page) -> str:
     return f"{lead.rstrip('.')}; rules on {rules}"[:LEAD_CHARS] + "."
 
 
+def built_lead(page: Page) -> str | None:
+    # The lead of a page whose lead is built from its lines, so it says no more than they do; None for other pages.
+    if is_history(page.path) or page.kind not in ("subject", "map"):
+        return None
+    lead = subject_lead(page) if page.kind == "subject" else with_rules(map_lead(page), page)
+    return f"{page.meta['part']}, part of {lead}" if page.meta.get("part") else lead
+
+
 def relate(page: Page, relation: str, target: str) -> None:
     block = _relations(page)
     line = f"- {relation} [[{target}]]"
@@ -947,11 +955,11 @@ def write(
         if is_history(path) and not target.blocks:
             del out.pages[path]
             continue
-        if is_history(path) or target.kind not in ("subject", "map"):
+        lead = built_lead(target)
+        if lead is None:
             continue
         old = target.lead
-        lead = subject_lead(target) if target.kind == "subject" else with_rules(map_lead(target), target)
-        target.lead = [f"{target.meta['part']}, part of {lead}" if target.meta.get("part") else lead]
+        target.lead = [lead]
         if not _fits(target):
             target.lead = old
 

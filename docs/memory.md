@@ -182,14 +182,21 @@ Removal is hard: what goes leaves `main`'s current files, including `graveyard/`
 index. Earlier commits of the drive still hold it; only rewriting its git history removes it from there.
 
 - **Asked in a session.** When the user asks to forget something, or says a remembered thing is wrong and should
-  go, the steward finds it before it writes anything. System 1 first marks the messages that ask, then picks the
-  lines they mean among the page lines and earlier transcript lines that share their words (at most 40 and 20).
+  go, the steward finds it before it writes anything. System 1 first marks the messages that ask, however they
+  word it ("wipe", "strike", "I should not have shared"). It then picks the lines they mean among the page lines
+  and earlier transcript lines that share their words, whatever the words' endings (at most 40 and 20). A line
+  that shares one word is offered when few lines hold that word, so the name of a project is enough. System 1 is
+  then asked once more about the lines that hold the names and numbers of the picked lines (at most 20 and 10):
+  an address goes from every line that states it, though the request never spelled it out.
   The lines go, a page left with nothing goes, links to a gone page go, and a transcript line that quotes a
-  removed line, or a gone page's title or path, becomes `[removed at the user's request]`. A session whose task
-  line goes is forgotten whole: its transcript and its work page are deleted. The request itself, the reply after it and every
-  restatement in the session are removed from what the steward writes, so the session's own transcript and work
-  page do not repeat it. The log says how many lines went, never which. The removal lands in the session's
-  commit, so the next session no longer sees it.
+  removed line, or a gone page's title or path, becomes `[removed at the user's request]`. A page's summary line
+  is built again from the lines that stay, and a kind of work left with no session leaves the schema. A session
+  whose task line goes is forgotten whole: its transcript and its work page are deleted. The request itself, the
+  reply after it and every restatement in the session are removed from what the steward writes, so the session's
+  own transcript and work page do not repeat it. So is what the session said before the request, when the user
+  tells something and takes it back in one session: System 1 picks among the earlier sentences that share the
+  request's words (at most 20). The log says how many lines went, never which. The removal lands in the
+  session's commit, so the next session no longer sees it.
 - **By command.** `intern memory forget DRIVE "words" [--page user/people/sam]` lists every line that holds all
   the words (a page title too, which removes its page, and a transcript's task line, which removes its session)
   and the transcript lines that quote them; `--apply`
