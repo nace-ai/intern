@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import inspect
+import json
 import os
 import re
 import shlex
@@ -29,6 +30,32 @@ from intern.mcp_credentials import CredentialCommand, run_credential_command
 
 #: The most a secret command may print: room for a PEM key or a service-account JSON.
 MAX_COMMAND_SECRET_BYTES = 64 * 1024
+
+#: The shortest piece of a several-line value that is redacted on its own: shorter ones (`}`, a blank line) would
+#: mangle ordinary output. The same floor a stored value has.
+MIN_FRAGMENT_CHARS = 8
+
+#: Where a value breaks into lines: real line ends, and the escapes JSON writes for them (a service-account JSON
+#: holds its PEM key as one string with `\n` in it, which `jq -r` prints as lines).
+_LINE_BREAK = re.compile(r"\r\n|\r|\n|\\r|\\n")
+
+
+def _json_escaped(text: str) -> set[str]:
+    """`text` as it stands inside a JSON string, with and without `\\u` escapes for non-ASCII."""
+    return {json.dumps(text, ensure_ascii=ascii_only)[1:-1] for ascii_only in (True, False)}
+
+
+def redaction_forms(value: str) -> set[str]:
+    """Every literal to redact for one secret: the value, each line of it long enough to redact on its own, and
+    each of those as JSON writes it. Output rarely holds a several-line value whole: a paged `read`, `grep` and
+    `grep -n` show single lines, and JSON shows the line ends as `\\n`."""
+    forms = {value} | _json_escaped(value)
+    lines = [line.strip() for line in _LINE_BREAK.split(value)]
+    if len(lines) > 1:
+        for line in lines:
+            if len(line) >= MIN_FRAGMENT_CHARS:
+                forms |= {line} | _json_escaped(line)
+    return forms
 
 
 class SecretAccessDenied(Exception):
@@ -136,7 +163,9 @@ class SecretRedactor:
     """Literal redaction for ordinary output, not a general information-flow guard."""
 
     def __init__(self, values: list[SecretStr]) -> None:
-        self._values = sorted({v.get_secret_value() for v in values if v.get_secret_value()}, key=len, reverse=True)
+        forms = {form for v in values if v.get_secret_value() for form in redaction_forms(v.get_secret_value())}
+        # Longest first: a value seen whole becomes one `[REDACTED]`, not one per line.
+        self._values = sorted(forms, key=len, reverse=True)
 
     def redact(self, text: str) -> str:
         for value in self._values:
@@ -164,26 +193,35 @@ class StreamRedactor:
     `flush`), so a value split across two chunks is still caught."""
 
     def __init__(self, values: list[bytes]) -> None:
-        values = [value for value in values if value]
-        self._pattern = re.compile(b"|".join(re.escape(value) for value in values)) if values else None
-        self._overlap = max(map(len, values), default=1) - 1
+        # Literal replaces, longest first, not one alternation: a PEM key is hundreds of lines, and an alternation
+        # that long takes seconds per megabyte.
+        self._values = sorted({value for value in values if value}, key=len, reverse=True)
+        self._overlap = max(map(len, self._values), default=1) - 1
         self._pending = b""
 
+    def _redacted(self, data: bytes) -> bytes:
+        for value in self._values:
+            data = data.replace(value, b"[REDACTED]")
+        return data
+
     def feed(self, chunk: bytes) -> bytes:
-        if self._pattern is None:
+        if not self._values:
             return chunk
         pending = self._pending + chunk
         cut = max(0, len(pending) - self._overlap)
-        for match in self._pattern.finditer(pending):
-            if match.start() < cut < match.end():
-                cut = match.start()
-                break
+        moved = True
+        while moved:  # until no value lies across the cut
+            moved = False
+            for value in self._values:
+                start = pending.find(value, max(0, cut - len(value) + 1), cut + len(value) - 1)
+                if 0 <= start < cut:
+                    cut, moved = start, True
         ready, self._pending = pending[:cut], pending[cut:]
-        return self._pattern.sub(b"[REDACTED]", ready)
+        return self._redacted(ready)
 
     def flush(self) -> bytes:
         pending, self._pending = self._pending, b""
-        return self._pattern.sub(b"[REDACTED]", pending) if self._pattern is not None else pending
+        return self._redacted(pending)
 
 
 @dataclass(frozen=True, repr=False)

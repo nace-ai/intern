@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from pathlib import Path
 
 import pytest
@@ -188,6 +189,40 @@ def test_stream_redaction_catches_values_split_across_any_chunk_boundary():
         assert out == b"start [REDACTED] middle [REDACTED] abc end [REDACTED]", size
     plain = SecretRedactor([]).stream()
     assert plain.feed(b"as is") == b"as is" and plain.flush() == b""
+
+
+PEM_BODY = [f"FAKEpemLINE{i:02d}abcdefghijklmnopqrstuvwxyz0123456789" for i in range(6)]
+PEM = "\n".join(["-----BEGIN FAKE KEY-----", *PEM_BODY, "-----END FAKE KEY-----"])
+
+
+def test_a_several_line_secret_is_redacted_line_by_line_and_json_escaped():
+    redactor = SecretRedactor([SecretStr(PEM)])
+    assert redactor.redact(f"key:\n{PEM}\ndone") == "key:\n[REDACTED]\ndone"
+    # What a paged `read`, the `grep` tool and `grep -n` show: some of the lines, each with a prefix.
+    paged = "\n".join(f"{n}:{line}" for n, line in enumerate(PEM.splitlines()[2:5], 3))
+    assert redactor.redact(paged) == "3:[REDACTED]\n4:[REDACTED]\n5:[REDACTED]"
+    # What JSON output (the browser, a process's log, `json.dumps`) shows: line ends written as `\\n`.
+    escaped = redactor.redact(json.dumps({"key": PEM, "tail": PEM.split("\n", 4)[4]}))
+    assert not any(line in escaped for line in PEM_BODY)
+    # Ordinary output keeps its short lines, though the value has short lines too.
+    assert SecretRedactor([SecretStr("{\n" + PEM + "\n}")]).redact("{\n}\n") == "{\n}\n"
+
+
+def test_a_key_inside_a_json_secret_is_redacted_when_printed_as_lines():
+    account = json.dumps({"type": "service_account", "private_key": PEM + "\n"})
+    redactor = SecretRedactor([SecretStr(account)])
+    printed = redactor.redact(json.loads(account)["private_key"])  # `jq -r .private_key`
+    assert not any(line in printed for line in PEM_BODY)
+    assert redactor.redact(f"saved {account}") == "saved [REDACTED]"
+
+
+def test_stream_redaction_catches_single_lines_of_a_several_line_secret_at_any_chunking():
+    redactor = SecretRedactor([SecretStr(PEM)])
+    text = f"2:{PEM_BODY[0]}\n3:{PEM_BODY[1]}\nplain\n".encode()
+    for size in (1, 7, 40, len(text)):
+        stream = redactor.stream()
+        out = b"".join(stream.feed(text[i : i + size]) for i in range(0, len(text), size)) + stream.flush()
+        assert out == b"2:[REDACTED]\n3:[REDACTED]\nplain\n", size
 
 
 async def test_prepared_job_has_only_the_allowed_environment_and_the_secret(tmp_path: Path):
