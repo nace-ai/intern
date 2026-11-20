@@ -37,6 +37,12 @@ def free_error(code: str, message: str, reason: str | None = None) -> dict[str, 
     return {"error": {**error, **({"reason": reason} if reason else {})}}
 
 
+def console_error(status: int, type_: str, code: str, message: str, retry_after: int | None = None) -> tuple[int, dict]:
+    """A refusal of a free call as the console's agent proxy words it (drex `lib/free/agent-proxy.ts`)."""
+    error: dict[str, Any] = {"type": type_, "code": code, "message": message, "request_id": "req_test"}
+    return status, {"error": {**error, **({"retry_after": retry_after} if retry_after is not None else {})}}
+
+
 @dataclass
 class Refresh:
     family: int
@@ -86,6 +92,9 @@ class FakeConsole(FakeOpenAI):
         self.grant_reads = 0
         self.charge = {"system2": 0.0, "system1": 0.0}
         """What one chat (`system2`) or System 1 call costs its meter, in USD."""
+        self.chat_error: tuple[int, dict[str, Any]] | None = None
+        """A status and body every chat answers instead of the model: a refusal that leaves the credit as it is, such as
+        a provider's 429 or 502 (`console_error`)."""
         self._issued = 0
         self._families = 0
 
@@ -186,6 +195,11 @@ class FakeConsole(FakeOpenAI):
                 send_json(handler, free_error("free_paused", "The free trial is paused."), 503)
                 return True
             if "chat" in path and not self._in_plan(handler, body):
+                return True
+            if "chat" in path and self.chat_error is not None:
+                status, error = self.chat_error
+                retry = error["error"].get("retry_after")
+                send_json(handler, error, status, {"Retry-After": str(retry)} if retry is not None else None)
                 return True
             return self._spent(handler, "agent" if "chat" in path else "system1")
         form = {name: values[0] for name, values in parse_qs(body.decode()).items()}

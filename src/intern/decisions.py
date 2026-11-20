@@ -255,8 +255,8 @@ class DecisionsApiBackend:
                     await self.pace()
                     response = await self._post(client, request, timeout)
                 refused = console_error(response.content) if response.status_code >= 400 else None
-                if refused is not None and refused[0] in FREE_FINAL:
-                    raise FreeRefused(*refused, response.text[:500])
+                if refused is not None and refused.code in FREE_FINAL:
+                    raise FreeRefused(refused.code, refused.meter, response.text[:500])
                 response.raise_for_status()
                 body = response.json()
                 raw = body["answers"]

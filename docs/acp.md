@@ -1745,3 +1745,11 @@ An unbound session whose free credit is why it cannot bind says so by code: `ses
 [`provider_error`](#stop-reasons-and-errors) does ([when no System 2 can run](#when-no-system-2-can-run)). A client
 can show the free credit's state instead of matching the wording. Older clients see the same code and message:
 0.57.3 clients keep working.
+
+### 0.58.1
+
+When the Nace console refuses a request without ending the free credit (`rate_limited`, `upstream_error`,
+`request_too_large`, `overloaded`, `internal_error`), the terminal UI's stop line says what the console said in
+words ("The model provider is busy. Retry after 1 seconds"), where before it showed `provider_error: HTTP 429 from
+nace:` and the console's JSON body. The harness event `run_end.error` gains an optional `message`, the console's
+`error.message`. Nothing changes on ACP: 0.58.0 clients keep working.

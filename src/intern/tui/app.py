@@ -274,6 +274,23 @@ def free_refusal(error: RunError) -> str:
     return SWITCH_REASONS.get(error.code, f"Free {METER_NAMES[system]} credit used up")
 
 
+CONSOLE_REFUSALS = {
+    "rate_limited": "Nace's console is limiting requests for now; send again in a moment",
+    "upstream_error": "The model provider failed or could not be reached; nothing was charged",
+    "request_too_large": "The conversation is over the free trial's size limit; /compact it and send again",
+    "overloaded": "Nace's console is overloaded; send again in a moment",
+    "internal_error": "Something failed on Nace's side; send again",
+}
+"""What a console refusal that leaves the free credit as it is means, for a console that gave no `message`."""
+
+
+def console_refusal(error: RunError) -> str:
+    """What a console refusal that leaves the free credit as it is means: the console's own words, else its code's."""
+    if error.message:
+        return error.message.removesuffix(".")
+    return CONSOLE_REFUSALS.get(error.code, f"Nace's console refused the request ({error.code})")
+
+
 def _drive(value: str) -> Path:
     """A typed memory drive path, `~` expanded."""
     return Path(value).expanduser()
@@ -1179,6 +1196,8 @@ class HarnessApp(App[None]):
                     if error.next:
                         name = model_label(error.next, self.status.labels)
                         line += f"; your next message runs on your keys with {name}"
+                elif error is not None:
+                    line = console_refusal(error)
                 else:
                     line = REASONS.get(reason, reason) + (f": {detail}" if detail else "")
                 line += (
