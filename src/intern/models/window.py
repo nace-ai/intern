@@ -143,8 +143,9 @@ async def _retried(
 async def advertised_limits(
     endpoint: Endpoint, profile: Profile, transport: httpx.AsyncBaseTransport | None = None
 ) -> ModelLimits:
-    """The window from the first source that knows it, with the output cap that source gave, if any. A profile
-    that sets the window is trusted for both and asks no provider."""
+    """The window from the first source that knows it, with the output cap the first source to know one gave, if
+    any: a source may give the cap without the window. A profile that sets the window is trusted for both and asks
+    no provider."""
     if profile.window:
         return ModelLimits(profile.window, "profile")
     async with httpx.AsyncClient(
@@ -155,6 +156,7 @@ async def advertised_limits(
             ("llama.cpp", _from_llamacpp_props),
         ]
         sees: bool | None = None  # a listing may say what the model takes without its window (Fireworks')
+        cap: int | None = None  # and its output cap likewise, which a share of the default window would exceed
         failures: list[str] = []
         for source, lookup in lookups:
             try:
@@ -165,10 +167,11 @@ async def advertised_limits(
                     break  # both sources are the same host; one that does not answer would hold the start twice
                 continue
             sees = vision if sees is None else sees
+            cap = max_output if cap is None else cap
             if window:
-                return ModelLimits(window, source, max_output, sees)
+                return ModelLimits(window, source, cap, sees)
             failures.append(f"{source}: no window for this model")
-    return ModelLimits(DEFAULT_WINDOW, "default", vision=sees, lookup_error="; ".join(failures))
+    return ModelLimits(DEFAULT_WINDOW, "default", cap, sees, lookup_error="; ".join(failures))
 
 
 def _failure(error: Exception) -> str:

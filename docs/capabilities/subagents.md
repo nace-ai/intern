@@ -38,7 +38,7 @@ A subagent inherits the parent's capabilities. The parent may narrow them and ne
 | Where commands run | The parent's executor: the same machine, container or sandbox. |
 | Secrets | The parent's redaction applies to every tool output. |
 | The guard and the tool-result guard | A guard of its own with the parent's settings, which counts its own refusals. |
-| Memory | Read only. `memory_search` passes on with the parent's tools, the drive stays write-protected, recall does not run again, and only the parent's session is stewarded. A subagent reports back; the parent decides what is kept. |
+| Memory | Read only. The `memory` tool passes on with the parent's tools (a page the parent's recall pinned is not marked as in the child's context), the drive stays write-protected, recall does not run again, and only the parent's session is stewarded. A subagent reports back; the parent decides what is kept. |
 | Code search and the workspace | The parent's index, never built again. A file the subagent changes marks it for a refresh. |
 | Budget and deadline | The parent's. A subagent calls the parent's System 2 provider, which the session budget (`[capabilities.session_budget]`) wraps, so its calls, cost and deadline count against the same caps. System 1 is the parent's client, with its cost cap and cache. |
 | Turns | Its own budget (`max_turns`, 40 by default, or fewer if the task asks), never above the parent's. |
