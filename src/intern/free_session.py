@@ -155,6 +155,24 @@ class FreePlan:
             return "the free trial is paused"
         return f"the free {METER_NAMES[system]} credit is used up"
 
+    def why_not_code(self, system: System) -> tuple[str, str | None] | None:
+        """`why_not` as the console's code and the meter it names, for a client to tell a spent free credit from a
+        bad model: None when it is not in use or runs, is not signed in, or the grant could not be read."""
+        if self.use is not True or self.runs(system):
+            return None
+        if self.grant is None:
+            # A revoked grant forgets the sign-in, so it is told by the refusal, not the credential.
+            revoked = self.refusal is not None and self.refusal.code == "free_revoked"
+            return ("free_revoked", None) if revoked else None
+        if self.credential is None:
+            return None
+        spent = self.spent.get(system)
+        if spent is not None and spent.code in ("free_paused", "free_revoked"):
+            return spent.code, None
+        if self.grant.state == "paused":
+            return "free_paused", None
+        return "free_exhausted", system
+
     def sources(self) -> FreeSources:
         return FreeSources(
             agent="free" if self.runs("agent") else "own", system1="free" if self.runs("system1") else "own"

@@ -235,6 +235,35 @@ async def test_a_spent_grant_with_no_own_keys_opens_unbound_saying_so(env, conso
     await agent.aclose()
 
 
+@pytest.mark.parametrize(
+    ("spent", "data"),
+    [
+        ("agent_meter", {"code": "free_exhausted", "meter": "agent"}),
+        ("paused", {"code": "free_paused", "meter": None}),
+    ],
+)
+async def test_an_unbound_session_tells_the_client_the_free_credit_is_why_by_code(
+    env, console, work, capsys, spent, data
+):
+    """A client tells a spent or paused free credit from a model that cannot bind by `data.code`, not the wording."""
+    if spent == "paused":
+        console.status["inference"] = "paused"
+    else:
+        console.spend("agent", 4.0)
+    await asyncio.to_thread(signed_in, env, capsys)
+    agent, _ = acp_agent(env, work)
+    opened = await agent.new_session(cwd=str(work))
+    assert opened.session_id in agent.unbound
+    with pytest.raises(RequestError) as prompted:
+        await agent.prompt(prompt=[text_block("hi")], session_id=opened.session_id)
+    with pytest.raises(RequestError) as picked:
+        await agent.set_config_option(config_id="model", session_id=opened.session_id, value=BUNDLE["system2"])
+    for refused in (prompted, picked):
+        assert (refused.value.code, refused.value.data) == (-32602, data)
+    assert opened.session_id in agent.unbound and console.requests == []
+    await agent.aclose()
+
+
 async def test_usage_updates_carry_the_meters_the_console_reports(env, console, work, capsys):
     console.charge["system2"] = 0.25
     await asyncio.to_thread(signed_in, env, capsys)

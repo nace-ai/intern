@@ -557,6 +557,7 @@ async def test_the_server_opens_sessions_when_the_configured_model_has_no_key(tm
             with pytest.raises(RequestError) as refused:
                 await conn.prompt(prompt=[text_block("hi")], session_id=unbound.session_id)
             assert refused.value.code == -32602 and "ANTHROPIC_API_KEY" in str(refused.value)
+            assert refused.value.data is None  # no free credit is why
             await conn.set_config_option(config_id="model", session_id=unbound.session_id, value=f"vllm/{MODEL}")
             response = await conn.prompt(prompt=[text_block("hi")], session_id=unbound.session_id)
             assert response.stop_reason == "end_turn" and client.text().endswith("from the picker ")
