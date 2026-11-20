@@ -83,8 +83,9 @@ A bare command name is looked up on the `PATH` the harness started with.
 
 It keeps keys out of config and `.env` files, and out of everything the harness records. A stored value is
 replaced with `[REDACTED]` in the output of every tool (commands, background jobs, `read`, `grep`, MCP, the
-browser, extensions) before the model, the session journal, your editor or a spill file sees it. Spill and
-evidence files are readable only by you (mode 0600).
+browser, extensions) before the model, the session journal, your editor or a spill file sees it. A value of
+several lines (a PEM key, a service-account JSON) is also replaced line by line, for each line of 8 characters or
+more, and where JSON writes its line ends as `\n`. Spill and evidence files are readable only by you (mode 0600).
 
 Files the agent's own commands write are theirs: if a command writes the value into `leak.txt`, the file holds
 it, but reading it back through any tool shows `[REDACTED]`.
