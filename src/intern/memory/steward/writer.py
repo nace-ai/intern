@@ -49,6 +49,7 @@ TRACE_CHARS = 60_000
 TIMEOUT_S = 120.0
 # Every write asks for little thought: left to its own effort, GLM 5.3 thinks past TIMEOUT_S on a session's trace
 # and no memory is written, and an open-ended rewrite can think until the output limit and return no answer at all.
+# A model whose profile says how to turn reasoning off (`thinking_off`) is sent that instead.
 EFFORT = "low"
 RETRIES = 4
 RETRY_WAIT_S = 5.0
@@ -406,7 +407,9 @@ class Writer:
         self._transport = transport
         self.usage = Usage()
         # An OpenAI-compatible endpoint is sent an effort only on its profile's word: some refuse the field.
-        self._efforts = effort_levels((), load_profile(endpoint.ref))
+        profile = load_profile(endpoint.ref)
+        self._efforts = effort_levels((), profile)
+        self._thinking_off = profile.thinking_off
 
     async def complete(self, system: str, user: str, session: str = "", effort: str = "") -> str:
         key = await self.endpoint.authorization()
@@ -419,6 +422,10 @@ class Writer:
         if self.endpoint.provider == "vllm":
             # Qwen thinks by default; notes need no reasoning trace and come back much faster without it.
             payload["chat_template_kwargs"] = {"enable_thinking": False}
+        elif effort and self._thinking_off is not None:
+            # Where the profile says how, a write is sent with reasoning off: at low effort DeepSeek V4.1 Flash
+            # still reasons ten to twenty thousand tokens over a note it writes as well without.
+            payload.update(self._thinking_off)
         elif effort in self._efforts:
             payload["reasoning_effort"] = effort
         url = f"{self.endpoint.base_url}/chat/completions"
@@ -912,7 +919,7 @@ async def fold(
         half = FOLDER_TRACE_CHARS // 2
         session = f"{session[:half]}\n[...]\n{session[-half:]}"
     user = f"{session}\n\n{_collected(collected)}" + (f"\n\n{_held_folder(held)}" if held is not None else "")
-    raw = await writer.complete(system, user, key)
+    raw = await writer.complete(system, user, key, effort=EFFORT)
     try:
         answer = json.loads(_FENCE.sub("", raw.strip()))
     except json.JSONDecodeError as e:
