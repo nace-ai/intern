@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
@@ -11,6 +12,7 @@ from intern.memory.format import (
     BLOCK_TOKENS,
     PAGE_TOKENS,
     RELATIONS_ID,
+    SKILL_PAGE,
     Block,
     FormatError,
     Page,
@@ -195,6 +197,16 @@ def subject_path(group: str, name: str) -> str:
 
 def skill_path(name: str) -> str:
     return f"{SKILL_FOLDER}{slug(name)}"
+
+
+def folder_skill_path(name: str) -> str:
+    return f"{skill_path(name)}/{SKILL_PAGE}"
+
+
+def skill_page(files: dict[str, str], name: str, pages: Iterable[str] = ()) -> str:
+    # A kind of work that has a skill folder keeps its lessons on the folder's page.
+    folder = folder_skill_path(name)
+    return folder if page_file(folder) in files or folder in pages else skill_path(name)
 
 
 def is_history(path: str) -> bool:
@@ -558,6 +570,14 @@ def with_rules(lead: str, page: Page) -> str:
     return f"{lead.rstrip('.')}; rules on {rules}"[:LEAD_CHARS] + "."
 
 
+def built_lead(page: Page) -> str | None:
+    # The lead of a page whose lead is built from its lines, so it says no more than they do; None for other pages.
+    if is_history(page.path) or page.kind not in ("subject", "map"):
+        return None
+    lead = subject_lead(page) if page.kind == "subject" else with_rules(map_lead(page), page)
+    return f"{page.meta['part']}, part of {lead}" if page.meta.get("part") else lead
+
+
 def relate(page: Page, relation: str, target: str) -> None:
     block = _relations(page)
     line = f"- {relation} [[{target}]]"
@@ -782,9 +802,13 @@ def write(
         return True
 
     def remove_in_place(target: Page, old: str, new: str) -> bool:
+        # A stamp makes the line longer; where the block or the page has no room for it, the line stays as it was.
         for block in target.blocks:
             if old in block.lines:
-                block.lines[block.lines.index(old)] = new
+                i = block.lines.index(old)
+                block.lines[i] = new
+                if tokens(block.render()) > BLOCK_TOKENS or not _fits(target):
+                    block.lines[i] = old
                 return True
         return False
 
@@ -887,7 +911,8 @@ def write(
 
     for lesson in learned or []:
         name = inert(lesson.skill)
-        target = page(skill_path(name), "skill", f"{name}: {_no_breaks(_clause(inert(lesson.when)))}.")
+        path = skill_page(files, name, out.pages)
+        target = page(path, "skill", f"{name}: {_no_breaks(_clause(inert(lesson.when)))}.")
         target.meta.setdefault("name", name)
         target.title = target.meta["name"]
         # A general lesson a skill now holds moves to the skill, under the wording drawn across sessions.
@@ -930,11 +955,11 @@ def write(
         if is_history(path) and not target.blocks:
             del out.pages[path]
             continue
-        if is_history(path) or target.kind not in ("subject", "map"):
+        lead = built_lead(target)
+        if lead is None:
             continue
         old = target.lead
-        lead = subject_lead(target) if target.kind == "subject" else with_rules(map_lead(target), target)
-        target.lead = [f"{target.meta['part']}, part of {lead}" if target.meta.get("part") else lead]
+        target.lead = [lead]
         if not _fits(target):
             target.lead = old
 
@@ -973,6 +998,18 @@ class PageUse(BaseModel):
 class Usage(BaseModel):
     sessions: int = 0
     pages: dict[str, PageUse] = Field(default_factory=dict)
+    # The steward session in which a graveyard file was archived, or a transcript last written.
+    archived: dict[str, int] = Field(default_factory=dict)
+    transcripts: dict[str, int] = Field(default_factory=dict)
+
+
+def expired(seen: dict[str, int], names: list[str], now: int, keep: int) -> list[str]:
+    # A file first counted gets the full keep; with keep 0 nothing goes, though the count goes on.
+    for name in set(seen) - set(names):
+        del seen[name]
+    for name in names:
+        seen.setdefault(name, now)
+    return sorted(n for n in names if keep > 0 and now - seen[n] >= keep)
 
 
 def read_usage(text: str | None) -> Usage:

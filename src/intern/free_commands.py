@@ -23,6 +23,7 @@ from tomlkit.items import Table
 
 from intern import names
 from intern.config import CONFIG_FILE, home_dir, load_user_config, process_env
+from intern.config_file import editing
 from intern.models.registry import PROVIDERS, ConfigError
 from intern.nace_free import (
     DeviceSignIn,
@@ -43,15 +44,12 @@ EXIT_OK, EXIT_REFUSED, EXIT_USAGE = 0, 1, 2
 
 def set_use(home: Path, use: bool) -> None:
     """`[free] use` in config.toml, keeping the rest of the file as it was written."""
-    path = home / CONFIG_FILE
-    document = tomlkit.parse(path.read_text()) if path.is_file() else tomlkit.document()
-    table = document.get("free")
-    if not isinstance(table, Table):
-        table = tomlkit.table()
-        document["free"] = table
-    table["use"] = use
-    home.mkdir(parents=True, exist_ok=True)
-    path.write_text(tomlkit.dumps(document))
+    with editing(home / CONFIG_FILE) as document:
+        table = document.get("free")
+        if not isinstance(table, Table):
+            table = tomlkit.table()
+            document["free"] = table
+        table["use"] = use
 
 
 def console_of(env: Mapping[str, str]) -> str:

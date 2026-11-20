@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import signal
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -384,3 +386,44 @@ def test_sigterm_ends_the_run_and_its_command_with_it(tmp_path: Path, work: Path
             for pid in (shell, child):
                 if _alive(pid):
                     os.kill(pid, signal.SIGKILL)
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX signals")
+@pytest.mark.parametrize("ending", ["sigterm", "stdin closes"])
+def test_an_rpc_client_that_stops_reading_does_not_freeze_the_server(tmp_path: Path, work: Path, ending: str):
+    # 4 MB of replies nobody reads yet, more than a pipe holds: writing them used to stop the event loop, which then
+    # saw neither SIGTERM nor the rest of stdin.
+    ids = ["x" * 4000 + str(n) for n in range(1000)]
+    requests = "".join(json.dumps({"jsonrpc": "2.0", "id": i, "method": "nope"}) + "\n" for i in ids)
+    with FakeOpenAI([]) as server:
+        process = subprocess.Popen(
+            [sys.executable, "-m", "intern", "rpc", "--no-session", "--system2", f"vllm/{MODEL}"],
+            env=env_for(server, tmp_path / "home"),
+            cwd=work,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True,
+        )
+        stdin, stdout = process.stdin, process.stdout
+        assert stdin is not None and stdout is not None
+
+        def feed() -> None:
+            with contextlib.suppress(OSError), stdin:
+                stdin.write(requests)
+
+        feeder = threading.Thread(target=feed, daemon=True)
+        feeder.start()
+        try:
+            feeder.join(timeout=30)
+            assert not feeder.is_alive(), "the server stopped reading requests"
+            if ending == "sigterm":
+                process.send_signal(signal.SIGTERM)
+                assert process.wait(timeout=30) == 128 + signal.SIGTERM
+            else:
+                # Once the client reads again, it gets every reply, whole and in order, and the server ends.
+                messages = [json.loads(line) for line in stdout]
+                assert [m["id"] for m in messages if "id" in m] == ids
+                assert process.wait(timeout=30) == 0
+        finally:
+            process.kill()
+            process.wait()

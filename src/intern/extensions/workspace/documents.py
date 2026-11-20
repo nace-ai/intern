@@ -13,6 +13,7 @@ import itertools
 import json
 import os
 import re
+import shutil
 import statistics
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
@@ -324,10 +325,35 @@ def _enclosing(chunks: list[Chunk], page: int) -> str | None:
 
 
 def table_name(path: Path, root: Path, sheet: str = "") -> str:
-    """A DuckDB name from the path under ``root`` (and the sheet), unique across the workspace."""
+    """A DuckDB name from the path under ``root`` (and the sheet). Two sources can come to one name (`a b.csv` and
+    `a-b.csv`); `_claimed` then tells them apart."""
     rel = path.relative_to(root).with_suffix("").as_posix() if path.is_relative_to(root) else path.stem
     name = _UNSAFE.sub("_", rel.replace("/", "__") + (f"__{sheet}" if sheet else "")).strip("_").lower()
     return name if name and not name[0].isdigit() else f"t_{name}"
+
+
+def _claimed(con: duckdb.DuckDBPyConnection, name: str, source: str) -> str:
+    """The name the table of ``source`` goes by: ``name``, unless another source's table has it (`a b.csv` and
+    `a-b.csv` both come to `a_b`), and then ``name`` with a suffix from the source. Each table says whose it is in
+    its comment (`_own`), so a file keeps the name it got when it is loaded again, whatever was loaded since."""
+    suffixed = f"{name}_{hashlib.sha1(source.encode()).hexdigest()[:6]}"
+    owners: dict[str, str | None] = dict(
+        con.execute(
+            "SELECT view_name, comment FROM duckdb_views() WHERE view_name IN (?, ?) AND NOT internal "
+            "UNION ALL SELECT table_name, comment FROM duckdb_tables() WHERE table_name IN (?, ?)",
+            [name, suffixed, name, suffixed],
+        ).fetchall()
+    )
+    if owners.get(suffixed) == source:
+        return suffixed
+    # A table without a comment is from a build before tables said whose they were: the first to load takes it.
+    return name if owners.get(name) in (None, source) else suffixed
+
+
+def _own(con: duckdb.DuckDBPyConnection, name: str, source: str) -> None:
+    """Write on the table or view ``name`` that it is ``source``'s (see `_claimed`)."""
+    view = con.execute("SELECT 1 FROM duckdb_views() WHERE view_name = ? AND NOT internal", [name]).fetchone()
+    con.execute(f'COMMENT ON {"VIEW" if view else "TABLE"} "{name}" IS {literal(source)}')
 
 
 def literal(path: Path | str) -> str:
@@ -577,10 +603,12 @@ class SheetProcessor(_UsesTables):
                     units.append(f"# {title}\n(empty tab)")
                     chunks.append(Chunk(key=title, kind="table", title=f"tab {title}", summary="empty", start=n, end=n))
                     continue
-                name = table_name(path, root, title)
+                source = f"{path.relative_to(root).as_posix()}#{title}"
+                name = _claimed(con, table_name(path, root, title), source)
                 staging = workspace / "derived" / path.relative_to(root).parent / f"{path.name}.{n}.csv"
                 caption = _load_rows(con, name, rows, staging)
-                info = profile(con, name, f"{path.relative_to(root).as_posix()}#{title}")
+                _own(con, name, source)
+                info = profile(con, name, source)
                 tables.append(info)
                 units.append(_render(con, info, f"tab {title}" + (f": {caption}" if caption else "")))
                 chunks.append(_table_chunk(info, f"tab {title}", n, caption))
@@ -615,12 +643,14 @@ class TableProcessor(_UsesTables):
         rel = path.relative_to(root).as_posix()
         caption = options = ""
         with _session(self.tables, workspace, root) as con:
+            name = _claimed(con, name, rel)
             _drop(con, name)  # it may have been loaded as a table before the file changed
             if path.suffix == ".parquet":
                 con.execute(f'CREATE OR REPLACE VIEW "{name}" AS SELECT * FROM read_parquet({literal(source)})')
+                info = profile(con, name, rel)
             else:
-                options = _csv_view(con, name, source)
-            info = profile(con, name, rel)
+                staging = workspace / "derived" / Path(rel).parent / f"{path.name}.utf8.csv"
+                info, source, options = _csv_view(con, name, rel, source, root, staging)
             if (
                 sum(bool(_UNNAMED.fullmatch(c)) for c in info.columns) * 2 > len(info.columns)
                 and info.rows <= RESHAPE_ROWS
@@ -636,6 +666,7 @@ class TableProcessor(_UsesTables):
                 _drop(con, name)
                 caption = _load_rows(con, name, rows, workspace / "derived" / Path(rel).parent / f"{path.name}.csv")
                 info = profile(con, name, rel)
+            _own(con, name, rel)
             page = _render(con, info, path.name + (f": {caption}" if caption else ""))
             head = f"{caption} {_head(con, info)}" if caption else _head(con, info)
         chunk = _table_chunk(info, path.name, 1, caption)
@@ -644,20 +675,62 @@ class TableProcessor(_UsesTables):
         )
 
 
-def _csv_view(con: duckdb.DuckDBPyConnection, name: str, path: Path) -> str:
-    """A view on the CSV that reads it: UTF-8, else Latin-1 (an export from Excel on Windows or a Mac). Returns the
-    read_csv options it needed."""
+#: How a CSV's column types are found, the next tried when a value does not convert under the one before: from
+#: DuckDB's sample of the first rows, from every row (a quantity column that says `N/A` on row 30,000), as text.
+_CSV_TYPING = ("", ", sample_size=-1", ", all_varchar=true")
+#: Bytes of a CSV read to tell UTF-16 from the rest.
+_ENCODING_SNIFF = 4096
+
+
+def _csv_view(
+    con: duckdb.DuckDBPyConnection, name: str, rel: str, source: Path, root: Path, staging: Path
+) -> tuple[TableInfo, Path, str]:
+    """A view on the CSV that reads every row of it, and its profile. The file is read in place as UTF-8, else as
+    Latin-1; a UTF-16 file (an export "as Unicode text") and, failing those, a Windows-1252 one (an export from Excel:
+    curly quotes, the euro sign) are read from a UTF-8 copy at ``staging``. Returns the profile, the file the view
+    reads and the read_csv options its encoding needed."""
     import duckdb
 
-    for options in ("", ", encoding='latin-1'"):
+    wide = _utf16(root / source)
+    error: duckdb.Error | None = None
+    for encoding in [wide] if wide else ["utf-8", "latin-1", "cp1252"]:
+        read, options = source, ", encoding='latin-1'" if encoding == "latin-1" else ""
+        if encoding not in ("utf-8", "latin-1"):
+            staging.parent.mkdir(parents=True, exist_ok=True)
+            with (
+                (root / source).open(encoding=encoding, errors="replace", newline="") as original,
+                staging.open("w", encoding="utf-8", newline="") as copy,
+            ):
+                shutil.copyfileobj(original, copy)
+            read = staging.relative_to(root) if staging.is_relative_to(root) else staging
         try:
-            con.execute(f'CREATE OR REPLACE VIEW "{name}" AS SELECT * FROM read_csv({literal(path)}{options})')
-            con.execute(f'DESCRIBE "{name}"')
-            return options
-        except duckdb.InvalidInputException:
-            if options:
-                raise
-    return ""
+            for typing in _CSV_TYPING:
+                try:
+                    con.execute(
+                        f'CREATE OR REPLACE VIEW "{name}" AS SELECT * FROM read_csv({literal(read)}{options}{typing})'
+                    )
+                    return profile(con, name, rel), read, options  # the profile reads every row: it fails here or never
+                except duckdb.ConversionException as e:
+                    error = e
+        except duckdb.InvalidInputException as e:  # not text in this encoding, at the first row or the millionth
+            error = e
+    _drop(con, name)
+    assert error is not None
+    raise error
+
+
+def _utf16(path: Path) -> str | None:
+    """The codec of a UTF-16 file: by its byte order mark, or without one by the zero byte in every other place that
+    Latin text has in it. None for anything else."""
+    with path.open("rb") as f:
+        head = f.read(_ENCODING_SNIFF)
+    if head[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return "utf-16"
+    pairs = len(head) // 2
+    for codec, zeros in (("utf-16-le", head[1::2]), ("utf-16-be", head[0 : pairs * 2 : 2])):
+        if pairs and zeros.count(0) * 2 > pairs:
+            return codec
+    return None
 
 
 def query_memory() -> int | None:

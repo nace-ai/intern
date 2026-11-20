@@ -5,8 +5,10 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar, cast
@@ -76,7 +78,7 @@ from intern.models.registry import ConfigError, ProviderSpec
 from intern.models.window import working_window
 from intern.needs import InstallFailed, Needs, Say
 from intern.protocol import acp_mapping
-from intern.protocol.acp import AcpAgent, Installer, OpenRequest, SessionIndex, prompt_text
+from intern.protocol.acp import STDIO_LIMIT_BYTES, AcpAgent, Installer, OpenRequest, SessionIndex, prompt_text
 from intern.providers.fake import FakeProvider, Script, Turn
 from intern.session import Session
 from intern.tools import load_packs
@@ -424,6 +426,28 @@ async def test_unknown_sessions_are_not_found(tmp_path: Path, work: Path):
     assert unloadable.value.code == -32002
 
 
+@pytest.mark.parametrize("bad", [b"\x00\xff not json \xfe", b'{"kind":"from-a-newer-version","id":"x"}'])
+async def test_loading_a_journal_with_an_unreadable_entry_answers_with_an_error_a_client_can_read(
+    tmp_path: Path, work: Path, bad: bytes
+):
+    agent, _, _ = make_agent(tmp_path, [Turn(text="hi")])
+    session = await agent.new_session(cwd=str(work))
+    await agent.prompt(prompt=[text_block("first")], session_id=session.session_id)
+    await agent.aclose()
+    [path] = (tmp_path / "home" / "sessions").glob("*.jsonl")
+    first, *rest = path.read_bytes().splitlines(keepends=True)
+    path.write_bytes(first + bad + b"\n" + b"".join(rest))
+
+    agent, _, _ = make_agent(tmp_path, [])
+    with pytest.raises(RequestError) as unreadable:
+        await agent.load_session(cwd=str(work), session_id=session.session_id)
+    # The reply is written as JSON, and it does not blame the client's params.
+    error = json.loads(json.dumps(unreadable.value.to_error_obj()))
+    assert error["code"] == -32603 and error["data"] == {"reason": "journal_unreadable", "journal": str(path)}
+    assert "cannot read" in error["message"] and str(path) in error["message"]
+    await agent.aclose()
+
+
 async def test_load_replays_the_conversation_and_continues_on_its_model(tmp_path: Path, work: Path):
     script = lambda request: Turn(text=f"reply {len(request.messages)}")  # noqa: E731
     agent, _, _ = make_agent(tmp_path, script)
@@ -573,6 +597,7 @@ async def test_the_server_opens_sessions_when_the_configured_model_has_no_key(tm
             with pytest.raises(RequestError) as refused:
                 await conn.prompt(prompt=[text_block("hi")], session_id=unbound.session_id)
             assert refused.value.code == -32602 and "ANTHROPIC_API_KEY" in str(refused.value)
+            assert refused.value.data is None  # no free credit is why
             await conn.set_config_option(config_id="model", session_id=unbound.session_id, value=f"vllm/{MODEL}")
             response = await conn.prompt(prompt=[text_block("hi")], session_id=unbound.session_id)
             assert response.stop_reason == "end_turn" and client.text().endswith("from the picker ")
@@ -848,6 +873,8 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
                 {"id": "qwen3-embedding-8b", "kind": "EMBEDDING_MODEL", "supports_chat": True},
             ]
             return httpx.Response(200, json={"data": served})
+        if request.url.host == "127.0.0.1" and request.url.path == "/health":
+            return httpx.Response(200, json={"status": "ok", "model": "drex-max-v1"})
         return httpx.Response(500)
 
     found = await catalog.list_models(
@@ -858,7 +885,10 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
             for ref in ("openrouter/qwen/qwen3.8-27b", "groq/llama-x", "nowhere/model", "vllm/local")
         ],
         system1=catalog.System1Sources(
-            console_key="console-key", console_models=("drex-latest", "drex-latest", "drex-2"), decisions_key="or-key"
+            console_key="console-key",
+            console_models=("drex-latest", "drex-latest", "drex-2"),
+            decisions_key="or-key",
+            kapitsa_url=catalog.KAPITSA_URL,
         ),
         transport=httpx.MockTransport(listing),
     )
@@ -876,13 +906,14 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
     # their failures are left out.
     assert "api.openai.com" not in asked and "api.groq.com" not in asked and "localhost" in asked
     # System 1: the console's decision models, the configured names first and retired ones left out, then the
-    # decisions API's decision models as decisions:<model>.
+    # decisions API's decision models as decisions:<model>, then the one kapitsa-systemone serves on this machine.
     assert [(m.id, m.name) for m in found.system1] == [
         ("drex-latest", "drex-latest"),
         ("drex-2", "drex-2"),
         ("drex-v2.0", "drex-v2.0"),
         ("decisions:~typesafe/jev-latest", "TypeSafe: Jev Latest"),
         ("decisions:nace-ai/drex-max", "nace-ai/drex-max"),
+        ("kapitsa:drex-max-v1", "drex-max-v1 (Kapitsa)"),
     ]
 
 
@@ -904,7 +935,10 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
     home.mkdir()
     deployment = "fireworks/accounts/example/deployments/qwen3p8-27b"
     claude = "anthropic/claude-unprofiled"
-    config = f'model = "{claude}"\n[system1]\nmodels = ["drex-latest", "drex-mini"]\n'
+    # No kapitsa-systemone: one running on this machine would be listed too.
+    config = (
+        f'model = "{claude}"\n[system1]\nmodels = ["drex-latest", "drex-mini"]\nkapitsa_url = "http://127.0.0.1:9/v1"\n'
+    )
     # A dedicated deployment reaches the catalog through a user profile's concrete id.
     (home / "profiles").mkdir()
     (home / "profiles" / "mine.toml").write_text(
@@ -1622,6 +1656,13 @@ def test_bootstrap_requires_system_1_and_serves_picks_from_the_console_or_the_de
     assert console._url == "https://console.example/v1/systemone"  # pyright: ignore[reportPrivateUsage]
     with pytest.raises(ConfigError, match="must be"):
         Bootstrap(options.model_copy(update={"system1": "what:ever"}), home).system1_choice()
+    # A decisions API on this machine, such as kapitsa-systemone, takes no key.
+    local_home = tmp_path / "local"
+    local_home.mkdir()
+    (local_home / "config.toml").write_text('[system1]\nbase_url = "http://127.0.0.1:8001/v1"\n')
+    local = Bootstrap(options, {"INTERN_HOME": str(local_home)}).system1_backend("decisions:drex-max-v1")
+    assert isinstance(local, DecisionsApiBackend)
+    assert local._url == "http://127.0.0.1:8001/v1/systemone"  # pyright: ignore[reportPrivateUsage]
 
 
 # Diffs: write and edit carry the file before and after to the client.
@@ -1654,6 +1695,56 @@ async def test_an_edit_in_a_turn_reaches_the_client_as_a_diff(tmp_path: Path, wo
     journal = agent.sessions[session.session_id].session.deps.journal
     assert journal.path is not None and "old line" not in journal.path.read_text()
     await agent.aclose()
+
+
+def test_sighup_ends_the_server_cleanly_and_stops_the_command_a_session_was_running(tmp_path: Path, work: Path):
+    # What the server gets when the terminal or ssh session its client ran in goes away.
+    pid_file = tmp_path / "command.pid"
+    command = f"echo $$ > {pid_file}; exec sleep 300"
+    requests = [
+        {"jsonrpc": "2.0", "id": 0, "method": "initialize", "params": {"protocolVersion": 1}},
+        {"jsonrpc": "2.0", "id": 1, "method": "session/new", "params": {"cwd": str(work), "mcpServers": []}},
+    ]
+    with FakeOpenAI([Reply(tool_calls=[("bash", {"command": command})]), Reply(text="never")]) as server:
+        env = {**os.environ, "VLLM_BASE_URL": server.url, "INTERN_HOME": str(tmp_path / "home")}
+        env |= server.system1_env
+        process = subprocess.Popen(
+            [sys.executable, "-m", "intern", "acp", "--no-context-files", "--no-memory", "--system2", f"vllm/{MODEL}"],
+            env=env, cwd=work, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True,
+        )  # fmt: skip
+        stdin, stdout = process.stdin, process.stdout
+        assert stdin is not None and stdout is not None
+        command_pid = None
+        try:
+            stdin.write("".join(json.dumps(r) + "\n" for r in requests))
+            stdin.flush()
+            while (message := json.loads(stdout.readline())).get("id") != 1:
+                pass
+            prompt = {"sessionId": message["result"]["sessionId"], "prompt": [{"type": "text", "text": "wait"}]}
+            stdin.write(json.dumps({"jsonrpc": "2.0", "id": 2, "method": "session/prompt", "params": prompt}) + "\n")
+            stdin.flush()
+            deadline = time.monotonic() + 20
+            while not (pid_file.exists() and pid_file.read_text().strip()):  # until the command runs
+                assert time.monotonic() < deadline
+                time.sleep(0.02)
+            command_pid = int(pid_file.read_text())
+            process.send_signal(signal.SIGHUP)
+            assert process.wait(timeout=20) == 0  # closed its sessions and left, not killed by the signal
+            while _alive(command_pid):
+                assert time.monotonic() < deadline, "the command outlived the server"
+                time.sleep(0.02)
+        finally:
+            process.kill()
+            if command_pid is not None and _alive(command_pid):
+                os.kill(command_pid, signal.SIGKILL)
+
+
+def _alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    return True
 
 
 # Stdin closing: requests already received still get their replies.
@@ -1695,6 +1786,26 @@ def test_requests_sent_before_stdin_closes_are_all_answered(tmp_path: Path, work
     assert reply["result"]["stopReason"] == "cancelled"
 
 
+def test_a_line_longer_than_the_limit_is_answered_with_an_error_and_the_server_keeps_serving(
+    tmp_path: Path, work: Path
+):
+    initialize = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": 1}}
+    # A prompt with more inline data than one line may hold, as a client sending large images does.
+    prompt = {"sessionId": "any", "prompt": [{"type": "text", "text": "A" * (STDIO_LIMIT_BYTES + 1024)}]}
+    too_long = {"jsonrpc": "2.0", "id": 7, "method": "session/prompt", "params": prompt}
+    result = subprocess.run(
+        [sys.executable, "-m", "intern", "acp", "--system2", "vllm/x"],
+        env={**os.environ, "INTERN_HOME": str(tmp_path / "home")},
+        cwd=work, input=json.dumps(too_long) + "\n" + json.dumps(initialize) + "\n",
+        capture_output=True, text=True, timeout=120,
+    )  # fmt: skip
+    assert result.returncode == 0
+    refused, served = [json.loads(line) for line in result.stdout.splitlines()]
+    assert refused["id"] == 7 and refused["error"]["code"] == -32600
+    assert refused["error"]["data"] == {"reason": "message_too_large", "limitBytes": STDIO_LIMIT_BYTES}
+    assert served["id"] == 1 and served["result"]["agentInfo"]["name"] == "intern"  # the next request is served
+
+
 def test_acp_refuses_stdio_that_is_not_a_pipe(tmp_path: Path, work: Path):
     with (tmp_path / "out.txt").open("w") as out:
         result = subprocess.run(
@@ -1706,6 +1817,38 @@ def test_acp_refuses_stdio_that_is_not_a_pipe(tmp_path: Path, work: Path):
     assert result.stderr.strip() == (
         "intern: acp talks over pipes: start it from an ACP client, not with stdin or stdout redirected to a file"
     )
+
+
+def test_lines_that_are_not_json_rpc_messages_are_answered_with_errors_and_the_server_keeps_serving(
+    tmp_path: Path, work: Path
+):
+    initialize = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": 1}}
+    lines = [
+        json.dumps([initialize]),  # a batch
+        "null",
+        "5",
+        '{"jsonrpc": "2.0", "id": 77, "error": "boom"}',  # a reply to a request never sent, its error not an object
+        '{"jsonrpc": "2.0", "id": [1], "result": 1}',
+        "{not json",
+        '{"jsonrpc": "2.0", "id": 9, "method": null}',
+        json.dumps(initialize),
+    ]
+    result = subprocess.run(
+        [sys.executable, "-m", "intern", "acp", "--system2", "vllm/x"],
+        env={**os.environ, "INTERN_HOME": str(tmp_path / "home")},
+        cwd=work, input="".join(line + "\n" for line in lines), capture_output=True, text=True, timeout=30,
+    )  # fmt: skip
+    assert result.returncode == 0
+    *refused, served = [json.loads(line) for line in result.stdout.splitlines()]
+    assert [(r["id"], r["error"]["code"]) for r in refused] == [
+        (None, -32600),
+        (None, -32600),
+        (None, -32600),
+        (None, -32600),
+        (None, -32700),
+        (9, -32600),
+    ]
+    assert served["id"] == 1 and served["result"]["agentInfo"]["name"] == "intern"  # after all of them
 
 
 async def test_switching_subagents_on_reopens_with_them_and_a_session_that_cannot_keeps_them_off(
