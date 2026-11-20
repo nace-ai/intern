@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -138,3 +139,19 @@ def test_a_journal_is_readable_only_by_its_owner(tmp_path: Path):
         assert path.stat().st_mode & 0o777 == 0o600
     finally:
         os.umask(old_umask)
+
+
+@pytest.mark.parametrize("links", [{1: 2, 2: 1}, {2: 2}, {1: 9}], ids=["cycle", "own parent", "unknown parent"])
+def test_a_journal_whose_parent_links_do_not_lead_back_to_the_root_is_refused(tmp_path: Path, links):
+    """Replay follows parent links to the root; a cycle used to make it loop forever."""
+    path = tmp_path / "s.jsonl"
+    journal = Journal(cwd="/work", path=path)
+    for text in ("one", "two"):
+        journal.append(MessageEntry(message=UserMessage(content=text)))
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    ids = {number: row["id"] for number, row in enumerate(rows)} | {9: "missing"}
+    for child, parent in links.items():
+        rows[child]["parent_id"] = ids[parent]
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    with pytest.raises(ValueError, match="parent is not an earlier entry"):
+        Journal(cwd="ignored", path=path)
