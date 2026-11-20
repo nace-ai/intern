@@ -5,10 +5,10 @@ efficient model (the hand-over target) takes over for the rest; the decision mod
 (OpenRouter) or the Nace console, decides when to hand over and keeps the run on track. The terminal UI's setup
 screen (`tui/onboarding.py`) walks through them and this module does the work behind it, with no UI:
 
-- `RECOMMENDED`: Nace's frontier and efficient pairs on one OpenRouter key; `PAIRS` has those for other providers.
+- `RECOMMENDED`: Nace's frontier and efficient pairs on one OpenRouter key, which `models --json` lists.
 - `SYSTEM2_PROVIDERS`: every way to reach the frontier model, grouped as the screen lists them, each with the
   variable its key lives in, where to make one, the frontier models to suggest first and the efficient ones.
-- `SYSTEM1_OPTIONS`: the decision models to pick from, Drex Max on OpenRouter first.
+- `SYSTEM1_OPTIONS`: the decision models to pick from, by where they run: Drex on Nace AI, then OpenRouter's.
 - `check_key`: ask the provider whether a key works before keeping it, and list its models while at it.
 - `save`: keep each key (the OS keychain, named in `[secrets]`; `.env` in the config home where there is no
   keychain) and write the picks to `config.toml`, keeping its comments and layout.
@@ -37,7 +37,14 @@ import tomlkit
 from tomlkit.items import Table
 
 from intern.config import CONFIG_FILE, DEFAULT_SYSTEM1_MODEL, ENV_FILE
-from intern.models.catalog import DECISIONS_PREFIX, NACE_CONSOLE_URL, KeyNeeded, RecommendedInfo
+from intern.models.catalog import (
+    DECISIONS_PREFIX,
+    NACE_CONSOLE_URL,
+    KeyNeeded,
+    RecommendedInfo,
+    console_listed,
+    language_model,
+)
 from intern.models.registry import PROVIDERS, ConfigError, ProviderSpec
 from intern.models.window import ANTHROPIC_API_VERSION
 from intern.secret_store import SecretFailure
@@ -63,8 +70,8 @@ class ProviderOption:
     key_url: str = ""
     """Where to make a key."""
     suggested: tuple[str, ...] = ()
-    """The frontier models to offer, best first; the first one the provider lists is the default. None of the
-    efficient ones: each model is offered for one role."""
+    """The frontier models to list first, best first; the first one the provider lists is the default. None of the
+    efficient ones: each model leads the list of one role."""
     unavailable: str = ""
     """Why it cannot be picked yet, said in full when it is chosen."""
     badge: str = ""
@@ -336,10 +343,11 @@ class System1Option:
     blurb: str
     backend: Literal["decisions-api", "console"]
     model: str
-    """The model; empty for the option that lists the decisions API's models to pick from."""
+    """The model; empty for an option that lists its backend's models to pick from."""
     key_env: str
     key_url: str
-    recommended: bool = False
+    only: str = ""
+    """For an option that lists its backend's models: the prefix of those it offers (`nace-ai/`, Drex's)."""
 
     @property
     def choice(self) -> str:
@@ -349,37 +357,46 @@ class System1Option:
 
 SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
     System1Option(
-        "drex-max",
-        "Drex Max · OpenRouter",
-        "#1 on Artificial Analysis",
-        "decisions-api",
-        "nace-ai/drex-max",
-        "OPENROUTER_API_KEY",
-        "https://openrouter.ai/settings/keys",
-        recommended=True,
-    ),
-    System1Option(
         "drex-console",
-        "Drex · Nace AI",
-        "Drex on a Nace key",
+        "Drex Latest",
+        "Nace's latest Drex",
         "console",
         DEFAULT_SYSTEM1_MODEL,
         "NACE_API_KEY",
         "https://console.nace.ai",
     ),
     System1Option(
-        "jev",
-        "Jev · OpenRouter",
-        "TypeSafe's decision model",
+        "drex-more",
+        "More Drex models",
+        "every Drex model the Nace console serves",
+        "console",
+        "",
+        "NACE_API_KEY",
+        "https://console.nace.ai",
+    ),
+    System1Option(
+        "drex-max",
+        "Drex Max",
+        "#1 on Artificial Analysis",
         "decisions-api",
-        "~typesafe/jev-latest",
+        "nace-ai/drex-max",
         "OPENROUTER_API_KEY",
         "https://openrouter.ai/settings/keys",
     ),
     System1Option(
+        "drex-openrouter",
+        "More Drex models",
+        "every Drex model OpenRouter lists",
+        "decisions-api",
+        "",
+        "OPENROUTER_API_KEY",
+        "https://openrouter.ai/settings/keys",
+        only="nace-ai/",
+    ),
+    System1Option(
         "decisions-other",
-        "More decision models · OpenRouter",
-        "every decision model OpenRouter lists",
+        "Other decision models",
+        "every decision model OpenRouter lists, Jev among them",
         "decisions-api",
         "",
         "OPENROUTER_API_KEY",
@@ -424,8 +441,6 @@ class Recommendation:
     to, and the decision model (System 1) suggested with it."""
 
     id: str
-    tag: str
-    """A word or two beside it in the list."""
     why: str
     system2: str
     handoff: str
@@ -475,7 +490,6 @@ class Recommendation:
 RECOMMENDED: tuple[Recommendation, ...] = (
     Recommendation(
         "opus-hy4",
-        "best results",
         "Claude Opus 5.5 cracks the hard part, Hy4 Flash finishes the job",
         "openrouter/anthropic/claude-opus-5.5",
         "openrouter/tencent/hy4-flash",
@@ -483,7 +497,6 @@ RECOMMENDED: tuple[Recommendation, ...] = (
     ),
     Recommendation(
         "hy4",
-        "lowest cost",
         "Hy4 cracks the hard part, Hy4 Flash finishes the job",
         "openrouter/tencent/hy4",
         "openrouter/tencent/hy4-flash",
@@ -491,7 +504,6 @@ RECOMMENDED: tuple[Recommendation, ...] = (
     ),
     Recommendation(
         "gpt",
-        "OpenAI only",
         "GPT-6.2 Astra cracks the hard part, GPT-6 Luna finishes the job",
         "openrouter/openai/gpt-6.2-astra",
         "openrouter/openai/gpt-6-luna",
@@ -499,42 +511,6 @@ RECOMMENDED: tuple[Recommendation, ...] = (
     ),
 )
 """Offered once an OpenRouter key is in, and in the app through `models --json`. Each runs on that one key."""
-
-PAIRS: dict[str, tuple[Recommendation, ...]] = {
-    "openrouter": RECOMMENDED,
-    "anthropic": (
-        Recommendation(
-            "claude",
-            "best results",
-            "Claude Opus 5.5 cracks the hard part, Claude Haiku 5.5 finishes the job",
-            "anthropic/claude-opus-5-5",
-            "anthropic/claude-haiku-5-5",
-            "drex-max",
-        ),
-    ),
-    "openai": (
-        Recommendation(
-            "openai",
-            "OpenAI's pair",
-            "GPT-6.2 Astra cracks the hard part, GPT-6 Luna finishes the job",
-            "openai/gpt-6.2-astra",
-            "openai/gpt-6-luna",
-            "drex-max",
-        ),
-    ),
-}
-"""The frontier and efficient pairs the setup screen offers on each provider; others get "choose your own" only."""
-
-
-def pairs_for(provider: str, listed: tuple[str, ...] = ()) -> tuple[Recommendation, ...]:
-    """The pairs to offer on a provider whose models are `listed`: those with both models listed (all of them when
-    the provider listed nothing)."""
-
-    def has(ref: str) -> bool:
-        return not listed or ref.partition("/")[2] in listed
-
-    return tuple(pair for pair in PAIRS.get(provider, ()) if has(pair.system2) and has(pair.handoff))
-
 
 HANDOFF_OWN_KEYS = "Takes over once the hard part is done. Pick a fast, cheap model."
 """What the efficient-model step says."""
@@ -578,12 +554,11 @@ def handoff_suggestion(system2: str, listed: tuple[str, ...] = ()) -> str | None
     return suggestion if suggestion != system2 else None
 
 
-def efficient_models(system2: str, listed: tuple[str, ...] = ()) -> list[str]:
-    """The efficient models to offer for a frontier model, as `provider/model`, best first (`offered_models`).
-    Never the frontier model itself."""
-    provider = system2.partition("/")[0]
+def efficient_models(provider: str, system2: str, listed: tuple[str, ...] = ()) -> list[str]:
+    """The models to offer on `provider` for the efficient model, as `provider/model`, its efficient ones first
+    (`offered_models`). Never the frontier model `system2` itself, which may be on another provider."""
     option = PROVIDER_BY_ID.get(provider)
-    models = offered_models(option, listed, "efficient") if option is not None else []
+    models = offered_models(option, listed, "efficient") if option is not None else list(listed)
     return [ref for m in models if (ref := f"{provider}/{m}") != system2]
 
 
@@ -597,12 +572,21 @@ class KeyCheck:
     models: tuple[str, ...] = ()
 
 
-def _models(body: object) -> tuple[str, ...]:
+def _models(body: object, chat: bool) -> tuple[str, ...]:
+    """The ids a listing has; with `chat`, only the models System 2 can chat with (no embedding or reranker). The
+    console lists its decision models under `models`, by name, retired ones left out."""
+    if not chat and isinstance(body, dict) and isinstance(body.get("models"), list):
+        return tuple(model.id for model in console_listed(body))
     items = body.get("data") if isinstance(body, dict) else None
     if not isinstance(items, list):
         return ()
-    ids = (item.get("id") for item in items if isinstance(item, dict))
-    return tuple(model.removeprefix("models/") for model in ids if isinstance(model, str) and model)
+    ids = (
+        model
+        for item in items
+        if isinstance(item, dict) and isinstance(model := item.get("id"), str) and model
+        if not chat or language_model(model, item)
+    )
+    return tuple(model.removeprefix("models/") for model in ids)
 
 
 async def check_key(
@@ -612,10 +596,11 @@ async def check_key(
     anthropic: bool = False,
     params: Mapping[str, str] | None = None,
     transport: httpx.AsyncBaseTransport | None = None,
+    chat: bool = False,
 ) -> KeyCheck:
     """`GET url` with the key, as the provider's model listing wants it. A 401 or 403 is a key that does not work;
     a provider that cannot be reached is not held against the key, which is kept with a word that it was not
-    checked."""
+    checked. `chat` lists only the models that answer chat."""
     headers: dict[str, str] = {}
     if key and anthropic:
         headers = {"x-api-key": key, "anthropic-version": ANTHROPIC_API_VERSION}
@@ -634,7 +619,7 @@ async def check_key(
         body = response.json()
     except ValueError:
         body = None
-    return KeyCheck(ok=True, models=_models(body))
+    return KeyCheck(ok=True, models=_models(body, chat))
 
 
 async def check_system2(
@@ -648,7 +633,7 @@ async def check_system2(
     if not base:
         return KeyCheck(ok=False, message="no address to reach it at")
     if option.kind == "local" or (option.kind == "custom" and not key):
-        found = await check_key(f"{base}/models", None, transport=transport)
+        found = await check_key(f"{base}/models", None, transport=transport, chat=True)
         if found.message:
             return KeyCheck(ok=False, message=f"nothing answered at {base}; is the server running?")
         return found
@@ -657,9 +642,9 @@ async def check_system2(
         found = await check_key(f"{base}/key", key, transport=transport)
         if not found.ok:
             return found
-        listed = await check_key(f"{base}/models", key, transport=transport)
+        listed = await check_key(f"{base}/models", key, transport=transport, chat=True)
         return KeyCheck(ok=True, message=found.message, models=listed.models)
-    return await check_key(f"{base}/models", key, anthropic=option.id == "anthropic", transport=transport)
+    return await check_key(f"{base}/models", key, anthropic=option.id == "anthropic", transport=transport, chat=True)
 
 
 async def check_system1(option: System1Option, key: str, transport: httpx.AsyncBaseTransport | None = None) -> KeyCheck:
@@ -676,14 +661,10 @@ async def check_system1(option: System1Option, key: str, transport: httpx.AsyncB
 
 
 def offered_models(option: ProviderOption, listed: tuple[str, ...], role: Role) -> list[str]:
-    """The models to offer on a provider for a role, best first: its picks for it (`suggested`, or
-    `handoff_suggested` and `efficient`) that it lists, all of them when it listed none (it could not be asked).
-    The rest of its listing only on this machine, or where it has no picks for the role or lists none of them: a
-    provider's listing runs to years of models nobody should start on now, and any of them can still be typed."""
+    """The models to offer on a provider for a role: everything it lists, its picks for the role first (`suggested`,
+    or `handoff_suggested` and `efficient`); its picks alone when it listed none (it could not be asked)."""
     picks = option.suggested if role == "frontier" else (option.handoff_suggested, *option.efficient)
     kept = [m for m in dict.fromkeys(picks) if m and (not listed or m in listed)]
-    if kept and option.kind != "local":
-        return kept
     return [*kept, *(m for m in listed if m not in kept)]
 
 
@@ -821,11 +802,11 @@ class Setup:
     """`provider/model`."""
     system1: System1Option
     system1_model: str = ""
-    """The decision model when the option leaves it to a pick (`decisions-other`)."""
+    """The decision model when the option leaves it to a pick from a listing (`drex-more`, `decisions-other`)."""
     keys: dict[str, str] = field(default_factory=dict)
     """Keys typed in, by variable, to keep; not those already set in the environment."""
-    provider: ProviderSpec | None = None
-    """A provider to write to `[providers.<id>]`: a custom endpoint, or a local server at another address."""
+    providers: dict[str, ProviderSpec] = field(default_factory=dict)
+    """Providers to write to `[providers.<id>]`, by id: a custom endpoint, or a local server at another address."""
     handoff: str | None = None
     """The `provider/model` runs hand over to; None for no hand-over."""
 
@@ -869,8 +850,8 @@ def _write_handoff(document: tomlkit.TOMLDocument, handoff: str | None) -> None:
 
 def write_config(home: Path, setup: Setup) -> Path:
     """Write the picks to `config.toml`: `system2`, the `[system1]` table's backend and model (and where its key
-    is), the hand-over model, and a `[providers]` entry when one is needed. Everything else in the file stays as it
-    was."""
+    is), the hand-over model, and a `[providers]` entry for each provider that needs one. Everything else in the file
+    stays as it was."""
     path = home / CONFIG_FILE
     document = tomlkit.parse(path.read_text()) if path.is_file() else tomlkit.document()
     if "model" in document:
@@ -887,14 +868,12 @@ def write_config(home: Path, setup: Setup) -> Path:
         system1["api_key_env"] = option.key_env
     else:
         system1["console_key_env"] = option.key_env
-    if setup.provider is not None:
-        providers = _table(document, "providers")
-        provider_id = setup.system2.partition("/")[0]
+    for provider_id, spec in setup.providers.items():
         entry = tomlkit.table()
-        for key, value in setup.provider.model_dump(exclude_defaults=True).items():
+        for key, value in spec.model_dump(exclude_defaults=True).items():
             entry[key] = value
-        entry["base_url"] = setup.provider.base_url
-        providers[provider_id] = entry
+        entry["base_url"] = spec.base_url
+        _table(document, "providers")[provider_id] = entry
     _write_handoff(document, setup.handoff)
     home.mkdir(parents=True, exist_ok=True)
     path.write_text(tomlkit.dumps(document))

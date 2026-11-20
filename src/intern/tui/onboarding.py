@@ -24,13 +24,13 @@ the screen dismisses with `StartedFree`. Already signed in, it picks the free cr
 not offered while the console takes no sign-ins, while free calls are paused, or once the credit is spent, and the
 step says why; a refused sign-in says why in plain words and offers the user's own keys on the same screen.
 
-**Use my own keys** asks where the models run (OpenRouter first, signed in with the browser or a pasted key; any
-other provider or a local server too; a key is checked before it is kept), then offers Nace's frontier and efficient
-pairs on that provider (`onboarding.PAIRS`), or a frontier and an efficient model of the user's own; then the decision
-model, Drex Max first. It always sets two models: there is no "no efficient model" here. Nothing on it is an error to
-read and give up on: a refused key, a server that does not answer or a subscription Intern cannot sign in with each
-says what to do instead, on the step it happened. The last step saves (`onboarding.save`) and the screen dismisses
-with what it saved, for the app to open the session on.
+**Use my own keys** asks where the frontier model runs (OpenRouter first, signed in with the browser or a pasted key;
+any other provider or a local server too; a key is checked before it is kept) and offers every model it lists, its
+frontier models first; then the efficient model on a provider of its own, the frontier's or another, its efficient
+models first, or no efficient model (`SKIP`: every turn runs on the frontier model); then the decision model, by
+where it runs. Nothing on it is an error to read and give up on: a refused key, a server that does not answer or a
+subscription Intern cannot sign in with each says what to do instead, on the step it happened. The last step saves
+(`onboarding.save`) and the screen dismisses with what it saved, for the app to open the session on.
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ from intern.onboarding import (
     KeyCheck,
     OpenRouterSignIn,
     ProviderOption,
-    Recommendation,
+    Role,
     Saved,
     Setup,
     SignInFailed,
@@ -79,7 +79,6 @@ from intern.onboarding import (
     key_found,
     model_name,
     offered_models,
-    pairs_for,
     save,
 )
 from intern.secret_store import MIN_SECRET_CHARS
@@ -98,7 +97,6 @@ Step = Literal[
     "unavailable",
     "address",
     "key",
-    "pair",
     "frontier",
     "efficient",
     "decision",
@@ -118,24 +116,28 @@ FREE_STAGES: Stages = (
 OWN_STAGES: Stages = (
     ("Welcome", ("welcome",)),
     ("How to run", ("how",)),
-    ("Connect", ("provider", "unavailable", "address", "key")),
-    ("Models", ("pair", "frontier", "efficient")),
-    ("Decision model", ("decision", "decision-key", "decision-model")),
+    ("Frontier", ("frontier",)),
+    ("Efficient", ("efficient",)),
+    ("Decision", ("decision", "decision-key", "decision-model")),
     ("Ready", ("done",)),
 )
-"""The steps as the progress line shows them, on the free credit's way and on the user's own keys'."""
+"""The steps as the progress line shows them, on the free credit's way and on the user's own keys'; on the latter,
+the steps that connect a provider (`CONNECTING`) are in their role's stage."""
+CONNECTING: tuple[Step, ...] = ("provider", "unavailable", "address", "key")
+"""The steps that connect a provider, for the frontier model or the efficient one (`OnboardingScreen.role`)."""
 LISTING: tuple[Step, ...] = (
     "how",
     "refused",
     "provider",
-    "pair",
     "frontier",
     "efficient",
     "decision",
     "decision-model",
 )
 UNFILTERED: tuple[Step, ...] = ("how", "refused")
-"""Listing steps too short to filter: the list has the focus."""
+"""Listing steps whose rows run to more lines, too short to filter: the list has the focus."""
+FILTERED: tuple[Step, ...] = ("provider", "frontier", "efficient", "decision-model")
+"""Listing steps long enough to filter by typing; the rest are a few rows, picked with the arrows."""
 TYPED: tuple[Step, ...] = ("frontier", "efficient", "decision-model")
 """Listing steps where a name typed that is not listed is used as is."""
 FREE, OWN, RETRY = "free", "own", "retry"
@@ -156,15 +158,12 @@ REASONS = {
 """Why a sign-in was refused, in plain words: by the console's `reason`, else its `code`."""
 RETRYABLE = ("access_denied", "expired_token", "unavailable")
 """Refusals a second sign-in may not meet."""
-CHOOSE = "choose"
+SKIP = "skip"
+"""The efficient provider step's last row: no efficient model, so no hand-over."""
 OPENROUTER = PROVIDER_BY_ID["openrouter"]
 OPENROUTER_NOTE = "every model on one key · sign in with your browser"
-WELCOME = (
-    "Frontier models are smart but expensive. Efficient models are cheap but struggle with hard problems.\n\n"
-    "Intern uses both. The frontier model cracks the hard part, then the efficient model finishes the job. "
-    "A small decision model picks the moment to switch."
-)
-"""What Intern is, on the first screen."""
+SETUP_STEPS = ("Choose how to run: free credit, or your own keys", "Sign in once, or pick your models", "Start a task")
+"""What setup asks, on its first screen."""
 DECISION_JOBS = (
     "Decides when to hand the task to the efficient model",
     "Spots when the work goes in circles and steers it back",
@@ -179,6 +178,15 @@ ROOMY_ROWS = 56
 """From this height on the wordmark stays over a list; below it the list has its rows."""
 CUSTOM_KEY_ENV = "CUSTOM_API_KEY"
 LOCAL_SUGGESTED = ("qwen3.8:27b", "qwen3:30b", "gpt-oss:20b")
+
+
+@dataclass
+class Connection:
+    """A provider connected for a role: where it is, when it is a server or an endpoint, and the models it lists."""
+
+    provider: ProviderOption
+    address: str = ""
+    listed: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -261,20 +269,22 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         self.code: SignInCode | None = None
         self.refused: Refusal | None = None
         self.granted: Granted | None = None
-        self.trail: list[Step] = []
-        """The steps taken, for Esc to go back through."""
-        self.provider: ProviderOption | None = None
-        self.address = ""
-        self.listed: tuple[str, ...] = ()
+        self.from_decision = start in ("system1", "decision")
+        """Setup started at the decision model, System 2 already working: then the efficient model, after it."""
+        self.role: Role = "frontier"
+        """Whose provider the connecting steps connect."""
+        self.trail: list[tuple[Step, Role]] = []
+        """The steps taken, each with its role, for Esc to go back through."""
+        self.connections: dict[Role, Connection] = {}
         self.system2 = system2
         """The frontier model, `provider/model`; given when setup starts at the decision model (it already works)."""
         self.option: System1Option | None = None
         self.system1_listed: tuple[str, ...] = ()
         self.system1_model = ""
         self.handoff: str | None = None
-        """The efficient model, `provider/model`; None until picked."""
-        self.pairs: tuple[Recommendation, ...] = ()
-        """The frontier and efficient pairs on the connected provider."""
+        """The efficient model, `provider/model`; None until picked, or skipped."""
+        self.skipped = False
+        """The efficient model's step was skipped: no hand-over."""
         self.keys: dict[str, str] = {}
         self.choices: list[Choice] = []
         self.saved: Onboarded | None = None
@@ -305,13 +315,32 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
     def on_mount(self) -> None:
         self._show()
 
+    @property
+    def connection(self) -> Connection | None:
+        return self.connections.get(self.role)
+
+    @property
+    def provider(self) -> ProviderOption | None:
+        return self.connection.provider if self.connection is not None else None
+
+    @property
+    def address(self) -> str:
+        return self.connection.address if self.connection is not None else ""
+
+    @property
+    def listed(self) -> tuple[str, ...]:
+        return self.connection.listed if self.connection is not None else ()
+
     def _key_present(self, name: str) -> bool:
         return bool(name) and (name in self.keys or key_found(name, self.env))
 
     def _show(self, status: Content | str = "") -> None:
         """Draw the current step: its title, what it says, the list or the line it asks with, and the keys."""
         step = self.step
-        self.query_one("#setup-intro").display = step in ("welcome", "done", "free-done")
+        intro = step in ("welcome", "done", "free-done")
+        self.query_one("#setup-intro").display = intro
+        bare = step in ("welcome", "done")  # all on the intro: no title or body under it
+        self.query_one("#setup-title").display = self.query_one("#setup-body").display = not bare
         self.query_one(Mascot).play("happy" if step in ("done", "free-done") else "idle")
         self.query_one("#setup-stages", Static).update(self._stages())
         filter_line, options, line = (
@@ -323,7 +352,7 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         tall = listing or step == "free-done"
         self.query_one("#setup-wordmark").display = not tall or self.app.size.height >= ROOMY_ROWS
         options.display = listing
-        filter_line.display = listing and step not in UNFILTERED
+        filter_line.display = step in FILTERED
         line.display = step in ("address", "key", "decision-key")
         title, body = getattr(self, f"_{step.replace('-', '_')}")()
         self.query_one("#setup-title", Static).update(Content.styled(title, S_HEAD))
@@ -340,8 +369,13 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             self.set_focus(None)
 
     def _stages(self) -> Content:
+        """The progress line. On the user's own keys the connecting steps are in their role's stage; setup that
+        started at the decision model goes on to the efficient model."""
         stages = FREE_STAGES if self.way == "free" else OWN_STAGES
-        at = next(i for i, (_, steps) in enumerate(stages) if self.step in steps)
+        if self.way == "own" and self.from_decision:
+            stages = (OWN_STAGES[4], OWN_STAGES[3], OWN_STAGES[5])
+        step: Step = self.role if self.way == "own" and self.step in CONNECTING else self.step
+        at = next(i for i, (_, steps) in enumerate(stages) if step in steps)
         parts: list[tuple[str, str] | str] = []
         for i, (name, _) in enumerate(stages):
             if i:
@@ -371,9 +405,14 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
     def _welcome(self) -> tuple[str, Content]:
         self.query_one("#setup-about", Static).update(
             Content.assemble(
-                ("Welcome to Intern\n\n", f"bold {BRAND}"),
-                (WELCOME, S_INK),
-                ("\n\nSetup takes a minute. Start free with no keys, or use your own.", S_MUTED),
+                ("Welcome to Intern\n", f"bold {BRAND}"),
+                ("━" * len("Welcome to Intern") + "\n\n", BRAND),
+                ("Setup takes a minute:\n\n", S_INK),
+                *(
+                    part
+                    for i, step in enumerate(SETUP_STEPS, 1)
+                    for part in ((f"  {i}  ", f"bold {BRAND}"), (step + "\n", S_INK))
+                ),
             )
         )
         return "", Content("")
@@ -462,25 +501,24 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         )
         return "", body
 
-    def _pair(self) -> tuple[str, Content]:
-        self.choices = [
-            Choice(r.id, r.title, "Recommended" if i == 0 else "More pairs", note=r.tag)
-            for i, r in enumerate(self.pairs)
-        ]
-        self.choices.append(Choice(CHOOSE, "Choose your own", "Or", note="any frontier and efficient model"))
-        body = Content.styled(
-            "The frontier model starts each task. Once the hard part is done, the efficient model takes over.", S_INK
-        )
-        return "Pick your models", body
-
     def _provider(self) -> tuple[str, Content]:
         self.choices = self._provider_choices()
-        body = Content.styled("Where your models run. OpenRouter has every model on one key.", S_INK)
-        return "Connect your models", body
+        if self.role == "efficient":
+            said = "Where your efficient model runs: your frontier model's provider, or another one."
+            return "Connect your efficient model", Content.styled(said, S_INK)
+        said = "Where your frontier model runs. OpenRouter has every model on one key."
+        return "Connect your frontier model", Content.styled(said, S_INK)
 
     def _provider_choices(self) -> list[Choice]:
         ready = [p for p in SYSTEM2_PROVIDERS if p.kind == "key" and self._key_present(p.key_env)]
-        choices = [Choice(p.id, p.name, "Ready to use", note=f"key found in ${p.key_env}") for p in ready]
+        notes = {p.id: f"key found in ${p.key_env}" for p in ready}
+        frontier = PROVIDER_BY_ID.get(self.system2.partition("/")[0])
+        if self.role == "efficient" and frontier is not None:  # the frontier model's provider first
+            ready = [frontier, *(p for p in ready if p is not frontier)]
+            notes[frontier.id] = "your frontier model's provider"
+        choices = [Choice(p.id, p.name, "Ready to use", note=notes[p.id]) for p in ready]
+        if self.role == "efficient":
+            choices.append(Choice(SKIP, "Skip this step", "Or", note=f"every turn runs on {model_name(self.system2)}"))
         if OPENROUTER not in ready:
             choices.append(Choice(OPENROUTER.id, OPENROUTER.name, "Recommended", note="★ " + OPENROUTER_NOTE))
         for p in SYSTEM2_PROVIDERS:
@@ -538,48 +576,32 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         return f"Connect {p.name}", self._key_body(p.name, p.key_env, p.key_url)
 
     def _frontier(self) -> tuple[str, Content]:
-        assert self.provider is not None
+        assert self.provider is not None and self.role == "frontier"
         suggested = list(self.provider.suggested or (LOCAL_SUGGESTED if self.provider.kind == "local" else ()))
         models = offered_models(replace(self.provider, suggested=tuple(suggested)), self.listed, "frontier")
-        top = {m for m in suggested if m in models}
+        more = f"More on {self.provider.name}"
         self.choices = [
-            Choice(
-                m,
-                model_name(f"{self.provider.id}/{m}"),
-                "Suggested" if m in top else f"On {self.provider.name}",
-                note="★ recommended" if i == 0 and m in top else "",
-            )
-            for i, m in enumerate(models)
+            Choice(m, model_name(f"{self.provider.id}/{m}"), "Frontier models" if m in suggested else more)
+            for m in models
         ]
         said = "Starts each task and does the hard part. Pick a strong model."
         return "Frontier model", Content.styled(said, S_INK)
 
     def _efficient(self) -> tuple[str, Content]:
-        provider_id = self.system2.partition("/")[0]
-        option = PROVIDER_BY_ID.get(provider_id)
-        listed = self.listed if self.provider is not None else ()
-        refs = efficient_models(self.system2, listed)
-        first = {f"{provider_id}/{m}" for m in (option.handoff_suggested, *option.efficient)} if option else set()
-        where = option.name if option else provider_id
-        self.choices = [
-            Choice(
-                ref,
-                model_name(ref),
-                "Suggested" if ref in first else f"On {where}",
-                note="★ recommended" if i == 0 and ref in first else "",
-            )
-            for i, ref in enumerate(refs)
-        ]
+        assert self.provider is not None and self.role == "efficient"
+        option = self.provider
+        refs = efficient_models(option.id, self.system2, self.listed)
+        first = {f"{option.id}/{m}" for m in (option.handoff_suggested, *option.efficient)}
+        more = f"More on {option.name}"
+        self.choices = [Choice(ref, model_name(ref), "Efficient models" if ref in first else more) for ref in refs]
         return "Efficient model", Content.styled(HANDOFF_OWN_KEYS, S_INK)
 
     def _decision(self) -> tuple[str, Content]:
         self.choices = []
         for option in SYSTEM1_OPTIONS:
-            note = option.blurb
-            if option.recommended and self._key_present(option.key_env):
-                note += " · uses your OpenRouter key"
-            group = "Recommended" if option.recommended else "Other decision models"
-            self.choices.append(Choice(option.id, option.name, group, note=("★ " if option.recommended else "") + note))
+            note = option.blurb + (" · your key is set" if self._key_present(option.key_env) else "")
+            group = "On OpenRouter" if option.backend == "decisions-api" else "On Nace AI"
+            self.choices.append(Choice(option.id, option.name, group, note=note))
         body = Content.assemble(
             ("A small, fast model that makes Intern's calls while your models work:\n", S_INK),
             *(("  •  " + job + "\n", S_INK) for job in DECISION_JOBS),
@@ -595,15 +617,19 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         return f"Connect {where}", self._key_body(where, self.option.key_env, self.option.key_url)
 
     def _decision_model(self) -> tuple[str, Content]:
-        self.choices = [Choice(m, model_name(m), "Decision models on OpenRouter") for m in self.system1_listed]
+        assert self.option is not None
+        where = "OpenRouter" if self.option.backend == "decisions-api" else "Nace AI"
+        offered = [m for m in self.system1_listed if m.startswith(self.option.only)]
+        drex_first = sorted(offered, key=lambda m: "drex" not in m)
+        self.choices = [Choice(m, model_name(m), f"Decision models on {where}") for m in drex_first]
         return "Decision model", Content.styled("Pick one.", S_INK)
 
     def _done(self) -> tuple[str, Content]:
         assert self.saved is not None
         setup, saved = self.saved.setup, self.saved.saved
         rows: list[tuple[str, str]] = [
-            ("Frontier", model_name(setup.system2)),
-            ("Efficient", model_name(setup.handoff) if setup.handoff else "none"),
+            ("Frontier" if setup.handoff else "Model", model_name(setup.system2)),
+            ("Efficient", model_name(setup.handoff) if setup.handoff else "skipped, no hand-over"),
             ("Decision", model_name(setup.system1_choice.removeprefix("decisions:"))),
         ]
         where = {"keychain": "your keychain", "env-file": f"{names.HOME}/.env"}
@@ -670,7 +696,8 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             self._picked(highlighted.id)
         elif message.value.strip() and self.step in TYPED:
             typed = message.value.strip()
-            self._picked(f"{self.system2.partition('/')[0]}/{typed}" if self.step == "efficient" else typed)
+            provider = self.provider if self.step == "efficient" else None  # its provider's, as listed ones are
+            self._picked(f"{provider.id}/{typed}" if provider is not None else typed)
 
     @on(OptionList.OptionSelected, "#setup-options")
     def _on_pick(self, message: OptionList.OptionSelected) -> None:
@@ -689,18 +716,18 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
 
     # -- moving through it ---------------------------------------------------------------------------------------
 
-    def _go(self, step: Step, status: Content | str = "") -> None:
-        self.trail.append(self.step)
-        self.step = step
+    def _go(self, step: Step, status: Content | str = "", *, role: Role | None = None) -> None:
+        self.trail.append((self.step, self.role))
+        self.step, self.role = step, role or self.role
         self._show(status)
 
     def action_back(self) -> None:
         if self.step in ("free-sign-in", "refused"):
             stopped = self.step == "free-sign-in"
             self.workers.cancel_group(self, "setup-free")
-            while self.trail and self.trail[-1] in ("consent", "free-sign-in"):
+            while self.trail and self.trail[-1][0] in ("consent", "free-sign-in"):
                 self.trail.pop()
-            self.step = self.trail.pop() if self.trail else "how"
+            self.step, self.role = self.trail.pop() if self.trail else ("how", "frontier")
             self._show(Content.styled("Sign-in stopped. Start free tries again.", S_WARN) if stopped else "")
             return
         if self._sign_in is not None:
@@ -717,7 +744,7 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             return
         if self.step in ("done", "free-done"):
             return  # already saved, or signed in: Enter goes on
-        self.step = self.trail.pop()
+        self.step, self.role = self.trail.pop()
         if self.step == "how":
             self.way = "free" if not free_blocked(self.free) else "own"
         self._show()
@@ -813,7 +840,7 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
                     self._start_free()
                 else:
                     self.way = "own"
-                    self._go("provider")
+                    self._go("provider", role="frontier")
             case "refused":
                 if picked == RETRY:
                     self.step = "free-sign-in"
@@ -821,17 +848,20 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
                     self._claim()
                 else:
                     self.way = "own"
-                    self._go("provider")
-            case "pair":
-                pair = next((r for r in self.pairs if r.id == picked), None)
-                if pair is None:
-                    self._go("frontier")
-                    return
-                self.system2, self.handoff = pair.system2, pair.handoff
-                self._go("decision")
+                    self._go("provider", role="frontier")
             case "provider":
+                if picked == SKIP:  # no efficient model: every turn runs on the frontier model
+                    self.handoff, self.skipped = None, True
+                    self._go("decision") if self.option is None else self._finish()
+                    return
                 option = next(p for p in SYSTEM2_PROVIDERS if p.id == picked)
-                self.provider, self.listed, self.address = option, (), ""
+                frontier = self.connections.get("frontier")
+                if self.role == "efficient" and frontier is not None and frontier.provider is option:
+                    # shortcut: one endpoint per provider id, so both models on `custom` share one address.
+                    self.connections["efficient"] = frontier  # its key, address and models are the frontier's
+                    self._go("efficient")
+                    return
+                self.connections[self.role] = Connection(option)
                 if option.unavailable:
                     self._go("unavailable")
                 elif option.kind in ("local", "custom"):
@@ -841,9 +871,9 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             case "frontier":
                 assert self.provider is not None
                 self.system2 = f"{self.provider.id}/{picked}"
-                self._go("efficient")
+                self._go("provider", role="efficient")
             case "efficient":
-                self.handoff = picked
+                self.handoff, self.skipped = picked, False
                 if self.option is None:
                     self._go("decision")
                 else:
@@ -860,9 +890,9 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
                 self._after_decision()
 
     def _after_decision(self, status: Content | str = "") -> None:
-        """The decision model is set: pick the efficient model if setup started past it, else save."""
-        if self.handoff is None:
-            self._go("efficient", status)
+        """The decision model is set: the efficient model if setup started past it, else save."""
+        if self.handoff is None and not self.skipped:
+            self._go("provider", status, role="efficient")
         else:
             self._finish()
 
@@ -875,8 +905,9 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             if not value.startswith(("http://", "https://")):
                 self._status("An address starts with http:// or https://, e.g. http://localhost:11434/v1", warn=True)
                 return
-            self.address = value.rstrip("/")
-            if self.provider is not None and self.provider.kind == "custom":
+            assert self.connection is not None
+            self.connection.address = value.rstrip("/")
+            if self.connection.provider.kind == "custom":
                 self._go("key")
             else:
                 self._check_system2(None)
@@ -951,10 +982,9 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             return
         if key:
             self.keys[self._key_env()] = key
-        self.listed = found.models
-        assert self.provider is not None
-        self.pairs = pairs_for(self.provider.id, self.listed)
-        self._go("pair" if self.pairs else "frontier", self._kept(found))
+        assert self.connection is not None
+        self.connection.listed = found.models
+        self._go("efficient" if self.role == "efficient" else "frontier", self._kept(found))
 
     def _fix(self, found: KeyCheck, *, local: bool) -> str:
         if local:
@@ -1008,17 +1038,20 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
     async def _finish(self) -> None:
         """Save, and show what was saved; a save that fails says why and stays on its step to try again."""
         assert self.option is not None
-        provider: ProviderSpec | None = None
-        if self.provider is not None and self.provider.kind == "custom":
-            key_env = CUSTOM_KEY_ENV if CUSTOM_KEY_ENV in self.keys else None
-            provider = ProviderSpec(base_url=self.address, api_key_env=key_env)
-        elif self.provider is not None and self.provider.kind == "local":
-            default = PROVIDERS[self.provider.id].base_url
-            if self.address and self.address != default:
-                provider = PROVIDERS[self.provider.id].model_copy(update={"base_url": self.address})
+        providers: dict[str, ProviderSpec] = {}
+        used = {ref.partition("/")[0] for ref in (self.system2, self.handoff) if ref}
+        for connection in self.connections.values():
+            p, address = connection.provider, connection.address
+            if p.id not in used:
+                continue  # connected, then left by going back
+            if p.kind == "custom":
+                key_env = CUSTOM_KEY_ENV if CUSTOM_KEY_ENV in self.keys else None
+                providers[p.id] = ProviderSpec(base_url=address, api_key_env=key_env)
+            elif p.kind == "local" and address and address != PROVIDERS[p.id].base_url:
+                providers[p.id] = PROVIDERS[p.id].model_copy(update={"base_url": address})
         # A key typed in that is already exported with the same value needs no keeping.
         keys = {name: value for name, value in self.keys.items() if self.env.get(name) != value}
-        setup = Setup(self.system2, self.option, self.system1_model, keys, provider, self.handoff)
+        setup = Setup(self.system2, self.option, self.system1_model, keys, providers, self.handoff)
         self.busy = True
         self._status("Saving…")
         try:

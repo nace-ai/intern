@@ -97,12 +97,16 @@ intern
 
 The first time, `intern` opens on a setup that takes about a minute:
 
-1. **Connect a provider.** OpenRouter is the one we recommend: one key runs every model, and you can sign in with
+1. **Start free, or use your own keys.** Free credit runs on Nace's models with no keys: sign in once with GitHub or
+   Google, and you're done. On your own keys, the steps below follow.
+2. **Connect a provider.** OpenRouter is the one we recommend: one key runs every model, and you can sign in with
    your browser instead of pasting a key. Anthropic, OpenAI, Gemini and 20 more work too, as does a model on your
    machine (Ollama, LM Studio, llama.cpp, vLLM, Kapitsa).
-2. **Pick your models.** Each pick is a frontier model and an efficient model together. On OpenRouter: Claude Opus
-   5.5 → Hy4 Flash (best results), Hy4 → Hy4 Flash (lowest cost), GPT-6.2 Astra → GPT-6 Luna, or your own pair.
-3. **Pick the decision model.** Drex Max is first, and it runs on the OpenRouter key you already gave.
+3. **Pick your models.** The frontier model, from that provider (on OpenRouter, Claude Opus 5.5 first). Then the
+   efficient model: its provider, the same one or another with its own key, and the model (Hy4 Flash first on
+   OpenRouter). Or skip it, and every turn runs on the frontier model.
+4. **Pick the decision model.** Drex, on a Nace key (Drex Latest) or on your OpenRouter key (Drex Max and the
+   other Drex models), or any other decision model OpenRouter lists.
 
 Keys go to your system keychain and your picks to `~/.intern/config.toml`. `/setup` brings the screen back any
 time.

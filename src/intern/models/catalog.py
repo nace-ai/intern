@@ -238,7 +238,7 @@ def _listed(endpoint: Endpoint, body: Any) -> list[ModelInfo]:
     return models
 
 
-def _console_listed(body: Any) -> list[ModelInfo]:
+def console_listed(body: Any) -> list[ModelInfo]:
     """The console's `{"models": [{name, description, alias_for}]}`; a retired model says so in its description."""
     models: list[ModelInfo] = []
     for item in _items(body, "models"):
@@ -293,7 +293,7 @@ async def console_models(sources: System1Sources, transport: httpx.AsyncBaseTran
         return []
     headers = {"Authorization": f"Bearer {sources.console_key}"}
     url = f"{sources.console_url.rstrip('/')}/models"
-    return await _fetch(("console", sources.console_url), url, headers, {}, transport, _console_listed)
+    return await _fetch(("console", sources.console_url), url, headers, {}, transport, console_listed)
 
 
 async def decision_models(

@@ -19,8 +19,8 @@ from intern.onboarding import (
     SYSTEM1_BY_ID,
     OpenRouterSignIn,
     Setup,
+    check_system1,
     check_system2,
-    pairs_for,
     save,
 )
 from intern.providers.fake import Turn
@@ -68,7 +68,7 @@ def setup_app(tmp_path: Path, env: dict[str, str], requests: list[httpx.Request]
     return HarnessApp(open_session, default_system2=default, home=tmp_path / "home", setup=hooks)
 
 
-async def test_a_first_launch_connects_openrouter_then_takes_a_pair_and_drex_and_opens_the_session(tmp_path: Path):
+async def test_a_first_launch_connects_openrouter_then_takes_its_models_and_drex_and_opens_the_session(tmp_path: Path):
     home = tmp_path / "home"
     env = {**NO_KEYCHAIN}
     opened: list[Models] = []
@@ -79,7 +79,7 @@ async def test_a_first_launch_connects_openrouter_then_takes_a_pair_and_drex_and
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
         about = str(screen.query_one("#setup-about").render())
-        assert "Frontier models" in about and "System" not in about
+        assert "Welcome to Intern" in about and "System" not in about
         await pilot.press("enter", "down", "enter")  # welcome; how to run: my own keys
         assert screen.step == "provider"
         assert screen.choices[0].id == "openrouter"  # recommended, first, among every other provider
@@ -87,37 +87,50 @@ async def test_a_first_launch_connects_openrouter_then_takes_a_pair_and_drex_and
         await pilot.press("enter")
         assert screen.step == "key" and screen.provider is not None and screen.provider.id == "openrouter"
         await pilot.press(*"sk-or-v1-test-key", "enter")
-        await wait_for(lambda: screen.step == "pair")
-        await pilot.press("enter")  # Claude Opus 5.5 → Hy4 Flash, first
+        await wait_for(lambda: screen.step == "frontier")  # its frontier models, Claude Opus 5.5 first
+        await pilot.press("enter", "enter")  # Opus; OpenRouter again for the efficient model, connected already
+        assert screen.step == "efficient"
+        await pilot.press("enter")  # Hy4 Flash, first
         assert screen.step == "decision"
-        await pilot.press("enter")  # Drex Max, on the OpenRouter key already given: no second key step
+        await pilot.press("enter")  # Drex Latest, recommended and first, on a Nace key
+        assert screen.step == "decision-key"
+        await pilot.press(*"nace-test-key-123", "enter")
         await wait_for(lambda: screen.step == "done")
-        assert screen.trail == ["welcome", "how", "provider", "key", "pair", "decision"]
+        steps = [
+            "welcome",
+            "how",
+            "provider",
+            "key",
+            "frontier",
+            "provider",
+            "efficient",
+            "decision",
+            "decision-key",
+        ]
+        assert [step for step, _ in screen.trail] == steps
         await pilot.press("enter")
         await wait_for(lambda: app.session is not None)
         await app.action_quit()
 
     assert opened[-1].system2 == "openrouter/anthropic/claude-opus-5.5"
-    assert opened[-1].system1 == "decisions:nace-ai/drex-max"
+    assert opened[-1].system1 == "drex-latest"
     assert opened[-1].auto
     config = tomllib.loads((home / "config.toml").read_text())
     assert config["system2"] == "openrouter/anthropic/claude-opus-5.5"
-    assert config["system1"] == {
-        "backend": "decisions-api",
-        "model": "nace-ai/drex-max",
-        "base_url": "https://openrouter.ai/api/v1",
-        "api_key_env": "OPENROUTER_API_KEY",
-    }
+    assert config["system1"] == {"backend": "console", "model": "drex-latest", "console_key_env": "NACE_API_KEY"}
     assert config["capabilities"] == {"handoff": {"to": "openrouter/tencent/hy4-flash"}}
     # Keys are kept out of config.toml, readable by the user only, and in use in this process at once.
     assert "sk-" not in (home / "config.toml").read_text()
-    assert read_env_file(home / ".env") == {"OPENROUTER_API_KEY": "sk-or-v1-test-key"}
+    assert read_env_file(home / ".env") == {
+        "OPENROUTER_API_KEY": "sk-or-v1-test-key",
+        "NACE_API_KEY": "nace-test-key-123",
+    }
     assert (home / ".env").stat().st_mode & 0o077 == 0
     assert env["OPENROUTER_API_KEY"] == "sk-or-v1-test-key"
     # What it saved is what a session started later from the config reads.
     later = Bootstrap(Options(cwd=tmp_path), {**NO_KEYCHAIN, "INTERN_HOME": str(home), **read_env_file(home / ".env")})
     assert later.default_system2() == "openrouter/anthropic/claude-opus-5.5"
-    assert later.system1_choice() == "decisions:nace-ai/drex-max"
+    assert later.system1_choice() == "drex-latest"
     assert later.capability_settings().handoff.to == "openrouter/tencent/hy4-flash"
 
 
@@ -144,15 +157,23 @@ async def test_choosing_your_own_asks_for_a_frontier_model_then_an_efficient_one
         await pilot.press("enter", "down", "enter")  # welcome; my own keys
         assert screen.choices[0].id == "openrouter" and screen.choices[0].group == "Ready to use"
         await pilot.press("enter", "enter")  # OpenRouter; the key already in the environment
-        await wait_for(lambda: screen.step == "pair")
-        await pilot.press(*"choose", "enter")
-        assert screen.step == "frontier"
-        await pilot.press(*"hy4", "enter")  # Hy4: Hy4 Flash is an efficient model, not on the frontier list
+        await wait_for(lambda: screen.step == "frontier")
+        # Everything OpenRouter lists, its frontier models first.
+        assert [(c.id, c.group) for c in screen.choices] == [
+            ("anthropic/claude-opus-5.5", "Frontier models"),
+            ("tencent/hy4", "Frontier models"),
+            ("tencent/hy4-flash", "More on OpenRouter"),
+            ("openai/gpt-6-luna", "More on OpenRouter"),
+        ]
+        await pilot.press(*"hy4", "enter")
         assert screen.system2 == "openrouter/tencent/hy4"
+        # The efficient model's provider, the frontier's first: picked again, it is connected already.
+        assert screen.step == "provider" and screen.role == "efficient" and screen.choices[0].id == "openrouter"
+        await pilot.press("enter")
         assert screen.step == "efficient"
         assert screen.choices[0].id == "openrouter/tencent/hy4-flash"  # suggested first
         assert all(choice.id != screen.system2 for choice in screen.choices)  # never the frontier model again
-        await pilot.press("enter", "enter")  # Hy4 Flash; Drex Max
+        await pilot.press("enter", "down", "down", "enter")  # Hy4 Flash; Drex Max, on the OpenRouter key
         await wait_for(lambda: screen.step == "done")
         await app.action_quit()
 
@@ -175,14 +196,15 @@ async def test_another_provider_walks_through_frontier_efficient_and_the_decisio
         await pilot.press(*"anthropic", "enter")
         assert screen.step == "key"
         await pilot.press(*"sk-ant-test-key-123", "enter")
-        # Anthropic lists no Opus here, so its pair is not offered: straight to the frontier model.
+        # Straight to Anthropic's frontier models.
         await wait_for(lambda: screen.step == "frontier")
         await pilot.press("enter")  # the suggested model, first
         assert screen.system2 == "anthropic/claude-sonnet-5-5"
+        await pilot.press("enter")  # the efficient model on Anthropic too, first
         assert screen.step == "efficient"
         await pilot.press("enter")  # Haiku, the cheaper sibling, first
         assert screen.step == "decision"
-        await pilot.press("enter")  # Drex Max, recommended and first
+        await pilot.press("down", "down", "enter")  # Drex Max
         assert screen.step == "decision-key"
         await pilot.press(*"sk-or-v1-test-key", "enter")
         await wait_for(lambda: screen.step == "done")
@@ -195,11 +217,60 @@ async def test_another_provider_walks_through_frontier_efficient_and_the_decisio
     assert kept == {"ANTHROPIC_API_KEY": "sk-ant-test-key-123", "OPENROUTER_API_KEY": "sk-or-v1-test-key"}
 
 
-def test_a_provider_offers_only_the_pairs_whose_models_it_lists():
-    assert [p.id for p in pairs_for("openrouter")] == ["opus-hy4", "hy4", "gpt"]
-    assert [p.title for p in pairs_for("anthropic")] == ["Claude Opus 5.5 → Claude Haiku 5.5"]
-    assert pairs_for("anthropic", ("claude-sonnet-5-5", "claude-haiku-5-5")) == ()
-    assert pairs_for("gemini") == ()
+async def test_the_efficient_model_can_be_on_another_provider_than_the_frontier_model(tmp_path: Path):
+    home = tmp_path / "home"
+    env = {**NO_KEYCHAIN}
+    app = setup_app(tmp_path, env, [], [])
+    async with app.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
+        screen = app.screen
+        assert isinstance(screen, OnboardingScreen)
+        await pilot.press("enter", "down", "enter", *"anthropic", "enter", *"sk-ant-test-key-123", "enter")
+        await wait_for(lambda: screen.step == "frontier")
+        await pilot.press("enter")  # Claude Sonnet 5.5
+        await pilot.press(*"openrouter", "enter")
+        assert screen.step == "key" and screen.provider is not None and screen.provider.id == "openrouter"
+        await pilot.press(*"sk-or-v1-test-key", "enter")
+        await wait_for(lambda: screen.step == "efficient")
+        assert screen.choices[0].id == "openrouter/tencent/hy4-flash"
+        await pilot.press("enter", "down", "down", "enter")  # Hy4 Flash; Drex Max, on the OpenRouter key just given
+        await wait_for(lambda: screen.step == "done")
+        await app.action_quit()
+
+    config = tomllib.loads((home / "config.toml").read_text())
+    assert config["system2"] == "anthropic/claude-sonnet-5-5"
+    assert config["capabilities"] == {"handoff": {"to": "openrouter/tencent/hy4-flash"}}
+    kept = read_env_file(home / ".env")
+    assert kept == {"ANTHROPIC_API_KEY": "sk-ant-test-key-123", "OPENROUTER_API_KEY": "sk-or-v1-test-key"}
+
+
+async def test_skipping_the_efficient_model_runs_every_turn_on_the_frontier_model(tmp_path: Path):
+    home = tmp_path / "home"
+    env = {**NO_KEYCHAIN, "OPENROUTER_API_KEY": "sk-or-v1-in-env"}
+    opened: list[Models] = []
+    app = setup_app(tmp_path, env, [], opened)
+    async with app.run_test(size=SIZE) as pilot:
+        await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
+        screen = app.screen
+        assert isinstance(screen, OnboardingScreen)
+        await pilot.press("enter", "down", "enter", "enter", "enter")  # welcome; my own keys; OpenRouter; its key
+        await wait_for(lambda: screen.step == "frontier")
+        await pilot.press(*"hy4", "enter")
+        assert screen.step == "provider" and screen.role == "efficient"
+        skip = next(choice for choice in screen.choices if choice.id == "skip")
+        assert skip.name == "Skip this step" and skip.note == "every turn runs on Hy4"
+        await pilot.press(*"skip", "enter")
+        assert screen.step == "decision"
+        await pilot.press("down", "down", "enter")  # Drex Max, on the OpenRouter key
+        await wait_for(lambda: screen.step == "done")
+        await pilot.press("enter")
+        await wait_for(lambda: app.session is not None)
+        await app.action_quit()
+
+    assert not opened[-1].auto
+    config = tomllib.loads((home / "config.toml").read_text())
+    assert config["system2"] == "openrouter/tencent/hy4" and config["auto"] is False
+    assert "capabilities" not in config
 
 
 async def test_starting_at_the_decision_model_asks_for_the_efficient_model_after_it(tmp_path: Path):
@@ -212,7 +283,11 @@ async def test_starting_at_the_decision_model_asks_for_the_efficient_model_after
     async with app.run_test(size=SIZE) as pilot:
         app.push_screen(screen)
         assert screen.step == "decision"
-        await pilot.press("enter")  # Drex Max, on the OpenRouter key in the environment
+        await pilot.press("down", "down", "enter")  # Drex Max, on the OpenRouter key in the environment
+        await wait_for(lambda: screen.step == "provider")
+        await pilot.press("enter")  # the frontier model's provider, first
+        assert screen.step == "key"
+        await pilot.press("enter")  # the Anthropic key in the environment
         await wait_for(lambda: screen.step == "efficient")
         await pilot.press("enter")
         await wait_for(lambda: screen.step == "done")
@@ -273,6 +348,29 @@ async def test_a_local_server_that_does_not_answer_is_said_with_what_to_check():
 
     found = await check_system2(PROVIDER_BY_ID["ollama"], None, transport=httpx.MockTransport(down))
     assert not found.ok and "is the server running" in found.message
+
+
+async def test_setup_offers_only_models_that_chat_never_an_embedding_or_reranker():
+    def listing(request: httpx.Request) -> httpx.Response:
+        served = [
+            {"id": "accounts/fireworks/models/kimi-k3", "kind": "HF_BASE_MODEL", "supports_chat": True},
+            {"id": "accounts/fireworks/models/qwen3-embedding-8b", "kind": "EMBEDDING_MODEL", "supports_chat": True},
+            {"id": "accounts/fireworks/models/qwen3-reranker-8b", "kind": "EMBEDDING_MODEL", "supports_chat": True},
+        ]
+        return httpx.Response(200, json={"data": served})
+
+    found = await check_system2(PROVIDER_BY_ID["fireworks"], "fw-key", transport=httpx.MockTransport(listing))
+    assert found.models == ("accounts/fireworks/models/kimi-k3",)
+
+
+async def test_more_drex_models_on_a_nace_key_are_the_ones_the_console_serves_not_its_retired_ones():
+    def console(request: httpx.Request) -> httpx.Response:
+        assert request.url.host == "console.nace.ai"
+        served = [{"name": "drex-v2.0"}, {"name": "drex-v1.0", "description": "Retired. Use drex-latest."}]
+        return httpx.Response(200, json={"models": [*served, {"name": "drex-latest"}]})
+
+    found = await check_system1(SYSTEM1_BY_ID["drex-more"], "nace-key", transport=httpx.MockTransport(console))
+    assert found.ok and found.models == ("drex-v2.0", "drex-latest")
 
 
 async def test_signing_in_with_openrouter_trades_the_browser_code_for_a_key():
