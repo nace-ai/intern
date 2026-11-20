@@ -118,9 +118,11 @@ model = "drex-max-v1"
 # kapitsa_url = "http://127.0.0.1:8001/v1"   # the default
 ```
 
-The harness sends it one ask at a time, gives each up to three minutes, and keeps each state within 3/4
-of the server's default context, so leave `--context` at its default. On an M4 Pro, an ask about 1,000
-tokens took 6 seconds and one about 5,000 took 22, so a run waits on System 1 longer than on the console.
+The harness sends it one ask at a time and one question per request, gives each question up to three
+minutes, and keeps each state within 3/4 of the server's default context, so leave `--context` at its
+default. Drex Max reads the whole state again for every question: on an M4 Pro a question took 6 seconds
+on a 1,000-token state and 22 on a 5,000-token one, so a run waits on System 1 longer than on the console,
+most at the memory lookup before a session's first turn and as the session grows.
 [Kapitsa's guide](https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md) has the other Drex models.
 
 ## Switching models
