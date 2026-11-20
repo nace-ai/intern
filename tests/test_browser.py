@@ -83,6 +83,42 @@ async def test_proxy_requires_auth_and_denies_private_connect(website):
         await proxy.aclose()
 
 
+async def test_proxy_sends_an_origin_only_the_request_made_to_it_not_what_follows_on_the_connection():
+    received = bytearray()
+
+    async def origin(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        with pytest.raises(TimeoutError):  # everything the proxy sends before it goes quiet
+            async with asyncio.timeout(0.5):
+                while chunk := await reader.read(65_536):
+                    received.extend(chunk)
+        writer.write(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok")
+        await writer.drain()
+        writer.close()
+
+    server = await asyncio.start_server(origin, "127.0.0.1", 0)
+    port = server.sockets[0].getsockname()[1]
+    proxy = BrowserProxy(timeout_s=5, allow_private=True)
+    await proxy.start()
+    try:
+        reader, writer = await asyncio.open_connection("127.0.0.1", int(proxy.address.rsplit(":", 1)[1]))
+        credential = base64.b64encode(f"{proxy.username}:{proxy.password}".encode()).decode()
+        auth = f"Proxy-Authorization: Basic {credential}\r\n"
+        first = f"POST http://127.0.0.1:{port}/first HTTP/1.1\r\n{auth}Content-Length: 4\r\n\r\nbody"
+        second = f"GET http://other.example/second HTTP/1.1\r\n{auth}Cookie: session=for-the-other-host\r\n\r\n"
+        writer.write((first + second).encode())  # the second request rides the same connection
+        await writer.drain()
+        assert (await reader.read()).endswith(b"\r\n\r\nok")
+        writer.close()
+        await writer.wait_closed()
+        sent = bytes(received).lower()
+        assert sent.startswith(b"post /first http/1.1\r\n") and sent.endswith(b"\r\n\r\nbody")
+        assert b"other.example" not in sent and b"for-the-other-host" not in sent and b"proxy-authorization" not in sent
+    finally:
+        await proxy.aclose()
+        server.close()
+        await server.wait_closed()
+
+
 browser_test = pytest.mark.skipif(
     not os.environ.get("INTERN_BROWSER_TEST"), reason="explicit prepared Chromium required"
 )

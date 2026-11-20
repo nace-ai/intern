@@ -53,9 +53,14 @@ class BrowserProxy:
         writer.write(f"HTTP/1.1 {status}\r\n{challenge}Content-Length: 0\r\nConnection: close\r\n\r\n".encode())
         await writer.drain()
 
-    async def _upload(self, reader: asyncio.StreamReader, upstream: httpcore.AsyncNetworkStream) -> None:
+    async def _upload(
+        self, reader: asyncio.StreamReader, upstream: httpcore.AsyncNetworkStream, length: int | None = None
+    ) -> None:
+        """Send on what the browser sends: all of it for a tunnel, `length` bytes for a plain request (its body)."""
         count = 0
-        while chunk := await reader.read(65_536):
+        while (length is None or count < length) and (
+            chunk := await reader.read(65_536 if length is None else min(65_536, length - count))
+        ):
             count += len(chunk)
             if count > self.max_stream_bytes:
                 raise ValueError("Browser connection exceeded the upload limit")
@@ -84,6 +89,7 @@ class BrowserProxy:
         upstream = None
         pumps: list[asyncio.Task[None]] = []
         tunnel_started = False
+        body_length = 0
         try:
             async with asyncio.timeout(self.timeout_s):
                 header = await reader.readuntil(b"\r\n\r\n")
@@ -125,6 +131,14 @@ class BrowserProxy:
                 else:
                     if parsed.scheme != "http":
                         raise ValueError("HTTPS requires CONNECT")
+                    # Only this request and its body go to this origin. Whatever the browser sends after them on
+                    # the connection (a pipelined request, with its cookies and the proxy's own credential) may be
+                    # for another host: it is left unread, and the connection closes after the response.
+                    if "transfer-encoding" in headers:
+                        raise ValueError("Chunked request bodies are disabled")
+                    body_length = int(headers.get("content-length", "0"))
+                    if body_length < 0:
+                        raise ValueError("Invalid request body length")
                     path = parsed.path + ("?" + parsed.query if parsed.query else "")
                     origin_headers = {
                         k: v
@@ -137,13 +151,14 @@ class BrowserProxy:
                     )
                     await upstream.write((request + "\r\n").encode("latin1"), timeout=self.timeout_s)
                 tunnel_started = True
-                pumps = [
-                    asyncio.create_task(self._upload(reader, upstream)),
-                    asyncio.create_task(self._download(upstream, writer)),
-                ]
+                upload = asyncio.create_task(self._upload(reader, upstream, None if connect else body_length))
+                download = asyncio.create_task(self._download(upstream, writer))
+                pumps = [upload, download]
                 done, _ = await asyncio.wait(pumps, return_when=asyncio.FIRST_COMPLETED)
                 for finished in done:
                     finished.result()
+                if not connect:  # the body is sent, or was cut short: the response is still to come
+                    await download
         except Exception:
             self.denied_connections += 1
             if not tunnel_started:
