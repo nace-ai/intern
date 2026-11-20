@@ -163,6 +163,13 @@ SDK = SimpleNamespace(
 )
 
 
+@pytest.fixture(autouse=True)
+def extra_installed(monkeypatch):
+    """These tests run on the fake SDK below, so they do not need the opensandbox extra; a test about a missing
+    SDK says so itself."""
+    monkeypatch.setattr(opensandbox, "find_spec", lambda name: object())
+
+
 @pytest.fixture
 def sdk(monkeypatch):
     FakeSandbox.made.clear()
@@ -382,6 +389,28 @@ async def test_renamed_and_timestamp_preserving_files_come_back(sdk, tmp_path):
     assert (executor.workspace / "b.txt").read_text() == "moved"
     assert (executor.workspace / "old.txt").read_text() == "kept"
     await executor.aclose()
+
+
+async def test_cancelling_a_command_stops_it_in_the_sandbox(sdk, tmp_path):
+    executor = copy_executor(tmp_path)
+    begun = asyncio.Event()
+    call = asyncio.create_task(
+        executor.run(
+            "echo begun; sleep 30", cwd=executor.workspace, timeout_s=60, max_output_bytes=4096, on_output=begun.set
+        )
+    )
+    await asyncio.wait_for(begun.wait(), 10)
+    (sandbox,) = FakeSandbox.made
+    process = list(sandbox.commands.processes.values())[-1]  # after the upload's own command
+    call.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await call
+    try:
+        # Stopped on the server, not only dropped by this side: it does not go on changing files there.
+        assert sandbox.commands.interrupted
+        assert await asyncio.wait_for(process.wait(), 5) != 0
+    finally:
+        await executor.aclose()
 
 
 async def test_dependency_folders_are_not_uploaded(sdk, tmp_path):

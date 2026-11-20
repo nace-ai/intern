@@ -433,6 +433,28 @@ async def test_resume_closes_unknown_tool_outcomes_without_reexecuting(make_harn
     assert "unknown" in result.content
 
 
+async def test_resume_closes_each_unfinished_call_when_a_reply_gave_two_calls_the_same_id(make_harness, tmp_path):
+    # Some providers repeat an id within one reply. The first call's saved result must not count for the second too:
+    # the second would stay without a result, and the next request would be refused as a broken tool exchange.
+    path = tmp_path / "interrupted.jsonl"
+    journal = Journal(cwd=str(tmp_path), path=path)
+    journal.append(MessageEntry(message=UserMessage(content="old task")))
+    calls = [
+        ToolCall(id="same_id", name="read", arguments={"path": "a"}),
+        ToolCall(id="same_id", name="write", arguments={"path": "must-not-exist", "content": "effect"}),
+    ]
+    journal.append(MessageEntry(message=AssistantMessage(tool_calls=calls)))
+    done = ToolResult(call_id="same_id", tool_name="read", status="ok", content="alpha")
+    journal.append(MessageEntry(message=ToolResultMessage(result=done)))
+    harness = make_harness([Turn(text="check previous effects first")])
+    harness.deps.journal = Journal(cwd="ignored", path=path)
+    assert (await harness.run("continue carefully")).reason == "completed"
+    assert not (harness.cwd / "must-not-exist").exists()
+    results = [m.result for m in harness.provider.requests[0].messages if isinstance(m, ToolResultMessage)]
+    assert [(r.tool_name, r.status) for r in results] == [("read", "ok"), ("write", "error")]
+    assert results[1].error is not None and results[1].error.kind == "interrupted"
+
+
 async def test_initial_journal_write_failure_ends_the_run_without_dispatch(make_harness, tmp_path, monkeypatch):
     import intern.journal as journal_module
 

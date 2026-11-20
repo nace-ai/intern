@@ -17,6 +17,7 @@ import asyncio
 import copy
 import hashlib
 import json
+import math
 import re
 import time
 from collections import OrderedDict
@@ -29,7 +30,7 @@ from intern import names
 from intern.context import INITIAL_CHARS_PER_TOKEN, bound_output
 from intern.events import Decision, EventSink
 from intern.messages import JsonObject, System1Usage
-from intern.models.catalog import DECISIONS_PREFIX, System1Sources, decision_models
+from intern.models.catalog import DECISIONS_PREFIX, KAPITSA_PREFIX, System1Sources, decision_models
 from intern.models.registry import (
     FREE_FINAL,
     CredentialSource,
@@ -218,11 +219,13 @@ class DecisionsApiBackend:
             response = await send()
         return response
 
+    questions_per_call = MAX_QUESTIONS_PER_CALL
+
     async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
-        items = list(questions.items())
-        if len(items) <= MAX_QUESTIONS_PER_CALL:
+        items, per = list(questions.items()), self.questions_per_call
+        if len(items) <= per:
             return await self._decide(state, questions)
-        batches = [dict(items[i : i + MAX_QUESTIONS_PER_CALL]) for i in range(0, len(items), MAX_QUESTIONS_PER_CALL)]
+        batches = [dict(items[i : i + per]) for i in range(0, len(items), per)]
         results = await asyncio.gather(*(self._decide(state, batch) for batch in batches))
         return Answers(
             answers={name: answer for r in results for name, answer in r.answers.items()},
@@ -238,6 +241,8 @@ class DecisionsApiBackend:
         }
         state = _without_media(state)
         last_error: Exception | None = None
+        # What models before the one that answers were paid for answers nothing could use.
+        wasted = Answers(answers={})
         client = self._client()
         for n, model in enumerate(self._models):
             # A model with another after it keeps timeout_s for its answer, so one that hangs fails over within the
@@ -255,11 +260,13 @@ class DecisionsApiBackend:
                     await self.pace()
                     response = await self._post(client, request, timeout)
                 refused = console_error(response.content) if response.status_code >= 400 else None
-                if refused is not None and refused[0] in FREE_FINAL:
-                    raise FreeRefused(*refused, response.text[:500])
+                if refused is not None and refused.code in FREE_FINAL:
+                    raise FreeRefused(refused.code, refused.meter, response.text[:500])
                 response.raise_for_status()
                 body = response.json()
                 raw = body["answers"]
+                if not isinstance(raw, dict):
+                    raise ValueError(f"{model} answered with no answers object")
                 for name, q in questions.items():
                     # The protocol scores as the expected level index, 0..n-1; the harness scale is 0..1.
                     if isinstance(q, ScoreQuestion) and isinstance(a := raw.get(name), dict) and "score" in a:
@@ -270,15 +277,51 @@ class DecisionsApiBackend:
                         a["probabilities"] = [float(p.get(str(i), 0.0)) for i in levels] if isinstance(p, dict) else []
                         a["legend"] = q.criteria  # the servers echo the levels, as a dict or a list
                 usage = body.get("usage") or {}
-                return Answers(
+                result = Answers(
                     answers=raw,
-                    cost_usd=float(usage.get("cost") or 0),
-                    input_tokens=int(usage.get("input_tokens") or 0),
-                    output_tokens=int(usage.get("output_tokens") or 0),
+                    cost_usd=wasted.cost_usd + float(usage.get("cost") or 0),
+                    input_tokens=wasted.input_tokens + int(usage.get("input_tokens") or 0),
+                    output_tokens=wasted.output_tokens + int(usage.get("output_tokens") or 0),
                 )
+                # An answer that is missing or does not fit its question is a failure of this model, like an
+                # error: the next model is asked, and what this one cost goes with the answers that come. The
+                # last model's are returned as they are, so the client records their cost and asks again.
+                unusable = [
+                    n for n, q in questions.items() if n not in result.answers or not _fits(q, result.answers[n])
+                ]
+                if unusable and not last:
+                    wasted = result
+                    raise ValueError(f"{model} gave no usable answer for {', '.join(sorted(unusable))}")
+                return result
             except (httpx.HTTPError, KeyError, ValueError, TypeError) as e:
                 last_error = e
         raise RuntimeError(f"every decision model failed: {last_error}")
+
+
+# kapitsa-systemone's default --context, the one Drex is calibrated for (`kRecommendedContext`).
+KAPITSA_CONTEXT = 16_384
+# A question on a full state (3/4 of KAPITSA_CONTEXT) took about 55 s on an M4 Pro; an older Mac takes longer.
+KAPITSA_TIMEOUT_S = 180.0
+
+
+class KapitsaBackend(DecisionsApiBackend):
+    """kapitsa-systemone on this machine (`kapitsa:<model>`): no key, one ask at a time, each slower than a hosted
+    model's. `DecisionClient` reads `max_concurrency` and `timeout_per_question_s`."""
+
+    max_concurrency = 1
+    timeout_per_question_s = KAPITSA_TIMEOUT_S
+    # Drex Max reads the whole state again for every question, and a request's questions together must fit the
+    # context (`max_packed`), so two on a long state are refused (400). One per request costs Max nothing more, and a
+    # causal Drex restores the state from Kapitsa's cache for the next.
+    questions_per_call = 1
+
+    def __init__(self, base_url: str, model: str, *, transport: httpx.AsyncBaseTransport | None = None) -> None:
+        super().__init__(base_url, SecretStr(""), [model], transport=transport)
+        self.name = f"{KAPITSA_PREFIX}{model}"
+
+    async def window(self) -> int | None:
+        # shortcut: assumes the default --context, as /health does not report it; read it there once Kapitsa does.
+        return KAPITSA_CONTEXT
 
 
 class FreeRefused(Exception):
@@ -313,7 +356,16 @@ def compact(answer: Answer) -> JsonObject:
 
 def _fits(question: Question, answer: Answer) -> bool:
     if isinstance(question, ChoiceQuestion):
-        return isinstance(answer, ChoiceAnswer) and answer.choice in question.criteria
+        # Probabilities for an option the question does not have, or outside 0..1, are not a judgment: read as
+        # given, a guard's risk of -1 beside a routine of 2 blocks nothing.
+        return (
+            isinstance(answer, ChoiceAnswer)
+            and answer.choice in question.criteria
+            and all(
+                option in question.criteria and math.isfinite(p) and 0 <= p <= 1
+                for option, p in answer.probabilities.items()
+            )
+        )
     return answer.type == question.type
 
 
@@ -363,7 +415,9 @@ class DecisionClient:
         self._max_concurrency = max_concurrency
         self._retry_window_s = RETRY_WINDOW_S if retry_window_s is None else retry_window_s
         self._max_state_chars = int(max_state_tokens * INITIAL_CHARS_PER_TOKEN)
-        self._slots = asyncio.Semaphore(max_concurrency)
+        # A backend on this machine takes fewer asks at once, and more time for each, than the config gives.
+        self._timeout_per_question_s: float = getattr(backend, "timeout_per_question_s", 0.0)
+        self._slots = asyncio.Semaphore(min(max_concurrency, getattr(backend, "max_concurrency", max_concurrency)))
         self._cache: OrderedDict[str, dict[str, Answer]] = OrderedDict()
         self.usage = System1Usage()
         self.last_error: str | None = None
@@ -489,11 +543,13 @@ class DecisionClient:
                     pace = getattr(self.backend, "pace", None)
                     if pace is not None:
                         await pace()
-                    result = await asyncio.wait_for(self.backend.decide(sent, questions), timeout_s or self._timeout_s)
+                    limit = max(timeout_s or self._timeout_s, self._timeout_per_question_s * len(questions))
+                    result = await asyncio.wait_for(self.backend.decide(sent, questions), limit)
                 self.usage.input_tokens += result.input_tokens
                 self.usage.output_tokens += result.output_tokens
                 self.usage.cost_usd += result.cost_usd
-                # A wrong-type answer, or a choice that is not an option, counts as missing; the ask is retried.
+                # A wrong-type answer, a choice that is not an option or probabilities that cannot be ones count as
+                # missing; the ask is retried.
                 answers = {n: a for n, a in result.answers.items() if n in questions and _fits(questions[n], a)}
                 if missing := sorted(set(questions) - set(answers)):
                     raise ValueError(f"no usable answer for {', '.join(missing)}")
