@@ -169,7 +169,7 @@ names an action that is destructive or exfiltrating in ordinary development and 
 | `permissions_protected` | `chmod`/`chown -R` of the same system paths (`chmod -R 777 /`) | dcg, Claude Code (security weaken) |
 | `disk_wipe` | `mkfs`, `dd of=/dev/…`, `wipefs`, partition editors, `diskutil erase…`, writes to a block device | Arcjet destructive-command, dcg system.disk |
 | `fork_bomb` | `:(){ :\|:& };:` and its renamings | dcg, pi-prevent-destructive-commands |
-| `pipe_to_shell` | a download piped into a shell or interpreter, `bash <(curl …)`, `sh -c "$(curl …)"` | Arcjet piped-installer, Claude Code (code from external) |
+| `pipe_to_shell` | a download piped into a shell or interpreter (from a `( )` group too), `bash <(curl …)`, `bash < <(curl …)`, `sh -c "$(curl …)"` | Arcjet piped-installer, Claude Code (code from external) |
 | `force_push` | `git push --force`/`-f`/`+refspec`/`--mirror` (`--force-with-lease` goes to System 1) | Arcjet rewrite-history, dcg core.git, git-guardrails, Claude Code (git destructive) |
 | `discard_changes` | `git reset --hard`, `git checkout .`/`-f`, `git restore .`, `git switch -f`, `git clean -f`, only when `git status` (or `git clean -n`) through the executor shows work they would destroy | Claude Code (checks `git status`), dcg core.git |
 | `credential_read` | reading `~/.ssh` private keys, `~/.aws`, `~/.gnupg`, `~/.kube`, `~/.docker`, gcloud/gh/azure config, `.netrc`, `.git-credentials`, `.npmrc`, `.pypirc`, the harness's own keys file `~/.intern/.env`, `/etc/shadow`, keychain dumps, by the read and grep tools or a reading command | Arcjet credential-access, cc-safety-net, Claude Code (credential exploration) |
