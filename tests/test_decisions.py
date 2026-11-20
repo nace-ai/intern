@@ -115,6 +115,37 @@ async def test_decisions_api_fails_over_to_the_next_model():
     assert result.answers["kind"] == ChoiceAnswer(choice="code", probabilities={"code": 0.8, "log": 0.2})
 
 
+@pytest.mark.parametrize(
+    ("unusable", "paid"),
+    [
+        # A choice where a score was asked, an answer left out, and no answers at all (not read for its cost).
+        ({"keep": {"type": "noul", "noul": 0.2}, "level": {"type": "choice", "choice": "low"}}, 0.02),
+        ({"keep": {"type": "noul", "noul": 0.2}}, 0.02),
+        (None, 0.01),
+    ],
+)
+async def test_a_model_whose_answers_cannot_be_used_fails_over_to_the_next_and_its_cost_is_kept(unusable, paid):
+    seen: list[str] = []
+    good = {"keep": {"type": "noul", "noul": 0.2}, "level": {"type": "score", "score": 1}}
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        seen.append(model := json.loads(r.content)["model"])
+        return httpx.Response(200, json={"answers": unusable if model == "primary" else good, "usage": {"cost": 0.01}})
+
+    backend = DecisionsApiBackend(
+        "https://example/api/v1", SecretStr("k"), ["primary", "backup"], transport=httpx.MockTransport(handler)
+    )
+    questions: dict[str, Question] = {
+        "keep": QUESTIONS["keep"],
+        "level": ScoreQuestion(instructions="How risky?", criteria=["low", "high"]),
+    }
+    c = client(backend, [], retry_window_s=0)
+    answers = await c.ask("triage", "state", questions)
+    assert seen == ["primary", "backup"]
+    assert answers == {"keep": NoulAnswer(noul=0.2), "level": ScoreAnswer(score=1.0, legend=["low", "high"])}
+    assert c.usage.cost_usd == pytest.approx(paid)
+
+
 async def test_decisions_api_posts_to_systemone_rescales_scores_and_keeps_probabilities():
     def handler(r: httpx.Request) -> httpx.Response:
         assert r.url.path == "/v1/systemone"
