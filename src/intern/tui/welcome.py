@@ -452,7 +452,10 @@ def run_frame(o: Opening, width: int, t: float | None) -> Content:
             "efficient": [spin, ("finishing the rest", S_INK), "  ", *pips(efficient_turns, True)],
             "done": [done, ("done, for much less", S_MUTED), "  ", *pips(RUN_TURNS, False)],
         }.get(phase, [("○ waits for the hand-over", S_MUTED)])
-    head: list[Part] = [(" Frontier ", S_TAB), *(["  ", *thinking_box(o.thinking, o.levels)] if o.thinking else [])]
+    head: list[Part] = [
+        (" Frontier " if o.handoff else " Model ", S_TAB),
+        *(["  ", *thinking_box(o.thinking, o.levels)] if o.thinking else []),
+    ]
     lines: list[list[Part]] = [head, *model(o.system2, width), f_said, *handover(o, width, phase, through, t is None)]
     if o.handoff:
         lines += [[(" Efficient ", S_TAB)], *model(o.handoff, width), e_said]
@@ -525,7 +528,7 @@ def systems(o: Opening, width: int, *, roomy: bool = True) -> Content:
     and a capability its few words; else what Intern is comes first, in a line or two, a job is one line, the
     capabilities run together, and where the session works comes last, there being no mascot to put it under."""
     model1, served = system1_parts(o.system1)
-    head: list[Part] = [(" Frontier  ", S_TAB), "  ", (o.system2, S_HEAD)]
+    head: list[Part] = [(" Frontier  " if o.handoff else " Model     ", S_TAB), "  ", (o.system2, S_HEAD)]
     box = [thinking_box(o.thinking, o.levels)] if o.thinking else []
     models: list[list[Part]] = [
         *flow([head, *box], width, gap=2),  # the box on a line of its own where it would wrap
