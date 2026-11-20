@@ -121,7 +121,7 @@ from intern.memory.steward.writer import (
     trace,
 )
 
-STEWARD_VERSION = "49"
+STEWARD_VERSION = "50"
 KEEP = 0.7
 NOTE_KEEP = 0.5
 MAYBE_CORRECTION = 0.3

@@ -170,7 +170,9 @@ Pitfalls, Checks and a Files block), and beside it up to six files of kinds `.py
   read in place. Its front matter counts the sessions that succeeded with it (`succeeded`); below two,
   its steps, pitfalls and checks are shown under Suggestions, and its files are listed either way.
   Running or reading a folder file counts as using its page. Recall writes nothing.
-- An archived or forgotten folder page takes its files with it.
+- An archived or forgotten folder page takes its files with it: they are deleted, not moved to `graveyard/`.
+  Forgetting does not look inside a folder's files; to remove what one holds, forget the folder's page
+  (`intern memory forget DRIVE --page skills/<name>/SKILL --apply`).
 
 ## Forgetting
 

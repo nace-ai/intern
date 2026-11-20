@@ -14,6 +14,7 @@ from intern.memory.format import (
     ROOT_INDEX,
     SCHEMA_FILE,
     SKILL_PAGE,
+    SKILL_ROOT,
     UNREAD_FOLDERS,
     FormatError,
     Page,
@@ -32,11 +33,17 @@ from intern.memory.format import (
 
 
 def working_files(root: Path) -> dict[str, str]:
-    return {
+    pages = {
         str(p.relative_to(root)): p.read_text()
         for p in sorted(root.rglob("*.md"))
         if ".git" not in p.relative_to(root).parts
     }
+    folder = {
+        name: p.read_text(errors="replace")
+        for p in sorted((root / SKILL_ROOT).glob("*/*"))
+        if p.is_file() and is_folder_file(name := p.relative_to(root).as_posix())
+    }
+    return pages | folder
 
 
 def _page_problems(page: Page, text: str, schema: Schema, known: set[str]) -> list[str]:
