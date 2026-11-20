@@ -90,6 +90,28 @@ async def test_a_stream_cut_before_the_reply_finished_is_an_error():
         await collect(provider(lambda r: httpx.Response(200, content=body)), request(retries=NO_RETRIES))
 
 
+async def test_an_error_sent_as_a_json_body_with_status_200_is_raised_as_that_error():
+    calls = 0
+
+    def refused(req: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(200, json={"error": {"code": "invalid_api_key", "message": "bad synthetic key"}})
+
+    with pytest.raises(ProviderError, match="bad synthetic key") as raised:
+        await collect(provider(refused), request(retries=RetryPolicy(provider_waits_s=(0.0,))))
+    assert calls == 1 and not raised.value.retryable  # a wrong key is not asked again
+
+    replies = [
+        httpx.Response(200, json={"error": {"code": 429, "message": "slow down"}}),
+        httpx.Response(200, content=sse(delta(content="ok"), delta(finish_reason="stop"))),
+    ]
+    _, message = await collect(
+        provider(lambda r: replies.pop(0)), request(retries=RetryPolicy(provider_waits_s=(0.0,)))
+    )
+    assert message.text == "ok"  # a rate limit is
+
+
 async def test_text_tool_call_ids_are_unique_across_replies():
     text = '<tool_call>{"name": "bash", "arguments": {"command": "ls"}}</tool_call>'
     body = sse(delta(content=text), delta(finish_reason="stop"))
