@@ -191,7 +191,8 @@ index. Earlier commits of the drive still hold it; only rewriting its git histor
   The lines go, a page left with nothing goes, links to a gone page go, and a transcript line that quotes a
   removed line, or a gone page's title or path, becomes `[removed at the user's request]`. A page's summary line
   is built again from the lines that stay, and a kind of work left with no session leaves the schema. A session
-  whose task line goes is forgotten whole: its transcript and its work page are deleted. The request itself,
+  whose task line goes is forgotten whole: its transcript and its work page are deleted, and a line of another
+  transcript that names it by its id (a search that listed it) becomes the marker too. The request itself,
   everything the session did about it (its replies, the searches it ran for the thing and what they returned) and
   every restatement in the session are removed from what the steward writes, so the session's own transcript and
   work page do not repeat it. When the request opens the session, that is the whole session, since a later

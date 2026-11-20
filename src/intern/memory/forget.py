@@ -199,8 +199,8 @@ def matching(files: dict[str, str], transcripts: dict[str, str], text: str) -> l
 
 def widened(files: dict[str, str], transcripts: dict[str, str], removal: Removal) -> Removal:
     # A session whose task line goes is forgotten whole, so its work page goes as a removed title does. Then every
-    # transcript line that repeats what goes (a page line, or a gone page's title or path, as a recalled page, a
-    # reminder or a search showed it) goes too.
+    # transcript line that repeats what goes (a page line, a gone page's title or path, or a forgotten session
+    # named by its id, as a recalled page, a reminder or a search showed it) goes too.
     ids = {
         s.file.removeprefix(SESSIONS_FOLDER).removesuffix(".txt")
         for s in removal.lines
@@ -219,7 +219,7 @@ def widened(files: dict[str, str], transcripts: dict[str, str], removal: Removal
             lines.append(spot)
     paths = [p.removesuffix(".md") for p in removal.pages] + [s.file[:-3] for s in lines if s.block == TITLE]
     said = [body(s.line) for s in lines if not s.file.startswith(SESSIONS_FOLDER)] + paths
-    said = list({b for b in said if len(b) >= MIN_COVERED_CHARS})
+    said = list({b for b in said if len(b) >= MIN_COVERED_CHARS} | {f"session: {i}" for i in ids})
     for name, text in transcripts.items():
         if name in pages:
             continue
