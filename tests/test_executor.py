@@ -130,7 +130,8 @@ async def test_parent_exit_and_closed_pipes_do_not_hide_a_term_ignoring_child(tm
     try:
         async with asyncio.timeout(3):
             for _ in range(300):
-                if marker.exists():
+                # The file exists before the child has written its pid to it.
+                if marker.exists() and marker.read_text():
                     break
                 await asyncio.sleep(0.01)
         pid = int(marker.read_text())
