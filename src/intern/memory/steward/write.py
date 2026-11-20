@@ -794,9 +794,13 @@ def write(
         return True
 
     def remove_in_place(target: Page, old: str, new: str) -> bool:
+        # A stamp makes the line longer; where the block or the page has no room for it, the line stays as it was.
         for block in target.blocks:
             if old in block.lines:
-                block.lines[block.lines.index(old)] = new
+                i = block.lines.index(old)
+                block.lines[i] = new
+                if tokens(block.render()) > BLOCK_TOKENS or not _fits(target):
+                    block.lines[i] = old
                 return True
         return False
 
