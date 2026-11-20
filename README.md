@@ -206,10 +206,12 @@ to 92.4%, at less than half of what Opus costs on its own.
 <details>
 <summary><b>Does it run fully local?</b></summary>
 
-Yes, on a Mac with [Kapitsa](https://github.com/nace-ai/kapitsa): it serves the frontier and efficient models, and
-`kapitsa-systemone` serves the decision model ([Local models](docs/local-models.md#system-1)). Elsewhere, the
-frontier and efficient models can run on Ollama, LM Studio, llama.cpp or vLLM, and the decision model is hosted; a
-session that cannot reach it is refused.
+Yes. The frontier and efficient models run on any server on your machine that speaks OpenAI's API: Ollama, LM
+Studio, llama.cpp, vLLM, or [Kapitsa](https://github.com/nace-ai/kapitsa) on a Mac. The decision model needs a server
+that speaks the decisions API instead: Kapitsa's `kapitsa-systemone` serves Drex on a Mac
+([Local models](docs/local-models.md#system-1)), and any other one works as `decisions:<model>` with `[system1]
+base_url` pointing at it, and no key. Without a local one, the decision model is hosted, and a session that cannot
+reach it is refused.
 
 </details>
 
