@@ -715,7 +715,7 @@ async def learn(
         kind = str(raw_lesson.get("kind", "")).strip().lower()
         text = _text(raw_lesson.get("text"), ITEM_CHARS)
         steps = dict.fromkeys(str(s).strip() for s in raw_lesson.get("steps") or [])
-        cited = list({d.pointer: (sid, d) for s in steps for sid, d in by_id.get(s, [])}.values())
+        cited = list({(d.pointer, d.text): (sid, d) for s in steps for sid, d in by_id.get(s, [])}.values())
         sessions_cited = list(dict.fromkeys(sid for sid, _ in cited))
         pointer = cited[-1][1].pointer if cited else ""
         skill = _text(raw_lesson.get("skill"), SKILL_NAME_CHARS)
