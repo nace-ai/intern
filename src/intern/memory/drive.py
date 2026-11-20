@@ -3,7 +3,9 @@ from __future__ import annotations
 import contextlib
 import fcntl
 import os
+import shutil
 import subprocess
+import tempfile
 import warnings
 from collections.abc import Iterator
 from importlib import resources
@@ -17,6 +19,7 @@ from intern.memory.format import (
     Page,
     build_indexes,
     index_file,
+    is_folder_file,
     page_file,
     parse_index,
     parse_page,
@@ -91,30 +94,82 @@ def locked(root: Path, name: str, shared: bool = False) -> Iterator[None]:
             fcntl.flock(handle, fcntl.LOCK_UN)
 
 
-def create(root: Path) -> None:
+def _template() -> dict[str, str]:
     template = resources.files("intern.memory") / "template"
-    (root / ".wiki").mkdir(parents=True, exist_ok=True)
-    (root / ROOT_INDEX).write_text((template / "MEMORY.md").read_text())
-    (root / SCHEMA_FILE).write_text((template / "schema.md").read_text())
-    git(root, "init", "--quiet", "--initial-branch", MAIN)
-    git(root, "add", "--all")
-    git(
-        root,
-        "-c",
-        "user.name=intern",
-        "-c",
-        "user.email=intern@localhost",
-        "commit",
-        "--quiet",
-        "-m",
-        "New memory drive",
-    )
+    return {ROOT_INDEX: (template / "MEMORY.md").read_text(), SCHEMA_FILE: (template / "schema.md").read_text()}
 
 
-def tracked_files(root: Path, commit: str) -> dict[str, str]:
-    names = [
-        n for n in git(root, "ls-tree", "-r", "-z", "--name-only", commit).decode().split("\0") if n.endswith(".md")
-    ]
+def half_made(root: Path) -> bool:
+    """Whether `root` is what a `create` that stopped part-way left: nothing but the new drive's own files, as they
+    were written, and no commit. Such a folder holds no memory, so `create` may replace it."""
+    if not root.is_dir():
+        return False
+    if (root / ".git").exists():
+        try:
+            if git(root, "rev-list", "--max-count=1", "--all").strip():
+                return False
+        except GitError:
+            pass  # not a repository yet: `git init` stopped part-way
+    template = _template()
+    wiki = root / ".wiki"
+    entries = [entry for entry in root.iterdir() if entry.name != ".git"]
+    if wiki.is_dir() and not wiki.is_symlink():
+        entries = [entry for entry in entries if entry != wiki] + list(wiki.iterdir())
+    for path in entries:
+        if path.is_symlink() or not path.is_file():
+            return False
+        if template.get(path.relative_to(root).as_posix()) != path.read_text(errors="replace"):
+            return False
+    return True
+
+
+def create(root: Path) -> None:
+    """Make a new drive at `root`: built in a folder beside it and moved into place when its first commit is made,
+    so a failure leaves nothing at `root`. A folder there that `half_made` is replaced; any other is left alone."""
+    root.parent.mkdir(parents=True, exist_ok=True)
+    build = Path(tempfile.mkdtemp(dir=root.parent, prefix=f".{root.name}."))
+    try:
+        for name, text in _template().items():
+            (build / name).parent.mkdir(parents=True, exist_ok=True)
+            (build / name).write_text(text)
+        git(build, "init", "--quiet", "--initial-branch", MAIN)
+        git(build, "add", "--all")
+        # The user's git settings are for their own work: no signing (and no passphrase prompt) and no hooks here.
+        git(
+            build,
+            "-c",
+            "user.name=intern",
+            "-c",
+            "user.email=intern@localhost",
+            "-c",
+            "commit.gpgsign=false",
+            "-c",
+            f"core.hooksPath={os.devnull}",
+            "commit",
+            "--quiet",
+            "--no-verify",
+            "-m",
+            "New memory drive",
+        )
+        if half_made(root):
+            shutil.rmtree(root)
+        try:
+            build.rename(root)
+        except OSError as e:
+            if not root.is_dir():
+                raise GitError(f"{root} cannot be written: {e}") from e
+            # Another session made the drive first; that one is mounted.
+    finally:
+        shutil.rmtree(build, ignore_errors=True)
+
+
+def tracked_names(root: Path, commit: str, suffix: str | tuple[str, ...] = ".md", under: str = "") -> list[str]:
+    names = git(root, "ls-tree", "-r", "-z", "--name-only", commit).decode().split("\0")
+    return [n for n in names if n.endswith(suffix) and n.startswith(under)]
+
+
+def tracked_files(root: Path, commit: str, suffix: str | tuple[str, ...] = ".md", under: str = "") -> dict[str, str]:
+    names = tracked_names(root, commit, suffix, under)
     if not names:
         return {}
     out = git(root, "cat-file", "--batch", stdin="".join(f"{commit}:{n}\n" for n in names).encode())
@@ -166,6 +221,14 @@ class Drive:
             return parse_page(path, text)
         except FormatError:
             return None
+
+    def folder_files(self, folder: str) -> list[str]:
+        # The files of a skill folder in main's commit, which the working tree holds once a steward published it.
+        try:
+            out = git(self.root, "ls-tree", "-z", "--name-only", self.commit, folder).decode()
+        except GitError:
+            return []
+        return sorted(n for n in out.split("\0") if is_folder_file(n))
 
     def index(self, folder: str) -> Index | None:
         name = index_file(folder)

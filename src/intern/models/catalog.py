@@ -35,6 +35,10 @@ NACE_CONSOLE_URL = "https://console.nace.ai/v1"
 DECISIONS_PREFIX = "decisions:"
 """Marks a System 1 choice served by the decisions API (`[system1].base_url`) rather than the console."""
 DECISIONS_FILTER = {"output_modalities": "decisions"}
+KAPITSA_PREFIX = "kapitsa:"
+"""Marks a System 1 choice served by kapitsa-systemone on this machine (`[system1].kapitsa_url`)."""
+KAPITSA_URL = "http://127.0.0.1:8001/v1"
+"""Where kapitsa-systemone is looked for: port 8001, as `kapitsa serve` (System 2) takes 8000."""
 RETIRED = "Retired"
 CACHE_TTL_S = 600.0
 
@@ -150,6 +154,8 @@ class System1Sources:
     """Stand in for the console's listing when it cannot be asked, and come first when it can."""
     decisions_url: str = "https://openrouter.ai/api/v1"
     decisions_key: str | None = None
+    kapitsa_url: str | None = None
+    """Where kapitsa-systemone may run; None looks for none."""
 
 
 def profile_models(search_dirs: Iterable[Path] = ()) -> list[ModelInfo]:
@@ -250,6 +256,26 @@ def console_listed(body: Any) -> list[ModelInfo]:
     return models
 
 
+def kapitsa_health(base_url: str) -> str:
+    """kapitsa-systemone's `GET /health`, beside its `/v1`; it answers with the model it serves."""
+    return f"{base_url.rstrip('/').removesuffix('/v1')}/health"
+
+
+def _kapitsa_listed(body: Any) -> list[ModelInfo]:
+    model = body.get("model") if isinstance(body, dict) else None
+    if not isinstance(model, str) or not model:
+        return []
+    return [ModelInfo(id=f"{KAPITSA_PREFIX}{model}", name=f"{model} (Kapitsa)")]
+
+
+async def kapitsa_models(sources: System1Sources, transport: httpx.AsyncBaseTransport | None = None) -> list[ModelInfo]:
+    """The decision model kapitsa-systemone serves on this machine, as `kapitsa:<model>`, while it runs."""
+    if not sources.kapitsa_url:
+        return []
+    url = kapitsa_health(sources.kapitsa_url)
+    return await _fetch(("kapitsa", sources.kapitsa_url), url, {}, {}, transport, _kapitsa_listed)
+
+
 def _decisions_listed(body: Any) -> list[ModelInfo]:
     models: list[ModelInfo] = []
     for item in _items(body, "data"):
@@ -311,16 +337,20 @@ async def decision_models(
 
 
 def system1_choices(
-    console: Iterable[ModelInfo], decisions: Iterable[ModelInfo], fallback: Iterable[str] = ()
+    console: Iterable[ModelInfo],
+    decisions: Iterable[ModelInfo],
+    fallback: Iterable[str] = (),
+    local: Iterable[ModelInfo] = (),
 ) -> list[ModelInfo]:
     """System 1's choices: the console's decision models (the `fallback` names first, and alone when the console
-    listed nothing), then the decisions API's. No heuristic entry: System 1 is a model."""
+    listed nothing), then the decisions API's, then the one kapitsa-systemone serves on this machine. No heuristic
+    entry: System 1 is a model."""
     listed = {m.id: m for m in console}
     names = [m for m in dict.fromkeys(fallback) if m]
     choices = [listed.pop(name, ModelInfo(id=name, name=name)) for name in names] if listed or names else []
     choices += list(listed.values())
     seen = {m.id for m in choices}
-    choices += [m for m in decisions if m.id not in seen]
+    choices += [m for m in [*decisions, *local] if m.id not in seen]
     return choices
 
 
@@ -348,10 +378,11 @@ async def list_models(
     listed model keeps the provider's name; of extras with the same id, the first wins."""
     endpoints = _endpoints(env, dict(providers or {}))
     sources = system1 or System1Sources(console_models=())
-    listings, console, decisions = await asyncio.gather(
+    listings, console, decisions, local = await asyncio.gather(
         asyncio.gather(*(_provider_models(e, transport) for e in endpoints)),
         console_models(sources, transport),
         decision_models(sources, transport),
+        kapitsa_models(sources, transport),
     )
     found = {model.id: model for listing in listings for model in listing}
     reachable = {endpoint.provider for endpoint in endpoints}
@@ -359,4 +390,4 @@ async def list_models(
         if extra.id and extra.id not in found and extra.id.partition("/")[0] in reachable:
             found[extra.id] = extra
     system2 = sorted(found.values(), key=lambda m: m.id.lower())
-    return Catalog(system2=system2, system1=system1_choices(console, decisions, sources.console_models))
+    return Catalog(system2=system2, system1=system1_choices(console, decisions, sources.console_models, local))

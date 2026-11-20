@@ -293,7 +293,7 @@ async def test_each_request_starts_with_the_previous_one_so_the_provider_cache_k
             Turn(tool_calls=[("edit", {"path": "app.py", "old_string": "sum(xs)", "new_string": ADDED})]),
             Turn(text="Done."),
             Turn(tool_calls=[("grep", {"pattern": "total"})]),
-            Turn(tool_calls=[("memory_search", {"query": "totals"})]),
+            Turn(tool_calls=[("memory", {"action": "search", "query": "totals"})]),
             Turn(text="Done again."),
         ],
         model="fake/primary",
@@ -320,7 +320,7 @@ async def test_each_request_starts_with_the_previous_one_so_the_provider_cache_k
         {"INTERN_HOME": str(tmp_path / "home")},
     )
     async with await bootstrap.session(events.append) as session:
-        assert {"decision_code", "memory_search"} <= {tool.name for tool in session.deps.tools}
+        assert {"decision_code", "memory"} <= {tool.name for tool in session.deps.tools}
         await session.run("Make total start from zero.")
         await session.run("Where else is total used?")
 

@@ -184,6 +184,10 @@ class Tool(ABC):
     def read_only(self) -> bool:
         return self.effects <= {"read"}
 
+    def for_subagent(self) -> Tool:
+        """The tool as a subagent gets it: the same instance, unless it keeps state about the parent's context."""
+        return self
+
     def parse(self, arguments: JsonObject) -> BaseModel | ToolOutput:
         # Pydantic drops a name the tool does not take without a word: `timeout: 900` ran with timeout_s's 120 s and
         # was killed there. The call is not run; the error names what is wrong and the nearest real name.

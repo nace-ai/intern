@@ -10,8 +10,9 @@ from intern import hooks as h
 from intern.decisions import System1Unavailable
 from intern.events import MemoryRecall
 from intern.extensions.memory.reminders import MemoryActions
-from intern.extensions.memory.search import MemorySearchTool
+from intern.extensions.memory.tool import MemoryTool
 from intern.journal import MemoryRecallEntry, MessageEntry
+from intern.memory.drive import Drive
 from intern.memory.recall import recall
 from intern.messages import ToolCall, UserMessage
 from intern.tools.base import Tool
@@ -24,13 +25,22 @@ NEXT_WRITE = "Write somewhere else. Memory changes are proposed after the sessio
 class Memory(MemoryActions):
     name: ClassVar[str] = "memory"
 
+    def __init__(self, drive: Drive) -> None:
+        super().__init__(drive)
+        self._tool: MemoryTool | None = None
+
     def for_subagent(self) -> h.Extension | h._Unset | None:
-        # A subagent reads memory (`memory_search` passes on with the parent's tools) and never writes it: the drive
+        # A subagent reads memory (the `memory` tool passes on with the parent's tools) and never writes it: the drive
         # stays write-protected, recall does not run again, and only the parent's session is stewarded.
         return ReadOnlyMemory(self.drive) if h.own_answer(self, Memory) else h.UNSET
 
     def tools(self) -> list[Tool]:
-        return [MemorySearchTool(self.drive)]
+        return [self._memory_tool()]
+
+    def _memory_tool(self) -> MemoryTool:
+        if self._tool is None:
+            self._tool = MemoryTool(self.drive)
+        return self._tool
 
     async def before_agent_start(self, ctx: h.RunContext) -> None:
         await self._recall(ctx)
@@ -69,6 +79,7 @@ class Memory(MemoryActions):
                     cost_usd=ctx.decisions.usage.cost_usd - spent,
                 )
             )
+        self._memory_tool().pinned = set(entry.pages)
         ctx.emit(
             MemoryRecall(
                 commit=entry.commit,
