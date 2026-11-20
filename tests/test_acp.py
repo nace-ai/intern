@@ -408,6 +408,28 @@ async def test_unknown_sessions_are_not_found(tmp_path: Path, work: Path):
     assert unloadable.value.code == -32002
 
 
+@pytest.mark.parametrize("bad", [b"\x00\xff not json \xfe", b'{"kind":"from-a-newer-version","id":"x"}'])
+async def test_loading_a_journal_with_an_unreadable_entry_answers_with_an_error_a_client_can_read(
+    tmp_path: Path, work: Path, bad: bytes
+):
+    agent, _, _ = make_agent(tmp_path, [Turn(text="hi")])
+    session = await agent.new_session(cwd=str(work))
+    await agent.prompt(prompt=[text_block("first")], session_id=session.session_id)
+    await agent.aclose()
+    [path] = (tmp_path / "home" / "sessions").glob("*.jsonl")
+    first, *rest = path.read_bytes().splitlines(keepends=True)
+    path.write_bytes(first + bad + b"\n" + b"".join(rest))
+
+    agent, _, _ = make_agent(tmp_path, [])
+    with pytest.raises(RequestError) as unreadable:
+        await agent.load_session(cwd=str(work), session_id=session.session_id)
+    # The reply is written as JSON, and it does not blame the client's params.
+    error = json.loads(json.dumps(unreadable.value.to_error_obj()))
+    assert error["code"] == -32603 and error["data"] == {"reason": "journal_unreadable", "journal": str(path)}
+    assert "cannot read" in error["message"] and str(path) in error["message"]
+    await agent.aclose()
+
+
 async def test_load_replays_the_conversation_and_continues_on_its_model(tmp_path: Path, work: Path):
     script = lambda request: Turn(text=f"reply {len(request.messages)}")  # noqa: E731
     agent, _, _ = make_agent(tmp_path, script)
@@ -557,6 +579,7 @@ async def test_the_server_opens_sessions_when_the_configured_model_has_no_key(tm
             with pytest.raises(RequestError) as refused:
                 await conn.prompt(prompt=[text_block("hi")], session_id=unbound.session_id)
             assert refused.value.code == -32602 and "ANTHROPIC_API_KEY" in str(refused.value)
+            assert refused.value.data is None  # no free credit is why
             await conn.set_config_option(config_id="model", session_id=unbound.session_id, value=f"vllm/{MODEL}")
             response = await conn.prompt(prompt=[text_block("hi")], session_id=unbound.session_id)
             assert response.stop_reason == "end_turn" and client.text().endswith("from the picker ")
@@ -832,6 +855,8 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
                 {"id": "qwen3-embedding-8b", "kind": "EMBEDDING_MODEL", "supports_chat": True},
             ]
             return httpx.Response(200, json={"data": served})
+        if request.url.host == "127.0.0.1" and request.url.path == "/health":
+            return httpx.Response(200, json={"status": "ok", "model": "drex-max-v1"})
         return httpx.Response(500)
 
     found = await catalog.list_models(
@@ -842,7 +867,10 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
             for ref in ("openrouter/qwen/qwen3.8-27b", "groq/llama-x", "nowhere/model", "vllm/local")
         ],
         system1=catalog.System1Sources(
-            console_key="console-key", console_models=("drex-latest", "drex-latest", "drex-2"), decisions_key="or-key"
+            console_key="console-key",
+            console_models=("drex-latest", "drex-latest", "drex-2"),
+            decisions_key="or-key",
+            kapitsa_url=catalog.KAPITSA_URL,
         ),
         transport=httpx.MockTransport(listing),
     )
@@ -860,13 +888,14 @@ async def test_the_catalog_lists_what_each_reachable_provider_serves():
     # their failures are left out.
     assert "api.openai.com" not in asked and "api.groq.com" not in asked and "localhost" in asked
     # System 1: the console's decision models, the configured names first and retired ones left out, then the
-    # decisions API's decision models as decisions:<model>.
+    # decisions API's decision models as decisions:<model>, then the one kapitsa-systemone serves on this machine.
     assert [(m.id, m.name) for m in found.system1] == [
         ("drex-latest", "drex-latest"),
         ("drex-2", "drex-2"),
         ("drex-v2.0", "drex-v2.0"),
         ("decisions:~typesafe/jev-latest", "TypeSafe: Jev Latest"),
         ("decisions:nace-ai/drex-max", "nace-ai/drex-max"),
+        ("kapitsa:drex-max-v1", "drex-max-v1 (Kapitsa)"),
     ]
 
 
@@ -888,7 +917,10 @@ def test_models_json_lists_the_catalog_without_opening_a_session(tmp_path: Path,
     home.mkdir()
     deployment = "fireworks/accounts/example/deployments/qwen3p8-27b"
     claude = "anthropic/claude-unprofiled"
-    config = f'model = "{claude}"\n[system1]\nmodels = ["drex-latest", "drex-mini"]\n'
+    # No kapitsa-systemone: one running on this machine would be listed too.
+    config = (
+        f'model = "{claude}"\n[system1]\nmodels = ["drex-latest", "drex-mini"]\nkapitsa_url = "http://127.0.0.1:9/v1"\n'
+    )
     # A dedicated deployment reaches the catalog through a user profile's concrete id.
     (home / "profiles").mkdir()
     (home / "profiles" / "mine.toml").write_text(
@@ -1606,6 +1638,13 @@ def test_bootstrap_requires_system_1_and_serves_picks_from_the_console_or_the_de
     assert console._url == "https://console.example/v1/systemone"  # pyright: ignore[reportPrivateUsage]
     with pytest.raises(ConfigError, match="must be"):
         Bootstrap(options.model_copy(update={"system1": "what:ever"}), home).system1_choice()
+    # A decisions API on this machine, such as kapitsa-systemone, takes no key.
+    local_home = tmp_path / "local"
+    local_home.mkdir()
+    (local_home / "config.toml").write_text('[system1]\nbase_url = "http://127.0.0.1:8001/v1"\n')
+    local = Bootstrap(options, {"INTERN_HOME": str(local_home)}).system1_backend("decisions:drex-max-v1")
+    assert isinstance(local, DecisionsApiBackend)
+    assert local._url == "http://127.0.0.1:8001/v1/systemone"  # pyright: ignore[reportPrivateUsage]
 
 
 # Diffs: write and edit carry the file before and after to the client.

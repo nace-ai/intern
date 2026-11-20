@@ -307,6 +307,27 @@ class Handoff(_EventBase):
     transfer: Literal["context"] = "context"
     probability: float = Field(description="System 1's P(ready) at the turn it handed over.")
     tokens: int = Field(description="The size of the last request the model handed over by sent.")
+    record_rule: int | None = Field(
+        default=None,
+        description="The version of the rule by which System 2 is sent, at the messages that follow, a record of the "
+        "turns after this hand-over in their place (`intern.handover_record`). None in a journal written before "
+        "there was a record: those turns are sent in full.",
+    )
+
+
+class FileChange(BaseModel):
+    path: str = Field(description="Relative to the working directory.")
+    change: Literal["created", "changed", "deleted"]
+    lines: int | None = Field(default=None, description="Its lines now; None when deleted, binary or too large.")
+
+
+class FilesChanged(_EventBase):
+    """The files in the working directory that one turn after a hand-over created, changed or deleted, as found on
+    disk whatever tool or command did it: for the record System 2 is sent of those turns."""
+
+    type: Literal["files_changed"] = "files_changed"
+    turn: int
+    files: list[FileChange]
 
 
 class ToolGuard(_EventBase):
@@ -395,8 +416,8 @@ class SecretUnavailable(_EventBase):
 
 
 class FreeNotice(_EventBase):
-    """Something the user should hear about the free credit, once a session: a system moved to their own keys
-    (`switch`), or a meter crossed 20% or 5% left (`low`)."""
+    """Something the user should hear about the free credit, once a session: a system moved to their own keys or back
+    to free credit (`switch`), or a meter crossed 20% or 5% left (`low`)."""
 
     type: Literal["free_notice"] = "free_notice"
     kind: Literal["switch", "low"]
@@ -452,11 +473,25 @@ class SubagentEnd(_EventBase):
     duration_ms: int
 
 
+class RunError(BaseModel):
+    """What the Nace console said when it refused a request the run needed (its `error.code`, `meter` and `message`),
+    and for a free credit refused for good, the System 2 the session's next run will use in its place (None: no own
+    model can run)."""
+
+    code: str
+    meter: str | None = None
+    message: str | None = None
+    next: str | None = None
+
+
 class RunEnd(_EventBase):
     type: Literal["run_end"] = "run_end"
     run_id: str
     reason: StopReason
     detail: str | None = None
+    error: RunError | None = Field(
+        default=None, description="The console's refusal that ended the run, so it can be said in words."
+    )
     turns: int
     usage: Usage
     agent_usage: Usage | None = Field(default=None, description="The agent's own replies; usage = agent + state.")
@@ -495,6 +530,7 @@ Event = Annotated[
     | Decision
     | Nudge
     | Handoff
+    | FilesChanged
     | ToolGuard
     | ProcessEvent
     | ProcessCheck

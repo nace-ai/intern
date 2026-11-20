@@ -75,6 +75,15 @@ async def test_failed_capture_stops_the_command_without_waiting_for_its_timeout(
         )
 
 
+async def test_a_command_that_ended_just_before_its_deadline_is_not_a_timeout(tmp_path: Path, monkeypatch):
+    import intern.executor as executor_module
+
+    # The exit is noticed by polling; a slow poll puts the deadline inside the gap between the exit and the next look.
+    monkeypatch.setattr(executor_module, "EXIT_POLL_S", 5)
+    result = await LocalExecutor().run("echo done", cwd=tmp_path, timeout_s=0.5, max_output_bytes=1_000)
+    assert not result.timed_out and result.exit_code == 0 and result.output.strip() == "done"
+
+
 async def test_timeout_kills_the_whole_process_tree(tmp_path: Path):
     marker = tmp_path / "still-running"
     started = time.monotonic()
