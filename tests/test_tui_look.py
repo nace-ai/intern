@@ -96,7 +96,7 @@ def test_the_masthead_lines_up_the_models_the_run_and_each_systems_cost_in_colum
     rows = content.plain.splitlines()
     assert len(rows) == 7 and "INTERN" in rows[1]
     frontier, efficient, decision = rows[3], rows[4], rows[5]
-    assert frontier.index("Frontier") == efficient.index("Efficient") == decision.index("Decision")
+    assert frontier.index("Model") == efficient.index("Efficient") == decision.index("Decision")
     assert frontier.index("Claude Haiku 5.5") == efficient.index("off") == decision.index("drex-max-v1.1")
     assert frontier.index(" thinking xhigh") == decision.index("console")
     assert frontier.index("$1.2500") == decision.index("$0.0178")  # each model's cost on its row, in a column

@@ -927,7 +927,7 @@ class HarnessApp(App[None]):
             runs = handoff is not None and handoff.binding.ref != binding.ref
             self.status.handoff = handoff.binding.ref if handoff is not None and runs else ""
             if not self.status.handed:
-                self.transcript.working("Frontier model", model_label(binding.ref, self.status.labels))
+                self.transcript.working(self._role(), model_label(binding.ref, self.status.labels))
         else:
             self.status.system2 = self.pending.system2 or "none"
             self.status.system1 = self.pending.system1 or "none"
@@ -950,13 +950,17 @@ class HarnessApp(App[None]):
         """A reply the efficient model wrote: one by the model a run hands over to, when that is not the frontier's."""
         return bool(model) and model == self.status.handoff and model != self.status.system2
 
+    def _role(self) -> str:
+        """System 2's name on the transcript's tab: the frontier model only while there is one to hand over to."""
+        return "Frontier model" if self.status.handoff else "Model"
+
     def _turn_head(self, turn: int | None = None, model: str = "") -> Content:
         """Who takes a turn: the frontier model, or the efficient one once the run has handed over; `model`, the
         reply's own, where it is known (a resumed session's turns)."""
         handed = self.ledger.current.handover
         efficient = self.status.handed
         ref = model or (handed.target if efficient and handed is not None and handed.target else self.status.system2)
-        return turn_head(efficient, model_label(ref, self.status.labels), turn)
+        return turn_head(efficient, model_label(ref, self.status.labels), turn, handoff=bool(self.status.handoff))
 
     def _spend(self, system2: Usage | None = None, system1: float = 0.0, *, efficient: bool = False) -> None:
         """Count what System 2's call (a reply, a State write) and System 1's asks cost on the masthead, and how much
@@ -1192,7 +1196,7 @@ class HarnessApp(App[None]):
         if self.transcript.handed:
             line = f"⇠ The frontier model ({back}) takes the next message"
             await self.transcript.hand_back(Content.assemble((line, S_MUTED)))
-        self.transcript.working("Frontier model", back)
+        self.transcript.working(self._role(), back)
         self.status.refresh_line()
 
     async def _show_verdict(self, j: TurnJudgement) -> None:

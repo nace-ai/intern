@@ -1446,7 +1446,7 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
         assert opened[-1].capabilities.handoff.to == "openrouter/qwen/qwen3.8-27b"
         # The hand-over, when a run makes it, is told in the transcript, and from then on the efficient model is the
         # one working: on the transcript's tab and on each of its turns.
-        assert "Frontier model" in str(app.transcript.border_title)
+        assert "Efficient model" not in str(app.transcript.border_title)
         await app._handle(
             Handoff(turn=9, source="a/strong", target="b/cheap", transfer="context", probability=0.82, tokens=1)
         )

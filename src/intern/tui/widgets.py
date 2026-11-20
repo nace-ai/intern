@@ -733,7 +733,9 @@ class StatusBar(Static):
             run.append((self.note, S_MUTED if self.note.startswith("Not connected yet") else S_BAD))
         working: list[Part] = [state, " ", *joined(run)]
         table = [
-            table_row("Frontier", frontier, thinking, cost2, [] if self.handed else working),
+            table_row(
+                "Frontier" if self.handoff else "Model", frontier, thinking, cost2, [] if self.handed else working
+            ),
             table_row("Efficient", efficient, [], cost_handoff, working if self.handed else []),
             table_row("Decision", decision, where, cost1, [(self.watching, S_MUTED)] if self.watching else []),
         ]
@@ -1559,10 +1561,11 @@ def model_label(ref: str, labels: Mapping[str, str] | None = None) -> str:
     return (labels or {}).get(ref) or KNOWN_SYSTEM2.get(ref) or model_name(ref)
 
 
-def turn_head(efficient: bool, model: str, turn: int | None = None) -> Content:
-    """Who takes a turn, on a line above it: `Frontier · Claude Opus 5.5`, or after a hand-over
-    `Efficient · Hy4 Flash` in the accent, as the hand-over's shading is; then the turn's number, where it is known."""
-    role: Part = ("Efficient", S_BRAND_BOLD) if efficient else ("Frontier", S_HEAD_MUTED)
+def turn_head(efficient: bool, model: str, turn: int | None = None, *, handoff: bool = True) -> Content:
+    """Who takes a turn, on a line above it: `Frontier · Claude Opus 5.5` (`Model · …` while hand-over is off), or
+    after a hand-over `Efficient · Hy4 Flash` in the accent, as the hand-over's shading is; then the turn's number,
+    where it is known."""
+    role: Part = ("Efficient", S_BRAND_BOLD) if efficient else ("Frontier" if handoff else "Model", S_HEAD_MUTED)
     return Content.assemble(role, (f" · {model}", S_MUTED), (f" · turn {turn}" if turn else "", S_MUTED))
 
 
