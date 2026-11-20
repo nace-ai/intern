@@ -91,6 +91,9 @@ class Answers(BaseModel):
     cost_usd: float = 0.0
     input_tokens: int = 0
     output_tokens: int = 0
+    failed: str | None = None
+    """Why some of the ask's requests gave no answers, when a backend that splits an ask had others answer: the
+    answers and cost here are theirs, and the client asks again only for the rest."""
 
 
 # OpenRouter's systemone answers at most 16 questions per request (422 otherwise).
@@ -223,12 +226,21 @@ class DecisionsApiBackend:
         if len(items) <= MAX_QUESTIONS_PER_CALL:
             return await self._decide(state, questions)
         batches = [dict(items[i : i + MAX_QUESTIONS_PER_CALL]) for i in range(0, len(items), MAX_QUESTIONS_PER_CALL)]
-        results = await asyncio.gather(*(self._decide(state, batch) for batch in batches))
+        # Every request runs to its end: one that fails must not lose what the others answered and cost.
+        outcomes = await asyncio.gather(*(self._decide(state, batch) for batch in batches), return_exceptions=True)
+        results = [r for r in outcomes if isinstance(r, Answers)]
+        errors = [r for r in outcomes if isinstance(r, BaseException)]
+        for error in errors:
+            if isinstance(error, FreeRefused) or not isinstance(error, Exception):
+                raise error
+        if not results:
+            raise errors[0]
         return Answers(
             answers={name: answer for r in results for name, answer in r.answers.items()},
             cost_usd=sum(r.cost_usd for r in results),
             input_tokens=sum(r.input_tokens for r in results),
             output_tokens=sum(r.output_tokens for r in results),
+            failed=f"{len(errors)} of {len(batches)} requests failed: {errors[0]}" if errors else None,
         )
 
     async def _decide(self, state: str, questions: dict[str, Question]) -> Answers:
@@ -479,6 +491,9 @@ class DecisionClient:
             return self._cache[key]
         deadline = started + (self._retry_window_s if retry_window_s is None else retry_window_s)
         delay = RETRY_FIRST_S
+        # Answers from an attempt only some of whose requests failed (`Answers.failed`): they are paid for, so the
+        # next attempt asks for the rest alone.
+        kept: dict[str, Answer] = {}
         while True:
             # Set once the backend answers, so an attempt whose answers are unusable still reports what it cost.
             result: Answers | None = None
@@ -489,14 +504,18 @@ class DecisionClient:
                     pace = getattr(self.backend, "pace", None)
                     if pace is not None:
                         await pace()
-                    result = await asyncio.wait_for(self.backend.decide(sent, questions), timeout_s or self._timeout_s)
+                    asking = {n: q for n, q in questions.items() if n not in kept}
+                    result = await asyncio.wait_for(self.backend.decide(sent, asking), timeout_s or self._timeout_s)
                 self.usage.input_tokens += result.input_tokens
                 self.usage.output_tokens += result.output_tokens
                 self.usage.cost_usd += result.cost_usd
                 # A wrong-type answer, or a choice that is not an option, counts as missing; the ask is retried.
-                answers = {n: a for n, a in result.answers.items() if n in questions and _fits(questions[n], a)}
+                found = kept | {n: a for n, a in result.answers.items() if n in asking and _fits(asking[n], a)}
+                answers = {n: found[n] for n in questions if n in found}
+                if result.failed is not None:
+                    kept = answers
                 if missing := sorted(set(questions) - set(answers)):
-                    raise ValueError(f"no usable answer for {', '.join(missing)}")
+                    raise ValueError(result.failed or f"no usable answer for {', '.join(missing)}")
             except FreeRefused as e:
                 self.last_error = str(e)
                 report(False, False, result, None, self.last_error)
