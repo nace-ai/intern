@@ -137,7 +137,7 @@ class OpenAICompatProvider:
     def body(self, request: ProviderRequest) -> dict[str, Any]:
         compat = request.compat
         body: dict[str, Any] = {
-            "model": self.endpoint.model,
+            "model": self.endpoint.wire_model,
             "messages": self._messages(request),
             "stream": compat.stream,
             compat.max_tokens_field: request.max_output_tokens,

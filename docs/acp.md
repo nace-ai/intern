@@ -1681,3 +1681,9 @@ The terminal UI runs on the free credit: setup asks how to run Intern first (Sta
 in with the console's device flow and opens the session on the grant's models; `/free` shows the credit and pauses,
 resumes or signs out of it ([terminal UI](tui.md#free-credit)). Nothing changes on ACP: 0.55.0 clients keep working.
 `intern free status --json` prints the same document as before.
+
+### 0.56.1
+
+System 2 and the hand-over model run on the free credit: the harness asks the console for the bundle's model by the
+id the grant names (`nace/glm-5.3`), where before it sent `glm-5.3`, which the console refuses as
+`model_not_in_plan`. Nothing changes on ACP: 0.56.0 clients keep working, and the model ids they see are the same.

@@ -174,7 +174,7 @@ DECISION_MODELS = [
     ("body", "system2"),
     [
         ({"models": DECISION_MODELS}, []),  # what console.nace.ai/v1/models returns today (2026-11-19)
-        ({"models": DECISION_MODELS, "data": [{"id": "glm-5.3"}, {"id": "drex-latest"}]}, ["nace/glm-5.3"]),
+        ({"models": DECISION_MODELS, "data": [{"id": "nace/glm-5.3"}, {"id": "drex-latest"}]}, ["nace/glm-5.3"]),
     ],
     ids=["decision-models-only", "chat-and-decision-models"],
 )
