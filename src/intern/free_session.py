@@ -11,6 +11,7 @@ refused with `FreeLocked`.
 A credit that runs out during a run (the console refuses it for good, `registry.FREE_FINAL`) is not retried. System 1
 sends the ask again on the user's own console key, the same model; System 2 sends the request again on the user's own
 Fireworks key for the same model. Without one, the run stops, and the next starts on the user's own configuration.
+Once the console says more (meters with room again, a grant no longer paused), the next run is back on free credit.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ import httpx
 
 from intern import names
 from intern.decisions import Answers, DecisionBackend, FreeRefused, Question
-from intern.events import EventSink, FreeNotice
+from intern.events import EventSink, FreeNotice, RunEnd, RunError, StopReason
 from intern.hooks import RunOutcome
 from intern.models.catalog import FreeInfo, FreeSources
 from intern.models.registry import FREE_FINAL, ConfigError, ProviderSpec
@@ -64,6 +65,28 @@ def own_route(ref: str) -> str:
     return FIREWORKS_MODELS + FIREWORKS_NAMES.get(name, name)
 
 
+METER_CODES = frozenset({"free_exhausted", "free_expired"})
+"""Refusals that newer meters answer; the others (a pause, a revocation, a model the plan no longer serves) only a
+newer grant does."""
+
+
+@dataclass(frozen=True)
+class Spent:
+    """A refusal for good of a system's free credit, and how much the console had said by then."""
+
+    code: str
+    heard: int
+    read: int
+
+    def stands(self, credential: FreeCredential | None) -> bool:
+        """Whether nothing the console said since can answer it."""
+        if credential is None:
+            return True
+        if self.code in METER_CODES:
+            return credential.heard == self.heard
+        return credential.read == self.read
+
+
 @dataclass
 class FreePlan:
     """The free credit as a session finds it: whether it is in use, the grant, and why none could be read."""
@@ -72,8 +95,28 @@ class FreePlan:
     credential: FreeCredential | None = None
     grant: FreeGrant | None = None
     refusal: Refusal | None = None
-    spent: set[System] = field(default_factory=set)
-    """Systems whose free credit the console refused for good during the session, whatever the meters say."""
+    spent: dict[System, Spent] = field(default_factory=dict)
+    """Systems whose free credit the console refused for good during the session: until it says more, whatever the
+    meters say."""
+
+    def refuse(self, system: System, code: str) -> None:
+        credential = self.credential
+        heard, read = (credential.heard, credential.read) if credential is not None else (0, 0)
+        self.spent[system] = Spent(code, heard, read)
+
+    async def refresh(self) -> None:
+        """Read the grant again, from the credential's cache while it is fresh (`GRANT_TTL_S`), so a run starts on
+        what the console last said: a limit raised, a pause lifted. A console that does not answer changes nothing."""
+        if self.use is not True or self.credential is None:
+            return
+        try:
+            found = await self.credential.grant()
+        except (httpx.HTTPError, ConsoleUnavailable):
+            return
+        if isinstance(found, FreeGrant):
+            self.grant, self.refusal = found, None
+        elif found.code != "unavailable":
+            self.grant, self.refusal = None, found
 
     @property
     def bundle(self) -> Bundle | None:
@@ -88,9 +131,10 @@ class FreePlan:
     def runs(self, system: System) -> bool:
         """Whether `system` may start a run on free credit now."""
         meters = self.meters()
+        spent = self.spent.get(system)
         return (
             self.use is True
-            and system not in self.spent
+            and (spent is None or not spent.stands(self.credential))
             and self.grant is not None
             and self.grant.state == "active"
             and meters is not None
@@ -110,6 +154,24 @@ class FreePlan:
         if self.grant.state == "paused":
             return "the free trial is paused"
         return f"the free {METER_NAMES[system]} credit is used up"
+
+    def why_not_code(self, system: System) -> tuple[str, str | None] | None:
+        """`why_not` as the console's code and the meter it names, for a client to tell a spent free credit from a
+        bad model: None when it is not in use or runs, is not signed in, or the grant could not be read."""
+        if self.use is not True or self.runs(system):
+            return None
+        if self.grant is None:
+            # A revoked grant forgets the sign-in, so it is told by the refusal, not the credential.
+            revoked = self.refusal is not None and self.refusal.code == "free_revoked"
+            return ("free_revoked", None) if revoked else None
+        if self.credential is None:
+            return None
+        spent = self.spent.get(system)
+        if spent is not None and spent.code in ("free_paused", "free_revoked"):
+            return spent.code, None
+        if self.grant.state == "paused":
+            return "free_paused", None
+        return "free_exhausted", system
 
     def sources(self) -> FreeSources:
         return FreeSources(
@@ -184,6 +246,8 @@ class FreeSession:
     source: FreeSources
     switch: Switch | None = None
     """Moves a system of a session to the user's own configuration; whether it could."""
+    back: Switch | None = None
+    """Moves a system of a session back to the free credit's bundle; whether it could."""
     next_system2: Callable[[], str | None] | None = None
     """The System 2 of the user's own configuration a run could start on now; None when none can."""
     emit: EventSink | None = None
@@ -199,10 +263,13 @@ class FreeSession:
         self._low(tell=False)
 
     def watching(self, emit: EventSink) -> EventSink:
-        """`emit`, and after each event a notice for a meter that has crossed a low share since the last one."""
+        """`emit`, and after each event a notice for a meter that has crossed a low share since the last one. A run's
+        end that the free credit caused says which model the next run will use."""
         self.emit = emit
 
         def sink(event: Any) -> None:
+            if isinstance(event, RunEnd) and event.error is not None:
+                event = event.model_copy(update={"error": self._with_next(event.reason, event.error)})
             emit(event)
             self._low(tell=True)
 
@@ -243,7 +310,13 @@ class FreeSession:
         code = self._codes.get(system) or ("free_paused" if paused else "")
         why = SWITCH_REASONS.get(code, f"Free {METER_NAMES[system]} credit used up")
         text = f"{why}; continuing on your keys with {_name(model)}"
+        self._told.discard(("back", system))
         self._tell(("switch", system), FreeNotice(kind="switch", meter=system, text=text))
+
+    def _tell_back(self, system: System, model: str) -> None:
+        text = f"Free {METER_NAMES[system]} credit available again; continuing on it with {_name(model)}"
+        self._told.discard(("switch", system))
+        self._tell(("back", system), FreeNotice(kind="switch", meter=system, text=text))
 
     def refused(self, system: System, code: str, meter: str | None, moved_to: str | None) -> None:
         """The console refused `system`'s free credit for good (`code`, naming `meter`): no run starts on what it
@@ -252,8 +325,8 @@ class FreeSession:
             hit: set[System] = {"agent" if meter == "agent" else "system1"}
         else:
             hit = set(SYSTEMS) if code in ("free_paused", "free_revoked") else {system}
-        self.plan.spent |= hit
         for spent in hit:
+            self.plan.refuse(spent, code)
             self._codes.setdefault(spent, code)
         if moved_to is not None:
             self.source = self.source.model_copy(update={system: "own"})
@@ -267,8 +340,13 @@ class FreeSession:
             return
         system: System = "system1" if outcome.reason == "system1_unavailable" else "agent"
         self.refused(system, error.code, error.meter, None)
-        if system == "agent" and self.next_system2 is not None:
-            error.next = self.next_system2()
+        outcome.error = self._with_next(outcome.reason, error)
+
+    def _with_next(self, reason: StopReason, error: RunError) -> RunError:
+        """`error`, with the System 2 the next run will use when System 2's free credit was refused for good."""
+        if error.code not in FREE_FINAL or reason == "system1_unavailable" or self.next_system2 is None:
+            return error
+        return error.model_copy(update={"next": self.next_system2()})
 
     @property
     def bundle(self) -> Bundle | None:
@@ -301,13 +379,19 @@ class FreeSession:
         return True
 
     async def before_run(self, session: Session) -> None:
-        """A system whose meter no longer runs a run moves to the user's own configuration, when there is one; so does
-        one that moved to the user's key for the free model during the last run (failing that, it stays there)."""
+        """Each system is picked again, from the grant as last read (the credential's cache) and the meters the
+        console's responses carried since. One whose meter runs a run goes back to the free credit; one whose meter no
+        longer does moves to the user's own configuration, when there is one; so does one that moved to the user's key
+        for the free model during the last run (failing that, it stays there)."""
+        if self.switch is None:
+            return
+        await self.plan.refresh()
         for system in SYSTEMS:
-            if self.switch is None:
+            moved = system in self._moved
+            self._moved.discard(system)
+            if self.plan.runs(system) and not self.on_free(system) and await self._back(session, system):
                 continue
-            if system in self._moved:
-                self._moved.discard(system)
+            if moved:
                 await self.switch(session, system)
                 continue
             if not self.on_free(system) or self.plan.runs(system):
@@ -317,6 +401,18 @@ class FreeSession:
                 self.source = self.source.model_copy(update={system: "free"})
                 continue
             self._tell_switch(system, session.deps.system2.ref if system == "agent" else session.system1)
+
+    async def _back(self, session: Session, system: System) -> bool:
+        """Move `system` back to the free credit's bundle; whether it could."""
+        if self.back is None or self.bundle is None:
+            return False
+        self.source = self.source.model_copy(update={system: "free"})
+        if not await self.back(session, system):
+            self.source = self.source.model_copy(update={system: "own"})
+            return False
+        self._codes.pop(system, None)
+        self._tell_back(system, self.bundle.system2 if system == "agent" else self.bundle.system1)
+        return True
 
     def wire(self) -> dict[str, Any]:
         """`usage_update._meta.nace.free`: the meters as the console last gave them, and each system's source."""

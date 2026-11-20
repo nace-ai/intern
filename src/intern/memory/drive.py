@@ -19,6 +19,7 @@ from intern.memory.format import (
     Page,
     build_indexes,
     index_file,
+    is_folder_file,
     page_file,
     parse_index,
     parse_page,
@@ -162,10 +163,13 @@ def create(root: Path) -> None:
         shutil.rmtree(build, ignore_errors=True)
 
 
-def tracked_files(root: Path, commit: str) -> dict[str, str]:
-    names = [
-        n for n in git(root, "ls-tree", "-r", "-z", "--name-only", commit).decode().split("\0") if n.endswith(".md")
-    ]
+def tracked_names(root: Path, commit: str, suffix: str | tuple[str, ...] = ".md", under: str = "") -> list[str]:
+    names = git(root, "ls-tree", "-r", "-z", "--name-only", commit).decode().split("\0")
+    return [n for n in names if n.endswith(suffix) and n.startswith(under)]
+
+
+def tracked_files(root: Path, commit: str, suffix: str | tuple[str, ...] = ".md", under: str = "") -> dict[str, str]:
+    names = tracked_names(root, commit, suffix, under)
     if not names:
         return {}
     out = git(root, "cat-file", "--batch", stdin="".join(f"{commit}:{n}\n" for n in names).encode())
@@ -217,6 +221,14 @@ class Drive:
             return parse_page(path, text)
         except FormatError:
             return None
+
+    def folder_files(self, folder: str) -> list[str]:
+        # The files of a skill folder in main's commit, which the working tree holds once a steward published it.
+        try:
+            out = git(self.root, "ls-tree", "-z", "--name-only", self.commit, folder).decode()
+        except GitError:
+            return []
+        return sorted(n for n in out.split("\0") if is_folder_file(n))
 
     def index(self, folder: str) -> Index | None:
         name = index_file(folder)
