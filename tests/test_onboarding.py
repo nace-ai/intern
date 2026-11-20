@@ -184,6 +184,8 @@ async def test_choosing_your_own_asks_for_a_frontier_model_then_an_efficient_one
 
 async def test_another_provider_walks_through_frontier_efficient_and_the_decision_model_key(tmp_path: Path):
     home = tmp_path / "home"
+    home.mkdir()
+    (home / "config.toml").write_text("[free]\nuse = true\n")  # on the free credit until now
     env = {**NO_KEYCHAIN}
     opened: list[Models] = []
     app = setup_app(tmp_path, env, [], opened)
@@ -213,6 +215,8 @@ async def test_another_provider_walks_through_frontier_efficient_and_the_decisio
     config = tomllib.loads((home / "config.toml").read_text())
     assert config["system2"] == "anthropic/claude-sonnet-5-5"
     assert config["capabilities"] == {"handoff": {"to": "anthropic/claude-haiku-5-5"}}
+    # Own keys picked over the free credit pause it, or the session would open on the grant's models again.
+    assert config["free"] == {"use": False}
     kept = read_env_file(home / ".env")
     assert kept == {"ANTHROPIC_API_KEY": "sk-ant-test-key-123", "OPENROUTER_API_KEY": "sk-or-v1-test-key"}
 
@@ -275,6 +279,8 @@ async def test_skipping_the_efficient_model_runs_every_turn_on_the_frontier_mode
 
 async def test_starting_at_the_decision_model_asks_for_the_efficient_model_after_it(tmp_path: Path):
     home = tmp_path / "home"
+    home.mkdir()
+    (home / "config.toml").write_text("[free]\nuse = true\n")
     env = {**NO_KEYCHAIN, "ANTHROPIC_API_KEY": "sk-ant-in-env", "OPENROUTER_API_KEY": "sk-or-v1-in-env"}
     screen = OnboardingScreen(
         home=home, env=env, start="system1", system2="anthropic/claude-sonnet-5-5", transport=provider([])
@@ -295,6 +301,52 @@ async def test_starting_at_the_decision_model_asks_for_the_efficient_model_after
 
     config = tomllib.loads((home / "config.toml").read_text())
     assert config["capabilities"] == {"handoff": {"to": "anthropic/claude-haiku-5-5"}}
+    assert config["free"] == {"use": True}  # connecting only a decision model leaves the free credit on
+
+
+async def test_kapitsa_is_picked_without_a_key_once_it_runs_and_the_session_opens_on_it(tmp_path: Path):
+    home = tmp_path / "home"
+    running = False
+
+    def answer(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/health":
+            if not running:
+                raise httpx.ConnectError("connection refused", request=request)
+            return httpx.Response(200, json={"status": "ok", "model": "drex-max-v1"})
+        return httpx.Response(200, json={"data": [{"id": "claude-haiku-5-5"}, {"id": "claude-sonnet-5-5"}]})
+
+    env = {**NO_KEYCHAIN, "ANTHROPIC_API_KEY": "sk-ant-in-env"}
+    screen = OnboardingScreen(
+        home=home,
+        env=env,
+        start="system1",
+        system2="anthropic/claude-sonnet-5-5",
+        transport=httpx.MockTransport(answer),
+    )
+    app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), welcome=False)
+    async with app.run_test(size=SIZE) as pilot:
+        app.push_screen(screen)
+        await pilot.pause()
+        assert screen.step == "decision"
+        await pilot.press(*["down"] * [c.id for c in screen.choices].index("kapitsa"), "enter")
+        # Not running yet: the step stays, and says how to start it.
+        await wait_for(lambda: "kapitsa-systemone --model" in str(screen.query_one("#setup-status").render()))
+        assert screen.step == "decision"
+        running = True
+        await pilot.press("enter")
+        await wait_for(lambda: screen.step == "provider")
+        await pilot.press("enter")  # the efficient model's provider: Anthropic, on the key in the environment
+        await pilot.press("enter")
+        await wait_for(lambda: screen.step == "efficient")
+        await pilot.press("enter")
+        await wait_for(lambda: screen.step == "done")
+        await app.action_quit()
+
+    # A session opens on it with no decision key anywhere.
+    bootstrap = Bootstrap(Options(cwd=tmp_path), {"INTERN_HOME": str(home)})
+    assert bootstrap.system1_choice() == "kapitsa:drex-max-v1"
+    backend = bootstrap.system1_backend(bootstrap.system1_choice())
+    assert backend._url == "http://127.0.0.1:8001/v1/systemone"  # pyright: ignore
 
 
 async def test_a_refused_key_keeps_the_step_and_says_how_to_fix_it(tmp_path: Path):
@@ -340,6 +392,30 @@ def test_saving_keeps_the_rest_of_the_config(tmp_path: Path):
     assert config["decider"] == {"backend": "console", "model": "drex-latest", "console_key_env": "NACE_API_KEY"}
     assert config["capabilities"] == {"memory": {"enabled": False}}
     assert saved.keys == {"NACE_API_KEY": "env-file"}
+
+
+def test_saving_keeps_capability_settings_written_inline(tmp_path: Path):
+    """`capabilities = {...}` on one line is the same settings as `[capabilities]`; setup changes only the hand-over."""
+    inline = (
+        "capabilities = {guard = {enabled = true}, memory = {enabled = false}, "
+        'handoff = {to = "openrouter/old", at = 0.5}}\n'
+    )
+    (tmp_path / "config.toml").write_text(inline)
+    setup = Setup("ollama/qwen3:30b", SYSTEM1_BY_ID["drex-console"], handoff="anthropic/claude-haiku-5-5")
+    config = tomllib.loads(save(tmp_path, setup, NO_KEYCHAIN).config.read_text())
+    assert config["capabilities"] == {
+        "guard": {"enabled": True},
+        "memory": {"enabled": False},
+        "handoff": {"to": "anthropic/claude-haiku-5-5", "at": 0.5},
+    }
+
+    (tmp_path / "config.toml").write_text(inline)
+    config = tomllib.loads(save(tmp_path, replace(setup, handoff=None), NO_KEYCHAIN).config.read_text())
+    assert config["capabilities"] == {"guard": {"enabled": True}, "memory": {"enabled": False}, "handoff": {"at": 0.5}}
+
+    (tmp_path / "config.toml").write_text("capabilities = {guard = {enabled = true}}\n")
+    config = tomllib.loads(save(tmp_path, setup, NO_KEYCHAIN).config.read_text())
+    assert config["capabilities"] == {"guard": {"enabled": True}, "handoff": {"to": "anthropic/claude-haiku-5-5"}}
 
 
 async def test_a_local_server_that_does_not_answer_is_said_with_what_to_check():

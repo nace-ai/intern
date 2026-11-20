@@ -50,7 +50,7 @@ from intern.mcp_credentials import (
     CredentialCommandError,
     run_credential_command,
 )
-from intern.mcp_oauth import OAuthSignInRequired, OAuthStore, oauth_auth, oauth_store
+from intern.mcp_oauth import OAuthSignInRequired, OAuthStore, StoredTokens, oauth_auth, oauth_store
 from intern.models.catalog import RunnerInfo
 from intern.models.registry import ConfigError
 from intern.nace_free import FreeStore
@@ -776,6 +776,8 @@ async def prepare_session(
     values = [*(secret_store or {}).values(), *own]
     # The free trial's tokens are never in the environment, and they rotate hourly: read as each text is redacted.
     redact = FreeStore(home, env).redactor(SecretRedactor(values).redact if values else deps.redact)
+    # MCP OAuth tokens are files in the home, refreshed while a session runs: read the same way.
+    redact = StoredTokens(home).redactor(redact)
     retries = RetryPolicy() if settings.model_retries else NO_RETRIES
     resolver = models.resolve if settings.system2_fallbacks or models.budget is not None else resolve_model
     child_resolver = _child_resolver(resolve_model, models.budget) if subagents is not None else None
