@@ -1693,3 +1693,11 @@ id the grant names (`nace/glm-5.3`), where before it sent `glm-5.3`, which the c
 The memory steward writes again on GLM 5.3: its writer asks for low reasoning effort when the model's profile lists
 it, where before GLM 5.3 thought past the writer's two-minute timeout and every session's memory was deferred.
 Nothing changes on ACP: 0.56.1 clients keep working.
+
+### 0.57.0
+
+The agent can look through memory during the run ([memory](memory.md#during-the-run)): the `memory_search` tool
+becomes `memory`, whose `action` lists a folder's pages, reads a page or one block, searches as before, or traces a
+line to the session step it was recorded from. Session tool calls, and `tool_call` updates, now show `memory` with
+an `action` where they showed `memory_search`. Additive for clients: 0.56.2 clients keep working; one that matched
+the name `memory_search` should match `memory` too.

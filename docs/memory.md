@@ -37,7 +37,8 @@ and checked with `intern memory lint DRIVE [--fix]`.
 - `user/`: the user, the people, organisations and things they deal with, and standing instructions.
 - `lessons/` and `skills/`: ways of working learned across sessions.
 - `work/`: one page per session with what was asked, what was done and how it ended.
-- `sessions/`: session transcripts, searchable with the `memory_search` tool, as the pages are.
+- `sessions/`: session transcripts, searchable with the `memory` tool, as the pages are. Each line carries its
+  journal entry id (`@<entry>`, from steward 49 on), which a page line's `[source: evt#<session>:<entry>]` names.
 
 A page has front matter, stable `{#b-…}` blocks, a `## Contents` table and `[[links]]` for
 relations. Every item records the session event it came from.
@@ -69,13 +70,27 @@ These come from the `memory` extension, which runs after the profile's extension
   once per line. When a line names a document or record that holds what the call needs, the agent is
   asked to read it first. Reads are not held, and neither is a call that already runs the command a
   line quotes, unless the line warns against it.
-- **`memory_search`** finds pages and earlier sessions by words when the recalled pages do not hold what the
-  task needs. It ranks with BM25 (SQLite FTS5): each page block and each chunk of about 2,000 characters of a
-  transcript is one passage, and a page's path, title and block heading weigh twice its text. Page blocks are
-  listed first, each with its file and block id, then sessions, each ranked by its best chunk, with its task,
-  outcome and matching lines. `folder` limits a search to `map/`, `user/`, `lessons/`, `skills/`, `work/` or
-  `sessions/`. The index is read from `main`'s commit, as recall is, and kept in `.git/nace-search.sqlite`; the
-  first search of a session indexes only the files whose blob changed since the last one.
+- **The `memory` tool** looks through memory when the recalled pages do not hold what the task needs. It is
+  read-only and reads `main`'s commit, as recall did, never the working tree. A page recall pinned is marked
+  `(already in context)` and is not shown again in full. Its `action`:
+  - `list` (`path`: a folder, empty for the whole memory): the folder's pages with their one-line summaries and
+    sizes, and its subfolders, from the tables of contents.
+  - `read` (`path`: `user/people/sam` or `user/people/sam#b-events`): a page with its source tags and links, or
+    one block. A page longer than the tool output's budget shows its lead and its blocks to read one at a time.
+  - `search` (`query`, `folder`, `max_results`): pages and earlier sessions by words, ranked with BM25 (SQLite
+    FTS5). Each page block and each chunk of about 2,000 characters of a transcript is one passage, and a page's
+    path, title and block heading weigh twice its text. Page blocks are listed first as `page#block`, then
+    sessions, each ranked by its best chunk, with its task, outcome and matching lines. `folder` limits a search
+    to `map/`, `user/`, `lessons/`, `skills/`, `work/` or `sessions/`. The index is kept in
+    `.git/nace-search.sqlite`; the first search of a session indexes only the files whose blob changed since the
+    last one.
+  - `trace` (`source`: a line's `evt#<session>:<entry>`, or a session id): the session's work page and the
+    transcript lines around that step. A transcript from before steward 49 has no entry ids; with the traced line
+    as `query`, it shows the lines sharing most words with it. A session no longer in memory (forgotten, or
+    removed by cleanup) is said to be gone.
+
+  The steward does not record the tool as a place to remember, and a page read with it counts as used, as a
+  recalled page does, so it does not go to `graveyard/`.
 
 ## Steward (writing)
 

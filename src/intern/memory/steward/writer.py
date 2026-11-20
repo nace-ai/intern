@@ -408,16 +408,18 @@ def lines(ex: Extract) -> dict[str, Line]:
     return found
 
 
-def trace(ex: Extract, outcome: str) -> str:
+def trace(ex: Extract, outcome: str, ids: bool = False) -> str:
+    # With ids, each line carries its journal entry id (`@<entry>`), which a page line's [source: evt#...] names.
     rows: list[tuple[int, str]] = []
     for line in lines(ex).values():
+        at = f"@{line.pointer.rsplit(':', 1)[-1]} " if ids and ":" in line.pointer else ""
         if line.ident.startswith("s"):
             step = ex.steps[int(line.ident[1:])]
             status = "ok" if step.ok else "error"
-            rows.append((line.order, f"{line.ident} [{status}] $ {step.call}\n    -> {step.result}"))
+            rows.append((line.order, f"{line.ident} [{status}] {at}$ {step.call}\n    -> {step.result}"))
         else:
             who = "user" if line.source == "user" else "assistant"
-            rows.append((line.order, f"{line.ident} [{who}, {line.said}] {line.text}"))
+            rows.append((line.order, f"{line.ident} [{who}, {line.said}] {at}{line.text}"))
     rows.sort(key=lambda row: row[0])
     head = [f"Session date: {ex.date}", f"Outcome (judged): {outcome}"]
     if not ex.turns:
