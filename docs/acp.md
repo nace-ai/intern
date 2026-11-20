@@ -29,6 +29,10 @@ every session it opens. `--cwd` and `--session` are ignored: ACP sends the worki
 each session, and journals are found by session id. Every install can serve ACP: the official
 `agent-client-protocol` Python SDK is a dependency of `intern-agent`, not an extra.
 
+A message is one JSON object on one line. A line that is not JSON is answered with `-32700` (parse error), and
+one that is JSON but not a message (a batch `[...]`, `null`, a number, a `method` that is not a string) with
+`-32600` (invalid request), both with `id: null` unless the line had a usable `id`; the server keeps serving.
+
 stdout carries only the protocol. Warnings and logs go to stderr. stdin and stdout must be pipes (or a
 terminal); redirected to a file, the command exits with code 2. When stdin closes, every request
 already received is still answered: runs in progress are aborted (their prompts answer `cancelled`)
