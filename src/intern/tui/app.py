@@ -863,14 +863,14 @@ class HarnessApp(App[None]):
         if any(isinstance(e, MessageEntry) for e in entries):
             await self._begin()
         start = replies[-RESUME_TURNS] if len(replies) > RESUME_TURNS else 0
-        run_id, nudge, summary, turn = None, None, "", 0
+        run_id, nudge, summary = None, None, ""
         handed: HandoverJudgement | None = None  # a hand-over before the turns drawn, its own turns among them
         for i, entry in enumerate(entries):
             drawn = i >= start
             if isinstance(entry, MessageEntry) and entry.run_id is not None and entry.run_id != run_id:
                 run_id = entry.run_id  # a run began: its own ledger, under the prompt that began it
                 await self._hand_back()
-                handed, turn = None, 0
+                handed = None
                 self.run_count += 1
                 first = entry.message
                 asked = first.content if isinstance(first, UserMessage) and first.source == "user" else ""
@@ -891,7 +891,6 @@ class HarnessApp(App[None]):
                         handed = row
                     continue
                 case MessageEntry(message=AssistantMessage(usage=usage) as reply):
-                    turn += 1
                     self._spend(usage, efficient=self._by_efficient(reply.model))
                     run = self.ledger.current
                     run.model = run.model or reply.model  # the frontier model: a run starts on it
@@ -904,7 +903,7 @@ class HarnessApp(App[None]):
                         self.ledger.observe(start_call)  # a search's row on System 1's panel, a refusal's call
                     if not drawn:
                         continue
-                    await self.transcript.begin_turn(self._turn_head(turn, reply.model))
+                    await self.transcript.begin_turn(self._turn_head(reply.model))
                     if reply.reasoning:
                         await self.transcript.reasoning(reply.reasoning, live=False)
                     if reply.text:
@@ -991,13 +990,13 @@ class HarnessApp(App[None]):
         """System 2's name on the transcript's tab: the frontier model only while there is one to hand over to."""
         return "Frontier model" if self.status.handoff else "Model"
 
-    def _turn_head(self, turn: int | None = None, model: str = "") -> Content:
+    def _turn_head(self, model: str = "") -> Content:
         """Who takes a turn: the frontier model, or the efficient one once the run has handed over; `model`, the
         reply's own, where it is known (a resumed session's turns)."""
         handed = self.ledger.current.handover
         efficient = self.status.handed
         ref = model or (handed.target if efficient and handed is not None and handed.target else self.status.system2)
-        return turn_head(efficient, model_label(ref, self.status.labels), turn, handoff=bool(self.status.handoff))
+        return turn_head(efficient, model_label(ref, self.status.labels))
 
     def _spend(self, system2: Usage | None = None, system1: float = 0.0, *, efficient: bool = False) -> None:
         """Count what System 2's call (a reply, a State write) and System 1's asks cost on the masthead, and how much
@@ -1069,10 +1068,10 @@ class HarnessApp(App[None]):
                 if content != self._nudge_text:
                     await transcript.notice(f"⚑ {content}")
                 self._nudge_text = None
-            case TurnStart(turn=turn):
+            case TurnStart():
                 self.status.activity = ""
                 self.status.face("reading")
-                await transcript.begin_turn(self._turn_head(turn))
+                await transcript.begin_turn(self._turn_head())
             case TextDelta(text=text):
                 await transcript.text(text)
             case ReasoningDelta(text=text):

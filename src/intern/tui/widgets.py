@@ -1567,12 +1567,10 @@ def model_label(ref: str, labels: Mapping[str, str] | None = None) -> str:
     return (labels or {}).get(ref) or KNOWN_SYSTEM2.get(ref) or model_name(ref)
 
 
-def turn_head(efficient: bool, model: str, turn: int | None = None, *, handoff: bool = True) -> Content:
-    """Who takes a turn, on a line above it: `Frontier · Claude Opus 5.5` (`Model · …` while hand-over is off), or
-    after a hand-over `Efficient · Hy4 Flash` in the accent, as the hand-over's shading is; then the turn's number,
-    where it is known."""
-    role: Part = ("Efficient", S_BRAND_BOLD) if efficient else ("Frontier" if handoff else "Model", S_HEAD_MUTED)
-    return Content.assemble(role, (f" · {model}", S_MUTED), (f" · turn {turn}" if turn else "", S_MUTED))
+def turn_head(efficient: bool, model: str) -> Content:
+    """Who takes a turn, on a line above it: the model by its name, `Claude Opus 5.5`, the efficient one's after a
+    hand-over in the accent, as the hand-over's shading is."""
+    return Content.assemble((model, S_BRAND_BOLD if efficient else S_HEAD_MUTED))
 
 
 def readiness(h: HandoverJudgement) -> list[Part]:

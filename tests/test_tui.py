@@ -1454,7 +1454,7 @@ async def test_auto_mode_hands_over_to_the_model_slash_handover_picks_until_it_t
         )
         await wait_for(lambda: "Handed over to the efficient model (cheap) at turn 9" in transcript_text(app))
         await app._handle(TurnStart(turn=10))
-        await wait_for(lambda: "Efficient · cheap · turn 10" in transcript_text(app))
+        await wait_for(lambda: [plain(head) for head in app.query(".turn-head")][-1:] == ["cheap"])
         assert "Efficient model" in str(app.transcript.border_title)
 
 
