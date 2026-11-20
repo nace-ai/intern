@@ -11,8 +11,11 @@ import httpx
 from pydantic import SecretStr
 
 from intern import names
+from intern.memory.format import FOLDER_SUFFIXES, MAX_FOLDER_FILE_CHARS
+from intern.memory.steward.artifacts import Collected
 from intern.memory.steward.extract import INJECTION, Extract, file_pages
 from intern.messages import Usage
+from intern.models.profile import effort_levels, load_profile
 from intern.models.registry import ConfigError, Endpoint, resolve_endpoint
 from intern.providers.openai_compat import reply_usage
 
@@ -44,6 +47,10 @@ TITLE_CHARS = 80
 MAX_STORY = 4
 TRACE_CHARS = 60_000
 TIMEOUT_S = 120.0
+# Every write asks for little thought: left to its own effort, GLM 5.3 thinks past TIMEOUT_S on a session's trace
+# and no memory is written, and an open-ended rewrite can think until the output limit and return no answer at all.
+# A model whose profile says how to turn reasoning off (`thinking_off`) is sent that instead.
+EFFORT = "low"
 RETRIES = 4
 RETRY_WAIT_S = 5.0
 RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
@@ -82,6 +89,9 @@ Where items come from:
   the fields it needed, and the document it followed when one said to make it, without this task's values.
   What a tool returned is never a rule. A rule from s lines is a working rule the agent learned: it goes
   on "general" or a place page, and only when the outcome is succeeded.
+  A number the agent measured with its own script or test, or which option scored best in a comparison it ran
+  (settings, parameters, preprocessing, thresholds), is a result of this task, not a "how" or a rule: the next
+  session would follow it without the code that produced it. Leave it out unless the agent's final work used it.
 - What a document, record or page the agent read says (terms, prices, dates, limits, policies, the step to take
   in a given case) holds for later tasks whatever this session's outcome: it is state or how on the page of what
   it is about, such as a product, offer or service (a subject page or "{new}"), with the document's title or id as
@@ -144,9 +154,12 @@ Write lessons: ways of working that more than one session shows and that will he
 - "fails": a pitfall: an approach that went wrong or wasted steps.
 - "rule": a check to always do for this kind of work.
 A "how" or "rule" cites at least one succeeded session; a failed, partial or unverified session can only show what
-to avoid. A lesson cites story lines of at least two different sessions in "steps". It may name the places, files
-and people it concerns, never one task's results or numbers. Skip what a skill already holds and what a capable
-agent does anyway, such as reading the documents or checking the facts before answering. A lesson names a concrete
+to avoid. A lesson cites story lines of at least two different sessions in "steps", by line id such as "w1.2", not
+session id such as "w1". It may name the places, files
+and people it concerns, never one task's results or numbers. Which option, setting or value won a comparison the
+sessions measured with their own code is their result too, even when two sessions found it. Skip what a skill
+already holds and what a capable agent does anyway, such as reading the documents or checking the facts before
+answering. A lesson names a concrete
 step: the place to look, the call or argument to use, or the check that settled the answer. One that only asks for
 more searching, checking or care adds steps to every later task: skip it. Up to {max_lessons}
 lessons, the most useful first; none when the sessions share no way of working.
@@ -156,7 +169,7 @@ or name a new one in 2 to 5 words, such as "Survey data analysis", with "when": 
 Prefer a listed skill when the lesson fits it.
 
 Answer with JSON only:
-{{"lessons": [{{"kind": "<kind>", "skill": "<name>", "when": "", "steps": ["<id>", "<id>"],
+{{"lessons": [{{"kind": "<kind>", "skill": "<name>", "when": "", "steps": ["w1.2", "w4.1"],
  "text": "<one sentence under {item_chars} characters>"}}]}}"""
 
 CONDENSE = """You keep the long-term memory of an AI agent. One memory page is full: rewrite it to free at least
@@ -170,9 +183,67 @@ Leave every other line as it is. Never merge lines of different sections, and ne
 
 Answer with JSON only:
 {{"merged": [{{"lines": ["<id>", "<id>"], "text": "<sentence>"}}], "dropped": ["<id>"]}}"""
+REST = """You keep the long-term memory of an AI agent. The user asked it to forget something, and each line below
+says some of what they asked to forget. For each line, write what is left of it once that is taken out: one
+self-contained sentence under {chars} characters that keeps every other value, name, negation and limit of the
+line in its words, and adds nothing. Write "" when the line says nothing else.
+
+Answer with JSON only:
+{{"rest": [{{"line": "<id>", "text": "<sentence, or empty>"}}]}}"""
+FOLDER = """You keep the skill folders of an AI agent that works for one user, session after session, in the same
+world. A skill folder holds how one kind of work is done, so that a later task of that kind runs the stored script,
+reads the stored table or fills the stored template instead of working it all out again: a SKILL.md with the steps,
+and beside it the files the work needs.
+
+You get one finished session: its trace, where each line has an id (u<n> a message from the user, a<n> a reply from
+the assistant, s<n> a tool call with the start of its result), what the user said in full, and the files the session
+wrote or ran, each with whether its last run worked.
+
+Write the folder:
+- "skill": the kind of work in 2 to 5 words, such as "Card statement reconciliation"; "when": one sentence on the
+  tasks it fits, naming the kind of input and request, never this task's values.
+- "steps": up to {max_steps} steps in order, each one sentence under {step_chars} characters, citing the line it
+  comes from in "step": which file to run with which arguments, what to read, which check settles the result.
+  "pitfalls": what went wrong or must be avoided, such as a correction the user gave or a quirk of the data.
+  "checks": what to check before answering. Name files by their names in this folder.
+- "files": up to {max_files} files the work needs:
+  - a script: a file listed under "Files the session wrote or ran" whose last run worked. Change only what ties it to
+    this one task: its input and output paths become command-line arguments, and the rules, limits and table the user
+    gave are read from a table file in this folder, found beside the script (Path(__file__).parent in Python), so
+    that a later change is one edit to the table. Keep the rest of its code as it was. "from" names the file it
+    comes from.
+  - a table: the lookup table, limits and rules the user gave, copied exactly, as CSV or JSON. "from": "told".
+  - a template: the wording the user gave for a document, copied exactly, with {{field}} placeholders for what
+    changes from task to task, as <name>.tmpl. "from": "told".
+  Never a file of this task's input data or its result, and no value only this task uses.
+  "name" is a short file name ending in one of {suffixes}; "about" says in one sentence what the file is for and,
+  for a script, how to run it (python <name> <arguments>); "content" is the whole file.
+{update}When the session shows no way of working that a later task would repeat, answer {{"skill": ""}}.
+
+Answer with JSON only:
+{{"skill": "<name>", "when": "<sentence>", "steps": [{{"step": "<id>", "text": "<sentence>"}}],
+ "pitfalls": [{{"step": "<id>", "text": "<sentence>"}}], "checks": [{{"step": "<id>", "text": "<sentence>"}}],
+ "retired": ["<id of a held line>"],
+ "files": [{{"name": "<file name>", "from": "<file name or told>", "about": "<sentence>", "content": "<text>"}}]}}"""
+
+FOLDER_UPDATE = """
+Memory already holds a folder for this kind of work, listed below. Change it only where this session shows it changed
+or was wrong: a rule, limit or table row the user changed, or a script the session fixed. Give in "files" only the
+files you change, each whole, with every line you do not change kept exactly as it is, and "from" the held file's
+name; a new file is allowed when the work now needs it. Give in "steps", "pitfalls" and "checks" only lines memory
+does not hold yet, and in "retired" the ids of held lines that no longer hold. Keep "skill" and "when" as held.
+Answer with no files and no lines when nothing changed.
+"""
+MAX_FOLDER_STEPS = 6
+MAX_FOLDER_LINES = 4
+MAX_DRAFT_FILES = 4
+STEP_CHARS = 200
+FOLDER_TRACE_CHARS = 30_000
+FOLDER_FILES_CHARS = 48_000
+_FILE_NAME_OK = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,60}")
+TOLD = "told"
 MERGED_CHARS = 2 * ITEM_CHARS
 TOPIC_CHARS = 40
-CONDENSE_EFFORT = "low"
 SKILL_NAME_CHARS = 60
 
 _VALUE = re.compile(
@@ -279,11 +350,52 @@ class Learned:
 
 
 @dataclass
+class Dropped:
+    # A drafted lesson `learn` turned down before the gate, and why.
+    reason: str
+    text: str
+    pointer: str
+
+
+@dataclass
 class Skill:
     # A skill memory holds, as the lessons writer sees it.
     name: str
     when: str
     lines: list[str]
+
+
+@dataclass
+class FolderFile:
+    name: str
+    origin: str
+    about: str
+    content: str
+
+
+@dataclass
+class FolderLine:
+    kind: str
+    pointer: str
+    text: str
+
+
+@dataclass
+class HeldFolder:
+    # A skill folder memory holds: its page's lines by id, and its files.
+    name: str
+    when: str
+    lines: dict[str, str]
+    files: dict[str, str]
+
+
+@dataclass
+class FolderDraft:
+    skill: str
+    when: str
+    lines: list[FolderLine]
+    files: list[FolderFile]
+    retired: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -306,6 +418,10 @@ class Writer:
         self.name = endpoint.ref
         self._transport = transport
         self.usage = Usage()
+        # An OpenAI-compatible endpoint is sent an effort only on its profile's word: some refuse the field.
+        profile = load_profile(endpoint.ref)
+        self._efforts = effort_levels((), profile)
+        self._thinking_off = profile.thinking_off
 
     async def complete(self, system: str, user: str, session: str = "", effort: str = "") -> str:
         key = await self.endpoint.authorization()
@@ -318,8 +434,11 @@ class Writer:
         if self.endpoint.provider == "vllm":
             # Qwen thinks by default; notes need no reasoning trace and come back much faster without it.
             payload["chat_template_kwargs"] = {"enable_thinking": False}
-        elif effort:
-            # An open-ended rewrite can think until the output limit and return no answer at all.
+        elif effort and self._thinking_off is not None:
+            # Where the profile says how, a write is sent with reasoning off: at low effort DeepSeek V4.1 Flash
+            # still reasons ten to twenty thousand tokens over a note it writes as well without.
+            payload.update(self._thinking_off)
+        elif effort in self._efforts:
             payload["reasoning_effort"] = effort
         url = f"{self.endpoint.base_url}/chat/completions"
         async with httpx.AsyncClient(timeout=TIMEOUT_S, transport=self._transport) as client:
@@ -395,16 +514,18 @@ def lines(ex: Extract) -> dict[str, Line]:
     return found
 
 
-def trace(ex: Extract, outcome: str) -> str:
+def trace(ex: Extract, outcome: str, ids: bool = False) -> str:
+    # With ids, each line carries its journal entry id (`@<entry>`), which a page line's [source: evt#...] names.
     rows: list[tuple[int, str]] = []
     for line in lines(ex).values():
+        at = f"@{line.pointer.rsplit(':', 1)[-1]} " if ids and ":" in line.pointer else ""
         if line.ident.startswith("s"):
             step = ex.steps[int(line.ident[1:])]
             status = "ok" if step.ok else "error"
-            rows.append((line.order, f"{line.ident} [{status}] $ {step.call}\n    -> {step.result}"))
+            rows.append((line.order, f"{line.ident} [{status}] {at}$ {step.call}\n    -> {step.result}"))
         else:
             who = "user" if line.source == "user" else "assistant"
-            rows.append((line.order, f"{line.ident} [{who}, {line.said}] {line.text}"))
+            rows.append((line.order, f"{line.ident} [{who}, {line.said}] {at}{line.text}"))
     rows.sort(key=lambda row: row[0])
     head = [f"Session date: {ex.date}", f"Outcome (judged): {outcome}"]
     if not ex.turns:
@@ -622,7 +743,7 @@ async def draft(
     # The writer now and then answers with JSON that does not parse; asked again, it answers well.
     raw, answer = "", None
     for _ in range(DRAFT_ATTEMPTS):
-        raw = await writer.complete(system, user, ex.session_id)
+        raw = await writer.complete(system, user, ex.session_id, effort=EFFORT)
         if (answer := _items_json(raw)) is not None:
             break
     if answer is None:
@@ -673,49 +794,71 @@ async def draft(
     return Story(title=title if fits else "", lines=story, work=work), items, rejected
 
 
-async def learn(writer: Writer | ReplayWriter, sessions: list[Past], skills: list[Skill], key: str) -> list[Learned]:
+async def learn(
+    writer: Writer | ReplayWriter, sessions: list[Past], skills: list[Skill], key: str
+) -> tuple[list[Learned], list[Dropped]]:
     # Lessons across sessions: each one must cite story lines of at least two different sessions.
     if len(sessions) < MIN_LESSON_SESSIONS:
-        return []
-    by_id: dict[str, tuple[str, Draft]] = {}
+        return [], []
+    # A step is a line id (`w3.2`) or a session id (`w3`), which cites every line of that session's story.
+    by_id: dict[str, list[tuple[str, Draft]]] = {}
     outcomes = {past.session: past.outcome for past in sessions}
     parts: list[str] = []
     for i, past in enumerate(sessions, 1):
         parts.append(f"w{i} [{past.outcome}] {past.title}")
+        by_id[f"w{i}"] = [(past.session, line) for line in past.lines]
         for j, line in enumerate(past.lines, 1):
-            by_id[f"w{i}.{j}"] = (past.session, line)
+            by_id[f"w{i}.{j}"] = [(past.session, line)]
             parts.append(f"  w{i}.{j} {line.text}")
     held = [f"- {s.name}: {s.when}" + "".join(f"\n    - {line}" for line in s.lines) for s in skills]
     system = LESSONS.format(max_lessons=MAX_LESSONS, item_chars=ITEM_CHARS)
     user = f"Skills already in memory:\n{chr(10).join(held) or '(none yet)'}\n\nSessions:\n" + "\n".join(parts)
     names = {s.name.lower(): s.name for s in skills}
-    raw = await writer.complete(system, user, key)
+    raw = await writer.complete(system, user, key, effort=EFFORT)
     try:
         found = json.loads(_FENCE.sub("", raw.strip()))["lessons"]
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         raise ValueError(f"the writer did not answer with lessons JSON: {raw[:200]!r}") from e
     learned: list[Learned] = []
+    dropped: list[Dropped] = []
     for raw_lesson in found[:MAX_LESSONS] if isinstance(found, list) else []:
         if not isinstance(raw_lesson, dict):
             continue
         kind = str(raw_lesson.get("kind", "")).strip().lower()
         text = _text(raw_lesson.get("text"), ITEM_CHARS)
-        cited = [by_id[s] for s in dict.fromkeys(str(s).strip() for s in raw_lesson.get("steps") or []) if s in by_id]
+        steps = dict.fromkeys(str(s).strip() for s in raw_lesson.get("steps") or [])
+        cited = list({(d.pointer, d.text): (sid, d) for s in steps for sid, d in by_id.get(s, [])}.values())
         sessions_cited = list(dict.fromkeys(sid for sid, _ in cited))
-        if kind not in LESSON_KINDS or not text or len(sessions_cited) < MIN_LESSON_SESSIONS or INJECTION.search(text):
-            continue
-        # A way of working to follow needs a session it worked in; one nothing confirmed only shows what to avoid.
-        if kind != "fails" and not any(outcomes.get(sid) == SUCCEEDED for sid in sessions_cited):
-            continue
+        pointer = cited[-1][1].pointer if cited else ""
         skill = _text(raw_lesson.get("skill"), SKILL_NAME_CHARS)
         when = _text(raw_lesson.get("when"), ITEM_CHARS)
         skill = names.get(skill.lower(), skill)
-        # A new skill needs a name and a sentence on when it fits; a listed one has both already.
-        if not skill or (skill.lower() not in names and not when) or INJECTION.search(f"{skill} {when}"):
+        if INJECTION.search(f"{text} {skill} {when}"):
+            dropped.append(Dropped("it matched a prompt-injection pattern", "", pointer))
+        elif not text:
             continue
-        succeeded = sum(outcomes.get(sid) == SUCCEEDED for sid in sessions_cited)
-        learned.append(Learned(kind, text, [d.pointer for _, d in cited], sessions_cited, skill, when, succeeded))
-    return learned
+        elif kind not in LESSON_KINDS:
+            dropped.append(Dropped(f"its kind {kind!r} is not one of {', '.join(LESSON_KINDS)}", text, pointer))
+        elif len(sessions_cited) < MIN_LESSON_SESSIONS:
+            unknown = [s for s in steps if s not in by_id]
+            dropped.append(
+                Dropped(
+                    f"it cites {len(sessions_cited)} session(s), not {MIN_LESSON_SESSIONS}"
+                    + (f"; unknown steps: {', '.join(unknown)[:120]}" if unknown else ""),
+                    text,
+                    pointer,
+                )
+            )
+        # A way of working to follow needs a session it worked in; one nothing confirmed only shows what to avoid.
+        elif kind != "fails" and not any(outcomes.get(sid) == SUCCEEDED for sid in sessions_cited):
+            dropped.append(Dropped(f"a {kind} lesson cites no succeeded session", text, pointer))
+        # A new skill needs a name and a sentence on when it fits; a listed one has both already.
+        elif not skill or (skill.lower() not in names and not when):
+            dropped.append(Dropped("it names no skill, or a new skill with no when", text, pointer))
+        else:
+            succeeded = sum(outcomes.get(sid) == SUCCEEDED for sid in sessions_cited)
+            learned.append(Learned(kind, text, [d.pointer for _, d in cited], sessions_cited, skill, when, succeeded))
+    return learned, dropped
 
 
 async def condense(
@@ -727,7 +870,7 @@ async def condense(
         f"{name}:\n" + "\n".join(f"{ident}. {text}" for ident, text in lines) for name, lines in sections.items()
     )
     system = CONDENSE.format(need=need, merged_chars=MERGED_CHARS)
-    raw = await writer.complete(system, f"Page lines:\n\n{listed}", key, effort=CONDENSE_EFFORT)
+    raw = await writer.complete(system, f"Page lines:\n\n{listed}", key, effort=EFFORT)
     try:
         answer = json.loads(_FENCE.sub("", raw.strip()))
     except json.JSONDecodeError as e:
@@ -750,3 +893,104 @@ async def condense(
     named = dict.fromkeys(str(x).strip() for x in answer.get("dropped") or [])
     dropped = [i for i in named if i in section_of and i not in used]
     return merges, dropped
+
+
+async def rest(writer: Writer | ReplayWriter, asked: str, texts: list[str], key: str) -> list[str]:
+    # What is left of each line without what the user asked to forget; empty where nothing is.
+    listed = "\n".join(f"l{i}. {text}" for i, text in enumerate(texts))
+    system = REST.format(chars=MERGED_CHARS)
+    raw = await writer.complete(system, f"{asked}\n\nLines:\n{listed}", key, effort=EFFORT)
+    try:
+        answer = json.loads(_FENCE.sub("", raw.strip()))
+    except json.JSONDecodeError as e:
+        raise ValueError(f"the writer did not answer with rest JSON: {raw[:200]!r}") from e
+    found = [""] * len(texts)
+    for item in (answer.get("rest") or []) if isinstance(answer, dict) else []:
+        if not isinstance(item, dict):
+            continue
+        ident = re.fullmatch(r"l(\d+)", str(item.get("line", "")).strip())
+        text = _text(item.get("text"), MERGED_CHARS)
+        if ident and int(ident[1]) < len(texts) and text and not INJECTION.search(text):
+            found[int(ident[1])] = text
+    return found
+
+
+def _held_folder(held: HeldFolder) -> str:
+    lines = "\n".join(f"  {ident}. {text}" for ident, text in held.lines.items()) or "  (none)"
+    files = "\n\n".join(f"--- {name} ---\n{content}" for name, content in held.files.items()) or "(none)"
+    return f"Held folder: {held.name}: {held.when}\nHeld lines:\n{lines}\nHeld files:\n{files}"
+
+
+def _collected(collected: Collected) -> str:
+    said = "\n\n".join(f"[{s.pointer.rsplit(':', 1)[-1]}] {s.text}" for s in collected.said) or "(nothing)"
+    shown: list[str] = []
+    size = 0
+    for a in collected.artifacts:
+        status = "last run worked" if a.ran and a.ok else ("last run failed" if a.ran else "not run")
+        text = f"--- {a.name} ({a.path or 'run inline'}; {status}) ---\n{a.content}"
+        size += len(text)
+        if size > FOLDER_FILES_CHARS:
+            break
+        shown.append(text)
+    return f"What the user said:\n{said}\n\nFiles the session wrote or ran:\n" + ("\n\n".join(shown) or "(none)")
+
+
+async def fold(
+    writer: Writer | ReplayWriter, ex: Extract, outcome: str, collected: Collected, held: HeldFolder | None, key: str
+) -> FolderDraft | None:
+    # For a folder memory holds, the writer gives only what changed.
+    system = FOLDER.format(
+        max_steps=MAX_FOLDER_STEPS,
+        step_chars=STEP_CHARS,
+        max_files=MAX_DRAFT_FILES,
+        suffixes=", ".join(FOLDER_SUFFIXES),
+        update=FOLDER_UPDATE if held is not None else "",
+    )
+    session = trace(ex, outcome)
+    if len(session) > FOLDER_TRACE_CHARS:
+        half = FOLDER_TRACE_CHARS // 2
+        session = f"{session[:half]}\n[...]\n{session[-half:]}"
+    user = f"{session}\n\n{_collected(collected)}" + (f"\n\n{_held_folder(held)}" if held is not None else "")
+    raw = await writer.complete(system, user, key, effort=EFFORT)
+    try:
+        answer = json.loads(_FENCE.sub("", raw.strip()))
+    except json.JSONDecodeError as e:
+        raise ValueError(f"the writer did not answer with folder JSON: {raw[:200]!r}") from e
+    if not isinstance(answer, dict):
+        return None
+    skill = held.name if held is not None else _text(answer.get("skill"), SKILL_NAME_CHARS)
+    when = held.when if held is not None else _text(answer.get("when"), ITEM_CHARS)
+    if not skill or not when or INJECTION.search(f"{skill} {when}"):
+        return None
+    by_id = lines(ex)
+    found: list[FolderLine] = []
+    for kind, most in (("steps", MAX_FOLDER_STEPS), ("pitfalls", MAX_FOLDER_LINES), ("checks", MAX_FOLDER_LINES)):
+        for raw_line in (answer.get(kind) or [])[:most] if isinstance(answer.get(kind), list) else []:
+            if not isinstance(raw_line, dict):
+                continue
+            line = by_id.get(str(raw_line.get("step", "")).strip())
+            text = _text(raw_line.get("text"), STEP_CHARS)
+            if line is not None and text and not INJECTION.search(text):
+                found.append(FolderLine(kind, line.pointer, text))
+    files: list[FolderFile] = []
+    for raw_file in (answer.get("files") or [])[:MAX_DRAFT_FILES] if isinstance(answer.get("files"), list) else []:
+        if not isinstance(raw_file, dict):
+            continue
+        name = str(raw_file.get("name", "")).strip()
+        content = raw_file.get("content")
+        about = _text(raw_file.get("about"), ITEM_CHARS)
+        if (
+            not _FILE_NAME_OK.fullmatch(name)
+            or not name.endswith(FOLDER_SUFFIXES)
+            or not isinstance(content, str)
+            or not content.strip()
+            or len(content) > MAX_FOLDER_FILE_CHARS
+            or not about
+            or INJECTION.search(f"{about}\n{content}")
+            or any(f.name == name for f in files)
+        ):
+            continue
+        origin = _text(raw_file.get("from"), ALIAS_CHARS) or TOLD
+        files.append(FolderFile(name, origin, about, content if content.endswith("\n") else f"{content}\n"))
+    retired = [str(r).strip() for r in answer.get("retired") or [] if held is not None and str(r).strip() in held.lines]
+    return FolderDraft(skill, when, found, files, retired)
