@@ -416,7 +416,7 @@ class Bootstrap:
         self.home = home_dir(self.env)
         self.config = load_user_config(self.home)
         self.store, self.store_failures = read_store(
-            self.config.secrets, self.env, cwd=self.home if self.home.is_dir() else None
+            self.config.secrets, self.env, cwd=self.home if self.home.is_dir() else None, home=self.home
         )
         """The `[secrets]` values, read once per process; they also sit in `env`, over an exported variable of the
         same name. An entry that could not be read is in `store_failures`, and each session reports it."""

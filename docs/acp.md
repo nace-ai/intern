@@ -1722,3 +1722,13 @@ your next message runs on your keys with …"), where before it showed the conso
 `run_end` gains an optional `error`, the console's `code`, `meter` and `next`, as the prompt's
 [`provider_error`](#stop-reasons-and-errors) `data` already carries them. Nothing changes on ACP: 0.57.1 clients keep
 working.
+
+### 0.57.3
+
+Each config home has its own keychain items. `~/.intern` keeps service `intern`, so its keys and free-credit sign-in
+stay where they are and nobody signs in again. Any other `INTERN_HOME` uses service `intern-<hash of its path>`,
+where before every home shared `intern`: a test or second home no longer overwrites the user's keys with
+`intern secrets set`, and two homes no longer share, rotate or sign out of one free-credit refresh token. A client
+that runs the harness with its own `INTERN_HOME` and stored keychain entries before this release finds them
+`missing` in `intern secrets test --json` and stores them again (`intern secrets set`), and signs in to the free
+credit again (`intern free start`). Clients on the default home see no change: 0.57.2 clients keep working.

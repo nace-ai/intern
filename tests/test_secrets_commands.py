@@ -14,12 +14,18 @@ from intern.secrets_commands import secrets_main
 FAKE_SECURITY = r"""#!/bin/sh
 store="$FAKE_KEYCHAIN"
 case "$1" in
-  -i) read line; set -- $line; printf "%s" "$8" > "$store/$6" ;;
-  find-generic-password) [ -f "$store/$5" ] || exit 44
-    python3 -c "import sys; print(bytes.fromhex(open(sys.argv[1]).read()).decode())" "$store/$5" ;;
-  delete-generic-password) [ -f "$store/$5" ] || exit 44; rm "$store/$5" ;;
+  -i) read line; set -- $line; mkdir -p "$store/$4"; printf "%s" "$8" > "$store/$4/$6" ;;
+  find-generic-password) [ -f "$store/$3/$5" ] || exit 44
+    python3 -c "import sys; print(bytes.fromhex(open(sys.argv[1]).read()).decode())" "$store/$3/$5" ;;
+  delete-generic-password) [ -f "$store/$3/$5" ] || exit 44; rm "$store/$3/$5" ;;
 esac
 """
+"""`security` keeping each item as a file `<service>/<account>` under `$FAKE_KEYCHAIN`, its value in hex."""
+
+
+def items(keychain: Path) -> list[str]:
+    """The accounts of every item in a fake keychain, whatever their service."""
+    return sorted(path.name for path in keychain.rglob("*") if path.is_file())
 
 
 @pytest.fixture
@@ -66,7 +72,30 @@ def test_set_list_test_remove_round_trip_keeps_the_config_file_as_written(mac, m
 
     code, out = run(["remove", "GITHUB_TOKEN", "--json"], mac, monkeypatch, capsys)
     assert code == 0 and "GITHUB_TOKEN" not in (home / "config.toml").read_text()
-    assert not list(Path(mac["FAKE_KEYCHAIN"]).iterdir())
+    assert items(Path(mac["FAKE_KEYCHAIN"])) == []
+
+
+def test_a_key_set_and_removed_in_another_home_leaves_the_default_homes_key_as_an_older_intern_stored_it(
+    mac, monkeypatch, capsys, tmp_path
+):
+    monkeypatch.setenv("HOME", str(tmp_path / "user"))  # where `~/.intern`, the default home, is in this test
+    default_home = tmp_path / "user" / ".intern"
+    default_home.mkdir(parents=True)
+    (default_home / "config.toml").write_text('[secrets]\nOPENAI_API_KEY = "keychain"\n')
+    stored = Path(mac["FAKE_KEYCHAIN"]) / "intern" / "OPENAI_API_KEY"  # as every release before scoping kept it
+    stored.parent.mkdir()
+    stored.write_text(b"sk-users-own-fake-key".hex())
+    default = {name: value for name, value in mac.items() if name != "INTERN_HOME"}
+    named = {**mac, "INTERN_HOME": str(default_home)}  # the default home, named
+
+    def key(env: dict[str, str]) -> str | None:
+        return Bootstrap(Options(cwd=tmp_path), env).env.get("OPENAI_API_KEY")
+
+    run(["set", "OPENAI_API_KEY", "--stdin"], mac, monkeypatch, capsys, "sk-test-home-fake-key")
+    assert key(mac) == "sk-test-home-fake-key"
+    assert key(default) == key(named) == "sk-users-own-fake-key"
+    run(["remove", "OPENAI_API_KEY"], mac, monkeypatch, capsys)
+    assert key(default) == "sk-users-own-fake-key"
 
 
 def test_set_refuses_what_the_store_cannot_keep_and_says_why(mac, monkeypatch, capsys):
