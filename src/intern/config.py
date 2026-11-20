@@ -484,6 +484,26 @@ class Bootstrap:
             await session.set_handoff(None, handoff)
         return True
 
+    async def _to_free(self, session: Session, system: System) -> bool:
+        """Move `system` of `session` back to the free credit's bundle at the start of a run; whether it could."""
+        bundle = session.free.bundle if session.free is not None else None
+        if bundle is None:
+            return False
+        try:
+            if system == "system1":
+                await session.set_model(bundle.system1, "system1", rebind=True)
+                return True
+            await session.set_model(bundle.system2, rebind=True)
+        except ConfigError:
+            return False
+        tuning = bundle.handoff_tuning.model_dump() if bundle.handoff_tuning else {}
+        handoff = HandoffConfig(to=bundle.handoff, **tuning)
+        try:
+            await session.set_handoff(bundle.handoff, handoff, rebind=True)
+        except ConfigError:
+            await session.set_handoff(None, handoff, rebind=True)
+        return True
+
     async def bind(self, ref: str) -> ModelBinding:
         return await self._bind(ref, None)
 
@@ -795,7 +815,13 @@ class Bootstrap:
         capabilities = self.capability_settings()
         plan = await self.free_plan()
         bundle = plan.bundle
-        free = FreeSession(plan, plan.sources(), switch=self._to_own, next_system2=lambda: self._next_system2(bundle))
+        free = FreeSession(
+            plan,
+            plan.sources(),
+            switch=self._to_own,
+            back=self._to_free,
+            next_system2=lambda: self._next_system2(bundle),
+        )
         in_use = plan.use is True and plan.credential is not None
         if in_use:
             emit = free.watching(emit)
@@ -852,6 +878,7 @@ class Bootstrap:
         hooks = Hooks(extensions, emit)
 
         def resolve_system1(choice: str) -> DecisionBackend:
+            bundle = free.bundle
             on_free = bundle is not None and choice == bundle.system1 and free.on_free("system1")
             if on_free and bundle is not None and plan.credential is not None:
                 model = bundle.system1
@@ -860,6 +887,7 @@ class Bootstrap:
             return self.system1_backend(choice)
 
         async def resolve_model(model: str) -> ModelBinding:
+            bundle = free.bundle
             on_free = bundle is not None and free.on_free("agent") and model in (bundle.system2, bundle.handoff)
             return await self.bind_free(model, bundle if on_free else None, free.refused)
 

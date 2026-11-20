@@ -395,8 +395,8 @@ class SecretUnavailable(_EventBase):
 
 
 class FreeNotice(_EventBase):
-    """Something the user should hear about the free credit, once a session: a system moved to their own keys
-    (`switch`), or a meter crossed 20% or 5% left (`low`)."""
+    """Something the user should hear about the free credit, once a session: a system moved to their own keys or back
+    to free credit (`switch`), or a meter crossed 20% or 5% left (`low`)."""
 
     type: Literal["free_notice"] = "free_notice"
     kind: Literal["switch", "low"]
