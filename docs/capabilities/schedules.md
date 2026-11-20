@@ -9,8 +9,8 @@ Intern has no scheduler of its own that keeps running when it is closed. Use the
 | Nothing open | Your OS scheduler (launchd, systemd) runs `intern -p` | you are logged in |
 | The terminal UI | A one-off wait, or timers (`/caps schedule`): ask the agent | the session is open |
 
-Words used here: **System 2** is the model that does the work (`--system2`); **System 1** is the fast model that
-watches it. A **headless** run (`intern -p`) does one task with no terminal UI and exits.
+Words used here: the **frontier model** does the work (`--system2`); the **decision model** watches it
+(`--system1`). A **headless** run (`intern -p`) does one task with no terminal UI and exits.
 
 ## In the desktop app
 

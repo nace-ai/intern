@@ -24,15 +24,15 @@ settling an unknown, changed or already settled ticket is an explicit error. Inv
 provider usage becomes an unknown-usage call rather than poisoning the ledger.
 An expired budget deadline stops the fallback chain. A backend's own transport
 timeout remains a recoverable transport failure; it is not relabelled as a budget
-deadline. System 2 reports it through a retryable `ProviderError`, while System 1
+deadline. Your models' providers report it through a retryable `ProviderError`, while the decision model
 retains the `TimeoutError` category with a sanitized diagnostic for the explicitly
 configured recovery types.
 
-System 1 already has model-list fallback through `System1Config.fallback_models` and
+The decision model already has model-list fallback through `System1Config.fallback_models` and
 `DecisionsApiBackend`. That existing API remains unchanged. The optional
 `FallbackDecisionBackend` additionally composes different typed `DecisionBackend`s
 (including native Decisions API instances), and `BudgetDecisionBackend` shares the
-same call/cost/deadline ledger with System 2:
+same call/cost/deadline ledger with your models (`system2` in code):
 
 ```python
 from pydantic import SecretStr
@@ -52,10 +52,10 @@ session.deps.decisions.backend = FallbackDecisionBackend(
 session.deps.system2.provider = BudgetProvider(session.deps.system2.provider, budget)
 ```
 
-Wrap individual System 2 fallback targets with `BudgetProvider` when each target
+Wrap the frontier model's individual fallback targets with `BudgetProvider` when each target
 should consume a separate call. Avoid wrapping the same dispatch twice. These are
 logical backend dispatches; backend-internal retries and batched HTTP requests
-retain their existing semantics. No new HTTP client or System 1 decision path is
+retain their existing semantics. No new HTTP client or decision-model path is
 introduced: extensions still call `ctx.decisions.ask()`.
 
 The decision adapter's recoverable exception types are explicit. Its defaults include
@@ -66,10 +66,10 @@ nonfinite/negative cost stops the outer chain. Native internal model lists and r
 still run inside one backend dispatch. Use one model per native backend when the
 shared ledger must count each configured fallback target separately.
 
-System 1's `Answers` reports cost but no token usage. These successful calls increment
+The decision model's `Answers` reports cost but no token usage. These successful calls increment
 `unknown_output_calls`; token counts are not fabricated. A shared budget with an
 output-token cap refuses such calls before dispatch. Use a shared call/cost/deadline
-budget and a separate System 2 token budget when both are needed. In-flight cost-only
+budget and a separate token budget for your models when both are needed. In-flight cost-only
 calls also prevent snapshots; cancellation settles them as unknown usage. A shared
 ledger is an aggregate view, not an additional charge: do not add its cost again to
 the individual provider/DecisionClient costs. Changing models/clients later requires

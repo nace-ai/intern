@@ -65,7 +65,7 @@ async def to_consent(app: HarnessApp, pilot) -> OnboardingScreen:
     await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
     screen = app.screen
     assert isinstance(screen, OnboardingScreen)
-    await pilot.press("enter")  # welcome
+    await pilot.press("enter", "enter")  # welcome; the theme on screen
     assert screen.step == "how"
     await wait_for(lambda: screen.free is not None)
     assert screen.choices[0].id == "free"  # first, recommended
@@ -153,7 +153,7 @@ async def test_start_free_is_not_offered_while_the_trial_takes_no_sign_ins_or_se
         await wait_for(lambda: isinstance(app.screen, OnboardingScreen))
         screen = app.screen
         assert isinstance(screen, OnboardingScreen)
-        await pilot.press("enter")
+        await pilot.press("enter", "enter")  # welcome; the theme on screen
         await wait_for(lambda: screen.free is not None)
         await pilot.pause()
         assert [choice.id for choice in screen.choices] == ["own"]

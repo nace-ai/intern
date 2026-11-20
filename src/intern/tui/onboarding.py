@@ -83,11 +83,25 @@ from intern.onboarding import (
 )
 from intern.secret_store import MIN_SECRET_CHARS
 from intern.tui.pickers import Choice, fit, ranked
-from intern.tui.theme import BRAND, S_HEAD, S_INK, S_MUTED, S_MUTED_ITALIC, S_OK, S_OK_BOLD, S_WARN
+from intern.tui.theme import (
+    BRAND,
+    S_HEAD,
+    S_INK,
+    S_MUTED,
+    S_MUTED_ITALIC,
+    S_OK,
+    S_OK_BOLD,
+    S_WARN,
+    THEMES,
+    active_theme,
+    apply_theme,
+    save_theme,
+)
 from intern.tui.welcome import Mascot, wordmark
 
 Step = Literal[
     "welcome",
+    "theme",
     "how",
     "consent",
     "free-sign-in",
@@ -109,12 +123,14 @@ Way = Literal["free", "own"]
 Stages = tuple[tuple[str, tuple[Step, ...]], ...]
 FREE_STAGES: Stages = (
     ("Welcome", ("welcome",)),
+    ("Theme", ("theme",)),
     ("How to run", ("how",)),
     ("Sign in", ("consent", "free-sign-in", "refused")),
     ("Ready", ("free-done",)),
 )
 OWN_STAGES: Stages = (
     ("Welcome", ("welcome",)),
+    ("Theme", ("theme",)),
     ("How to run", ("how",)),
     ("Frontier", ("frontier",)),
     ("Efficient", ("efficient",)),
@@ -126,6 +142,7 @@ the steps that connect a provider (`CONNECTING`) are in their role's stage."""
 CONNECTING: tuple[Step, ...] = ("provider", "unavailable", "address", "key")
 """The steps that connect a provider, for the frontier model or the efficient one (`OnboardingScreen.role`)."""
 LISTING: tuple[Step, ...] = (
+    "theme",
     "how",
     "refused",
     "provider",
@@ -134,7 +151,7 @@ LISTING: tuple[Step, ...] = (
     "decision",
     "decision-model",
 )
-UNFILTERED: tuple[Step, ...] = ("how", "refused")
+UNFILTERED: tuple[Step, ...] = ("theme", "how", "refused")
 """Listing steps whose rows run to more lines, too short to filter: the list has the focus."""
 FILTERED: tuple[Step, ...] = ("provider", "frontier", "efficient", "decision-model")
 """Listing steps long enough to filter by typing; the rest are a few rows, picked with the arrows."""
@@ -290,6 +307,8 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         self.saved: Onboarded | None = None
         self.busy = False
         self._sign_in: OpenRouterSignIn | None = None
+        self.theme_before: str | None = None
+        """The theme on screen when the theme step opened, put back if setup goes back past it."""
 
     # -- layout ------------------------------------------------------------------------------------------------
 
@@ -373,7 +392,8 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         started at the decision model goes on to the efficient model."""
         stages = FREE_STAGES if self.way == "free" else OWN_STAGES
         if self.way == "own" and self.from_decision:
-            stages = (OWN_STAGES[4], OWN_STAGES[3], OWN_STAGES[5])
+            by_name = dict(OWN_STAGES)
+            stages = tuple((name, by_name[name]) for name in ("Decision", "Efficient", "Ready"))
         step: Step = self.role if self.way == "own" and self.step in CONNECTING else self.step
         at = next(i for i, (_, steps) in enumerate(stages) if step in steps)
         parts: list[tuple[str, str] | str] = []
@@ -416,6 +436,14 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             )
         )
         return "", Content("")
+
+    def _theme(self) -> tuple[str, Content]:
+        if self.theme_before is None:
+            self.theme_before = active_theme(self.app)
+        self.choices = [Choice(t.id, t.name, "Themes", note=t.blurb) for t in THEMES]
+        return "Pick a theme", Content.styled(
+            "Move through the list to see each one. /theme changes it any time.", S_INK
+        )
 
     def _how(self) -> tuple[str, Content]:
         blocked = free_blocked(self.free)
@@ -684,6 +712,13 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             none = "nothing listed matches; Enter uses what you typed" if typed else "nothing listed matches"
             options.add_option(Option(Content.styled(none, S_MUTED), disabled=True))
         options.highlighted = first
+        if self.step == "theme" and not query:
+            options.highlighted = options.get_option_index(active_theme(self.app))
+
+    @on(OptionList.OptionHighlighted, "#setup-options")
+    def _on_highlight(self, message: OptionList.OptionHighlighted) -> None:
+        if self.step == "theme" and message.option.id is not None:
+            apply_theme(self.app, message.option.id)  # a preview: kept only when picked
 
     @on(Input.Changed, "#setup-filter")
     def _on_filter(self, message: Input.Changed) -> None:
@@ -744,6 +779,9 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             return
         if self.step in ("done", "free-done"):
             return  # already saved, or signed in: Enter goes on
+        if self.step == "theme" and self.theme_before is not None:
+            apply_theme(self.app, self.theme_before)
+            self.theme_before = None
         self.step, self.role = self.trail.pop()
         if self.step == "how":
             self.way = "free" if not free_blocked(self.free) else "own"
@@ -764,7 +802,7 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         if event.key == "enter" and self.step in ("welcome", "done", "unavailable", "consent", "free-done"):
             event.stop()
             if self.step == "welcome":
-                self._go("how")
+                self._go("theme")
                 if self.free is None:
                     self._read_free()
             elif self.step == "unavailable":
@@ -835,6 +873,15 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
         if self.busy:
             return
         match self.step:
+            case "theme":
+                apply_theme(self.app, picked)
+                self.theme_before = None
+                status: Content | str = ""
+                try:
+                    save_theme(self.home, picked)
+                except (OSError, ValueError) as error:
+                    status = Content.styled(f"Theme set for now; could not save it ({error}).", S_WARN)
+                self._go("how", status)
             case "how":
                 if picked == FREE:
                     self._start_free()
