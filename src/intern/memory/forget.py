@@ -137,9 +137,10 @@ def cut(line: str, spots: list[Spot], marker: str = "") -> str | None:
     # line goes or nothing of it is left.
     if any(not s.part for s in spots):
         return None
-    for s in spots:
+    # A longer part may hold a shorter one, which cut first would leave the rest of the longer one.
+    for s in sorted(spots, key=lambda s: -len(s.part)):
         line = _without(line, s.part, s.kept or marker)
-    rest = (line if marker else body(line)).replace(MARKER, "")
+    rest = (line if marker else body(line)).replace(MARKER, "").strip() + " "
     rest = rest[len(m[0]) :] if (m := _HEAD.match(rest)) else rest
     return line if _CONTENT.search(rest) else None
 
