@@ -25,7 +25,7 @@ from intern.events import (
     StateWriting,
     ToolCallEnd,
 )
-from intern.journal import CompactionEntry, Journal, MessageEntry, ObservationEntry
+from intern.journal import CompactionEntry, Journal, MessageEntry, ObservationEntry, StateEntry
 from intern.loop import RunControl
 from intern.messages import (
     AssistantMessage,
@@ -1107,6 +1107,79 @@ async def test_abort_stops_a_run_waiting_on_its_compactions_state_write(make_har
     assert outcome.reason == "aborted"
     assert len(harness.recorder.of(StateWriting)) == 1
     assert "state:done" not in harness.provider.order  # type: ignore[attr-defined]
+
+
+class Stuck:
+    """A System 1 ask, a compaction hook or a tool-result hook that never answers; `entered` is set when one waits."""
+
+    name = "stuck"
+
+    def __init__(self) -> None:
+        self.entered = asyncio.Event()
+
+    async def wait(self) -> None:
+        self.entered.set()
+        await asyncio.Event().wait()
+
+    async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
+        await self.wait()
+        raise AssertionError("unreachable")
+
+
+class StuckHooks(h.Extension):
+    name = "stuck-hooks"
+
+    def __init__(self) -> None:
+        self.stuck = Stuck()
+
+    async def session_compact(self, proposal: h.CompactionProposal, ctx: h.RunContext):
+        await self.stuck.wait()
+
+    async def tool_result(self, call: ToolCall, result: ToolResult, ctx: h.RunContext):
+        await self.stuck.wait()
+
+
+@pytest.mark.parametrize("stage", ["keep", "hook"])
+async def test_abort_stops_a_compaction_waiting_on_system1_or_a_hook_and_nothing_is_cut(make_harness, stage):
+    # Stop during the ask which reads to keep, or during an extension's say, was not seen: the compaction waited for
+    # the answer and then cut the conversation anyway.
+    hooks = StuckHooks()
+    stuck = Stuck() if stage == "keep" else hooks.stuck
+    harness = make_harness(
+        [], window=8_192, system1=stuck if stage == "keep" else None, extensions=[hooks] if stage == "hook" else []
+    )
+    (harness.cwd / "notes.txt").write_text("source line\n" * 200)
+    journal = harness.deps.journal
+    journal.append(MessageEntry(message=UserMessage(content="Read the file.")))
+    for i in range(12):
+        call = ToolCall(id=f"r{i}", name="read", arguments={"path": "notes.txt"})
+        journal.append(MessageEntry(message=AssistantMessage(tool_calls=[call])))
+        result = ToolResult(call_id=call.id, tool_name="read", status="ok", content="source line\n" * 200)
+        journal.append(MessageEntry(message=ToolResultMessage(result=result)))
+    journal.append(StateEntry(text="## Plan\nContinue.", covers_through_id=journal.leaf_id or "", tokens_before=1))
+    session = Session(harness.deps)
+    try:
+        task = asyncio.create_task(session.compact())
+        await asyncio.wait_for(stuck.entered.wait(), 5)
+        session.abort()
+        assert await asyncio.wait_for(task, 5) == "stopped"
+        assert not any(isinstance(e, CompactionEntry) for e in journal.entries())
+    finally:
+        await session.aclose()
+
+
+async def test_abort_stops_a_run_waiting_on_a_tool_result_hook_and_the_unchecked_result_is_not_kept(make_harness):
+    hooks = StuckHooks()
+    harness = make_harness([Turn(tool_calls=[("bash", {"command": "echo UNCHECKED"})])], extensions=[hooks])
+    control = RunControl()
+    task = asyncio.create_task(harness.run(control=control))
+    await asyncio.wait_for(hooks.stuck.entered.wait(), 10)
+    control.abort.set()
+    outcome = await asyncio.wait_for(task, 5)
+    assert outcome.reason == "aborted"
+    result = next(m for m in history(harness) if isinstance(m, ToolResultMessage)).result
+    assert result.status == "error" and result.error is not None and result.error.kind == "stopped"
+    assert "UNCHECKED" not in result.content
 
 
 class Opinionated:
