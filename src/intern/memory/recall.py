@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from datetime import date
 
 from intern.decisions import (
     Answer,
@@ -304,13 +305,22 @@ async def _maps(
     return kept("m", entries, MAX_MAPS), kept("s", skills, MAX_SKILLS), timed, 1
 
 
+def _month_distance(path: str, today: date) -> float:
+    found = _MONTH.fullmatch(path.rsplit("/", 1)[-1][:7])
+    return abs(int(found[1]) * 12 + int(found[2]) - (today.year * 12 + today.month)) if found else float("inf")
+
+
 def _timeline(drive: Drive, task: str) -> list[Page]:
-    # The months the task names, else the latest months.
+    # The months the task names, else this month and the months nearest it: future months already on the drive
+    # must not crowd out the month whose events are happening now.
     index = drive.index(TIMELINE_FOLDER)
-    months = [e.target for e in (index.entries if index else []) if not e.folder]
+    months = sorted(e.target for e in (index.entries if index else []) if not e.folder)
     named = {f"{y}-{m}" for y, m in _MONTH.findall(task)}
     named |= {f"{y}-{_MONTH_NAMES.index(m) + 1:02d}" for m, y in _MONTH_WORD.findall(task.lower())}
-    picked = [m for m in months if m.rsplit("/", 1)[-1][:7] in named] or sorted(months)[-MAX_TIMELINE:]
+    now = date.today()
+    picked = [m for m in months if m.rsplit("/", 1)[-1][:7] in named] or sorted(
+        months, key=lambda m: _month_distance(m, now)
+    )
     return [p for path in picked[:MAX_TIMELINE] if (p := drive.page(path)) is not None]
 
 
