@@ -8,6 +8,8 @@ import fnmatch
 import os
 import re
 import shutil
+import threading
+import time
 import weakref
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
@@ -39,7 +41,7 @@ SQL_ROWS = 50
 SQL_ERROR_CHARS = 1200
 #: What `sql` runs: queries (SELECT covers DESCRIBE and SHOW), and the statements that build the session's scratch
 #: tables and views; never COPY, SET, ATTACH, INSTALL or PRAGMA. A write can only reach the scratch database: the
-#: workspace's tables are attached read-only.
+#: workspace's tables are attached read-only. An EXPLAIN must be of a SELECT (EXPLAIN ANALYZE runs what it explains).
 QUERY_STATEMENTS = frozenset({"SELECT", "EXPLAIN"})
 SCRATCH_STATEMENTS = frozenset({"CREATE", "DROP", "INSERT", "UPDATE", "DELETE", "ALTER"})
 #: A CREATE that stores credentials (a persistent one is written to disk) is not scratch.
@@ -47,6 +49,11 @@ _SECRET = re.compile(r"^\s*create\s+(?:or\s+replace\s+)?(?:persistent\s+|tempora
 #: A query's result is kept as a table (res_1, res_2, ...) for later queries if it has at most this many rows; a
 #: larger one is not kept, rather than kept cut short, where a later query would count only part of it.
 KEEP_ROWS = 1_000_000
+#: How long a query waits for the workspace's tables while another session's index build has them open (DuckDB
+#: lets one process open the file while it is written), and how often it looks again. A build holds them while it
+#: loads spreadsheets and tables, seconds for most folders.
+TABLES_WAIT_S = 30.0
+TABLES_RETRY_S = 0.2
 #: Where, under the index's home, a session's sql spills what does not fit its memory: one folder per process.
 SPILL_DIR = "sql-tmp"
 #: A read of at most this many pages (by `pages=`) has its scanned pages OCR'd first (seconds a page).
@@ -71,6 +78,16 @@ class SqlArgs(BaseModel):
     timeout_s: int = Field(
         default=DEFAULT_TIMEOUT_S, ge=1, le=MAX_TIMEOUT_S, description="Seconds before the query is stopped."
     )
+
+
+class TablesBusy(Exception):
+    """Another process had the workspace's tables open for writing (an index build) for all of TABLES_WAIT_S."""
+
+
+BUSY = (
+    "the workspace's tables are being rebuilt by another session's index build",
+    "Nothing is wrong with the query: run it again in a moment.",
+)
 
 
 class Sql(Tool):
@@ -120,11 +137,11 @@ class Sql(Tool):
                 return await asyncio.wait_for(asyncio.shield(running), timeout_s)
             except asyncio.CancelledError:
                 # The run was aborted: stop the query too, or it would go on beside the next one on this session.
-                session.con.interrupt()
+                session.interrupt()
                 await asyncio.gather(running, return_exceptions=True)
                 raise
             except TimeoutError:
-                session.con.interrupt()  # the thread's query raises InterruptException and the thread ends
+                session.interrupt()  # the thread's query raises InterruptException and the thread ends
                 await asyncio.gather(running, return_exceptions=True)
                 return fail(
                     f"the query ran over {timeout_s}s and was stopped",
@@ -144,6 +161,8 @@ class Sql(Tool):
         tables = sorted(infos)
         try:
             result = await self.timed(session, lambda: session.run(args.query, args.limit, infos), args.timeout_s)
+        except TablesBusy:
+            return fail(*BUSY)
         except duckdb.Error as e:  # the query does not parse
             return _failed(e, tables)
         if isinstance(result, ToolOutput):
@@ -207,6 +226,8 @@ class SqlExport(Tool):
             return fail(f"{args.path} is an indexed document", "Write to a new file.", argument="path")
         try:
             written = await self.sql.timed(session, lambda: session.export(args.source, path), args.timeout_s)
+        except TablesBusy:
+            return fail(*BUSY)
         except duckdb.Error as e:
             return _failed(e, sorted(t.name for entry in index.files.values() for t in entry.tables))
         if isinstance(written, ToolOutput):
@@ -300,6 +321,12 @@ class SqlSession:
         self.con.execute("SET enable_external_access = false")
         self.con.execute("SET lock_configuration = true")
         self._closer = weakref.finalize(self, _close, self.con, self.spill)
+        self._stopped = threading.Event()
+
+    def interrupt(self) -> None:
+        """Stop the query that is running, or its wait for the workspace's tables."""
+        self._stopped.set()
+        self.con.interrupt()
 
     def run(
         self, query: str, limit: int, profiles: Mapping[str, TableInfo]
@@ -314,6 +341,9 @@ class SqlSession:
         refused = kinds - QUERY_STATEMENTS - SCRATCH_STATEMENTS
         if any(_SECRET.match(statement.query) for statement in statements):
             refused.add("CREATE SECRET")
+        for statement in statements:
+            if statement.type.name == "EXPLAIN" and not self._explains_a_query(statement.query):
+                refused.add("EXPLAIN of anything but a SELECT")
         if refused:
             return ", ".join(sorted(refused))
         shown: list[Shown] = []
@@ -345,13 +375,56 @@ class SqlSession:
             found = self.con.execute(f"COPY (SELECT * FROM ({body}\n)) TO {documents.literal(path)} {form}").fetchone()
         return int(found[0]) if found else 0
 
+    def _explains_a_query(self, statement: str) -> bool:
+        """Whether an EXPLAIN is of one SELECT. EXPLAIN ANALYZE runs what it explains, so `EXPLAIN ANALYZE COPY ... TO
+        'file'` writes the file: the statement inside is held to a query, whatever the EXPLAIN's own kind says. One
+        that cannot be told apart from its options is refused."""
+        import duckdb
+
+        raw = statement.encode()  # the tokens' positions are in bytes
+        tokens = [at for at, kind in duckdb.tokenize(statement) if kind != duckdb.token_type.comment]
+        heads = [raw[at : at + 7].lower() for at in tokens]
+        start = 2 if heads[1:2] == [b"analyze"] else 1
+        starts = [start]
+        if heads[start : start + 1] and heads[start][:1] == b"(":  # EXPLAIN (FORMAT json) SELECT, EXPLAIN (SELECT 1)
+            depth = 0
+            for at in range(start, len(heads)):
+                depth += (heads[at][:1] == b"(") - (heads[at][:1] == b")")
+                if depth == 0:
+                    starts.append(at + 1)
+                    break
+        for at in starts:
+            if at >= len(tokens):
+                continue
+            try:
+                inside = self.con.extract_statements(raw[tokens[at] :].decode())
+            except duckdb.Error:
+                continue
+            return [found.type.name for found in inside] == ["SELECT"]
+        return False
+
     @contextmanager
     def _attached(self) -> Iterator[None]:
         """The workspace's tables, attached read-only for one piece of work (an index build can rewrite them
-        between two), after the session's own in its search path."""
+        between two), after the session's own in its search path. While another session's build has them open, this
+        waits for it, up to TABLES_WAIT_S, and then raises TablesBusy."""
+        import duckdb
+
         from intern.extensions.workspace import documents
 
-        self.con.execute(f"ATTACH {documents.literal(self.home / documents.TABLES_DB)} AS workspace (READ_ONLY)")
+        self._stopped.clear()
+        deadline = time.monotonic() + TABLES_WAIT_S
+        while True:
+            try:
+                self.con.execute(
+                    f"ATTACH {documents.literal(self.home / documents.TABLES_DB)} AS workspace (READ_ONLY)"
+                )
+                break
+            except duckdb.IOException as e:
+                if "lock" not in str(e).lower():
+                    raise
+                if self._stopped.wait(TABLES_RETRY_S) or time.monotonic() >= deadline:
+                    raise TablesBusy from e
         try:
             self.con.execute("SET search_path = 'memory.main,workspace.main'")
             yield

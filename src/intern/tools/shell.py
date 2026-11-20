@@ -4,9 +4,11 @@ the one tool every task can use."""
 from __future__ import annotations
 
 import asyncio
+import codecs
 import contextlib
 import functools
 import hashlib
+import os
 import re
 import shlex
 from collections.abc import Awaitable, Callable
@@ -44,6 +46,38 @@ SERVES_MAX_S = 86_400
 """How long a command that serves may run once its call's timeout_s no longer holds: as long as a `process` job."""
 # Only this excerpt stays in memory; the stream is captured to disk before head/tail truncation.
 CAPTURE_FACTOR = 8
+
+
+REDACT_CHUNK_BYTES = 1 << 20
+REDACT_HOLD_CHARS = 64 * 1024  # as long as a stored secret can be (`secrets.MAX_COMMAND_SECRET_BYTES`)
+
+
+def _redact_capture(path: Path, redact: Callable[[str], str]) -> None:
+    """Rewrite a kept capture file without the session's secret values, a part at a time. The executor writes what
+    the command printed as it is, so that `env` or a crash dump leaves the harness's own keys in the file."""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="surrogateescape")  # bytes that are not text stay as is
+    private = path.with_name(path.name + ".redacting")
+    try:
+        with (
+            path.open("rb") as source,
+            os.fdopen(os.open(private, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "wb") as target,
+        ):
+            pending = ""
+            while chunk := source.read(REDACT_CHUNK_BYTES):
+                pending += decoder.decode(chunk)
+                cut = len(pending) - REDACT_HOLD_CHARS
+                cut = pending.rfind("\n", 0, max(cut, 0)) + 1 or cut  # a one-line value never spans a line end
+                if cut <= 0:
+                    continue
+                head = redact(pending[:cut])
+                # Written only where cutting changes nothing; a value across the cut waits for the next part.
+                if head + redact(pending[cut:]) == redact(pending):
+                    target.write(head.encode(errors="surrogateescape"))
+                    pending = pending[cut:]
+            target.write(redact(pending + decoder.decode(b"", final=True)).encode(errors="surrogateescape"))
+        private.replace(path)
+    finally:
+        private.unlink(missing_ok=True)
 
 
 def _capture_resource(path: Path) -> ResourceRef:
@@ -406,6 +440,8 @@ class BashTool(Tool):
             output = "".join(f"[{notice}]\n" for notice in notices) + output
         resources = []
         if result.omitted_bytes and captures:
+            if ctx.redact is not None:
+                await asyncio.to_thread(_redact_capture, capture, ctx.redact)
             resources.append(await asyncio.to_thread(_capture_resource, capture))
             label = (
                 "Complete command output"

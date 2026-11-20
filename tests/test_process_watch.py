@@ -163,6 +163,25 @@ async def test_looks_come_on_the_schedule_one_ask_for_all_and_none_once_nothing_
     assert _told(harness) == [], "progressing tells the agent nothing"
 
 
+async def test_every_running_command_gets_its_look_when_more_run_than_one_ask_holds(make_harness):
+    harness = make_harness([], system1=Sees("progressing"))
+    session = _watched(harness)
+    jobs = session.deps.processes
+    assert jobs is not None
+    calls = [f"call-{n}" for n in range(11)]  # more than System 1 reads in one ask
+    try:
+        for call in calls:
+            jobs.begin_call(call, f"make {call}")
+        await asyncio.sleep(0.5)  # the first look, at 0.3 s
+    finally:
+        for call in calls:
+            jobs.end_call(call, "exited", 0)
+        await session.aclose()
+        await jobs.aclose()
+    looked_at = {v.id for check in harness.recorder.of(ProcessCheck) for v in check.verdicts}
+    assert looked_at == set(calls), "the newest commands are judged too, not only counted as looked at"
+
+
 async def test_a_command_found_stalled_is_told_at_the_next_turn_the_latest_look_only(make_harness):
     harness = make_harness(
         _scripted(

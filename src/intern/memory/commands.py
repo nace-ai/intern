@@ -3,7 +3,9 @@ from __future__ import annotations
 import argparse
 import asyncio
 import contextlib
+import sqlite3
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,11 +13,25 @@ from intern import names
 from intern.config import Bootstrap, Options
 from intern.decisions import DecisionClient
 from intern.events import Decision, Event
-from intern.memory.drive import MAIN, STEWARD_LOCK, TREE_LOCK, GitError, create, locked
+from intern.memory.drive import (
+    MAIN,
+    STEWARD_LOCK,
+    TREE_LOCK,
+    GitError,
+    create,
+    locked,
+    main_commit,
+    tracked_files,
+    tracked_names,
+)
+from intern.memory.forget import Removal, matching, settle, widened
+from intern.memory.forget import apply as apply_removal
+from intern.memory.format import FOLDER_SUFFIXES, SKILL_ROOT, is_folder_skill, page_file
 from intern.memory.lint import fix, lint, working_files
+from intern.memory.search import refresh
 from intern.memory.spend import add_spend
-from intern.memory.steward.git import publish, recover
-from intern.memory.steward.run import Deferred, Skipped, commit, propose
+from intern.memory.steward.git import PROPOSED, commit_proposal, publish, recover
+from intern.memory.steward.run import Deferred, Keep, Skipped, commit, propose
 from intern.memory.steward.write import StewardError
 from intern.memory.steward.writer import writer_from_ref
 from intern.messages import Usage
@@ -89,9 +105,12 @@ async def _steward(
     world: str = "",
     merge: bool = False,
     free: OnFree | None = None,
+    keep: Keep | None = None,
 ) -> int:
     with locked(drive, STEWARD_LOCK):
-        return await _steward_locked(journals, drive, system1, writer_ref, world, merge, free or OnFree())
+        return await _steward_locked(
+            journals, drive, system1, writer_ref, world, merge, free or OnFree(), keep or Keep()
+        )
 
 
 async def _steward_locked(
@@ -102,6 +121,7 @@ async def _steward_locked(
     world: str,
     merge: bool,
     free: OnFree,
+    keep: Keep,
 ) -> int:
     bootstrap = Bootstrap(Options(cwd=Path.cwd(), system1=system1))
     writer = writer_from_ref(writer_ref, bootstrap.env, free=free.writer) if writer_ref else None
@@ -111,6 +131,7 @@ async def _steward_locked(
         print(f"{names.NAME}: decision model unavailable: {e}", file=sys.stderr)
         return EXIT_FAILED
     cfg = bootstrap.config.system1
+    skill_folders = bootstrap.capability_settings().memory.skill_folders
     decisions = DecisionClient(
         backend,
         _decision_sink,
@@ -139,11 +160,14 @@ async def _steward_locked(
         before = decisions.usage.model_copy()
         written = writer.usage if writer is not None else Usage()
         try:
-            proposed = await propose(journal, drive, decisions, writer, world)
+            proposed = await propose(journal, drive, decisions, writer, world, keep, skill_folders)
             with locked(drive, TREE_LOCK):
                 proposal = commit(drive, proposed)
                 if merge:
                     publish(drive, proposal.branch)
+            if merge:
+                with contextlib.suppress(sqlite3.Error, GitError):
+                    refresh(drive, proposal.commit)
         except Deferred as e:
             print(f"deferred {journal}: {e}")
             still.append(journal)
@@ -202,26 +226,112 @@ def steward_main(argv: list[str]) -> int:
     )
     parser.add_argument("--free-system1", action="store_true", help="The decision model runs on the free credit.")
     parser.add_argument("--free-writer", action="store_true", help="The writer runs on the free credit.")
+    parser.add_argument(
+        "--keep-graveyard",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Delete graveyard pages archived more than N steward sessions ago; 0 keeps them.",
+    )
+    parser.add_argument(
+        "--keep-transcripts",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Delete session transcripts last written more than N steward sessions ago; 0 keeps them.",
+    )
     args = parser.parse_args(argv)
+    if args.keep_graveyard < 0 or args.keep_transcripts < 0:
+        parser.error("--keep-graveyard and --keep-transcripts take 0 or more sessions")
     try:
         drive = args.drive.expanduser().resolve()
         free = OnFree(system1=args.free_system1, writer=args.free_writer)
-        return asyncio.run(_steward(args.journals, drive, args.system1, args.writer, args.world, args.merge, free))
+        keep = Keep(graveyard=args.keep_graveyard, transcripts=args.keep_transcripts)
+        return asyncio.run(
+            _steward(args.journals, drive, args.system1, args.writer, args.world, args.merge, free, keep)
+        )
     except ConfigError as e:
         print(f"{names.NAME}: {e}", file=sys.stderr)
         return EXIT_USAGE
 
 
+def _forget(root: Path, text: str, pages: list[str], apply: bool) -> int:
+    try:
+        with locked(root, STEWARD_LOCK):
+            return _forget_locked(root, text, [p.removesuffix(".md") for p in pages], apply)
+    except (GitError, StewardError, sqlite3.Error) as e:
+        print(f"{names.NAME}: {e}", file=sys.stderr)
+        return EXIT_FAILED
+
+
+def _forget_locked(root: Path, text: str, pages: list[str], apply: bool) -> int:
+    with locked(root, TREE_LOCK):
+        recover(root)
+    commit = main_commit(root)
+    files = tracked_files(root, commit)
+    transcripts = tracked_files(root, commit, ".txt")
+    if missing := [p for p in pages if page_file(p) not in files]:
+        print(f"{names.NAME}: no page {', '.join(missing)} on {MAIN}", file=sys.stderr)
+        return EXIT_USAGE
+    found = Removal(lines=matching(files, transcripts, text) if text else [], pages=pages)
+    removal = widened(files, transcripts, found)
+    spots, pages = removal.lines, removal.pages
+    for page in pages:
+        print(f"{page if page in transcripts else page_file(page)}: the whole file")
+    for spot in spots:
+        where = f"{spot.file} {spot.block}".strip()
+        print(f"{where}: {spot.line.strip()[:200]}")
+    if not spots and not pages:
+        print(f"nothing on {MAIN} matches {text!r}")
+        return EXIT_OK
+    if not apply:
+        print(f"{len(spots)} lines and {len(pages)} files would go; pass --apply to remove them", file=sys.stderr)
+        return EXIT_OK
+    changed, removed = apply_removal(files, transcripts, removal)
+    changed, removed = settle(files, changed, removed)
+    # A skill folder's files go with its page.
+    folders_gone = {n.rsplit("/", 1)[0] for n in removed if n.endswith(".md") and is_folder_skill(n[:-3])}
+    removed = [
+        *removed,
+        *(n for n in tracked_names(root, commit, FOLDER_SUFFIXES, SKILL_ROOT) if n.rsplit("/", 1)[0] in folders_gone),
+    ]
+    pages_after = {n: t for n, t in (files | changed).items() if n.endswith(".md") and n not in removed}
+    if problems := lint(pages_after):
+        raise StewardError("the removal does not pass lint:\n" + "\n".join(problems))
+    branch = f"{PROPOSED}forget-{time.strftime('%Y%m%d-%H%M%S')}"
+    with locked(root, TREE_LOCK):
+        done = commit_proposal(root, branch, changed, "Steward: forget", {"Intern-Forget": "command"}, removed)
+        publish(root, branch)
+    refresh(root, done)
+    print(f"{MAIN}: {len(changed)} files rewritten, {len(removed)} removed at {done[:12]}")
+    return EXIT_OK
+
+
 def memory_main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(prog=f"{names.NAME} memory", description="Create and check memory drives.")
+    parser = argparse.ArgumentParser(
+        prog=f"{names.NAME} memory", description="Create and check memory drives, and remove from them."
+    )
     commands = parser.add_subparsers(dest="command", required=True)
     init = commands.add_parser("init", help="Create a drive from the template, as a git repository on main.")
     init.add_argument("drive", type=Path)
     check = commands.add_parser("lint", help="Check a drive's working tree against the format.")
     check.add_argument("drive", type=Path)
     check.add_argument("--fix", action="store_true", help="Rewrite Contents token counts and tables of contents.")
+    forget = commands.add_parser(
+        "forget",
+        help="Remove every line holding all the given words from the drive's pages, graveyard/ and transcripts. "
+        "Lists them unless --apply; older commits still hold them.",
+    )
+    forget.add_argument("drive", type=Path)
+    forget.add_argument("text", nargs="?", default="", help="Words a line must all hold to be removed.")
+    forget.add_argument("--page", action="append", default=[], help="Remove a whole page, e.g. user/people/sam.")
+    forget.add_argument("--apply", action="store_true", help="Remove them, in one commit on main.")
     args = parser.parse_args(argv)
     root = args.drive.expanduser().resolve()
     if args.command == "init":
         return _init(root)
+    if args.command == "forget":
+        if not args.text.strip() and not args.page:
+            parser.error("forget needs words to match or --page")
+        return _forget(root, args.text, args.page, args.apply)
     return _lint(root, args.fix)

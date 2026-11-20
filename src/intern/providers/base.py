@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import contextlib
+import json
 from collections.abc import AsyncGenerator, AsyncIterator, Callable, Sequence
 from pathlib import Path
 from typing import Literal, Protocol
@@ -90,6 +91,7 @@ class ProviderError(Exception):
         retryable: bool = False,
         code: str | None = None,
         meter: str | None = None,
+        console_message: str | None = None,
     ) -> None:
         super().__init__(message)
         self.status = status
@@ -98,6 +100,8 @@ class ProviderError(Exception):
         """The Nace console's `error.code` (`free_exhausted`, `rate_limited`, …), for a request to it."""
         self.meter = meter
         """The free credit's meter the console named: `agent` or `system1`."""
+        self.console_message = console_message
+        """The console's `error.message`: what the refusal means, in words."""
 
 
 class Provider(Protocol):
@@ -133,13 +137,63 @@ async def sse_lines(response: httpx.Response) -> AsyncIterator[str]:
     """Split a server-sent event stream on newlines only. httpx's `aiter_lines` also splits on U+2028
     and U+0085, which can appear raw inside a JSON data line."""
     buffer = ""
+    json_body: bool | None = None  # the body is one JSON object, not an event stream; None until it has text
     async for text in response.aiter_text():
         buffer += text
+        if json_body is None and buffer.strip():
+            json_body = buffer.lstrip().startswith("{")
+        if json_body:
+            continue  # read it whole
         while "\n" in buffer:
             line, buffer = buffer.split("\n", 1)
             yield line.rstrip("\r")
+    if json_body and (error := _body_error(buffer)) is not None:
+        raise error
     if buffer:
-        yield buffer.rstrip("\r")
+        line = buffer.rstrip("\r")
+        if line.startswith("data:") and not _whole(line[len("data:") :].strip()):
+            # The connection closed inside an event. Like a stream that ends between events, that is worth a retry;
+            # handed on, the half line would fail as undecodable data, which is not.
+            raise ProviderError("the stream ended in the middle of an event", retryable=True)
+        yield line
+
+
+def _whole(data: str) -> bool:
+    """Whether an event's data, on a last line that no newline ended, all arrived."""
+    if data in ("", "[DONE]"):
+        return True
+    try:
+        json.loads(data)
+    except json.JSONDecodeError:
+        return False
+    return True
+
+
+# What an error body names that is worth asking again: HTTP statuses, and OpenAI's and Anthropic's error kinds.
+_TRANSIENT_STATUS = frozenset({408, 409, 425, 429, 500, 502, 503, 504, 529})
+_TRANSIENT_KINDS = frozenset(
+    {"server_error", "rate_limit_exceeded", "overloaded_error", "api_error", "rate_limit_error"}
+)
+
+
+def _body_error(body: str) -> ProviderError | None:
+    """The error a JSON body names (`{"error": ...}`), which some gateways send with status 200 where the event
+    stream should be; None for any other body. It is retryable only when it names a status or kind that is."""
+    try:
+        parsed = json.loads(body)
+    except json.JSONDecodeError:
+        return None
+    error = parsed.get("error") if isinstance(parsed, dict) else None
+    if not error:
+        return None
+    named = [error.get(key) for key in ("code", "status", "type")] if isinstance(error, dict) else []
+    status = next((n for n in named if isinstance(n, int) and not isinstance(n, bool)), None)
+    detail = json.dumps(error) if isinstance(error, dict) else str(error)
+    return ProviderError(
+        f"the server answered with an error instead of a reply: {detail[:500]}",
+        status=status,
+        retryable=status in _TRANSIENT_STATUS or any(n in _TRANSIENT_KINDS for n in named if isinstance(n, str)),
+    )
 
 
 def image_base64(image: ImagePart) -> str | None:
