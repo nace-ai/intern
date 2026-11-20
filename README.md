@@ -206,9 +206,10 @@ to 92.4%, at less than half of what Opus costs on its own.
 <details>
 <summary><b>Does it run fully local?</b></summary>
 
-Yes, on a Mac with Kapitsa: it serves the frontier and efficient models, and `kapitsa-systemone` serves the decision
-model ([Local models](docs/local-models.md#system-1)). Elsewhere, the frontier and efficient models can run on Ollama,
-LM Studio, llama.cpp or vLLM, and the decision model is hosted; a session that cannot reach it is refused.
+Yes, on a Mac with [Kapitsa](https://github.com/nace-ai/kapitsa): it serves the frontier and efficient models, and
+`kapitsa-systemone` serves the decision model ([Local models](docs/local-models.md#system-1)). Elsewhere, the
+frontier and efficient models can run on Ollama, LM Studio, llama.cpp or vLLM, and the decision model is hosted; a
+session that cannot reach it is refused.
 
 </details>
 
