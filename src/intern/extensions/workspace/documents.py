@@ -14,6 +14,7 @@ import json
 import os
 import re
 import statistics
+import zipfile
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
@@ -69,6 +70,13 @@ _UNNAMED = re.compile(r"column\d+|Unnamed: \d+")
 #: A CSV or Parquet file of at most this many rows whose columns come out mostly unnamed (a title above the header,
 #: as in a sheet saved by pandas) is loaded like a workbook tab: its real header found, the rows above it a caption.
 RESHAPE_ROWS = 100_000
+#: The XML a workbook or a Word document may unpack to and still be read. Both are zip files: a sheet of repeated
+#: cells or a document of repeated paragraphs is a few megabytes on disk (under the index's limit for a file) and
+#: hundreds unpacked, all of it parsed in the agent's process by a build nothing stops. A workbook is read at about
+#: 8 MB of XML a second and holds 3 MB of memory for each (196 MB: 26 s and 700 MB; 630 MB: 82 s and 1.7 GB); a Word
+#: document at about 3.5 MB a second (18 MB: 5 s and 300 MB), and 20 MB of its XML is thousands of pages.
+MAX_SHEET_XML_BYTES = 200 * 1024 * 1024
+MAX_DOCX_XML_BYTES = 20 * 1024 * 1024
 
 
 class PageOcr:
@@ -412,6 +420,23 @@ def _session(
     return nullcontext(tables.con) if tables is not None else connect(workspace, root)
 
 
+class TooLargeUnpacked(ValueError):
+    """An office file whose XML unpacks to more than its processor reads."""
+
+
+def _check_unpacked(path: Path, limit: int) -> None:
+    """Raise TooLargeUnpacked when the XML in the office file at ``path`` unpacks to more than ``limit`` bytes. The
+    sizes are the ones its zip directory states, and no more than those is ever unpacked, so this reads nothing of
+    the content; pictures and other media are not parsed and do not count."""
+    with zipfile.ZipFile(path) as archive:
+        size = sum(item.file_size for item in archive.infolist() if item.filename.lower().endswith((".xml", ".rels")))
+    if size > limit:
+        raise TooLargeUnpacked(
+            f"its content unpacks to {size // 2**20} MB, over the {limit // 2**20} MB limit "
+            f"(the file is {path.stat().st_size / 2**20:.1f} MB compressed)"
+        )
+
+
 def _tabs(path: Path) -> list[tuple[str, list[list[Any]]]]:
     """Every tab of a workbook as (title, rows), trimmed; .xlsx/.xlsm through openpyxl, the old .xls through xlrd."""
     if path.suffix.lower() == ".xls":
@@ -424,6 +449,7 @@ def _tabs(path: Path) -> list[tuple[str, list[list[Any]]]]:
         ]
     import openpyxl
 
+    _check_unpacked(path, MAX_SHEET_XML_BYTES)
     book = openpyxl.load_workbook(path, read_only=True, data_only=True)
     try:
         return [
@@ -719,7 +745,11 @@ class DocxProcessor:
         from docx.table import Table
         from docx.text.paragraph import Paragraph
 
+        _check_unpacked(path, MAX_DOCX_XML_BYTES)
         document = docx.Document(str(path))
+        # A style's name by its id, looked up once: `paragraph.style` searches the document's styles for every
+        # paragraph (0.4 ms each: ten minutes for a document of 1.5 million short ones).
+        styles = {style.style_id: style.name or "" for style in document.styles}
         lines: list[str] = []
         for child in document.element.body.iterchildren():
             if child.tag.endswith("}p"):
@@ -727,7 +757,7 @@ class DocxProcessor:
                 text = paragraph.text.strip()
                 if not text:
                     continue
-                style = (paragraph.style.name if paragraph.style is not None else "") or ""
+                style = styles.get(child.style or "", "")
                 if style == "Title":
                     text = f"# {text}"
                 elif style.startswith("Heading") and (level := style.removeprefix("Heading").strip()).isdigit():

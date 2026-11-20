@@ -6,6 +6,7 @@ from __future__ import annotations
 import asyncio
 import re
 import shutil
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -99,6 +100,61 @@ def test_documents_become_pages_sections_and_tables(tmp_path: Path):
     with docs.connect(tmp_path / ".decision_workspace", tmp_path, read_only=True) as con:
         assert con.execute("select count(*) from duckdb_views() where view_name = 'p'").fetchone() == (0,)
     assert not (tmp_path / ".decision_workspace" / "derived" / "p.csv.md").exists()
+
+
+def _repacked(source: Path, target: Path, member: str, head: bytes, piece: bytes, times: int, tail: bytes) -> None:
+    """``source`` (an office file) as ``target``, its ``member`` written as ``piece`` repeated: megabytes of XML that
+    compress to a few kilobytes."""
+    with zipfile.ZipFile(source) as original, zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as out:
+        for item in original.infolist():
+            out.writestr(item.filename, head + piece * times + tail if item.filename == member else original.read(item))
+
+
+def test_an_office_file_that_unpacks_to_far_more_than_its_size_is_skipped_and_the_rest_are_indexed(
+    tmp_path: Path, monkeypatch
+):
+    openpyxl = pytest.importorskip("openpyxl")
+    docx = pytest.importorskip("docx")
+    monkeypatch.setattr(docs, "MAX_SHEET_XML_BYTES", 2**20)
+    monkeypatch.setattr(docs, "MAX_DOCX_XML_BYTES", 2**20)
+    book = openpyxl.Workbook()
+    book.active.append(["region", "amount"])
+    book.active.append(["EU", 10])
+    book.save(tmp_path / "sales.xlsx")
+    document = docx.Document()
+    document.add_heading("Terms", 1)
+    document.add_paragraph("Payment is due in thirty days.")
+    document.save(tmp_path / "terms.docx")
+    space = b'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+    _repacked(
+        tmp_path / "sales.xlsx",
+        tmp_path / "huge.xlsx",
+        "xl/worksheets/sheet1.xml",
+        b'<?xml version="1.0"?><worksheet ' + space + b"><sheetData>",
+        b'<row><c t="inlineStr"><is><t>value</t></is></c></row>',
+        40_000,
+        b"</sheetData></worksheet>",
+    )
+    word = b'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+    _repacked(
+        tmp_path / "terms.docx",
+        tmp_path / "huge.docx",
+        "word/document.xml",
+        b'<?xml version="1.0"?><w:document ' + word + b"><w:body>",
+        b"<w:p><w:r><w:t>lorem ipsum dolor sit amet</w:t></w:r></w:p>",
+        40_000,
+        b"</w:body></w:document>",
+    )
+    assert max((tmp_path / name).stat().st_size for name in ("huge.xlsx", "huge.docx")) < 100_000
+    said: list[str] = []
+    index = wi.build(tmp_path, tmp_path / Workspace.folder, processors=office_processors, report=said.append)
+    assert set(index.files) == {"sales.xlsx", "terms.docx"}
+    skipped = sorted(line for line in said if line.startswith("skip "))
+    assert [line.split(":")[0] for line in skipped] == ["skip huge.docx", "skip huge.xlsx"]
+    assert all("unpacks to" in line and "over the 1 MB limit" in line for line in skipped)
+    assert index.files["sales.xlsx"].tables[0].rows == 1
+    heading = index.files["terms.docx"].chunks[0]
+    assert (heading.kind, heading.title) == ("section", "Terms")
 
 
 def test_a_table_of_any_size_and_a_latin1_export_with_a_title_row_are_indexed(tmp_path: Path, monkeypatch):
