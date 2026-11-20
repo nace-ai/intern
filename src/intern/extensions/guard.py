@@ -800,10 +800,14 @@ _CURL_DATA = frozenset(
     | {"--upload-file"}
 )
 _DISK_TOOLS = frozenset({"fdisk", "sfdisk", "gdisk", "sgdisk", "parted", "cfdisk"})
+# diskutil's verbs, which it reads in any case, in lower case.
 _DISKUTIL_ERASE = frozenset(
-    {"eraseDisk", "eraseVolume", "zeroDisk", "randomDisk", "secureErase", "partitionDisk", "reformat"}
+    {"erasedisk", "erasevolume", "zerodisk", "randomdisk", "secureerase", "partitiondisk", "reformat"}
 )
-_BLOCK_DEVICE = re.compile(r"^/dev/(sd|hd|vd|xvd|nvme|disk|rdisk|mmcblk|md|dm-|mapper/|loop)")
+_DISKUTIL_GROUPS = frozenset({"apfs", "ap", "corestorage", "cs", "appleraid", "ar"})
+_DISKUTIL_GROUP_ERASE = frozenset({"deletecontainer", "deletevolume", "deletevolumegroup", "erasevolume", "delete"})
+# macOS finds `/DEV/disk2` too.
+_BLOCK_DEVICE = re.compile(r"^/dev/(sd|hd|vd|xvd|nvme|disk|rdisk|mmcblk|md|dm-|mapper/|loop)", re.IGNORECASE)
 _SAFE_DEVICES = re.compile(r"^/dev/(null|zero|stdout|stderr|tty|random|urandom|fd/\d+)$")
 _GIT_VALUE_OPTIONS = frozenset({"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path", "--config-env"})
 _MASS_PATHSPECS = frozenset({".", ":/", "*", ":(top)", "./"})
@@ -854,21 +858,34 @@ def _find_runs_rm(command: Command) -> bool:
     return any(a in runs and args[i + 1 : i + 2] == ["rm"] for i, a in enumerate(args))
 
 
+def _device(word: str, scope: Scope, cwd: PurePosixPath) -> str:
+    """A word as the path a device would have: `//dev/sda` and `/dev/./sda` are `/dev/sda`."""
+    path = _path(word, scope, cwd)
+    return word if path is None else "/" + str(path).lstrip("/")
+
+
 def _disk(command: Command, scope: Scope) -> RuleHit | None:
     name, args = command.name, command.args
     wipe = RuleHit(rule="disk_wipe", reason=f"it erases or repartitions a disk (`{name}`)")
-    if name.startswith("mkfs") or name in ("mke2fs", "wipefs", "newfs"):
+    if name.startswith(("mkfs", "newfs")) or name in ("mke2fs", "wipefs"):  # newfs_apfs, newfs_hfs, newfs_msdos
         return wipe
-    if name == "dd" and any(a.startswith("of=/dev/") and not _SAFE_DEVICES.match(a[3:]) for a in args):
+    outputs = [_device(a[3:], scope, command.cwd) for a in args if a.startswith("of=")]
+    if name == "dd" and any(o.lower().startswith("/dev/") and not _SAFE_DEVICES.match(o) for o in outputs):
         return wipe
     listing = any(a in ("-l", "--list", "print") for a in args)
     if name in _DISK_TOOLS and any(a.startswith("/dev/") for a in args) and not listing:
         return wipe
-    if name == "diskutil" and args[:1] and args[0] in _DISKUTIL_ERASE:
-        return wipe
+    if name == "diskutil":
+        verbs = [a.lower() for a in args if not a.startswith("-")]
+        verbs = verbs[1:] if verbs[:1] == ["quiet"] else verbs
+        if verbs[:1] and verbs[0] in _DISKUTIL_ERASE:
+            return wipe
+        if len(verbs) > 1 and verbs[0] in _DISKUTIL_GROUPS and verbs[1] in _DISKUTIL_GROUP_ERASE:
+            return wipe  # `diskutil apfs deleteContainer disk2`
     if name == "shred" and any(a.startswith("/dev/") for a in args):
         return wipe
-    if any(_BLOCK_DEVICE.match(target) for target in command.writes):
+    # A redirect, and what tee, cp, mv or install writes to: `tee /dev/sda`, `cp x.iso /dev/disk2`.
+    if any(_BLOCK_DEVICE.match(_device(target, scope, command.cwd)) for target in _write_targets(command)):
         return RuleHit(rule="disk_wipe", reason="it writes over a disk device")
     return None
 
