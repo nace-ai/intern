@@ -41,9 +41,12 @@ from intern.tools.images import IMAGE_SUFFIXES
 DOCUMENTS = "documents (PDFs, Word, spreadsheets, Parquet)"
 #: What the pinned note says of the tool, wherever the index is.
 USE = (
-    "`decision_code` finds the places where a question's subject is defined or would be changed (symbols, sections, "
-    "config keys), each with the read call that opens it. Use it to find code before you browse or grep, and again "
-    "for each other place you need; grep is for an exact name you already know."
+    "Ask `decision_code` a question in words (what some code does, or what you would change) and it returns the "
+    "places where that is defined or done, ranked, each with the `read` call that opens it. System 1 (a decision "
+    "model) judges the repository's folders, files, classes and functions against your question, so it finds code "
+    "whose names you do not know, in a repository too large to browse. Give a folder or a repository as `scope` to "
+    "search only there, a folder the task names included. grep remains the tool for an exact name: every use of a "
+    "symbol, a string, an error message."
 )
 #: Repositories a note or an error names before it counts the rest.
 LISTED = 12
@@ -80,9 +83,10 @@ class DecisionCode(DecisionSearch):
     #: A place comes with the call that opens it; a file on that line did not.
     files_shown = 0
     description = (
-        "Find the places in a repository or folder of code and text that answer a question, ranked, each with the read "
-        f"call that opens it; it cannot read {DOCUMENTS}. Use it to find code before you browse or grep, and again "
-        "for each other place you need; grep is for an exact name you already know."
+        "Find the places in a repository or folder of code and text that answer a question in words (what some code "
+        "does, or what you would change), ranked, each with the read call that opens it: it finds code whose names "
+        f"you do not know. `scope` searches one folder or repository only. It cannot read {DOCUMENTS}; grep is for "
+        "an exact name."
     )
 
     async def run(self, args: SearchArgs, ctx: ToolContext) -> ToolOutput:
@@ -159,7 +163,7 @@ class CodeSearch(Locate):
     search_tool = DecisionCode
     processors = staticmethod(default_processors)
     asks: ClassVar[Questions] = CODE
-    note: ClassVar[str] = "The working directory is indexed. " + USE
+    note: ClassVar[str] = "The code in the working directory is indexed. " + USE
 
     async def pin(self, cwd: Path) -> str | None:
         if await asyncio.to_thread(mostly_documents, cwd):
