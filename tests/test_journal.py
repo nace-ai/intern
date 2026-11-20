@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import tracemalloc
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
 import intern.journal as journal_module
-from intern.journal import Journal, MessageEntry, SessionEntry
+from intern.journal import Journal, MessageEntry, ObservationEntry, SessionEntry
 from intern.messages import AssistantMessage, UserMessage
 
 
@@ -122,3 +123,25 @@ def test_stale_writer_is_rejected_without_corrupting_the_journal(tmp_path):
         stale.append(MessageEntry(message=UserMessage(content="stale writer")))
     assert len(stale.entries()) == 1
     assert len(Journal(cwd="ignored", path=path).entries()) == 2
+
+
+def test_an_observation_is_kept_in_the_file_and_not_in_memory(tmp_path: Path):
+    # A long session archives many large tool outputs; each one held in memory for good grew it without bound.
+    path = tmp_path / "s.jsonl"
+    journal = Journal(cwd="/work", path=path)
+    body = "line of tool output\n" * 50_000  # 1 MB
+    tracemalloc.start()
+    try:
+        before = tracemalloc.get_traced_memory()[0]
+        ids = [journal.append(ObservationEntry(call_id=f"c{i}", content=f"{i}:{body}")).id for i in range(8)]
+        grown = tracemalloc.get_traced_memory()[0] - before
+    finally:
+        tracemalloc.stop()
+    assert grown < len(body)  # eight of them, and not one is held
+
+    journal.append(MessageEntry(message=UserMessage(content="after")))
+    for reopened in (journal, Journal(cwd="ignored", path=path)):
+        for i, entry_id in enumerate(ids):
+            whole = reopened.get(entry_id)
+            assert isinstance(whole, ObservationEntry) and whole.content == f"{i}:{body}"
+        assert reopened.observation("c3") == f"3:{body}"
