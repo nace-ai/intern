@@ -29,10 +29,14 @@ every session it opens. `--cwd` and `--session` are ignored: ACP sends the worki
 each session, and journals are found by session id. Every install can serve ACP: the official
 `agent-client-protocol` Python SDK is a dependency of `intern-agent`, not an extra.
 
+A message is one JSON object on one line. A line that is not JSON is answered with `-32700` (parse error), and
+one that is JSON but not a message (a batch `[...]`, `null`, a number, a `method` that is not a string) with
+`-32600` (invalid request), both with `id: null` unless the line had a usable `id`; the server keeps serving.
+
 stdout carries only the protocol. Warnings and logs go to stderr. stdin and stdout must be pipes (or a
 terminal); redirected to a file, the command exits with code 2. When stdin closes, every request
 already received is still answered: runs in progress are aborted (their prompts answer `cancelled`)
-and the server exits once the replies are written (at most 10 s later). On SIGTERM it aborts every
+and the server exits once the replies are written (at most 10 s later). On SIGTERM or SIGHUP it aborts every
 run and exits at once. Either way every session is closed.
 
 ## Lifecycle
@@ -41,7 +45,7 @@ run and exits at once. Either way every session is closed.
 |---|---|
 | `initialize` | Returns `protocolVersion: 1`, `agentInfo {name: "intern", title: "Intern", version}` and `agentCapabilities {loadSession: true, promptCapabilities {image: true, embeddedContext: true}}`. No auth methods. |
 | `session/new {cwd, mcpServers, _meta?}` | Builds one harness `Session` for this ACP session; one process serves any number of sessions. `sessionId` is the session's journal id. Returns `configOptions` and `modes`. Opens on the models and capability toggles in [`_meta.nace`](#picking-models-at-open) when given. Fails with `-32602` when System 1 cannot be set up (its key is missing) or does not answer the check at open: the harness never runs without System 1. |
-| `session/load {sessionId, cwd, mcpServers, _meta?}` | Finds the journal through `~/.intern/sessions/index.json` (falling back to a scan of `sessions/*.jsonl`), rebuilds the session on the System 2 and System 1 models and the capability toggles it last used (or those in `_meta.nace`), replays the active branch as `session/update`s, then returns `configOptions` and `modes`. Unknown ids fail with `-32002` (resource not found). |
+| `session/load {sessionId, cwd, mcpServers, _meta?}` | Finds the journal through `~/.intern/sessions/index.json` (falling back to a scan of `sessions/*.jsonl`), rebuilds the session on the System 2 and System 1 models and the capability toggles it last used (or those in `_meta.nace`), replays the active branch as `session/update`s, then returns `configOptions` and `modes`. Unknown ids fail with `-32002` (resource not found). A journal with an entry this version cannot read (a damaged file, or one written by a newer version) fails with `-32603`, `data: {"reason": "journal_unreadable", "journal": "<path>"}`. |
 | `session/prompt {sessionId, prompt}` | Runs one turn to the end, including follow-ups queued while it ran, streams `session/update`s, then resolves with `stopReason` and `usage`. When [capability toggles](#capability-toggles) changed since the last prompt, the session is first reopened on them. A prompt while another runs in the same session fails with `-32000` (`session busy`); a prompt before a System 2 is bound fails with `-32602` (see [below](#when-no-system-2-can-run)). |
 | `session/cancel {sessionId}` | Aborts the run in progress; the pending `session/prompt` resolves with `stopReason: "cancelled"` once its last updates are sent. A cancel with nothing running is ignored. |
 | `session/set_config_option {sessionId, configId, value}` | See [Config options](#config-options). Allowed only while the session is idle; returns every option with its current value. |
@@ -52,6 +56,11 @@ headed by its URI; a resource link becomes its URI. An image is saved under the 
 and the prompt names its path, so the agent can `read` it (a model sees it when its profile sets `vision`
 or its provider's model listing says it takes images).
 Audio is refused.
+
+One message (one line) may be at most 50 MB, images in base64 included: about 37 MB of image files in one
+prompt. A longer line is not read: its request fails with `-32600`,
+`data: {"reason": "message_too_large", "limitBytes": 52428800}`, and the server keeps serving. The reply carries
+the request's `id` when the line has it before `params`, as clients write it; otherwise `id` is `null`.
 
 `mcpServers` from the client are not used in v1: MCP servers come from the harness's own
 `[[capabilities.mcp]]` config. `fs/*` and `terminal/*` client methods are not used: tools run in the
@@ -87,6 +96,10 @@ none is configured, or its provider's API key is missing. The session is then op
   the session stays unbound. `system1`, `context_window` and `cap.*` toggles may be set first and apply
   once a model binds.
 - `session/prompt` fails with `-32602`: `no System 2 model can run: <reason>; pick a model`.
+- When the free credit is why (it is in use, but spent or paused, and no own key can take over), both failures carry
+  `data: {code, meter}` (0.58.0 and later): `code` is `free_exhausted` with `meter` `agent`, or `free_paused` or
+  `free_revoked` with `meter` `null`, the codes a [`provider_error`](#stop-reasons-and-errors) carries. A client shows
+  its free-credit state for these instead of the message. Any other reason has no `data`.
 - `session/load` of an unbound session replays its history as usual.
 
 Other configuration errors (an invalid `config.toml`, an unknown extension) still fail `session/new`
@@ -118,8 +131,9 @@ Every session advertises these `configOptions`, in this order, then the
 - **`system1`** lists the [model catalog](#model-catalog)'s System 1 models: the decision models the console serves (`POST {console_url}/systemone` with the key in `$NACE_API_KEY`; `[system1].models`,
   default `["drex-latest"]`, until the console has been listed), then the decision models the decisions
   API serves as `decisions:<model>` (`POST {base_url}/systemone` with the key in `$OPENROUTER_API_KEY`:
-  Jev, `nace-ai/drex-max`, ...). Like `model`, the list fills in once the catalog arrives; until then it
-  holds only the current value. The System 1 the session started on (from `[system1]` or `--system1`,
+  Jev, `nace-ai/drex-max`, ...; no key when `base_url` is on this machine), then, while it runs, the decision
+  model `kapitsa-systemone` serves on this machine as `kapitsa:<model>` (`POST {kapitsa_url}/systemone`, no key).
+  Like `model`, the list fills in once the catalog arrives; until then it holds only the current value. The System 1 the session started on (from `[system1]` or `--system1`,
   as `decisions:<model>` when on the decisions API) is listed too and keeps its own endpoint and
   fallbacks. Any model name is accepted, listed or not; there is no `heuristic` (System 1 off). Changing
   it rebuilds the session's System 1 client, keeping its usage, and journals a `model_change` entry. A model whose key is missing is refused with
@@ -164,8 +178,9 @@ Every session advertises these `configOptions`, in this order, then the
 models = ["drex-latest"]                  # the picker's Drex models until the console is listed; the first is the default
 console_url = "https://console.nace.ai/v1" # where they are served and listed ($DREX_BASE_URL overrides it)
 console_key_env = "NACE_API_KEY"           # ($DREX_API_KEY also works)
-base_url = "https://openrouter.ai/api/v1"  # the decisions API, for decisions:<model>
+base_url = "https://openrouter.ai/api/v1"  # the decisions API, for decisions:<model>; on this machine, no key
 api_key_env = "OPENROUTER_API_KEY"
+kapitsa_url = "http://127.0.0.1:8001/v1"   # kapitsa-systemone on this machine, for kapitsa:<model>
 ```
 
 An unknown `configId`, a `thought_level`, `context_window` or `handoff` value it does not take, or a model the harness cannot resolve (for
@@ -562,8 +577,13 @@ When the console still refuses a free credit during a run (`free_exhausted`, `fr
 Either way the next run starts on the user's own configuration for that system, as when a meter is spent between
 runs, and its pickers come back in a `config_option_update`.
 
-Each move to the user's keys is told once, as is each meter crossing 20% and 5% left, in a `usage_update` whose
-`_meta.nace.free` has `notice`, a sentence to show as it is:
+A system on the user's own configuration goes back to free credit at the first run that starts once the console has
+said its meter can pay again (0.57.1 and later): an answer's meters with room (an admin raised the limit), or a
+grant read that is `active` again after a pause or with room. The grant is read again at most every 10 minutes; the
+start of a run makes no call to the console of its own.
+
+Each move to the user's keys, and each move back, is told once, as is each meter crossing 20% and 5% left, in a
+`usage_update` whose `_meta.nace.free` has `notice`, a sentence to show as it is:
 
 ```json
 {"sessionUpdate": "usage_update", "used": 18200, "size": 160000,
@@ -575,8 +595,8 @@ Each move to the user's keys is told once, as is each meter crossing 20% and 5% 
 
 A meter already under a share when the session opens is not told again.
 
-When a run starts on the user's own keys after the one before ran on free credit, the prompt's updates are followed by
-a `config_option_update` with the pickers as they are now.
+When a run starts on the user's own keys after the one before ran on free credit, or the other way round, the
+prompt's updates are followed by a `config_option_update` with the pickers as they are now.
 
 Every `usage_update` of a session that uses the free credit carries `_meta.nace.free`, the meters as the console last
 reported them (from the `x-nace-free-used` and `x-nace-free-limit` headers of each answer, so the gauge moves as the
@@ -1687,3 +1707,108 @@ resumes or signs out of it ([terminal UI](tui.md#free-credit)). Nothing changes 
 System 2 and the hand-over model run on the free credit: the harness asks the console for the bundle's model by the
 id the grant names (`nace/glm-5.3`), where before it sent `glm-5.3`, which the console refuses as
 `model_not_in_plan`. Nothing changes on ACP: 0.56.0 clients keep working, and the model ids they see are the same.
+
+### 0.56.2
+
+The memory steward writes again on GLM 5.3: its writer asks for low reasoning effort when the model's profile lists
+it, where before GLM 5.3 thought past the writer's two-minute timeout and every session's memory was deferred.
+Nothing changes on ACP: 0.56.1 clients keep working.
+
+### 0.57.0
+
+The agent can look through memory during the run ([memory](memory.md#during-the-run)): the `memory_search` tool
+becomes `memory`, whose `action` lists a folder's pages, reads a page or one block, searches as before, or traces a
+line to the session step it was recorded from. Session tool calls, and `tool_call` updates, now show `memory` with
+an `action` where they showed `memory_search`. Additive for clients: 0.56.2 clients keep working; one that matched
+the name `memory_search` should match `memory` too.
+
+### 0.57.1
+
+A session that moved a system to the user's own keys goes back to free credit at the next run once the console says
+the meter can pay again (a limit raised, or free calls resumed after a pause), where before it stayed on the user's
+keys until the session was opened again ([running out](#running-out)). `usage_update`'s `_meta.nace.free.source`
+then reads `free` again, the move is told in its `notice`, and the pickers come back in a `config_option_update`.
+Nothing new on the wire: 0.57.0 clients keep working.
+
+### 0.57.2
+
+When free credit ends a run for good, the terminal UI's stop line says so in words ("Free agent credit used up;
+your next message runs on your keys with …"), where before it showed the console's JSON body. The harness event
+`run_end` gains an optional `error`, the console's `code`, `meter` and `next`, as the prompt's
+[`provider_error`](#stop-reasons-and-errors) `data` already carries them. Nothing changes on ACP: 0.57.1 clients keep
+working.
+
+### 0.57.3
+
+Each config home has its own keychain items. `~/.intern` keeps service `intern`, so its keys and free-credit sign-in
+stay where they are and nobody signs in again. Any other `INTERN_HOME` uses service `intern-<hash of its path>`,
+where before every home shared `intern`: a test or second home no longer overwrites the user's keys with
+`intern secrets set`, and two homes no longer share, rotate or sign out of one free-credit refresh token. A client
+that runs the harness with its own `INTERN_HOME` and stored keychain entries before this release finds them
+`missing` in `intern secrets test --json` and stores them again (`intern secrets set`), and signs in to the free
+credit again (`intern free start`). Clients on the default home see no change: 0.57.2 clients keep working.
+
+### 0.58.0
+
+An unbound session whose free credit is why it cannot bind says so by code: `session/prompt` and
+`session/set_config_option model` still fail with `-32602` and the same message, and now carry
+`data: {code, meter}` (`free_exhausted` with `meter` `agent`, `free_paused`, `free_revoked`), as a
+[`provider_error`](#stop-reasons-and-errors) does ([when no System 2 can run](#when-no-system-2-can-run)). A client
+can show the free credit's state instead of matching the wording. Older clients see the same code and message:
+0.57.3 clients keep working.
+
+### 0.58.1
+
+When the Nace console refuses a request without ending the free credit (`rate_limited`, `upstream_error`,
+`request_too_large`, `overloaded`, `internal_error`), the terminal UI's stop line says what the console said in
+words ("The model provider is busy. Retry after 1 seconds"), where before it showed `provider_error: HTTP 429 from
+nace:` and the console's JSON body. The harness event `run_end.error` gains an optional `message`, the console's
+`error.message`. Nothing changes on ACP: 0.58.0 clients keep working.
+
+### 0.58.2
+
+The memory steward's writer turns reasoning off on DeepSeek V4 Flash (Fireworks and `nace/`), where before it asked for
+low effort: at low that model still reasoned 9,000 to 21,000 tokens per note, a lessons draft could outrun the
+writer's two-minute timeout, and the steward deferred the session again and again. A full simulated week now
+completes, with steward time over its first 34 sessions down from 5,172 to 442 seconds. A profile names how to turn
+reasoning off with `thinking_off`; sessions never send it, and the model's efforts in `models --json` and the effort
+picker are unchanged. Nothing changes on ACP: 0.58.1 clients keep working.
+
+### 0.58.3
+
+A request in a session to forget something removes it from memory where before part of it stayed and a later session
+gave it back. The request is recognised in any wording ("wipe", "I should not have shared"), and found by word
+endings or one rare word. Lines that hold the names and numbers of the removed lines go too, and so does what the
+session itself said of the thing, its searches for it and their results. A line of another transcript that names a
+forgotten session by its id becomes the marker. [Memory](memory.md) has the details. Nothing changes on ACP: 0.58.2
+clients keep working.
+
+### 0.58.4
+
+In the terminal UI, setup on your own keys while the free credit is in use pauses the free credit (`[free] use =
+false`, as `/free pause` does), so the session reopens on the models just picked. Before, it reopened on the free
+credit's models and refused the picks. A setup that only connects a decision model leaves the free credit as it was;
+`/free resume` goes back to it. Nothing changes on ACP: 0.58.3 clients keep working.
+
+### 0.59.0
+
+System 1 can be the Drex model `kapitsa-systemone` serves on the user's Mac
+([Local models](local-models.md#system-1)), with no key. The `system1` option and `models --json` list it as
+`kapitsa:<model>` while the server runs at `[system1] kapitsa_url` (`http://127.0.0.1:8001/v1`), and
+`session/set_config_option system1` takes it; its name reads `<model> (Kapitsa)`. `decisions:<model>` needs no key
+either when `[system1] base_url` is on this machine; before, such a pick was refused with `-32602`. 0.58.4 clients
+keep working.
+
+### 0.60.0
+
+At the messages after a hand-over, System 2 is sent a record of the cheaper model's turns in their place, where
+before it was sent every turn ([what the record holds](capability-settings.md#what-system-2-reads-after-a-hand-over)).
+A session journaled before this release is sent as before. Additive on the wire: 0.59.0 clients keep working, and
+ACP carries none of it.
+
+- The `handoff` event gains `record_rule`, the version of the rule the record is built by, in the journal and in
+  `-p --json`.
+- A new event, `files_changed` (`turn`; `files`, each with `path`, `change` (`created`, `changed` or `deleted`) and
+  `lines`), is journaled and printed by `-p --json` after each turn of the cheaper model that changed files in the
+  working directory.
+- `session/load` replays what it did: the journal keeps every turn in full.

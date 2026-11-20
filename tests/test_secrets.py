@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import shlex
+import sys
 from pathlib import Path
 
 import pytest
@@ -188,6 +190,23 @@ def test_stream_redaction_catches_values_split_across_any_chunk_boundary():
         assert out == b"start [REDACTED] middle [REDACTED] abc end [REDACTED]", size
     plain = SecretRedactor([]).stream()
     assert plain.feed(b"as is") == b"as is" and plain.flush() == b""
+
+
+async def test_a_secret_the_executors_output_cut_goes_through_is_redacted_on_both_sides(tmp_path: Path):
+    executor = SecretExecutor(LocalExecutor(), resolver(), scope="web", inject={"API_KEY": SecretRef(name="search")})
+    limit, n = 3000, len("credential-value")
+    head, tail = limit // 3, limit - limit // 3
+    # One copy of the value runs one byte past the kept head, another starts one byte before the kept tail.
+    script = (
+        "import os, sys; t = os.environ['API_KEY']; "
+        f"sys.stdout.write('A' * {head - n + 1} + t + 'B' * 5000 + t + 'C' * {tail - n + 1})"
+    )
+    command = f"{shlex.quote(sys.executable)} -c {shlex.quote(script)}"
+    result = await executor.run(command, cwd=tmp_path, timeout_s=30, max_output_bytes=limit)
+    assert result.omitted_bytes == 5002
+    assert result.output == (
+        "A" * (head - n + 1) + "[REDACTED]\n[... 5002 bytes omitted ...]\n[REDACTED]" + "C" * (tail - n + 1)
+    )
 
 
 async def test_prepared_job_has_only_the_allowed_environment_and_the_secret(tmp_path: Path):

@@ -846,6 +846,24 @@ async def test_the_harness_keys_in_the_environment_reach_commands_but_never_thei
         assert [path for path in home.rglob("*") if path.is_file() and key in path.read_text()] == []
 
 
+async def test_the_file_kept_of_a_long_commands_output_holds_no_harness_key(tmp_path, monkeypatch):
+    key = "drex-key-from-the-environment"
+    monkeypatch.setenv("DREX_API_KEY", key)
+    toml = '[capabilities]\ntool_packs = ["base"]\n'
+    commands = [
+        # Megabytes of the key on every line, then around one line of megabytes: more than is shown, so a file is kept.
+        'yes "$DREX_API_KEY" | head -c 4000000',
+        'printf %s "$DREX_API_KEY"; head -c 3000000 /dev/zero | tr \'\\0\' x; printf %s "$DREX_API_KEY"',
+    ]
+    replies = [*(Reply(tool_calls=[("bash", {"command": command})]) for command in commands), Reply(text="done")]
+    async with configured(tmp_path, replies, toml, env={"DREX_API_KEY": key}) as (session, _, _, _):
+        await session.run("print a lot")
+        kept = {path.stat().st_size: path for path in tmp_path.rglob("command-output/*.txt")}
+        assert len(kept) == 2 and all(path.stat().st_mode & 0o777 == 0o600 for path in kept.values())
+        assert kept[3_000_020].read_text() == "[REDACTED]" + "x" * 3_000_000 + "[REDACTED]"
+        assert [path for path in tmp_path.rglob("*") if path.is_file() and key.encode() in path.read_bytes()] == []
+
+
 async def test_the_free_trials_tokens_are_redacted_from_a_command_that_prints_their_files(tmp_path):
     home = tmp_path / "home"
     home.mkdir()
@@ -893,6 +911,29 @@ async def test_a_stored_secret_is_redacted_from_every_tool_not_only_the_command_
         assert "stored-token-value" not in json.dumps(model.requests)
         written = [path for path in home.rglob("*") if path.is_file() and "stored-token-value" in path.read_text()]
         assert written == []
+
+
+async def test_a_stored_secret_the_mcp_adapters_cut_goes_through_is_redacted(tmp_path):
+    pytest.importorskip("mcp")
+    pytest.importorskip("jsonschema")
+    token = "tkn-9f3k-value-23-chars"
+    fetch, script = tmp_path / "fetch", tmp_path / "server.py"
+    fetch.write_text(f"#!/bin/sh\nprintf {token}\n")
+    fetch.chmod(0o755)
+    script.write_text(f"""from mcp.server.fastmcp import FastMCP
+mcp=FastMCP("configured-test")
+@mcp.tool()
+def dump(pad:int)->str: return "x"*pad+{token!r}*100000
+mcp.run(transport="stdio")
+""")
+    toml = f"[secrets]\nDEMO_TOKEN = [{json.dumps(str(fetch))}]\n{mcp_toml(script, 'leaky', 'dump')}"
+    # Wherever the adapter cuts, one of the two results ends in at least four characters of a copy of the value.
+    replies = [Reply(tool_calls=[("mcp__leaky__dump", {"pad": pad})]) for pad in (0, 11)] + [Reply(text="done")]
+    async with configured(tmp_path, replies, toml) as (session, model, _, _):
+        await session.run("dump it")
+        journal = json.dumps([entry.model_dump(mode="json") for entry in session.deps.journal.entries()])
+        assert "truncated by adapter" in journal
+        assert token[:4] not in journal and token[:4] not in json.dumps(model.requests)
 
 
 @pytest.mark.parametrize(
