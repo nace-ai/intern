@@ -167,7 +167,7 @@ names an action that is destructive or exfiltrating in ordinary development and 
 |---|---|---|
 | `delete_protected` | recursive `rm`, `find -delete`/`-exec rm` or `mv` of `/`, the home directory, a parent of the working directory, a top-level or system directory, a folder in the home directory, a `.git`, a credential folder | Codex (forced `rm`), Arcjet destructive-command, dcg core.filesystem, Claude Code (irreversible local destruction) |
 | `permissions_protected` | `chmod`/`chown -R` of the same system paths (`chmod -R 777 /`) | dcg, Claude Code (security weaken) |
-| `disk_wipe` | `mkfs`, `dd of=/dev/…`, `wipefs`, partition editors, `diskutil erase…`, writes to a block device | Arcjet destructive-command, dcg system.disk |
+| `disk_wipe` | `mkfs`, `newfs_…`, `dd of=/dev/…`, `wipefs`, partition editors, `diskutil erase…` and `diskutil apfs delete…`, writes to a block device (a redirect, `tee`, `cp`) | Arcjet destructive-command, dcg system.disk |
 | `fork_bomb` | `:(){ :\|:& };:` and its renamings | dcg, pi-prevent-destructive-commands |
 | `pipe_to_shell` | a download piped into a shell or interpreter, `bash <(curl …)`, `sh -c "$(curl …)"` | Arcjet piped-installer, Claude Code (code from external) |
 | `force_push` | `git push --force`/`-f`/`+refspec`/`--mirror` (`--force-with-lease` goes to System 1) | Arcjet rewrite-history, dcg core.git, git-guardrails, Claude Code (git destructive) |
