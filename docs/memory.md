@@ -188,10 +188,16 @@ index. Earlier commits of the drive still hold it; only rewriting its git histor
   that shares one word is offered when few lines hold that word, so the name of a project is enough. System 1 is
   then asked once more about the lines that hold the names and numbers of the picked lines (at most 20 and 10):
   an address goes from every line that states it, though the request never spelled it out.
-  The lines go, a page left with nothing goes, links to a gone page go, and a transcript line that quotes a
-  removed line, or a gone page's title or path, becomes `[removed at the user's request]`. A page's summary line
-  is built again from the lines that stay, and a kind of work left with no session leaves the schema. A session
-  whose task line goes is forgotten whole: its transcript and its work page are deleted, and a line of another
+  A line of two to six sentences is offered sentence by sentence, so only what was asked goes: a message that told
+  a physiotherapy slot and a Friday meeting rule keeps the rule. A page sentence that says something else beside
+  it (two facts merged into one line) is reworded by the writer to keep the rest, and the new wording replaces it
+  when it holds no value the sentence did not and System 1 finds it says nothing that was asked; otherwise the
+  sentence goes whole. A transcript is never reworded: its sentences go, each replaced by
+  `[removed at the user's request]`. The lines go, a page left with nothing goes, links to a gone page go, and
+  what a transcript line quotes of a removed line or sentence becomes the marker; a transcript line that names a
+  gone page's title or path becomes the marker whole. A page's summary line is built again from the lines that
+  stay, and a kind of work left with no session leaves the schema. A session whose task line goes whole, every
+  sentence of it, is forgotten whole: its transcript and its work page are deleted, and a line of another
   transcript that names it by its id (a search that listed it) becomes the marker too. The request itself,
   everything the session did about it (its replies, the searches it ran for the thing and what they returned) and
   every restatement in the session are removed from what the steward writes, so the session's own transcript and

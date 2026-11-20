@@ -49,6 +49,14 @@ _ASKING_TEXT = (
 _LABEL_TAIL = re.compile(r" \([^()]*\d{4}-\d{2}-\d{2}[^()]*\)$")
 # A removed line's text shorter than this is too common to redact wherever it appears in a transcript.
 MIN_COVERED_CHARS = 16
+# What starts a line and is never one of its sentences: a transcript's task, turn or step with its entry id, or a
+# page line's attribute.
+_HEAD = re.compile(r"^(?:task: |[usa]\d+ \[[^\]]*\] (?:@\S+ )?(?:\$ )?|\s*-> |(?:\(preference\) )?[a-z][a-z ]{0,24}: )")
+_CONTENT = re.compile(r"[A-Za-z0-9]")
+# A list number or a lone mark between sentences is no sentence of its own: it goes only with its line.
+_WORDED = re.compile(r"[A-Za-z]{2}")
+# A line of more sentences than this is offered whole.
+MAX_LINE_PARTS = 6
 
 
 class Spot(BaseModel):
@@ -56,6 +64,17 @@ class Spot(BaseModel):
     file: str
     block: str = ""
     line: str
+    # A sentence of the line when only it goes; empty when the whole line goes.
+    part: str = ""
+    # What the part becomes on a page, when a rewrite keeps what was not asked to be forgotten; empty removes it.
+    kept: str = ""
+
+    @property
+    def text(self) -> str:
+        # What goes: the part, or a page line's words without its label and source, or a transcript line.
+        if self.part:
+            return self.part
+        return body(self.line) if self.file.endswith(".md") else self.line
 
 
 class Removal(BaseModel):
@@ -100,6 +119,40 @@ def body(line: str) -> str:
     return _LABEL_TAIL.sub("", strip_source(line)).removeprefix("- ").strip()
 
 
+def parts(spot: Spot) -> list[Spot]:
+    # A line of several sentences is offered sentence by sentence, so what was not asked about stays with it. A
+    # title names its page and stays whole.
+    if spot.part or spot.block == TITLE or spot.file == SESSION:
+        return [spot]
+    text = spot.text
+    head = m[0] if (m := _HEAD.match(text)) else ""
+    found = [s for s in dict.fromkeys(sentences(text[len(head) :])) if _WORDED.search(s)]
+    if not 1 < len(found) <= MAX_LINE_PARTS:
+        return [spot]
+    return [spot.model_copy(update={"part": s}) for s in found]
+
+
+def cut(line: str, spots: list[Spot], marker: str = "") -> str | None:
+    # The line without the parts that go, each rewritten as kept or replaced by the marker; None when the whole
+    # line goes or nothing of it is left.
+    if any(not s.part for s in spots):
+        return None
+    for s in spots:
+        line = _without(line, s.part, s.kept or marker)
+    rest = (line if marker else body(line)).replace(MARKER, "")
+    rest = rest[len(m[0]) :] if (m := _HEAD.match(rest)) else rest
+    return line if _CONTENT.search(rest) else None
+
+
+def _without(line: str, part: str, put: str) -> str:
+    if put:
+        return line.replace(part, put)
+    for found in (f" {part}", f"{part} "):
+        if found in line:
+            return line.replace(found, "")
+    return line.replace(part, "")
+
+
 def page_files(files: dict[str, str]) -> list[str]:
     return [
         n
@@ -131,15 +184,17 @@ def _sharing(
     # how many lines hold it).
     shared = [(spot, want & stems(spot.line)) for spot in spots]
     held = Counter(w for _, found in shared for w in found)
+    skipped = {(s.file, s.block, s.line) for s in skip}
     scored = [
         (sum(math.log(1 + len(spots) / held[w]) for w in found), spot)
         for spot, found in shared
-        if (len(found) >= need or any(alone(w, held[w]) for w in found)) and spot not in skip
+        if (len(found) >= need or any(alone(w, held[w]) for w in found))
+        and (spot.file, spot.block, spot.line) not in skipped
     ]
     scored.sort(key=lambda s: -s[0])
     on_pages = [s for _, s in scored if not s.file.startswith(SESSIONS_FOLDER)][:most]
     in_transcripts = [s for _, s in scored if s.file.startswith(SESSIONS_FOLDER)][: most // 2]
-    return on_pages + in_transcripts
+    return [p for s in on_pages + in_transcripts for p in parts(s)]
 
 
 def _rare(spots: list[Spot]) -> int:
@@ -188,7 +243,7 @@ def followers(
     held = Counter(w for spot in spots for w in stems(spot.line))
     rare = _rare(spots)
     said = [s for s in picked if s.block not in (TITLE, LEAD_ID) and s.file in files]
-    values = {w for s in said for w in _values(s.line) - stems(text) - _ASKING if held[w] <= rare}
+    values = {w for s in said for w in _values(s.text) - stems(text) - _ASKING if held[w] <= rare}
     return _sharing(spots, values, 2, lambda word, _: _numbered(word), [*picked, *skip], most)
 
 
@@ -198,13 +253,18 @@ def matching(files: dict[str, str], transcripts: dict[str, str], text: str) -> l
 
 
 def widened(files: dict[str, str], transcripts: dict[str, str], removal: Removal) -> Removal:
-    # A session whose task line goes is forgotten whole, so its work page goes as a removed title does. Then every
-    # transcript line that repeats what goes (a page line, a gone page's title or path, or a forgotten session
-    # named by its id, as a recalled page, a reminder or a search showed it) goes too.
+    # A session whose task line goes whole, every sentence of it, is forgotten whole, so its work page goes as a
+    # removed title does; one whose task loses only some sentences keeps the rest. Then what goes is taken out of
+    # every transcript line that repeats it (a page line or sentence, as a recalled page or a reminder showed it),
+    # and a line naming a gone page's title or path, or a forgotten session by its id, as a search listed it, goes.
+    tasks: dict[tuple[str, str], list[Spot]] = {}
+    for s in removal.lines:
+        if s.file.startswith(SESSIONS_FOLDER) and s.line.startswith("task: "):
+            tasks.setdefault((s.file, s.line), []).append(s)
     ids = {
-        s.file.removeprefix(SESSIONS_FOLDER).removesuffix(".txt")
-        for s in removal.lines
-        if s.file.startswith(SESSIONS_FOLDER) and s.line.startswith("task: ")
+        name.removeprefix(SESSIONS_FOLDER).removesuffix(".txt")
+        for (name, line), spots in tasks.items()
+        if cut(line, spots, MARKER) is None
     }
     lines = list(removal.lines)
     pages = removal.pages + [n for i in sorted(ids) if (n := f"{SESSIONS_FOLDER}{i}.txt") not in removal.pages]
@@ -218,14 +278,17 @@ def widened(files: dict[str, str], transcripts: dict[str, str], removal: Removal
         if spot not in lines:
             lines.append(spot)
     paths = [p.removesuffix(".md") for p in removal.pages] + [s.file[:-3] for s in lines if s.block == TITLE]
-    said = [body(s.line) for s in lines if not s.file.startswith(SESSIONS_FOLDER)] + paths
-    said = list({b for b in said if len(b) >= MIN_COVERED_CHARS} | {f"session: {i}" for i in ids})
+    pages_said = [s for s in lines if not s.file.startswith(SESSIONS_FOLDER)]
+    said = {b for s in pages_said if s.block != TITLE and len(b := s.text) >= MIN_COVERED_CHARS}
+    named = [*paths, *(s.line for s in pages_said if s.block == TITLE)]
+    named = {b for b in named if len(b) >= MIN_COVERED_CHARS} | {f"session: {i}" for i in ids}
     for name, text in transcripts.items():
         if name in pages:
             continue
         for line in text.splitlines():
-            if any(b in line for b in said) and (spot := Spot(file=name, line=line)) not in lines:
-                lines.append(spot)
+            whole = any(b in line for b in named)
+            found = [Spot(file=name, line=line)] if whole else [Spot(file=name, line=line, part=b) for b in said]
+            lines += [s for s in found if (whole or s.part in line) and s not in lines]
     return Removal(lines=lines, pages=pages)
 
 
@@ -233,9 +296,9 @@ def apply(files: dict[str, str], transcripts: dict[str, str], removal: Removal) 
     # The files a removal rewrites and the files it deletes. A page the removal leaves with nothing in it goes too,
     # and a line linking a page that goes is dropped, as the page's name may be what was asked to be forgotten. So
     # may the name of a kind of work be: one left with no session is no longer listed.
-    drop: dict[str, set[tuple[str, str]]] = {}
+    drop: dict[str, dict[tuple[str, str], list[Spot]]] = {}
     for spot in removal.lines:
-        drop.setdefault(spot.file, set()).add((spot.block, spot.line))
+        drop.setdefault(spot.file, {}).setdefault((spot.block, spot.line), []).append(spot)
     gone = {p.removesuffix(".md") for p in removal.pages}
     gone |= {s.file.removesuffix(".md") for s in removal.lines if s.block == TITLE}
     while True:
@@ -247,9 +310,11 @@ def apply(files: dict[str, str], transcripts: dict[str, str], removal: Removal) 
     removed += sorted(n for n in removal.pages if n in transcripts)
     changed = {n: t for n, t in changed.items() if n not in removed}
     for name, text in transcripts.items():
-        lines = {line for block, line in drop.get(name, set()) if not block}
+        lines = {line: spots for (block, line), spots in drop.get(name, {}).items() if not block}
         if lines and name not in removed:
-            changed[name] = "\n".join(MARKER if line in lines else line for line in text.split("\n"))
+            changed[name] = "\n".join(
+                (cut(line, lines[line], MARKER) or MARKER) if line in lines else line for line in text.split("\n")
+            )
     left = {_work_kind(n) for n in files if n not in removed}
     unused = {_work_kind(n) for n in removed} - left - {""}
     if unused and SCHEMA_FILE in files:
@@ -273,13 +338,13 @@ def _without_kinds(schema: str, kinds: set[str]) -> str:
 
 
 def _pages(
-    files: dict[str, str], drop: dict[str, set[tuple[str, str]]], gone: set[str]
+    files: dict[str, str], drop: dict[str, dict[tuple[str, str], list[Spot]]], gone: set[str]
 ) -> tuple[dict[str, str], set[str]]:
     changed: dict[str, str] = {}
     emptied: set[str] = set()
     for name in page_files(files):
         path, text = name[:-3], files[name]
-        lines = drop.get(name, set())
+        lines = drop.get(name, {})
         if path in gone or (not lines and not gone.intersection(links(text))):
             continue
         try:
@@ -304,8 +369,15 @@ def _pages(
     return changed, emptied
 
 
-def _kept(body: list[str], block_id: str, drop: set[tuple[str, str]], gone: set[str]) -> list[str]:
-    return [line for line in body if (block_id, line) not in drop and not gone.intersection(links(line))]
+def _kept(body: list[str], block_id: str, drop: dict[tuple[str, str], list[Spot]], gone: set[str]) -> list[str]:
+    kept: list[str] = []
+    for line in body:
+        if gone.intersection(links(line)):
+            continue
+        spots = drop.get((block_id, line))
+        if (new := cut(line, spots) if spots else line) is not None:
+            kept.append(new)
+    return kept
 
 
 def settle(files: dict[str, str], changed: dict[str, str], removed: list[str]) -> tuple[dict[str, str], list[str]]:
