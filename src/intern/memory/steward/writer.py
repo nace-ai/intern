@@ -178,6 +178,13 @@ Leave every other line as it is. Never merge lines of different sections, and ne
 
 Answer with JSON only:
 {{"merged": [{{"lines": ["<id>", "<id>"], "text": "<sentence>"}}], "dropped": ["<id>"]}}"""
+REST = """You keep the long-term memory of an AI agent. The user asked it to forget something, and each line below
+says some of what they asked to forget. For each line, write what is left of it once that is taken out: one
+self-contained sentence under {chars} characters that keeps every other value, name, negation and limit of the
+line in its words, and adds nothing. Write "" when the line says nothing else.
+
+Answer with JSON only:
+{{"rest": [{{"line": "<id>", "text": "<sentence, or empty>"}}]}}"""
 FOLDER = """You keep the skill folders of an AI agent that works for one user, session after session, in the same
 world. A skill folder holds how one kind of work is done, so that a later task of that kind runs the stored script,
 reads the stored table or fills the stored template instead of working it all out again: a SKILL.md with the steps,
@@ -881,6 +888,26 @@ async def condense(
     named = dict.fromkeys(str(x).strip() for x in answer.get("dropped") or [])
     dropped = [i for i in named if i in section_of and i not in used]
     return merges, dropped
+
+
+async def rest(writer: Writer | ReplayWriter, asked: str, texts: list[str], key: str) -> list[str]:
+    # What is left of each line without what the user asked to forget; empty where nothing is.
+    listed = "\n".join(f"l{i}. {text}" for i, text in enumerate(texts))
+    system = REST.format(chars=MERGED_CHARS)
+    raw = await writer.complete(system, f"{asked}\n\nLines:\n{listed}", key, effort=EFFORT)
+    try:
+        answer = json.loads(_FENCE.sub("", raw.strip()))
+    except json.JSONDecodeError as e:
+        raise ValueError(f"the writer did not answer with rest JSON: {raw[:200]!r}") from e
+    found = [""] * len(texts)
+    for item in (answer.get("rest") or []) if isinstance(answer, dict) else []:
+        if not isinstance(item, dict):
+            continue
+        ident = re.fullmatch(r"l(\d+)", str(item.get("line", "")).strip())
+        text = _text(item.get("text"), MERGED_CHARS)
+        if ident and int(ident[1]) < len(texts) and text and not INJECTION.search(text):
+            found[int(ident[1])] = text
+    return found
 
 
 def _held_folder(held: HeldFolder) -> str:

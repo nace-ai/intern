@@ -23,9 +23,9 @@ from intern.memory.forget import (
     MARKER,
     MIN_COVERED_CHARS,
     SESSION,
+    TITLE,
     Removal,
     Spot,
-    body,
     candidates,
     earlier,
     followers,
@@ -126,13 +126,15 @@ from intern.memory.steward.writer import (
     condense,
     draft,
     fold,
+    grounded,
     learn,
     numbers,
+    rest,
     similar,
     trace,
 )
 
-STEWARD_VERSION = "50"
+STEWARD_VERSION = "51"
 KEEP = 0.7
 NOTE_KEEP = 0.5
 MAYBE_CORRECTION = 0.3
@@ -194,6 +196,12 @@ FOLLOWED = (
     "Does line {name} repeat what the lines being forgotten say, which user message {message} asked to forget or "
     "said is wrong? A line that only shares a name or a subject with them does not."
 )
+REST = (
+    "Line {name} is to be rewritten as the rest shown under it, without what the user messages asked to forget or "
+    "said is wrong. Does the rest say only what line {name} says, with its values, names and limits, and nothing "
+    "the messages asked to forget or said is wrong?"
+)
+SENTENCES = "A line of several sentences is shown whole, then each of its sentences as a line of its own."
 # Only a session whose user used one of these words is asked FORGET, so other sessions cost no extra ask.
 _FORGET_CUE = re.compile(
     r"\b(forget|forgot|delete|remove|erase|drop|wipe|scrub|strike|purge|clear|discard|disregard|ignore|redact|"
@@ -405,7 +413,7 @@ def _noul(answer: Answer | None) -> float:
 
 
 async def _forgetting(
-    decision: _Decision, ex: Extract, files: dict[str, str], root: Path
+    decision: _Decision, writer: Writer | ReplayWriter | None, ex: Extract, files: dict[str, str], root: Path
 ) -> tuple[Removal, dict[str, str], Extract]:
     # A user's request to forget, or word that a line is wrong: System 1 finds the lines it means, in memory and in
     # what the session said before the request, then the lines that repeat what those say in other words. The
@@ -442,7 +450,8 @@ async def _forgetting(
         state = f"User messages:\n{listed}\n\nLines being forgotten:\n{going}"
         picked += await _picked(decision, FOLLOWED, KEEP, state, more)
     said = [s.line for _, s in picked if s.file == SESSION]
-    removal = widened(files, transcripts, Removal(lines=[s for _, s in picked if s.file != SESSION]))
+    going = await _rest(decision, writer, ex, listed, [s for _, s in picked if s.file != SESSION], files)
+    removal = widened(files, transcripts, Removal(lines=going))
     return removal, transcripts, _scrub(ex, [users[i] for i in flagged], removal, said)
 
 
@@ -451,13 +460,59 @@ async def _picked(
 ) -> list[tuple[int, Spot]]:
     if not found:
         return []
-    held = "\n".join(f"c{k}. [{s.file}] {clip(strip_source(s.line), CITED_CHARS)}" for k, (_, s) in enumerate(found))
+    held: list[str] = []
+    shown: tuple[str, str, str] | None = None
+    for k, (_, s) in enumerate(found):
+        if not s.part:
+            held.append(f"c{k}. [{s.file}] {clip(strip_source(s.line), CITED_CHARS)}")
+            continue
+        if shown != (s.file, s.block, s.line):
+            held.append(f"[{s.file}] {clip(strip_source(s.line), CITED_CHARS)}")
+            shown = (s.file, s.block, s.line)
+        held.append(f"    c{k}. {clip(s.part, CITED_CHARS)}")
     questions: dict[str, Question] = {
         f"c{k}": NoulQuestion(instructions=question.format(name=f"c{k}", message=f"u{i}"))
         for k, (i, _) in enumerate(found)
     }
-    answers = await decision.ask("steward_forgotten", f"{state}\n\nLines memory holds:\n{held}", questions)
+    state = f"{state}\n\n{SENTENCES}\nLines memory holds:\n" + "\n".join(held)
+    answers = await decision.ask("steward_forgotten", state, questions)
     return [(i, s) for k, (i, s) in enumerate(found) if _noul(answers.get(f"c{k}")) >= bar]
+
+
+async def _rest(
+    decision: _Decision,
+    writer: Writer | ReplayWriter | None,
+    ex: Extract,
+    asked: str,
+    going: list[Spot],
+    files: dict[str, str],
+) -> list[Spot]:
+    # A page line or sentence that says something else beside what goes keeps the rest: the writer words it, and
+    # it is kept when it holds no value the line did not and System 1 finds it says nothing that was asked to be
+    # forgotten. Without a writer, or without a sure answer, the line or sentence goes whole. A transcript keeps
+    # the user's own words, so only its sentences go.
+    mixed = [k for k, s in enumerate(going) if s.file in files and s.block != TITLE]
+    if writer is None or not mixed:
+        return going
+    try:
+        rests = await rest(writer, f"User messages:\n{asked}", [going[k].text for k in mixed], f"{ex.session_id}.rest")
+    except (httpx.HTTPError, ValueError, KeyError, IndexError):
+        return going
+    offered = [
+        (k, text)
+        for k, text in zip(mixed, rests, strict=True)
+        if text and text != going[k].text and grounded(text, going[k].text)
+    ]
+    if not offered:
+        return going
+    shown = "\n".join(
+        f"r{k}. {clip(going[k].text, CITED_CHARS)}\n    rest: {clip(text, CITED_CHARS)}" for k, text in offered
+    )
+    questions: dict[str, Question] = {f"r{k}": NoulQuestion(instructions=REST.format(name=f"r{k}")) for k, _ in offered}
+    state = f"User messages:\n{asked}\n\nLines and what is left of them:\n{shown}"
+    answers = await decision.ask("steward_forget_rest", state, questions)
+    kept = {k: inert(text) for k, text in offered if _noul(answers.get(f"r{k}")) >= KEEP}
+    return [s.model_copy(update={"part": s.text, "kept": kept[k]}) if k in kept else s for k, s in enumerate(going)]
 
 
 def _spans(ex: Extract, asked: list[Turn]) -> list[tuple[int, int | None]]:
@@ -479,7 +534,7 @@ def _scrub(ex: Extract, asked: list[Turn], removal: Removal, said: list[str]) ->
     marked = [t for t in ex.turns if _within(spans, t.order)]
     steps = [s for s in ex.steps if _within(spans, s.order)]
     done = {s.pointer for s in steps}
-    said = [*said, *(body(s.line) for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER))]
+    said = [*said, *(s.text for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER))]
     said += [text.strip() for s in steps for text in (s.call, s.result, s.output)]
     texts = {b for b in [*(t.text.strip() for t in marked), *said] if len(b) >= MIN_COVERED_CHARS}
     data = ex.model_dump()
@@ -1466,7 +1521,7 @@ async def propose(
     files, ex, (forgot, gone) = _prepare(journal_path, drive_root, world)
     root = _resolved(drive_root)
     raw = _folder_files(drive_root)
-    removal, transcripts, ex = await _forgetting(_Decision(decisions, ex.run_state), ex, files, root)
+    removal, transcripts, ex = await _forgetting(_Decision(decisions, ex.run_state), writer, ex, files, root)
     if not removal.empty:
         # Applied first, so nothing written below compares with, restates or links what was forgotten.
         rewritten, dropped = apply_removal(files, transcripts, removal)
