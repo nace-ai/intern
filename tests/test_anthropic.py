@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import ssl
+from datetime import UTC, datetime, timedelta
+from email.utils import format_datetime
 from typing import Any
 
 import httpx
@@ -12,7 +14,7 @@ import pytest
 from intern.messages import AssistantMessage, UserMessage
 from intern.models.profile import Compat
 from intern.models.registry import Endpoint
-from intern.providers import anthropic
+from intern.providers import anthropic, base
 from intern.providers.anthropic import AnthropicProvider, mark_cache, wire_messages
 from intern.providers.base import NO_RETRIES, Completed, ProviderError, ProviderRequest, RetryPolicy
 
@@ -141,6 +143,31 @@ async def test_with_retries_off_an_overloaded_server_is_asked_once_and_the_error
     with pytest.raises(ProviderError) as raised:
         await collect(provider(handler), request(retries=NO_RETRIES))
     assert calls == 1 and raised.value.status == 529 and raised.value.retryable
+
+
+async def test_a_rate_limit_is_asked_again_when_retry_after_says_or_handed_on_when_that_is_too_long(monkeypatch):
+    waits: list[float] = []
+
+    async def no_sleep(seconds: float) -> None:
+        waits.append(seconds)
+
+    monkeypatch.setattr(base.asyncio, "sleep", no_sleep)
+
+    def limited(retry_after: str) -> Any:
+        replies = [httpx.Response(429, headers={"Retry-After": retry_after}, text="slow down")]
+        return lambda r: replies.pop(0) if replies else httpx.Response(200, content=OK_REPLY)
+
+    retries = RetryPolicy(provider_waits_s=(0.0, 0.0))
+    assert (await collect(provider(limited("7")), request(retries=retries))).text == "ok"
+    assert waits == [7.0]
+    in_seven = format_datetime(datetime.now(UTC) + timedelta(seconds=7), usegmt=True)
+    assert (await collect(provider(limited(in_seven)), request(retries=retries))).text == "ok"
+    assert 5.0 < waits[1] <= 7.0
+
+    # A day is not waited out here: the error goes up at once, still retryable, so a backup model can take over.
+    with pytest.raises(ProviderError) as raised:
+        await collect(provider(limited("86400")), request(retries=retries))
+    assert raised.value.retryable and raised.value.retry_after_s == 86400 and len(waits) == 2
 
 
 async def test_a_client_error_is_not_retried():

@@ -45,6 +45,7 @@ from intern.providers.base import (
     TextChunk,
     image_base64,
     missing_image_note,
+    retry_after_s,
     retrying,
     sse_lines,
 )
@@ -279,6 +280,7 @@ class AnthropicProvider:
                     f"HTTP {response.status_code} from {self.endpoint.provider}: {detail}",
                     status=response.status_code,
                     retryable=response.status_code in RETRYABLE_STATUS,
+                    retry_after_s=retry_after_s(response.headers),
                 ) from None
             reply = _Reply()
             async for item in self._read(response, reply):
