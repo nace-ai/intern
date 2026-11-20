@@ -440,6 +440,14 @@ class OpenSandboxExecutor:
                 if exit_code is None and execution.error is not None:
                     exit_code = getattr(execution.error, "exit_code", None) or 1
                     buffer.add(f"\n{execution.error.name}: {execution.error.value}".encode())
+        except asyncio.CancelledError:
+            # This call was cancelled (the run was stopped). Dropping the connection does not end the command on the
+            # server, so it is interrupted there; shielded, so a second cancellation does not stop the interrupt.
+            if execution_id and not running.done():
+                interrupt = asyncio.ensure_future(sandbox.commands.interrupt(execution_id[0]))
+                with contextlib.suppress(Exception):
+                    await asyncio.shield(interrupt)
+            raise
         finally:
             if aborted_task is not None:
                 aborted_task.cancel()

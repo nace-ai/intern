@@ -33,6 +33,11 @@ That stores the value in the OS keychain (service `intern`, the name as the acco
 `GITHUB_TOKEN = "keychain"` to `[secrets]` in `~/.intern/config.toml`, keeping the rest of the file as you
 wrote it. Running it again replaces the value. The next session uses it, with no restart.
 
+Each config home has its own keychain items. `~/.intern` keeps service `intern`; a home elsewhere (`INTERN_HOME`)
+uses service `intern-` followed by a hash of its path, so a test or second home never reads, replaces or deletes
+your keys, and yours never reach it. A home elsewhere that stored keys before 0.57.3 stores them again with
+`intern secrets set`.
+
 | Command | What it does |
 |---|---|
 | `intern secrets set NAME` | Store a value in the keychain and name it in config. `--stdin` reads the value from stdin. |

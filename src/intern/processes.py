@@ -436,6 +436,7 @@ class ProcessManager:
         job.serves = not held
         if not held and lift is not None:
             lift()
+        self._make_room()
         self._jobs[job.handle] = job
         self._moved_from[call_id] = job.handle
         if (watched := self._watched.pop(call_id, None)) is not None:
@@ -443,6 +444,15 @@ class ProcessManager:
         self._report("started", self._info(job))
         job.task = asyncio.create_task(self._supervise_moved(job))
         return self._snapshot(job, None)
+
+    def _make_room(self) -> None:
+        """Drop the oldest finished records until one more fits in `max_records`. Running jobs are never dropped."""
+        for finished, old in list(self._jobs.items()):
+            if len(self._jobs) < self.max_records:
+                break
+            if old.done.is_set():
+                del self._jobs[finished]
+        self._moved_from = {call: handle for call, handle in self._moved_from.items() if handle in self._jobs}
 
     def held_running(self) -> list[ProcessInfo]:
         """The `bash` calls moved here that still run and whose result the run waits for."""
@@ -589,11 +599,7 @@ class ProcessManager:
                 raise RuntimeError("Run was aborted before process creation")
             if sum(not j.done.is_set() for j in self._jobs.values()) >= self.max_running:
                 raise RuntimeError("The running-process limit is reached; terminate or wait for an owned job")
-            for finished, old in list(self._jobs.items()):
-                if len(self._jobs) < self.max_records:
-                    break
-                if old.done.is_set():
-                    del self._jobs[finished]
+            self._make_room()
             if executor is not None:
                 remote = await executor.start_job(command, cwd=cwd, env=env)
                 if not stdin:

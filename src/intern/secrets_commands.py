@@ -86,7 +86,7 @@ def check(home: Path, env: Mapping[str, str], names: list[str] | None = None) ->
         path = None if entry == KEYCHAIN else shutil.which(entry[0], path=env.get("PATH"))
         started = time.monotonic()
         try:
-            read_entry(name, entry, env, cwd=home if home.is_dir() else None)
+            read_entry(name, entry, env, cwd=home if home.is_dir() else None, home=home)
             status = SecretStatus(name=name, source=info.source, ok=True, path=path, harness_only=info.harness_only)
         except SecretFailure as failure:
             status = SecretStatus(
@@ -114,7 +114,7 @@ def store(name: str, value: str, home: Path, env: Mapping[str, str]) -> None:
     current = load_user_config(home).secrets.get(name)
     if current is not None and current != KEYCHAIN:
         raise ConfigError(f"{name} comes from a command in config.toml; remove that line to keep it in the keychain")
-    keychain_write(name, value, env)
+    keychain_write(name, value, env, home=home)
     if current is None:
         path, document = _config(home)
         table = document.get("secrets")
@@ -132,7 +132,7 @@ def remove(name: str, home: Path, env: Mapping[str, str]) -> None:
     if current is None:
         raise ConfigError(f"[secrets] has no {name}")
     if current == KEYCHAIN:
-        keychain_delete(name, env)
+        keychain_delete(name, env, home=home)
     path, document = _config(home)
     del document["secrets"][name]  # type: ignore[union-attr]
     path.write_text(tomlkit.dumps(document))
