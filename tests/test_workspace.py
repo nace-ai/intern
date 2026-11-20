@@ -117,6 +117,31 @@ def test_a_table_of_any_size_and_a_latin1_export_with_a_title_row_are_indexed(tm
         assert con.execute("select preparer from exceptions").fetchone() == ("lbauer",)
 
 
+def test_csv_exports_in_windows_and_utf16_encodings_and_one_whose_column_turns_to_text_are_tables(tmp_path: Path):
+    # What Excel writes on Windows: curly quotes, the euro sign and a dash are bytes Latin-1 has no letter for.
+    (tmp_path / "prices.csv").write_bytes("name,price\nCafé “Zoë”,€5\nNaïve – x,€7\n".encode("cp1252"))
+    (tmp_path / "unicode.csv").write_bytes("name,amount\nCafé,5\nZoë,7\n".encode("utf-16"))
+    (tmp_path / "bare.tsv").write_bytes("name\tamount\nCafé\t5\nZoë\t7\n".encode("utf-16-le"))
+    # Past the rows DuckDB samples for the types, a count that is not a number.
+    counts = "".join(f"{n},{n}\n" for n in range(30_000))
+    (tmp_path / "stock.csv").write_text(f"id,qty\n{counts}30000,N/A\n30001,5\n")
+    lines_seen: list[str] = []
+    index = wi.build(tmp_path, tmp_path / Workspace.folder, processors=office_processors, report=lines_seen.append)
+    assert not [line for line in lines_seen if line.startswith("skip ")]
+    tables = {rel: entry.tables[0] for rel, entry in index.files.items()}
+    assert [(t.rows, t.columns) for t in (tables["unicode.csv"], tables["bare.tsv"])] == [(2, ["name", "amount"])] * 2
+    assert tables["stock.csv"].rows == 30_002
+    with docs.connect(tmp_path / Workspace.folder, tmp_path, read_only=True) as con:
+        assert con.execute("select name, price from prices order by name").fetchall() == [
+            ("Café “Zoë”", "€5"),
+            ("Naïve – x", "€7"),
+        ]
+        assert con.execute("select sum(amount) from unicode where name in ('Café', 'Zoë')").fetchone() == (12,)
+        assert con.execute("select sum(amount) from bare where name in ('Café', 'Zoë')").fetchone() == (12,)
+        assert con.execute("select id from stock where qty = 'N/A'").fetchone() == (30_000,)
+        assert con.execute("select sum(id) from stock where id < 3").fetchone() == (3,)  # id is still a number
+
+
 def test_a_table_saved_from_a_sheet_with_a_title_above_its_header_gets_the_real_header(tmp_path: Path):
     duckdb = pytest.importorskip("duckdb")
     # As pandas writes a statement sheet: the title in the first column's name, "nan" for empty cells.

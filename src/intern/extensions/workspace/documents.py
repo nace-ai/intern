@@ -13,6 +13,7 @@ import itertools
 import json
 import os
 import re
+import shutil
 import statistics
 from contextlib import AbstractContextManager, nullcontext
 from pathlib import Path
@@ -618,9 +619,10 @@ class TableProcessor(_UsesTables):
             _drop(con, name)  # it may have been loaded as a table before the file changed
             if path.suffix == ".parquet":
                 con.execute(f'CREATE OR REPLACE VIEW "{name}" AS SELECT * FROM read_parquet({literal(source)})')
+                info = profile(con, name, rel)
             else:
-                options = _csv_view(con, name, source)
-            info = profile(con, name, rel)
+                staging = workspace / "derived" / Path(rel).parent / f"{path.name}.utf8.csv"
+                info, source, options = _csv_view(con, name, rel, source, root, staging)
             if (
                 sum(bool(_UNNAMED.fullmatch(c)) for c in info.columns) * 2 > len(info.columns)
                 and info.rows <= RESHAPE_ROWS
@@ -644,20 +646,62 @@ class TableProcessor(_UsesTables):
         )
 
 
-def _csv_view(con: duckdb.DuckDBPyConnection, name: str, path: Path) -> str:
-    """A view on the CSV that reads it: UTF-8, else Latin-1 (an export from Excel on Windows or a Mac). Returns the
-    read_csv options it needed."""
+#: How a CSV's column types are found, the next tried when a value does not convert under the one before: from
+#: DuckDB's sample of the first rows, from every row (a quantity column that says `N/A` on row 30,000), as text.
+_CSV_TYPING = ("", ", sample_size=-1", ", all_varchar=true")
+#: Bytes of a CSV read to tell UTF-16 from the rest.
+_ENCODING_SNIFF = 4096
+
+
+def _csv_view(
+    con: duckdb.DuckDBPyConnection, name: str, rel: str, source: Path, root: Path, staging: Path
+) -> tuple[TableInfo, Path, str]:
+    """A view on the CSV that reads every row of it, and its profile. The file is read in place as UTF-8, else as
+    Latin-1; a UTF-16 file (an export "as Unicode text") and, failing those, a Windows-1252 one (an export from Excel:
+    curly quotes, the euro sign) are read from a UTF-8 copy at ``staging``. Returns the profile, the file the view
+    reads and the read_csv options its encoding needed."""
     import duckdb
 
-    for options in ("", ", encoding='latin-1'"):
+    wide = _utf16(root / source)
+    error: duckdb.Error | None = None
+    for encoding in [wide] if wide else ["utf-8", "latin-1", "cp1252"]:
+        read, options = source, ", encoding='latin-1'" if encoding == "latin-1" else ""
+        if encoding not in ("utf-8", "latin-1"):
+            staging.parent.mkdir(parents=True, exist_ok=True)
+            with (
+                (root / source).open(encoding=encoding, errors="replace", newline="") as original,
+                staging.open("w", encoding="utf-8", newline="") as copy,
+            ):
+                shutil.copyfileobj(original, copy)
+            read = staging.relative_to(root) if staging.is_relative_to(root) else staging
         try:
-            con.execute(f'CREATE OR REPLACE VIEW "{name}" AS SELECT * FROM read_csv({literal(path)}{options})')
-            con.execute(f'DESCRIBE "{name}"')
-            return options
-        except duckdb.InvalidInputException:
-            if options:
-                raise
-    return ""
+            for typing in _CSV_TYPING:
+                try:
+                    con.execute(
+                        f'CREATE OR REPLACE VIEW "{name}" AS SELECT * FROM read_csv({literal(read)}{options}{typing})'
+                    )
+                    return profile(con, name, rel), read, options  # the profile reads every row: it fails here or never
+                except duckdb.ConversionException as e:
+                    error = e
+        except duckdb.InvalidInputException as e:  # not text in this encoding, at the first row or the millionth
+            error = e
+    _drop(con, name)
+    assert error is not None
+    raise error
+
+
+def _utf16(path: Path) -> str | None:
+    """The codec of a UTF-16 file: by its byte order mark, or without one by the zero byte in every other place that
+    Latin text has in it. None for anything else."""
+    with path.open("rb") as f:
+        head = f.read(_ENCODING_SNIFF)
+    if head[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return "utf-16"
+    pairs = len(head) // 2
+    for codec, zeros in (("utf-16-le", head[1::2]), ("utf-16-be", head[0 : pairs * 2 : 2])):
+        if pairs and zeros.count(0) * 2 > pairs:
+            return codec
+    return None
 
 
 def query_memory() -> int | None:
