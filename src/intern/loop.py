@@ -1304,6 +1304,7 @@ class Run:
             call_id=call.id,
             subagents=self.subagents,
             run=self._ctx(),
+            redact=self.deps.redact,
         )
         try:
             if not tool.cancel_on_abort:  # it watches the abort itself, and answers with what it has

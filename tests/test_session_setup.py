@@ -846,6 +846,24 @@ async def test_the_harness_keys_in_the_environment_reach_commands_but_never_thei
         assert [path for path in home.rglob("*") if path.is_file() and key in path.read_text()] == []
 
 
+async def test_the_file_kept_of_a_long_commands_output_holds_no_harness_key(tmp_path, monkeypatch):
+    key = "drex-key-from-the-environment"
+    monkeypatch.setenv("DREX_API_KEY", key)
+    toml = '[capabilities]\ntool_packs = ["base"]\n'
+    commands = [
+        # Megabytes of the key on every line, then around one line of megabytes: more than is shown, so a file is kept.
+        'yes "$DREX_API_KEY" | head -c 4000000',
+        'printf %s "$DREX_API_KEY"; head -c 3000000 /dev/zero | tr \'\\0\' x; printf %s "$DREX_API_KEY"',
+    ]
+    replies = [*(Reply(tool_calls=[("bash", {"command": command})]) for command in commands), Reply(text="done")]
+    async with configured(tmp_path, replies, toml, env={"DREX_API_KEY": key}) as (session, _, _, _):
+        await session.run("print a lot")
+        kept = {path.stat().st_size: path for path in tmp_path.rglob("command-output/*.txt")}
+        assert len(kept) == 2 and all(path.stat().st_mode & 0o777 == 0o600 for path in kept.values())
+        assert kept[3_000_020].read_text() == "[REDACTED]" + "x" * 3_000_000 + "[REDACTED]"
+        assert [path for path in tmp_path.rglob("*") if path.is_file() and key.encode() in path.read_bytes()] == []
+
+
 async def test_the_free_trials_tokens_are_redacted_from_a_command_that_prints_their_files(tmp_path):
     home = tmp_path / "home"
     home.mkdir()
