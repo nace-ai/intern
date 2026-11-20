@@ -63,6 +63,8 @@ workspace = [
     # DuckDB's Python client needs it to return a TIMESTAMP WITH TIME ZONE (a CSV's 2024-01-01T00:00:00Z): without
     # it such a file fails to index and a query over such a column fails.
     "pytz>=2024.1",
+    # `locate/grouping.py` and `locate/tree.py` build the index with its sparse matrices, for documents as for code.
+    "scipy>=1.11",
     "xlrd>=2.0",
 ]
 ocr = [
