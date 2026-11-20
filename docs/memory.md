@@ -88,7 +88,9 @@ prompt after that is stewarded again, at the next idle time or the close; a clos
 last steward starts none. The work page records how many user turns the session had when it was
 stewarded (`user_turns` in its front matter), and a steward finding more redoes the session. Its writer is `[capabilities.memory] writer`, else the
 session's System 2 when it is OpenAI-compatible; without one only the outcome and the work page are
-written. `steward = false` in `[capabilities.memory]` turns this off. Stewards on one drive take turns
+written. The writer is asked for low reasoning effort when its model profile lists `low`: at its own
+effort a thinking model such as GLM 5.3 can outrun the writer's two-minute timeout. `steward = false` in
+`[capabilities.memory]` turns this off. Stewards on one drive take turns
 (`.git/nace-steward.lock`), and a session mounting the drive waits only while a steward moves its
 working tree (`.git/nace-drive.lock`). A merging steward first publishes a `proposed/` branch that an
 earlier one left when it was killed, if it still fast-forwards `main`, and deletes it otherwise.
