@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from intern.executor import LocalExecutor
+from intern.executor import ExecResult, LocalExecutor
 from intern.processes import ProcessManager, ProcessSnapshot
 from intern.tools import load_packs
 from intern.tools.base import ToolContext, ToolOutput
@@ -115,6 +115,19 @@ async def test_capacity_and_finished_record_eviction(tmp_path: Path):
         next_job = await manager.start("true", cwd=tmp_path)
         await manager.poll(next_job.handle, wait_s=3)
         assert len(manager.list()) == 1
+
+
+async def test_bash_calls_that_moved_to_the_background_keep_to_the_record_limit(tmp_path: Path):
+    async def ended() -> ExecResult:
+        return ExecResult(exit_code=0, output="done", omitted_bytes=0, timed_out=False, aborted=False, duration_ms=1)
+
+    async with ProcessManager(max_running=4, max_records=4) as manager:
+        handles: list[str] = []
+        for number in range(20):
+            manager.begin_call(f"call-{number}", "true")
+            handles.append(manager.adopt(f"call-{number}", "true", asyncio.create_task(ended()), None).handle)
+            await manager.poll(handles[-1], wait_s=3)
+        assert [job.handle for job in manager.list()] == handles[-4:]  # the newest are the ones kept
 
 
 async def test_model_tool_pack_uses_same_handle_contract(tmp_path: Path):

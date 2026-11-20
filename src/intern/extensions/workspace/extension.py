@@ -111,7 +111,7 @@ class Workspace(Locate):
     needs: ClassVar[Needs | None] = Needs(
         title="The workspace",
         extra="workspace",
-        modules=("numpy", "networkx", "duckdb", "pymupdf", "openpyxl", "docx"),
+        modules=("numpy", "networkx", "scipy", "duckdb", "pymupdf", "openpyxl", "docx"),
     )
     search_tool = DecisionFiles
     processors = staticmethod(office_processors)

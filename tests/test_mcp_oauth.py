@@ -239,6 +239,33 @@ def test_the_guard_keeps_the_agent_out_of_the_token_store():
     assert [hit.rule for hit in rule_hits("write", {"path": tokens, "content": "{}"}, scope)] == ["protected_write"]
 
 
+async def test_saved_tokens_are_redacted_from_tools_that_print_the_token_file(tmp_path):
+    """With the guard off (the default), or a home the guard's rules don't name, nothing refuses the read."""
+    path = store_path(tmp_path / "home", "remote")
+    path.parent.mkdir(parents=True)
+
+    def save(n: int) -> list[str]:
+        """The file as a sign-in, or the nth refresh by this or another session, leaves it."""
+        access, refresh, secret = f"mcp-at-test-{n:04d}", f"mcp-rt-test-{n:04d}", "mcp-client-secret-test"
+        tokens = {"access_token": access, "refresh_token": refresh, "token_type": "Bearer"}
+        info = {"client_id": "public-id", "client_secret": secret}
+        path.write_text(json.dumps({"tokens": tokens, "client_info": info, "server_url": "https://mcp.example/mcp"}))
+        return [access, refresh, secret]
+
+    shown = save(1)
+    calls = [("read", {"path": str(path)}), ("bash", {"command": f"cat {path}"})]
+    replies = [*(Reply(tool_calls=[call]) for call in calls), Reply(text="done")]
+    async with configured(tmp_path, replies * 2, '[capabilities]\ntool_packs = ["base"]\n') as (session, model, _, _):
+        await session.run("show me the token file")
+        shown += save(2)  # refreshed while the session runs
+        await session.run("again")
+        results = outputs(session)
+        assert [result.count("[REDACTED]") for result in results] == [3, 3, 3, 3]
+        assert "public-id" in results[0]
+        sent = json.dumps(model.requests)
+        assert not [token for token in shown if token in "".join(results) or token in sent]
+
+
 def write_config(home: Path, toml: str) -> dict[str, str]:
     home.mkdir(parents=True, exist_ok=True)
     (home / "config.toml").write_text(toml)
@@ -255,6 +282,7 @@ def test_login_command_needs_a_configured_oauth_entry(tmp_path, capsys):
 
 
 def test_logout_deletes_the_saved_tokens(tmp_path, capsys):
+    pytest.importorskip("mcp")
     env = write_config(tmp_path, oauth_toml("https://mcp.example/mcp", 40000))
     path = store_path(tmp_path, "remote")
     path.parent.mkdir()

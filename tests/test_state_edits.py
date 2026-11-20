@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import tracemalloc
+
 import pytest
 
 from intern.state_edits import (
@@ -156,6 +158,18 @@ def test_a_section_the_state_lacks_is_added_in_its_place():
 def test_edits_that_cannot_be_applied_are_refused_as_a_whole(reply, why):
     with pytest.raises(EditError, match=why):
         apply_edits(parse(STATE), reply)
+
+
+def test_a_huge_drop_range_is_refused_without_being_built():
+    """`drop: 1-1000000` used to build a list of a million numbers (86 MiB) before it was refused."""
+    tracemalloc.start()
+    try:
+        with pytest.raises(EditError, match="Facts has no item 1000000"):
+            apply_edits(parse(STATE), "## Facts\ndrop: 1-1000000")
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    assert peak < 1_000_000
 
 
 def test_a_whole_state_and_no_change_are_told_from_edits():

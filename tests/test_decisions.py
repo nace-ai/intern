@@ -19,6 +19,7 @@ from intern.decisions import (
     ChoiceQuestion,
     DecisionClient,
     DecisionsApiBackend,
+    KapitsaBackend,
     NoulAnswer,
     NoulQuestion,
     Question,
@@ -87,6 +88,22 @@ async def test_a_system1_that_stays_down_stops_the_ask_instead_of_answering_for_
     assert all(not e.ok and e.answers is None for e in events)
 
 
+@pytest.mark.parametrize(
+    "probabilities",
+    [{"log": -1.0, "code": 2.0}, {"garbage": 1.0}, {"log": float("nan")}, {"log": float("inf")}],
+)
+async def test_a_choice_whose_probabilities_cannot_be_ones_is_asked_again_not_handed_to_the_caller(probabilities):
+    def kind(given: dict[str, float]) -> Answers:
+        return Answers(answers={"keep": NoulAnswer(noul=0.5), "kind": ChoiceAnswer(choice="log", probabilities=given)})
+
+    good = {"log": 0.9, "code": 0.1}
+    backend = Scripted(kind(probabilities), kind(good))
+    events: list = []
+    answers = await client(backend, events, retry_window_s=5).ask("triage", "state", QUESTIONS)
+    assert backend.calls == 2 and [e.ok for e in events] == [False, True]
+    assert answers["kind"] == ChoiceAnswer(choice="log", probabilities=good)
+
+
 async def test_decisions_api_fails_over_to_the_next_model():
     seen: list[str] = []
 
@@ -113,6 +130,36 @@ async def test_decisions_api_fails_over_to_the_next_model():
     result = await backend.decide("state", QUESTIONS)
     assert seen == ["primary", "backup"]
     assert result.answers["kind"] == ChoiceAnswer(choice="code", probabilities={"code": 0.8, "log": 0.2})
+
+
+async def test_kapitsa_on_this_machine_is_asked_one_at_a_time_given_time_and_sent_what_fits_it():
+    states: list[str] = []  # the state of each request in flight
+    most = 0
+
+    async def handler(r: httpx.Request) -> httpx.Response:
+        nonlocal most
+        assert r.url.path == "/v1/systemone" and r.url.host == "127.0.0.1"
+        body = json.loads(r.content)
+        if len(body["questions"]) > 1:  # Drex Max: a request's questions each hold the state, within one context
+            return httpx.Response(400, json={"error": "request exceeds the 16384-token packed limit"})
+        states.append(body["state"])
+        most = max(most, len(set(states)))
+        await asyncio.sleep(0.05)  # longer than the client's own limit below
+        states.remove(body["state"])
+        return httpx.Response(200, json={"answers": {n: {"type": "noul", "noul": 0.9} for n in body["questions"]}})
+
+    backend = KapitsaBackend("http://127.0.0.1:8001/v1", "drex-max-v1", transport=httpx.MockTransport(handler))
+    asks = client(backend, [], timeout_s=0.01, max_concurrency=64)
+    questions: dict[str, Question] = {
+        "ok": NoulQuestion(instructions="Fine?"),
+        "done": NoulQuestion(instructions="Done?"),
+    }
+    # The server answers one ask at a time: more in flight would wait out the limit in its queue.
+    answered = await asyncio.gather(*(asks.ask("check", f"state {i}", questions) for i in range(3)))
+    assert all(set(a) == {"ok", "done"} for a in answered) and most == 1
+    # A state longer than the server's context is refused (400), which would stop the run.
+    await asks.fit()
+    assert asks.max_state_tokens <= decisions.KAPITSA_CONTEXT
 
 
 @pytest.mark.parametrize(
