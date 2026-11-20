@@ -206,8 +206,9 @@ to 92.4%, at less than half of what Opus costs on its own.
 <details>
 <summary><b>Does it run fully local?</b></summary>
 
-The frontier and efficient models can: Ollama, LM Studio, llama.cpp, vLLM, or Kapitsa on a Mac. The decision model
-is hosted, and a session that cannot reach it is refused.
+Yes, on a Mac with Kapitsa: it serves the frontier and efficient models, and `kapitsa-systemone` serves the decision
+model ([Local models](docs/local-models.md#system-1)). Elsewhere, the frontier and efficient models can run on Ollama,
+LM Studio, llama.cpp or vLLM, and the decision model is hosted; a session that cannot reach it is refused.
 
 </details>
 

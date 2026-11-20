@@ -1607,6 +1607,13 @@ def test_bootstrap_requires_system_1_and_serves_picks_from_the_console_or_the_de
     assert console._url == "https://console.example/v1/systemone"  # pyright: ignore[reportPrivateUsage]
     with pytest.raises(ConfigError, match="must be"):
         Bootstrap(options.model_copy(update={"system1": "what:ever"}), home).system1_choice()
+    # A decisions API on this machine, such as kapitsa-systemone, takes no key.
+    local_home = tmp_path / "local"
+    local_home.mkdir()
+    (local_home / "config.toml").write_text('[system1]\nbase_url = "http://127.0.0.1:8001/v1"\n')
+    local = Bootstrap(options, {"INTERN_HOME": str(local_home)}).system1_backend("decisions:drex-max-v1")
+    assert isinstance(local, DecisionsApiBackend)
+    assert local._url == "http://127.0.0.1:8001/v1/systemone"  # pyright: ignore[reportPrivateUsage]
 
 
 # Diffs: write and edit carry the file before and after to the client.

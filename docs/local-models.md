@@ -90,11 +90,35 @@ Without it, a conversation that grows past the server's context is refused with
 
 ## System 1
 
-Only System 2 runs on Kapitsa here. System 1 is still a decision model from the console (`NACE_API_KEY`)
-or the decisions API (`OPENROUTER_API_KEY`), so a local run still needs one of those keys and a network.
-Kapitsa can serve the Drex decision models on this Mac with `kapitsa-systemone`
-([guide](https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md)), but the harness has not been
-checked against it yet.
+System 1 can run on this Mac too: `kapitsa-systemone`, which comes with Kapitsa, serves a Drex decision
+model on the decisions API the harness speaks. With System 2 on `kapitsa serve` as well, a session needs
+no key and no network.
+
+Download Drex Max v1 (14.5 GB, for 32 GB and up), already in the layout `kapitsa-systemone` reads, and
+serve it on a port `kapitsa serve` does not use:
+
+```bash
+hf download nace-ai/drex-max-v1-affine-q4 --local-dir ~/.cache/kapitsa/models/drex-max-v1
+kapitsa-systemone --model ~/.cache/kapitsa/models/drex-max-v1 --port 8001 --context 8192 --name drex-max-v1
+```
+
+Kapitsa's [guide](https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md) has the other Drex
+models. Then point System 1 at it:
+
+```toml
+# ~/.intern/config.toml
+[system1]
+backend = "decisions-api"
+base_url = "http://127.0.0.1:8001/v1"
+model = "drex-max-v1"
+max_state_tokens = 6144   # 3/4 of --context: a longer ask is refused, and the run stops
+timeout_s = 120           # a long state takes tens of seconds to read
+max_concurrency = 2       # the server answers one ask at a time; more would wait out the timeout
+```
+
+A decisions API on this machine (`localhost` or a `127.*` address) needs no key. On an M4 Pro, an ask
+about a 1,000-token state took 6 seconds and one about 5,000 took 22, so a run waits on System 1 more
+than it does on the console.
 
 ## Switching models
 
@@ -111,6 +135,7 @@ hand, stop the server and start it with another `--model`.
 | `context_length_exceeded` | pass `--window` with the context `kapitsa serve` printed, or start it with a larger `--context` |
 | the first reply is slow | the first request prefills the whole prompt; later turns reuse Kapitsa's prompt cache |
 | another app runs out of memory | run a smaller model, or a smaller `--context` |
+| `System 1 ... 400 Bad Request` | a state longer than `kapitsa-systemone`'s `--context`: lower `[system1] max_state_tokens` to 3/4 of it |
 
 The engine's log is in `~/.cache/kapitsa/logs/serve-8000.log`. Kapitsa's own
 [docs](https://github.com/nace-ai/kapitsa/blob/main/docs/usage.md) cover its options, models and

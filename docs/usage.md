@@ -156,6 +156,8 @@ retry_window_s = 1800       # the default: a failing System 1 ask is retried for
 # A decision model on the decisions API instead (OpenRouter, key in $OPENROUTER_API_KEY):
 # backend = "decisions-api"
 # model = "~typesafe/jev-latest"
+# base_url = "http://127.0.0.1:8001/v1"   # one on this machine, such as kapitsa-systemone, needs no key
+#                                          # (docs/local-models.md#system-1)
 
 [providers.office]
 base_url = "http://gpu-box:8000/v1"

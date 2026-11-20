@@ -10,6 +10,7 @@ the config home, created on first use. `--no-memory` or `enabled = false` there 
 from __future__ import annotations
 
 import contextlib
+import ipaddress
 import os
 import subprocess
 import sys
@@ -19,6 +20,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
@@ -322,6 +324,15 @@ def load_user_config(home: Path) -> UserConfig:
         return UserConfig.model_validate(tomllib.loads(path.read_text()))
     except (tomllib.TOMLDecodeError, ValueError) as e:
         raise ConfigError(f"{path} is invalid: {e}") from e
+
+
+def _loopback(url: str) -> bool:
+    """Whether `url` is served on this machine."""
+    host = urlsplit(url).hostname or ""
+    try:
+        return host == "localhost" or ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
 
 
 class System1Unconfigured(ConfigError):
@@ -698,9 +709,10 @@ class Bootstrap:
         if not models:
             raise ConfigError("system1 backend decisions-api needs system1.model")
         key = self.env.get(cfg.api_key_env)
-        if not key:
+        # A server on this machine, such as kapitsa-systemone, takes no key.
+        if not key and not _loopback(cfg.base_url):
             raise System1Unconfigured(f"the decisions API needs a key in ${cfg.api_key_env}")
-        return DecisionsApiBackend(cfg.base_url, SecretStr(key), models, timeout_s=cfg.timeout_s)
+        return DecisionsApiBackend(cfg.base_url, SecretStr(key or ""), models, timeout_s=cfg.timeout_s)
 
     def system1_choice(self) -> str:
         """The System 1 a session starts on, as the pickers name it: a decision model on the console,

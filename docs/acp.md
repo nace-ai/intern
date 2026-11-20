@@ -122,8 +122,8 @@ Every session advertises these `configOptions`, in this order, then the
 - **`system1`** lists the [model catalog](#model-catalog)'s System 1 models: the decision models the console serves (`POST {console_url}/systemone` with the key in `$NACE_API_KEY`; `[system1].models`,
   default `["drex-latest"]`, until the console has been listed), then the decision models the decisions
   API serves as `decisions:<model>` (`POST {base_url}/systemone` with the key in `$OPENROUTER_API_KEY`:
-  Jev, `nace-ai/drex-max`, ...). Like `model`, the list fills in once the catalog arrives; until then it
-  holds only the current value. The System 1 the session started on (from `[system1]` or `--system1`,
+  Jev, `nace-ai/drex-max`, ...; no key when `base_url` is on this machine, such as `kapitsa-systemone`).
+  Like `model`, the list fills in once the catalog arrives; until then it holds only the current value. The System 1 the session started on (from `[system1]` or `--system1`,
   as `decisions:<model>` when on the decisions API) is listed too and keeps its own endpoint and
   fallbacks. Any model name is accepted, listed or not; there is no `heuristic` (System 1 off). Changing
   it rebuilds the session's System 1 client, keeping its usage, and journals a `model_change` entry. A model whose key is missing is refused with
@@ -168,7 +168,7 @@ Every session advertises these `configOptions`, in this order, then the
 models = ["drex-latest"]                  # the picker's Drex models until the console is listed; the first is the default
 console_url = "https://console.nace.ai/v1" # where they are served and listed ($DREX_BASE_URL overrides it)
 console_key_env = "NACE_API_KEY"           # ($DREX_API_KEY also works)
-base_url = "https://openrouter.ai/api/v1"  # the decisions API, for decisions:<model>
+base_url = "https://openrouter.ai/api/v1"  # the decisions API, for decisions:<model>; on this machine, no key
 api_key_env = "OPENROUTER_API_KEY"
 ```
 
@@ -1778,3 +1778,10 @@ In the terminal UI, setup on your own keys while the free credit is in use pause
 false`, as `/free pause` does), so the session reopens on the models just picked. Before, it reopened on the free
 credit's models and refused the picks. A setup that only connects a decision model leaves the free credit as it was;
 `/free resume` goes back to it. Nothing changes on ACP: 0.58.3 clients keep working.
+
+### 0.59.0
+
+`decisions:<model>` needs no key when `[system1] base_url` is on this machine (`localhost` or a `127.*`
+address), so System 1 can be a Drex model that `kapitsa-systemone` serves on the user's Mac
+([Local models](local-models.md#system-1)). Before, such a pick was refused with `-32602` until
+`$OPENROUTER_API_KEY` held some key. Nothing else changes on ACP: 0.58.4 clients keep working.
