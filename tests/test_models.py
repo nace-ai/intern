@@ -94,6 +94,20 @@ async def test_window_lookup_ladder():
     assert await advertised_window(endpoint, Profile(window=99_000), _transport({})) == (99_000, "profile")
 
 
+async def test_an_output_cap_the_listing_gives_without_a_window_still_bounds_the_reply():
+    endpoint = resolve_endpoint("vllm/m", {})
+    unsized = httpx.Response(200, json={"data": [{"id": "m", "max_output_tokens": 1_024}]})
+    limits = await advertised_limits(endpoint, Profile(), _transport({"/v1/models": unsized}))
+    assert (limits.window, limits.source) == (DEFAULT_WINDOW, "default")
+    profile = Profile()
+    bound_output(profile, limits.max_output)
+    assert profile.output_cap(limits.window) == 1_024  # not a share of the default window, which the server refuses
+    # The cap is the listing's also when the window comes from the next source.
+    props = httpx.Response(200, json={"default_generation_settings": {"n_ctx": 16_384}})
+    limits = await advertised_limits(endpoint, Profile(), _transport({"/v1/models": unsized, "/props": props}))
+    assert limits == ModelLimits(16_384, "llama.cpp", 1_024)
+
+
 async def test_the_provider_s_output_cap_is_read_with_the_window_and_bounds_the_profile():
     # Anthropic's Models API describes one model: max_input_tokens is the window, max_tokens the output cap.
     anthropic = resolve_endpoint("anthropic/claude-opus-5-9", {"ANTHROPIC_API_KEY": "k"}, {})
