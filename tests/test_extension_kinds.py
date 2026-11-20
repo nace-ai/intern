@@ -7,17 +7,25 @@ A fixed extension is chosen for the whole session by a profile's `extensions` li
 from __future__ import annotations
 
 import importlib
+import importlib.metadata
 import pkgutil
+import tomllib
+from pathlib import Path
 
 import pytest
+from packaging.requirements import Requirement
 
 import intern
+from intern.browser import BROWSER_NEEDS
 from intern.capability_settings import CapabilitySettings
 from intern.capability_toggles import toggles
 from intern.config import CAPABILITY_EXTENSIONS, _extension
 from intern.extensions import REGISTRY
+from intern.extensions.code_search import CodeSearch
+from intern.extensions.workspace.extension import Workspace
 from intern.hooks import Extension, load_extension
 from intern.locate.store import Locate, LocateInSubagent
+from intern.mcp_client import MCP_NEEDS
 from intern.models.registry import ConfigError
 
 BASE_CLASSES: dict[type[Extension], str] = {
@@ -90,3 +98,24 @@ def test_an_extension_that_cannot_be_built_is_a_config_error_with_its_cause():
 def test_a_base_class_named_as_an_extension_is_a_config_error():
     with pytest.raises(ConfigError, match="cannot build extension"):
         _extension("intern.locate.store:Locate")
+
+
+def test_the_extra_a_capability_names_brings_every_module_it_says_it_needs():
+    """`pip install 'intern-agent[workspace]'` must be enough for the workspace: a module the capability needs that
+    its extra leaves out is found only by a user with that one extra, since CI installs them all."""
+    extras = tomllib.loads((Path(__file__).parent.parent / "pyproject.toml").read_text())["project"][
+        "optional-dependencies"
+    ]
+    installed = importlib.metadata.packages_distributions()
+    for needs in (CodeSearch.needs, Workspace.needs, BROWSER_NEEDS, MCP_NEEDS):
+        assert needs is not None
+        brought = {Requirement(line).name.lower().replace("_", "-") for line in extras[needs.extra]}
+        for module in needs.modules:
+            if module not in installed:
+                continue  # an install without this extra cannot say which package the module comes from
+            packages = {name.lower().replace("_", "-") for name in installed[module]}
+            assert packages & brought, f"[{needs.extra}] does not bring {module}"
+    # Both search extensions build their index with the same code, so the workspace needs what code search does.
+    assert CodeSearch.needs is not None and Workspace.needs is not None
+    shared = {module for module in CodeSearch.needs.modules if not module.startswith("tree_sitter")}
+    assert shared <= set(Workspace.needs.modules)

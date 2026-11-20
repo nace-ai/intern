@@ -90,6 +90,37 @@ async def test_a_stream_cut_before_the_reply_finished_is_an_error():
         await collect(provider(lambda r: httpx.Response(200, content=body)), request(retries=NO_RETRIES))
 
 
+async def test_a_stream_cut_in_the_middle_of_an_event_is_retried_like_one_cut_between_events():
+    replies = [b'data: {"choices":', sse(delta(content="ok"), delta(finish_reason="stop"))]
+    _, message = await collect(
+        provider(lambda r: httpx.Response(200, content=replies.pop(0))),
+        request(retries=RetryPolicy(provider_waits_s=(0.0,))),
+    )
+    assert message.text == "ok" and not replies
+
+
+async def test_an_error_sent_as_a_json_body_with_status_200_is_raised_as_that_error():
+    calls = 0
+
+    def refused(req: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(200, json={"error": {"code": "invalid_api_key", "message": "bad synthetic key"}})
+
+    with pytest.raises(ProviderError, match="bad synthetic key") as raised:
+        await collect(provider(refused), request(retries=RetryPolicy(provider_waits_s=(0.0,))))
+    assert calls == 1 and not raised.value.retryable  # a wrong key is not asked again
+
+    replies = [
+        httpx.Response(200, json={"error": {"code": 429, "message": "slow down"}}),
+        httpx.Response(200, content=sse(delta(content="ok"), delta(finish_reason="stop"))),
+    ]
+    _, message = await collect(
+        provider(lambda r: replies.pop(0)), request(retries=RetryPolicy(provider_waits_s=(0.0,)))
+    )
+    assert message.text == "ok"  # a rate limit is
+
+
 async def test_when_a_server_sends_several_choices_only_the_first_is_the_reply():
     def choice(index: int, **fields: Any) -> dict[str, Any]:
         return {"index": index, "delta": fields, "finish_reason": None}
@@ -260,3 +291,14 @@ async def test_model_requests_say_they_come_from_intern():
 
     await collect(provider(handler), request())
     assert seen[0]["X-Nace-Client"] == "intern" and seen[0]["X-Title"] == "Intern"
+
+
+async def test_a_tool_call_cut_off_at_the_output_limit_before_its_arguments_is_not_run():
+    body = sse(
+        delta(tool_calls=[{"index": 0, "id": "c1", "function": {"name": "list", "arguments": "{}"}}]),
+        delta(tool_calls=[{"index": 1, "id": "c2", "function": {"name": "publish", "arguments": ""}}]),
+        delta(finish_reason="length"),
+    )
+    _, message = await collect(provider(lambda r: httpx.Response(200, content=body)), request())
+    assert [c.id for c in message.tool_calls] == ["c1"]  # the call that finished still runs
+    assert [c.name for c in message.invalid_tool_calls] == ["publish"]

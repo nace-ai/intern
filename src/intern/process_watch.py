@@ -27,7 +27,7 @@ from typing import Literal
 from intern import names
 from intern.decisions import ChoiceAnswer, ChoiceQuestion, DecisionClient, Question, System1Unavailable
 from intern.events import ProcessCheck, ProcessInfo, ProcessVerdict, now_ms
-from intern.processes import ProcessManager, RunningProcess, duration_text
+from intern.processes import SYSTEM1_PROCESSES, ProcessManager, RunningProcess, duration_text
 
 SCHEDULE_S: tuple[float, ...] = (30, 60, 120, 240, 480, 960)
 EVERY_S = 1800.0
@@ -225,22 +225,31 @@ class ProcessWatch:
                 print(f"{names.NAME}: the process check failed: {type(error).__name__}: {error}", file=sys.stderr)
                 self._advance()
 
-    def _advance(self) -> None:
+    def _is_due(self, p: ProcessInfo, now: int) -> bool:
+        """Whether the command's next look is due, or nearly (within DUE_SLACK of its step)."""
+        return self._due(p.id) * (1 - DUE_SLACK) <= (now - p.started_at) / 1000
+
+    def _advance(self, only: set[str] | None = None) -> None:
         """Count a look for every command whose next look is due, or nearly (within DUE_SLACK of its step): two that
-        started moments apart share one ask rather than two."""
+        started moments apart share one ask rather than two. With `only`, for those commands alone: the ones System 1
+        was asked about."""
         now = now_ms()
         for p in self._running():
-            while self._due(p.id) * (1 - DUE_SLACK) <= (now - p.started_at) / 1000:
+            while (only is None or p.id in only) and self._is_due(p, now):
                 self._looks[p.id] = self._looks.get(p.id, 0) + 1
 
     async def _check(self) -> None:
-        shown = self.processes.for_system1(self._running())
+        # System 1 reads SYSTEM1_PROCESSES commands at once. Those whose look is due go first, and only the ones it
+        # read count a look: with more running, the rest stay due and are asked about right after.
+        now = now_ms()
+        first = sorted(self._running(), key=lambda p: not self._is_due(p, now))[:SYSTEM1_PROCESSES]
+        shown = self.processes.for_system1(sorted(first, key=lambda p: p.started_at))
         if not shown:
             return
         turn = self.turn()
         questions: dict[str, Question] = {f"p{i}": question(p) for i, p in enumerate(shown)}
         answers = await self.decisions.ask("processes", self.state(shown), questions, turn=turn)
-        self._advance()
+        self._advance({p.id for p in shown})
         verdicts, flagged = [], []
         for i, p in enumerate(shown):
             answer = answers.get(f"p{i}")

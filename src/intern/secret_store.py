@@ -1,7 +1,7 @@
 """The secrets store: `[secrets]` in config.toml names each value's source, never the value itself.
 
     [secrets]
-    GITHUB_TOKEN = "keychain"                                   # the OS keychain, service "intern"
+    GITHUB_TOKEN = "keychain"                                   # the OS keychain (`keychain_service`)
     OPENAI_API_KEY = ["op", "read", "op://Private/OpenAI/key"]  # any command that prints the value
 
 Each entry is read when a session is set up (a command entry only once per process). Its value reaches the
@@ -11,6 +11,7 @@ commands print. An entry that can't be read is reported, and the session runs wi
 
 from __future__ import annotations
 
+import hashlib
 import re
 import shutil
 import subprocess
@@ -80,19 +81,35 @@ def _keychain_tool(name: str, env: Mapping[str, str], platform: str) -> str:
     )
 
 
+def keychain_service(home: Path | None, env: Mapping[str, str]) -> str:
+    """The keychain service config home `home` (None: the one `env` names) keeps its items under: `intern` for the
+    default home, where they have always been; `intern-<hash of its path>` for any other, so two homes never read,
+    overwrite or delete each other's items (a test home the user's keys, one home another's free-credit sign-in)."""
+    from intern.config import DEFAULT_HOME, home_dir
+
+    path = (home or home_dir(env)).expanduser().resolve()
+    if path == DEFAULT_HOME.expanduser().resolve():
+        return KEYCHAIN_SERVICE
+    return f"{KEYCHAIN_SERVICE}-{hashlib.sha256(str(path).encode()).hexdigest()[:16]}"
+
+
 def keychain_command(
-    name: str, env: Mapping[str, str], platform: str | None = None, service: str = KEYCHAIN_SERVICE
+    name: str, env: Mapping[str, str], platform: str | None = None, *, home: Path | None = None
 ) -> list[str]:
-    """The system command that prints the keychain item for `name`; a SecretFailure where there is none."""
+    """The system command that prints config home `home`'s keychain item for `name`; a SecretFailure where there is
+    none."""
     platform = platform or sys.platform
+    service = keychain_service(home, env)
     if _keychain_tool(name, env, platform) == "security":
         return ["security", "find-generic-password", "-s", service, "-a", name, "-w"]
     return ["secret-tool", "lookup", "service", service, "account", name]
 
 
-def keychain_write(name: str, value: str, env: Mapping[str, str], platform: str | None = None) -> None:
-    """Store `value` as the keychain item for `name`, replacing one already there. The value goes to the tool on
-    stdin, never in its arguments, where other processes could read it."""
+def keychain_write(
+    name: str, value: str, env: Mapping[str, str], platform: str | None = None, *, home: Path | None = None
+) -> None:
+    """Store `value` as config home `home`'s keychain item for `name`, replacing one already there. The value goes to
+    the tool on stdin, never in its arguments, where other processes could read it."""
     platform = platform or sys.platform
     check_value(name, value.encode())
     if not (value.isascii() and value.isprintable()):
@@ -101,22 +118,24 @@ def keychain_write(name: str, value: str, env: Mapping[str, str], platform: str 
             name, "invalid", "a keychain value must be one line of plain ASCII; use a command entry for anything else"
         )
     tool = _keychain_tool(name, env, platform)
+    service = keychain_service(home, env)
     if tool == "security":
         # `security -i` reads its command from stdin; hex (-X) needs no quoting, whatever the value holds.
         argv = ["security", "-i"]
-        stdin = f"add-generic-password -U -s {KEYCHAIN_SERVICE} -a {name} -X {value.encode().hex()}\n"
+        stdin = f"add-generic-password -U -s {service} -a {name} -X {value.encode().hex()}\n"
     else:
-        label = f"--label={KEYCHAIN_SERVICE} {name}"
-        argv = ["secret-tool", "store", label, "service", KEYCHAIN_SERVICE, "account", name]
+        label = f"--label={service} {name}"
+        argv = ["secret-tool", "store", label, "service", service, "account", name]
         stdin = value
     _run_keychain(name, argv, stdin, env)
 
 
 def keychain_delete(
-    name: str, env: Mapping[str, str], platform: str | None = None, service: str = KEYCHAIN_SERVICE
+    name: str, env: Mapping[str, str], platform: str | None = None, *, home: Path | None = None
 ) -> None:
-    """Delete the keychain item for `name`; nothing to delete is not an error."""
+    """Delete config home `home`'s keychain item for `name`; nothing to delete is not an error."""
     platform = platform or sys.platform
+    service = keychain_service(home, env)
     if _keychain_tool(name, env, platform) == "security":
         argv = ["security", "delete-generic-password", "-s", service, "-a", name]
     else:
@@ -152,12 +171,13 @@ def read_entry(
     cwd: Path | None = None,
     timeout_s: float = TIMEOUT_S,
     platform: str | None = None,
+    home: Path | None = None,
 ) -> SecretStr:
     """Run the entry's command with the caller's environment (so `op`, `vault` and `secret-tool` find their sessions),
-    closed stdin and a timeout, and check what it printed."""
+    closed stdin and a timeout, and check what it printed. A keychain entry is config home `home`'s."""
     platform = platform or sys.platform
     keychain = entry == KEYCHAIN
-    argv = keychain_command(name, env, platform) if keychain else list(entry)
+    argv = keychain_command(name, env, platform, home=home) if keychain else list(entry)
     tool = Path(argv[0]).name
     executable = argv[0] if "/" in argv[0] else shutil.which(argv[0], path=env.get("PATH"))
     if executable is None:
@@ -217,16 +237,17 @@ changed in the keychain applies to the next session. A failure is not kept: the 
 
 
 def read_store(
-    entries: Mapping[str, StoreEntry], env: Mapping[str, str], *, cwd: Path | None = None
+    entries: Mapping[str, StoreEntry], env: Mapping[str, str], *, cwd: Path | None = None, home: Path | None = None
 ) -> tuple[dict[str, SecretStr], list[SecretFailure]]:
-    """Every entry that could be read, and why each other one could not. One broken entry never stops the others."""
+    """Every entry of config home `home` that could be read, and why each other one could not. One broken entry never
+    stops the others."""
     values: dict[str, SecretStr] = {}
     failures: list[SecretFailure] = []
     for name, entry in entries.items():
         key = (name, (entry,) if isinstance(entry, str) else tuple(entry))
         if entry == KEYCHAIN or key not in _read:
             try:
-                _read[key] = read_entry(name, entry, env, cwd=cwd)
+                _read[key] = read_entry(name, entry, env, cwd=cwd, home=home)
             except SecretFailure as failure:
                 failures.append(failure)
                 continue

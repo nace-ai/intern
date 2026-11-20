@@ -19,6 +19,7 @@ from intern.decisions import (
     ChoiceQuestion,
     DecisionClient,
     DecisionsApiBackend,
+    KapitsaBackend,
     NoulAnswer,
     NoulQuestion,
     Question,
@@ -87,6 +88,22 @@ async def test_a_system1_that_stays_down_stops_the_ask_instead_of_answering_for_
     assert all(not e.ok and e.answers is None for e in events)
 
 
+@pytest.mark.parametrize(
+    "probabilities",
+    [{"log": -1.0, "code": 2.0}, {"garbage": 1.0}, {"log": float("nan")}, {"log": float("inf")}],
+)
+async def test_a_choice_whose_probabilities_cannot_be_ones_is_asked_again_not_handed_to_the_caller(probabilities):
+    def kind(given: dict[str, float]) -> Answers:
+        return Answers(answers={"keep": NoulAnswer(noul=0.5), "kind": ChoiceAnswer(choice="log", probabilities=given)})
+
+    good = {"log": 0.9, "code": 0.1}
+    backend = Scripted(kind(probabilities), kind(good))
+    events: list = []
+    answers = await client(backend, events, retry_window_s=5).ask("triage", "state", QUESTIONS)
+    assert backend.calls == 2 and [e.ok for e in events] == [False, True]
+    assert answers["kind"] == ChoiceAnswer(choice="log", probabilities=good)
+
+
 async def test_decisions_api_fails_over_to_the_next_model():
     seen: list[str] = []
 
@@ -113,6 +130,67 @@ async def test_decisions_api_fails_over_to_the_next_model():
     result = await backend.decide("state", QUESTIONS)
     assert seen == ["primary", "backup"]
     assert result.answers["kind"] == ChoiceAnswer(choice="code", probabilities={"code": 0.8, "log": 0.2})
+
+
+async def test_kapitsa_on_this_machine_is_asked_one_at_a_time_given_time_and_sent_what_fits_it():
+    states: list[str] = []  # the state of each request in flight
+    most = 0
+
+    async def handler(r: httpx.Request) -> httpx.Response:
+        nonlocal most
+        assert r.url.path == "/v1/systemone" and r.url.host == "127.0.0.1"
+        body = json.loads(r.content)
+        if len(body["questions"]) > 1:  # Drex Max: a request's questions each hold the state, within one context
+            return httpx.Response(400, json={"error": "request exceeds the 16384-token packed limit"})
+        states.append(body["state"])
+        most = max(most, len(set(states)))
+        await asyncio.sleep(0.05)  # longer than the client's own limit below
+        states.remove(body["state"])
+        return httpx.Response(200, json={"answers": {n: {"type": "noul", "noul": 0.9} for n in body["questions"]}})
+
+    backend = KapitsaBackend("http://127.0.0.1:8001/v1", "drex-max-v1", transport=httpx.MockTransport(handler))
+    asks = client(backend, [], timeout_s=0.01, max_concurrency=64)
+    questions: dict[str, Question] = {
+        "ok": NoulQuestion(instructions="Fine?"),
+        "done": NoulQuestion(instructions="Done?"),
+    }
+    # The server answers one ask at a time: more in flight would wait out the limit in its queue.
+    answered = await asyncio.gather(*(asks.ask("check", f"state {i}", questions) for i in range(3)))
+    assert all(set(a) == {"ok", "done"} for a in answered) and most == 1
+    # A state longer than the server's context is refused (400), which would stop the run.
+    await asks.fit()
+    assert asks.max_state_tokens <= decisions.KAPITSA_CONTEXT
+
+
+@pytest.mark.parametrize(
+    ("unusable", "paid"),
+    [
+        # A choice where a score was asked, an answer left out, and no answers at all (not read for its cost).
+        ({"keep": {"type": "noul", "noul": 0.2}, "level": {"type": "choice", "choice": "low"}}, 0.02),
+        ({"keep": {"type": "noul", "noul": 0.2}}, 0.02),
+        (None, 0.01),
+    ],
+)
+async def test_a_model_whose_answers_cannot_be_used_fails_over_to_the_next_and_its_cost_is_kept(unusable, paid):
+    seen: list[str] = []
+    good = {"keep": {"type": "noul", "noul": 0.2}, "level": {"type": "score", "score": 1}}
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        seen.append(model := json.loads(r.content)["model"])
+        return httpx.Response(200, json={"answers": unusable if model == "primary" else good, "usage": {"cost": 0.01}})
+
+    backend = DecisionsApiBackend(
+        "https://example/api/v1", SecretStr("k"), ["primary", "backup"], transport=httpx.MockTransport(handler)
+    )
+    questions: dict[str, Question] = {
+        "keep": QUESTIONS["keep"],
+        "level": ScoreQuestion(instructions="How risky?", criteria=["low", "high"]),
+    }
+    c = client(backend, [], retry_window_s=0)
+    answers = await c.ask("triage", "state", questions)
+    assert seen == ["primary", "backup"]
+    assert answers == {"keep": NoulAnswer(noul=0.2), "level": ScoreAnswer(score=1.0, legend=["low", "high"])}
+    assert c.usage.cost_usd == pytest.approx(paid)
 
 
 async def test_decisions_api_posts_to_systemone_rescales_scores_and_keeps_probabilities():
@@ -148,6 +226,29 @@ async def test_decisions_api_splits_asks_over_the_question_cap_and_merges_the_an
     result = await backend.decide("state", questions)
     assert sorted(sizes) == [8, 16, 16] and set(result.answers) == set(questions)
     assert abs(result.cost_usd - 0.003) < 1e-9
+
+
+async def test_when_one_request_of_a_split_ask_fails_the_answered_ones_are_kept_and_paid_for_once():
+    sizes: list[int] = []
+
+    def handler(r: httpx.Request) -> httpx.Response:
+        asked = json.loads(r.content)["questions"]
+        sizes.append(len(asked))
+        if sizes.count(1) == 1 and len(asked) == 1:
+            return httpx.Response(503)  # the one-question request, the first time
+        usage = {"cost": 0.01 * len(asked), "input_tokens": 10 * len(asked)}
+        return httpx.Response(200, json={"answers": {k: {"type": "noul", "noul": 0.5} for k in asked}, "usage": usage})
+
+    backend = DecisionsApiBackend("https://x/v1", SecretStr("k"), ["decider"], transport=httpx.MockTransport(handler))
+    questions: dict[str, Question] = {f"q{i}": NoulQuestion(instructions=f"claim {i}") for i in range(17)}
+    events: list = []
+    c = client(backend, events, retry_window_s=5)
+    answers = await c.ask("triage", "state", questions)
+    assert list(answers) == list(questions)
+    assert sorted(sizes) == [1, 1, 16]  # the 16 answered are not asked for again
+    assert c.usage.cost_usd == pytest.approx(0.17) and c.usage.input_tokens == 170
+    assert [(e.ok, round(e.cost_usd, 2)) for e in events] == [(False, 0.16), (True, 0.01)]
+    assert "503" in events[0].error
 
 
 async def test_decisions_api_keeps_one_connection_across_asks():

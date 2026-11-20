@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import json
+import os
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
 import intern.journal as journal_module
-from intern.journal import Journal, MessageEntry, SessionEntry
+from intern.events import Nudge
+from intern.journal import EventEntry, Journal, MessageEntry, ObservationEntry, SessionEntry
 from intern.messages import AssistantMessage, UserMessage
 
 
@@ -122,3 +125,46 @@ def test_stale_writer_is_rejected_without_corrupting_the_journal(tmp_path):
         stale.append(MessageEntry(message=UserMessage(content="stale writer")))
     assert len(stale.entries()) == 1
     assert len(Journal(cwd="ignored", path=path).entries()) == 2
+
+
+def test_a_journal_is_readable_only_by_its_owner(tmp_path: Path):
+    old_umask = os.umask(0o022)  # the usual default, under which a plain open() gives 0644
+    try:
+        path = tmp_path / "sessions" / "s.jsonl"
+        Journal(cwd="/work", path=path)
+        assert path.stat().st_mode & 0o777 == 0o600
+        assert path.parent.stat().st_mode & 0o777 == 0o700
+
+        path.chmod(0o644)  # a journal written by an older version
+        Journal(cwd="/work", path=path).append(MessageEntry(message=UserMessage(content="hi")))
+        assert path.stat().st_mode & 0o777 == 0o600
+    finally:
+        os.umask(old_umask)
+
+
+@pytest.mark.parametrize("links", [{1: 2, 2: 1}, {2: 2}, {1: 9}], ids=["cycle", "own parent", "unknown parent"])
+def test_a_journal_whose_parent_links_do_not_lead_back_to_the_root_is_refused(tmp_path: Path, links):
+    """Replay follows parent links to the root; a cycle used to make it loop forever."""
+    path = tmp_path / "s.jsonl"
+    journal = Journal(cwd="/work", path=path)
+    for text in ("one", "two"):
+        journal.append(MessageEntry(message=UserMessage(content=text)))
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    ids = {number: row["id"] for number, row in enumerate(rows)} | {9: "missing"}
+    for child, parent in links.items():
+        rows[child]["parent_id"] = ids[parent]
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    with pytest.raises(ValueError, match="parent is not an earlier entry"):
+        Journal(cwd="ignored", path=path)
+
+
+def test_text_that_is_not_valid_unicode_is_recorded_with_a_replacement_character(tmp_path: Path):
+    """A lone surrogate cannot be written as UTF-8; it must not make the journal write fail."""
+    path = tmp_path / "s.jsonl"
+    journal = Journal(cwd="/work", path=path)
+    journal.append(EventEntry(event=Nudge(turn=1, reason="extension", text="half an emoji \ud83d")))
+    journal.append(ObservationEntry(call_id="c1", content="file-\udcff.txt"))
+    nudge, observation = Journal(cwd="ignored", path=path).entries()[1:]
+    assert isinstance(nudge, EventEntry) and isinstance(nudge.event, Nudge)
+    assert nudge.event.text == "half an emoji \ufffd"
+    assert isinstance(observation, ObservationEntry) and observation.content == "file-\ufffd.txt"
