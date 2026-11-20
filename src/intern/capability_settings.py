@@ -222,6 +222,8 @@ class MemoryConfig(_Settings):
     """Steward sessions an archived page stays in graveyard/ before it is deleted; 0 keeps it."""
     transcript_sessions: Annotated[int, Field(ge=0)] = 0
     """Steward sessions a session's transcript stays in sessions/ before it is deleted; 0 keeps it."""
+    # The steward keeps the script, table or template a succeeded session worked with as a folder under skills/.
+    skill_folders: bool = False
 
 
 RunnerName = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_.:-]+$", max_length=256)]

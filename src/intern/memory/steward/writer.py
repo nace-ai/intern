@@ -11,6 +11,8 @@ import httpx
 from pydantic import SecretStr
 
 from intern import names
+from intern.memory.format import FOLDER_SUFFIXES, MAX_FOLDER_FILE_CHARS
+from intern.memory.steward.artifacts import Collected
 from intern.memory.steward.extract import INJECTION, Extract, file_pages
 from intern.messages import Usage
 from intern.models.profile import effort_levels, load_profile
@@ -175,6 +177,58 @@ Leave every other line as it is. Never merge lines of different sections, and ne
 
 Answer with JSON only:
 {{"merged": [{{"lines": ["<id>", "<id>"], "text": "<sentence>"}}], "dropped": ["<id>"]}}"""
+FOLDER = """You keep the skill folders of an AI agent that works for one user, session after session, in the same
+world. A skill folder holds how one kind of work is done, so that a later task of that kind runs the stored script,
+reads the stored table or fills the stored template instead of working it all out again: a SKILL.md with the steps,
+and beside it the files the work needs.
+
+You get one finished session: its trace, where each line has an id (u<n> a message from the user, a<n> a reply from
+the assistant, s<n> a tool call with the start of its result), what the user said in full, and the files the session
+wrote or ran, each with whether its last run worked.
+
+Write the folder:
+- "skill": the kind of work in 2 to 5 words, such as "Card statement reconciliation"; "when": one sentence on the
+  tasks it fits, naming the kind of input and request, never this task's values.
+- "steps": up to {max_steps} steps in order, each one sentence under {step_chars} characters, citing the line it
+  comes from in "step": which file to run with which arguments, what to read, which check settles the result.
+  "pitfalls": what went wrong or must be avoided, such as a correction the user gave or a quirk of the data.
+  "checks": what to check before answering. Name files by their names in this folder.
+- "files": up to {max_files} files the work needs:
+  - a script: a file listed under "Files the session wrote or ran" whose last run worked. Change only what ties it to
+    this one task: its input and output paths become command-line arguments, and the rules, limits and table the user
+    gave are read from a table file in this folder, found beside the script (Path(__file__).parent in Python), so
+    that a later change is one edit to the table. Keep the rest of its code as it was. "from" names the file it
+    comes from.
+  - a table: the lookup table, limits and rules the user gave, copied exactly, as CSV or JSON. "from": "told".
+  - a template: the wording the user gave for a document, copied exactly, with {{field}} placeholders for what
+    changes from task to task, as <name>.tmpl. "from": "told".
+  Never a file of this task's input data or its result, and no value only this task uses.
+  "name" is a short file name ending in one of {suffixes}; "about" says in one sentence what the file is for and,
+  for a script, how to run it (python <name> <arguments>); "content" is the whole file.
+{update}When the session shows no way of working that a later task would repeat, answer {{"skill": ""}}.
+
+Answer with JSON only:
+{{"skill": "<name>", "when": "<sentence>", "steps": [{{"step": "<id>", "text": "<sentence>"}}],
+ "pitfalls": [{{"step": "<id>", "text": "<sentence>"}}], "checks": [{{"step": "<id>", "text": "<sentence>"}}],
+ "retired": ["<id of a held line>"],
+ "files": [{{"name": "<file name>", "from": "<file name or told>", "about": "<sentence>", "content": "<text>"}}]}}"""
+
+FOLDER_UPDATE = """
+Memory already holds a folder for this kind of work, listed below. Change it only where this session shows it changed
+or was wrong: a rule, limit or table row the user changed, or a script the session fixed. Give in "files" only the
+files you change, each whole, with every line you do not change kept exactly as it is, and "from" the held file's
+name; a new file is allowed when the work now needs it. Give in "steps", "pitfalls" and "checks" only lines memory
+does not hold yet, and in "retired" the ids of held lines that no longer hold. Keep "skill" and "when" as held.
+Answer with no files and no lines when nothing changed.
+"""
+MAX_FOLDER_STEPS = 6
+MAX_FOLDER_LINES = 4
+MAX_DRAFT_FILES = 4
+STEP_CHARS = 200
+FOLDER_TRACE_CHARS = 30_000
+FOLDER_FILES_CHARS = 48_000
+_FILE_NAME_OK = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,60}")
+TOLD = "told"
 MERGED_CHARS = 2 * ITEM_CHARS
 TOPIC_CHARS = 40
 SKILL_NAME_CHARS = 60
@@ -296,6 +350,39 @@ class Skill:
     name: str
     when: str
     lines: list[str]
+
+
+@dataclass
+class FolderFile:
+    name: str
+    origin: str
+    about: str
+    content: str
+
+
+@dataclass
+class FolderLine:
+    kind: str
+    pointer: str
+    text: str
+
+
+@dataclass
+class HeldFolder:
+    # A skill folder memory holds: its page's lines by id, and its files.
+    name: str
+    when: str
+    lines: dict[str, str]
+    files: dict[str, str]
+
+
+@dataclass
+class FolderDraft:
+    skill: str
+    when: str
+    lines: list[FolderLine]
+    files: list[FolderFile]
+    retired: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -787,3 +874,84 @@ async def condense(
     named = dict.fromkeys(str(x).strip() for x in answer.get("dropped") or [])
     dropped = [i for i in named if i in section_of and i not in used]
     return merges, dropped
+
+
+def _held_folder(held: HeldFolder) -> str:
+    lines = "\n".join(f"  {ident}. {text}" for ident, text in held.lines.items()) or "  (none)"
+    files = "\n\n".join(f"--- {name} ---\n{content}" for name, content in held.files.items()) or "(none)"
+    return f"Held folder: {held.name}: {held.when}\nHeld lines:\n{lines}\nHeld files:\n{files}"
+
+
+def _collected(collected: Collected) -> str:
+    said = "\n\n".join(f"[{s.pointer.rsplit(':', 1)[-1]}] {s.text}" for s in collected.said) or "(nothing)"
+    shown: list[str] = []
+    size = 0
+    for a in collected.artifacts:
+        status = "last run worked" if a.ran and a.ok else ("last run failed" if a.ran else "not run")
+        text = f"--- {a.name} ({a.path or 'run inline'}; {status}) ---\n{a.content}"
+        size += len(text)
+        if size > FOLDER_FILES_CHARS:
+            break
+        shown.append(text)
+    return f"What the user said:\n{said}\n\nFiles the session wrote or ran:\n" + ("\n\n".join(shown) or "(none)")
+
+
+async def fold(
+    writer: Writer | ReplayWriter, ex: Extract, outcome: str, collected: Collected, held: HeldFolder | None, key: str
+) -> FolderDraft | None:
+    # For a folder memory holds, the writer gives only what changed.
+    system = FOLDER.format(
+        max_steps=MAX_FOLDER_STEPS,
+        step_chars=STEP_CHARS,
+        max_files=MAX_DRAFT_FILES,
+        suffixes=", ".join(FOLDER_SUFFIXES),
+        update=FOLDER_UPDATE if held is not None else "",
+    )
+    session = trace(ex, outcome)
+    if len(session) > FOLDER_TRACE_CHARS:
+        half = FOLDER_TRACE_CHARS // 2
+        session = f"{session[:half]}\n[...]\n{session[-half:]}"
+    user = f"{session}\n\n{_collected(collected)}" + (f"\n\n{_held_folder(held)}" if held is not None else "")
+    raw = await writer.complete(system, user, key)
+    try:
+        answer = json.loads(_FENCE.sub("", raw.strip()))
+    except json.JSONDecodeError as e:
+        raise ValueError(f"the writer did not answer with folder JSON: {raw[:200]!r}") from e
+    if not isinstance(answer, dict):
+        return None
+    skill = held.name if held is not None else _text(answer.get("skill"), SKILL_NAME_CHARS)
+    when = held.when if held is not None else _text(answer.get("when"), ITEM_CHARS)
+    if not skill or not when or INJECTION.search(f"{skill} {when}"):
+        return None
+    by_id = lines(ex)
+    found: list[FolderLine] = []
+    for kind, most in (("steps", MAX_FOLDER_STEPS), ("pitfalls", MAX_FOLDER_LINES), ("checks", MAX_FOLDER_LINES)):
+        for raw_line in (answer.get(kind) or [])[:most] if isinstance(answer.get(kind), list) else []:
+            if not isinstance(raw_line, dict):
+                continue
+            line = by_id.get(str(raw_line.get("step", "")).strip())
+            text = _text(raw_line.get("text"), STEP_CHARS)
+            if line is not None and text and not INJECTION.search(text):
+                found.append(FolderLine(kind, line.pointer, text))
+    files: list[FolderFile] = []
+    for raw_file in (answer.get("files") or [])[:MAX_DRAFT_FILES] if isinstance(answer.get("files"), list) else []:
+        if not isinstance(raw_file, dict):
+            continue
+        name = str(raw_file.get("name", "")).strip()
+        content = raw_file.get("content")
+        about = _text(raw_file.get("about"), ITEM_CHARS)
+        if (
+            not _FILE_NAME_OK.fullmatch(name)
+            or not name.endswith(FOLDER_SUFFIXES)
+            or not isinstance(content, str)
+            or not content.strip()
+            or len(content) > MAX_FOLDER_FILE_CHARS
+            or not about
+            or INJECTION.search(f"{about}\n{content}")
+            or any(f.name == name for f in files)
+        ):
+            continue
+        origin = _text(raw_file.get("from"), ALIAS_CHARS) or TOLD
+        files.append(FolderFile(name, origin, about, content if content.endswith("\n") else f"{content}\n"))
+    retired = [str(r).strip() for r in answer.get("retired") or [] if held is not None and str(r).strip() in held.lines]
+    return FolderDraft(skill, when, found, files, retired)

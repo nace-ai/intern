@@ -145,6 +145,35 @@ exit code 3 and no branch, and the next steward run on the same drive checkout r
 queue is `.git/nace-steward-deferred`). System 1 retries a 429 or 529 twice with backoff before an
 ask fails. A drive holds one world; a session from another world is refused.
 
+## Skill folders
+
+With `skill_folders = true` in `[capabilities.memory]` (off by default), the steward also keeps the
+script, table or template a session worked with, so a later session runs it instead of writing it again.
+A skill folder is `skills/<name>/`: `SKILL.md` is a skill page (lead "name: when to use it", then Steps,
+Pitfalls, Checks and a Files block), and beside it up to six files of kinds `.py`, `.sh`, `.js`, `.csv`,
+`.tsv`, `.json`, `.txt` or `.tmpl`, each at most 32,000 characters. Lint enforces both.
+
+- **Build.** A session whose outcome succeeded can start a folder. The writer reads the session's
+  whole files (what `write` and `edit` left, heredocs, inline `python3 -` scripts, each marked with
+  whether it ran and exited cleanly) and the user's messages in full, after secrets are redacted. A
+  script is one that ran cleanly, changed only to take its paths as arguments and to read its table
+  from beside it; a table or template is the user's own rules or wording, with `{field}` placeholders.
+- **Update.** System 1 first picks the held folder the session's work belongs to, if any. A later session
+  in that folder only changes files or adds lines; a line it replaces moves to Earlier. A session that
+  did not succeed can only change what the user told it.
+- **Gate.** Each file is checked without running it: Python must parse, JSON load, CSV keep its
+  columns, `bash -n` pass. Code must be close to a script that ran cleanly in a session that succeeded,
+  or to the file already held; a table or template must not state values the user never gave.
+  Then System 1 asks, per file, whether it is the procedure rather than this task's data or result, and
+  for a new folder whether the work will come again. A new folder needs at least one file kept.
+- **Recall.** A picked folder page is shown with its files' absolute paths in the drive, to run or
+  read in place. Its front matter counts the sessions that succeeded with it (`succeeded`); below two,
+  its steps, pitfalls and checks are shown under Suggestions, and its files are listed either way.
+  Running or reading a folder file counts as using its page. Recall writes nothing.
+- An archived or forgotten folder page takes its files with it: they are deleted, not moved to `graveyard/`.
+  Forgetting does not look inside a folder's files; to remove what one holds, forget the folder's page
+  (`intern memory forget DRIVE --page skills/<name>/SKILL --apply`).
+
 ## Forgetting
 
 Removal is hard: what goes leaves `main`'s current files, including `graveyard/` and `sessions/`, and the search
