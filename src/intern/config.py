@@ -334,12 +334,19 @@ class System1Unconfigured(ConfigError):
 class System2Unavailable(ConfigError):
     """No System 2 could be bound: none is configured, or the one asked for cannot run (e.g. its key is missing)."""
 
-    def __init__(self, message: str, *, ref: str, system1: str) -> None:
+    def __init__(
+        self, message: str, *, ref: str, system1: str, code: str | None = None, meter: str | None = None
+    ) -> None:
         super().__init__(message)
         self.ref = ref
         """The System 2 the session would have run on; empty when none is configured."""
         self.system1 = system1
         """The System 1 the session would have started on."""
+        self.code = code
+        """Why the free credit could not run it, as the console's code (`free_exhausted`, `free_paused`,
+        `free_revoked`); None when the free credit is not why."""
+        self.meter = meter
+        """The meter `code` names (`agent`), if any."""
 
 
 @dataclass(frozen=True)
@@ -829,24 +836,23 @@ class Bootstrap:
         agent_free = bundle if free.on_free("agent") else None
         system1_label = bundle.system1 if bundle is not None and free.on_free("system1") else self.system1_choice()
 
-        def unavailable(message: str) -> str:
+        def unavailable(message: str, ref: str) -> System2Unavailable:
             why = plan.why_not("agent")
-            return f"{why}; add your own key to keep going: {message}" if why else message
+            text = f"{why}; add your own key to keep going: {message}" if why else message
+            code, meter = plan.why_not_code("agent") or (None, None)
+            return System2Unavailable(text, ref=ref, system1=system1_label, code=code, meter=meter)
 
         ref = agent_free.system2 if agent_free is not None else self.own_system2(bundle)
         if not ref:
-            raise System2Unavailable(
-                unavailable(
-                    f"no model given: run `{COMMAND}` in a terminal to connect your models, pass --system2 "
-                    f"provider/model, set ${SYSTEM2_ENV}, or set system2 in {self.home / CONFIG_FILE}"
-                ),
-                ref="",
-                system1=system1_label,
+            raise unavailable(
+                f"no model given: run `{COMMAND}` in a terminal to connect your models, pass --system2 "
+                f"provider/model, set ${SYSTEM2_ENV}, or set system2 in {self.home / CONFIG_FILE}",
+                "",
             )
         try:
             system2 = await self.bind_free(ref, agent_free, free.refused)
         except ConfigError as e:
-            raise System2Unavailable(unavailable(str(e)), ref=ref, system1=system1_label) from None
+            raise unavailable(str(e), ref) from None
         try:
             packs = capabilities.effective_tool_packs(system2.profile.tool_packs)
         except ValueError as error:

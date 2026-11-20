@@ -87,6 +87,10 @@ none is configured, or its provider's API key is missing. The session is then op
   the session stays unbound. `system1`, `context_window` and `cap.*` toggles may be set first and apply
   once a model binds.
 - `session/prompt` fails with `-32602`: `no System 2 model can run: <reason>; pick a model`.
+- When the free credit is why (it is in use, but spent or paused, and no own key can take over), both failures carry
+  `data: {code, meter}` (0.58.0 and later): `code` is `free_exhausted` with `meter` `agent`, or `free_paused` or
+  `free_revoked` with `meter` `null`, the codes a [`provider_error`](#stop-reasons-and-errors) carries. A client shows
+  its free-credit state for these instead of the message. Any other reason has no `data`.
 - `session/load` of an unbound session replays its history as usual.
 
 Other configuration errors (an invalid `config.toml`, an unknown extension) still fail `session/new`
@@ -1732,3 +1736,12 @@ where before every home shared `intern`: a test or second home no longer overwri
 that runs the harness with its own `INTERN_HOME` and stored keychain entries before this release finds them
 `missing` in `intern secrets test --json` and stores them again (`intern secrets set`), and signs in to the free
 credit again (`intern free start`). Clients on the default home see no change: 0.57.2 clients keep working.
+
+### 0.58.0
+
+An unbound session whose free credit is why it cannot bind says so by code: `session/prompt` and
+`session/set_config_option model` still fail with `-32602` and the same message, and now carry
+`data: {code, meter}` (`free_exhausted` with `meter` `agent`, `free_paused`, `free_revoked`), as a
+[`provider_error`](#stop-reasons-and-errors) does ([when no System 2 can run](#when-no-system-2-can-run)). A client
+can show the free credit's state instead of matching the wording. Older clients see the same code and message:
+0.57.3 clients keep working.
