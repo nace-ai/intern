@@ -294,6 +294,11 @@ Screen {
     color: $muted;
 }
 
+/* A hand-over's turns once its run is over, folded into the record of them the frontier model is sent. */
+.handed-fold {
+    margin: 0 0 1 0;
+}
+
 /* Who takes a turn, on the line above it: the frontier model, or the efficient one after a hand-over. */
 .turn-head {
     margin: 1 0 0 0;

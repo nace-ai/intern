@@ -257,11 +257,18 @@ async def test_sql_reads_the_workspace_tables_and_nothing_else(tmp_path: Path):
         "INSTALL httpfs",
         "SET enable_external_access = true",
         "select 1; COPY (select 1) TO 'out.csv'",
+        # EXPLAIN ANALYZE runs the statement inside it: a COPY there writes the file all the same.
+        "EXPLAIN ANALYZE COPY (select 1) TO 'out.csv'",
+        "EXPLAIN (ANALYZE) COPY (select 1) TO 'out.csv'",
+        "explain /* */ analyze COPY (select 'x' as je) TO 'je.csv'",
     ]
     for query in escapes:
         refused = await sql.run(sql.Args(query=query), ctx(root))
         assert refused.status == "error" and "hunter2" not in refused.content, query
     assert not (outside / "out.csv").exists() and not (root / "out.csv").exists()
+    assert (root / "je.csv").read_text() == "je,amount\nJ1,10\n"
+    for query in ("EXPLAIN ANALYZE select sum(amount) from je", "EXPLAIN (FORMAT json) select * from je"):
+        assert (await sql.run(sql.Args(query=query), ctx(root))).status == "ok", query
     # A query holds a share of the machine's memory and spills past it, not DuckDB's default 80%.
     limit = (await sql.run(sql.Args(query="select current_setting('memory_limit')"), ctx(root))).content
     amount, unit = limit.splitlines()[2].strip("| ").split()

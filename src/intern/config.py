@@ -10,6 +10,7 @@ the config home, created on first use. `--no-memory` or `enabled = false` there 
 from __future__ import annotations
 
 import contextlib
+import ipaddress
 import os
 import subprocess
 import sys
@@ -19,6 +20,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
@@ -30,6 +32,7 @@ from intern.decisions import (
     DecisionBackend,
     DecisionClient,
     DecisionsApiBackend,
+    KapitsaBackend,
     System1Unavailable,
 )
 from intern.events import EventSink, MemoryMount, SecretUnavailable
@@ -63,6 +66,8 @@ from intern.memory.spend import STEWARD_DIR
 from intern.memory.steward.writer import writer_from_ref
 from intern.models.catalog import (
     DECISIONS_PREFIX,
+    KAPITSA_PREFIX,
+    KAPITSA_URL,
     NACE_CONSOLE_URL,
     CapabilityInfo,
     Catalog,
@@ -112,7 +117,7 @@ KNOWN_SYSTEM2: dict[str, str] = {
 }
 SYSTEM1_HELP = (
     f"a decision model on the console ({DEFAULT_SYSTEM1_MODEL}), drex:<model>[,<fallback>...], "
-    "or decisions:<model>[,<fallback>...]"
+    "decisions:<model>[,<fallback>...], or kapitsa:<model> (kapitsa-systemone on this machine)"
 )
 VISION_LINE = (
     "You can see images: read an image file (png, jpg, gif, webp) to look at it. To look at a scanned PDF page, "
@@ -125,10 +130,11 @@ HOST_VISION_LINE = (
 
 
 class System1Config(BaseModel):
-    backend: Literal["console", "decisions-api"] = Field(
+    backend: Literal["console", "decisions-api", "kapitsa"] = Field(
         default="console",
-        description="Where System 1 is served: the console (the default) or a decisions API (OpenRouter: "
-        "Jev, `nace-ai/drex-*`, ...). System 1 is required; there is no running without it.",
+        description="Where System 1 is served: the console (the default), a decisions API (OpenRouter: "
+        "Jev, `nace-ai/drex-*`, ...), or kapitsa-systemone on this machine. System 1 is required; there is no "
+        "running without it.",
     )
     model: str | None = Field(default=None, description="The model; on the console, the first of `models` by default.")
     fallback_models: list[str] = Field(default_factory=list)
@@ -149,6 +155,7 @@ class System1Config(BaseModel):
     )
     console_url: str = Field(default=NACE_CONSOLE_URL, description="Where the console serves `models`.")
     console_key_env: str = Field(default="NACE_API_KEY", description="The console's API key variable.")
+    kapitsa_url: str = Field(default=KAPITSA_URL, description="Where kapitsa-systemone serves, for `kapitsa:<model>`.")
 
 
 class CommandsConfig(BaseModel):
@@ -324,6 +331,15 @@ def load_user_config(home: Path) -> UserConfig:
         raise ConfigError(f"{path} is invalid: {e}") from e
 
 
+def _loopback(url: str) -> bool:
+    """Whether `url` is served on this machine."""
+    host = urlsplit(url).hostname or ""
+    try:
+        return host == "localhost" or ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
 class System1Unconfigured(ConfigError):
     """System 1 has no key to run on: the setup screen can connect one."""
 
@@ -334,12 +350,19 @@ class System1Unconfigured(ConfigError):
 class System2Unavailable(ConfigError):
     """No System 2 could be bound: none is configured, or the one asked for cannot run (e.g. its key is missing)."""
 
-    def __init__(self, message: str, *, ref: str, system1: str) -> None:
+    def __init__(
+        self, message: str, *, ref: str, system1: str, code: str | None = None, meter: str | None = None
+    ) -> None:
         super().__init__(message)
         self.ref = ref
         """The System 2 the session would have run on; empty when none is configured."""
         self.system1 = system1
         """The System 1 the session would have started on."""
+        self.code = code
+        """Why the free credit could not run it, as the console's code (`free_exhausted`, `free_paused`,
+        `free_revoked`); None when the free credit is not why."""
+        self.meter = meter
+        """The meter `code` names (`agent`), if any."""
 
 
 @dataclass(frozen=True)
@@ -416,7 +439,7 @@ class Bootstrap:
         self.home = home_dir(self.env)
         self.config = load_user_config(self.home)
         self.store, self.store_failures = read_store(
-            self.config.secrets, self.env, cwd=self.home if self.home.is_dir() else None
+            self.config.secrets, self.env, cwd=self.home if self.home.is_dir() else None, home=self.home
         )
         """The `[secrets]` values, read once per process; they also sit in `env`, over an exported variable of the
         same name. An entry that could not be read is in `store_failures`, and each session reports it."""
@@ -482,6 +505,26 @@ class Bootstrap:
             await session.set_handoff(handoff.to or self.options.handoff_default, handoff)
         except ConfigError:
             await session.set_handoff(None, handoff)
+        return True
+
+    async def _to_free(self, session: Session, system: System) -> bool:
+        """Move `system` of `session` back to the free credit's bundle at the start of a run; whether it could."""
+        bundle = session.free.bundle if session.free is not None else None
+        if bundle is None:
+            return False
+        try:
+            if system == "system1":
+                await session.set_model(bundle.system1, "system1", rebind=True)
+                return True
+            await session.set_model(bundle.system2, rebind=True)
+        except ConfigError:
+            return False
+        tuning = bundle.handoff_tuning.model_dump() if bundle.handoff_tuning else {}
+        handoff = HandoffConfig(to=bundle.handoff, **tuning)
+        try:
+            await session.set_handoff(bundle.handoff, handoff, rebind=True)
+        except ConfigError:
+            await session.set_handoff(None, handoff, rebind=True)
         return True
 
     async def bind(self, ref: str) -> ModelBinding:
@@ -599,6 +642,11 @@ class Bootstrap:
                 pass
             else:
                 argv += ["--writer", writer]
+        memory = self.capability_settings().memory
+        if memory.graveyard_sessions:
+            argv += ["--keep-graveyard", str(memory.graveyard_sessions)]
+        if memory.transcript_sessions:
+            argv += ["--keep-transcripts", str(memory.transcript_sessions)]
         log = self.home / STEWARD_DIR / f"{journal.stem}.log"
 
         def start(session: Session) -> None:
@@ -622,7 +670,7 @@ class Bootstrap:
 
     def _system1_config(self, spec: str | None) -> System1Config:
         """`[system1]` as `spec` amends it: `decisions:<model>[,<fallback>...]` on the decisions API,
-        `drex:<model>[,<fallback>...]` or a bare decision model on the console."""
+        `drex:<model>[,<fallback>...]` or a bare decision model on the console, `kapitsa:<model>` on this machine."""
         cfg = self.config.system1
         if not spec:
             return cfg
@@ -632,6 +680,8 @@ class Bootstrap:
         models = [m for m in rest.split(",") if m]
         if kind == "decisions" and models:
             return cfg.model_copy(update={"backend": "decisions-api", "model": None, "fallback_models": models})
+        if kind == "kapitsa" and len(models) == 1:
+            return cfg.model_copy(update={"backend": "kapitsa", "model": models[0], "fallback_models": []})
         if kind == "drex" and models:
             return cfg.model_copy(update={"backend": "console", "model": models[0], "fallback_models": models[1:]})
         if ":" not in spec and spec.strip():
@@ -649,6 +699,10 @@ class Bootstrap:
         """The backend `spec` names, or without one the backend `--system1` or `[system1]` configured. System 1 is
         required: one that cannot be set up (no key, no model) is a ConfigError."""
         cfg = self._system1_config(self.options.system1 if spec is None else spec)
+        if cfg.backend == "kapitsa":
+            if not cfg.model:
+                raise ConfigError("system1 backend kapitsa needs system1.model")
+            return KapitsaBackend(cfg.kapitsa_url, cfg.model)
         if cfg.backend == "console":
             first = cfg.model or (cfg.models[0] if cfg.models else None)
             models = [m for m in [first, *cfg.fallback_models] if m]
@@ -666,16 +720,20 @@ class Bootstrap:
         if not models:
             raise ConfigError("system1 backend decisions-api needs system1.model")
         key = self.env.get(cfg.api_key_env)
-        if not key:
+        # A server on this machine, such as kapitsa-systemone, takes no key.
+        if not key and not _loopback(cfg.base_url):
             raise System1Unconfigured(f"the decisions API needs a key in ${cfg.api_key_env}")
-        return DecisionsApiBackend(cfg.base_url, SecretStr(key), models, timeout_s=cfg.timeout_s)
+        return DecisionsApiBackend(cfg.base_url, SecretStr(key or ""), models, timeout_s=cfg.timeout_s)
 
     def system1_choice(self) -> str:
         """The System 1 a session starts on, as the pickers name it: a decision model on the console,
-        `decisions:<model>` on the decisions API; empty when none is configured, which `_system1` refuses."""
+        `decisions:<model>` on the decisions API, `kapitsa:<model>` on this machine; empty when none is configured,
+        which `_system1` refuses."""
         cfg = self._system1_config(self.options.system1)
         if cfg.backend == "console":
             return cfg.model or (cfg.models[0] if cfg.models else "")
+        if cfg.backend == "kapitsa":
+            return f"{KAPITSA_PREFIX}{cfg.model}" if cfg.model else ""
         models = [m for m in [cfg.model, *cfg.fallback_models] if m]
         return f"{DECISIONS_PREFIX}{models[0]}" if models else ""
 
@@ -694,6 +752,7 @@ class Bootstrap:
             console_models=tuple(cfg.models),
             decisions_url=cfg.base_url,
             decisions_key=self.env.get(cfg.api_key_env),
+            kapitsa_url=cfg.kapitsa_url,
         )
 
     async def known_system2(self) -> str | None:
@@ -790,7 +849,13 @@ class Bootstrap:
         capabilities = self.capability_settings()
         plan = await self.free_plan()
         bundle = plan.bundle
-        free = FreeSession(plan, plan.sources(), switch=self._to_own, next_system2=lambda: self._next_system2(bundle))
+        free = FreeSession(
+            plan,
+            plan.sources(),
+            switch=self._to_own,
+            back=self._to_free,
+            next_system2=lambda: self._next_system2(bundle),
+        )
         in_use = plan.use is True and plan.credential is not None
         if in_use:
             emit = free.watching(emit)
@@ -798,24 +863,23 @@ class Bootstrap:
         agent_free = bundle if free.on_free("agent") else None
         system1_label = bundle.system1 if bundle is not None and free.on_free("system1") else self.system1_choice()
 
-        def unavailable(message: str) -> str:
+        def unavailable(message: str, ref: str) -> System2Unavailable:
             why = plan.why_not("agent")
-            return f"{why}; add your own key to keep going: {message}" if why else message
+            text = f"{why}; add your own key to keep going: {message}" if why else message
+            code, meter = plan.why_not_code("agent") or (None, None)
+            return System2Unavailable(text, ref=ref, system1=system1_label, code=code, meter=meter)
 
         ref = agent_free.system2 if agent_free is not None else self.own_system2(bundle)
         if not ref:
-            raise System2Unavailable(
-                unavailable(
-                    f"no model given: run `{COMMAND}` in a terminal to connect your models, pass --system2 "
-                    f"provider/model, set ${SYSTEM2_ENV}, or set system2 in {self.home / CONFIG_FILE}"
-                ),
-                ref="",
-                system1=system1_label,
+            raise unavailable(
+                f"no model given: run `{COMMAND}` in a terminal to connect your models, pass --system2 "
+                f"provider/model, set ${SYSTEM2_ENV}, or set system2 in {self.home / CONFIG_FILE}",
+                "",
             )
         try:
             system2 = await self.bind_free(ref, agent_free, free.refused)
         except ConfigError as e:
-            raise System2Unavailable(unavailable(str(e)), ref=ref, system1=system1_label) from None
+            raise unavailable(str(e), ref) from None
         try:
             packs = capabilities.effective_tool_packs(system2.profile.tool_packs)
         except ValueError as error:
@@ -847,6 +911,7 @@ class Bootstrap:
         hooks = Hooks(extensions, emit)
 
         def resolve_system1(choice: str) -> DecisionBackend:
+            bundle = free.bundle
             on_free = bundle is not None and choice == bundle.system1 and free.on_free("system1")
             if on_free and bundle is not None and plan.credential is not None:
                 model = bundle.system1
@@ -855,6 +920,7 @@ class Bootstrap:
             return self.system1_backend(choice)
 
         async def resolve_model(model: str) -> ModelBinding:
+            bundle = free.bundle
             on_free = bundle is not None and free.on_free("agent") and model in (bundle.system2, bundle.handoff)
             return await self.bind_free(model, bundle if on_free else None, free.refused)
 

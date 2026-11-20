@@ -18,11 +18,27 @@ from intern.decisions import (
     System1Unavailable,
 )
 from intern.journal import Journal
-from intern.memory.drive import main_commit, tracked_files
+from intern.memory.drive import main_commit, tracked_files, tracked_names
+from intern.memory.forget import (
+    MARKER,
+    MIN_COVERED_CHARS,
+    SESSION,
+    TITLE,
+    Removal,
+    Spot,
+    candidates,
+    earlier,
+    followers,
+    widened,
+)
+from intern.memory.forget import apply as apply_removal
 from intern.memory.format import (
+    CODE_SUFFIXES,
     FOLDER_INDEX,
+    FOLDER_SUFFIXES,
     RELATIONS_ID,
     SCHEMA_FILE,
+    SKILL_ROOT,
     UNREAD_FOLDERS,
     WORLD_FILE,
     Block,
@@ -32,6 +48,8 @@ from intern.memory.format import (
     clip,
     drive_world,
     inert,
+    is_folder_file,
+    is_folder_skill,
     is_page_file,
     page_file,
     parse_page,
@@ -41,20 +59,24 @@ from intern.memory.format import (
     world_file,
 )
 from intern.memory.lint import lint
+from intern.memory.steward.artifacts import collect
 from intern.memory.steward.extract import (
     INJECTION,
     QUOTE_CHARS,
     Extract,
     Observation,
+    Turn,
     UserNote,
     describe,
     extract,
     file_pages,
 )
+from intern.memory.steward.folder import Folder, apply, folders, provenance, static_problem
 from intern.memory.steward.git import branch_exists, commit_proposal
 from intern.memory.steward.write import (
     BLOCKS,
     GENERAL_LESSONS,
+    GRAVEYARD,
     LEAD_BLOCKS,
     OTHER_WORK,
     SESSIONS_FOLDER,
@@ -66,12 +88,15 @@ from intern.memory.steward.write import (
     Gap,
     Placed,
     StewardError,
+    _load,
     archive,
+    expired,
+    folder_skill_path,
     forget,
     is_history,
     item_body,
     read_usage,
-    skill_path,
+    skill_page,
     stale,
     stewarded,
     stewarded_turns,
@@ -89,6 +114,8 @@ from intern.memory.steward.writer import (
     ME,
     NEW,
     Draft,
+    FolderDraft,
+    FolderFile,
     Item,
     Learned,
     Past,
@@ -98,13 +125,16 @@ from intern.memory.steward.writer import (
     Writer,
     condense,
     draft,
+    fold,
+    grounded,
     learn,
     numbers,
+    rest,
     similar,
     trace,
 )
 
-STEWARD_VERSION = "47"
+STEWARD_VERSION = "51"
 KEEP = 0.7
 NOTE_KEEP = 0.5
 MAYBE_CORRECTION = 0.3
@@ -153,6 +183,38 @@ CORRECTION = (
     "Is user message {name} a correction of how the agent worked, such as the right place, command, file, call "
     "or procedure to use?"
 )
+FORGET = (
+    "Does user message {name} ask the agent to forget something, or to remove or stop keeping it in its memory, or "
+    "say that something the agent remembers is wrong without saying what is right? No when it asks to delete or "
+    "change a file, record, message or anything else in the work itself."
+)
+FORGOTTEN = (
+    "Does line {name} say something that user message {message} asked to forget, or said is wrong? A line that says "
+    "something else about the same person or thing, which the message did not ask to forget, does not."
+)
+FOLLOWED = (
+    "Does line {name} repeat what the lines being forgotten say, which user message {message} asked to forget or "
+    "said is wrong? A line that only shares a name or a subject with them does not."
+)
+REST = (
+    "Line {name} is to be rewritten as the rest shown under it, without what the user messages asked to forget or "
+    "said is wrong. Does the rest say only what line {name} says, with its values, names and limits, and nothing "
+    "the messages asked to forget or said is wrong?"
+)
+SENTENCES = "A line of several sentences is shown whole, then each of its sentences as a line of its own."
+# Only a session whose user used one of these words is asked FORGET, so other sessions cost no extra ask.
+_FORGET_CUE = re.compile(
+    r"\b(forget|forgot|delete|remove|erase|drop|wipe|scrub|strike|purge|clear|discard|disregard|ignore|redact|"
+    r"scratch|wrong|incorrect|mistake|mistaken|not true|no longer|isn'?t|wasn'?t|never|take (it|that|this) back|"
+    r"off the record|get rid|(don'?t|do not|not|not be|stop) (keep|kept|remember|store|retain|record|save)\w*|"
+    r"should(n'?t| not) have)\b",
+    re.I,
+)
+# Page lines offered for one request; half as many transcript lines are offered beside them.
+MAX_FORGET_LINES = 40
+MAX_FORGET_SESSION_LINES = 20
+MAX_FOLLOWED_LINES = 20
+FORGET_MESSAGE_CHARS = 600
 LASTING = (
     "Will item {name} still be true and useful in a later session in the same world, for a different task or "
     "question? Yes for where things are, how they work, what fails, facts about the user and the people and things "
@@ -200,6 +262,19 @@ SKILL_FITS = (
 )
 SAME_SKILL = "Which skill already in memory covers the kind of work lesson {name} is for, under another name?"
 MAX_SKILL_LINES = 12
+SAME_FOLDER = (
+    "Which skill folder is for the kind of work this session did, or for the way of working a user message in it "
+    "changes?"
+)
+FOLDER_FILE = (
+    "Is file {name} part of how this kind of work is done (a rule, limit, table or template the user gave, or code "
+    "the agent wrote to do the work) rather than this task's input data, its result, or a value only this task uses?"
+)
+FOLDER_REPEATS = (
+    "Is the skill folder for a kind of work that later tasks would share, done the way its steps say, rather than "
+    "for this one task?"
+)
+FOLDER_FILE_STATE_CHARS = 6_000
 MERGED = (
     "Are the lines merged line {name} replaces about the same thing, and does it keep every fact, value, name, "
     "negation and limit of them, and add nothing they do not say?"
@@ -261,6 +336,7 @@ BLOCK_NOUNS = {
     "b-steps": "the steps that worked",
     "b-pitfalls": "what went wrong or wasted steps",
     "b-checks": "checks to always run",
+    "b-folder": "the files of this skill and how to use them",
 }
 
 
@@ -281,6 +357,13 @@ class Proposal:
     # What the steward left out and why: for the operator's log, never a page an agent loads.
     gaps: list[Gap] = field(default_factory=list)
     removed: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class Keep:
+    # In steward sessions; 0 keeps them for good.
+    graveyard: int = 0
+    transcripts: int = 0
 
 
 class _Decision:
@@ -327,6 +410,160 @@ def _state(ex: Extract) -> str:
 
 def _noul(answer: Answer | None) -> float:
     return answer.noul if isinstance(answer, NoulAnswer) else 0.0
+
+
+async def _forgetting(
+    decision: _Decision, writer: Writer | ReplayWriter | None, ex: Extract, files: dict[str, str], root: Path
+) -> tuple[Removal, dict[str, str], Extract]:
+    # A user's request to forget, or word that a line is wrong: System 1 finds the lines it means, in memory and in
+    # what the session said before the request, then the lines that repeat what those say in other words. The
+    # session's own record of the request is scrubbed before anything is written from it.
+    users = [t for t in ex.turns if t.role == "user"]
+    asked = [i for i, t in enumerate(users) if _FORGET_CUE.search(t.text)]
+    if not asked:
+        return Removal(), {}, ex
+    listed = "\n".join(f'u{i}. "{clip(users[i].text, FORGET_MESSAGE_CHARS)}"' for i in asked)
+    questions: dict[str, Question] = {f"u{i}": NoulQuestion(instructions=FORGET.format(name=f"u{i}")) for i in asked}
+    answers = await decision.ask("steward_forget", f"User messages:\n{listed}", questions)
+    flagged = [i for i in asked if _noul(answers.get(f"u{i}")) >= KEEP]
+    if not flagged:
+        return Removal(), {}, ex
+    transcripts = tracked_files(root, main_commit(root), ".txt")
+    transcripts.pop(f"{SESSIONS_FOLDER}{ex.session_id}.txt", None)
+    found: list[tuple[int, Spot]] = []
+    spans = _spans(ex, [users[i] for i in flagged])
+    apart = [t.text for t in ex.turns if not _within(spans, t.order)]
+    for i in flagged:
+        spots = candidates(files, transcripts, users[i].text, MAX_FORGET_LINES)
+        spots += earlier(apart, users[i].text, MAX_FORGET_SESSION_LINES)
+        found += [(i, s) for s in spots if all(s != f for _, f in found)]
+    listed = "\n".join(f'u{i}. "{clip(users[i].text, FORGET_MESSAGE_CHARS)}"' for i in flagged)
+    picked = await _picked(decision, FORGOTTEN, NOTE_KEEP, f"User messages:\n{listed}", found)
+    more: list[tuple[int, Spot]] = []
+    for i in flagged:
+        seen = [s for _, s in [*found, *more]]
+        mine = [s for j, s in picked if j == i]
+        more += [(i, s) for s in followers(files, transcripts, users[i].text, mine, seen, MAX_FOLLOWED_LINES)]
+    if more:
+        going = "\n".join(f"- {clip(strip_source(s.line), CITED_CHARS)}" for _, s in picked)
+        # A line found only through another line shares no word with the request, so it needs a surer answer.
+        state = f"User messages:\n{listed}\n\nLines being forgotten:\n{going}"
+        picked += await _picked(decision, FOLLOWED, KEEP, state, more)
+    said = [s.line for _, s in picked if s.file == SESSION]
+    going = await _rest(decision, writer, ex, listed, [s for _, s in picked if s.file != SESSION], files)
+    removal = widened(files, transcripts, Removal(lines=going))
+    return removal, transcripts, _scrub(ex, [users[i] for i in flagged], removal, said)
+
+
+async def _picked(
+    decision: _Decision, question: str, bar: float, state: str, found: list[tuple[int, Spot]]
+) -> list[tuple[int, Spot]]:
+    if not found:
+        return []
+    held: list[str] = []
+    shown: tuple[str, str, str] | None = None
+    for k, (_, s) in enumerate(found):
+        if not s.part:
+            held.append(f"c{k}. [{s.file}] {clip(strip_source(s.line), CITED_CHARS)}")
+            continue
+        if shown != (s.file, s.block, s.line):
+            held.append(f"[{s.file}] {clip(strip_source(s.line), CITED_CHARS)}")
+            shown = (s.file, s.block, s.line)
+        held.append(f"    c{k}. {clip(s.part, CITED_CHARS)}")
+    questions: dict[str, Question] = {
+        f"c{k}": NoulQuestion(instructions=question.format(name=f"c{k}", message=f"u{i}"))
+        for k, (i, _) in enumerate(found)
+    }
+    state = f"{state}\n\n{SENTENCES}\nLines memory holds:\n" + "\n".join(held)
+    answers = await decision.ask("steward_forgotten", state, questions)
+    return [(i, s) for k, (i, s) in enumerate(found) if _noul(answers.get(f"c{k}")) >= bar]
+
+
+async def _rest(
+    decision: _Decision,
+    writer: Writer | ReplayWriter | None,
+    ex: Extract,
+    asked: str,
+    going: list[Spot],
+    files: dict[str, str],
+) -> list[Spot]:
+    # A page line or sentence that says something else beside what goes keeps the rest: the writer words it, and
+    # it is kept when it holds no value the line did not and System 1 finds it says nothing that was asked to be
+    # forgotten. Without a writer, or without a sure answer, the line or sentence goes whole. A transcript keeps
+    # the user's own words, so only its sentences go.
+    mixed = [k for k, s in enumerate(going) if s.file in files and s.block != TITLE]
+    if writer is None or not mixed:
+        return going
+    try:
+        rests = await rest(writer, f"User messages:\n{asked}", [going[k].text for k in mixed], f"{ex.session_id}.rest")
+    except (httpx.HTTPError, ValueError, KeyError, IndexError):
+        return going
+    offered = [
+        (k, text)
+        for k, text in zip(mixed, rests, strict=True)
+        if text and text != going[k].text and grounded(text, going[k].text)
+    ]
+    if not offered:
+        return going
+    shown = "\n".join(
+        f"r{k}. {clip(going[k].text, CITED_CHARS)}\n    rest: {clip(text, CITED_CHARS)}" for k, text in offered
+    )
+    questions: dict[str, Question] = {f"r{k}": NoulQuestion(instructions=REST.format(name=f"r{k}")) for k, _ in offered}
+    state = f"User messages:\n{asked}\n\nLines and what is left of them:\n{shown}"
+    answers = await decision.ask("steward_forget_rest", state, questions)
+    kept = {k: inert(text) for k, text in offered if _noul(answers.get(f"r{k}")) >= KEEP}
+    return [s.model_copy(update={"part": s.text, "kept": kept[k]}) if k in kept else s for k, s in enumerate(going)]
+
+
+def _spans(ex: Extract, asked: list[Turn]) -> list[tuple[int, int | None]]:
+    # What a session did about a request to forget: all of it when the request opens the session, since a later
+    # message then answers a question about the request; otherwise what came before the user spoke again.
+    spoke = sorted(t.order for t in ex.turns if t.role == "user")
+    return [(t.order, next((o for o in spoke[1:] if o > t.order and t.order != spoke[0]), None)) for t in asked]
+
+
+def _within(spans: list[tuple[int, int | None]], order: int) -> bool:
+    return any(start <= order and (end is None or order < end) for start, end in spans)
+
+
+def _scrub(ex: Extract, asked: list[Turn], removal: Removal, said: list[str]) -> Extract:
+    # The request and what the session did about it (its replies, its searches for the thing and what they
+    # returned), any removed line the session repeated and what the session itself said of it apart from that
+    # leave everything written from it.
+    spans = _spans(ex, asked)
+    marked = [t for t in ex.turns if _within(spans, t.order)]
+    steps = [s for s in ex.steps if _within(spans, s.order)]
+    done = {s.pointer for s in steps}
+    said = [*said, *(s.text for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER))]
+    said += [text.strip() for s in steps for text in (s.call, s.result, s.output)]
+    texts = {b for b in [*(t.text.strip() for t in marked), *said] if len(b) >= MIN_COVERED_CHARS}
+    data = ex.model_dump()
+    data["steps"] = [s for s in data["steps"] if s["pointer"] not in done]
+    data["observations"] = [o for o in data["observations"] if o["pointer"] not in done]
+    data["places"] = {pointer: held for pointer, held in data["places"].items() if pointer not in done}
+    scrubbed = Extract.model_validate(_replaced(data, sorted(texts, key=len, reverse=True)))
+    gone = {t.pointer for t in marked}
+    for turn in scrubbed.turns:
+        turn.text = MARKER if turn.pointer in gone else turn.text
+    for note in scrubbed.notes:
+        note.text = MARKER if note.pointer in gone else note.text
+    return scrubbed
+
+
+def _resolved(path: Path) -> Path:
+    return path.expanduser().resolve()
+
+
+def _replaced(value: object, texts: list[str]) -> object:
+    if isinstance(value, str):
+        for text in texts:
+            value = value.replace(text, MARKER)
+        return value
+    if isinstance(value, dict):
+        return {k: _replaced(v, texts) for k, v in value.items()}  # pyright: ignore[reportUnknownVariableType]
+    if isinstance(value, list):
+        return [_replaced(v, texts) for v in value]  # pyright: ignore[reportUnknownVariableType]
+    return value
 
 
 async def _triage(decision: _Decision, ex: Extract) -> tuple[str, list[Observation], list[UserNote], list[Gap]]:
@@ -831,7 +1068,7 @@ def _skills(files: dict[str, str]) -> dict[str, Page]:
 async def _same_skill(decision: _Decision, learned: list[Learned], held: list[Skill], skills: dict[str, Page]) -> None:
     # A lesson the writer files under a new skill may belong to a skill memory already holds under another name.
     # Two lessons of one session may also name one new skill twice; a lesson is offered only earlier new names.
-    fresh = [i for i, lesson in enumerate(learned) if skill_path(lesson.skill) not in skills]
+    fresh = [i for i, lesson in enumerate(learned) if skill_page({}, lesson.skill, skills) not in skills]
     options: dict[int, list[tuple[str, str]]] = {}
     for n, i in enumerate(fresh):
         earlier = list(dict.fromkeys(learned[j].skill for j in fresh[:n] if learned[j].skill != learned[i].skill))
@@ -872,11 +1109,14 @@ async def _lessons(
         for page in skills.values()
     ]
     try:
-        learned = await learn(writer, past, held_skills, f"{ex.session_id}.lessons")
+        learned, dropped = await learn(writer, past, held_skills, f"{ex.session_id}.lessons")
     except (httpx.HTTPError, ValueError, KeyError, IndexError) as e:
         raise Deferred(f"the writer {writer.name} failed on lessons: {e}") from e
+    gaps = [
+        Gap(f"lesson dropped, {inert(d.reason)}" + (f": {inert(d.text)}" if d.text else ""), d.pointer) for d in dropped
+    ]
     if not learned:
-        return [], []
+        return [], gaps
     await _same_skill(decision, learned, held_skills, skills)
     text_of = {line.pointer: line.text for p in past for line in p.lines}
     listed = "\n".join(
@@ -893,7 +1133,9 @@ async def _lessons(
     # A lesson worded anew may say what its skill or the general lessons already hold; System 1 compares it with the
     # closest lines.
     general = _lines(_parsed(files, GENERAL_LESSONS), ("b-how", "b-fails", "b-rules"))
-    known_of = {i: [*_lines(skills.get(skill_path(lesson.skill))), *general] for i, lesson in enumerate(learned)}
+    known_of = {
+        i: [*_lines(skills.get(skill_page({}, lesson.skill, skills))), *general] for i, lesson in enumerate(learned)
+    }
     ranked = {
         i: sorted(known_of[i], key=lambda line: -_overlap(lesson.text, strip_source(line)))[:MAX_COMPARED]
         for i, lesson in enumerate(learned)
@@ -924,7 +1166,6 @@ async def _lessons(
     state = f"Lessons drawn across sessions:\n{listed}{held}"
     answers = await decision.ask("steward_lessons", state, questions)
     kept: list[Learned] = []
-    gaps: list[Gap] = []
     for i, lesson in enumerate(learned):
         p = _noul(answers.get(f"l{i}"))
         if p < KEEP:
@@ -950,6 +1191,99 @@ async def _lessons(
             lesson.old_page = GENERAL_LESSONS
         kept.append(lesson)
     return kept, gaps
+
+
+@dataclass
+class _FolderPlan:
+    folder: Folder | None
+    draft: FolderDraft
+    kept: list[FolderFile]
+
+
+async def _folder(
+    decision: _Decision,
+    writer: Writer | ReplayWriter,
+    ex: Extract,
+    outcome: str,
+    files: dict[str, str],
+    raw: dict[str, str],
+    journal_path: Path,
+    drive_root: Path,
+) -> tuple[_FolderPlan | None, list[Gap]]:
+    # A session that succeeded builds a folder; one doing the work a folder holds, or changing how it is done,
+    # updates it. Its files are kept only when they come from the session or the folder and System 1 finds them part
+    # of how the work is done.
+    held = folders(files, raw)
+    target: Folder | None = None
+    if held:
+        options = list(held.values())
+        criteria = {str(i): f"{f.name}: {f.when}" for i, f in enumerate(options, 1)}
+        criteria["none"] = "none of these kinds of work"
+        question = ChoiceQuestion(instructions=SAME_FOLDER, criteria=criteria)
+        answers = await decision.ask("steward_folder_same", _state(ex), {"folder": question})
+        choice = answer.choice if isinstance(answer := answers.get("folder"), ChoiceAnswer) else "none"
+        if choice.isdigit() and 0 < int(choice) <= len(options):
+            target = options[int(choice) - 1]
+    succeeded = outcome == SUCCEEDED
+    if target is None and not succeeded:
+        return None, []
+    collected = collect(journal_path, drive_root)
+    try:
+        found = await fold(writer, ex, outcome, collected, target.held() if target else None, f"{ex.session_id}.folder")
+    except (httpx.HTTPError, ValueError, KeyError, IndexError) as e:
+        return None, [Gap(f"no skill folder: the writer {writer.name} failed: {inert(str(e))[:200]}", "")]
+    if found is None:
+        return None, []
+    if target is None:
+        target = held.get(folder_skill_path(found.skill))
+    if not succeeded:
+        # What a session nothing confirmed shows is only what the user said in it.
+        said = {t.pointer for t in ex.turns if t.role == "user"}
+        found.lines = [line for line in found.lines if line.pointer in said]
+    gaps: list[Gap] = []
+    have = target.files if target is not None else {}
+    candidates: list[FolderFile] = []
+    for file in found.files:
+        problem = static_problem(file.name, file.content) or provenance(file, collected, have, succeeded)
+        if problem:
+            gaps.append(Gap(f"skill folder file not kept: {inert(problem)}", ""))
+        elif have.get(file.name) != file.content:
+            candidates.append(file)
+    questions: dict[str, Question] = {
+        f"f{i}": NoulQuestion(instructions=FOLDER_FILE.format(name=f"f{i}")) for i in range(len(candidates))
+    }
+    if target is None and candidates:
+        questions["repeats"] = NoulQuestion(instructions=FOLDER_REPEATS)
+    kept: list[FolderFile] = []
+    if questions:
+        steps = "\n".join(f"- [{line.kind}] {line.text}" for line in found.lines) or "(none)"
+        listed = "\n\n".join(
+            f"f{i}. {f.name}: {f.about}\n{clip(f.content, FOLDER_FILE_STATE_CHARS)}" for i, f in enumerate(candidates)
+        )
+        state = (
+            f"Task: {_task(ex.task)}\nSession outcome: {outcome}\nSkill folder: {found.skill}: {found.when}\n"
+            f"Steps:\n{steps}\nFiles:\n{listed}"
+        )
+        answers = await decision.ask("steward_folder", state, questions)
+        if "repeats" in questions and (p := _noul(answers.get("repeats"))) < KEEP:
+            return None, [*gaps, Gap(f"no skill folder for one task, p={p:.2f}: {inert(found.skill)}", "")]
+        for i, file in enumerate(candidates):
+            if (p := _noul(answers.get(f"f{i}"))) >= KEEP:
+                kept.append(file)
+            else:
+                gaps.append(Gap(f"skill folder file not kept, part of the work p={p:.2f}: {inert(file.name)}", ""))
+    # A script that reads a file of the draft the folder will not hold would fail when it is run.
+    present = {f.name for f in kept} | set(have)
+    missing = {f.name for f in found.files} - present
+    for file in [f for f in kept if f.name.endswith(CODE_SUFFIXES)]:
+        if needs := sorted(name for name in missing if name in file.content):
+            kept.remove(file)
+            gaps.append(Gap(f"skill folder file not kept: {inert(file.name)} reads {', '.join(needs)}", ""))
+    if target is None and not kept:
+        return None, gaps
+    if target is not None and not kept and not found.lines and not found.retired and not succeeded:
+        return None, gaps
+    return _FolderPlan(target, found, kept), gaps
 
 
 async def _condense(
@@ -1038,22 +1372,34 @@ def _transcript(ex: Extract, outcome: str) -> str:
     # The whole session as the steward saw it, for the agent's memory search when no page holds what it needs.
     task = " ".join(ex.task.split())
     head = [f"session: {ex.session_id}", f"date: {ex.date}", f"outcome: {outcome}", f"task: {task}"]
-    return "\n".join(head) + "\n\n" + trace(ex, outcome) + "\n"
+    return "\n".join(head) + "\n\n" + trace(ex, outcome, ids=True) + "\n"
 
 
-def _usage(root: Path, files: dict[str, str], ex: Extract, written: list[str]) -> tuple[str, dict[str, str], list[str]]:
+def _usage(
+    root: Path, files: dict[str, str], ex: Extract, written: list[str], keep: Keep
+) -> tuple[str, dict[str, str], list[str], list[str]]:
     # Each session counts which pages it used; a page unused and unwritten for long moves to graveyard/.
-    known = root.expanduser().resolve() / USAGE_FILE
-    usage = read_usage(known.read_text() if known.is_file() else None)
+    # Opted in, graveyard files and transcripts older than their keep are deleted: the drive's last copy.
+    root = root.expanduser().resolve()
+    known = root / USAGE_FILE
+    old = read_usage(known.read_text() if known.is_file() else None)
     live = [name[:-3] for name in files if is_page_file(name)]
-    usage = tally(usage, live, ex.used, written)
+    usage = tally(old, live, ex.used, written)
+    usage.archived, usage.transcripts = old.archived, old.transcripts
     gone = [p for p in stale(usage) if p not in written]
-    if not gone:
-        return usage.model_dump_json(indent=1), {}, []
-    archived, removed = archive(files, gone)
+    archived, removed = archive(files, gone) if gone else ({}, [])
     for path in gone:
         usage.pages.pop(path, None)
-    return usage.model_dump_json(indent=1), archived, removed
+    for name in archived:
+        if name.startswith(GRAVEYARD):
+            usage.archived[name] = usage.sessions
+    buried = [n for n in files | archived if n.startswith(GRAVEYARD) and is_page_file(n.removeprefix(GRAVEYARD))]
+    removed += expired(usage.archived, buried, usage.sessions, keep.graveyard)
+    own = f"{SESSIONS_FOLDER}{ex.session_id}.txt"
+    usage.transcripts[own] = usage.sessions
+    held = [n for n in tracked_names(root, main_commit(root), ".txt") if n.startswith(SESSIONS_FOLDER)]
+    pruned = [n for n in expired(usage.transcripts, [*{*held, own}], usage.sessions, keep.transcripts) if n != own]
+    return usage.model_dump_json(indent=1), archived, removed, pruned
 
 
 async def _work(decision: _Decision, ex: Extract, story: Story | None, kinds: list[str]) -> str:
@@ -1129,6 +1475,12 @@ def _continued(files: dict[str, str], ex: Extract) -> bool:
     return len(_USER_TURN.findall(trace(ex, ""))) > len(_USER_TURN.findall(old))
 
 
+def _folder_files(drive_root: Path) -> dict[str, str]:
+    root = drive_root.expanduser().resolve()
+    found = tracked_files(root, main_commit(root), FOLDER_SUFFIXES, SKILL_ROOT)
+    return {name: text for name, text in found.items() if is_folder_file(name)}
+
+
 def _prepare(
     journal_path: Path, drive_root: Path, world: str = ""
 ) -> tuple[dict[str, str], Extract, tuple[dict[str, str], list[str]]]:
@@ -1163,12 +1515,25 @@ async def propose(
     decisions: DecisionClient,
     writer: Writer | ReplayWriter | None = None,
     world: str = "",
+    keep: Keep | None = None,
+    skill_folders: bool = False,
 ) -> Proposal:
     files, ex, (forgot, gone) = _prepare(journal_path, drive_root, world)
+    root = _resolved(drive_root)
+    raw = _folder_files(drive_root)
+    removal, transcripts, ex = await _forgetting(_Decision(decisions, ex.run_state), writer, ex, files, root)
+    if not removal.empty:
+        # Applied first, so nothing written below compares with, restates or links what was forgotten.
+        rewritten, dropped = apply_removal(files, transcripts, removal)
+        forgot |= rewritten
+        gone = [*gone, *dropped]
+        files = {n: t for n, t in (files | rewritten).items() if n not in dropped and n.endswith(".md")}
 
     decision = _Decision(decisions, ex.run_state)
     await _step_changes(decision, ex)
     outcome, kept, lessons, gaps = await _triage(decision, ex)
+    if not removal.empty:
+        gaps.append(Gap(f"forgot {len(removal.lines)} lines at the user's request; not quoted", ""))
     items: list[Placed] = []
     story: Story | None = None
     kinds = parse_schema(files[SCHEMA_FILE]).work_kinds if SCHEMA_FILE in files else []
@@ -1178,6 +1543,10 @@ async def propose(
         gaps += item_gaps
         learned, lesson_gaps = await _lessons(decision, writer, files, ex, _past(files, ex, outcome, story))
         gaps += lesson_gaps
+    plan: _FolderPlan | None = None
+    if writer is not None and skill_folders:
+        plan, folder_gaps = await _folder(decision, writer, ex, outcome, files, raw, journal_path, drive_root)
+        gaps += folder_gaps
     work = await _work(decision, ex, story, kinds)
     written = write(files, ex, outcome, kept, lessons, items, story, work, learned, spill=False)
     condensed: dict[str, str] = {}
@@ -1186,10 +1555,24 @@ async def propose(
         gaps += merge_gaps
     if written.full:
         written = write(files | condensed, ex, outcome, kept, lessons, items, story, work, learned)
+    folder_files: dict[str, str] = {}
+    if plan is not None:
+
+        def folder_page(path: str, kind: str, lead: str) -> Page:
+            if path not in written.pages:
+                written.pages[path] = _load(files | condensed, path, kind, lead)
+            return written.pages[path]
+
+        cites = [line.pointer for line in plan.draft.lines] + [t.pointer for t in ex.turns if t.role == "user"]
+        if cites:
+            folder_files, apply_gaps = apply(
+                folder_page, plan.folder, plan.draft, plan.kept, ex.date, written.event, cites[0], outcome == SUCCEEDED
+            )
+            gaps += apply_gaps
     for page in written.pages.values():
         page.refresh_contents(await _contents(decision, page))
 
-    changed = condensed | {page_file(path): page.render() for path, page in written.pages.items()}
+    changed = condensed | {page_file(path): page.render() for path, page in written.pages.items()} | folder_files
     if SCHEMA_FILE in files:
         schema = with_vocabulary(with_work_kind(files[SCHEMA_FILE], work))
         if schema != files[SCHEMA_FILE]:
@@ -1198,7 +1581,10 @@ async def propose(
         changed[WORLD_FILE] = world_file(ex.world)
     merged = files | changed
     touched = [name[:-3] for name in changed if is_page_file(name)]
-    usage, archived, removed = _usage(drive_root, merged, ex, touched)
+    usage, archived, removed, pruned = _usage(drive_root, merged, ex, touched, keep or Keep())
+    # A skill folder's files go with its page.
+    pages_gone = {name[: -len("/SKILL.md")] for name in [*removed, *gone] if is_folder_skill(name[:-3])}
+    removed += [name for name in {**raw, **folder_files} if name.rsplit("/", 1)[0] in pages_gone]
     changed |= archived
     merged = {name: text for name, text in (merged | archived).items() if name not in removed}
     built = build_indexes(merged)
@@ -1216,13 +1602,19 @@ async def propose(
         raise StewardError("the proposal does not pass lint:\n" + "\n".join(problems))
     changed[USAGE_FILE] = usage
     changed[f"{SESSIONS_FOLDER}{ex.session_id}.txt"] = _transcript(ex, outcome)
-    changed = {name: text for name, text in forgot.items() if name not in removed} | changed
+    changed = {name: text for name, text in forgot.items() if name not in removed and name not in pruned} | changed
     return Proposal(
         session_id=ex.session_id,
         branch=f"proposed/{ex.session_id}",
         files=changed,
         gaps=gaps + written.gaps,
-        removed=[name for name in removed if name in files] + [name for name in gone if name not in changed],
+        removed=list(
+            dict.fromkeys(
+                [name for name in removed if name in files or name in raw]
+                + [n for n in gone if n not in changed]
+                + pruned
+            )
+        ),
     )
 
 
