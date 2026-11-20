@@ -239,6 +239,60 @@ def test_file_tools_are_checked_by_path():
     assert rule_hits("write", {"path": ".github/workflows/ci.yml", "content": ""}, SCOPE) == []
 
 
+MAC_HOME = PurePosixPath("/Users/dev")
+MAC = Scope(cwd=MAC_HOME / "work", roots=(MAC_HOME / "work",), home=MAC_HOME, folds_case=True)  # macOS: case ignored
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "egrep -r KEY ~/.ssh/id_rsa",
+        "fgrep KEY ~/.ssh/id_rsa",
+        "diff ~/.ssh/id_rsa /dev/null",
+        "cmp ~/.ssh/id_rsa other",
+        "cut -c1- ~/.aws/credentials",
+        "jq . ~/.docker/config.json",
+        "git diff --no-index /dev/null ~/.ssh/id_rsa",
+        "git --no-pager config -f ~/.aws/credentials --list",
+        "git config --file=$HOME/.git-credentials -l",
+        'echo "$(<~/.ssh/id_rsa)"',
+        "cat //Users/dev/.ssh/id_rsa",
+        "cat ~dev/.ssh/id_rsa",
+        "cat ~/.SSH/ID_RSA",
+        "cat /users/DEV/.aws/Credentials",
+        "cat /System/Volumes/Data/Users/dev/.ssh/id_rsa",
+        "cat /private/etc/shadow",
+    ],
+)
+def test_a_credential_file_is_not_read_under_another_spelling_or_reader(command: str):
+    assert rules(command, MAC) == ["credential_read"]
+
+
+def test_other_spellings_of_ordinary_files_are_still_read():
+    for command in (
+        "egrep TODO src/app.py",
+        "git diff --no-index old.txt new.txt",
+        "cat ~dev/notes.txt",
+        "jq . x.json",
+    ):
+        assert rules(command, MAC) == []
+    assert rules("cat ~/.SSH/id_rsa") == []  # another folder where case counts, as on Linux
+
+
+def test_the_file_tools_see_through_other_spellings_and_wide_searches():
+    for path in ("~dev/.ssh/id_rsa", "//Users/dev/.ssh/id_rsa", "~/.AWS/credentials"):
+        assert [h.rule for h in rule_hits("read", {"path": path}, MAC)] == ["credential_read"]
+    # A search of the whole home, or of a folder that holds a credential folder, reads the keys in it.
+    assert [h.rule for h in rule_hits("grep", {"pattern": "KEY", "path": "~", "glob": "**/id_rsa"}, MAC)] == [
+        "credential_read"
+    ]
+    assert [h.rule for h in rule_hits("grep", {"pattern": "oauth_token", "path": "~/.config"}, MAC)] == [
+        "credential_read"
+    ]
+    assert rule_hits("grep", {"pattern": "KEY", "path": "."}, MAC) == []
+    assert rule_hits("grep", {"pattern": "theme", "path": "~/.config/nvim"}, MAC) == []
+
+
 def test_docker_workspace_paths_count_as_the_working_directory():
     docker = Scope(cwd=PurePosixPath("/workspace"), roots=(CWD, PurePosixPath("/workspace")), home=HOME)
     assert rules("rm -rf /workspace/..", docker) == ["delete_protected"]

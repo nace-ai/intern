@@ -71,6 +71,7 @@ $0.00004.
 from __future__ import annotations
 
 import asyncio
+import functools
 import itertools
 import json
 import os
@@ -208,6 +209,8 @@ class Scope:
     system_writes: bool = False
     harness_pids: tuple[int, ...] = ()
     """This process and its parents, when commands run on the same host (a sandbox has its own PIDs)."""
+    folds_case: bool = False
+    """Whether file names ignore case where calls run, as on macOS by default: `.GIT` is `.git` there."""
 
     @classmethod
     def of(cls, cwd: Path, executor: Executor, home: Path, *, system_writes: bool = False) -> Scope:
@@ -219,7 +222,12 @@ class Scope:
             mounted = mount.to_inner(cwd)
             return cls(cwd=mounted, roots=(host, mounted), home=PurePosixPath(home), system_writes=system_writes)
         return cls(
-            cwd=host, roots=(host,), home=PurePosixPath(home), system_writes=system_writes, harness_pids=_lineage()
+            cwd=host,
+            roots=(host,),
+            home=PurePosixPath(home),
+            system_writes=system_writes,
+            harness_pids=_lineage(),
+            folds_case=_folds_case(cwd),
         )
 
     def inside(self, path: PurePosixPath) -> bool:
@@ -269,20 +277,73 @@ STARTUP_DIRS = (".config/fish", "Library/LaunchAgents")
 _DOTENV = re.compile(r"^\.env(\.(?!example$|sample$|template$|dist$|defaults$)[\w.-]+)?$")
 _ENVIRON = re.compile(r"^/proc/[^/]+/environ$")
 _GLOB_ALL = frozenset({"*", ".*", "**", "{*,.*}"})
+# `$HOME`, `${HOME}` and the forms with a default, which a set HOME never uses: `${HOME:-/}`.
+_HOME_VARIABLE = re.compile(r"\$\{HOME(:?[-=?][^}]*)?\}|\$HOME(?![A-Za-z0-9_])")
+_USER_HOME = re.compile(r"~([A-Za-z0-9_][\w.-]*)(?=/|$)")  # `~dev`, `~dev/x`
+# Other names of the same files on macOS: the data volume holds `/`, and `/etc` is a link to `/private/etc`.
+_ALIASES = (("/System/Volumes/Data", ""), ("/private/etc", "/etc"))
+_NAMED = (
+    *SECRET_DIRS,
+    *SECRET_FILES,
+    *SYSTEM_SECRETS,
+    *STARTUP_FILES,
+    *STARTUP_DIRS,
+    *(str(p) for p in (*SYSTEM_TREES, *USER_HOMES)),
+    "/usr/local",
+    ".git",
+)
+_SPELLINGS = {part.lower(): part for name in _NAMED for part in name.split("/") if part}
+"""Every name the rules look for, by its lower-case spelling."""
+
+
+def _folds_case(folder: Path) -> bool:
+    """Whether file names ignore case in a folder: its path in the other case names the same folder."""
+    other = Path(str(folder).swapcase())
+    try:
+        return other != folder and other.samefile(folder)
+    except OSError:
+        return False
+
+
+@functools.cache
+def _spellings(scope: Scope) -> dict[str, str]:
+    """The names the rules compare, by lower-case spelling: theirs, the home's and the working directory's."""
+    own = {part.lower(): part for base in (scope.home, *scope.roots) for part in base.parts}
+    return _SPELLINGS | own
+
+
+def _canonical(path: PurePosixPath, scope: Scope) -> PurePosixPath:
+    """The one spelling the rules compare, for a path that can be written several ways: without a doubled
+    leading slash (`//etc`), under its usual name when it is a macOS alias (`/System/Volumes/Data/Users`,
+    `/private/etc`), and, where file names ignore case, with each known name as the rules spell it (`.GIT`)."""
+    text = "/" + str(path).lstrip("/")  # normpath keeps two leading slashes
+    for alias, real in _ALIASES:
+        head = text[: len(alias)]
+        if (head.lower() == alias.lower() if scope.folds_case else head == alias) and text[len(alias) :][:1] in "/":
+            text = (real + text[len(alias) :]) or "/"
+    if scope.folds_case:
+        known = _spellings(scope)
+        return PurePosixPath(*(known.get(part.lower(), part) for part in PurePosixPath(text).parts))
+    return PurePosixPath(text)
 
 
 def _path(word: str, scope: Scope, cwd: PurePosixPath) -> PurePosixPath | None:
-    """The absolute, normalized path a shell word names; None when it depends on something unknown."""
-    for name in ("${HOME}", "$HOME"):
-        word = word.replace(name, str(scope.home))
+    """The absolute, normalized path a shell word names, in its canonical spelling; None when it depends on
+    something unknown."""
+    word = _HOME_VARIABLE.sub(lambda _: str(scope.home), word)
     for name in ("${PWD}", "$PWD"):
         word = word.replace(name, str(cwd))
     if word == "~" or word.startswith("~/"):
         word = str(scope.home) + word[1:]
+    elif found := _USER_HOME.match(word):
+        # shortcut: a user's home by its place beside this one (`/Users/<name>`), not the password database.
+        user = found.group(1)
+        home = scope.home if user == scope.home.name else scope.home.parent / user
+        word = str(home) + word[found.end() :]
     if not word or "$" in word or "\x00" in word or word.startswith("~"):
         return None
     # shortcut: lexical, like the shell's own `..`; a symlink is judged by its name, not its target.
-    return PurePosixPath(posixpath.normpath(posixpath.join(str(cwd), word)))
+    return _canonical(PurePosixPath(posixpath.normpath(posixpath.join(str(cwd), word))), scope)
 
 
 def _secret(path: PurePosixPath, scope: Scope, *, writing: bool = False) -> str | None:
@@ -300,6 +361,12 @@ def _secret(path: PurePosixPath, scope: Scope, *, writing: bool = False) -> str 
                 return None
             return f"~/{location}"
     return None
+
+
+def _secret_below(folder: PurePosixPath, scope: Scope) -> str | None:
+    """A credential location somewhere under a folder: what a search of the whole folder would read."""
+    locations = (scope.home / name for name in (*SECRET_DIRS, *SECRET_FILES))
+    return next((f"~/{p.relative_to(scope.home)}" for p in locations if folder in p.parents), None)
 
 
 def _system(path: PurePosixPath, scope: Scope) -> str | None:
@@ -652,7 +719,7 @@ class _Parser:
         argv = _unwrap(words, wrappers)
         if not argv and wrappers:
             argv = [wrappers.pop()]  # `env` alone prints the environment
-        if not (argv or writes):
+        if not (argv or writes or reads):  # `$(<file)` is a command of its own: it prints the file
             return None
         program = argv[0] if argv else ""
         if argv and "/" in argv[0]:
@@ -792,7 +859,8 @@ _READERS = frozenset(
     {
         "cat", "less", "more", "head", "tail", "bat", "base64", "xxd", "od", "hexdump", "strings", "cp", "scp",
         "rsync", "tar", "zip", "7z", "gzip", "bzip2", "xz", "grep", "rg", "sed", "awk", "nl", "sort", "uniq",
-        "tee", "openssl", "gpg", "curl", "wget", "nc", "ncat", "mv",
+        "tee", "openssl", "gpg", "curl", "wget", "nc", "ncat", "mv", "egrep", "fgrep", "diff", "cmp", "cut",
+        "jq", "comm", "paste", "fold", "rev", "column",
     }
 )  # fmt: skip
 _CURL_DATA = frozenset(
@@ -950,12 +1018,26 @@ def _credential_reads(command: Command, scope: Scope) -> RuleHit | None:
         return RuleHit(rule="credential_read", reason="it prints a keychain password")
     if command.name == "gpg" and any(a.startswith("--export-secret") for a in command.args):
         return RuleHit(rule="credential_read", reason="it exports private keys")
-    words = (command.args if command.name in _READERS else []) + command.reads
+    words = (command.args if command.name in _READERS else []) + command.reads + _git_reads(command)
     for word in words:
         path = _path(word, scope, command.cwd)
         if path is not None and (found := _secret(path, scope)):
             return RuleHit(rule="credential_read", reason=f"it reads your credentials in {found}")
     return None
+
+
+def _git_reads(command: Command) -> list[str]:
+    """The files outside a repository that a git command prints: what `git diff --no-index` compares and the
+    file `git config -f` reads."""
+    if command.name != "git":
+        return []
+    sub, args, _ = _git(command)
+    if sub == "diff" and "--no-index" in args:
+        return [a for a in args if not a.startswith("-")]
+    if sub == "config":
+        files = [args[i + 1] for i, a in enumerate(args[:-1]) if a in ("-f", "--file")]
+        return files + [a.split("=", 1)[1] for a in args if a.startswith("--file=")]
+    return []
 
 
 def _write_targets(command: Command) -> list[str]:
@@ -1227,6 +1309,9 @@ def rule_hits(tool: str, arguments: JsonObject, scope: Scope) -> list[RuleHit]:
         return []
     if tool in FILE_READERS and (found := _secret(where, scope)):
         return [RuleHit(rule="credential_read", reason=f"it reads your credentials in {found}")]
+    if tool == "grep" and not scope.inside(where) and (found := _secret_below(where, scope)):
+        reason = f"it searches all of {where}, which holds your credentials in {found}; search a folder inside it"
+        return [RuleHit(rule="credential_read", reason=reason)]
     if tool in FILE_WRITERS and (what := _write_protected(where, scope)):
         return [RuleHit(rule="protected_write", reason=f"it writes to {what}")]
     return []
