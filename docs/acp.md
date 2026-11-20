@@ -1674,3 +1674,10 @@ by a client that does not read them, and the errors keep their codes and `kind`.
   `meter`. The console's `free_*` and `model_not_in_plan` refusals are not retried.
 - `usage_update`'s `_meta.nace.free` gains `notice`: once for each move to the user's keys, and once each when a
   meter crosses 20% and 5% left. Harness event `free_notice` (`kind` `switch` or `low`, `meter`, `text`).
+
+### 0.56.0
+
+The terminal UI runs on the free credit: setup asks how to run Intern first (Start free, or your own keys), signs
+in with the console's device flow and opens the session on the grant's models; `/free` shows the credit and pauses,
+resumes or signs out of it ([terminal UI](tui.md#free-credit)). Nothing changes on ACP: 0.55.0 clients keep working.
+`intern free status --json` prints the same document as before.

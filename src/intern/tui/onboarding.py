@@ -1,29 +1,36 @@
 """The setup screen: what `intern` opens on when it has no models to run on, and what `/setup` brings back.
 
                          ▗▄▄ INTERN ▄▄▖            (the wordmark)
-          ✓ Welcome ── ✓ Connect ── ● Models ── ○ Decision model ── ○ Ready
+            ✓ Welcome ── ● How to run ── ○ Sign in ── ○ Ready
     ╭────────────────────────────────────────────────────────────╮
-    │ Pick your models                                           │
-    │ The frontier model starts each task. Once the hard part is │
-    │ done, the efficient model takes over.                      │
-    │ RECOMMENDED                                                │
-    │ ● Claude Opus 5.5 → Hy4 Flash      best results            │
-    │ MORE PAIRS                                                 │
-    │   Hy4 → Hy4 Flash                  lowest cost             │
-    │   ...                                                      │
+    │ How do you want to run Intern?                             │
+    │ ● Start free                              recommended      │
+    │     Free credit on Nace's models. No keys, no card.        │
+    │     Sign in with GitHub or Google to claim it, once.       │
+    │   Use my own keys                                          │
+    │     Any provider; pick your models. No sign-in.            │
     ╰────────────────────────────────────────────────────────────╯
                           Enter continues · Esc goes back
 
 Intern runs on three models: a frontier model that starts each task and does the hard part, an efficient model that
 takes over for the rest, and a decision model that picks the moment and keeps the run on track. (The code calls them
-System 2, the hand-over target and System 1.) The screen says what Intern is, asks where the models run (OpenRouter
-first, signed in with the browser or a pasted key; any other provider or a local server too; a key is checked before
-it is kept), then offers Nace's frontier and efficient pairs on that provider (`onboarding.PAIRS`), or a frontier and
-an efficient model of the user's own; then the decision model, Drex Max first. It always sets two models: there is no
-"no efficient model" here. Nothing on it is an error to read and give up on: a refused key, a
-server that does not answer or a subscription Intern cannot sign in with each says what to do instead, on the step it
-happened. The last step saves (`onboarding.save`) and the screen dismisses with what it saved, for the app to open
-the session on.
+System 2, the hand-over target and System 1.) The screen says what Intern is, then asks how to run it.
+
+**Start free** shows what Nace sees on free credit (`onboarding.CONSENT`), then signs in with the Nace console's
+device flow (`free_commands.claim`, as `intern free start --accept` does, with the consent's version): the page opens
+in the browser, the screen shows its address and the code, and waits; Esc stops it. Signed in, the last step names
+the three models the free credit runs on, explains the hand-over (`onboarding.FREE_ABOUT`) and says the credit, and
+the screen dismisses with `StartedFree`. Already signed in, it picks the free credit up again with no sign-in. It is
+not offered while the console takes no sign-ins, while free calls are paused, or once the credit is spent, and the
+step says why; a refused sign-in says why in plain words and offers the user's own keys on the same screen.
+
+**Use my own keys** asks where the models run (OpenRouter first, signed in with the browser or a pasted key; any
+other provider or a local server too; a key is checked before it is kept), then offers Nace's frontier and efficient
+pairs on that provider (`onboarding.PAIRS`), or a frontier and an efficient model of the user's own; then the decision
+model, Drex Max first. It always sets two models: there is no "no efficient model" here. Nothing on it is an error to
+read and give up on: a refused key, a server that does not answer or a subscription Intern cannot sign in with each
+says what to do instead, on the step it happened. The last step saves (`onboarding.save`) and the screen dismisses
+with what it saved, for the app to open the session on.
 """
 
 from __future__ import annotations
@@ -45,8 +52,13 @@ from textual.widgets import Input, OptionList, Static
 from textual.widgets.option_list import Option
 
 from intern import names
+from intern.free_commands import FreeReport, Granted, claim, report, set_use
 from intern.models.registry import PROVIDERS, ProviderSpec
+from intern.nace_free import FreeGrant, Refusal, SignInCode
 from intern.onboarding import (
+    CONSENT,
+    CONSENT_VERSION,
+    FREE_ABOUT,
     HANDOFF_OWN_KEYS,
     PROVIDER_BY_ID,
     SYSTEM1_BY_ID,
@@ -63,6 +75,7 @@ from intern.onboarding import (
     check_system1,
     check_system2,
     efficient_models,
+    free_names,
     key_found,
     model_name,
     offered_models,
@@ -76,6 +89,11 @@ from intern.tui.welcome import Mascot, wordmark
 
 Step = Literal[
     "welcome",
+    "how",
+    "consent",
+    "free-sign-in",
+    "refused",
+    "free-done",
     "provider",
     "unavailable",
     "address",
@@ -88,17 +106,56 @@ Step = Literal[
     "decision-model",
     "done",
 ]
-STAGES: tuple[tuple[str, tuple[Step, ...]], ...] = (
+Way = Literal["free", "own"]
+"""How Intern runs: on the free credit, or on the user's own keys."""
+Stages = tuple[tuple[str, tuple[Step, ...]], ...]
+FREE_STAGES: Stages = (
     ("Welcome", ("welcome",)),
+    ("How to run", ("how",)),
+    ("Sign in", ("consent", "free-sign-in", "refused")),
+    ("Ready", ("free-done",)),
+)
+OWN_STAGES: Stages = (
+    ("Welcome", ("welcome",)),
+    ("How to run", ("how",)),
     ("Connect", ("provider", "unavailable", "address", "key")),
     ("Models", ("pair", "frontier", "efficient")),
     ("Decision model", ("decision", "decision-key", "decision-model")),
     ("Ready", ("done",)),
 )
-"""The steps as the progress line shows them."""
-LISTING: tuple[Step, ...] = ("provider", "pair", "frontier", "efficient", "decision", "decision-model")
+"""The steps as the progress line shows them, on the free credit's way and on the user's own keys'."""
+LISTING: tuple[Step, ...] = (
+    "how",
+    "refused",
+    "provider",
+    "pair",
+    "frontier",
+    "efficient",
+    "decision",
+    "decision-model",
+)
+UNFILTERED: tuple[Step, ...] = ("how", "refused")
+"""Listing steps too short to filter: the list has the focus."""
 TYPED: tuple[Step, ...] = ("frontier", "efficient", "decision-model")
 """Listing steps where a name typed that is not listed is used as is."""
+FREE, OWN, RETRY = "free", "own", "retry"
+"""The rows of the how-to-run and refused steps."""
+REASONS = {
+    "account_too_new": "Free credit needs a GitHub account at least 30 days old. Signing in with Google works too.",
+    "email_unverified": "Free credit needs a Google account with a verified email.",
+    "network_blocked": "Free credit can't be claimed from this network (a VPN or a data centre, for example).",
+    "grants_paused": "The free trial isn't taking new sign-ins right now.",
+    "invite_only": "The free trial is open to invited accounts only for now.",
+    "identity_required": "Free credit needs a GitHub or Google sign-in, not an email code.",
+    "identity_used": "That GitHub or Google account has already claimed its free credit, on another Nace account.",
+    "account_flagged": "This account can't get free credit.",
+    "free_revoked": "The free credit on this account was revoked.",
+    "access_denied": "The sign-in was declined in the browser.",
+    "expired_token": "The code expired before the sign-in was finished.",
+}
+"""Why a sign-in was refused, in plain words: by the console's `reason`, else its `code`."""
+RETRYABLE = ("access_denied", "expired_token", "unavailable")
+"""Refusals a second sign-in may not meet."""
 CHOOSE = "choose"
 OPENROUTER = PROVIDER_BY_ID["openrouter"]
 OPENROUTER_NOTE = "every model on one key · sign in with your browser"
@@ -132,12 +189,51 @@ class Onboarded:
     saved: Saved
 
 
-class OnboardingScreen(Screen[Onboarded | None]):
-    """Dismisses with what was saved, or None when the user leaves setup from its first step."""
+@dataclass(frozen=True)
+class StartedFree:
+    """The free credit is signed in and in use (`[free] use = true`): the session opens on its models."""
+
+    grant: FreeGrant | None
+
+
+def refusal_text(refused: Refusal) -> str:
+    """Why the console gave no free credit, in plain words."""
+    said = REASONS.get(refused.reason or "") or REASONS.get(refused.code)
+    if said:
+        return said
+    if refused.code == "unavailable":
+        return "The Nace console couldn't be reached, or isn't taking sign-ins now."
+    return refused.message or f"The Nace console refused the sign-in ({refused.code})."
+
+
+def credit_text(grant: FreeGrant) -> str:
+    """The agent credit left: what the frontier and efficient models run on."""
+    agent = grant.meters.agent
+    return f"${max(agent.limit_usd - agent.used_usd, 0):.2f} of ${agent.limit_usd:.2f}"
+
+
+def free_blocked(found: FreeReport | None) -> str:
+    """Why Start free is not offered, in plain words; empty while it is. A console that could not be asked does not
+    hide it: the sign-in then says what went wrong."""
+    if found is None:
+        return ""
+    status = found.status
+    usable = found.grant is not None and found.grant.state == "active"
+    if found.grant is not None and not found.grant.meters.agent.runs():
+        return "Your free credit is used up, and it doesn't come back."
+    if status is not None and status.inference == "paused":
+        return status.message or "The free trial is paused right now."
+    if status is not None and status.grants == "paused" and not usable:
+        return status.message or REASONS["grants_paused"]
+    return ""
+
+
+class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
+    """Dismisses with what was saved, with `StartedFree`, or None when the user leaves setup from its first step."""
 
     BINDINGS: ClassVar[list[BindingType]] = [
         Binding("escape", "back", "Back"),
-        Binding("ctrl+o", "open_link", "Open the key page", show=False),
+        Binding("ctrl+o", "open_link", "Open the page", show=False),
         Binding("up", "move(-1)", "Up", show=False),
         Binding("down", "move(1)", "Down", show=False),
         Binding("pageup", "page(-1)", "Page up", show=False),
@@ -149,7 +245,7 @@ class OnboardingScreen(Screen[Onboarded | None]):
         *,
         home: Path,
         env: Mapping[str, str],
-        start: Literal["welcome", "system1", "decision"] = "welcome",
+        start: Literal["welcome", "system1", "decision", "free"] = "welcome",
         system2: str = "",
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
@@ -157,7 +253,14 @@ class OnboardingScreen(Screen[Onboarded | None]):
         self.home = home
         self.env = dict(env)
         self.transport = transport
-        self.step: Step = "welcome" if start == "welcome" else "decision"
+        """What the screen checks keys and asks the Nace console over; None for the network."""
+        self.step: Step = "welcome" if start == "welcome" else "consent" if start == "free" else "decision"
+        self.way: Way = "free" if start in ("welcome", "free") else "own"
+        self.free: FreeReport | None = None
+        """The free credit as the console said when the how-to-run step was first shown; None until it answers."""
+        self.code: SignInCode | None = None
+        self.refused: Refusal | None = None
+        self.granted: Granted | None = None
         self.trail: list[Step] = []
         """The steps taken, for Esc to go back through."""
         self.provider: ProviderOption | None = None
@@ -208,8 +311,8 @@ class OnboardingScreen(Screen[Onboarded | None]):
     def _show(self, status: Content | str = "") -> None:
         """Draw the current step: its title, what it says, the list or the line it asks with, and the keys."""
         step = self.step
-        self.query_one("#setup-intro").display = step in ("welcome", "done")
-        self.query_one(Mascot).play("happy" if step == "done" else "idle")
+        self.query_one("#setup-intro").display = step in ("welcome", "done", "free-done")
+        self.query_one(Mascot).play("happy" if step in ("done", "free-done") else "idle")
         self.query_one("#setup-stages", Static).update(self._stages())
         filter_line, options, line = (
             self.query_one("#setup-filter", Input),
@@ -217,8 +320,10 @@ class OnboardingScreen(Screen[Onboarded | None]):
             self.query_one("#setup-input", Input),
         )
         listing = step in LISTING
-        self.query_one("#setup-wordmark").display = not listing or self.app.size.height >= ROOMY_ROWS
-        filter_line.display = options.display = listing
+        tall = listing or step == "free-done"
+        self.query_one("#setup-wordmark").display = not tall or self.app.size.height >= ROOMY_ROWS
+        options.display = listing
+        filter_line.display = listing and step not in UNFILTERED
         line.display = step in ("address", "key", "decision-key")
         title, body = getattr(self, f"_{step.replace('-', '_')}")()
         self.query_one("#setup-title", Static).update(Content.styled(title, S_HEAD))
@@ -228,16 +333,17 @@ class OnboardingScreen(Screen[Onboarded | None]):
         if listing:
             filter_line.value = ""
             self._refilter("")
-            filter_line.focus()
+            (filter_line if filter_line.display else options).focus()
         elif line.display:
             line.focus()
         else:
             self.set_focus(None)
 
     def _stages(self) -> Content:
-        at = next(i for i, (_, steps) in enumerate(STAGES) if self.step in steps)
+        stages = FREE_STAGES if self.way == "free" else OWN_STAGES
+        at = next(i for i, (_, steps) in enumerate(stages) if self.step in steps)
         parts: list[tuple[str, str] | str] = []
-        for i, (name, _) in enumerate(STAGES):
+        for i, (name, _) in enumerate(stages):
             if i:
                 parts.append((" ── ", S_MUTED))
             mark = "✓" if i < at else "●" if i == at else "○"
@@ -249,7 +355,10 @@ class OnboardingScreen(Screen[Onboarded | None]):
         keys = {
             "welcome": "Enter to set up · Esc to skip",
             "unavailable": "Enter or Esc goes back to the list",
+            "consent": "Enter agrees and opens the sign-in page · Esc goes back",
+            "free-sign-in": "Ctrl+O opens the page again · Esc cancels",
             "done": "Enter to start",
+            "free-done": "Enter to start",
         }.get(self.step, "Enter continues · Esc goes back")
         if self.step in ("key", "decision-key"):
             keys += " · Ctrl+O opens the key page"
@@ -264,10 +373,94 @@ class OnboardingScreen(Screen[Onboarded | None]):
             Content.assemble(
                 ("Welcome to Intern\n\n", f"bold {BRAND}"),
                 (WELCOME, S_INK),
-                ("\n\nSetup takes a minute. You'll need an API key, or a model running on your machine.", S_MUTED),
+                ("\n\nSetup takes a minute. Start free with no keys, or use your own.", S_MUTED),
             )
         )
         return "", Content("")
+
+    def _how(self) -> tuple[str, Content]:
+        blocked = free_blocked(self.free)
+        self.choices = [] if blocked else [Choice(FREE, "Start free", "", note="recommended")]
+        self.choices.append(Choice(OWN, "Use my own keys", ""))
+        if blocked:
+            return "How do you want to run Intern?", Content.assemble(
+                (blocked, S_WARN), (" You can run Intern on your own keys.", S_INK)
+            )
+        return "How do you want to run Intern?", Content("")
+
+    def _how_lines(self, choice: Choice) -> tuple[str, ...]:
+        """What a row of the how-to-run step says under its name."""
+        if choice.id == OWN:
+            return ("Any provider; pick your models. No sign-in.",)
+        found = self.free
+        if found is not None and found.signed_in and found.grant is not None:
+            return (f"Signed in · {credit_text(found.grant)} left.", "Picks up where you left off, with no sign-in.")
+        return ("Free credit on Nace's models. No keys, no card.", "Sign in with GitHub or Google to claim it, once.")
+
+    def _consent(self) -> tuple[str, Content]:
+        return "Before you sign in", Content.assemble(("What Nace sees. ", S_HEAD), (CONSENT, S_INK))
+
+    def _free_sign_in(self) -> tuple[str, Content]:
+        code = self.code
+        if code is None:
+            return "Sign in", Content.styled("Asking the Nace console for a code…", S_MUTED_ITALIC)
+        return "Sign in", Content.assemble(
+            ("Confirm this code in your browser, then sign in with GitHub or Google:\n\n", S_INK),
+            (f"    {code.user_code}\n\n", f"bold {BRAND}"),
+            ("The page opened in your browser. If it didn't, open ", S_MUTED),
+            (code.url, f"underline {BRAND}"),
+            (" (Ctrl+O opens it).", S_MUTED),
+        )
+
+    def _refused(self) -> tuple[str, Content]:
+        refused = self.refused
+        assert refused is not None
+        self.choices = [Choice(OWN, "Use my own keys", "", note="any provider; no sign-in")]
+        if refused.code in RETRYABLE or refused.reason in RETRYABLE:
+            self.choices.append(Choice(RETRY, "Try again", "", note="sign in again in the browser"))
+        return "No free credit this time", Content.styled(refusal_text(refused), S_WARN)
+
+    def _free_done(self) -> tuple[str, Content]:
+        grant = self.granted.grant if self.granted is not None else None
+        if grant is None:
+            self.query_one("#setup-about", Static).update(
+                Content.assemble(
+                    ("You're on free credit\n\n", f"bold {BRAND}"),
+                    ("Describe a task to start. ", S_INK),
+                    ("/free", S_HEAD),
+                    (" shows what it runs on and what's left.", S_MUTED),
+                )
+            )
+            return "", Content("")
+        bundle = grant.bundle
+        named = free_names(bundle.system2, bundle.handoff, bundle.system1)
+        rows = [
+            ("Frontier", named["frontier"], "does the hard part"),
+            ("Efficient", named["efficient"], "finishes it, for much less"),
+            ("Decision", named["decision"], "watches every step"),
+        ]
+        self.query_one("#setup-about", Static).update(
+            Content.assemble(
+                ("You're on free credit\n\n", f"bold {BRAND}"),
+                *(
+                    part
+                    for label, name, does in rows
+                    for part in ((f"{label:<11}", S_MUTED), (f"{name:<21}", S_HEAD), (f"{does}\n", S_MUTED))
+                ),
+                (f"{'Credit':<11}", S_MUTED),
+                (credit_text(grant), S_INK),
+                (" left for the models above", S_MUTED),
+            )
+        )
+        body = Content.assemble(
+            (FREE_ABOUT.format(**named), S_INK),
+            ("\n\nDescribe a task to start. ", S_INK),
+            ("/free", S_HEAD),
+            (" shows what's left; ", S_MUTED),
+            ("/setup", S_HEAD),
+            (" adds your own keys for when it runs out.", S_MUTED),
+        )
+        return "", body
 
     def _pair(self) -> tuple[str, Content]:
         self.choices = [
@@ -432,7 +625,19 @@ class OnboardingScreen(Screen[Onboarded | None]):
 
     def _refilter(self, query: str) -> None:
         options = self.query_one("#setup-options", OptionList)
+        was = options.highlighted_option.id if options.highlighted_option is not None else None
         options.clear_options()
+        if self.step in UNFILTERED:
+            for choice in self.choices:
+                lines = self._how_lines(choice) if self.step == "how" else (choice.note,)
+                head = [(fit(choice.name, LABEL_WIDTH), S_HEAD)]
+                if self.step == "how" and choice.note:
+                    head.append((choice.note, S_OK))
+                said = Content.assemble(*(part for line in lines for part in (("\n    ", ""), (line, S_MUTED))))
+                options.add_option(Option(Content.assemble("  ", *head, said, "\n"), id=choice.id))
+            ids = [choice.id for choice in self.choices]
+            options.highlighted = ids.index(was) if was in ids else 0  # the console's answer redraws the step
+            return
         shown = ranked(self.choices, query)
         group: str | None = None
         first: int | None = None
@@ -490,6 +695,14 @@ class OnboardingScreen(Screen[Onboarded | None]):
         self._show(status)
 
     def action_back(self) -> None:
+        if self.step in ("free-sign-in", "refused"):
+            stopped = self.step == "free-sign-in"
+            self.workers.cancel_group(self, "setup-free")
+            while self.trail and self.trail[-1] in ("consent", "free-sign-in"):
+                self.trail.pop()
+            self.step = self.trail.pop() if self.trail else "how"
+            self._show(Content.styled("Sign-in stopped. Start free tries again.", S_WARN) if stopped else "")
+            return
         if self._sign_in is not None:
             self._sign_in.close()
             self._sign_in = None
@@ -502,14 +715,18 @@ class OnboardingScreen(Screen[Onboarded | None]):
         if self.step == "welcome" or not self.trail:
             self.dismiss(None)
             return
-        if self.step == "done":
-            return  # already saved: Enter goes on
+        if self.step in ("done", "free-done"):
+            return  # already saved, or signed in: Enter goes on
         self.step = self.trail.pop()
+        if self.step == "how":
+            self.way = "free" if not free_blocked(self.free) else "own"
         self._show()
 
     def action_open_link(self) -> None:
         url = ""
-        if self.step == "key" and self.provider is not None:
+        if self.step == "free-sign-in" and self.code is not None:
+            url = self.code.url
+        elif self.step == "key" and self.provider is not None:
             url = self.provider.key_url
         elif self.step == "decision-key" and self.option is not None:
             url = self.option.key_url
@@ -517,19 +734,94 @@ class OnboardingScreen(Screen[Onboarded | None]):
             self.app.open_url(url)
 
     def on_key(self, event: events.Key) -> None:
-        if event.key == "enter" and self.step in ("welcome", "done", "unavailable"):
+        if event.key == "enter" and self.step in ("welcome", "done", "unavailable", "consent", "free-done"):
             event.stop()
             if self.step == "welcome":
-                self._go("provider")
+                self._go("how")
+                if self.free is None:
+                    self._read_free()
             elif self.step == "unavailable":
                 self.action_back()
+            elif self.step == "consent":
+                self._go("free-sign-in")
+                self._claim()
+            elif self.step == "free-done":
+                self.dismiss(StartedFree(self.granted.grant if self.granted is not None else None))
             else:
                 self.dismiss(self.saved)
+
+    @work(exclusive=True, group="setup-read")
+    async def _read_free(self) -> None:
+        """Ask the console whether the free credit can be offered, and what is left of one signed in to; the step
+        is redrawn on the answer. A console that does not answer leaves Start free offered."""
+        try:
+            self.free = await report(self.home, self.env, self.transport)
+        except (httpx.HTTPError, OSError, ValueError):
+            return
+        if self.step == "how":
+            self.way = "own" if free_blocked(self.free) else "free"
+            self._show()
+
+    def _start_free(self) -> None:
+        """Start free: picked up again with no sign-in where this machine is signed in to a grant with credit left;
+        else what Nace sees, then the sign-in."""
+        self.way = "free"
+        found = self.free
+        if found is not None and found.signed_in and found.grant is not None and found.grant.state == "active":
+            self._resume_free(found.grant)
+        else:
+            self._go("consent")
+
+    @work(exclusive=True, group="setup-free")
+    async def _resume_free(self, grant: FreeGrant) -> None:
+        await asyncio.to_thread(set_use, self.home, True)
+        self.granted = Granted(grant=grant)
+        self._go("free-done")
+
+    @work(exclusive=True, group="setup-free")
+    async def _claim(self) -> None:
+        """The console's device sign-in, the consent's version with it: the code and the page as it gives them,
+        then Ready, or why not."""
+        self.code, self.refused = None, None
+
+        def code_shown(code: SignInCode) -> None:
+            self.code = code
+            self.app.open_url(code.url)
+            self._show(Content.styled("Waiting for you to finish in the browser… Esc cancels", S_MUTED_ITALIC))
+
+        try:
+            done = await claim(self.home, self.env, CONSENT_VERSION, code_shown, self.transport)
+        except (httpx.HTTPError, ConnectionError, OSError, KeyError, ValueError) as error:
+            done = Refusal(code="unavailable", message=f"The console could not be reached ({type(error).__name__}).")
+        if self.step != "free-sign-in":
+            return  # cancelled meanwhile
+        if isinstance(done, Refusal):
+            self.refused = done
+            self.step = "refused"
+            self._show()
+            return
+        self.granted = done
+        self.trail.clear()
+        self._go("free-done")
 
     def _picked(self, picked: str) -> None:
         if self.busy:
             return
         match self.step:
+            case "how":
+                if picked == FREE:
+                    self._start_free()
+                else:
+                    self.way = "own"
+                    self._go("provider")
+            case "refused":
+                if picked == RETRY:
+                    self.step = "free-sign-in"
+                    self._show()
+                    self._claim()
+                else:
+                    self.way = "own"
+                    self._go("provider")
             case "pair":
                 pair = next((r for r in self.pairs if r.id == picked), None)
                 if pair is None:

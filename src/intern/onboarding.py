@@ -403,6 +403,9 @@ MODEL_NAMES = {
     "gpt-6-luna": "GPT-6 Luna",
     "deepseek/deepseek-v4.1-flash": "DeepSeek V4.1 Flash",
     "nace-ai/drex-max": "Drex Max",
+    "glm-5.3": "GLM 5.3",
+    "deepseek-v4.1-flash": "DeepSeek V4.1 Flash",
+    "drex-latest": "Drex",
 }
 """How the setup screen names the models it suggests; any other model shows as its id."""
 
@@ -535,6 +538,33 @@ def pairs_for(provider: str, listed: tuple[str, ...] = ()) -> tuple[Recommendati
 
 HANDOFF_OWN_KEYS = "Takes over once the hard part is done. Pick a fast, cheap model."
 """What the efficient-model step says."""
+
+CONSENT_VERSION = "2026-11-18"
+"""The version of `CONSENT`, sent with the sign-in (`intern free start --accept`) and recorded with the grant. A
+change to the text bumps it."""
+CONSENT = (
+    "On free credit your prompts, the code Intern reads and the models' answers pass through Nace's servers to the "
+    "model providers. We keep usage records (model, tokens, cost, time, IP) for 90 days and prompt and response text "
+    "for 30 days, only to stop abuse and fix problems; only named staff can read them. Nothing is used to train "
+    "models. On your own keys, nothing goes through Nace except Drex's judgments when you use a Nace key for them."
+)
+"""What Nace sees, shown under that heading before the free credit's sign-in."""
+FREE_ABOUT = (
+    "Intern thinks in two speeds. The frontier model, {frontier}, is the agent: it reads your code, plans and makes "
+    "the changes. The decision model, {decision}, watches every step and keeps it on track.\n\n"
+    "{decision} also decides when the hard part is over. Once the main change exists and a check has run on it, the "
+    "rest of the task (fixing what the check found, tidying, the final answer) goes to a faster, cheaper model, "
+    "{efficient}, in the same conversation. You'll see a line in the conversation when it happens. Your next message "
+    "starts with the frontier model again.\n\n"
+    "On free credit this is what makes it last: about twice as many tasks as without it."
+)
+"""The hand-over explained, on free credit: setup's last step and `/free`; the names are the grant's models
+(`free_names`). The app's copy mirrors it."""
+
+
+def free_names(system2: str, handoff: str, system1: str) -> dict[str, str]:
+    """The free credit's models by their names, to fill `FREE_ABOUT`."""
+    return {"frontier": model_name(system2), "efficient": model_name(handoff), "decision": model_name(system1)}
 
 
 def handoff_suggestion(system2: str, listed: tuple[str, ...] = ()) -> str | None:

@@ -636,6 +636,8 @@ class StatusBar(Static):
         """The thinking level, `default` for the model's own; empty when the model takes none."""
         self.levels: tuple[str, ...] = ()
         """The levels the model takes, lowest first."""
+        self.free = ""
+        """The agent's free credit left (`free $3.42 of $4.00`), while the frontier model runs on it."""
         self._flash = ""
         self._flash_timer: Timer | None = None
         self._frame = 0
@@ -725,6 +727,8 @@ class StatusBar(Static):
         run: list[Part] = [("working", S_OK)] if self.running else []
         if self.window:
             run.append((f"{self.context / self.window:.0%} of {tokens_text(self.window)}", S_MUTED))
+        if self.free:
+            run.append((self.free, S_MUTED))
         if self.running and self.activity:
             run.append((self.activity, BRAND))
         if self._flash:
