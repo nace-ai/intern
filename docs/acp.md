@@ -18,7 +18,7 @@ extra, and a toggle that cannot work here is not offered. [0.25.0](#0250) rename
 [0.54.0](#0540) runs sessions on free credit: clients that send a model with every turn need a look.
 
 ```bash
-uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.44.1"
+uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.56.1"
 intern acp                         # System 2 from config.toml or $INTERN_SYSTEM2; System 1 drex-latest
 intern acp --system2 openrouter/qwen/qwen3.8-27b --system1 drex-max-v1.1
 ```
