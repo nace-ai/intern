@@ -11,8 +11,8 @@ once it is released.
 1. **Release a change clients can see**: anything [docs/acp.md](docs/acp.md) describes (config
    options, `models --json`, errors, updates), or a fix users are waiting on. Internal changes ship
    with the next release.
-2. **Bump the version in that PR**: `pyproject.toml` and `src/intern/__init__.py`, then
-   `uv lock`. Patch for fixes, minor for additions. A breaking change also raises **Minimum version
+2. **Bump the version in that PR**: `pyproject.toml`, `src/intern/__init__.py` and the install example at
+   the top of docs/acp.md, then `uv lock`. Patch for fixes, minor for additions. A breaking change also raises **Minimum version
    for clients** in docs/acp.md.
 3. **Add a `### X.Y.Z` section** at the end of docs/acp.md: what changed, and whether older clients
    keep working.

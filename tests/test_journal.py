@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -123,6 +124,21 @@ def test_stale_writer_is_rejected_without_corrupting_the_journal(tmp_path):
         stale.append(MessageEntry(message=UserMessage(content="stale writer")))
     assert len(stale.entries()) == 1
     assert len(Journal(cwd="ignored", path=path).entries()) == 2
+
+
+def test_a_journal_is_readable_only_by_its_owner(tmp_path: Path):
+    old_umask = os.umask(0o022)  # the usual default, under which a plain open() gives 0644
+    try:
+        path = tmp_path / "sessions" / "s.jsonl"
+        Journal(cwd="/work", path=path)
+        assert path.stat().st_mode & 0o777 == 0o600
+        assert path.parent.stat().st_mode & 0o777 == 0o700
+
+        path.chmod(0o644)  # a journal written by an older version
+        Journal(cwd="/work", path=path).append(MessageEntry(message=UserMessage(content="hi")))
+        assert path.stat().st_mode & 0o777 == 0o600
+    finally:
+        os.umask(old_umask)
 
 
 @pytest.mark.parametrize("links", [{1: 2, 2: 1}, {2: 2}, {1: 9}], ids=["cycle", "own parent", "unknown parent"])

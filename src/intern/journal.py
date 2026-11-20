@@ -21,6 +21,7 @@ from intern.events import (
     Decision,
     Event,
     EventSink,
+    FilesChanged,
     Handoff,
     Nudge,
     ProcessCheck,
@@ -135,7 +136,7 @@ class MemoryRecallEntry(_EntryBase):
 
 
 RecordedEvent = Annotated[
-    Decision | ToolGuard | Nudge | Handoff | State | Compaction | ProcessEvent | ProcessCheck,
+    Decision | ToolGuard | Nudge | Handoff | FilesChanged | State | Compaction | ProcessEvent | ProcessCheck,
     Field(discriminator="type"),
 ]
 
@@ -253,10 +254,14 @@ class Journal:
         if self.path is not None:
             if self._write_failed:
                 raise OSError("A prior journal write failed; reopen the session before continuing.")
-            self.path.parent.mkdir(parents=True, exist_ok=True)
+            # A journal is a whole transcript: only its owner may read it, like spill and evidence files.
+            self.path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
             row = (("\n" if self._needs_separator else "") + entry.model_dump_json() + "\n").encode("utf-8")
             try:
-                with self.path.open("a+b") as stream:
+                with os.fdopen(os.open(self.path, os.O_RDWR | os.O_CREAT | os.O_APPEND, 0o600), "a+b") as stream:
+                    status = os.fstat(stream.fileno())
+                    if status.st_mode & 0o077 and status.st_uid == os.geteuid():
+                        os.fchmod(stream.fileno(), 0o600)  # one written before journals were private
                     fcntl.flock(stream, fcntl.LOCK_EX)
                     stream.seek(0, os.SEEK_END)
                     if stream.tell() != self._disk_size:
@@ -332,7 +337,7 @@ def recording(journal: Journal, emit: EventSink) -> EventSink:
     turn of the run; a tool's own asks (code search's) are part of its result."""
 
     def sink(event: Event) -> None:
-        if isinstance(event, ToolGuard | Nudge | Handoff | ProcessEvent | ProcessCheck) or (
+        if isinstance(event, ToolGuard | Nudge | Handoff | FilesChanged | ProcessEvent | ProcessCheck) or (
             isinstance(event, Decision) and event.turn is not None
         ):
             journal.append(EventEntry(event=event))
