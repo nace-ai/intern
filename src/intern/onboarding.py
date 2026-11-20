@@ -816,9 +816,7 @@ class Setup:
         return f"{DECISIONS_PREFIX}{model}" if self.system1.backend == "decisions-api" else model
 
 
-def _table(
-    document: tomlkit.TOMLDocument | AbstractTable, *names: str, super_table: bool = False
-) -> AbstractTable:
+def _table(document: tomlkit.TOMLDocument | AbstractTable, *names: str, super_table: bool = False) -> AbstractTable:
     """The first of `names` the document has as a table (an old name for it included, and one written inline as
     `name = {...}`), else a new one under the first name: inline when its parent is, so the file stays valid."""
     for name in names:
