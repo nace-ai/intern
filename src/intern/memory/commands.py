@@ -13,10 +13,20 @@ from intern import names
 from intern.config import Bootstrap, Options
 from intern.decisions import DecisionClient
 from intern.events import Decision, Event
-from intern.memory.drive import MAIN, STEWARD_LOCK, TREE_LOCK, GitError, create, locked, main_commit, tracked_files
+from intern.memory.drive import (
+    MAIN,
+    STEWARD_LOCK,
+    TREE_LOCK,
+    GitError,
+    create,
+    locked,
+    main_commit,
+    tracked_files,
+    tracked_names,
+)
 from intern.memory.forget import Removal, matching, settle, widened
 from intern.memory.forget import apply as apply_removal
-from intern.memory.format import page_file
+from intern.memory.format import FOLDER_SUFFIXES, SKILL_ROOT, is_folder_skill, page_file
 from intern.memory.lint import fix, lint, working_files
 from intern.memory.search import refresh
 from intern.memory.spend import add_spend
@@ -121,6 +131,7 @@ async def _steward_locked(
         print(f"{names.NAME}: decision model unavailable: {e}", file=sys.stderr)
         return EXIT_FAILED
     cfg = bootstrap.config.system1
+    skill_folders = bootstrap.capability_settings().memory.skill_folders
     decisions = DecisionClient(
         backend,
         _decision_sink,
@@ -149,7 +160,7 @@ async def _steward_locked(
         before = decisions.usage.model_copy()
         written = writer.usage if writer is not None else Usage()
         try:
-            proposed = await propose(journal, drive, decisions, writer, world, keep)
+            proposed = await propose(journal, drive, decisions, writer, world, keep, skill_folders)
             with locked(drive, TREE_LOCK):
                 proposal = commit(drive, proposed)
                 if merge:
@@ -278,6 +289,12 @@ def _forget_locked(root: Path, text: str, pages: list[str], apply: bool) -> int:
         return EXIT_OK
     changed, removed = apply_removal(files, transcripts, removal)
     changed, removed = settle(files, changed, removed)
+    # A skill folder's files go with its page.
+    folders_gone = {n.rsplit("/", 1)[0] for n in removed if n.endswith(".md") and is_folder_skill(n[:-3])}
+    removed = [
+        *removed,
+        *(n for n in tracked_names(root, commit, FOLDER_SUFFIXES, SKILL_ROOT) if n.rsplit("/", 1)[0] in folders_gone),
+    ]
     pages_after = {n: t for n, t in (files | changed).items() if n.endswith(".md") and n not in removed}
     if problems := lint(pages_after):
         raise StewardError("the removal does not pass lint:\n" + "\n".join(problems))

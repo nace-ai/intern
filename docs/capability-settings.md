@@ -58,7 +58,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `browser` | switch setting | `cap.browser`: Playwright pages, and the browser's options | off |
 | `code_search` | switch setting | `cap.code-search`: the code-search extension | off |
 | `workspace` | switch setting | `cap.workspace`: the workspace extension | off |
-| `memory` | switch setting | `cap.memory`: the memory extension, its drive and steward | on |
+| `memory` | switch setting | `cap.memory`: the memory extension, its drive and steward; `skill_folders` keeps scripts, tables and templates as [skill folders](memory.md#skill-folders) (off) | on |
 | `guard` | switch setting | `cap.guard`: the tool-call guard extension, and its options (`system1`, `system_writes`) | off |
 | `tool_result_guard` | switch setting | `cap.tool-result-guard`: the tool-result guard extension, and what it screens (`screen`) | off |
 | `schedule` | switch setting | terminal UI only: prompts on timers; `/caps schedule` | off |

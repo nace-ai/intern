@@ -13,7 +13,7 @@ from urllib.parse import unquote, urlparse
 from pydantic import BaseModel, SecretStr
 
 from intern.journal import Entry, Journal, MemoryRecallEntry, MessageEntry, ObservationEntry, SessionEntry
-from intern.memory.format import clip, inert
+from intern.memory.format import SKILL_PAGE, clip, inert, is_folder_file
 from intern.memory.steward.place import (
     ENVIRONMENT_PAGE,
     PlaceKind,
@@ -725,8 +725,13 @@ def extract(journal: Journal, drive_root: Path | None = None, world: str = "") -
             target = (value if value.is_absolute() else cwd / value).resolve()
         except (OSError, RuntimeError):
             return
-        if skip in target.parents and target.suffix == ".md":
-            used.append(target.relative_to(skip).with_suffix("").as_posix())
+        if skip not in target.parents:
+            return
+        name = target.relative_to(skip).as_posix()
+        if target.suffix == ".md":
+            used.append(name[:-3])
+        elif is_folder_file(name):
+            used.append(f"{name.rsplit('/', 1)[0]}/{SKILL_PAGE}")
 
     def observe(
         kind: Literal["url", "file", "shell", "tool"],

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
@@ -11,6 +12,7 @@ from intern.memory.format import (
     BLOCK_TOKENS,
     PAGE_TOKENS,
     RELATIONS_ID,
+    SKILL_PAGE,
     Block,
     FormatError,
     Page,
@@ -195,6 +197,16 @@ def subject_path(group: str, name: str) -> str:
 
 def skill_path(name: str) -> str:
     return f"{SKILL_FOLDER}{slug(name)}"
+
+
+def folder_skill_path(name: str) -> str:
+    return f"{skill_path(name)}/{SKILL_PAGE}"
+
+
+def skill_page(files: dict[str, str], name: str, pages: Iterable[str] = ()) -> str:
+    # A kind of work that has a skill folder keeps its lessons on the folder's page.
+    folder = folder_skill_path(name)
+    return folder if page_file(folder) in files or folder in pages else skill_path(name)
 
 
 def is_history(path: str) -> bool:
@@ -887,7 +899,8 @@ def write(
 
     for lesson in learned or []:
         name = inert(lesson.skill)
-        target = page(skill_path(name), "skill", f"{name}: {_no_breaks(_clause(inert(lesson.when)))}.")
+        path = skill_page(files, name, out.pages)
+        target = page(path, "skill", f"{name}: {_no_breaks(_clause(inert(lesson.when)))}.")
         target.meta.setdefault("name", name)
         target.title = target.meta["name"]
         # A general lesson a skill now holds moves to the skill, under the wording drawn across sessions.

@@ -22,9 +22,12 @@ from intern.memory.drive import main_commit, tracked_files, tracked_names
 from intern.memory.forget import MARKER, MIN_COVERED_CHARS, Removal, Spot, body, candidates, widened
 from intern.memory.forget import apply as apply_removal
 from intern.memory.format import (
+    CODE_SUFFIXES,
     FOLDER_INDEX,
+    FOLDER_SUFFIXES,
     RELATIONS_ID,
     SCHEMA_FILE,
+    SKILL_ROOT,
     UNREAD_FOLDERS,
     WORLD_FILE,
     Block,
@@ -34,6 +37,8 @@ from intern.memory.format import (
     clip,
     drive_world,
     inert,
+    is_folder_file,
+    is_folder_skill,
     is_page_file,
     page_file,
     parse_page,
@@ -43,6 +48,7 @@ from intern.memory.format import (
     world_file,
 )
 from intern.memory.lint import lint
+from intern.memory.steward.artifacts import collect
 from intern.memory.steward.extract import (
     INJECTION,
     QUOTE_CHARS,
@@ -54,6 +60,7 @@ from intern.memory.steward.extract import (
     extract,
     file_pages,
 )
+from intern.memory.steward.folder import Folder, apply, folders, provenance, static_problem
 from intern.memory.steward.git import branch_exists, commit_proposal
 from intern.memory.steward.write import (
     BLOCKS,
@@ -70,13 +77,15 @@ from intern.memory.steward.write import (
     Gap,
     Placed,
     StewardError,
+    _load,
     archive,
     expired,
+    folder_skill_path,
     forget,
     is_history,
     item_body,
     read_usage,
-    skill_path,
+    skill_page,
     stale,
     stewarded,
     stewarded_turns,
@@ -94,6 +103,8 @@ from intern.memory.steward.writer import (
     ME,
     NEW,
     Draft,
+    FolderDraft,
+    FolderFile,
     Item,
     Learned,
     Past,
@@ -103,6 +114,7 @@ from intern.memory.steward.writer import (
     Writer,
     condense,
     draft,
+    fold,
     learn,
     numbers,
     similar,
@@ -221,6 +233,19 @@ SKILL_FITS = (
 )
 SAME_SKILL = "Which skill already in memory covers the kind of work lesson {name} is for, under another name?"
 MAX_SKILL_LINES = 12
+SAME_FOLDER = (
+    "Which skill folder is for the kind of work this session did, or for the way of working a user message in it "
+    "changes?"
+)
+FOLDER_FILE = (
+    "Is file {name} part of how this kind of work is done (a rule, limit, table or template the user gave, or code "
+    "the agent wrote to do the work) rather than this task's input data, its result, or a value only this task uses?"
+)
+FOLDER_REPEATS = (
+    "Is the skill folder for a kind of work that later tasks would share, done the way its steps say, rather than "
+    "for this one task?"
+)
+FOLDER_FILE_STATE_CHARS = 6_000
 MERGED = (
     "Are the lines merged line {name} replaces about the same thing, and does it keep every fact, value, name, "
     "negation and limit of them, and add nothing they do not say?"
@@ -282,6 +307,7 @@ BLOCK_NOUNS = {
     "b-steps": "the steps that worked",
     "b-pitfalls": "what went wrong or wasted steps",
     "b-checks": "checks to always run",
+    "b-folder": "the files of this skill and how to use them",
 }
 
 
@@ -934,7 +960,7 @@ def _skills(files: dict[str, str]) -> dict[str, Page]:
 async def _same_skill(decision: _Decision, learned: list[Learned], held: list[Skill], skills: dict[str, Page]) -> None:
     # A lesson the writer files under a new skill may belong to a skill memory already holds under another name.
     # Two lessons of one session may also name one new skill twice; a lesson is offered only earlier new names.
-    fresh = [i for i, lesson in enumerate(learned) if skill_path(lesson.skill) not in skills]
+    fresh = [i for i, lesson in enumerate(learned) if skill_page({}, lesson.skill, skills) not in skills]
     options: dict[int, list[tuple[str, str]]] = {}
     for n, i in enumerate(fresh):
         earlier = list(dict.fromkeys(learned[j].skill for j in fresh[:n] if learned[j].skill != learned[i].skill))
@@ -999,7 +1025,9 @@ async def _lessons(
     # A lesson worded anew may say what its skill or the general lessons already hold; System 1 compares it with the
     # closest lines.
     general = _lines(_parsed(files, GENERAL_LESSONS), ("b-how", "b-fails", "b-rules"))
-    known_of = {i: [*_lines(skills.get(skill_path(lesson.skill))), *general] for i, lesson in enumerate(learned)}
+    known_of = {
+        i: [*_lines(skills.get(skill_page({}, lesson.skill, skills))), *general] for i, lesson in enumerate(learned)
+    }
     ranked = {
         i: sorted(known_of[i], key=lambda line: -_overlap(lesson.text, strip_source(line)))[:MAX_COMPARED]
         for i, lesson in enumerate(learned)
@@ -1055,6 +1083,99 @@ async def _lessons(
             lesson.old_page = GENERAL_LESSONS
         kept.append(lesson)
     return kept, gaps
+
+
+@dataclass
+class _FolderPlan:
+    folder: Folder | None
+    draft: FolderDraft
+    kept: list[FolderFile]
+
+
+async def _folder(
+    decision: _Decision,
+    writer: Writer | ReplayWriter,
+    ex: Extract,
+    outcome: str,
+    files: dict[str, str],
+    raw: dict[str, str],
+    journal_path: Path,
+    drive_root: Path,
+) -> tuple[_FolderPlan | None, list[Gap]]:
+    # A session that succeeded builds a folder; one doing the work a folder holds, or changing how it is done,
+    # updates it. Its files are kept only when they come from the session or the folder and System 1 finds them part
+    # of how the work is done.
+    held = folders(files, raw)
+    target: Folder | None = None
+    if held:
+        options = list(held.values())
+        criteria = {str(i): f"{f.name}: {f.when}" for i, f in enumerate(options, 1)}
+        criteria["none"] = "none of these kinds of work"
+        question = ChoiceQuestion(instructions=SAME_FOLDER, criteria=criteria)
+        answers = await decision.ask("steward_folder_same", _state(ex), {"folder": question})
+        choice = answer.choice if isinstance(answer := answers.get("folder"), ChoiceAnswer) else "none"
+        if choice.isdigit() and 0 < int(choice) <= len(options):
+            target = options[int(choice) - 1]
+    succeeded = outcome == SUCCEEDED
+    if target is None and not succeeded:
+        return None, []
+    collected = collect(journal_path, drive_root)
+    try:
+        found = await fold(writer, ex, outcome, collected, target.held() if target else None, f"{ex.session_id}.folder")
+    except (httpx.HTTPError, ValueError, KeyError, IndexError) as e:
+        return None, [Gap(f"no skill folder: the writer {writer.name} failed: {inert(str(e))[:200]}", "")]
+    if found is None:
+        return None, []
+    if target is None:
+        target = held.get(folder_skill_path(found.skill))
+    if not succeeded:
+        # What a session nothing confirmed shows is only what the user said in it.
+        said = {t.pointer for t in ex.turns if t.role == "user"}
+        found.lines = [line for line in found.lines if line.pointer in said]
+    gaps: list[Gap] = []
+    have = target.files if target is not None else {}
+    candidates: list[FolderFile] = []
+    for file in found.files:
+        problem = static_problem(file.name, file.content) or provenance(file, collected, have, succeeded)
+        if problem:
+            gaps.append(Gap(f"skill folder file not kept: {inert(problem)}", ""))
+        elif have.get(file.name) != file.content:
+            candidates.append(file)
+    questions: dict[str, Question] = {
+        f"f{i}": NoulQuestion(instructions=FOLDER_FILE.format(name=f"f{i}")) for i in range(len(candidates))
+    }
+    if target is None and candidates:
+        questions["repeats"] = NoulQuestion(instructions=FOLDER_REPEATS)
+    kept: list[FolderFile] = []
+    if questions:
+        steps = "\n".join(f"- [{line.kind}] {line.text}" for line in found.lines) or "(none)"
+        listed = "\n\n".join(
+            f"f{i}. {f.name}: {f.about}\n{clip(f.content, FOLDER_FILE_STATE_CHARS)}" for i, f in enumerate(candidates)
+        )
+        state = (
+            f"Task: {_task(ex.task)}\nSession outcome: {outcome}\nSkill folder: {found.skill}: {found.when}\n"
+            f"Steps:\n{steps}\nFiles:\n{listed}"
+        )
+        answers = await decision.ask("steward_folder", state, questions)
+        if "repeats" in questions and (p := _noul(answers.get("repeats"))) < KEEP:
+            return None, [*gaps, Gap(f"no skill folder for one task, p={p:.2f}: {inert(found.skill)}", "")]
+        for i, file in enumerate(candidates):
+            if (p := _noul(answers.get(f"f{i}"))) >= KEEP:
+                kept.append(file)
+            else:
+                gaps.append(Gap(f"skill folder file not kept, part of the work p={p:.2f}: {inert(file.name)}", ""))
+    # A script that reads a file of the draft the folder will not hold would fail when it is run.
+    present = {f.name for f in kept} | set(have)
+    missing = {f.name for f in found.files} - present
+    for file in [f for f in kept if f.name.endswith(CODE_SUFFIXES)]:
+        if needs := sorted(name for name in missing if name in file.content):
+            kept.remove(file)
+            gaps.append(Gap(f"skill folder file not kept: {inert(file.name)} reads {', '.join(needs)}", ""))
+    if target is None and not kept:
+        return None, gaps
+    if target is not None and not kept and not found.lines and not found.retired and not succeeded:
+        return None, gaps
+    return _FolderPlan(target, found, kept), gaps
 
 
 async def _condense(
@@ -1246,6 +1367,12 @@ def _continued(files: dict[str, str], ex: Extract) -> bool:
     return len(_USER_TURN.findall(trace(ex, ""))) > len(_USER_TURN.findall(old))
 
 
+def _folder_files(drive_root: Path) -> dict[str, str]:
+    root = drive_root.expanduser().resolve()
+    found = tracked_files(root, main_commit(root), FOLDER_SUFFIXES, SKILL_ROOT)
+    return {name: text for name, text in found.items() if is_folder_file(name)}
+
+
 def _prepare(
     journal_path: Path, drive_root: Path, world: str = ""
 ) -> tuple[dict[str, str], Extract, tuple[dict[str, str], list[str]]]:
@@ -1281,9 +1408,11 @@ async def propose(
     writer: Writer | ReplayWriter | None = None,
     world: str = "",
     keep: Keep | None = None,
+    skill_folders: bool = False,
 ) -> Proposal:
     files, ex, (forgot, gone) = _prepare(journal_path, drive_root, world)
     root = _resolved(drive_root)
+    raw = _folder_files(drive_root)
     removal, transcripts, ex = await _forgetting(_Decision(decisions, ex.run_state), ex, files, root)
     if not removal.empty:
         # Applied first, so nothing written below compares with, restates or links what was forgotten.
@@ -1306,6 +1435,10 @@ async def propose(
         gaps += item_gaps
         learned, lesson_gaps = await _lessons(decision, writer, files, ex, _past(files, ex, outcome, story))
         gaps += lesson_gaps
+    plan: _FolderPlan | None = None
+    if writer is not None and skill_folders:
+        plan, folder_gaps = await _folder(decision, writer, ex, outcome, files, raw, journal_path, drive_root)
+        gaps += folder_gaps
     work = await _work(decision, ex, story, kinds)
     written = write(files, ex, outcome, kept, lessons, items, story, work, learned, spill=False)
     condensed: dict[str, str] = {}
@@ -1314,10 +1447,24 @@ async def propose(
         gaps += merge_gaps
     if written.full:
         written = write(files | condensed, ex, outcome, kept, lessons, items, story, work, learned)
+    folder_files: dict[str, str] = {}
+    if plan is not None:
+
+        def folder_page(path: str, kind: str, lead: str) -> Page:
+            if path not in written.pages:
+                written.pages[path] = _load(files | condensed, path, kind, lead)
+            return written.pages[path]
+
+        cites = [line.pointer for line in plan.draft.lines] + [t.pointer for t in ex.turns if t.role == "user"]
+        if cites:
+            folder_files, apply_gaps = apply(
+                folder_page, plan.folder, plan.draft, plan.kept, ex.date, written.event, cites[0], outcome == SUCCEEDED
+            )
+            gaps += apply_gaps
     for page in written.pages.values():
         page.refresh_contents(await _contents(decision, page))
 
-    changed = condensed | {page_file(path): page.render() for path, page in written.pages.items()}
+    changed = condensed | {page_file(path): page.render() for path, page in written.pages.items()} | folder_files
     if SCHEMA_FILE in files:
         schema = with_vocabulary(with_work_kind(files[SCHEMA_FILE], work))
         if schema != files[SCHEMA_FILE]:
@@ -1327,6 +1474,9 @@ async def propose(
     merged = files | changed
     touched = [name[:-3] for name in changed if is_page_file(name)]
     usage, archived, removed, pruned = _usage(drive_root, merged, ex, touched, keep or Keep())
+    # A skill folder's files go with its page.
+    pages_gone = {name[: -len("/SKILL.md")] for name in [*removed, *gone] if is_folder_skill(name[:-3])}
+    removed += [name for name in {**raw, **folder_files} if name.rsplit("/", 1)[0] in pages_gone]
     changed |= archived
     merged = {name: text for name, text in (merged | archived).items() if name not in removed}
     built = build_indexes(merged)
@@ -1351,7 +1501,11 @@ async def propose(
         files=changed,
         gaps=gaps + written.gaps,
         removed=list(
-            dict.fromkeys([name for name in removed if name in files] + [n for n in gone if n not in changed] + pruned)
+            dict.fromkeys(
+                [name for name in removed if name in files or name in raw]
+                + [n for n in gone if n not in changed]
+                + pruned
+            )
         ),
     )
 
