@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+from collections.abc import AsyncIterator
 from contextlib import suppress
 from pathlib import Path
 
@@ -20,9 +21,11 @@ from intern.events import (
     HookError,
     MessageEvent,
     Nudge,
+    ReplyDiscarded,
     State,
     StateDelta,
     StateWriting,
+    TextDelta,
     ToolCallEnd,
 )
 from intern.journal import CompactionEntry, Journal, MessageEntry, ObservationEntry
@@ -37,7 +40,7 @@ from intern.messages import (
     UserMessage,
 )
 from intern.models.profile import Profile
-from intern.providers.base import ProviderRequest, RetryPolicy
+from intern.providers.base import ProviderError, ProviderRequest, RetryPolicy, StreamItem, TextChunk
 from intern.providers.fake import FakeProvider, Turn
 from intern.session import Session
 from intern.tools import search
@@ -252,6 +255,29 @@ async def test_a_reply_that_fails_with_a_retryable_error_is_requested_again(make
     outcome = await harness.run()
     assert outcome.reason == "completed" and outcome.final_text == "done"
     assert len(harness.provider.requests) == 2
+
+
+async def test_a_reply_that_broke_off_mid_stream_is_discarded_before_it_is_streamed_again(make_harness):
+    class BreaksOnce(FakeProvider):
+        async def stream(self, request: ProviderRequest) -> AsyncIterator[StreamItem]:
+            if not self.requests:
+                self.requests.append(request)
+                yield TextChunk(text="The answer is ")
+                raise ProviderError("the stream ended before the reply finished", retryable=True)
+            async for item in super().stream(request):
+                yield item
+
+    harness = make_harness([Turn(text="The answer is 42.")], provider_class=BreaksOnce)
+    harness.deps.retries = RetryPolicy(reply_waits_s=(0.0,))
+    outcome = await harness.run()
+    assert outcome.final_text == "The answer is 42."
+    shown = ""  # what a client that follows the events has on screen
+    for event in harness.recorder.events:
+        if isinstance(event, ReplyDiscarded):
+            shown = ""
+        elif isinstance(event, TextDelta):
+            shown += event.text
+    assert shown.strip() == "The answer is 42."
 
 
 async def test_turn_budget_ends_with_a_tool_less_reply_to_the_user(make_harness):

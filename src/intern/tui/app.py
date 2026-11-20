@@ -69,6 +69,7 @@ from intern.events import (
     ProcessInfo,
     ReasoningDelta,
     Reduced,
+    ReplyDiscarded,
     RunEnd,
     RunStart,
     SecretUnavailable,
@@ -1050,6 +1051,8 @@ class HarnessApp(App[None]):
                 await transcript.text(text)
             case ReasoningDelta(text=text):
                 await transcript.reasoning(text)
+            case ReplyDiscarded():
+                await transcript.discard_reply()
             case ToolCallStart():
                 self.status.face("turnstile")
                 await transcript.tool_start(event)

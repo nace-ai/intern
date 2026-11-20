@@ -53,6 +53,7 @@ from intern.events import (
     Nudge,
     ProcessInfo,
     ReasoningDelta,
+    ReplyDiscarded,
     RunEnd,
     RunStart,
     State,
@@ -282,6 +283,8 @@ class Run:
         self._answered = False
         """The agent has written to the user since the user's latest message."""
         self._urged = False
+        self._streamed = False
+        """Whether the reply being read has sent the client text or reasoning."""
         """The agent was told, since the user's latest message, to answer what does not depend on a job first."""
         self._waiting_on: list[str] = []
         """The commands the agent handed over on at the last turn, in a quiet session: the run holds before the next."""
@@ -994,11 +997,14 @@ class Run:
             return None
         self._admit_request(request)
         message: AssistantMessage | None = None
+        self._streamed = False
         async for item in self.binding.provider.stream(request):
             match item:
                 case TextChunk(text=text):
+                    self._streamed = True
                     self.deps.emit(TextDelta(turn=self.turn, text=text))
                 case ReasoningChunk(text=text):
+                    self._streamed = True
                     self.deps.emit(ReasoningDelta(turn=self.turn, text=text))
                 case Completed(message=completed):
                     message = completed
@@ -1026,6 +1032,10 @@ class Run:
                     if left <= 0:
                         raise
                     wait = min(policy.wait_out_s, left)
+                if self._streamed:
+                    # The client was sent part of this reply; the next attempt streams it from the start.
+                    self._streamed = False
+                    self.deps.emit(ReplyDiscarded(turn=self.turn))
                 if await self._abortable(asyncio.sleep(wait, result=True)) is None:
                     return None
                 attempt += 1

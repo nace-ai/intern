@@ -269,6 +269,7 @@ a configured `[capabilities.session_budget]` starts a new ledger.
 |---|---|
 | `text_delta` | `agent_message_chunk` (text) |
 | `reasoning_delta` | `agent_thought_chunk` (text) |
+| `reply_discarded` | `agent_message_chunk` with the line "The reply broke off; it starts again:". A reply whose stream broke partway is requested again and its chunks come again from the start; ACP cannot take the earlier chunks back, so this line separates them. `session/load` replays only the finished reply |
 | `tool_call_start` | `tool_call`, `status: "in_progress"`, `kind` from the tool (below), `title` the tool name and its main argument, `rawInput` the arguments, `locations` from a `path` argument |
 | `tool_call_end` | `tool_call_update`, `status` `completed` (`ok`) or `failed` (`error`, `refused`), `content` the result text the model saw; for a `write` or `edit` that changed a text file, also a `diff` item `{path, oldText, newText}` (`oldText` null for a new file); none for binary files, files over 256k characters before and after together, or the Docker workspace's tools |
 | `context_budget` | `usage_update {used: tokens in the request, size: working window}`, with [`_meta.nace.free`](#free-credit) while the free credit is in use |

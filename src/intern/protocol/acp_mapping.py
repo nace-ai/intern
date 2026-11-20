@@ -37,6 +37,7 @@ from intern.events import (
     FreeNotice,
     Handoff,
     ReasoningDelta,
+    ReplyDiscarded,
     RunEnd,
     SecretUnavailable,
     TextDelta,
@@ -379,6 +380,9 @@ def event_updates(event: Event, ctx: MappingContext) -> list[Outgoing]:
             return [_by(update_agent_message_text(text), ctx.model)]
         case ReasoningDelta(text=text) if text:
             return [_by(update_agent_thought_text(text), ctx.model)]
+        case ReplyDiscarded():
+            # ACP cannot take chunks back: a line of the harness's own separates the broken reply from the new one.
+            return [update_agent_message_text("\n\nThe reply broke off; it starts again:\n\n")]
         case HarnessToolCallStart(call_id=call_id, name=name, arguments=arguments):
             return [_by(_tool_start(call_id, name, arguments, ctx), ctx.model)]
         case ToolCallEnd(call_id=call_id, status=status, content=content, diff=diff):
