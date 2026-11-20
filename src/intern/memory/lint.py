@@ -5,17 +5,23 @@ from pathlib import Path
 from intern.memory.format import (
     BLOCK_TOKENS,
     FOLDER_INDEX,
+    FOLDER_SUFFIXES,
+    MAX_FOLDER_FILE_CHARS,
+    MAX_FOLDER_FILES,
     MAX_TOC_ENTRIES,
     PAGE_TOKENS,
     RELATIONS_ID,
     ROOT_INDEX,
     SCHEMA_FILE,
+    SKILL_PAGE,
+    SKILL_ROOT,
     UNREAD_FOLDERS,
     FormatError,
     Page,
     Schema,
     build_indexes,
     has_source,
+    is_folder_file,
     is_page_file,
     links,
     page_file,
@@ -27,11 +33,17 @@ from intern.memory.format import (
 
 
 def working_files(root: Path) -> dict[str, str]:
-    return {
+    pages = {
         str(p.relative_to(root)): p.read_text()
         for p in sorted(root.rglob("*.md"))
         if ".git" not in p.relative_to(root).parts
     }
+    folder = {
+        name: p.read_text(errors="replace")
+        for p in sorted((root / SKILL_ROOT).glob("*/*"))
+        if p.is_file() and is_folder_file(name := p.relative_to(root).as_posix())
+    }
+    return pages | folder
 
 
 def _page_problems(page: Page, text: str, schema: Schema, known: set[str]) -> list[str]:
@@ -96,6 +108,20 @@ def lint(files: dict[str, str]) -> list[str]:
             problems.append(str(e))
             continue
         problems += _page_problems(page, text, schema, known)
+
+    in_folder: dict[str, int] = {}
+    for name, text in sorted(files.items()):
+        if not is_folder_file(name):
+            continue
+        folder = name.rsplit("/", 1)[0]
+        in_folder[folder] = in_folder.get(folder, 0) + 1
+        if page_file(f"{folder}/{SKILL_PAGE}") not in files:
+            problems.append(f"{name}: a file under skills/ outside a skill folder (no {SKILL_PAGE}.md beside it)")
+        if not name.endswith(FOLDER_SUFFIXES):
+            problems.append(f"{name}: a skill folder keeps only {', '.join(FOLDER_SUFFIXES)} files")
+        if len(text) > MAX_FOLDER_FILE_CHARS:
+            problems.append(f"{name}: {len(text)} characters, more than {MAX_FOLDER_FILE_CHARS}")
+    problems += [f"{f}/: {n} files, more than {MAX_FOLDER_FILES}" for f, n in in_folder.items() if n > MAX_FOLDER_FILES]
 
     expected = build_indexes(files)
     for name, text in sorted(expected.items()):

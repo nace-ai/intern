@@ -404,7 +404,7 @@ async def test_a_child_reads_memory_and_never_writes_the_drive(subagent_harness,
     assert not (drive_root / "lessons").exists()
     built = child_extensions([memory])
     assert len(built) == 1 and isinstance(built[0], ReadOnlyMemory)
-    assert built[0].tools() == []  # no recall, no tools of its own: `memory_search` comes with the parent's tools
+    assert built[0].tools() == []  # no recall, no tools of its own: `memory` comes with the parent's tools
 
 
 async def test_an_extension_that_gates_calls_and_does_not_say_how_stops_subagents(subagent_harness):
