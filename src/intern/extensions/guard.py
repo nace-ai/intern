@@ -264,7 +264,11 @@ SYSTEM_SECRETS = frozenset({"/etc/shadow", "/etc/gshadow", "/etc/master.passwd",
 # Files whose content runs at the next login or git command: writing them plants code.
 STARTUP_FILES = frozenset(
     {".bashrc", ".bash_profile", ".bash_login", ".profile", ".zshrc", ".zprofile", ".zshenv", ".zlogin", ".gitconfig"}
+    | {".config/git/config"}
 )
+# What the guard itself obeys: the user's word to System 1, and the settings that turn the guard on.
+# shortcut: the default home only, like the keys file above.
+GUARD_FILES = frozenset({f"{names.HOME.removeprefix('~/')}/{name}" for name in ("SYSTEM1.md", "config.toml")})
 STARTUP_DIRS = (".config/fish", "Library/LaunchAgents")
 _DOTENV = re.compile(r"^\.env(\.(?!example$|sample$|template$|dist$|defaults$)[\w.-]+)?$")
 _ENVIRON = re.compile(r"^/proc/[^/]+/environ$")
@@ -344,6 +348,8 @@ def _write_protected(path: PurePosixPath, scope: Scope) -> str | None:
         relative = path.relative_to(scope.home).as_posix()
         if relative in STARTUP_FILES or any(relative.startswith(d + "/") for d in STARTUP_DIRS):
             return f"~/{relative}, which runs code at login"
+        if relative in GUARD_FILES:
+            return f"~/{relative}, which the guard itself obeys; only the user changes it"
     if scope.system_writes:
         return None
     if any(tree in path.parents for tree in SYSTEM_TREES) and not str(path).startswith(("/usr/local", "/dev/")):
@@ -977,7 +983,26 @@ def _write_targets(command: Command) -> list[str]:
         targets += positional
     elif name == "dd":
         targets += [a[3:] for a in command.args if a.startswith("of=")]
+    elif name == "curl":
+        targets += _option_values(command.args, "o", "--output")
+    elif name == "wget":
+        targets += _option_values(command.args, "O", "--output-document")
+    elif name in ("perl", "ruby") and any(re.match(r"-[acnplswW0-9]*i", a) for a in command.args):
+        targets += positional  # `perl -pi -e CODE FILE` edits the file in place; the code names no file
     return targets
+
+
+def _option_values(args: list[str], letter: str, long: str) -> list[str]:
+    """Each value of one option: `-o x`, `-ox`, last in a cluster (`-sSLo x`), `--output x` or `--output=x`."""
+    values: list[str] = []
+    for i, arg in enumerate(args):
+        if arg.startswith(long + "="):
+            values.append(arg.split("=", 1)[1])
+        elif arg == long or re.fullmatch(rf"-[A-Za-z]*{letter}", arg):
+            values += args[i + 1 : i + 2]
+        elif re.fullmatch(rf"-{letter}.+", arg):
+            values.append(arg[2:])
+    return values
 
 
 #: What takes its destination folder from `-t DIR` or `--target-directory=DIR` (rsync's `-t` keeps times).
@@ -1027,7 +1052,26 @@ def _protected_writes(command: Command, scope: Scope) -> RuleHit | None:
         path = _path(target, scope, command.cwd)
         if path is not None and (what := _write_protected(path, scope)):
             return RuleHit(rule="protected_write", reason=f"it writes to {what} (`{target}`)")
+    if command.name == "crontab" and not {"-l", "-r"} & set(command.args):
+        return RuleHit(rule="protected_write", reason="it replaces your crontab, which runs commands on a schedule")
+    if command.name == "git" and _sets_hooks_path(command):
+        return RuleHit(
+            rule="protected_write", reason="it sets `core.hooksPath`, so git runs hooks from a folder of its choosing"
+        )
     return None
+
+
+def _sets_hooks_path(command: Command) -> bool:
+    """`git config [set] core.hooksPath DIR` in any config file, or `git -c core.hooksPath=DIR ...` for one run."""
+    key = "core.hookspath"
+    sub, args, _ = _git(command)
+    before = command.args[: len(command.args) - len(args)]
+    if any(a == "-c" and b.lower().startswith(key + "=") for a, b in itertools.pairwise(before)):
+        return True
+    if sub != "config" or any(a.startswith(("--get", "--unset")) or a in ("get", "unset") for a in args):
+        return False
+    words = [a.lower() for a in args if not a.startswith("-")]
+    return key in words[:-1]  # a value follows the key; the key alone reads it
 
 
 def _runs_stdin(command: Command) -> bool:
