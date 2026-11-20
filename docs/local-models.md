@@ -90,11 +90,40 @@ Without it, a conversation that grows past the server's context is refused with
 
 ## System 1
 
-Only System 2 runs on Kapitsa here. System 1 is still a decision model from the console (`NACE_API_KEY`)
-or the decisions API (`OPENROUTER_API_KEY`), so a local run still needs one of those keys and a network.
-Kapitsa can serve the Drex decision models on this Mac with `kapitsa-systemone`
-([guide](https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md)), but the harness has not been
-checked against it yet.
+System 1 can run on this Mac too: `kapitsa-systemone`, which comes with Kapitsa, serves a Drex decision
+model. With System 2 on `kapitsa serve` as well, a session needs no key and no network.
+
+Download Drex Max v1 (14.5 GB, for 32 GB and up), already in the layout `kapitsa-systemone` reads, and
+serve it on port 8001, where the harness looks for it (`kapitsa serve` has 8000):
+
+```bash
+hf download nace-ai/drex-max-v1-affine-q4 --local-dir ~/.cache/kapitsa/models/drex-max-v1
+kapitsa-systemone --model ~/.cache/kapitsa/models/drex-max-v1 --port 8001 --name drex-max-v1
+```
+
+Then pick it, with no key:
+
+- `/setup`, and **Kapitsa** under *On this machine* at the decision model step; it finds the server and
+  the model it serves, or shows the command above when it is not running;
+- `/decision` or `/models`, which list `kapitsa:drex-max-v1` while the server runs;
+- `intern --system1 kapitsa:drex-max-v1`.
+
+`/setup` saves it as:
+
+```toml
+# ~/.intern/config.toml
+[system1]
+backend = "kapitsa"
+model = "drex-max-v1"
+# kapitsa_url = "http://127.0.0.1:8001/v1"   # the default
+```
+
+The harness sends it one ask at a time and one question per request, gives each question up to three
+minutes, and keeps each state within 3/4 of the server's default context, so leave `--context` at its
+default. Drex Max reads the whole state again for every question: on an M4 Pro a question took 6 seconds
+on a 1,000-token state and 22 on a 5,000-token one, so a run waits on System 1 longer than on the console,
+most at the memory lookup before a session's first turn and as the session grows.
+[Kapitsa's guide](https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md) has the other Drex models.
 
 ## Switching models
 
@@ -111,6 +140,8 @@ hand, stop the server and start it with another `--model`.
 | `context_length_exceeded` | pass `--window` with the context `kapitsa serve` printed, or start it with a larger `--context` |
 | the first reply is slow | the first request prefills the whole prompt; later turns reuse Kapitsa's prompt cache |
 | another app runs out of memory | run a smaller model, or a smaller `--context` |
+| `kapitsa-systemone is not running at 127.0.0.1:8001` | start it as in [System 1](#system-1), on `--port 8001` |
+| System 1 fails with `400 Bad Request` | `kapitsa-systemone` was started with a smaller `--context`: start it without one |
 
 The engine's log is in `~/.cache/kapitsa/logs/serve-8000.log`. Kapitsa's own
 [docs](https://github.com/nace-ai/kapitsa/blob/main/docs/usage.md) cover its options, models and
