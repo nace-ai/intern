@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import json
 import re
 from collections.abc import AsyncIterator, Mapping
 from contextlib import asynccontextmanager
@@ -12,11 +13,13 @@ from pathlib import Path
 from typing import Any, ClassVar
 from urllib.parse import urlsplit
 
+import httpx
 from pydantic import BaseModel, Field, RootModel, SecretStr
 
 from intern.async_tasks import join_tasks
 from intern.mcp_credentials import CommandCredential as CommandCredential
 from intern.mcp_credentials import CredentialCommand as CredentialCommand
+from intern.mcp_credentials import CredentialCommandError
 from intern.messages import JsonObject
 from intern.needs import Needs
 from intern.providers.base import ToolSpec
@@ -77,6 +80,43 @@ def _check_references(value: Any) -> None:
             _check_references(child)
 
 
+HTTP_FAILED = -32090
+"""JSON-RPC error code of the answer `McpHttpClient` writes for a request the server never answered properly."""
+
+
+class McpHttpClient(httpx.AsyncClient):
+    """An httpx client for `http_connection` that answers a failed MCP POST with a JSON-RPC error.
+
+    The MCP SDK sends each request in its transport's task group and lets an HTTP error escape there, which ends
+    the whole transport: the call that failed waits for its full timeout, and closing the session reports the
+    error again. Answering in the server's place keeps the failure to the one call and the connection usable.
+    """
+
+    async def send(self, request: httpx.Request, **kwargs: Any) -> httpx.Response:
+        if request.method != "POST":
+            return await super().send(request, **kwargs)
+        try:
+            response = await super().send(request, **kwargs)
+        except CredentialCommandError as error:
+            reason = f"the credential command failed ({error.reason})"
+        except httpx.TransportError as error:
+            reason = f"the server could not be reached ({type(error).__name__})"
+        else:
+            # The SDK follows redirects and reads 404 as an ended session itself.
+            if response.status_code < 400 or response.status_code == 404:
+                return response
+            await response.aclose()
+            reason = f"the server answered HTTP {response.status_code}"
+        try:
+            message = json.loads(request.content)
+        except ValueError:
+            message = None
+        if not isinstance(message, dict) or "method" not in message or "id" not in message:
+            return httpx.Response(202, request=request)  # a notification has no answer to carry the error
+        error_reply = {"jsonrpc": "2.0", "id": message["id"], "error": {"code": HTTP_FAILED, "message": reason}}
+        return httpx.Response(200, json=error_reply, request=request)
+
+
 class McpConnection:
     """A live SDK session; close it in the same task that opened its context."""
 
@@ -126,6 +166,7 @@ class McpConnection:
 
     def _tool(self, descriptor: _Description, local_name: str, declared: frozenset[Effect], validator: Any) -> Tool:
         connection = self
+        sdk, _ = _dependencies()
 
         class McpTool(Tool):
             name: ClassVar[str] = local_name
@@ -183,7 +224,14 @@ class McpConnection:
                             retry_safe=False,
                         )
                     return ToolOutput(content=content)
-                except Exception:
+                except Exception as error:
+                    data: Any = getattr(error, "error", None)
+                    if isinstance(error, sdk.McpError) and data.code == HTTP_FAILED:
+                        return fail(
+                            f"The MCP request failed: {data.message}.",
+                            "The connection is still open; retry once the server or its credential is fixed.",
+                            retry_safe=False,
+                        )
                     return fail(
                         "MCP transport or server call failed.",
                         "Check the remote outcome before retrying.",

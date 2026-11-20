@@ -43,7 +43,7 @@ from intern.extensions.workspace.extension import Workspace
 from intern.holds import HoldServer
 from intern.hooks import Extension
 from intern.loop import EngineDeps, ModelBinding
-from intern.mcp_client import MCP_NEEDS, StdioConfig, http_connection, stdio_connection
+from intern.mcp_client import MCP_NEEDS, McpHttpClient, StdioConfig, http_connection, stdio_connection
 from intern.mcp_credentials import (
     CommandCredential,
     CredentialCommand,
@@ -746,7 +746,7 @@ async def prepare_session(
                     elif plan.oauth is not None:
                         auth = oauth_auth(entry, plan.oauth, plan.oauth_secret)
                     client = await stack.enter_async_context(
-                        httpx.AsyncClient(
+                        McpHttpClient(
                             headers={name: secret.get_secret_value() for name, secret in plan.headers.items()},
                             auth=auth,
                             timeout=entry.timeout_s,
