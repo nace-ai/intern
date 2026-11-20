@@ -127,16 +127,20 @@ earlier one left when it was killed, if it still fast-forwards `main`, and delet
    agent is helping; such a reply counts as a user message. Otherwise a session
    the agent called finished is unverified.
 4. **Gate** (System 1): each item must be lasting, not only about this task, not a result the session
-   worked out, and not a value from the data. What the assistant told the user is kept only when
-   the session's outcome was confirmed. An item that restates, replaces or contradicts a line already
-   on its page is marked so; lines that differ in a number (a port, a limit, a version) are never
+   worked out, and not a value from the data. A result can read as a method: which option, setting or
+   value won a comparison the session measured with its own code ("scale pixels as 2x-1, it scored 0.92")
+   is a result even when drafted as a how or rule, and goes on the work page; a rule or method the user
+   gave is never asked about this. What the assistant told the user is kept only when the session's
+   outcome was confirmed. An item that restates, replaces or contradicts a line already on its page is
+   marked so; lines that differ in a number (a port, a limit, a version) are never
    restatements. A replaced line moves to Earlier with `(until <date>)`, and so does any other line on
    map/, user/, lessons/ or skills/ that System 1 finds still states the replaced value.
 5. **Lessons**: ways of working seen in at least two sessions; a lesson to follow needs a session
-   that succeeded, and every lesson names a concrete step, not only more searching or care. A
-   lesson cites story lines, or whole sessions, which cite every line of their story. A drafted
-   lesson turned down before the gate is recorded as a gap with the reason. Each line says how
-   many of its sessions succeeded.
+   that succeeded, and every lesson names a concrete step, not only more searching or care. Which
+   option won a comparison the sessions measured with their own code is not a lesson, even when two
+   sessions found it. A lesson cites story lines, or whole sessions, which cite every line of their
+   story. A drafted lesson turned down before the gate is recorded as a gap with the reason. Each line
+   says how many of its sessions succeeded.
 6. **Commit**: pages are written, indexes regenerated, lint passes, and one commit is made on
    `proposed/<session>` for review, built on `main` without touching the working tree. With
    `--merge`, `main` is fast-forwarded to it, the working tree is reset to `main` and the branch is

@@ -89,6 +89,9 @@ Where items come from:
   the fields it needed, and the document it followed when one said to make it, without this task's values.
   What a tool returned is never a rule. A rule from s lines is a working rule the agent learned: it goes
   on "general" or a place page, and only when the outcome is succeeded.
+  A number the agent measured with its own script or test, or which option scored best in a comparison it ran
+  (settings, parameters, preprocessing, thresholds), is a result of this task, not a "how" or a rule: the next
+  session would follow it without the code that produced it. Leave it out unless the agent's final work used it.
 - What a document, record or page the agent read says (terms, prices, dates, limits, policies, the step to take
   in a given case) holds for later tasks whatever this session's outcome: it is state or how on the page of what
   it is about, such as a product, offer or service (a subject page or "{new}"), with the document's title or id as
@@ -153,8 +156,10 @@ Write lessons: ways of working that more than one session shows and that will he
 A "how" or "rule" cites at least one succeeded session; a failed, partial or unverified session can only show what
 to avoid. A lesson cites story lines of at least two different sessions in "steps", by line id such as "w1.2", not
 session id such as "w1". It may name the places, files
-and people it concerns, never one task's results or numbers. Skip what a skill already holds and what a capable
-agent does anyway, such as reading the documents or checking the facts before answering. A lesson names a concrete
+and people it concerns, never one task's results or numbers. Which option, setting or value won a comparison the
+sessions measured with their own code is their result too, even when two sessions found it. Skip what a skill
+already holds and what a capable agent does anyway, such as reading the documents or checking the facts before
+answering. A lesson names a concrete
 step: the place to look, the call or argument to use, or the check that settled the answer. One that only asks for
 more searching, checking or care adds steps to every later task: skip it. Up to {max_lessons}
 lessons, the most useful first; none when the sessions share no way of working.

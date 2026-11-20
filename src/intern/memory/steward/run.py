@@ -134,7 +134,7 @@ from intern.memory.steward.writer import (
     trace,
 )
 
-STEWARD_VERSION = "51"
+STEWARD_VERSION = "52"
 KEEP = 0.7
 NOTE_KEEP = 0.5
 MAYBE_CORRECTION = 0.3
@@ -238,9 +238,13 @@ RESULT = (
     "Is item {name} a value or conclusion this session worked out for its task, such as a total, average, count, "
     "ranking, percentage, chosen option or final answer, rather than something it found as it was in a file, "
     "a service or a message? What it read back from a file it wrote itself (listed under Written) is its own result. "
-    "How to work such a value out is not a result."
+    "So is what a comparison it ran found: which option, setting or method scored best, and the score, when the "
+    "session's own code or script measured it. How to work such a value out is not a result."
 )
 RESULT_KINDS = ("state", "where", "event", "told")
+# A method the session drew from its own work can be a measurement: "use setting X, it scored 0.92" from its own
+# script is its result, and only shows what that script found. A rule or method the user gave is never one.
+MEASURED_KINDS = ("how", "rule")
 ABOUT_DATA = (
     "Is item {name} about what particular files hold (their values, columns, codes or formats) rather than a "
     "way of working that helps with any task?"
@@ -249,7 +253,8 @@ COMPARED_KINDS = ("state", "preference", "rule", "where", "how", "fails")
 LEARNED = (
     "Do the cited story lines of at least two sessions support lesson {name}, and will it help later tasks in this "
     "world? No for a lesson that only restates one task or its results, or that only names steps any capable agent "
-    "takes anyway, such as editing the file the task names, adding tests or running the project's checks."
+    "takes anyway, such as editing the file the task names, adding tests or running the project's checks. No for "
+    "one that says which option, setting or value won a comparison the sessions measured with their own code."
 )
 STALE_LESSON = (
     "Lesson {name} states a value that memory has since replaced. Does lesson {name} still hold now? It does not "
@@ -856,7 +861,7 @@ async def _lasting(decision: _Decision, ex: Extract, placed: list[Placed]) -> tu
     questions |= {
         f"r{i}": NoulQuestion(instructions=RESULT.format(name=f"i{i}"))
         for i, p in enumerate(placed)
-        if p.item.kind in RESULT_KINDS
+        if p.item.kind in RESULT_KINDS or (p.item.kind in MEASURED_KINDS and p.item.source != "user")
     }
     # A general lesson loads in every task, so one about what the files its step read hold goes to their page.
     homes = {i: home for i, p in enumerate(placed) if p.path == GENERAL_LESSONS and (home := _data_home(ex, p))}
