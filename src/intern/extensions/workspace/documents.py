@@ -325,10 +325,35 @@ def _enclosing(chunks: list[Chunk], page: int) -> str | None:
 
 
 def table_name(path: Path, root: Path, sheet: str = "") -> str:
-    """A DuckDB name from the path under ``root`` (and the sheet), unique across the workspace."""
+    """A DuckDB name from the path under ``root`` (and the sheet). Two sources can come to one name (`a b.csv` and
+    `a-b.csv`); `_claimed` then tells them apart."""
     rel = path.relative_to(root).with_suffix("").as_posix() if path.is_relative_to(root) else path.stem
     name = _UNSAFE.sub("_", rel.replace("/", "__") + (f"__{sheet}" if sheet else "")).strip("_").lower()
     return name if name and not name[0].isdigit() else f"t_{name}"
+
+
+def _claimed(con: duckdb.DuckDBPyConnection, name: str, source: str) -> str:
+    """The name the table of ``source`` goes by: ``name``, unless another source's table has it (`a b.csv` and
+    `a-b.csv` both come to `a_b`), and then ``name`` with a suffix from the source. Each table says whose it is in
+    its comment (`_own`), so a file keeps the name it got when it is loaded again, whatever was loaded since."""
+    suffixed = f"{name}_{hashlib.sha1(source.encode()).hexdigest()[:6]}"
+    owners: dict[str, str | None] = dict(
+        con.execute(
+            "SELECT view_name, comment FROM duckdb_views() WHERE view_name IN (?, ?) AND NOT internal "
+            "UNION ALL SELECT table_name, comment FROM duckdb_tables() WHERE table_name IN (?, ?)",
+            [name, suffixed, name, suffixed],
+        ).fetchall()
+    )
+    if owners.get(suffixed) == source:
+        return suffixed
+    # A table without a comment is from a build before tables said whose they were: the first to load takes it.
+    return name if owners.get(name) in (None, source) else suffixed
+
+
+def _own(con: duckdb.DuckDBPyConnection, name: str, source: str) -> None:
+    """Write on the table or view ``name`` that it is ``source``'s (see `_claimed`)."""
+    view = con.execute("SELECT 1 FROM duckdb_views() WHERE view_name = ? AND NOT internal", [name]).fetchone()
+    con.execute(f'COMMENT ON {"VIEW" if view else "TABLE"} "{name}" IS {literal(source)}')
 
 
 def literal(path: Path | str) -> str:
@@ -578,10 +603,12 @@ class SheetProcessor(_UsesTables):
                     units.append(f"# {title}\n(empty tab)")
                     chunks.append(Chunk(key=title, kind="table", title=f"tab {title}", summary="empty", start=n, end=n))
                     continue
-                name = table_name(path, root, title)
+                source = f"{path.relative_to(root).as_posix()}#{title}"
+                name = _claimed(con, table_name(path, root, title), source)
                 staging = workspace / "derived" / path.relative_to(root).parent / f"{path.name}.{n}.csv"
                 caption = _load_rows(con, name, rows, staging)
-                info = profile(con, name, f"{path.relative_to(root).as_posix()}#{title}")
+                _own(con, name, source)
+                info = profile(con, name, source)
                 tables.append(info)
                 units.append(_render(con, info, f"tab {title}" + (f": {caption}" if caption else "")))
                 chunks.append(_table_chunk(info, f"tab {title}", n, caption))
@@ -616,6 +643,7 @@ class TableProcessor(_UsesTables):
         rel = path.relative_to(root).as_posix()
         caption = options = ""
         with _session(self.tables, workspace, root) as con:
+            name = _claimed(con, name, rel)
             _drop(con, name)  # it may have been loaded as a table before the file changed
             if path.suffix == ".parquet":
                 con.execute(f'CREATE OR REPLACE VIEW "{name}" AS SELECT * FROM read_parquet({literal(source)})')
@@ -638,6 +666,7 @@ class TableProcessor(_UsesTables):
                 _drop(con, name)
                 caption = _load_rows(con, name, rows, workspace / "derived" / Path(rel).parent / f"{path.name}.csv")
                 info = profile(con, name, rel)
+            _own(con, name, rel)
             page = _render(con, info, path.name + (f": {caption}" if caption else ""))
             head = f"{caption} {_head(con, info)}" if caption else _head(con, info)
         chunk = _table_chunk(info, path.name, 1, caption)
