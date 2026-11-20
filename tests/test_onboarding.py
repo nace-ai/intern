@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import stat
+import threading
 import tomllib
 from dataclasses import replace
 from pathlib import Path
@@ -13,6 +15,8 @@ import pytest
 pytest.importorskip("textual", reason="needs the tui extra")
 
 from intern.config import Bootstrap, Options, read_env_file
+from intern.free_commands import set_use
+from intern.models.registry import ProviderSpec
 from intern.onboarding import (
     PROVIDER_BY_ID,
     RECOMMENDED,
@@ -22,6 +26,8 @@ from intern.onboarding import (
     check_system1,
     check_system2,
     save,
+    write_config,
+    write_env_file,
 )
 from intern.providers.fake import Turn
 from intern.tui.app import HarnessApp, Models, SetupHooks
@@ -416,6 +422,54 @@ def test_saving_keeps_capability_settings_written_inline(tmp_path: Path):
     (tmp_path / "config.toml").write_text("capabilities = {guard = {enabled = true}}\n")
     config = tomllib.loads(save(tmp_path, setup, NO_KEYCHAIN).config.read_text())
     assert config["capabilities"] == {"guard": {"enabled": True}, "handoff": {"to": "anthropic/claude-haiku-5-5"}}
+
+
+def test_writers_at_the_same_time_lose_no_change_and_leave_a_file_that_reads(tmp_path: Path):
+    """Setup, `intern free` and a key going to `.env` all change the home's files; each change must still be there."""
+    (tmp_path / "config.toml").write_text("# mine\n[capabilities.guard]\nenabled = true\n")
+    writers, rounds = 6, 8
+    failures: list[BaseException] = []
+
+    def write(writer: int) -> None:
+        try:
+            for round_ in range(rounds):
+                name = f"w{writer}r{round_}"
+                spec = ProviderSpec(base_url=f"http://127.0.0.1:1/{name}")
+                write_config(tmp_path, Setup("ollama/qwen3:30b", SYSTEM1_BY_ID["drex-console"], providers={name: spec}))
+                set_use(tmp_path, True)
+                write_env_file(tmp_path / ".env", name.upper(), "fake-value")
+        except BaseException as error:  # a half-written file fails the next writer's read
+            failures.append(error)
+
+    threads = [threading.Thread(target=write, args=(writer,)) for writer in range(writers)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert not failures
+    text = (tmp_path / "config.toml").read_text()
+    config = tomllib.loads(text)
+    every = {f"w{writer}r{round_}" for writer in range(writers) for round_ in range(rounds)}
+    assert set(config["providers"]) == every
+    assert config["free"] == {"use": True} and config["capabilities"] == {"guard": {"enabled": True}}
+    assert text.startswith("# mine")
+    assert set(read_env_file(tmp_path / ".env")) == {name.upper() for name in every}
+    assert stat.S_IMODE((tmp_path / ".env").stat().st_mode) == 0o600
+
+
+def test_a_config_file_that_is_a_link_stays_a_link(tmp_path: Path):
+    """Dotfile managers link `config.toml` into the home; saving changes the file the link points to."""
+    real = tmp_path / "dotfiles" / "config.toml"
+    real.parent.mkdir()
+    real.write_text("# mine\n")
+    real.chmod(0o640)
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / "config.toml").symlink_to(real)
+    set_use(home, False)
+    assert (home / "config.toml").is_symlink()
+    assert tomllib.loads(real.read_text()) == {"free": {"use": False}} and real.read_text().startswith("# mine")
+    assert stat.S_IMODE(real.stat().st_mode) == 0o640
 
 
 async def test_a_local_server_that_does_not_answer_is_said_with_what_to_check():
