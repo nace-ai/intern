@@ -39,7 +39,7 @@ SQL_ROWS = 50
 SQL_ERROR_CHARS = 1200
 #: What `sql` runs: queries (SELECT covers DESCRIBE and SHOW), and the statements that build the session's scratch
 #: tables and views; never COPY, SET, ATTACH, INSTALL or PRAGMA. A write can only reach the scratch database: the
-#: workspace's tables are attached read-only.
+#: workspace's tables are attached read-only. An EXPLAIN must be of a SELECT (EXPLAIN ANALYZE runs what it explains).
 QUERY_STATEMENTS = frozenset({"SELECT", "EXPLAIN"})
 SCRATCH_STATEMENTS = frozenset({"CREATE", "DROP", "INSERT", "UPDATE", "DELETE", "ALTER"})
 #: A CREATE that stores credentials (a persistent one is written to disk) is not scratch.
@@ -314,6 +314,9 @@ class SqlSession:
         refused = kinds - QUERY_STATEMENTS - SCRATCH_STATEMENTS
         if any(_SECRET.match(statement.query) for statement in statements):
             refused.add("CREATE SECRET")
+        for statement in statements:
+            if statement.type.name == "EXPLAIN" and not self._explains_a_query(statement.query):
+                refused.add("EXPLAIN of anything but a SELECT")
         if refused:
             return ", ".join(sorted(refused))
         shown: list[Shown] = []
@@ -344,6 +347,34 @@ class SqlSession:
         with self._attached():
             found = self.con.execute(f"COPY (SELECT * FROM ({body}\n)) TO {documents.literal(path)} {form}").fetchone()
         return int(found[0]) if found else 0
+
+    def _explains_a_query(self, statement: str) -> bool:
+        """Whether an EXPLAIN is of one SELECT. EXPLAIN ANALYZE runs what it explains, so `EXPLAIN ANALYZE COPY ... TO
+        'file'` writes the file: the statement inside is held to a query, whatever the EXPLAIN's own kind says. One
+        that cannot be told apart from its options is refused."""
+        import duckdb
+
+        raw = statement.encode()  # the tokens' positions are in bytes
+        tokens = [at for at, kind in duckdb.tokenize(statement) if kind != duckdb.token_type.comment]
+        heads = [raw[at : at + 7].lower() for at in tokens]
+        start = 2 if heads[1:2] == [b"analyze"] else 1
+        starts = [start]
+        if heads[start : start + 1] and heads[start][:1] == b"(":  # EXPLAIN (FORMAT json) SELECT, EXPLAIN (SELECT 1)
+            depth = 0
+            for at in range(start, len(heads)):
+                depth += (heads[at][:1] == b"(") - (heads[at][:1] == b")")
+                if depth == 0:
+                    starts.append(at + 1)
+                    break
+        for at in starts:
+            if at >= len(tokens):
+                continue
+            try:
+                inside = self.con.extract_statements(raw[tokens[at] :].decode())
+            except duckdb.Error:
+                continue
+            return [found.type.name for found in inside] == ["SELECT"]
+        return False
 
     @contextmanager
     def _attached(self) -> Iterator[None]:
