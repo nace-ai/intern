@@ -19,6 +19,7 @@ from functools import cache
 from pathlib import Path
 from typing import Literal, NamedTuple
 
+from intern import handover_record
 from intern import hooks as h
 from intern.async_tasks import join_tasks
 from intern.context import (
@@ -48,6 +49,7 @@ from intern.events import (
     Compaction,
     ContextBudget,
     EventSink,
+    FilesChanged,
     Handoff,
     MessageEvent,
     Nudge,
@@ -298,6 +300,9 @@ class Run:
             else None
         )
         self._taken_over = False
+        self._workspace: handover_record.Snapshot | None = None
+        """The working directory as the last turn left it, once the run has handed over: what each turn of the
+        cheaper model changes on disk is journaled for the record System 2 is sent of those turns."""
         self._takeover_before: str | None = None
         """Once the run has handed over (`_taken_over`), the first message recorded after it: the take-over note goes
         before it in each request the cheaper model is sent for the rest of the run, at the end until there is one,
@@ -516,6 +521,7 @@ class Run:
                 run_id=self.run_id,
                 reason=outcome.reason,
                 detail=self.deps.redact(outcome.detail) if self.deps.redact and outcome.detail else outcome.detail,
+                error=outcome.error,
                 turns=self.turn,
                 usage=self.usage,
                 agent_usage=self.usage - self.state_usage - (self.subagent_usage or Usage()),
@@ -551,16 +557,19 @@ class Run:
 
     def _recover_unfinished_calls(self) -> None:
         """Close interrupted protocol turns without executing or guessing the outcome of a tool."""
-        pending: dict[str, ToolCall] = {}
+        # A list, not a map by id: a provider may give two calls of a reply the same id, and each needs its result.
+        pending: list[ToolCall] = []
         for entry in self.deps.journal.active_path():
             if not isinstance(entry, MessageEntry):
                 continue
             message = entry.message
             if isinstance(message, AssistantMessage):
-                pending.update((call.id, call) for call in message.tool_calls)
+                pending.extend(message.tool_calls)
             elif isinstance(message, ToolResultMessage):
-                pending.pop(message.result.call_id, None)
-        for call in pending.values():
+                answered = next((call for call in pending if call.id == message.result.call_id), None)
+                if answered is not None:
+                    pending.remove(answered)
+        for call in pending:
             error = ToolError(
                 kind="interrupted",
                 what_failed="The previous run ended without a persisted result for this call; its outcome is unknown.",
@@ -607,7 +616,7 @@ class Run:
             except ProviderError as e:
                 outcome = self._outcome("provider_error", str(e))
                 if e.code is not None:
-                    outcome.error = h.RunError(code=e.code, meter=e.meter)
+                    outcome.error = h.RunError(code=e.code, meter=e.meter, message=e.console_message)
                 return outcome
             if reply is None:
                 return self._outcome("aborted")
@@ -729,11 +738,23 @@ class Run:
         return chars
 
     def _view(self) -> ContextView:
-        view = build_view(self.deps.journal.active_path(), self.deps.instructions, self.meter, self.window)
+        path = self.deps.journal.active_path()
+        view = build_view(path, self.deps.instructions, self.meter, self.window)
         view.model, view.replay = self.binding.ref, self.binding.profile.reasoning_replay
         if self._taken_over:
             view.asides = {self._takeover_before: TAKEOVER_NOTE}
+        else:
+            # System 2's own run: the turns of earlier hand-overs as their events say. The cheaper model reads all.
+            handover_record.apply(view, path, self.deps.cwd)
         return view
+
+    def _files_changed(self) -> None:
+        """Journal what this turn of the cheaper model changed in the working directory."""
+        before, self._workspace = self._workspace, handover_record.snapshot(self.deps.cwd)
+        if before is None or self._workspace is None:
+            return  # a working directory too large to look at after every turn
+        if files := handover_record.changes(before, self._workspace, self.deps.cwd):
+            self.deps.emit(FilesChanged(turn=self.turn, files=files))
 
     def _update_state(self, view: ContextView) -> Coroutine[object, object, None] | None:
         """The update of the State over the turns it does not cover yet, as of now (None: it covers them all): edits
@@ -1044,6 +1065,8 @@ class Run:
             self.final_text = message.text
 
         results = await self._run_tools(message.tool_calls) if message.tool_calls else []
+        if self._workspace is not None:
+            self._files_changed()
         waiting_on, limit, looks = (
             self._handed_over(message.tool_calls) if not message.invalid_tool_calls else ([], None, False)
         )
@@ -1151,8 +1174,8 @@ class Run:
         session's journal keeps its turns as it keeps System 2's, each reply under the model that wrote it, so a
         model is sent back its own reasoning only. The run's tools, extensions, System 1, supervisor and turn count
         go on as they were. The swap is the run's alone, as is the take-over note the cheaper model is sent
-        (`_takeover_before`): the session's next run is System 2's again, and reads these turns as its own
-        conversation going on."""
+        (`_takeover_before`): the session's next run is System 2's again, and is sent a record of these turns as
+        part of its own conversation (`handover_record`)."""
         assert self.handoff is not None and self.deps.handoff is not None
         target, readiness = self.deps.handoff, self.handoff
         self.handoff = None
@@ -1163,11 +1186,13 @@ class Run:
                 target=target.binding.ref,
                 probability=readiness.probability,
                 tokens=self.meter.tokens(self._prompt_chars),
+                record_rule=handover_record.RULE,
             )
         )
         if self.deps.subagents is not None:
             slots_for(self.deps, self.deps.subagents)  # made on the session's own deps, so the copy below shares them
         self.deps = replace(self.deps, system2=target.binding)
+        self._workspace = handover_record.snapshot(self.deps.cwd)
         if self.subagents is not None:
             self.subagents.deps = self.deps  # a subagent's default model is the model that asks for it
         self.continuations = self.output_doublings = 0  # the cut-off replies counted were the other model's
@@ -1304,6 +1329,7 @@ class Run:
             call_id=call.id,
             subagents=self.subagents,
             run=self._ctx(),
+            redact=self.deps.redact,
         )
         try:
             if not tool.cancel_on_abort:  # it watches the abort itself, and answers with what it has

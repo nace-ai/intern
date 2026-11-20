@@ -1,7 +1,9 @@
 # DeepSeek V4 Flash on Fireworks: the models and the spot/ultrafast routers, and the Nace console, which serves it
 # from there. Fireworks' listing gives the window and image input but not reasoning; every variant took
 # `reasoning_effort` low to max (2026-11-10), and high reasoned about 1.6x the tokens of low on the same prompt.
-# Levels only: until one is picked, no effort is sent.
+# Levels only: until one is picked, no effort is sent. `reasoning_effort` none turns reasoning off on the models and
+# the routers (2026-11-20): one merge of two memory lines took 10,000 to 21,000 reasoning tokens at low and none at
+# none, with the same answer, so the memory steward's writer sends it. It is no level: a session cannot pick it.
 
 match = [
   "fireworks/accounts/fireworks/models/deepseek-v4*-flash*",
@@ -9,3 +11,4 @@ match = [
   "nace/deepseek-v4*-flash*",
 ]
 effort_levels = ["low", "medium", "high", "xhigh", "max"]
+thinking_off = { reasoning_effort = "none" }

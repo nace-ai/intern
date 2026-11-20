@@ -16,6 +16,7 @@ from typing import Protocol
 from pydantic import BaseModel, Field, SecretStr
 
 from intern.executor import (
+    OMITTED,
     CapturingExecutor,
     ExecResult,
     Executor,
@@ -29,6 +30,19 @@ from intern.mcp_credentials import CredentialCommand, run_credential_command
 
 #: The most a secret command may print: room for a PEM key or a service-account JSON.
 MAX_COMMAND_SECRET_BYTES = 64 * 1024
+
+
+#: The notes tools leave where they cut raw output: the executor's, around what it left out of the middle, and the
+#: MCP adapter's, after what it kept. A cut inside a multi-byte character leaves U+FFFD beside the note.
+_CUT = re.compile(
+    "\ufffd{0,3}(?:"
+    + re.escape(OMITTED).replace(re.escape("{omitted}"), r"\d+")
+    + r"|\n\[MCP result truncated by adapter)\ufffd{0,3}"
+)
+
+#: The shortest piece of a value redacted beside a cut. Fewer characters say little about the value, and would match
+#: ordinary output that only happens to end the way a value starts.
+MIN_CUT_CHARS = 4
 
 
 class SecretAccessDenied(Exception):
@@ -141,7 +155,35 @@ class SecretRedactor:
     def redact(self, text: str) -> str:
         for value in self._values:
             text = text.replace(value, "[REDACTED]")
+        # Tools cut long output before it gets here, so a cut can leave the start of a value on one side of its note
+        # and the end of one on the other. Right to left, so the places found stay where they are.
+        for cut in reversed(list(_CUT.finditer(text))):
+            text = self._redact_end(text[: cut.start()]) + cut.group() + self._redact_start(text[cut.end() :])
         return text
+
+    def _redact_end(self, text: str) -> str:
+        """`text` without the start of a value it ends in."""
+        keep = len(text)
+        for value in self._values:
+            window = text[-(len(value) - 1) :] if len(value) > 1 else ""
+            at = window.find(value[:MIN_CUT_CHARS]) if len(value) > MIN_CUT_CHARS else -1
+            while at >= 0 and not value.startswith(window[at:]):
+                at = window.find(value[:MIN_CUT_CHARS], at + 1)
+            if at >= 0:
+                keep = min(keep, len(text) - len(window) + at)
+        return text if keep == len(text) else text[:keep] + "[REDACTED]"
+
+    def _redact_start(self, text: str) -> str:
+        """`text` without the end of a value it starts with."""
+        drop = 0
+        for value in self._values:
+            window = text[: len(value) - 1]
+            at = window.rfind(value[-MIN_CUT_CHARS:]) if len(value) > MIN_CUT_CHARS else -1
+            while at >= 0 and not value.endswith(window[: at + MIN_CUT_CHARS]):
+                at = window.rfind(value[-MIN_CUT_CHARS:], 0, at + MIN_CUT_CHARS - 1)
+            if at >= 0:
+                drop = max(drop, at + MIN_CUT_CHARS)
+        return "[REDACTED]" + text[drop:] if drop else text
 
     def stream(self) -> StreamRedactor:
         """A redactor for output that arrives in chunks, such as a background job's log."""
