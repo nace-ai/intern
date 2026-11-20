@@ -92,7 +92,10 @@ class DecisionFiles(DecisionSearch):
         "question (document sections and pages, spreadsheet tabs and tables), ranked, each with the call that opens it "
         "and the text of the first ones. Needs index_files on that folder first."
     )
-    inline = (3000, 800, 800)
+    #: The best place's text up to 8,000 characters: a page is 4,300 at the median and 6,400 at the 90th percentile
+    #: (OfficeQA's bulletins), so at 3,000 the rows a question asked for were often cut off, and the agent seldom read
+    #: on.
+    inline = (8000, 800, 800)
     trace = True
 
     async def search(
