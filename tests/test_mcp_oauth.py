@@ -255,6 +255,7 @@ def test_login_command_needs_a_configured_oauth_entry(tmp_path, capsys):
 
 
 def test_logout_deletes_the_saved_tokens(tmp_path, capsys):
+    pytest.importorskip("mcp")
     env = write_config(tmp_path, oauth_toml("https://mcp.example/mcp", 40000))
     path = store_path(tmp_path, "remote")
     path.parent.mkdir()

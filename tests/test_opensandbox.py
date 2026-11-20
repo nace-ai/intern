@@ -163,6 +163,13 @@ SDK = SimpleNamespace(
 )
 
 
+@pytest.fixture(autouse=True)
+def extra_installed(monkeypatch):
+    """These tests run on the fake SDK below, so they do not need the opensandbox extra; a test about a missing
+    SDK says so itself."""
+    monkeypatch.setattr(opensandbox, "find_spec", lambda name: object())
+
+
 @pytest.fixture
 def sdk(monkeypatch):
     FakeSandbox.made.clear()
