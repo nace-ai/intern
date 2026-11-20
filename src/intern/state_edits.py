@@ -276,7 +276,8 @@ def apply_edits(doc: StateDoc, reply: str) -> StateDoc:
             section.sets[n] = m.group("text")
             open_text = ("set", n)
         elif m := _DROP.match(stripped):
-            for n in _numbers(m.group("ns")):
+            known = doc.section(current)
+            for n in _numbers(m.group("ns"), titles[current], len(known.items) if known is not None else 0):
                 if n in section.sets or n in section.drops:
                     raise EditError(f"item {n} of {titles[current]} edited twice")
                 section.drops.add(n)
@@ -344,11 +345,15 @@ def apply_edits(doc: StateDoc, reply: str) -> StateDoc:
     return out
 
 
-def _numbers(spec: str) -> list[int]:
-    """`2, 4-6 and 9` as [2, 4, 5, 6, 9]."""
+def _numbers(spec: str, title: str, count: int) -> list[int]:
+    """`2, 4-6 and 9` as [2, 4, 5, 6, 9]. A number past the section's ``count`` items is refused before its range
+    is expanded: `1-1000000` would build a list of a million numbers only to be refused afterwards."""
     out: list[int] = []
     for start, end in re.findall(r"(\d+)(?:\s*[-\u2013]\s*(\d+))?", spec):
-        out += list(range(int(start), int(end or start) + 1))
+        first, last = int(start), int(end or start)
+        if max(first, last) > count:
+            raise EditError(f"{title} has no item {max(first, last)} (it has {count})")
+        out += list(range(first, last + 1))
     return out
 
 
