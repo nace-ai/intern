@@ -897,44 +897,74 @@ def _git(command: Command) -> tuple[str, list[str], str | None]:
     return (args[i], args[i + 1 :], directory) if i < len(args) else ("", [], directory)
 
 
+def _given(flags: Sequence[str], option: str) -> bool:
+    """Whether a long option is among the flags, in full or cut short as git accepts it (`--har` for `--hard`)."""
+    return any(f.startswith("--") and len(f) > 3 and option.startswith(f.split("=", 1)[0]) for f in flags)
+
+
+def _git_there(command: Command, scope: Scope) -> list[str]:
+    """`git` with the options that say which repository a command acts on (each `-C`, `--git-dir`,
+    `--work-tree`), so that a probe looks at the same one. A folder the guard cannot know (`-C $DIR`) is kept as
+    written: git fails on it, and a probe that fails leaves the rule standing."""
+    sub, args, _ = _git(command)
+    before = command.args[: len(command.args) - len(args) - (1 if sub else 0)]
+    where = command.cwd
+    kept: list[tuple[str, str]] = []
+    for i, arg in enumerate(before):
+        name, eq, value = arg.partition("=")
+        if arg == "-C" and i + 1 < len(before):
+            found = _path(before[i + 1], scope, where)
+            where = found or where
+            kept += [] if found else [("-C", before[i + 1])]
+        elif name in ("--git-dir", "--work-tree") and (eq or i + 1 < len(before)):
+            kept.append((name, value if eq else before[i + 1]))
+    there = ["git", "-C", str(where)]
+    for name, value in kept:
+        there += ["-C", value] if name == "-C" else [f"{name}={_path(value, scope, where) or value}"]
+    return there
+
+
 def _git_rules(command: Command, scope: Scope) -> RuleHit | None:
     if command.name != "git":
         return None
-    sub, args, directory = _git(command)
+    sub, args, _ = _git(command)
     flags = [a for a in args if a.startswith("-")]
     short = "".join(a[1:] for a in flags if re.fullmatch(r"-[A-Za-z]+", a))
     if sub == "push":
         refspec_force = any(a.startswith("+") for a in args if not a.startswith("-"))
-        if "--force" in flags or "--mirror" in flags or "f" in short or refspec_force:
+        if _given(flags, "--force") or _given(flags, "--mirror") or "f" in short or refspec_force:
             return RuleHit(
                 rule="force_push",
                 reason="it force-pushes, overwriting remote history that others may have pulled; "
                 "a `--force-with-lease` push is judged separately",
             )
         return None
-    where = _path(directory, scope, command.cwd) if directory else command.cwd
-    if where is None:
-        return None
-    status = shlex.join(["git", "-C", str(where), "status", "--porcelain", "--untracked-files=no"])
+    there = _git_there(command, scope)
+    status = shlex.join([*there, "status", "--porcelain", "--untracked-files=no"])
     discard = RuleHit(
         rule="discard_changes",
         reason=f"`git {sub}` would discard uncommitted changes; keep them recoverable instead, e.g. with `git stash`",
         probe=status,
     )
     paths = [a for a in args if not a.startswith("-")]
-    if sub == "reset" and ("--hard" in flags or "--merge" in flags):
+    if sub == "reset" and (_given(flags, "--hard") or _given(flags, "--merge")):
         return discard
     if sub in ("checkout", "switch") and (
-        "--force" in flags or "--discard-changes" in flags or "f" in short or _MASS_PATHSPECS & set(paths)
+        _given(flags, "--force") or _given(flags, "--discard-changes") or "f" in short or _MASS_PATHSPECS & set(paths)
     ):
         return discard
     if sub == "restore" and _MASS_PATHSPECS & set(paths):
-        staged_only = ("--staged" in flags or "S" in short) and not ("--worktree" in flags or "W" in short)
+        staged_only = (_given(flags, "--staged") or "S" in short) and not (_given(flags, "--worktree") or "W" in short)
         return None if staged_only else discard
-    if sub == "clean" and ("--force" in flags or "f" in short) and not ("--dry-run" in flags or "n" in short):
-        dry = [a for a in args if a not in ("--force", "-i", "--interactive")]
-        dry = [("-" + a[1:].replace("f", "")) if re.fullmatch(r"-[A-Za-z]+", a) else a for a in dry]
-        probe = shlex.join(["git", "-C", str(where), "clean", "-n", *[a for a in dry if a != "-"]])
+    if (
+        sub == "clean"
+        and (_given(flags, "--force") or "f" in short)
+        and not (_given(flags, "--dry-run") or "n" in short)
+    ):
+        # The dry run lists what would go only without the options that force, ask or silence it.
+        dry = [a for a in args if not any(_given([a], o) for o in ("--force", "--interactive", "--quiet"))]
+        dry = [re.sub("[fiq]", "", a) if re.fullmatch(r"-[A-Za-z]+", a) else a for a in dry]
+        probe = shlex.join([*there, "clean", "-n", *[a for a in dry if a != "-"]])
         return RuleHit(
             rule="discard_changes",
             reason="`git clean` would delete untracked files that exist nowhere else; delete specific files instead",
@@ -1453,8 +1483,12 @@ class Guard(Extension):
                 found = await _probe(hit.probe, ctx)
                 if found is None:
                     continue
-                lines = found.splitlines()
-                reason += ":\n" + "\n".join(lines[:10]) + (f"\n... {len(lines) - 10} more" if len(lines) > 10 else "")
+                if found is UNCHECKED:
+                    reason += ". The guard could not check this (its probe failed or timed out), so the rule stands"
+                else:
+                    lines = found.splitlines()
+                    more = f"\n... {len(lines) - 10} more" if len(lines) > 10 else ""
+                    reason += ":\n" + "\n".join(lines[:10]) + more
             return Block(layer="rule", rule=hit.rule, reason=reason)
         return None
 
@@ -1525,17 +1559,23 @@ class Guard(Extension):
         return verdict(answers)
 
 
+UNCHECKED = "\x00unchecked"
+"""What `_probe` gives when the probe could not tell; no command prints it."""
+
+
 async def _probe(command: str, ctx: RunContext) -> str | None:
-    """What a confirming command printed; None when it printed nothing or could not tell."""
+    """What a confirming command printed; None when it ran and found nothing (it printed nothing, or exited 1 as
+    `grep` does without a match); UNCHECKED when it could not tell: it raised, timed out, was stopped or failed
+    (git exits 128 or 129). The hit then stands, since nothing shows the call is harmless."""
     try:
         result = await ctx.executor.run(
             command, cwd=Path(ctx.cwd), timeout_s=PROBE_TIMEOUT_S, max_output_bytes=PROBE_OUTPUT_BYTES
         )
     except Exception:
-        return None
-    if result.exit_code != 0 or result.timed_out or result.aborted:
-        return None
-    return result.output.strip() or None
+        return UNCHECKED
+    if result.timed_out or result.aborted or result.exit_code not in (0, 1):
+        return UNCHECKED
+    return (result.output.strip() or None) if result.exit_code == 0 else None
 
 
 def user_requests(journal: Journal) -> list[str]:
