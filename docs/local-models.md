@@ -91,34 +91,37 @@ Without it, a conversation that grows past the server's context is refused with
 ## System 1
 
 System 1 can run on this Mac too: `kapitsa-systemone`, which comes with Kapitsa, serves a Drex decision
-model on the decisions API the harness speaks. With System 2 on `kapitsa serve` as well, a session needs
-no key and no network.
+model. With System 2 on `kapitsa serve` as well, a session needs no key and no network.
 
 Download Drex Max v1 (14.5 GB, for 32 GB and up), already in the layout `kapitsa-systemone` reads, and
-serve it on a port `kapitsa serve` does not use:
+serve it on port 8001, where the harness looks for it (`kapitsa serve` has 8000):
 
 ```bash
 hf download nace-ai/drex-max-v1-affine-q4 --local-dir ~/.cache/kapitsa/models/drex-max-v1
-kapitsa-systemone --model ~/.cache/kapitsa/models/drex-max-v1 --port 8001 --context 8192 --name drex-max-v1
+kapitsa-systemone --model ~/.cache/kapitsa/models/drex-max-v1 --port 8001 --name drex-max-v1
 ```
 
-Kapitsa's [guide](https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md) has the other Drex
-models. Then point System 1 at it:
+Then pick it, with no key:
+
+- `/setup`, and **Kapitsa** under *On this machine* at the decision model step; it finds the server and
+  the model it serves, or shows the command above when it is not running;
+- `/decision` or `/models`, which list `kapitsa:drex-max-v1` while the server runs;
+- `intern --system1 kapitsa:drex-max-v1`.
+
+`/setup` saves it as:
 
 ```toml
 # ~/.intern/config.toml
 [system1]
-backend = "decisions-api"
-base_url = "http://127.0.0.1:8001/v1"
+backend = "kapitsa"
 model = "drex-max-v1"
-max_state_tokens = 6144   # 3/4 of --context: a longer ask is refused, and the run stops
-timeout_s = 120           # a long state takes tens of seconds to read
-max_concurrency = 2       # the server answers one ask at a time; more would wait out the timeout
+# kapitsa_url = "http://127.0.0.1:8001/v1"   # the default
 ```
 
-A decisions API on this machine (`localhost` or a `127.*` address) needs no key. On an M4 Pro, an ask
-about a 1,000-token state took 6 seconds and one about 5,000 took 22, so a run waits on System 1 more
-than it does on the console.
+The harness sends it one ask at a time, gives each up to three minutes, and keeps each state within 3/4
+of the server's default context, so leave `--context` at its default. On an M4 Pro, an ask about 1,000
+tokens took 6 seconds and one about 5,000 took 22, so a run waits on System 1 longer than on the console.
+[Kapitsa's guide](https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md) has the other Drex models.
 
 ## Switching models
 
@@ -135,7 +138,8 @@ hand, stop the server and start it with another `--model`.
 | `context_length_exceeded` | pass `--window` with the context `kapitsa serve` printed, or start it with a larger `--context` |
 | the first reply is slow | the first request prefills the whole prompt; later turns reuse Kapitsa's prompt cache |
 | another app runs out of memory | run a smaller model, or a smaller `--context` |
-| `System 1 ... 400 Bad Request` | a state longer than `kapitsa-systemone`'s `--context`: lower `[system1] max_state_tokens` to 3/4 of it |
+| `kapitsa-systemone is not running at 127.0.0.1:8001` | start it as in [System 1](#system-1), on `--port 8001` |
+| System 1 fails with `400 Bad Request` | `kapitsa-systemone` was started with a smaller `--context`: start it without one |
 
 The engine's log is in `~/.cache/kapitsa/logs/serve-8000.log`. Kapitsa's own
 [docs](https://github.com/nace-ai/kapitsa/blob/main/docs/usage.md) cover its options, models and

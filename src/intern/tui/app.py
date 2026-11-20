@@ -100,7 +100,7 @@ from intern.journal import (
 from intern.loop import ModelBinding
 from intern.memory.spend import read_spend
 from intern.messages import AssistantMessage, ToolResultMessage, Usage, UserMessage
-from intern.models.catalog import DECISIONS_PREFIX, Catalog, ModelInfo, RunnerInfo, system1_choices
+from intern.models.catalog import DECISIONS_PREFIX, KAPITSA_PREFIX, Catalog, ModelInfo, RunnerInfo, system1_choices
 from intern.models.profile import EFFORT_LEVELS
 from intern.models.registry import FREE_FINAL, ConfigError, Role
 from intern.nace_free import FreeStore
@@ -379,6 +379,7 @@ def resolve_command(name: str) -> str:
 
 CONSOLE_GROUP = "Console · decision models"
 DECISIONS_GROUP = "decisions API · OpenRouter"
+KAPITSA_GROUP = "On this machine · Kapitsa"
 
 
 def system2_choice(model: ModelInfo) -> Choice:
@@ -411,6 +412,8 @@ def offered(models: Iterable[ModelInfo], role: OfferedRole, keep: str = "") -> l
 
 
 def system1_choice(model: ModelInfo) -> Choice:
+    if model.id.startswith(KAPITSA_PREFIX):
+        return Choice(model.id, model.name, KAPITSA_GROUP, label=model.id.removeprefix(KAPITSA_PREFIX))
     if model.id.startswith(DECISIONS_PREFIX):
         label = model.id.removeprefix(DECISIONS_PREFIX)
         note = "" if model.name.casefold() in (model.id.casefold(), label.casefold()) else model.name

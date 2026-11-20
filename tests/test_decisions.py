@@ -19,6 +19,7 @@ from intern.decisions import (
     ChoiceQuestion,
     DecisionClient,
     DecisionsApiBackend,
+    KapitsaBackend,
     NoulAnswer,
     NoulQuestion,
     Question,
@@ -113,6 +114,29 @@ async def test_decisions_api_fails_over_to_the_next_model():
     result = await backend.decide("state", QUESTIONS)
     assert seen == ["primary", "backup"]
     assert result.answers["kind"] == ChoiceAnswer(choice="code", probabilities={"code": 0.8, "log": 0.2})
+
+
+async def test_kapitsa_on_this_machine_is_asked_one_at_a_time_given_time_and_sent_states_that_fit_it():
+    in_flight = most = 0
+
+    async def handler(r: httpx.Request) -> httpx.Response:
+        nonlocal in_flight, most
+        assert r.url.path == "/v1/systemone" and r.url.host == "127.0.0.1"
+        in_flight += 1
+        most = max(most, in_flight)
+        await asyncio.sleep(0.05)  # longer than the client's own limit below
+        in_flight -= 1
+        return httpx.Response(200, json={"answers": {"ok": {"type": "noul", "noul": 0.9}}})
+
+    backend = KapitsaBackend("http://127.0.0.1:8001/v1", "drex-max-v1", transport=httpx.MockTransport(handler))
+    asks = client(backend, [], timeout_s=0.01, max_concurrency=64)
+    question: dict[str, Question] = {"ok": NoulQuestion(instructions="Fine?")}
+    # The server answers one ask at a time: more in flight would wait out the limit in its queue.
+    await asyncio.gather(*(asks.ask("check", f"state {i}", question) for i in range(4)))
+    assert most == 1
+    # A state longer than the server's context is refused (400), which would stop the run.
+    await asks.fit()
+    assert asks.max_state_tokens <= decisions.KAPITSA_CONTEXT
 
 
 async def test_decisions_api_posts_to_systemone_rescales_scores_and_keeps_probabilities():

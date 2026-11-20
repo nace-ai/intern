@@ -164,6 +164,8 @@ OPENROUTER = PROVIDER_BY_ID["openrouter"]
 OPENROUTER_NOTE = "every model on one key · sign in with your browser"
 SETUP_STEPS = ("Choose how to run: free credit, or your own keys", "Sign in once, or pick your models", "Start a task")
 """What setup asks, on its first screen."""
+KAPITSA_START = "kapitsa-systemone --model ~/.cache/kapitsa/models/drex-max-v1 --port 8001 --name drex-max-v1"
+"""How to serve Drex Max on this machine where Kapitsa looks for it (docs/local-models.md#system-1)."""
 DECISION_JOBS = (
     "Decides when to hand the task to the efficient model",
     "Spots when the work goes in circles and steers it back",
@@ -599,8 +601,8 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
     def _decision(self) -> tuple[str, Content]:
         self.choices = []
         for option in SYSTEM1_OPTIONS:
-            note = option.blurb + (" · your key is set" if self._key_present(option.key_env) else "")
-            group = "On OpenRouter" if option.backend == "decisions-api" else "On Nace AI"
+            note = option.blurb + (" · your key is set" if option.key_env and self._key_present(option.key_env) else "")
+            group = {"decisions-api": "On OpenRouter", "kapitsa": "On this machine"}.get(option.backend, "On Nace AI")
             self.choices.append(Choice(option.id, option.name, group, note=note))
         body = Content.assemble(
             ("A small, fast model that makes Intern's calls while your models work:\n", S_INK),
@@ -880,7 +882,9 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
                     self._after_decision()
             case "decision":
                 self.option = SYSTEM1_BY_ID[picked]
-                if self.option.key_env in self.keys or self._key_present(self.option.key_env):
+                if self.option.backend == "kapitsa":
+                    self._check_kapitsa()
+                elif self.option.key_env in self.keys or self._key_present(self.option.key_env):
                     key = self.keys.get(self.option.key_env) or self.env[self.option.key_env]
                     self._after_decision_key(key, checked=None)
                 else:
@@ -1009,6 +1013,23 @@ class OnboardingScreen(Screen[Onboarded | StartedFree | None]):
             self._status(self._fix(found, local=False), warn=True)
             return
         self._after_decision_key(key, checked=found)
+
+    @work(exclusive=True, group="setup-check")
+    async def _check_kapitsa(self) -> None:
+        """kapitsa-systemone takes no key: whether it runs, and the model it serves is the pick."""
+        assert self.option is not None
+        self.busy = True
+        self._status("Looking for kapitsa-systemone…")
+        try:
+            found = await check_system1(self.option, "", self.transport)
+        finally:
+            self.busy = False
+        if not found.ok:
+            why = f"{found.message[0].upper()}{found.message[1:]}"
+            self._status(f"{why}. Start it, then pick Kapitsa again:\n{KAPITSA_START}", warn=True)
+            return
+        self.system1_model = found.models[0]
+        self._after_decision(Content.styled(f"✓ Connected to {self.system1_model} on this machine", S_OK_BOLD))
 
     def _after_decision_key(self, key: str, checked: KeyCheck | None) -> None:
         assert self.option is not None

@@ -29,7 +29,7 @@ from intern import names
 from intern.context import INITIAL_CHARS_PER_TOKEN, bound_output
 from intern.events import Decision, EventSink
 from intern.messages import JsonObject, System1Usage
-from intern.models.catalog import DECISIONS_PREFIX, System1Sources, decision_models
+from intern.models.catalog import DECISIONS_PREFIX, KAPITSA_PREFIX, System1Sources, decision_models
 from intern.models.registry import (
     FREE_FINAL,
     CredentialSource,
@@ -281,6 +281,28 @@ class DecisionsApiBackend:
         raise RuntimeError(f"every decision model failed: {last_error}")
 
 
+# kapitsa-systemone's default --context, the one Drex is calibrated for (`kRecommendedContext`).
+KAPITSA_CONTEXT = 16_384
+# An ask of a full state (3/4 of KAPITSA_CONTEXT) took about 55 s on an M4 Pro; an older Mac takes longer.
+KAPITSA_TIMEOUT_S = 180.0
+
+
+class KapitsaBackend(DecisionsApiBackend):
+    """kapitsa-systemone on this machine (`kapitsa:<model>`): no key, one ask at a time, each slower than a hosted
+    model's. `DecisionClient` reads `max_concurrency` and `least_timeout_s`."""
+
+    max_concurrency = 1
+    least_timeout_s = KAPITSA_TIMEOUT_S
+
+    def __init__(self, base_url: str, model: str, *, transport: httpx.AsyncBaseTransport | None = None) -> None:
+        super().__init__(base_url, SecretStr(""), [model], transport=transport)
+        self.name = f"{KAPITSA_PREFIX}{model}"
+
+    async def window(self) -> int | None:
+        # shortcut: assumes the default --context, as /health does not report it; read it there once Kapitsa does.
+        return KAPITSA_CONTEXT
+
+
 class FreeRefused(Exception):
     """The console refused System 1's free credit for good (`registry.FREE_FINAL`): no retry or other model changes
     that, so the ask is not retried."""
@@ -363,7 +385,9 @@ class DecisionClient:
         self._max_concurrency = max_concurrency
         self._retry_window_s = RETRY_WINDOW_S if retry_window_s is None else retry_window_s
         self._max_state_chars = int(max_state_tokens * INITIAL_CHARS_PER_TOKEN)
-        self._slots = asyncio.Semaphore(max_concurrency)
+        # A backend on this machine takes fewer asks at once, and more time for each, than the config gives.
+        self._least_timeout_s: float = getattr(backend, "least_timeout_s", 0.0)
+        self._slots = asyncio.Semaphore(min(max_concurrency, getattr(backend, "max_concurrency", max_concurrency)))
         self._cache: OrderedDict[str, dict[str, Answer]] = OrderedDict()
         self.usage = System1Usage()
         self.last_error: str | None = None
@@ -489,7 +513,8 @@ class DecisionClient:
                     pace = getattr(self.backend, "pace", None)
                     if pace is not None:
                         await pace()
-                    result = await asyncio.wait_for(self.backend.decide(sent, questions), timeout_s or self._timeout_s)
+                    limit = max(timeout_s or self._timeout_s, self._least_timeout_s)
+                    result = await asyncio.wait_for(self.backend.decide(sent, questions), limit)
                 self.usage.input_tokens += result.input_tokens
                 self.usage.output_tokens += result.output_tokens
                 self.usage.cost_usd += result.cost_usd
