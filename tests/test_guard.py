@@ -4,6 +4,7 @@ and the loop: a blocked call never reaches the executor and the run goes on."""
 from __future__ import annotations
 
 import asyncio
+import subprocess
 from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from pathlib import Path, PurePosixPath
@@ -229,6 +230,37 @@ def test_discarding_work_is_confirmed_by_a_probe():
     assert clean.probe == f"git -C {CWD / 'sub'} clean -n -dx"
 
 
+def test_the_discard_probes_look_at_the_repository_the_command_acts_on(tmp_path: Path):
+    def git(where: Path, *args: str) -> None:
+        identity = ("-c", "user.name=dev", "-c", "user.email=dev@example.test")
+        subprocess.run(["git", "-C", str(where), *identity, *args], check=True, capture_output=True)
+
+    clean, dirty = tmp_path / "clean", tmp_path / "clean" / "a" / "b"  # `dirty` is a repository of its own
+    for repo in (clean, dirty):
+        repo.mkdir(parents=True)
+        git(repo, "init", "-q")
+        (repo / "kept.txt").write_text("committed\n")
+        git(repo, "add", "kept.txt")
+        git(repo, "commit", "-q", "-m", "first")
+    (dirty / "kept.txt").write_text("work that exists nowhere else\n")
+    (dirty / "new.txt").write_text("untracked\n")
+    scope = Scope(cwd=PurePosixPath(clean), roots=(PurePosixPath(clean),), home=HOME)
+
+    def found(command: str) -> str:
+        (hit,) = rule_hits("bash", {"command": command}, scope)
+        assert hit.rule == "discard_changes" and hit.probe is not None
+        return subprocess.run(["bash", "-c", hit.probe], cwd=tmp_path, capture_output=True, text=True).stdout
+
+    assert "kept.txt" in found("git -C a -C b reset --hard")
+    assert "kept.txt" in found("git --git-dir=a/b/.git --work-tree=a/b reset --hard")
+    assert "kept.txt" in found("git --git-dir a/b/.git --work-tree a/b checkout .")
+    assert "kept.txt" in found("cd a/b && git reset --har")  # git takes a long option cut short
+    assert "new.txt" in found("git -C a/b clean -fdq")  # asked with -q, the dry run would list nothing
+    assert "new.txt" in found("git -C a/b clean --forc --quiet")
+    assert found("git reset --hard") == ""  # nothing to lose in the clean repository around it
+    assert rules("git clean --dry-ru --forc -d") == []
+
+
 def test_file_tools_are_checked_by_path():
     assert [h.rule for h in rule_hits("read", {"path": "~/.aws/credentials"}, SCOPE)] == ["credential_read"]
     assert [h.rule for h in rule_hits("read", {"path": "~/.intern/.env"}, SCOPE)] == ["credential_read"]
@@ -447,6 +479,24 @@ async def test_discarding_work_is_refused_only_when_there_is_uncommitted_work(ma
     clean, executor = guarded(make_harness, [bash("git reset --hard"), Turn(text="Done.")], status="")
     await clean.run()
     assert executor.commands[-1] == "git reset --hard"
+
+
+@pytest.mark.parametrize("failure", [{"timed_out": True, "exit_code": None}, {"exit_code": 128}, None])
+async def test_a_probe_that_cannot_tell_leaves_the_rule_standing(make_harness, failure: dict[str, object] | None):
+    class FailingProbes(RecordingExecutor):
+        async def run(self, command: str, **options) -> ExecResult:
+            result = await super().run(command, **options)
+            if not command.startswith("git -C "):
+                return result
+            if failure is None:
+                raise OSError("the sandbox is gone")
+            return result.model_copy(update=failure)
+
+    harness, _ = guarded(make_harness, [bash("git reset --hard"), Turn(text="Done.")])
+    harness.deps.executor = executor = FailingProbes()
+    await harness.run()
+    assert "git reset --hard" not in executor.commands
+    assert results(harness)[0].status == "refused" and "could not check" in results(harness)[0].content
 
 
 async def test_the_guard_judges_the_arguments_a_hook_rewrote(make_harness):
