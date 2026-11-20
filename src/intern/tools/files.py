@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import io
+import stat
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import ClassVar
 
@@ -25,6 +29,11 @@ BINARY_SNIFF_BYTES = 8192
 MAX_DIR_ENTRIES = 500
 # Room kept for the paging footer, so a full page is never cut by the loop's output bound.
 FOOTER_RESERVE_CHARS = 120
+# A file up to this size is read whole, so the footer says how many lines it has and the result carries its hash.
+# A bigger one is read only as far as the page asked for.
+MAX_WHOLE_FILE_BYTES = 10_000_000
+# How much of an over-long line is read at a time while the rest of it is skipped.
+SKIP_CHUNK_CHARS = 1 << 16
 
 
 class ReadArgs(BaseModel):
@@ -64,6 +73,13 @@ class ReadTool(Tool):
             listing = "\n".join(names) or "(empty directory)"
             return ToolOutput(content=listing + (f"\n[{more} more entries not shown]" if more > 0 else ""))
 
+        if not stat.S_ISREG(path.stat().st_mode):
+            # A pipe never ends and a device has no end: reading one would hold the session, or fill its memory.
+            return fail(
+                f"{args.path} is not a regular file (it is a pipe, device or socket)",
+                "Read a regular file, or use bash if you need what this one gives.",
+                argument="path",
+            )
         if path.suffix.lower() in images.IMAGE_SUFFIXES:
             if not self.attach_images:
                 return ToolOutput(
@@ -72,15 +88,27 @@ class ReadTool(Tool):
                 )
             if ctx.image_dir is not None:
                 return await self._image(path, args, ctx.image_dir)
-        data = path.read_bytes()
-        if b"\x00" in data[:BINARY_SNIFF_BYTES]:
+        page = await asyncio.to_thread(_read_page, path, args, ctx.max_output_chars)
+        if page.binary:
             return fail(
-                f"{args.path} is a binary file ({len(data)} bytes)",
+                f"{args.path} is a binary file ({page.size} bytes)",
                 "Inspect it with bash using a tool that understands the format (e.g. file, xxd | head).",
                 argument="path",
             )
-        lines = data.decode(errors="replace").splitlines()
-        return page_lines(args.path, lines, args, ctx.max_output_chars, resources=[file_resource(path, data)])
+        if args.offset > max(page.seen, 1):
+            return fail(
+                f"offset {args.offset} is past the end of {args.path} ({page.seen} lines)",
+                f"Read again with an offset between 1 and {max(page.seen, 1)}.",
+                argument="offset",
+            )
+        end = args.offset - 1 + len(page.lines)
+        body = "\n".join(page.lines)
+        if page.total is None:
+            body += f"\n[Lines {args.offset}-{end}; the file has more. Continue with offset={end + 1}.]"
+        elif end < page.total:
+            body += f"\n[Lines {args.offset}-{end} of {page.total}. Continue with offset={end + 1}.]"
+        resource = ResourceRef(uri=path.resolve().as_uri(), sha256=page.sha256)
+        return ToolOutput(content=body or "(empty file)", resources=[resource])
 
     async def _image(self, path: Path, args: ReadArgs, store: Path) -> ToolOutput:
         try:
@@ -89,6 +117,76 @@ class ReadTool(Tool):
             return fail(str(e), "Check the file type with: file <path>.", argument="path")
         shown = f"{args.path} is an image ({image.width}x{image.height} as shown); it is attached below."
         return ToolOutput(content=shown, images=[image])
+
+
+@dataclass
+class _Page:
+    """What `read` took from a file: the page's lines, and what it learned of the file on the way."""
+
+    size: int
+    binary: bool = False
+    lines: list[str] = field(default_factory=list[str])
+    seen: int = 0
+    """Lines read, the page's and those before it. All of the file's when `total` is set or the offset is past it."""
+    total: int | None = None
+    """Lines in the file; None when the file has more than was read."""
+    sha256: str | None = None
+
+
+def _next_line(text: io.TextIOBase, keep: int) -> str | None:
+    """The next line without its line ending, or None at the end. A line longer than ``keep`` characters is cut to
+    fit, with a note saying so; the rest of it is skipped a piece at a time, never held."""
+    first = text.readline(keep + 1)
+    if not first:
+        return None
+    length, piece = len(first.rstrip("\n")), first
+    while not piece.endswith("\n"):
+        piece = text.readline(SKIP_CHUNK_CHARS)
+        if not piece:
+            break
+        length += len(piece.rstrip("\n"))
+    if length <= keep:
+        return first.rstrip("\n")
+    note = f" [line cut: {length} characters, the first {{}} shown; use bash for the rest]"
+    shown = max(keep - len(note.format(keep)), 1)  # the note with the longest number it can hold
+    return first[:shown] + note.format(shown)
+
+
+def _read_page(path: Path, args: ReadArgs, max_output_chars: int) -> _Page:
+    """The lines of ``path`` from ``args.offset``: at most ``args.limit``, and what fits the budget. Reads no further
+    than the page needs, unless the file is small enough to count its lines."""
+    budget = max(max_output_chars - FOOTER_RESERVE_CHARS, FOOTER_RESERVE_CHARS)
+    with path.open("rb") as raw:
+        size = path.stat().st_size
+        if b"\x00" in raw.read(BINARY_SNIFF_BYTES):
+            return _Page(size=size, binary=True)
+        raw.seek(0)
+        whole = size <= MAX_WHOLE_FILE_BYTES
+        source: io.BufferedIOBase = raw
+        sha256 = None
+        if whole:
+            data = raw.read()
+            sha256 = hashlib.sha256(data).hexdigest()
+            source = io.BytesIO(data)
+        text = io.TextIOWrapper(source, encoding="utf-8", errors="replace", newline=None)
+        lines: list[str] = []
+        seen = used = 0
+        full = False
+        while True:
+            # A line must fit a page with its line ending, so a page always moves forward.
+            line = _next_line(text, budget - 1)
+            if line is None:
+                return _Page(size=size, lines=lines, seen=seen, total=seen, sha256=sha256)
+            seen += 1
+            if seen < args.offset or full:
+                continue
+            if (args.limit is not None and len(lines) >= args.limit) or used + len(line) + 1 > budget:
+                if not whole:
+                    return _Page(size=size, lines=lines, seen=seen - 1)
+                full = True
+                continue
+            lines.append(line)
+            used += len(line) + 1
 
 
 def page_lines(

@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import os
 import shlex
 import sys
+import threading
+import tracemalloc
 from pathlib import Path
 
 import pytest
@@ -49,6 +52,49 @@ async def test_read_lists_directories_and_rejects_binary_files(ctx: ToolContext)
     assert listing.content.splitlines() == ["sub/", "a.bin"]
     binary = await call(ReadTool(), ctx, path="a.bin")
     assert binary.status == "error" and "binary" in binary.content
+
+
+async def test_read_refuses_a_pipe_instead_of_waiting_on_it(ctx: ToolContext):
+    pipe = ctx.cwd / "pipe"
+    os.mkfifo(pipe)
+
+    def end_the_pipe() -> None:  # so a read that does open the pipe fails this test instead of hanging the run
+        os.close(os.open(pipe, os.O_WRONLY))
+
+    rescue = threading.Timer(2, end_the_pipe)
+    rescue.start()
+    try:
+        result = await call(ReadTool(), ctx, path="pipe")
+    finally:
+        rescue.cancel()
+    assert result.status == "error" and "not a regular file" in result.content
+
+
+async def test_read_of_a_huge_file_takes_only_the_page_into_memory(ctx: ToolContext):
+    line = "x" * 99 + "\n"
+    (ctx.cwd / "huge.log").write_text(line * 300_000)  # 30 MB
+    tracemalloc.start()
+    try:
+        page = await call(ReadTool(), ctx, path="huge.log", offset=1000, limit=2)
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    assert page.content.splitlines()[:2] == ["x" * 99] * 2
+    assert "Continue with offset=1002" in page.content
+    assert peak < 5_000_000
+    past = await call(ReadTool(), ctx, path="huge.log", offset=300_002)
+    assert past.status == "error" and "300000 lines" in past.content
+
+
+async def test_read_cuts_a_line_longer_than_the_page_and_goes_on_to_the_next(ctx: ToolContext):
+    (ctx.cwd / "wide.txt").write_text("a" * 200_000 + "\nsecond\n")
+    ctx.max_output_chars = 1_000
+    first = await call(ReadTool(), ctx, path="wide.txt")
+    assert len(first.content) <= ctx.max_output_chars
+    assert first.content.startswith("aaaa") and "line cut: 200000 characters" in first.content
+    assert "Continue with offset=2" in first.content
+    second = await call(ReadTool(), ctx, path="wide.txt", offset=2)
+    assert second.content == "second"
 
 
 async def test_missing_files_fail_with_a_next_action(ctx: ToolContext):
