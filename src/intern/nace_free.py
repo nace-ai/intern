@@ -469,7 +469,11 @@ class FreeCredential:
         update: dict[str, Meter] = {}
         for name in ("system1", "agent"):
             meter: Meter = getattr(meters, name)
-            changed = {k: v for k, v in (("used_usd", used.get(name)), ("limit_usd", limit.get(name))) if v is not None}
+            # What is used only grows between grant reads, so a response saying less was answered before one already
+            # seen (requests in flight together end in any order): taking it would make a spent meter run again.
+            if (spent := used.get(name)) is not None and spent < meter.used_usd:
+                continue
+            changed = {k: v for k, v in (("used_usd", spent), ("limit_usd", limit.get(name))) if v is not None}
             update[name] = meter.model_copy(update=changed)
         self.meters = meters.model_copy(update=update)
 

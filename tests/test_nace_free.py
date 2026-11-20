@@ -18,10 +18,11 @@ import pytest
 from intern import decisions
 from intern.decisions import DecisionsApiBackend, NoulQuestion
 from intern.free_commands import free_main
+from intern.free_session import FreePlan
 from intern.messages import UserMessage
 from intern.models import registry
 from intern.models.registry import PROVIDERS, ConfigError, nace_credential, resolve_endpoint
-from intern.nace_free import DeviceSignIn, FreeCredential, Tokens
+from intern.nace_free import DeviceSignIn, FreeCredential, FreeGrant, FreeStore, Tokens
 from intern.providers.base import NO_RETRIES, Completed, ProviderError, ProviderRequest
 from intern.providers.openai_compat import OpenAICompatProvider
 from tests.fake_console import GRANT, FakeConsole
@@ -248,6 +249,22 @@ async def test_a_refused_refresh_forgets_the_sign_in(env, console, capsys):
     assert not (home / "free.json").exists() and not (home / "free-access.json").exists() and keychain(env) == []
     code, [report] = await asyncio.to_thread(free, ["status"], env, capsys)
     assert (code, report["signed_in"], report["grant"]) == (0, False, None)
+
+
+def test_a_late_response_from_before_the_credit_ran_out_does_not_make_it_run_again(tmp_path):
+    # Two requests in flight: the one the console answered last, with the meters spent, arrives first.
+    grant = FreeGrant.model_validate(GRANT)
+    credential = FreeCredential(FreeStore(tmp_path, {}), "https://console.nace.ai")
+    credential.meters = grant.meters
+    plan = FreePlan(use=True, credential=credential, grant=grant)
+    limit = "system1=1;agent=4"
+    credential.observe({"x-nace-free-used": "system1=1;agent=4", "x-nace-free-limit": limit})
+    credential.observe({"x-nace-free-used": "system1=0.8;agent=3.8", "x-nace-free-limit": limit})
+    assert not plan.runs("agent") and not plan.runs("system1")
+    assert (credential.meters.agent.used_usd, credential.meters.system1.used_usd) == (4.0, 1.0)
+    # One meter older, the other newer: each is judged by its own amount.
+    credential.observe({"x-nace-free-used": "system1=0.9;agent=4.2", "x-nace-free-limit": limit})
+    assert (credential.meters.agent.used_usd, credential.meters.system1.used_usd) == (4.2, 1.0)
 
 
 def test_sign_out_revokes_the_sign_in_on_the_console_and_forgets_it(env, console, capsys):
