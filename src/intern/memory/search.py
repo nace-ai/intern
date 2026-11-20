@@ -175,12 +175,20 @@ def _passages(name: str, text: str) -> list[tuple[str, str, str]]:
 
 def _open(path: Path | None) -> sqlite3.Connection:
     con = sqlite3.connect(path or ":memory:", timeout=120, check_same_thread=False, isolation_level=None)
+    # What memory forgets must not stay readable in the file's free pages.
+    con.execute("PRAGMA secure_delete = ON")
     if con.execute("PRAGMA user_version").fetchone()[0] != SCHEMA:
         con.executescript(
             "DROP TABLE IF EXISTS passage_fts; DROP TABLE IF EXISTS passages; DROP TABLE IF EXISTS files;"
         )
     con.executescript(_TABLES + f"PRAGMA user_version = {SCHEMA};")
     return con
+
+
+def refresh(root: Path, commit: str) -> None:
+    # After a merge: what the commit removed or rewrote leaves an index that exists, without waiting for a search.
+    if (root / ".git" / SEARCH_DB).is_file():
+        MemoryIndex(root, commit).refresh()
 
 
 class MemoryIndex:
@@ -215,6 +223,10 @@ class MemoryIndex:
                     shown = hits[:SESSION_LINES]
                     found.sessions.append(SessionHit(path=path, head=head, lines=shown, more=len(hits) - len(shown)))
             return found
+
+    def refresh(self) -> None:
+        with self._lock:
+            self._update(self._connect())
 
     def _connect(self) -> sqlite3.Connection:
         if self._con is None:
@@ -252,6 +264,9 @@ class MemoryIndex:
                         (cur.lastrowid, _split(f"{p} {title}"), _split(text)),
                     )
                 con.execute("INSERT INTO files(path, blob) VALUES (?, ?)", (p, want[p]))
+            if gone:
+                # Merges the FTS5 segments, so a deleted passage's terms leave the index too.
+                con.execute("INSERT INTO passage_fts(passage_fts) VALUES('optimize')")
             con.execute("COMMIT")
         except BaseException:
             con.execute("ROLLBACK")

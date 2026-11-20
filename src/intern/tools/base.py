@@ -9,6 +9,7 @@ import hashlib
 import os
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
@@ -51,6 +52,9 @@ class ToolContext:
     run: RunContext | None = None
     """The run, for a tool that asks System 1: through `run.decisions`, with `run.state()` as the state, as every
     System 1 question reads the session. None outside a run."""
+    redact: Callable[[str], str] | None = None
+    """Replaces the session's secret values in a text. The loop redacts what a tool returns; this is for what a tool
+    leaves on disk (a command's kept output). None when the session has nothing to redact."""
 
     def resolve(self, path: str) -> Path:
         candidate = Path(path).expanduser()
@@ -183,6 +187,10 @@ class Tool(ABC):
     @property
     def read_only(self) -> bool:
         return self.effects <= {"read"}
+
+    def for_subagent(self) -> Tool:
+        """The tool as a subagent gets it: the same instance, unless it keeps state about the parent's context."""
+        return self
 
     def parse(self, arguments: JsonObject) -> BaseModel | ToolOutput:
         # Pydantic drops a name the tool does not take without a word: `timeout: 900` ran with timeout_s's 120 s and
