@@ -125,6 +125,9 @@ STATE_EFFORT = "low"
 # a median 22 s against 9 s at low, and 2 of 21 writes cut off at the cap).
 STATE_EFFORTS = EFFORT_LEVELS[:2]
 MAX_FINISH_REOPENS = 2
+# Read-only calls of one reply that run at the same time; the rest of the batch waits its turn. Each call may hold
+# files and a process open: 1,000 at once ran the session out of file descriptors, and the journal write failed.
+MAX_PARALLEL_CALLS = 16
 STATUS_HOLD_S = 60.0
 
 CUT_OFF_NUDGE = "Your reply was cut off at the output limit. Continue exactly where it stopped."
@@ -1183,7 +1186,13 @@ class Run:
             and all(c.name in by_name and by_name[c.name].read_only for c in calls)
         )
         if parallel:
-            tasks = [asyncio.create_task(self._run_tool(c, by_name)) for c in calls]
+            slots = asyncio.Semaphore(MAX_PARALLEL_CALLS)
+
+            async def in_slot(call: ToolCall) -> ToolResult:
+                async with slots:
+                    return await self._run_tool(call, by_name)
+
+            tasks = [asyncio.create_task(in_slot(c)) for c in calls]
             try:
                 results = list(await asyncio.gather(*tasks))
             finally:

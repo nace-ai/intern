@@ -7,6 +7,7 @@ import json
 import os
 from contextlib import suppress
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -41,9 +42,9 @@ from intern.providers.base import ProviderRequest, RetryPolicy
 from intern.providers.fake import FakeProvider, Turn
 from intern.session import Session
 from intern.tools import search
-from intern.tools.base import Tool
+from intern.tools.base import Effect, Tool, ToolContext, ToolOutput
 
-from .support import GreetTool, WithTools, is_state_write
+from .support import GreetArgs, GreetTool, WithTools, is_state_write
 
 
 def history(harness) -> list:
@@ -335,6 +336,39 @@ async def test_steering_messages_join_before_the_next_model_call(make_harness):
     await harness.run(control=control)
     second = harness.provider.requests[1].messages
     assert any(isinstance(m, UserMessage) and "Also mention the date." in m.content for m in second)
+
+
+class Counted(Tool):
+    """A read-only call that takes a moment, counting how many of it run at once."""
+
+    name = "look"
+    description = "Look at something."
+    Args = GreetArgs
+    effects: ClassVar[frozenset[Effect]] = frozenset({"read"})
+
+    def __init__(self) -> None:
+        self.running = self.peak = 0
+
+    async def run(self, args: GreetArgs, ctx: ToolContext) -> ToolOutput:
+        self.running += 1
+        self.peak = max(self.peak, self.running)
+        try:
+            await asyncio.sleep(0.01)
+            return ToolOutput(content=f"saw {args.who}")
+        finally:
+            self.running -= 1
+
+
+async def test_a_large_batch_of_read_only_calls_runs_a_bounded_number_at_once(make_harness):
+    # 1,000 calls in one reply all ran at once, and the session ran out of file descriptors.
+    tool = Counted()
+    calls: list[tuple[str, JsonObject]] = [("look", {"who": str(i)}) for i in range(200)]
+    harness = make_harness([Turn(tool_calls=calls), Turn(text="ok")])
+    harness.deps.tools.append(tool)
+    assert (await harness.run()).reason == "completed"
+    assert 1 < tool.peak <= loop.MAX_PARALLEL_CALLS
+    results = [m.result for m in history(harness) if isinstance(m, ToolResultMessage)]
+    assert sorted(r.content for r in results) == sorted(f"saw {i}" for i in range(200))
 
 
 async def test_read_only_calls_run_together_and_results_keep_call_order(make_harness):
