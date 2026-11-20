@@ -460,18 +460,26 @@ async def _picked(
 
 
 def _scrub(ex: Extract, asked: list[Turn], removal: Removal, said: list[str]) -> Extract:
-    # The request, the reply to it, any removed line the session repeated and what the session itself said of it
+    # The request and what the session did about it until the user spoke again (its replies, its searches for the
+    # thing and what they returned), any removed line the session repeated and what the session itself said of it
     # before the request leave everything written from it.
-    pointers = {t.pointer for t in asked}
-    marked: list[Turn] = []
-    after = False
-    for turn in ex.turns:
-        if turn.pointer in pointers or (after and turn.role == "assistant"):
-            marked.append(turn)
-        after = turn.pointer in pointers
+    spoke = sorted(t.order for t in ex.turns if t.role == "user")
+    spans = [(t.order, next((o for o in spoke if o > t.order), None)) for t in asked]
+
+    def about(order: int) -> bool:
+        return any(start <= order and (end is None or order < end) for start, end in spans)
+
+    marked = [t for t in ex.turns if about(t.order)]
+    steps = [s for s in ex.steps if about(s.order)]
+    done = {s.pointer for s in steps}
     said = [*said, *(body(s.line) for s in removal.lines if not s.file.startswith(SESSIONS_FOLDER))]
+    said += [text.strip() for s in steps for text in (s.call, s.result, s.output)]
     texts = {b for b in [*(t.text.strip() for t in marked), *said] if len(b) >= MIN_COVERED_CHARS}
-    scrubbed = Extract.model_validate(_replaced(ex.model_dump(), sorted(texts, key=len, reverse=True)))
+    data = ex.model_dump()
+    data["steps"] = [s for s in data["steps"] if s["pointer"] not in done]
+    data["observations"] = [o for o in data["observations"] if o["pointer"] not in done]
+    data["places"] = {pointer: held for pointer, held in data["places"].items() if pointer not in done}
+    scrubbed = Extract.model_validate(_replaced(data, sorted(texts, key=len, reverse=True)))
     gone = {t.pointer for t in marked}
     for turn in scrubbed.turns:
         turn.text = MARKER if turn.pointer in gone else turn.text
