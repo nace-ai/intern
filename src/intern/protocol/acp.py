@@ -1305,6 +1305,54 @@ class AcpAgent:
         return None
 
 
+class ClientMessages(asyncio.StreamReader):
+    """The client's lines, less those the SDK cannot take. Its receive loop ends, and the server with every session,
+    on a line that is JSON but not an object (a batch, `null`, a number) or a response whose `error` is not one;
+    and it drops a line that is not JSON without a word. Here each such line is answered with a JSON-RPC error
+    (-32700 parse error, -32600 invalid request) and the server keeps serving.
+
+    A StreamReader because the SDK takes no other reader; it reads only `readline`, which is `reader`'s."""
+
+    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        super().__init__()
+        self._reader = reader
+        self._writer = writer
+
+    async def readline(self) -> bytes:
+        while True:
+            line = await self._reader.readline()
+            if not line:
+                return line  # stdin closed
+            if not line.strip():
+                continue
+            try:
+                message = json.loads(line)
+            except ValueError:
+                self._refuse(None, -32700, "Parse error: the line is not JSON")
+                continue
+            if not isinstance(message, dict):
+                self._refuse(None, -32600, "Invalid Request: a message is one JSON object on a line, not a batch")
+                continue
+            request_id = message.get("id")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            if request_id is not None and not isinstance(request_id, (str, int, float)):
+                self._refuse(None, -32600, "Invalid Request: id must be a string or a number")
+            elif "method" in message:
+                if isinstance(message["method"], str):
+                    return line
+                if "id" in message:
+                    self._refuse(request_id, -32600, "Invalid Request: method must be a string")
+            elif "error" in message and not isinstance(message["error"], dict):
+                # A reply to a request of ours, refusing it in a shape of its own: still a refusal.
+                error = {"code": -32603, "message": str(message["error"])}  # pyright: ignore[reportUnknownArgumentType]
+                return (json.dumps({**message, "error": error}) + "\n").encode()
+            else:
+                return line
+
+    def _refuse(self, request_id: str | float | None, code: int, message: str) -> None:
+        reply = {"jsonrpc": "2.0", "id": request_id, "error": {"code": code, "message": message}}
+        self._writer.write((json.dumps(reply) + "\n").encode())
+
+
 def _streamable(stream: TextIO) -> bool:
     """A pipe, socket or terminal: what the event loop can stream. Files and /dev/null it cannot (on POSIX)."""
     if os.name != "posix":
@@ -1365,7 +1413,11 @@ async def serve(agent: AcpAgent) -> None:
         replies = PendingReplies()
         # session/close, which stewards a session's memory, is in the library's unstable protocol.
         await run_agent(
-            agent, input_stream=writer, output_stream=reader, observers=[replies.observe], use_unstable_protocol=True
+            agent,
+            input_stream=writer,
+            output_stream=ClientMessages(reader, writer),
+            observers=[replies.observe],
+            use_unstable_protocol=True,
         )
         agent.stop()
         with contextlib.suppress(TimeoutError):

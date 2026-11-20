@@ -1692,6 +1692,38 @@ def test_acp_refuses_stdio_that_is_not_a_pipe(tmp_path: Path, work: Path):
     )
 
 
+def test_lines_that_are_not_json_rpc_messages_are_answered_with_errors_and_the_server_keeps_serving(
+    tmp_path: Path, work: Path
+):
+    initialize = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": 1}}
+    lines = [
+        json.dumps([initialize]),  # a batch
+        "null",
+        "5",
+        '{"jsonrpc": "2.0", "id": 77, "error": "boom"}',  # a reply to a request never sent, its error not an object
+        '{"jsonrpc": "2.0", "id": [1], "result": 1}',
+        "{not json",
+        '{"jsonrpc": "2.0", "id": 9, "method": null}',
+        json.dumps(initialize),
+    ]
+    result = subprocess.run(
+        [sys.executable, "-m", "intern", "acp", "--system2", "vllm/x"],
+        env={**os.environ, "INTERN_HOME": str(tmp_path / "home")},
+        cwd=work, input="".join(line + "\n" for line in lines), capture_output=True, text=True, timeout=30,
+    )  # fmt: skip
+    assert result.returncode == 0
+    *refused, served = [json.loads(line) for line in result.stdout.splitlines()]
+    assert [(r["id"], r["error"]["code"]) for r in refused] == [
+        (None, -32600),
+        (None, -32600),
+        (None, -32600),
+        (None, -32600),
+        (None, -32700),
+        (9, -32600),
+    ]
+    assert served["id"] == 1 and served["result"]["agentInfo"]["name"] == "intern"  # after all of them
+
+
 async def test_switching_subagents_on_reopens_with_them_and_a_session_that_cannot_keeps_them_off(
     tmp_path: Path, work: Path
 ):
