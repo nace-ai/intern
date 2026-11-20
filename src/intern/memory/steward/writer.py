@@ -148,7 +148,8 @@ Write lessons: ways of working that more than one session shows and that will he
 - "fails": a pitfall: an approach that went wrong or wasted steps.
 - "rule": a check to always do for this kind of work.
 A "how" or "rule" cites at least one succeeded session; a failed, partial or unverified session can only show what
-to avoid. A lesson cites story lines of at least two different sessions in "steps". It may name the places, files
+to avoid. A lesson cites story lines of at least two different sessions in "steps", by line id such as "w1.2", not
+session id such as "w1". It may name the places, files
 and people it concerns, never one task's results or numbers. Skip what a skill already holds and what a capable
 agent does anyway, such as reading the documents or checking the facts before answering. A lesson names a concrete
 step: the place to look, the call or argument to use, or the check that settled the answer. One that only asks for
@@ -160,7 +161,7 @@ or name a new one in 2 to 5 words, such as "Survey data analysis", with "when": 
 Prefer a listed skill when the lesson fits it.
 
 Answer with JSON only:
-{{"lessons": [{{"kind": "<kind>", "skill": "<name>", "when": "", "steps": ["<id>", "<id>"],
+{{"lessons": [{{"kind": "<kind>", "skill": "<name>", "when": "", "steps": ["w1.2", "w4.1"],
  "text": "<one sentence under {item_chars} characters>"}}]}}"""
 
 CONDENSE = """You keep the long-term memory of an AI agent. One memory page is full: rewrite it to free at least
@@ -279,6 +280,14 @@ class Learned:
     # The line memory already holds that says the same, which this lesson confirms, and the page it is on.
     old: str = ""
     old_page: str = ""
+
+
+@dataclass
+class Dropped:
+    # A drafted lesson `learn` turned down before the gate, and why.
+    reason: str
+    text: str
+    pointer: str
 
 
 @dataclass
@@ -677,17 +686,21 @@ async def draft(
     return Story(title=title if fits else "", lines=story, work=work), items, rejected
 
 
-async def learn(writer: Writer | ReplayWriter, sessions: list[Past], skills: list[Skill], key: str) -> list[Learned]:
+async def learn(
+    writer: Writer | ReplayWriter, sessions: list[Past], skills: list[Skill], key: str
+) -> tuple[list[Learned], list[Dropped]]:
     # Lessons across sessions: each one must cite story lines of at least two different sessions.
     if len(sessions) < MIN_LESSON_SESSIONS:
-        return []
-    by_id: dict[str, tuple[str, Draft]] = {}
+        return [], []
+    # A step is a line id (`w3.2`) or a session id (`w3`), which cites every line of that session's story.
+    by_id: dict[str, list[tuple[str, Draft]]] = {}
     outcomes = {past.session: past.outcome for past in sessions}
     parts: list[str] = []
     for i, past in enumerate(sessions, 1):
         parts.append(f"w{i} [{past.outcome}] {past.title}")
+        by_id[f"w{i}"] = [(past.session, line) for line in past.lines]
         for j, line in enumerate(past.lines, 1):
-            by_id[f"w{i}.{j}"] = (past.session, line)
+            by_id[f"w{i}.{j}"] = [(past.session, line)]
             parts.append(f"  w{i}.{j} {line.text}")
     held = [f"- {s.name}: {s.when}" + "".join(f"\n    - {line}" for line in s.lines) for s in skills]
     system = LESSONS.format(max_lessons=MAX_LESSONS, item_chars=ITEM_CHARS)
@@ -699,27 +712,45 @@ async def learn(writer: Writer | ReplayWriter, sessions: list[Past], skills: lis
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         raise ValueError(f"the writer did not answer with lessons JSON: {raw[:200]!r}") from e
     learned: list[Learned] = []
+    dropped: list[Dropped] = []
     for raw_lesson in found[:MAX_LESSONS] if isinstance(found, list) else []:
         if not isinstance(raw_lesson, dict):
             continue
         kind = str(raw_lesson.get("kind", "")).strip().lower()
         text = _text(raw_lesson.get("text"), ITEM_CHARS)
-        cited = [by_id[s] for s in dict.fromkeys(str(s).strip() for s in raw_lesson.get("steps") or []) if s in by_id]
+        steps = dict.fromkeys(str(s).strip() for s in raw_lesson.get("steps") or [])
+        cited = list({(d.pointer, d.text): (sid, d) for s in steps for sid, d in by_id.get(s, [])}.values())
         sessions_cited = list(dict.fromkeys(sid for sid, _ in cited))
-        if kind not in LESSON_KINDS or not text or len(sessions_cited) < MIN_LESSON_SESSIONS or INJECTION.search(text):
-            continue
-        # A way of working to follow needs a session it worked in; one nothing confirmed only shows what to avoid.
-        if kind != "fails" and not any(outcomes.get(sid) == SUCCEEDED for sid in sessions_cited):
-            continue
+        pointer = cited[-1][1].pointer if cited else ""
         skill = _text(raw_lesson.get("skill"), SKILL_NAME_CHARS)
         when = _text(raw_lesson.get("when"), ITEM_CHARS)
         skill = names.get(skill.lower(), skill)
-        # A new skill needs a name and a sentence on when it fits; a listed one has both already.
-        if not skill or (skill.lower() not in names and not when) or INJECTION.search(f"{skill} {when}"):
+        if INJECTION.search(f"{text} {skill} {when}"):
+            dropped.append(Dropped("it matched a prompt-injection pattern", "", pointer))
+        elif not text:
             continue
-        succeeded = sum(outcomes.get(sid) == SUCCEEDED for sid in sessions_cited)
-        learned.append(Learned(kind, text, [d.pointer for _, d in cited], sessions_cited, skill, when, succeeded))
-    return learned
+        elif kind not in LESSON_KINDS:
+            dropped.append(Dropped(f"its kind {kind!r} is not one of {', '.join(LESSON_KINDS)}", text, pointer))
+        elif len(sessions_cited) < MIN_LESSON_SESSIONS:
+            unknown = [s for s in steps if s not in by_id]
+            dropped.append(
+                Dropped(
+                    f"it cites {len(sessions_cited)} session(s), not {MIN_LESSON_SESSIONS}"
+                    + (f"; unknown steps: {', '.join(unknown)[:120]}" if unknown else ""),
+                    text,
+                    pointer,
+                )
+            )
+        # A way of working to follow needs a session it worked in; one nothing confirmed only shows what to avoid.
+        elif kind != "fails" and not any(outcomes.get(sid) == SUCCEEDED for sid in sessions_cited):
+            dropped.append(Dropped(f"a {kind} lesson cites no succeeded session", text, pointer))
+        # A new skill needs a name and a sentence on when it fits; a listed one has both already.
+        elif not skill or (skill.lower() not in names and not when):
+            dropped.append(Dropped("it names no skill, or a new skill with no when", text, pointer))
+        else:
+            succeeded = sum(outcomes.get(sid) == SUCCEEDED for sid in sessions_cited)
+            learned.append(Learned(kind, text, [d.pointer for _, d in cited], sessions_cited, skill, when, succeeded))
+    return learned, dropped
 
 
 async def condense(

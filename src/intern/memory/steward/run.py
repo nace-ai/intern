@@ -975,11 +975,14 @@ async def _lessons(
         for page in skills.values()
     ]
     try:
-        learned = await learn(writer, past, held_skills, f"{ex.session_id}.lessons")
+        learned, dropped = await learn(writer, past, held_skills, f"{ex.session_id}.lessons")
     except (httpx.HTTPError, ValueError, KeyError, IndexError) as e:
         raise Deferred(f"the writer {writer.name} failed on lessons: {e}") from e
+    gaps = [
+        Gap(f"lesson dropped, {inert(d.reason)}" + (f": {inert(d.text)}" if d.text else ""), d.pointer) for d in dropped
+    ]
     if not learned:
-        return [], []
+        return [], gaps
     await _same_skill(decision, learned, held_skills, skills)
     text_of = {line.pointer: line.text for p in past for line in p.lines}
     listed = "\n".join(
@@ -1027,7 +1030,6 @@ async def _lessons(
     state = f"Lessons drawn across sessions:\n{listed}{held}"
     answers = await decision.ask("steward_lessons", state, questions)
     kept: list[Learned] = []
-    gaps: list[Gap] = []
     for i, lesson in enumerate(learned):
         p = _noul(answers.get(f"l{i}"))
         if p < KEEP:
