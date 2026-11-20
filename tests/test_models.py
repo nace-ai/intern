@@ -67,6 +67,36 @@ def test_user_profiles_and_overrides_apply_in_order(tmp_path: Path):
     assert (profile.window, profile.thresholds.compact_at, profile.max_turns) == (65_536, 0.6, 7)
 
 
+def test_a_profile_file_that_cannot_be_read_is_skipped_and_the_other_models_still_load(tmp_path: Path):
+    folder = tmp_path / "profiles"
+    folder.mkdir()
+    (folder / "broken.toml").write_text('match = ["zzz/*"\nwindow = ')
+    (folder / "not-text.toml").write_bytes(b"\xff\xfe\x00")
+    (folder / "wrong-match.toml").write_text("match = 5\n")
+    (folder / "mine.toml").write_text('match = ["openrouter/acme/*"]\nwindow = 65536\n')
+    with pytest.warns(UserWarning) as warned:
+        profile = load_profile("openrouter/acme/small", search_dirs=[folder])
+    assert profile.window == 65_536
+    said = " ".join(str(warning.message) for warning in warned)
+    assert (
+        all(name in said for name in ("broken.toml", "not-text.toml", "wrong-match.toml")) and "mine.toml" not in said
+    )
+
+
+def test_a_broken_profile_the_run_does_use_is_a_config_error(tmp_path: Path):
+    """A config error is what the command line and ACP report readably (exit 2, `-32602`), not a traceback."""
+    override = tmp_path / "run.toml"
+    override.write_text("max_turns = \n")
+    with pytest.raises(ConfigError, match="cannot be read"):
+        load_profile("openrouter/acme/small", override=override)
+    folder = tmp_path / "profiles"
+    folder.mkdir()
+    (folder / "mine.toml").write_text('match = ["openrouter/acme/*"]\nmax_turns = "many"\n')
+    with pytest.raises(ConfigError, match="profile for openrouter/acme/small is not valid"):
+        load_profile("openrouter/acme/small", search_dirs=[folder])
+    assert load_profile("openrouter/other/model", search_dirs=[folder]).max_turns  # a model it does not match is fine
+
+
 def test_working_window_is_the_smallest_known_limit():
     profile = Profile(effective_window=48_000)
     assert working_window(131_072, "provider", profile, None).working == 48_000

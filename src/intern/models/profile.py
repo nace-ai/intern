@@ -9,12 +9,15 @@ from __future__ import annotations
 
 import fnmatch
 import tomllib
+import warnings
 from collections.abc import Sequence
 from importlib import resources
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, JsonValue, field_validator, model_validator
+from pydantic import BaseModel, Field, JsonValue, ValidationError, field_validator, model_validator
+
+from intern.models.registry import ConfigError
 
 PACKAGED_PROFILES = "intern.profiles"
 DEFAULT_PROFILE = "default.toml"
@@ -186,8 +189,25 @@ def profile_candidates(search_dirs: list[Path] | None = None) -> list[tuple[str,
     candidates = _packaged()
     for folder in search_dirs or []:
         if folder.is_dir():
-            candidates += [(p.name, tomllib.loads(p.read_text())) for p in sorted(folder.glob("*.toml"))]
+            for path in sorted(folder.glob("*.toml")):
+                if (data := _user_profile(path)) is not None:
+                    candidates.append((path.name, data))
     return candidates
+
+
+def _user_profile(path: Path) -> dict[str, Any] | None:
+    """A profile file from a user's folder, parsed. One that cannot be read as a profile is skipped with a warning:
+    a broken file for one model must not stop every other model."""
+    try:
+        data = tomllib.loads(path.read_text())
+    except (OSError, ValueError) as e:  # not TOML, or not text
+        warnings.warn(f"profile {path} is skipped, it cannot be read: {e}", stacklevel=2)
+        return None
+    match = data.get("match", [])
+    if not isinstance(match, list) or not all(isinstance(pattern, str) for pattern in match):  # pyright: ignore[reportUnknownVariableType]
+        warnings.warn(f"profile {path} is skipped: `match` must be a list of patterns", stacklevel=2)
+        return None
+    return data
 
 
 def load_profile(
@@ -220,5 +240,11 @@ def load_profile(
 
     merged = _merge(base, best or {})
     if override is not None:
-        merged = _merge(merged, tomllib.loads(override.read_text()))
-    return Profile.model_validate(merged)
+        try:
+            merged = _merge(merged, tomllib.loads(override.read_text()))
+        except (OSError, ValueError) as e:
+            raise ConfigError(f"profile {override} cannot be read: {e}") from e
+    try:
+        return Profile.model_validate(merged)
+    except ValidationError as e:
+        raise ConfigError(f"the profile for {ref} is not valid: {e}") from e
