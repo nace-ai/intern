@@ -8,7 +8,8 @@ screen (`tui/onboarding.py`) walks through them and this module does the work be
 - `RECOMMENDED`: Nace's frontier and efficient pairs on one OpenRouter key, which `models --json` lists.
 - `SYSTEM2_PROVIDERS`: every way to reach the frontier model, grouped as the screen lists them, each with the
   variable its key lives in, where to make one, the frontier models to suggest first and the efficient ones.
-- `SYSTEM1_OPTIONS`: the decision models to pick from, by where they run: Drex on Nace AI, then OpenRouter's.
+- `SYSTEM1_OPTIONS`: the decision models to pick from, by where they run: Drex on Nace AI, then OpenRouter's, then
+  the one kapitsa-systemone serves on this machine.
 - `check_key`: ask the provider whether a key works before keeping it, and list its models while at it.
 - `save`: keep each key (the OS keychain, named in `[secrets]`; `.env` in the config home where there is no
   keychain) and write the picks to `config.toml`, keeping its comments and layout.
@@ -34,15 +35,19 @@ from uuid import uuid4
 
 import httpx
 import tomlkit
-from tomlkit.items import Table
+from tomlkit.items import AbstractTable, InlineTable
 
 from intern.config import CONFIG_FILE, DEFAULT_SYSTEM1_MODEL, ENV_FILE
 from intern.models.catalog import (
     DECISIONS_PREFIX,
+    KAPITSA_PREFIX,
+    KAPITSA_URL,
     NACE_CONSOLE_URL,
     KeyNeeded,
     RecommendedInfo,
+    System1Sources,
     console_listed,
+    kapitsa_models,
     language_model,
 )
 from intern.models.registry import PROVIDERS, ConfigError, ProviderSpec
@@ -341,9 +346,9 @@ class System1Option:
     id: str
     name: str
     blurb: str
-    backend: Literal["decisions-api", "console"]
+    backend: Literal["decisions-api", "console", "kapitsa"]
     model: str
-    """The model; empty for an option that lists its backend's models to pick from."""
+    """The model; empty for an option that lists its backend's models to pick from (kapitsa-systemone's one)."""
     key_env: str
     key_url: str
     only: str = ""
@@ -352,7 +357,12 @@ class System1Option:
     @property
     def choice(self) -> str:
         """How `--system1` and the pickers name it."""
-        return f"{DECISIONS_PREFIX}{self.model}" if self.backend == "decisions-api" else self.model
+        return system1_choice(self.backend, self.model)
+
+
+def system1_choice(backend: str, model: str) -> str:
+    prefix = {"decisions-api": DECISIONS_PREFIX, "kapitsa": KAPITSA_PREFIX}.get(backend, "")
+    return f"{prefix}{model}"
 
 
 SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
@@ -401,6 +411,15 @@ SYSTEM1_OPTIONS: tuple[System1Option, ...] = (
         "",
         "OPENROUTER_API_KEY",
         "https://openrouter.ai/settings/keys",
+    ),
+    System1Option(
+        "kapitsa",
+        "Kapitsa",
+        "Drex on this Mac with kapitsa-systemone, no key",
+        "kapitsa",
+        "",
+        "",
+        "https://github.com/nace-ai/kapitsa/blob/main/docs/drex-max.md",
     ),
 )
 SYSTEM1_BY_ID = {option.id: option for option in SYSTEM1_OPTIONS}
@@ -648,7 +667,13 @@ async def check_system2(
 
 
 async def check_system1(option: System1Option, key: str, transport: httpx.AsyncBaseTransport | None = None) -> KeyCheck:
-    """Whether System 1's key works; for the decisions API, with the decision models it lists."""
+    """Whether System 1's key works; for the decisions API, with the decision models it lists. Kapitsa takes no key:
+    whether kapitsa-systemone runs, with the model it serves."""
+    if option.backend == "kapitsa":
+        served = await kapitsa_models(System1Sources(kapitsa_url=KAPITSA_URL), transport)
+        if not served:
+            return KeyCheck(ok=False, message=f"kapitsa-systemone is not running at {KAPITSA_URL}")
+        return KeyCheck(ok=True, models=tuple(m.id.removeprefix(KAPITSA_PREFIX) for m in served))
     if option.backend == "console":
         return await check_key(f"{NACE_CONSOLE_URL}/models", key, transport=transport)
     found = await check_key(f"{OPENROUTER_URL}/key", key, transport=transport)
@@ -809,21 +834,24 @@ class Setup:
     """Providers to write to `[providers.<id>]`, by id: a custom endpoint, or a local server at another address."""
     handoff: str | None = None
     """The `provider/model` runs hand over to; None for no hand-over."""
+    pause_free: bool = False
+    """The user's own keys were picked over the free credit: `[free] use = false`, as `/free pause` sets, so the session
+    opens on these picks instead of the grant's."""
 
     @property
     def system1_choice(self) -> str:
-        model = self.system1_model or self.system1.model
-        return f"{DECISIONS_PREFIX}{model}" if self.system1.backend == "decisions-api" else model
+        return system1_choice(self.system1.backend, self.system1_model or self.system1.model)
 
 
-def _table(document: tomlkit.TOMLDocument | Table, *names: str, super_table: bool = False) -> Table:
-    """The first of `names` the document has as a table (an old name for it included), else a new one under the
-    first name."""
+def _table(document: tomlkit.TOMLDocument | AbstractTable, *names: str, super_table: bool = False) -> AbstractTable:
+    """The first of `names` the document has as a table (an old name for it included, and one written inline as
+    `name = {...}`), else a new one under the first name: inline when its parent is, so the file stays valid."""
     for name in names:
         existing = document.get(name)
-        if isinstance(existing, Table):
+        if isinstance(existing, AbstractTable):
             return existing
-    created = tomlkit.table(is_super_table=super_table)
+    inline = isinstance(document, InlineTable)
+    created = tomlkit.inline_table() if inline else tomlkit.table(is_super_table=super_table)
     document[names[0]] = created
     return created
 
@@ -838,7 +866,9 @@ def _write_handoff(document: tomlkit.TOMLDocument, handoff: str | None) -> None:
         return
     document["auto"] = False
     capabilities = document.get("capabilities")
-    if not isinstance(capabilities, Table) or not isinstance(table := capabilities.get("handoff"), Table):
+    if not isinstance(capabilities, AbstractTable):
+        return
+    if not isinstance(table := capabilities.get("handoff"), AbstractTable):
         return
     if "to" in table:
         del table["to"]
@@ -850,8 +880,8 @@ def _write_handoff(document: tomlkit.TOMLDocument, handoff: str | None) -> None:
 
 def write_config(home: Path, setup: Setup) -> Path:
     """Write the picks to `config.toml`: `system2`, the `[system1]` table's backend and model (and where its key
-    is), the hand-over model, and a `[providers]` entry for each provider that needs one. Everything else in the file
-    stays as it was."""
+    is), the hand-over model, a `[providers]` entry for each provider that needs one, and the free credit paused when
+    the picks replace it. Everything else in the file stays as it was."""
     path = home / CONFIG_FILE
     document = tomlkit.parse(path.read_text()) if path.is_file() else tomlkit.document()
     if "model" in document:
@@ -866,15 +896,18 @@ def write_config(home: Path, setup: Setup) -> Path:
     if option.backend == "decisions-api":
         system1["base_url"] = OPENROUTER_URL
         system1["api_key_env"] = option.key_env
-    else:
+    elif option.backend == "console":
         system1["console_key_env"] = option.key_env
     for provider_id, spec in setup.providers.items():
-        entry = tomlkit.table()
+        providers = _table(document, "providers")
+        entry = tomlkit.inline_table() if isinstance(providers, InlineTable) else tomlkit.table()
         for key, value in spec.model_dump(exclude_defaults=True).items():
             entry[key] = value
         entry["base_url"] = spec.base_url
-        _table(document, "providers")[provider_id] = entry
+        providers[provider_id] = entry
     _write_handoff(document, setup.handoff)
+    if setup.pause_free and isinstance(free := document.get("free"), Table):
+        free["use"] = False
     home.mkdir(parents=True, exist_ok=True)
     path.write_text(tomlkit.dumps(document))
     return path

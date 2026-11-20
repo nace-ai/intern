@@ -226,6 +226,11 @@ def locked(error: FreeLocked) -> RequestError:
     return RequestError(-32602, str(error), {"code": error.code})
 
 
+def unbound_refused(message: str, code: str | None, meter: str | None) -> RequestError:
+    """No System 2 can be bound: `-32602`, with `data.code` and `data.meter` when the free credit is why."""
+    return RequestError(-32602, message, {"code": code, "meter": meter} if code else None)
+
+
 def tokens_label(tokens: int) -> str:
     return f"{tokens / 1_000_000:.3g}M" if tokens >= 1_000_000 else f"{round(tokens / 1000)}K"
 
@@ -245,6 +250,21 @@ def session_meta(meta: Mapping[str, Any]) -> SessionMeta:
         return SessionMeta.model_validate(meta.get("nace") or {})
     except ValidationError as e:
         raise RequestError(-32602, f"_meta.nace is invalid: {e}") from None
+
+
+def unreadable_journal(path: Path, error: ValidationError) -> RequestError:
+    """The reply to a `session/load` whose journal has an entry this version cannot read: an internal error
+    naming the file, not "Invalid params" (the client's params were fine), and without the entry's raw bytes,
+    which no reply can carry."""
+    first = error.errors(include_url=False, include_input=False)[0]
+    where = ".".join(str(part) for part in first["loc"])
+    reason = f"{where}: {first['msg']}" if where else first["msg"]
+    return RequestError(
+        -32603,
+        f"the session's journal has an entry this version of {names.TITLE} cannot read ({reason}): "
+        f"the file is damaged or was written by a newer version: {path}",
+        {"reason": "journal_unreadable", "journal": str(path)},
+    )
 
 
 @dataclass
@@ -267,6 +287,10 @@ class UnboundSession:
     system1_picked: bool = False
     """`system1` is the client's pick, not the configured or journaled one: refused, not set aside, while System 1
     runs on free credit."""
+    code: str | None = None
+    """Why the free credit could not bind it (`free_exhausted`, `free_paused`, `free_revoked`); None otherwise."""
+    meter: str | None = None
+    """The meter `code` names, if any."""
 
 
 @dataclass
@@ -542,6 +566,8 @@ class AcpAgent:
                 reason=str(e),
                 capabilities=caps,
                 system1_picked=system1_picked and system1 is not None,
+                code=e.code,
+                meter=e.meter,
             )
             self.unbound[unbound.id] = unbound
             return unbound
@@ -590,7 +616,7 @@ class AcpAgent:
         try:
             live = await self._start(unbound.cwd, unbound.journal, system2, unbound.capabilities, unbound.id)
         except System2Unavailable as e:
-            raise RequestError(-32602, str(e)) from None
+            raise unbound_refused(str(e), e.code, e.meter) from None
         finally:
             unbound.opening = False
         self.unbound.pop(unbound.id, None)
@@ -648,7 +674,10 @@ class AcpAgent:
         path = self._index.find(session_id)
         if path is None:
             raise RequestError.resource_not_found(session_id)
-        journal = Journal(cwd=cwd, path=path)
+        try:
+            journal = Journal(cwd=cwd, path=path)
+        except ValidationError as e:
+            raise unreadable_journal(path, e) from None
         models = journal.last_models()
         system2 = meta.system2 or models.get("system2")
         caps = self._picks(journal, meta.capabilities, meta.runner)
@@ -745,7 +774,8 @@ class AcpAgent:
         self, prompt: list[PromptBlock], session_id: str, message_id: str | None = None, **kwargs: Any
     ) -> PromptResponse:
         if (unbound := self.unbound.get(session_id)) is not None:
-            raise RequestError(-32602, f"no System 2 model can run: {unbound.reason}; pick a model")
+            reason = f"no System 2 model can run: {unbound.reason}; pick a model"
+            raise unbound_refused(reason, unbound.code, unbound.meter)
         live = self._live(session_id)
         if self.stopping:
             return PromptResponse(stop_reason="cancelled")
@@ -1306,6 +1336,54 @@ class AcpAgent:
         return None
 
 
+class ClientMessages(asyncio.StreamReader):
+    """The client's lines, less those the SDK cannot take. Its receive loop ends, and the server with every session,
+    on a line that is JSON but not an object (a batch, `null`, a number) or a response whose `error` is not one;
+    and it drops a line that is not JSON without a word. Here each such line is answered with a JSON-RPC error
+    (-32700 parse error, -32600 invalid request) and the server keeps serving.
+
+    A StreamReader because the SDK takes no other reader; it reads only `readline`, which is `reader`'s."""
+
+    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        super().__init__()
+        self._reader = reader
+        self._writer = writer
+
+    async def readline(self) -> bytes:
+        while True:
+            line = await self._reader.readline()
+            if not line:
+                return line  # stdin closed
+            if not line.strip():
+                continue
+            try:
+                message = json.loads(line)
+            except ValueError:
+                self._refuse(None, -32700, "Parse error: the line is not JSON")
+                continue
+            if not isinstance(message, dict):
+                self._refuse(None, -32600, "Invalid Request: a message is one JSON object on a line, not a batch")
+                continue
+            request_id = message.get("id")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            if request_id is not None and not isinstance(request_id, (str, int, float)):
+                self._refuse(None, -32600, "Invalid Request: id must be a string or a number")
+            elif "method" in message:
+                if isinstance(message["method"], str):
+                    return line
+                if "id" in message:
+                    self._refuse(request_id, -32600, "Invalid Request: method must be a string")
+            elif "error" in message and not isinstance(message["error"], dict):
+                # A reply to a request of ours, refusing it in a shape of its own: still a refusal.
+                error = {"code": -32603, "message": str(message["error"])}  # pyright: ignore[reportUnknownArgumentType]
+                return (json.dumps({**message, "error": error}) + "\n").encode()
+            else:
+                return line
+
+    def _refuse(self, request_id: str | float | None, code: int, message: str) -> None:
+        reply = {"jsonrpc": "2.0", "id": request_id, "error": {"code": code, "message": message}}
+        self._writer.write((json.dumps(reply) + "\n").encode())
+
+
 def _streamable(stream: TextIO) -> bool:
     """A pipe, socket or terminal: what the event loop can stream. Files and /dev/null it cannot (on POSIX)."""
     if os.name != "posix":
@@ -1413,7 +1491,11 @@ async def serve(agent: AcpAgent) -> None:
         replies = PendingReplies()
         # session/close, which stewards a session's memory, is in the library's unstable protocol.
         await run_agent(
-            agent, input_stream=writer, output_stream=reader, observers=[replies.observe], use_unstable_protocol=True
+            agent,
+            input_stream=writer,
+            output_stream=ClientMessages(reader, writer),
+            observers=[replies.observe],
+            use_unstable_protocol=True,
         )
         agent.stop()
         with contextlib.suppress(TimeoutError):

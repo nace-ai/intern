@@ -404,7 +404,7 @@ async def test_a_child_reads_memory_and_never_writes_the_drive(subagent_harness,
     assert not (drive_root / "lessons").exists()
     built = child_extensions([memory])
     assert len(built) == 1 and isinstance(built[0], ReadOnlyMemory)
-    assert built[0].tools() == []  # no recall, no tools of its own: `memory_search` comes with the parent's tools
+    assert built[0].tools() == []  # no recall, no tools of its own: `memory` comes with the parent's tools
 
 
 async def test_an_extension_that_gates_calls_and_does_not_say_how_stops_subagents(subagent_harness):
@@ -681,6 +681,20 @@ async def test_a_cancelled_child_still_reports_its_end(subagent_harness):
             await task
         ends = harness.recorder.of(SubagentEnd)
         assert len(ends) == 1 and ends[0].status == "aborted"
+
+
+@pytest.mark.parametrize("yields", range(1, 9))
+async def test_a_spawn_cancelled_at_any_moment_leaves_the_writers_lock_free(subagent_harness, yields):
+    # Cancelled just as it got the lock, the spawn kept it: no child that can write ran again in the session.
+    harness = subagent_harness(lambda r: Turn(text="done"))
+    subagents = Subagents(harness.deps, harness.deps.subagents, asyncio.Event())  # type: ignore[arg-type]
+    task = asyncio.create_task(subagents.run(SubagentSpec(task="x")))
+    for _ in range(yields):
+        await asyncio.sleep(0)
+    task.cancel()
+    await asyncio.gather(task, return_exceptions=True)
+    async with asyncio.timeout(5):
+        assert (await subagents.run(SubagentSpec(task="y"))).status == "completed"
 
     # -- models -----------------------------------------------------------------------------------------------------
 
