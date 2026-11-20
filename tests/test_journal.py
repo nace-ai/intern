@@ -6,7 +6,8 @@ import pytest
 from pydantic import ValidationError
 
 import intern.journal as journal_module
-from intern.journal import Journal, MessageEntry, SessionEntry
+from intern.events import Nudge
+from intern.journal import EventEntry, Journal, MessageEntry, ObservationEntry, SessionEntry
 from intern.messages import AssistantMessage, UserMessage
 
 
@@ -122,3 +123,15 @@ def test_stale_writer_is_rejected_without_corrupting_the_journal(tmp_path):
         stale.append(MessageEntry(message=UserMessage(content="stale writer")))
     assert len(stale.entries()) == 1
     assert len(Journal(cwd="ignored", path=path).entries()) == 2
+
+
+def test_text_that_is_not_valid_unicode_is_recorded_with_a_replacement_character(tmp_path: Path):
+    """A lone surrogate cannot be written as UTF-8; it must not make the journal write fail."""
+    path = tmp_path / "s.jsonl"
+    journal = Journal(cwd="/work", path=path)
+    journal.append(EventEntry(event=Nudge(turn=1, reason="extension", text="half an emoji \ud83d")))
+    journal.append(ObservationEntry(call_id="c1", content="file-\udcff.txt"))
+    nudge, observation = Journal(cwd="ignored", path=path).entries()[1:]
+    assert isinstance(nudge, EventEntry) and isinstance(nudge.event, Nudge)
+    assert nudge.event.text == "half an emoji \ufffd"
+    assert isinstance(observation, ObservationEntry) and observation.content == "file-\ufffd.txt"
