@@ -20,9 +20,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import contextlib
 import hashlib
-import os
 import re
 import secrets
 from collections.abc import Mapping
@@ -37,6 +35,7 @@ import tomlkit
 from tomlkit.items import Table
 
 from intern.config import CONFIG_FILE, DEFAULT_SYSTEM1_MODEL, ENV_FILE
+from intern.config_file import OWNER_ONLY, editing, locked, write_atomic
 from intern.models.catalog import (
     DECISIONS_PREFIX,
     NACE_CONSOLE_URL,
@@ -677,15 +676,11 @@ ENV_LINE = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=")
 
 def write_env_file(path: Path, name: str, value: str) -> None:
     """Set `name` in a `KEY=value` file, replacing its line if it has one; the file readable by its owner only."""
-    lines = path.read_text().splitlines() if path.is_file() else []
-    kept = [line for line in lines if (match := ENV_LINE.match(line)) is None or match.group(1) != name]
-    kept.append(f"{name}={value}")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(descriptor, "w") as out:
-        out.write("\n".join(kept) + "\n")
-    with contextlib.suppress(OSError):
-        path.chmod(0o600)
+    with locked(path):
+        lines = path.read_text().splitlines() if path.is_file() else []
+        kept = [line for line in lines if (match := ENV_LINE.match(line)) is None or match.group(1) != name]
+        kept.append(f"{name}={value}")
+        write_atomic(path, "\n".join(kept) + "\n", OWNER_ONLY)
 
 
 Stored = Literal["keychain", "env-file"]
@@ -853,7 +848,12 @@ def write_config(home: Path, setup: Setup) -> Path:
     is), the hand-over model, and a `[providers]` entry for each provider that needs one. Everything else in the file
     stays as it was."""
     path = home / CONFIG_FILE
-    document = tomlkit.parse(path.read_text()) if path.is_file() else tomlkit.document()
+    with editing(path) as document:
+        _write_picks(document, setup)
+    return path
+
+
+def _write_picks(document: tomlkit.TOMLDocument, setup: Setup) -> None:
     if "model" in document:
         del document["model"]  # the old name for system2
     document["system2"] = setup.system2  # tomlkit puts a new top-level key before the tables
@@ -875,9 +875,6 @@ def write_config(home: Path, setup: Setup) -> Path:
         entry["base_url"] = spec.base_url
         _table(document, "providers")[provider_id] = entry
     _write_handoff(document, setup.handoff)
-    home.mkdir(parents=True, exist_ok=True)
-    path.write_text(tomlkit.dumps(document))
-    return path
 
 
 @dataclass(frozen=True)

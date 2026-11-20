@@ -21,6 +21,7 @@ from pydantic import BaseModel
 
 from intern import names
 from intern.config import CONFIG_FILE, harness_keys, home_dir, load_user_config, process_env
+from intern.config_file import editing
 from intern.models.registry import ConfigError
 from intern.secret_store import (
     ENV_NAME,
@@ -102,11 +103,6 @@ def check(home: Path, env: Mapping[str, str], names: list[str] | None = None) ->
     return statuses
 
 
-def _config(home: Path) -> tuple[Path, tomlkit.TOMLDocument]:
-    path = home / CONFIG_FILE
-    return path, tomlkit.parse(path.read_text()) if path.is_file() else tomlkit.document()
-
-
 def store(name: str, value: str, home: Path, env: Mapping[str, str]) -> None:
     """Put `value` in the keychain and `NAME = "keychain"` in config.toml, keeping the file's comments and layout."""
     if not ENV_NAME.fullmatch(name):
@@ -116,14 +112,12 @@ def store(name: str, value: str, home: Path, env: Mapping[str, str]) -> None:
         raise ConfigError(f"{name} comes from a command in config.toml; remove that line to keep it in the keychain")
     keychain_write(name, value, env)
     if current is None:
-        path, document = _config(home)
-        table = document.get("secrets")
-        if table is None:
-            table = tomlkit.table()
-            document["secrets"] = table
-        table[name] = KEYCHAIN
-        home.mkdir(parents=True, exist_ok=True)
-        path.write_text(tomlkit.dumps(document))
+        with editing(home / CONFIG_FILE) as document:
+            table = document.get("secrets")
+            if table is None:
+                table = tomlkit.table()
+                document["secrets"] = table
+            table[name] = KEYCHAIN
 
 
 def remove(name: str, home: Path, env: Mapping[str, str]) -> None:
@@ -133,9 +127,8 @@ def remove(name: str, home: Path, env: Mapping[str, str]) -> None:
         raise ConfigError(f"[secrets] has no {name}")
     if current == KEYCHAIN:
         keychain_delete(name, env)
-    path, document = _config(home)
-    del document["secrets"][name]  # type: ignore[union-attr]
-    path.write_text(tomlkit.dumps(document))
+    with editing(home / CONFIG_FILE) as document:
+        del document["secrets"][name]  # type: ignore[union-attr]
 
 
 def _read_value(from_stdin: bool) -> str:
