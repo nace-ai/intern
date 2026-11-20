@@ -87,6 +87,22 @@ async def test_a_system1_that_stays_down_stops_the_ask_instead_of_answering_for_
     assert all(not e.ok and e.answers is None for e in events)
 
 
+@pytest.mark.parametrize(
+    "probabilities",
+    [{"log": -1.0, "code": 2.0}, {"garbage": 1.0}, {"log": float("nan")}, {"log": float("inf")}],
+)
+async def test_a_choice_whose_probabilities_cannot_be_ones_is_asked_again_not_handed_to_the_caller(probabilities):
+    def kind(given: dict[str, float]) -> Answers:
+        return Answers(answers={"keep": NoulAnswer(noul=0.5), "kind": ChoiceAnswer(choice="log", probabilities=given)})
+
+    good = {"log": 0.9, "code": 0.1}
+    backend = Scripted(kind(probabilities), kind(good))
+    events: list = []
+    answers = await client(backend, events, retry_window_s=5).ask("triage", "state", QUESTIONS)
+    assert backend.calls == 2 and [e.ok for e in events] == [False, True]
+    assert answers["kind"] == ChoiceAnswer(choice="log", probabilities=good)
+
+
 async def test_decisions_api_fails_over_to_the_next_model():
     seen: list[str] = []
 

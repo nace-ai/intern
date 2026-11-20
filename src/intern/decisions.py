@@ -17,6 +17,7 @@ import asyncio
 import copy
 import hashlib
 import json
+import math
 import re
 import time
 from collections import OrderedDict
@@ -313,7 +314,16 @@ def compact(answer: Answer) -> JsonObject:
 
 def _fits(question: Question, answer: Answer) -> bool:
     if isinstance(question, ChoiceQuestion):
-        return isinstance(answer, ChoiceAnswer) and answer.choice in question.criteria
+        # Probabilities for an option the question does not have, or outside 0..1, are not a judgment: read as
+        # given, a guard's risk of -1 beside a routine of 2 blocks nothing.
+        return (
+            isinstance(answer, ChoiceAnswer)
+            and answer.choice in question.criteria
+            and all(
+                option in question.criteria and math.isfinite(p) and 0 <= p <= 1
+                for option, p in answer.probabilities.items()
+            )
+        )
     return answer.type == question.type
 
 
@@ -493,7 +503,8 @@ class DecisionClient:
                 self.usage.input_tokens += result.input_tokens
                 self.usage.output_tokens += result.output_tokens
                 self.usage.cost_usd += result.cost_usd
-                # A wrong-type answer, or a choice that is not an option, counts as missing; the ask is retried.
+                # A wrong-type answer, a choice that is not an option or probabilities that cannot be ones count as
+                # missing; the ask is retried.
                 answers = {n: a for n, a in result.answers.items() if n in questions and _fits(questions[n], a)}
                 if missing := sorted(set(questions) - set(answers)):
                     raise ValueError(f"no usable answer for {', '.join(missing)}")
