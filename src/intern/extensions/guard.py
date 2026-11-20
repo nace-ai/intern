@@ -71,6 +71,7 @@ $0.00004.
 from __future__ import annotations
 
 import asyncio
+import functools
 import itertools
 import json
 import os
@@ -208,6 +209,8 @@ class Scope:
     system_writes: bool = False
     harness_pids: tuple[int, ...] = ()
     """This process and its parents, when commands run on the same host (a sandbox has its own PIDs)."""
+    folds_case: bool = False
+    """Whether file names ignore case where calls run, as on macOS by default: `.GIT` is `.git` there."""
 
     @classmethod
     def of(cls, cwd: Path, executor: Executor, home: Path, *, system_writes: bool = False) -> Scope:
@@ -219,7 +222,12 @@ class Scope:
             mounted = mount.to_inner(cwd)
             return cls(cwd=mounted, roots=(host, mounted), home=PurePosixPath(home), system_writes=system_writes)
         return cls(
-            cwd=host, roots=(host,), home=PurePosixPath(home), system_writes=system_writes, harness_pids=_lineage()
+            cwd=host,
+            roots=(host,),
+            home=PurePosixPath(home),
+            system_writes=system_writes,
+            harness_pids=_lineage(),
+            folds_case=_folds_case(cwd),
         )
 
     def inside(self, path: PurePosixPath) -> bool:
@@ -269,20 +277,73 @@ STARTUP_DIRS = (".config/fish", "Library/LaunchAgents")
 _DOTENV = re.compile(r"^\.env(\.(?!example$|sample$|template$|dist$|defaults$)[\w.-]+)?$")
 _ENVIRON = re.compile(r"^/proc/[^/]+/environ$")
 _GLOB_ALL = frozenset({"*", ".*", "**", "{*,.*}"})
+# `$HOME`, `${HOME}` and the forms with a default, which a set HOME never uses: `${HOME:-/}`.
+_HOME_VARIABLE = re.compile(r"\$\{HOME(:?[-=?][^}]*)?\}|\$HOME(?![A-Za-z0-9_])")
+_USER_HOME = re.compile(r"~([A-Za-z0-9_][\w.-]*)(?=/|$)")  # `~dev`, `~dev/x`
+# Other names of the same files on macOS: the data volume holds `/`, and `/etc` is a link to `/private/etc`.
+_ALIASES = (("/System/Volumes/Data", ""), ("/private/etc", "/etc"))
+_NAMED = (
+    *SECRET_DIRS,
+    *SECRET_FILES,
+    *SYSTEM_SECRETS,
+    *STARTUP_FILES,
+    *STARTUP_DIRS,
+    *(str(p) for p in (*SYSTEM_TREES, *USER_HOMES)),
+    "/usr/local",
+    ".git",
+)
+_SPELLINGS = {part.lower(): part for name in _NAMED for part in name.split("/") if part}
+"""Every name the rules look for, by its lower-case spelling."""
+
+
+def _folds_case(folder: Path) -> bool:
+    """Whether file names ignore case in a folder: its path in the other case names the same folder."""
+    other = Path(str(folder).swapcase())
+    try:
+        return other != folder and other.samefile(folder)
+    except OSError:
+        return False
+
+
+@functools.cache
+def _spellings(scope: Scope) -> dict[str, str]:
+    """The names the rules compare, by lower-case spelling: theirs, the home's and the working directory's."""
+    own = {part.lower(): part for base in (scope.home, *scope.roots) for part in base.parts}
+    return _SPELLINGS | own
+
+
+def _canonical(path: PurePosixPath, scope: Scope) -> PurePosixPath:
+    """The one spelling the rules compare, for a path that can be written several ways: without a doubled
+    leading slash (`//etc`), under its usual name when it is a macOS alias (`/System/Volumes/Data/Users`,
+    `/private/etc`), and, where file names ignore case, with each known name as the rules spell it (`.GIT`)."""
+    text = "/" + str(path).lstrip("/")  # normpath keeps two leading slashes
+    for alias, real in _ALIASES:
+        head = text[: len(alias)]
+        if (head.lower() == alias.lower() if scope.folds_case else head == alias) and text[len(alias) :][:1] in "/":
+            text = (real + text[len(alias) :]) or "/"
+    if scope.folds_case:
+        known = _spellings(scope)
+        return PurePosixPath(*(known.get(part.lower(), part) for part in PurePosixPath(text).parts))
+    return PurePosixPath(text)
 
 
 def _path(word: str, scope: Scope, cwd: PurePosixPath) -> PurePosixPath | None:
-    """The absolute, normalized path a shell word names; None when it depends on something unknown."""
-    for name in ("${HOME}", "$HOME"):
-        word = word.replace(name, str(scope.home))
+    """The absolute, normalized path a shell word names, in its canonical spelling; None when it depends on
+    something unknown."""
+    word = _HOME_VARIABLE.sub(lambda _: str(scope.home), word)
     for name in ("${PWD}", "$PWD"):
         word = word.replace(name, str(cwd))
     if word == "~" or word.startswith("~/"):
         word = str(scope.home) + word[1:]
+    elif found := _USER_HOME.match(word):
+        # shortcut: a user's home by its place beside this one (`/Users/<name>`), not the password database.
+        user = found.group(1)
+        home = scope.home if user == scope.home.name else scope.home.parent / user
+        word = str(home) + word[found.end() :]
     if not word or "$" in word or "\x00" in word or word.startswith("~"):
         return None
     # shortcut: lexical, like the shell's own `..`; a symlink is judged by its name, not its target.
-    return PurePosixPath(posixpath.normpath(posixpath.join(str(cwd), word)))
+    return _canonical(PurePosixPath(posixpath.normpath(posixpath.join(str(cwd), word))), scope)
 
 
 def _secret(path: PurePosixPath, scope: Scope, *, writing: bool = False) -> str | None:
@@ -649,7 +710,7 @@ class _Parser:
         nested: list[list[Command]],
     ) -> Command | None:
         wrappers: list[str] = []
-        argv = _unwrap(words, wrappers)
+        argv = _unwrap(words, wrappers, fold=self.scope.folds_case)
         if not argv and wrappers:
             argv = [wrappers.pop()]  # `env` alone prints the environment
         if not (argv or writes):
@@ -657,6 +718,8 @@ class _Parser:
         program = argv[0] if argv else ""
         if argv and "/" in argv[0]:
             argv[0] = posixpath.basename(argv[0])
+        if argv and self.scope.folds_case:
+            argv[0] = argv[0].lower()  # `RM` finds /bin/rm where file names ignore case
         everything = words + writes + reads
         used = {key: [c for p in sub for c in p] for key, sub in subs.items() if any(key in w for w in everything)}
         command = Command(argv=argv, cwd=cwd, wrappers=wrappers, writes=writes, reads=reads, subs=used, program=program)
@@ -666,15 +729,16 @@ class _Parser:
         return command
 
 
-def _unwrap(words: list[str], wrappers: list[str]) -> list[str]:
-    """The command a wrapper chain runs (`sudo env X=1 timeout 5 rm ...` runs `rm ...`)."""
+def _unwrap(words: list[str], wrappers: list[str], *, fold: bool = False) -> list[str]:
+    """The command a wrapper chain runs (`sudo env X=1 timeout 5 rm ...` runs `rm ...`); with `fold`, a
+    wrapper's name in any case (`SUDO`)."""
     i = 0
     while i < len(words):
         word = words[i]
         if _ASSIGNMENT.match(word) or word in _KEYWORDS:
             i += 1
             continue
-        name = posixpath.basename(word)
+        name = posixpath.basename(word).lower() if fold else posixpath.basename(word)
         values = _WRAPPERS.get(name)
         if values is None or (name == "command" and words[i + 1 : i + 2] in (["-v"], ["-V"])):
             break
