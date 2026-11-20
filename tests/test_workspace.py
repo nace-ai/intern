@@ -121,6 +121,31 @@ def test_a_table_of_any_size_and_a_latin1_export_with_a_title_row_are_indexed(tm
         assert con.execute("select preparer from exceptions").fetchone() == ("lbauer",)
 
 
+def test_csv_exports_in_windows_and_utf16_encodings_and_one_whose_column_turns_to_text_are_tables(tmp_path: Path):
+    # What Excel writes on Windows: curly quotes, the euro sign and a dash are bytes Latin-1 has no letter for.
+    (tmp_path / "prices.csv").write_bytes("name,price\nCafé “Zoë”,€5\nNaïve – x,€7\n".encode("cp1252"))
+    (tmp_path / "unicode.csv").write_bytes("name,amount\nCafé,5\nZoë,7\n".encode("utf-16"))
+    (tmp_path / "bare.tsv").write_bytes("name\tamount\nCafé\t5\nZoë\t7\n".encode("utf-16-le"))
+    # Past the rows DuckDB samples for the types, a count that is not a number.
+    counts = "".join(f"{n},{n}\n" for n in range(30_000))
+    (tmp_path / "stock.csv").write_text(f"id,qty\n{counts}30000,N/A\n30001,5\n")
+    lines_seen: list[str] = []
+    index = wi.build(tmp_path, tmp_path / Workspace.folder, processors=office_processors, report=lines_seen.append)
+    assert not [line for line in lines_seen if line.startswith("skip ")]
+    tables = {rel: entry.tables[0] for rel, entry in index.files.items()}
+    assert [(t.rows, t.columns) for t in (tables["unicode.csv"], tables["bare.tsv"])] == [(2, ["name", "amount"])] * 2
+    assert tables["stock.csv"].rows == 30_002
+    with docs.connect(tmp_path / Workspace.folder, tmp_path, read_only=True) as con:
+        assert con.execute("select name, price from prices order by name").fetchall() == [
+            ("Café “Zoë”", "€5"),
+            ("Naïve – x", "€7"),
+        ]
+        assert con.execute("select sum(amount) from unicode where name in ('Café', 'Zoë')").fetchone() == (12,)
+        assert con.execute("select sum(amount) from bare where name in ('Café', 'Zoë')").fetchone() == (12,)
+        assert con.execute("select id from stock where qty = 'N/A'").fetchone() == (30_000,)
+        assert con.execute("select sum(id) from stock where id < 3").fetchone() == (3,)  # id is still a number
+
+
 def test_a_table_saved_from_a_sheet_with_a_title_above_its_header_gets_the_real_header(tmp_path: Path):
     duckdb = pytest.importorskip("duckdb")
     # As pandas writes a statement sheet: the title in the first column's name, "nan" for empty cells.
@@ -175,6 +200,43 @@ def test_files_that_differ_by_suffix_are_two_tables_and_a_removed_workbook_drops
         assert con.execute("select count(*) from duckdb_tables() where table_name = 'book__sheet'").fetchone() == (0,)
 
 
+def test_files_and_tabs_whose_names_come_to_one_table_name_are_each_their_own_table(tmp_path: Path):
+    openpyxl = pytest.importorskip("openpyxl")
+    for name, n in (("a b.csv", 1), ("a-b.csv", 2), ("a_b.csv", 3)):
+        (tmp_path / name).write_text(f"n\n{n}\n")
+    book = openpyxl.Workbook()
+    book.active.title = "Q1 2025"
+    book.active.append(["n"])
+    book.active.append([4])
+    other = book.create_sheet("Q1-2025")
+    other.append(["n"])
+    other.append([5])
+    book.save(tmp_path / "book.xlsx")
+
+    def tables() -> dict[str, str]:
+        return {t.source: t.name for e in build(tmp_path).files.values() for t in e.tables}
+
+    first = tables()
+    assert len(set(first.values())) == 5 and first["a b.csv"] == "a_b" and first["a-b.csv"].startswith("a_b_")
+    with docs.connect(tmp_path / Workspace.folder, tmp_path, read_only=True) as con:
+        read = {source: con.execute(f'select n from "{name}"').fetchone() for source, name in first.items()}
+    assert read == {
+        "a b.csv": (1,),
+        "a-b.csv": (2,),
+        "a_b.csv": (3,),
+        "book.xlsx#Q1 2025": (4,),
+        "book.xlsx#Q1-2025": (5,),
+    }
+    # A file keeps its table's name when it changes, and when the file that had the plain name is gone.
+    (tmp_path / "a-b.csv").write_text("n\n20\n21\n")
+    (tmp_path / "a b.csv").unlink()
+    again = tables()
+    assert again == {source: name for source, name in first.items() if source != "a b.csv"}
+    with docs.connect(tmp_path / Workspace.folder, tmp_path, read_only=True) as con:
+        assert con.execute(f'select sum(n) from "{again["a-b.csv"]}"').fetchone() == (41,)
+        assert con.execute("select count(*) from duckdb_views() where view_name = 'a_b'").fetchone() == (0,)
+
+
 async def test_a_csv_whose_timestamps_name_a_time_zone_is_indexed_and_queried(tmp_path: Path):
     # An export's `2024-01-01T00:00:00Z` is a TIMESTAMP WITH TIME ZONE to DuckDB, which returns one through pytz:
     # without it the file was skipped from the index (80 files of one workspace) and a query over it failed.
@@ -224,11 +286,18 @@ async def test_sql_reads_the_workspace_tables_and_nothing_else(tmp_path: Path):
         "INSTALL httpfs",
         "SET enable_external_access = true",
         "select 1; COPY (select 1) TO 'out.csv'",
+        # EXPLAIN ANALYZE runs the statement inside it: a COPY there writes the file all the same.
+        "EXPLAIN ANALYZE COPY (select 1) TO 'out.csv'",
+        "EXPLAIN (ANALYZE) COPY (select 1) TO 'out.csv'",
+        "explain /* */ analyze COPY (select 'x' as je) TO 'je.csv'",
     ]
     for query in escapes:
         refused = await sql.run(sql.Args(query=query), ctx(root))
         assert refused.status == "error" and "hunter2" not in refused.content, query
     assert not (outside / "out.csv").exists() and not (root / "out.csv").exists()
+    assert (root / "je.csv").read_text() == "je,amount\nJ1,10\n"
+    for query in ("EXPLAIN ANALYZE select sum(amount) from je", "EXPLAIN (FORMAT json) select * from je"):
+        assert (await sql.run(sql.Args(query=query), ctx(root))).status == "ok", query
     # A query holds a share of the machine's memory and spills past it, not DuckDB's default 80%.
     limit = (await sql.run(sql.Args(query="select current_setting('memory_limit')"), ctx(root))).content
     amount, unit = limit.splitlines()[2].strip("| ").split()
