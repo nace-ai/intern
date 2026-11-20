@@ -601,8 +601,9 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         options = picker.query_one(OptionList)
         ids = [options.get_option_at_index(i).id for i in range(options.option_count)]
         # The current model is listed first even when the catalog does not have it; group headers have no id. On a
-        # provider setup knows, only its frontier models: not its efficient ones, nor the old ones it still lists.
-        assert [i for i in ids if i] == ["fake/model", "fake/big", "openai/gpt-6.2-sol", "other/x"]
+        # provider setup knows, its frontier models first, then the rest it lists.
+        openai = ["openai/gpt-6.2-sol", "openai/gpt-4o-2024-11-20", "openai/gpt-6-luna"]
+        assert [i for i in ids if i] == ["fake/model", "fake/big", *openai, "other/x"]
         await pilot.press("b", "i", "g", "enter")
         await wait_for(lambda: session.deps.system2.ref == "fake/big")
         # The entering page has the model on System 2's card: the pick gets no line under it.
@@ -628,11 +629,12 @@ async def test_the_pickers_list_the_catalog_and_a_pick_switches_the_model(tmp_pa
         await send(app, pilot, "/decision")
         await pilot.press("d", "r", "e", "x", "-", "m", "a", "x", "-", "v", "1", ".", "1", "enter")
         await wait_for(lambda: session.system1 == "drex-max-v1.1")
-        # The efficient models: off, then those of each provider, never the frontier model.
+        # Off, then each provider's models, its efficient ones first; never the frontier model.
         await send(app, pilot, "/efficient")
         options = app.screen.query_one(OptionList)
         ids = [options.get_option_at_index(i).id for i in range(options.option_count)]
-        assert [i for i in ids if i] == [AUTO_OFF[0], "openai/gpt-6-luna", "other/x"]
+        openai = ["openai/gpt-6-luna", "openai/gpt-4o-2024-11-20", "openai/gpt-6.2-sol"]
+        assert [i for i in ids if i] == [AUTO_OFF[0], *openai, "other/x"]
         await app.action_quit()
 
 

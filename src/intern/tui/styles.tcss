@@ -500,7 +500,8 @@ OnboardingScreen {
 
 #setup-about {
     width: 1fr;
-    height: auto;
+    height: 100%;
+    content-align-vertical: middle;
 }
 
 #setup-title, #setup-body, #setup-status {
