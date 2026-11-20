@@ -512,6 +512,20 @@ def call_title(name: str, arguments: JsonObject) -> str:
     return title if len(title) <= TITLE_CHARS else title[: TITLE_CHARS - 3] + "..."
 
 
+_ESCAPE_SEQUENCE = re.compile(
+    r"(?:\x1b\[|\x9b)[0-?]*[ -/]*[@-~]"  # CSI: colours, cursor moves, clear-screen
+    r"|(?:\x1b\]|\x9d)[^\x07\x1b\x9c\n]*(?:\x07|\x1b\\|\x9c)"  # OSC: window title, clipboard (OSC 52), links
+)
+_CONTROL_CHARACTER = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
+
+
+def printable(text: str) -> str:
+    """`text` as the terminal may be sent it: whole escape sequences removed, then every control character left but
+    newline and tab. What a tool printed or a model wrote must not reach the terminal as commands (set the
+    clipboard or the title, clear the screen), and Textual passes ESC through."""
+    return _CONTROL_CHARACTER.sub("", _ESCAPE_SEQUENCE.sub("", text))
+
+
 def bounded(text: str, limit: int = OUTPUT_CHARS) -> str:
     if len(text) <= limit:
         return text
@@ -1192,7 +1206,7 @@ class ToolBlock(Vertical):
     def __init__(self, event: ToolCallStart, *, live: bool = True) -> None:
         super().__init__(classes="tool")
         self.name_ = event.name
-        self.title = tool_header(event.name, event.arguments)
+        self.title = printable(tool_header(event.name, event.arguments))
         self.head = Static(Content(self.title), classes="head")
         self.out = Static(Content.assemble(("running…", S_MUTED)), classes="out")
         self.content_text = ""
@@ -1251,6 +1265,7 @@ class ToolBlock(Vertical):
         self.content_text = event.content
         if self.name_ == "process":
             self.lead, self.content_text = process_result(event.content)
+        self.lead, self.content_text = printable(self.lead), printable(self.content_text)
         self.status = event.status
         self.duration_ms = event.duration_ms
         self.set_class(event.status != "ok", "failed")
@@ -1399,6 +1414,7 @@ class Transcript(Following):
 
     async def user(self, text: str, queued: bool = False) -> Static:
         """A user message; `queued` while a run in progress has not taken it yet."""
+        text = printable(text)
         parts: list[Part] = [("› ", "bold"), (text.replace("\n", "\n  "), "bold")]  # its lines under its first
         if queued:
             parts.append(("  queued", S_MUTED))
@@ -1407,7 +1423,7 @@ class Transcript(Following):
         return line
 
     async def notice(self, text: str, kind: str = "info") -> None:
-        await self.add(Static(Content(text), classes=f"notice {kind}"))
+        await self.add(Static(Content(printable(text)), classes=f"notice {kind}"))
 
     async def begin_turn(self, head: Content | None = None) -> None:
         """A turn starts: the reply before it is finished, and `head`, who takes the turn, goes above it."""
@@ -1430,14 +1446,14 @@ class Transcript(Following):
         if self._reply is None:
             self._reply = ReplyBlock()
             await self.add(self._reply)
-        await self._reply.stream(delta)
+        await self._reply.stream(printable(delta))
 
     async def reasoning(self, delta: str, *, live: bool = True) -> None:
         """The model's reasoning, folded to one line (`Thinking`); `live` False for a resumed session's."""
         if self._reasoning is None:
             self._reasoning = Thinking(live=live)
             await self.add(self._reasoning)
-        self._reasoning.append(delta)
+        self._reasoning.append(printable(delta))
 
     async def tool_start(self, event: ToolCallStart, *, live: bool = True) -> None:
         """A call's block; `live` when it runs now (its clock moves), not when a resumed session replays it."""
