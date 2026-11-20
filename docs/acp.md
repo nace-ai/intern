@@ -1762,3 +1762,12 @@ writer's two-minute timeout, and the steward deferred the session again and agai
 completes, with steward time over its first 34 sessions down from 5,172 to 442 seconds. A profile names how to turn
 reasoning off with `thinking_off`; sessions never send it, and the model's efforts in `models --json` and the effort
 picker are unchanged. Nothing changes on ACP: 0.58.1 clients keep working.
+
+### 0.58.3
+
+A request in a session to forget something removes it from memory where before part of it stayed and a later session
+gave it back. The request is recognised in any wording ("wipe", "I should not have shared"), and found by word
+endings or one rare word. Lines that hold the names and numbers of the removed lines go too, and so does what the
+session itself said of the thing, its searches for it and their results. A line of another transcript that names a
+forgotten session by its id becomes the marker. [Memory](memory.md) has the details. Nothing changes on ACP: 0.58.2
+clients keep working.
