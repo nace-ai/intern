@@ -181,8 +181,10 @@ names an action that is destructive or exfiltrating in ordinary development and 
 Shell commands are tokenized, not run through a shell: quotes, escapes, comments, `;`/`&&`/`||`/`|` chains,
 groups, redirections, heredocs, `$( )`/backtick/`<( )` substitutions, `bash -c`/`eval` strings (up to eight
 levels) and wrappers (`sudo`, `env`, `timeout`, `xargs`, …) are followed; unknown variables, aliases and code
-run by other interpreters (`python -c "os.system(…)"`) are not, and are left to System 1. Under Docker the
-working directory is also known as `/workspace`.
+run by other interpreters (`python -c "os.system(…)"`) are not, and are left to System 1. A command the
+tokenizer cannot follow to the end (a quote or parenthesis left open, nesting past eight levels, text a shell
+could read in two ways) is never counted as read-only, so System 1 judges it. Under Docker the working
+directory is also known as `/workspace`.
 
 System 1 judges what the rules let through, but only calls that can do harm: not read-only tools, not a write
 or edit inside the working directory, not a shell command made only of reading commands (`ls`, `cat`, `grep`,

@@ -368,7 +368,8 @@ def _send_source(word: str, scope: Scope, cwd: PurePosixPath) -> str | None:
 # groups, redirections, heredocs, `$( )`/backtick/`<( )` substitutions, `bash -c`/`eval` strings and
 # wrappers (`sudo`, `env`, `timeout`, `xargs`, ...), but not variables (a word with an unknown `$VAR` is
 # skipped), aliases, functions, globs other than a trailing `*`, or code run by other interpreters
-# (`python -c "os.system(...)"`). What it misses is left to System 1.
+# (`python -c "os.system(...)"`). What it misses is left to System 1, and so is a command it cannot follow to
+# the end (`_Parser.unclear`): a line it lost must not pass as read-only.
 
 _OPERATORS = (
     "&&", "||", "|&", ";;", "&>>", "&>", ">>", ">|", ">&", "<<<", "<<-", "<<", "<&", "<>",
@@ -400,7 +401,6 @@ _WRAPPERS: dict[str, frozenset[str]] = {
 _PRIVILEGE = frozenset({"sudo", "doas", "su", "pkexec", "run0"})
 SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "ash", "fish"})
 _INTERPRETER = re.compile(r"^(python[\d.]*|perl|ruby|node|php|pwsh)$")
-_HEREDOC = re.compile(r"(?<!<)<<(-?)\s*(['\"]?)([A-Za-z_][\w.-]*)\2")
 _SHELL_BEFORE_HEREDOC = re.compile(r"(^|[;&|(]\s*)(sudo\s+)?(ba|z|da|k)?sh(\s+-\S+)*\s*$")
 _FORK_BOMB = re.compile(r"([\w:.]+)\s*\(\)\s*\{\s*\1\s*\|\s*\1\s*&\s*\}")
 
@@ -442,60 +442,178 @@ class Command:
         return any(re.fullmatch(r"-[A-Za-z]+", a) and letter in a for a in self.args)
 
 
-def _heredocs(text: str) -> tuple[str, list[tuple[str, str]]]:
-    """The text without heredoc bodies, and each body with the line text before its `<<`."""
-    lines = text.split("\n")
-    kept: list[str] = []
-    bodies: list[tuple[str, str]] = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        kept.append(line)
+_BREAKS = " \t\r\n;&|()<>"  # what ends a word
+_BEFORE_HEREDOC_CHARS = 200  # how much of the line before a `<<` is looked at for the shell it feeds
+
+
+@dataclass
+class _Heredoc:
+    end: str
+    """The word on a line of its own that ends the body."""
+    tabs: bool
+    """`<<-`: leading tabs are dropped before the end word is looked for."""
+    quoted: bool = False
+    """Any quoting in the end word: the shell then leaves `$( )` and backticks in the body alone."""
+    before: str = ""
+    """The line's text before the `<<`."""
+    body: str = ""
+
+
+def _quote_end(text: str, i: int, quote: str) -> int:
+    """The index of the `quote` that closes a string whose content starts at `i` and takes backslash escapes;
+    -1 when nothing closes it."""
+    while i < len(text) and text[i] != quote:
+        i += 2 if text[i] == "\\" else 1
+    return i if i < len(text) else -1
+
+
+def _delimiter(text: str, i: int) -> tuple[str, bool, int]:
+    """A heredoc's end word, read at `i` just after its `<<` the way the shell reads it: the word without its
+    quotes, whether any of it was quoted, and where it stops."""
+    while text[i : i + 1] in (" ", "\t"):
         i += 1
-        for match in _HEREDOC.finditer(line):
-            body: list[str] = []
-            while i < len(lines) and (lines[i].lstrip("\t") if match.group(1) else lines[i]) != match.group(3):
-                body.append(lines[i])
-                i += 1
-            i += 1
-            bodies.append((line[: match.start()], "\n".join(body)))
-    return "\n".join(kept), bodies
-
-
-def _closing(text: str, i: int) -> int:
-    """The index of the `)` that closes the group opened just before `i`."""
-    depth = 1
-    while i < len(text):
+    word: list[str] = []
+    quoted = False
+    while i < len(text) and text[i] not in _BREAKS:
         c = text[i]
         if c == "\\":
+            word.append(text[i + 1 : i + 2])
+            i += 2
+        elif c in "'\"":
+            end = text.find(c, i + 1)
+            end = len(text) if end < 0 else end
+            word.append(text[i + 1 : end])
+            i = end + 1
+        else:
+            word.append(c)
+            i += 1
+            continue
+        quoted = True
+    return "".join(word), quoted, i
+
+
+def _bodies(text: str, i: int, waiting: list[_Heredoc]) -> tuple[int, bool]:
+    """Reads the body of each heredoc that waits for one from the lines at `i`: where the lines after them
+    start, and whether every body had its end line."""
+    for doc in waiting:
+        lines: list[str] = []
+        while True:
+            if i >= len(text):
+                doc.body = "\n".join(lines)
+                return len(text), False
+            stop = text.find("\n", i)
+            stop = len(text) if stop < 0 else stop
+            line = text[i:stop]
+            i = stop + 1
+            if (line.lstrip("\t") if doc.tabs else line) == doc.end:
+                break
+            lines.append(line)
+        doc.body = "\n".join(lines)
+    return min(i, len(text)), True
+
+
+def _closing(text: str, i: int, opened: str = "$") -> tuple[int, bool]:
+    """The index of the `)` that closes what was opened just before `i`, and whether the text up to it can be
+    read in one way only. It skips what the shell skips: quotes, `$'...'`, backticks, comments and heredoc
+    bodies. `opened` is `$` for a `$( )` and `Aa` for the two parentheses of a `(( ))`.
+
+    False when a quote or a parenthesis is left open, when a `(( ))` does not end in `))` (the shell then reads
+    it as a group inside a group), or when a heredoc is cut off by the `)` or has no end line."""
+    # What is open, innermost last: `$` a substitution, `(` a group, `"` a string; in arithmetic `A` and `a`
+    # the two parentheses of `(( ))` and `p` a parenthesis inside them.
+    stack = list(opened)
+    waiting: list[list[_Heredoc]] = [[]]  # heredocs with no body yet, for each open substitution
+    clear = True
+    word = False  # inside a word, where `#` does not start a comment
+    while i < len(text):
+        c = text[i]
+        inside = stack[-1]
+        if c == "\\":
+            word = word or not text.startswith("\n", i + 1)
             i += 2
             continue
-        if c in "'\"":
-            end = text.find(c, i + 1)
-            i = len(text) if end < 0 else end + 1
-            continue
-        if c == "(":
-            depth += 1
+        if c == "`":
+            i = _quote_end(text, i + 1, "`")
+        elif c == "$" and text.startswith("((", i + 1):
+            stack += "Aa"
+            i += 2
+        elif c == "$" and text.startswith("(", i + 1):
+            stack.append("$")
+            waiting.append([])
+            i += 1
+        elif inside == '"':
+            if c == '"':
+                stack.pop()
+        elif c == "'":
+            i = text.find("'", i + 1)
+        elif c == "$" and text.startswith("'", i + 1):
+            i = _quote_end(text, i + 2, "'")
+        elif c == '"':
+            stack.append('"')
+        elif c == "(":
+            if inside in "Aap":
+                stack.append("p")
+            elif text.startswith("(", i + 1):
+                stack += "Aa"
+                i += 1
+            else:
+                stack.append("(")
         elif c == ")":
-            depth -= 1
-            if depth == 0:
-                return i
+            closed = stack.pop()
+            if closed == "a" and not text.startswith(")", i + 1):
+                clear = False
+            if closed == "$" and waiting.pop():
+                clear = False
+            if not stack:
+                return i, clear and not any(waiting)
+        elif inside in "Aap":
+            pass
+        elif c in "<>" and text.startswith("(", i + 1):
+            stack.append("$")
+            waiting.append([])
+            i += 1
+        elif c == "#" and not word:
+            end = text.find("\n", i)
+            i = len(text) if end < 0 else end
+            continue
+        elif text.startswith("<<<", i):
+            i += 2
+        elif text.startswith("<<", i):
+            tabs = text.startswith("-", i + 2)
+            end, quoted, i = _delimiter(text, i + 2 + tabs)
+            waiting[-1].append(_Heredoc(end=end, tabs=tabs, quoted=quoted))
+            clear = clear and bool(end)
+            word = False
+            continue
+        elif c == "\n" and waiting[-1]:
+            i, ended = _bodies(text, i + 1, waiting[-1])
+            waiting[-1].clear()
+            clear = clear and ended
+            word = False
+            continue
+        if i < 0:
+            return len(text), False
+        word = text[i] not in _BREAKS
         i += 1
-    return len(text)
+    return len(text), False
 
 
 class _Parser:
     def __init__(self, scope: Scope) -> None:
         self.scope = scope
         self.count = 0
+        self.unclear = False
+        """Some of the text could not be followed (a quote or parenthesis left open, nesting past `MAX_DEPTH`,
+        text the shell could read in two ways), so the commands found may not be all it runs."""
 
     def parse(self, text: str, cwd: PurePosixPath, depth: int = 0) -> list[list[Command]]:
         """Pipelines, in order, each a list of commands; nested scripts and substitutions follow them."""
         if depth > MAX_DEPTH:
+            self.unclear = True
             return []
-        text, bodies = _heredocs(text)
         subs: dict[str, list[list[Command]]] = {}
-        segments = self._segments(self._tokens(text, cwd, depth, subs))
+        docs: list[_Heredoc] = []
+        segments = self._segments(self._tokens(text, cwd, depth, subs, docs))
         pipelines: list[list[Command]] = []
         nested: list[list[Command]] = []
         pipeline: list[Command] = []
@@ -509,9 +627,11 @@ class _Parser:
             if len(pipeline) == 1 and pipeline[0].name in ("cd", "pushd"):
                 cwd = self._cd(pipeline[0], cwd)
             pipeline = []
-        for before, body in bodies:
-            if _SHELL_BEFORE_HEREDOC.search(before):
-                nested.extend(self.parse(body, cwd, depth + 1))
+        for doc in docs:
+            if _SHELL_BEFORE_HEREDOC.search(doc.before):
+                nested.extend(self.parse(doc.body, cwd, depth + 1))
+            elif not doc.quoted:  # the shell runs the `$( )` and backticks of such a body
+                self._double(doc.body, 0, [], cwd, depth, subs, end="")
         return pipelines + nested + [p for sub in subs.values() for p in sub]
 
     def _cd(self, command: Command, cwd: PurePosixPath) -> PurePosixPath:
@@ -521,12 +641,13 @@ class _Parser:
         return _path(target[0], self.scope, cwd) or cwd
 
     def _tokens(
-        self, text: str, cwd: PurePosixPath, depth: int, subs: dict[str, list[list[Command]]]
+        self, text: str, cwd: PurePosixPath, depth: int, subs: dict[str, list[list[Command]]], docs: list[_Heredoc]
     ) -> list[tuple[str, bool]]:
-        """Words and operators; a word that was quoted is never an operator."""
+        """Words and operators; a word that was quoted is never an operator. Heredoc bodies go to `docs`."""
         out: list[tuple[str, bool]] = []
         word: list[str] = []
         started = False
+        waiting: list[_Heredoc] = []  # heredocs whose body starts after the next newline
 
         def flush() -> None:
             nonlocal started
@@ -548,18 +669,23 @@ class _Parser:
                 word.append(text[i + 1 : i + 2])
                 started = True
                 i += 2
-            elif c == "'":
-                end = text.find("'", i + 1)
+            elif c == "'" or (c == "$" and text.startswith("'", i + 1)):
+                ansi = c == "$"  # `$'...'` takes backslash escapes, which are not decoded here
+                end = _quote_end(text, i + 2, "'") if ansi else text.find("'", i + 1)
+                self.unclear = self.unclear or end < 0 or (ansi and "\\" in text[i:end])
                 end = len(text) if end < 0 else end
-                word.append(text[i + 1 : end])
+                word.append(text[i + 1 + ansi : end])
                 started = True
                 i = end + 1
-            elif c == '"':
-                i = self._double(text, i + 1, word, cwd, depth, subs)
+            elif c == '"' or (c == "$" and text.startswith('"', i + 1)):
+                i = self._double(text, i + 1 + (c == "$"), word, cwd, depth, subs)
                 started = True
             elif c == "`" or (c in "$<>" and text.startswith("(", i + 1)):
                 i = self._substitution(text, i, word, cwd, depth, subs)
                 started = True
+            elif text.startswith("((", i):
+                flush()
+                i = self._arithmetic(text, i + 2, [], cwd, depth, subs)
             elif c == "#" and not started:
                 end = text.find("\n", i)
                 i = len(text) if end < 0 else end
@@ -570,6 +696,19 @@ class _Parser:
                 flush()
                 out.append((operator, True))
                 i += len(operator)
+                if operator in ("<<", "<<-"):
+                    line = max(text.rfind("\n", 0, i) + 1, i - _BEFORE_HEREDOC_CHARS)
+                    before = text[line : i - len(operator)]
+                    end, quoted, i = _delimiter(text, i)
+                    self.unclear = self.unclear or not end
+                    if end:
+                        out.append((end, False))
+                        waiting.append(_Heredoc(end=end, tabs=operator == "<<-", quoted=quoted, before=before))
+                        docs.append(waiting[-1])
+                elif operator == "\n" and waiting:
+                    i, ended = _bodies(text, i, waiting)
+                    self.unclear = self.unclear or not ended
+                    waiting.clear()
             else:
                 word.append(c)
                 started = True
@@ -578,9 +717,18 @@ class _Parser:
         return out
 
     def _double(
-        self, text: str, i: int, word: list[str], cwd: PurePosixPath, depth: int, subs: dict[str, list[list[Command]]]
+        self,
+        text: str,
+        i: int,
+        word: list[str],
+        cwd: PurePosixPath,
+        depth: int,
+        subs: dict[str, list[list[Command]]],
+        end: str = '"',
     ) -> int:
-        while i < len(text) and text[i] != '"':
+        """Reads a double-quoted string from `i` to its `end` quote; with no `end`, text the shell expands the
+        same way up to its last character (an unquoted heredoc's body, the inside of `$(( ))`)."""
+        while i < len(text) and text[i] != end:
             c = text[i]
             if c == "\\" and i + 1 < len(text):
                 following = text[i + 1]
@@ -594,24 +742,44 @@ class _Parser:
             else:
                 word.append(c)
                 i += 1
+        self.unclear = self.unclear or (bool(end) and i >= len(text))
         return i + 1
 
     def _substitution(
         self, text: str, i: int, word: list[str], cwd: PurePosixPath, depth: int, subs: dict[str, list[list[Command]]]
     ) -> int:
         if text[i] == "`":
-            end = i + 1
-            while end < len(text) and text[end] != "`":
-                end += 2 if text[end] == "\\" else 1
-            inner, after = text[i + 1 : end], end + 1
+            end = _quote_end(text, i + 1, "`")
+            self.unclear = self.unclear or end < 0
+            end = len(text) if end < 0 else end
+            # Inside backticks a backslash only quotes these, which is how backticks nest.
+            inner, after = re.sub(r"\\([`$\\])", r"\1", text[i + 1 : end]), end + 1
+        elif text.startswith("$((", i):
+            return self._arithmetic(text, i + 3, word, cwd, depth, subs)
         else:
-            end = _closing(text, i + 2)
+            end, clear = _closing(text, i + 2)
+            self.unclear = self.unclear or not clear
             inner, after = text[i + 2 : end], end + 1
         key = f"\x00{self.count}\x00"
         self.count += 1
         subs[key] = self.parse(inner, cwd, depth + 1)
         word.append(key)
         return after
+
+    def _arithmetic(
+        self, text: str, i: int, word: list[str], cwd: PurePosixPath, depth: int, subs: dict[str, list[list[Command]]]
+    ) -> int:
+        """Reads a `(( ))` or `$(( ))` whose inside starts at `i`: a `<<` in it is a shift, not a heredoc, and
+        only its `$( )` and backticks run commands. One the shell could also read as a group inside a group
+        is unclear, and is read as commands too."""
+        end, clear = _closing(text, i, "Aa")
+        if clear:
+            self._double(text[i : end - 1], 0, word, cwd, depth, subs, end="")
+        else:
+            self.unclear = True
+            subs[f"\x00{self.count}\x00"] = self.parse(text[i - 1 : end], cwd, depth + 1)
+            self.count += 1
+        return end + 1
 
     @staticmethod
     def _segments(tokens: list[tuple[str, bool]]) -> list[tuple[list[str], list[str], list[str], str]]:
@@ -778,6 +946,14 @@ def _inline_script(command: Command) -> str | None:
 def parse_shell(command: str, scope: Scope) -> list[list[Command]]:
     """The pipelines a shell command runs, nested scripts and substitutions included."""
     return _Parser(scope).parse(command, scope.cwd)
+
+
+def _read_only_shell(command: str, scope: Scope) -> bool:
+    """Whether a shell command only reads. Never when the parser could not follow all of it: a line it lost
+    may do anything."""
+    parser = _Parser(scope)
+    pipelines = parser.parse(command, scope.cwd)
+    return not parser.unclear and all(_read_only(c, scope) for p in pipelines for c in p)
 
 
 # -- fixed rules -------------------------------------------------------------------------------------
@@ -1307,7 +1483,7 @@ def needs_judgement(tool: Tool, arguments: JsonObject, scope: Scope) -> bool:
     if (command := _shell_text(tool.name, arguments)) is not None:
         if tool.name == "process" and arguments.get("action") == "write":
             return True
-        return not all(_read_only(c, scope) for p in parse_shell(command, scope) for c in p)
+        return not _read_only_shell(command, scope)
     path = arguments.get("path")
     if tool.effects <= {"read", "write"} and isinstance(path, str):
         where = _path(path, scope, scope.cwd)
