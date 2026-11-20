@@ -557,16 +557,19 @@ class Run:
 
     def _recover_unfinished_calls(self) -> None:
         """Close interrupted protocol turns without executing or guessing the outcome of a tool."""
-        pending: dict[str, ToolCall] = {}
+        # A list, not a map by id: a provider may give two calls of a reply the same id, and each needs its result.
+        pending: list[ToolCall] = []
         for entry in self.deps.journal.active_path():
             if not isinstance(entry, MessageEntry):
                 continue
             message = entry.message
             if isinstance(message, AssistantMessage):
-                pending.update((call.id, call) for call in message.tool_calls)
+                pending.extend(message.tool_calls)
             elif isinstance(message, ToolResultMessage):
-                pending.pop(message.result.call_id, None)
-        for call in pending.values():
+                answered = next((call for call in pending if call.id == message.result.call_id), None)
+                if answered is not None:
+                    pending.remove(answered)
+        for call in pending:
             error = ToolError(
                 kind="interrupted",
                 what_failed="The previous run ended without a persisted result for this call; its outcome is unknown.",
