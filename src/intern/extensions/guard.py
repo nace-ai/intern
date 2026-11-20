@@ -325,10 +325,18 @@ def _system(path: PurePosixPath, scope: Scope) -> str | None:
 
 def _protected(path: PurePosixPath, scope: Scope) -> str | None:
     """What a path is, if deleting or moving it destroys what cannot be recovered."""
+    while path.name in _GLOB_ALL:  # `.git/*` takes everything in .git
+        path = path.parent
     if found := _system(path, scope):
         return found
     if path.name == ".git":
         return f"the repository history {path}"
+    if ".git" in path.parts:
+        # Objects and branch or tag refs are the history itself; `.git/rebase-merge`, `.git/modules/x` and
+        # `.git/refs/original` are cleaned up in ordinary work.
+        inner = path.parts[len(path.parts) - path.parts[::-1].index(".git") :]
+        if inner[0] == "objects" or inner in (("refs",), ("refs", "heads"), ("refs", "tags")):
+            return f"the repository history in {path}"
     if found := _secret(path, scope):
         return f"your credentials in {found}"
     return None
@@ -396,6 +404,8 @@ _WRAPPERS: dict[str, frozenset[str]] = {
     "xargs": frozenset({"-n", "-I", "-P", "-L", "-d", "-E", "-s", "-a", "--max-args", "--max-procs", "--delimiter"}),
     "caffeinate": frozenset({"-t", "-w"}),
     "unbuffer": frozenset(),
+    "busybox": frozenset(),  # `busybox rm` runs its own rm, `busybox sh` its own shell
+    "toybox": frozenset(),
 }
 _PRIVILEGE = frozenset({"sudo", "doas", "su", "pkexec", "run0"})
 SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "ash", "fish"})
@@ -499,10 +509,13 @@ class _Parser:
         pipelines: list[list[Command]] = []
         nested: list[list[Command]] = []
         pipeline: list[Command] = []
-        for words, writes, reads, operator in segments:
+        for words, writes, reads, strings, operator in segments:
             command = self._command(words, writes, reads, cwd, subs, depth, nested)
             if command is not None:
                 pipeline.append(command)
+                if strings and _runs_stdin(command):  # `bash <<< 'rm -rf x'` runs the string
+                    for string in strings:
+                        nested.extend(self.parse(string, cwd, depth + 1))
             if operator in _PIPES or not pipeline:
                 continue
             pipelines.append(pipeline)
@@ -614,12 +627,13 @@ class _Parser:
         return after
 
     @staticmethod
-    def _segments(tokens: list[tuple[str, bool]]) -> list[tuple[list[str], list[str], list[str], str]]:
-        """Commands' words, write and read redirections, and the operator after each."""
-        segments: list[tuple[list[str], list[str], list[str], str]] = []
+    def _segments(tokens: list[tuple[str, bool]]) -> list[tuple[list[str], list[str], list[str], list[str], str]]:
+        """Commands' words, write and read redirections, `<<<` strings, and the operator after each."""
+        segments: list[tuple[list[str], list[str], list[str], list[str], str]] = []
         words: list[str] = []
         writes: list[str] = []
         reads: list[str] = []
+        strings: list[str] = []
         redirect: str | None = None
         for token, operator in tokens:
             if redirect is not None and not operator:
@@ -627,15 +641,17 @@ class _Parser:
                     writes.append(token)
                 elif redirect == "<":
                     reads.append(token)
+                elif redirect == "<<<":
+                    strings.append(token)
                 redirect = None
             elif not operator:
                 words.append(token)
             elif token in _REDIRECTS:
                 redirect = token
             else:
-                segments.append((words, writes, reads, token))
-                words, writes, reads, redirect = [], [], [], None
-        segments.append((words, writes, reads, ";"))
+                segments.append((words, writes, reads, strings, token))
+                words, writes, reads, strings, redirect = [], [], [], [], None
+        segments.append((words, writes, reads, strings, ";"))
         return segments
 
     def _command(
@@ -686,7 +702,9 @@ def _unwrap(words: list[str], wrappers: list[str]) -> list[str]:
             if arg == "--":
                 i += 1
                 break
-            if name == "env" and _ASSIGNMENT.match(arg):
+            if name == "env" and (split := _env_split(words, i)) is not None:
+                words = split
+            elif name == "env" and _ASSIGNMENT.match(arg):
                 i += 1
             elif arg.startswith("-") and len(arg) > 1:
                 i += 2 if arg in values else 1
@@ -696,6 +714,25 @@ def _unwrap(words: list[str], wrappers: list[str]) -> list[str]:
             else:
                 break
     return list(words[i:])
+
+
+def _env_split(words: list[str], i: int) -> list[str] | None:
+    """The words with the string `env -S` splits into words put in its place: `env -S 'rm -rf x'` runs `rm -rf x`.
+    None when the word at `i` is not that option."""
+    arg = words[i]
+    if arg in ("-S", "--split-string"):
+        value, after = "".join(words[i + 1 : i + 2]), i + 2
+    elif arg.startswith("--split-string="):
+        value, after = arg.partition("=")[2], i + 1
+    elif arg.startswith("-S"):
+        value, after = arg[2:], i + 1
+    else:
+        return None
+    try:
+        parts = shlex.split(value)
+    except ValueError:
+        parts = value.split()
+    return [*words[:i], *parts, *words[after:]]
 
 
 def _script_file(command: Command) -> str | None:
@@ -754,25 +791,35 @@ def scripts_run(command: str, scope: Scope) -> list[PurePosixPath]:
     return found[:SCRIPTS_SHOWN]
 
 
+_SHELL_VALUE_OPTIONS = frozenset({"-o", "+o", "-O", "+O", "--rcfile", "--init-file"})
+
+
 def _inline_script(command: Command) -> str | None:
     """The script a `bash -c '...'` or `eval ...` runs."""
     if command.name == "eval":
         return " ".join(command.args)
     if command.name not in SHELLS:
         return None
+    # The script is the first word that is not an option, when `-c` is among the options before it:
+    # `bash --norc -c '...'`, `bash -O extglob -c '...'`, `bash -c -- '...'`.
     args = command.args
+    inline = False
     i = 0
     while i < len(args):
         arg = args[i]
-        if arg in ("-o", "+o"):
+        if arg == "--":
+            i += 1
+            break
+        if arg in _SHELL_VALUE_OPTIONS:
             i += 2
-            continue
-        if not arg.startswith(("-", "+")) or arg.startswith("--"):
-            return None
-        if "c" in arg[1:]:
-            return args[i + 1] if i + 1 < len(args) else None
-        i += 1
-    return None
+        elif arg.startswith("--"):
+            i += 1
+        elif arg.startswith(("-", "+")) and len(arg) > 1:
+            inline = inline or (arg[0] == "-" and "c" in arg[1:])
+            i += 1
+        else:
+            break
+    return args[i] if inline and i < len(args) else None
 
 
 def parse_shell(command: str, scope: Scope) -> list[list[Command]]:
@@ -823,7 +870,7 @@ def _destructive(command: Command, scope: Scope) -> RuleHit | None:
             targets = command.positional()
     elif name == "mv":
         targets = _copy_operands(command)[0]
-    elif name == "find" and ("-delete" in command.args or _find_runs_rm(command)):
+    elif name == "find" and ("-delete" in command.args or _find_runs_rm(command, scope)):
         targets = _find_starts(command)
     for target in targets:
         path = _path(target, scope, cwd)
@@ -842,16 +889,34 @@ def _destructive(command: Command, scope: Scope) -> RuleHit | None:
 def _find_starts(command: Command) -> list[str]:
     starts: list[str] = []
     for arg in command.args:
+        if not starts and _FIND_GLOBAL_OPTION.fullmatch(arg):  # `find -L ~ -delete`
+            continue
         if arg.startswith(("-", "(", "!")):
             break
         starts.append(arg)
     return starts or ["."]
 
 
-def _find_runs_rm(command: Command) -> bool:
+# Options that come before find's starting points: how it follows links, and BSD's and GNU's own.
+_FIND_GLOBAL_OPTION = re.compile(r"-[HLPEXdsx]+|-O\d*")
+
+
+def _find_runs_rm(command: Command, scope: Scope) -> bool:
+    """Whether a `-exec` runs rm: by its path, under a wrapper (`-exec sudo rm`), or in a `sh -c` script."""
     args = command.args
-    runs = ("-exec", "-execdir", "-ok", "-okdir")
-    return any(a in runs and args[i + 1 : i + 2] == ["rm"] for i, a in enumerate(args))
+    for i, arg in enumerate(args):
+        if arg not in ("-exec", "-execdir", "-ok", "-okdir"):
+            continue
+        end = next((j for j in range(i + 1, len(args)) if args[j] in (";", "+")), len(args))
+        ran = _unwrap(args[i + 1 : end], [])
+        if not ran:
+            continue
+        run = Command(argv=[posixpath.basename(ran[0]), *ran[1:]], cwd=command.cwd)
+        script = _inline_script(run)
+        inner = parse_shell(script, scope) if script is not None else []
+        if run.name == "rm" or any(c.name == "rm" for pipeline in inner for c in pipeline):
+            return True
+    return False
 
 
 def _disk(command: Command, scope: Scope) -> RuleHit | None:
