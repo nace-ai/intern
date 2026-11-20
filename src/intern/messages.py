@@ -6,9 +6,10 @@ from the package.
 
 from __future__ import annotations
 
+import re
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, JsonValue
+from pydantic import BaseModel, Field, JsonValue, field_validator
 
 JsonObject = dict[str, JsonValue]
 
@@ -140,12 +141,26 @@ class SystemMessage(BaseModel):
     content: str
 
 
+_SURROGATE = re.compile("[\ud800-\udfff]")
+
+
+def well_formed(text: str) -> str:
+    """`text` with each lone UTF-16 surrogate replaced by U+FFFD, so it can be written as UTF-8. A client that cuts
+    a string in the middle of an emoji sends one; no journal, model request or event can carry it."""
+    return _SURROGATE.sub("\ufffd", text)
+
+
 class UserMessage(BaseModel):
     role: Literal["user"] = "user"
     content: str
     source: Literal["user", "harness"] = Field(
         default="user", description="`harness` marks nudges and notices the engine added itself."
     )
+
+    @field_validator("content")
+    @classmethod
+    def _well_formed(cls, value: str) -> str:
+        return well_formed(value)
 
 
 StopKind = Literal["stop", "length", "tool_calls", "error", "aborted"]

@@ -8,6 +8,7 @@ path on every turn; nothing in the journal is ever rewritten.
 from __future__ import annotations
 
 import fcntl
+import json
 import os
 import uuid
 import warnings
@@ -15,6 +16,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, TypeAdapter, ValidationError
+from pydantic_core import PydanticSerializationError
 
 from intern.events import (
     Compaction,
@@ -30,7 +32,7 @@ from intern.events import (
     ToolGuard,
     now_ms,
 )
-from intern.messages import Message
+from intern.messages import Message, well_formed
 
 JOURNAL_VERSION = 1
 
@@ -256,7 +258,13 @@ class Journal:
                 raise OSError("A prior journal write failed; reopen the session before continuing.")
             # A journal is a whole transcript: only its owner may read it, like spill and evidence files.
             self.path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-            row = (("\n" if self._needs_separator else "") + entry.model_dump_json() + "\n").encode("utf-8")
+            try:
+                text = entry.model_dump_json()
+            except PydanticSerializationError:
+                # A lone surrogate in a string (an extension's text, a file name the system could not decode) is
+                # not valid UTF-8. Record the entry with U+FFFD in its place rather than fail the run.
+                text = well_formed(json.dumps(entry.model_dump(mode="json"), ensure_ascii=False))
+            row = (("\n" if self._needs_separator else "") + text + "\n").encode("utf-8")
             try:
                 with os.fdopen(os.open(self.path, os.O_RDWR | os.O_CREAT | os.O_APPEND, 0o600), "a+b") as stream:
                     status = os.fstat(stream.fileno())

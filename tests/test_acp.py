@@ -281,6 +281,22 @@ async def test_a_prompt_streams_the_reply_and_ends_the_turn(tmp_path: Path, work
     await agent.aclose()
 
 
+async def test_a_prompt_cut_in_the_middle_of_an_emoji_still_runs(tmp_path: Path, work: Path):
+    """A JavaScript client that slices a string inside an emoji sends half of a surrogate pair."""
+    prompts: list[str] = []
+
+    def reply(request):
+        prompts.extend(m.content for m in request.messages if isinstance(m, UserMessage))
+        return Turn(text="ok")
+
+    agent, _, _ = make_agent(tmp_path, reply)
+    session = await agent.new_session(cwd=str(work))
+    response = await agent.prompt(prompt=[text_block("cut here \ud83d")], session_id=session.session_id)
+    assert response.stop_reason == "end_turn"
+    assert len(prompts) == 1 and prompts[0].endswith("cut here \ufffd")
+    await agent.aclose()
+
+
 @dataclass
 class PricedBackend:
     name: str = "drex-test"
