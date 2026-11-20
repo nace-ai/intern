@@ -9,6 +9,7 @@ import hashlib
 import os
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
@@ -51,6 +52,9 @@ class ToolContext:
     run: RunContext | None = None
     """The run, for a tool that asks System 1: through `run.decisions`, with `run.state()` as the state, as every
     System 1 question reads the session. None outside a run."""
+    redact: Callable[[str], str] | None = None
+    """Replaces the session's secret values in a text. The loop redacts what a tool returns; this is for what a tool
+    leaves on disk (a command's kept output). None when the session has nothing to redact."""
 
     def resolve(self, path: str) -> Path:
         candidate = Path(path).expanduser()
