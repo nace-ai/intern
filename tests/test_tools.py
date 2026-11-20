@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import resource
 import shlex
 import sys
 from pathlib import Path
@@ -63,6 +64,32 @@ async def test_write_then_edit(ctx: ToolContext):
     edited = await call(EditTool(), ctx, path="pkg/mod.py", old_string="return 1", new_string="return 2")
     assert edited.status == "ok" and "line 2" in edited.content
     assert (ctx.cwd / "pkg/mod.py").read_text() == "def f():\n    return 2\n"
+
+
+async def test_a_write_or_edit_that_fails_leaves_the_file_as_it_was(ctx: ToolContext):
+    original = "keep me\n" * 1_000
+    (ctx.cwd / "notes.txt").write_text(original)
+    soft, hard = resource.getrlimit(resource.RLIMIT_FSIZE)
+    resource.setrlimit(resource.RLIMIT_FSIZE, (1_000, hard))  # no file may grow past 1,000 bytes: the write fails
+    try:
+        with pytest.raises(OSError):
+            await call(WriteTool(), ctx, path="notes.txt", content="new text\n" * 1_000)
+        with pytest.raises(OSError):
+            await call(EditTool(), ctx, path="notes.txt", old_string="keep", new_string="lose", replace_all=True)
+    finally:
+        resource.setrlimit(resource.RLIMIT_FSIZE, (soft, hard))
+    assert (ctx.cwd / "notes.txt").read_text() == original
+    assert [p.name for p in ctx.cwd.iterdir()] == ["notes.txt"]
+
+
+async def test_write_keeps_the_files_mode_and_writes_through_a_link(ctx: ToolContext):
+    script = ctx.cwd / "run.sh"
+    script.write_text("#!/bin/sh\n")
+    script.chmod(0o750)
+    (ctx.cwd / "link.sh").symlink_to(script)
+    await call(WriteTool(), ctx, path="link.sh", content="#!/bin/sh\necho hi\n")
+    assert (ctx.cwd / "link.sh").is_symlink() and script.read_text() == "#!/bin/sh\necho hi\n"
+    assert script.stat().st_mode & 0o777 == 0o750
 
 
 async def test_write_and_edit_report_the_change_as_a_diff(ctx: ToolContext):

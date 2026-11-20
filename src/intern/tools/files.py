@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import os
+import stat
+import tempfile
 from pathlib import Path
 from typing import ClassVar
 
@@ -119,6 +122,30 @@ def page_lines(
     return ToolOutput(content=body or "(empty file)", resources=resources)
 
 
+def replace_file(path: Path, data: bytes) -> None:
+    """Give ``path`` the contents ``data``, whole or not at all: a write that fails (a full disk, a quota) leaves the
+    file as it was. The new contents go to a temporary file beside it, which then takes its place, with its mode."""
+    target = Path(os.path.realpath(path))  # the file a link points at changes, as a plain write would change it
+    try:
+        mode = stat.S_IMODE(target.stat().st_mode)
+        fd, name = tempfile.mkstemp(dir=target.parent, prefix=f".{target.name}.", suffix=".tmp")
+    except (FileNotFoundError, PermissionError):
+        # A new file has nothing to lose, and a folder that takes no new file leaves only the file itself to write.
+        target.write_bytes(data)
+        return
+    temp = Path(name)
+    try:
+        with os.fdopen(fd, "wb") as file:
+            file.write(data)
+            file.flush()
+            os.fsync(file.fileno())
+        temp.chmod(mode)
+        temp.replace(target)
+    except BaseException:
+        temp.unlink(missing_ok=True)
+        raise
+
+
 class WriteArgs(BaseModel):
     path: str = Field(description="File to create or overwrite.")
     content: str = Field(description="The complete new contents of the file.")
@@ -139,7 +166,7 @@ class WriteTool(Tool):
         before = path.read_bytes() if existed and path.stat().st_size <= MAX_DIFF_CHARS else None
         path.parent.mkdir(parents=True, exist_ok=True)
         data = args.content.encode()
-        path.write_bytes(data)
+        await asyncio.to_thread(replace_file, path, data)
         verb = "Overwrote" if existed else "Created"
         lines = args.content.count("\n") + (0 if args.content.endswith("\n") or not args.content else 1)
         return ToolOutput(
@@ -212,7 +239,7 @@ class EditTool(Tool):
         first_line = _line_of(text, text.find(old))
         updated = text.replace(old, new) if args.replace_all else text.replace(old, new, 1)
         data = updated.encode("utf-8", errors="surrogateescape")
-        path.write_bytes(data)
+        await asyncio.to_thread(replace_file, path, data)
         replaced = count if args.replace_all else 1
         noun = "occurrence" if replaced == 1 else "occurrences"
         return ToolOutput(
