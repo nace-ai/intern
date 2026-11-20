@@ -157,6 +157,10 @@ class Opener:
     """Scripts of their own for some refs (a hand-over model), each replying as that model."""
     configured: CapabilitySettings = field(default_factory=CapabilitySettings)
     """What a session opens on when the request names no capabilities: the agent's configured ones."""
+    keyless_system1: set[str] = field(default_factory=set)
+    """System 1 choices whose key is missing: switching to one fails as Bootstrap's does."""
+    sessions: list[Session] = field(default_factory=list)
+    """Every session opened, in order."""
 
     def bind(self, ref: str, provider: FakeProvider) -> ModelBinding:
         model = binding(provider, window=self.windows.get(ref, 32_768), profile=self.profiles.get(ref))
@@ -206,15 +210,19 @@ class Opener:
             emit=request.emit,
             handoff=handoff,
         )
-        return Session(
+        session = Session(
             deps,
             resolve_model=resolve,
             resolve_system1=self.resolve_system1,
             system1=self.system1.name,
             on_close=lambda session: self.closed.append(str(session.deps.journal.path)),
         )
+        self.sessions.append(session)
+        return session
 
     def resolve_system1(self, choice: str) -> DecisionBackend:
+        if choice in self.keyless_system1:
+            raise ConfigError(f"{choice} needs a key")
         return NamedBackend(choice)
 
 
@@ -487,6 +495,31 @@ async def test_an_unbindable_default_opens_unbound_until_a_model_is_picked(tmp_p
     assert live.session.deps.system2.ref == "fake/other" and live.session.system1 == "drex-latest"
     assert live.session.deps.system2.window.working == 32_000
     assert live.capabilities.browser.enabled and opener.opened[-1].capabilities == live.capabilities
+    response = await agent.prompt(prompt=[text_block("go")], session_id=session.session_id)
+    assert response.stop_reason == "end_turn" and client.text() == "ok "
+    await agent.aclose()
+
+
+async def test_an_open_refused_for_its_system_1_leaves_no_session_behind(tmp_path: Path, work: Path):
+    keyless = "decisions:keyless"
+    agent, _, opener = make_agent(tmp_path, [Turn(text="ok")], keyless_system1={keyless})
+    with pytest.raises(RequestError) as refused:
+        await agent.new_session(cwd=str(work), nace={"system1": keyless})
+    assert refused.value.code == -32602 and str(refused.value) == f"{keyless} needs a key"
+    assert not agent.sessions and opener.sessions[0].closed  # the session it had opened is not left running
+    await agent.aclose()
+
+    # An unbound session that cannot open on its System 1 stays unbound, and opens once another is picked.
+    agent, client, opener = make_agent(
+        tmp_path / "unbound", [Turn(text="ok")], unbindable={"fake/model"}, keyless_system1={keyless}
+    )
+    session = await agent.new_session(cwd=str(work), nace={"system1": keyless})
+    with pytest.raises(RequestError) as unsettled:
+        await agent.set_config_option(config_id="model", session_id=session.session_id, value="fake/other")
+    assert unsettled.value.code == -32602
+    assert not agent.sessions and session.session_id in agent.unbound and opener.sessions[0].closed
+    await agent.set_config_option(config_id="system1", session_id=session.session_id, value="drex-latest")
+    await agent.set_config_option(config_id="model", session_id=session.session_id, value="fake/other")
     response = await agent.prompt(prompt=[text_block("go")], session_id=session.session_id)
     assert response.stop_reason == "end_turn" and client.text() == "ok "
     await agent.aclose()

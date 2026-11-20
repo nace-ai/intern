@@ -548,13 +548,19 @@ class AcpAgent:
         return live
 
     async def _settled(self, live: LiveSession, **settle: Any) -> None:
-        """`_settle`; a pick refused because its system runs on free credit closes the session it opened."""
+        """`_settle`; when it fails the session it opened is closed, so a refused open leaves no session behind. A
+        pick that cannot be set up (a System 1 whose key is missing, one fixed by free credit) is the client's to
+        change: -32602."""
         try:
             await self._settle(live, **settle)
-        except FreeLocked as e:
+        except BaseException as e:
             self.sessions.pop(live.id, None)
             await self._close(live)
-            raise locked(e) from None
+            if isinstance(e, FreeLocked):
+                raise locked(e) from None
+            if isinstance(e, ConfigError):
+                raise RequestError(-32602, str(e)) from None
+            raise
 
     async def _settle(
         self,
@@ -593,9 +599,13 @@ class AcpAgent:
         finally:
             unbound.opening = False
         self.unbound.pop(unbound.id, None)
-        await self._settled(
-            live, picked=True, system1=unbound.system1, system1_picked=unbound.system1_picked, window=unbound.window
-        )
+        try:
+            await self._settled(
+                live, picked=True, system1=unbound.system1, system1_picked=unbound.system1_picked, window=unbound.window
+            )
+        except BaseException:
+            self.unbound[unbound.id] = unbound  # its session was closed: the client's id stays one it can use
+            raise
         return live
 
     async def _pump(self, live: LiveSession) -> None:
