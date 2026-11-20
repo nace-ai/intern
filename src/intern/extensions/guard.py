@@ -398,6 +398,7 @@ _WRAPPERS: dict[str, frozenset[str]] = {
     "unbuffer": frozenset(),
 }
 _PRIVILEGE = frozenset({"sudo", "doas", "su", "pkexec", "run0"})
+_GROUP_ENDS = (["}"], ["fi"], ["done"], ["esac"])  # the word that closes a compound command, before a `|`
 SHELLS = frozenset({"sh", "bash", "zsh", "dash", "ksh", "ash", "fish"})
 _INTERPRETER = re.compile(r"^(python[\d.]*|perl|ruby|node|php|pwsh)$")
 _HEREDOC = re.compile(r"(?<!<)<<(-?)\s*(['\"]?)([A-Za-z_][\w.-]*)\2")
@@ -499,16 +500,21 @@ class _Parser:
         pipelines: list[list[Command]] = []
         nested: list[list[Command]] = []
         pipeline: list[Command] = []
+        grouped = False  # the last pipeline closed a `( )` group
         for words, writes, reads, operator in segments:
             command = self._command(words, writes, reads, cwd, subs, depth, nested)
             if command is not None:
                 pipeline.append(command)
-            if operator in _PIPES or not pipeline:
+            elif operator in _PIPES and not pipeline and pipelines and (grouped or words in _GROUP_ENDS):
+                pipeline = pipelines.pop()  # `(curl ...) | sh`, `{ curl ...; } | sh`: the group's output is piped on
+            grouped = False
+            if operator in _PIPES or not pipeline or (operator == "(" and command is None):  # `curl ... | (sh)`
                 continue
             pipelines.append(pipeline)
             if len(pipeline) == 1 and pipeline[0].name in ("cd", "pushd"):
                 cwd = self._cd(pipeline[0], cwd)
             pipeline = []
+            grouped = operator == ")"
         for before, body in bodies:
             if _SHELL_BEFORE_HEREDOC.search(before):
                 nested.extend(self.parse(body, cwd, depth + 1))
@@ -662,7 +668,12 @@ class _Parser:
         command = Command(argv=argv, cwd=cwd, wrappers=wrappers, writes=writes, reads=reads, subs=used, program=program)
         script = _inline_script(command)
         if script is not None:
-            nested.extend(self.parse(script, cwd, depth + 1))
+            inner = self.parse(script, cwd, depth + 1)
+            for c in (c for pipeline in inner for c in pipeline):
+                # The script's commands keep the substitutions written in it: `bash -c "set -e; $(curl ...)"`.
+                words = [*c.argv, *c.writes, *c.reads]
+                c.subs.update({key: sub for key, sub in used.items() if any(key in w for w in words)})
+            nested.extend(inner)
         return command
 
 
@@ -1033,28 +1044,40 @@ def _protected_writes(command: Command, scope: Scope) -> RuleHit | None:
 def _runs_stdin(command: Command) -> bool:
     """Whether an interpreter runs the code on its standard input."""
     args = command.args
-    if command.name in SHELLS:
+    shell = command.name in SHELLS
+    if command.name in ("source", "."):
+        return args[:1] in (["/dev/stdin"], ["/dev/fd/0"])
+    if shell:
         if _inline_script(command) is not None:
             return False
         if "-s" in args:
             return True
     elif _INTERPRETER.match(command.name):
-        if any(a[:2] in ("-c", "-m", "-e", "-E", "-r") for a in args):
+        code = ("-c", "-m") if command.name.startswith("python") else ("-c", "-m", "-e", "-E", "-r")
+        if any(a[:2] in code for a in args):
             return False
     else:
         return False
-    positional = [a for a in args if not a.startswith(("-", "+"))]
-    return not positional or positional[0] == "-"
+    positional: list[str] = []
+    words = iter(args)
+    for arg in words:
+        if shell and arg in ("-o", "+o", "-O", "+O"):  # `bash -o pipefail` still reads its script from stdin
+            next(words, None)
+        elif not arg.startswith(("-", "+")) or arg == "-":
+            positional.append(arg)
+    return not positional or positional[0] in ("-", "/dev/stdin", "/dev/fd/0")
 
 
 def _runs_download(command: Command) -> bool:
-    """`bash <(curl ...)`, `sh -c "$(curl ...)"`, `eval "$(wget ...)"`, `source <(curl ...)`."""
+    """`bash <(curl ...)`, `sh -c "$(curl ...)"`, `eval "$(wget ...)"`, `source <(curl ...)`, `bash < <(curl ...)`,
+    and a command that is itself what a download printed (`bash -c "set -e; $(curl ...)"`)."""
+    downloads = {key for key, inner in command.subs.items() if any(c.name in _DOWNLOADERS for c in inner)}
+    if command.name in downloads:
+        return True
     if not (command.name in SHELLS or command.name in ("eval", "source", ".") or _INTERPRETER.match(command.name)):
         return False
-    return any(
-        arg == key and any(c.name in _DOWNLOADERS for c in inner)
-        for arg in command.args
-        for key, inner in command.subs.items()
+    return any(arg in downloads for arg in command.args) or (
+        _runs_stdin(command) and any(read in downloads for read in command.reads)
     )
 
 
