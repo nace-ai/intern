@@ -94,7 +94,8 @@ the meters on every usage update ([ACP](acp.md#free-credit)).
 
 The sign-in gives an access token, good for an hour, and a refresh token that renews it. The refresh token is kept
 in the OS keychain (service `intern`, account `NACE_FREE_REFRESH_TOKEN`), or in `~/.intern/free.json` where there is
-no keychain. The access token is kept in `~/.intern/free-access.json` with its expiry, so every Intern process on
+no keychain. A config home other than `~/.intern` keeps its own sign-in under its own service
+([secrets](secrets.md)), so two homes never share, rotate or sign out of each other's. The access token is kept in `~/.intern/free-access.json` with its expiry, so every Intern process on
 the machine (the desktop app's, the terminal UI, `intern models` probes) shares one. Both files are readable by you
 only.
 

@@ -30,7 +30,7 @@ NACE_HOSTS = frozenset({"console.nace.ai", "console.test.nace.ai", "console.stag
 """The only hosts a Nace-issued credential is sent to, and only over HTTPS: a base-URL override pointing anywhere
 else must never receive it."""
 NACE_FREE_ENTRIES = frozenset({"NACE_FREE_REFRESH_TOKEN"})
-"""The free credential's keychain entries (service `intern`, as `[secrets]` reads them): harness-only, so a
+"""The free credential's keychain entries (the config home's service, as `[secrets]` reads them): harness-only, so a
 `[secrets]` entry of the same name never hands one to the agent's commands."""
 
 

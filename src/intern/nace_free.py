@@ -1,10 +1,10 @@
 """The free trial's credential: Intern's device sign-in to the Nace console, and the tokens it gives.
 
 `intern free start` signs in once, in a browser, with the console's device flow (RFC 8628) as Intern's first-party
-client. The refresh token is kept in the OS keychain (service `intern`, account `NACE_FREE_REFRESH_TOKEN`), else in
-`free.json` in the config home; the access token, good for an hour, in `free-access.json` with its expiry, so every
-harness process on the machine (the ACP server, `models --json` probes, the terminal UI) shares one. Both files are
-readable by their owner only.
+client. The refresh token is kept in the OS keychain (under the config home's service,
+`secret_store.keychain_service`, account `NACE_FREE_REFRESH_TOKEN`), else in `free.json` in the config home; the
+access token, good for an hour, in `free-access.json` with its expiry, so every harness process on the machine (the
+ACP server, `models --json` probes, the terminal UI) shares one. Both files are readable by their owner only.
 
 The console revokes a whole sign-in when a spent refresh token is presented again, so a refresh runs under an
 exclusive lock on `free.lock` and re-reads the stored pair once it holds it: one process rotates, the others take
@@ -354,7 +354,7 @@ class FreeStore:
             return None
         if saved.get("refresh") == KEYCHAIN:
             try:
-                return read_entry(REFRESH_ENTRY, KEYCHAIN, self.env)
+                return read_entry(REFRESH_ENTRY, KEYCHAIN, self.env, home=self.home)
             except SecretFailure:
                 return None
         token = saved.get("refresh_token")
@@ -377,7 +377,7 @@ class FreeStore:
         if tokens.refresh_token is not None:
             value = tokens.refresh_token.get_secret_value()
             try:
-                keychain_write(REFRESH_ENTRY, value, self.env)
+                keychain_write(REFRESH_ENTRY, value, self.env, home=self.home)
                 record["refresh"] = KEYCHAIN
             except SecretFailure:
                 record["refresh_token"] = value
@@ -393,7 +393,7 @@ class FreeStore:
         saved = _read_json(self.store_path)
         if saved is not None and saved.get("refresh") == KEYCHAIN:
             with contextlib.suppress(SecretFailure):
-                keychain_delete(REFRESH_ENTRY, self.env)
+                keychain_delete(REFRESH_ENTRY, self.env, home=self.home)
         for path in (self.access_path, self.store_path):
             path.unlink(missing_ok=True)
 
