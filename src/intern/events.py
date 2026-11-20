@@ -452,11 +452,24 @@ class SubagentEnd(_EventBase):
     duration_ms: int
 
 
+class RunError(BaseModel):
+    """What the Nace console said when it refused a request the run needed (its `error.code` and `meter`), and for a
+    free credit refused for good, the System 2 the session's next run will use in its place (None: no own model can
+    run)."""
+
+    code: str
+    meter: str | None = None
+    next: str | None = None
+
+
 class RunEnd(_EventBase):
     type: Literal["run_end"] = "run_end"
     run_id: str
     reason: StopReason
     detail: str | None = None
+    error: RunError | None = Field(
+        default=None, description="The console's refusal that ended the run, so it can be said in words."
+    )
     turns: int
     usage: Usage
     agent_usage: Usage | None = Field(default=None, description="The agent's own replies; usage = agent + state.")
