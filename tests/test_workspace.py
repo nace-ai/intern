@@ -4,8 +4,12 @@ documents), `sql`, the document-aware `read`, and `decision_files` over them onc
 from __future__ import annotations
 
 import asyncio
+import multiprocessing
 import re
 import shutil
+import subprocess
+import sys
+from multiprocessing.synchronize import Barrier
 from pathlib import Path
 
 import pytest
@@ -362,6 +366,67 @@ async def test_a_query_cancelled_with_its_run_is_stopped_and_the_session_goes_on
         await asyncio.wait_for(running, 10)
     after = await asyncio.wait_for(sql.run(sql.Args(query="select sum(amount) from je"), ctx(tmp_path)), 10)
     assert after.content.splitlines()[2] == "| 10 |"
+
+
+def _build_beside(root: Path, start: Barrier, results: multiprocessing.Queue) -> None:
+    said: list[str] = []
+    start.wait(30)
+    index = wi.build(root, root / Workspace.folder, processors=office_processors, report=said.append)
+    tables = sum(len(entry.tables) for entry in index.files.values())
+    results.put((tables, [line for line in said if line.startswith("skip ")]))
+
+
+def test_two_sessions_indexing_one_folder_at_once_both_get_every_table(tmp_path: Path):
+    # One process may open tables.duckdb: the second build skipped every table and saved an index without them.
+    for n in range(40):
+        (tmp_path / f"t{n}.csv").write_text("k,v\n" + "".join(f"{i},{i * n}\n" for i in range(2000)))
+    spawn = multiprocessing.get_context("spawn")
+    start, results = spawn.Barrier(2), spawn.Queue()
+    sessions = [spawn.Process(target=_build_beside, args=(tmp_path, start, results)) for _ in range(2)]
+    for session in sessions:
+        session.start()
+    built = [results.get(timeout=120) for _ in sessions]
+    for session in sessions:
+        session.join(30)
+    assert built == [(40, []), (40, [])]
+    saved = wi.load(tmp_path / Workspace.folder)
+    assert saved is not None and sum(len(entry.tables) for entry in saved.files.values()) == 40
+
+
+async def test_sql_waits_for_another_sessions_build_and_says_so_when_the_build_goes_on(tmp_path: Path, monkeypatch):
+    from intern.extensions.workspace import tools as wt
+
+    (tmp_path / "je.csv").write_text("je,amount\nJ1,10\n")
+    build(tmp_path)
+    sql = Workspace().tools()[2]
+    query = sql.Args(query="select sum(amount) from je")
+    # What a build in another session does while it loads tables: holds tables.duckdb open for writing.
+    hold = "import duckdb, sys, time; c = duckdb.connect(sys.argv[1]); print('held', flush=True); time.sleep(60)"
+
+    def building() -> subprocess.Popen[str]:
+        tables = str(tmp_path / Workspace.folder / docs.TABLES_DB)
+        other = subprocess.Popen([sys.executable, "-c", hold, tables], stdout=subprocess.PIPE, text=True)
+        assert other.stdout is not None and other.stdout.readline().strip() == "held"
+        return other
+
+    other = building()
+    try:
+        asyncio.get_running_loop().call_later(1.0, other.kill)  # the build ends while the query waits
+        waited = await sql.run(query, ctx(tmp_path))
+    finally:
+        other.kill()
+        other.wait()
+    assert waited.status == "ok" and waited.content.splitlines()[2] == "| 10 |", waited.content
+
+    monkeypatch.setattr(wt, "TABLES_WAIT_S", 0.5)
+    other = building()
+    try:
+        busy = await sql.run(query, ctx(tmp_path))
+    finally:
+        other.kill()
+        other.wait()
+    assert busy.status == "error" and "being rebuilt by another session's index build" in busy.content
+    assert (await sql.run(query, ctx(tmp_path))).content.splitlines()[2] == "| 10 |"
 
 
 async def test_a_failed_query_shows_duckdbs_whole_error_and_lists_tables_only_when_it_cannot_name_one(tmp_path: Path):
