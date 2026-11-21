@@ -60,7 +60,7 @@ class Memory(MemoryActions):
             budget = int(ctx.chars_per_token * ctx.working_window * ctx.profile.thresholds.memory)
             spent = ctx.decisions.usage.cost_usd
             try:
-                found = await recall(self.drive, task, ctx.decisions, budget, ctx.state())
+                found = await recall(self.drive, task, ctx.decisions, budget, ctx.state(), ctx.journal.user)
             except System1Unavailable:
                 raise
             except Exception:

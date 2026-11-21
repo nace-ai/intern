@@ -146,6 +146,14 @@ Answer with JSON only:
  "items": [{{"kind": "<kind>", "page": "<page>", "subject": "", "group": "", "aliases": [], "attribute": "",
  "when": "", "phrase": "", "trigger": "", "from": "", "topic": "", "step": "<id>", "text": "<sentence>"}}]}}"""
 
+# Added to the writer's task when the host named the session's user: one drive then holds what several people said,
+# and "the user" on a page would be all of them at once.
+SHARED = """This session's user is {user}; the host that started the session named them. This memory is shared by
+several people, so write this user by name in every item, never as "the user", and put what holds about them alone
+(their facts, preferences, events, and rules about them) on their own subject page: one listed below, or "{new}"
+with subject "{user}" and group "people". Never use "{me}". That they are {user} is not an item."""
+_THE_USER = re.compile(r"\b[Tt]he user\b")
+
 LESSONS = """You keep the working lessons of an AI agent that works for one user, session after session, in the
 same world. You get the stories of past sessions, each with how it ended, and the skills memory already holds.
 
@@ -317,6 +325,8 @@ class Item:
     trigger: str = ""
     origin: str = ""
     topic: str = ""
+    # Who said it, for a user line of a session whose host named its user; the line's label then carries the name.
+    speaker: str = ""
 
 
 @dataclass
@@ -528,6 +538,8 @@ def trace(ex: Extract, outcome: str, ids: bool = False) -> str:
             rows.append((line.order, f"{line.ident} [{who}, {line.said}] {at}{line.text}"))
     rows.sort(key=lambda row: row[0])
     head = [f"Session date: {ex.date}", f"Outcome (judged): {outcome}"]
+    if ex.user:
+        head.append(f"Session's user: {ex.user}")
     if not ex.turns:
         head.append(f"Task:\n{ex.task}")
     text = "\n".join([*head, "Session:", *(row for _, row in rows)])
@@ -708,6 +720,25 @@ def _cited(by_id: dict[str, Line], item: object, session: str) -> Draft | None:
     return Draft(page="", pointer=line.pointer, text=text)
 
 
+def _named(item: Item, user: str) -> Item | None:
+    # In a session whose host named its user, "the user" is that person: their own facts go on their page under their
+    # name, and what they said carries it. That they have that name is what the host said, not a fact to keep.
+    own = item.page == ME or (item.page == NEW and item.subject.lower() == user.lower())
+    if own and item.attribute == "name":
+        return None
+
+    def named(text: str) -> str:
+        changed = _THE_USER.sub(user, text)
+        return changed if len(changed) <= ITEM_CHARS else text
+
+    item = replace(item, text=named(item.text), trigger=named(item.trigger))
+    if item.source == "user":
+        item = replace(item, speaker=user)
+    if item.page == ME:
+        item = replace(item, page=NEW, subject=user, group="people")
+    return item
+
+
 async def draft(
     writer: Writer | ReplayWriter,
     ex: Extract,
@@ -736,8 +767,10 @@ async def draft(
     files = "\n".join(f"- {p}: {files_of[p]}" for p in pages if p in files_of) or "(none)"
     already = "\n".join(f"- {line}" for line in known) or "(nothing yet)"
     work = ", ".join(kinds or []) or "(none yet)"
+    shared = SHARED.format(user=ex.user, me=ME, new=NEW) + "\n\n" if ex.user else ""
     user = (
-        f"File pages:\n{files}\n\nPlace pages: {places}\n\nSubject pages: {', '.join(subjects) or '(none yet)'}\n\n"
+        f"{shared}File pages:\n{files}\n\nPlace pages: {places}\n\n"
+        f"Subject pages: {', '.join(subjects) or '(none yet)'}\n\n"
         f"Kinds of work already in memory: {work}\n\nAlready in memory:\n{already}\n\n{trace(ex, outcome)}"
     )
     # The writer now and then answers with JSON that does not parse; asked again, it answers well.
@@ -773,6 +806,8 @@ async def draft(
             # A general lesson read from one file is about that file, and general lessons load in every task.
             if (on_subject or result.page == GENERAL) and (home := file_homes.get(_file_key(result.origin))):
                 result = replace(result, page=home, subject="", group="", aliases=[])
+        if isinstance(result, Item) and ex.user:
+            result = _named(result, ex.user)
         if isinstance(result, Item):
             items.append(result)
         elif isinstance(result, Rejected):

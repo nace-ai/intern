@@ -216,7 +216,7 @@ def is_history(path: str) -> bool:
 
 def source_label(item: Item, outcome: str = "", fallback: str = "") -> str:
     # Who said it, or for a tool result or an action, what it was read from: "from email from Anna".
-    said_by = SAID_BY[item.source]
+    said_by = f"{item.speaker} said" if item.speaker and item.source == "user" else SAID_BY[item.source]
     if item.source in ("tool", "action"):
         # The label is "(from <name>, date)", so a file name's own brackets and commas cannot stay in it.
         name = " ".join(re.sub(r"[,()\[\]]", " ", item.origin or fallback).split())

@@ -51,6 +51,9 @@ class SessionEntry(_EntryBase):
     kind: Literal["session"] = "session"
     version: int = JOURNAL_VERSION
     cwd: str
+    # Who the session's user is, when the host that started it says so (`$INTERN_USER`): a signed-in name, never
+    # something the conversation claims. Empty for the usual session of one person on their own machine.
+    user: str = ""
 
 
 class SystemPromptEntry(_EntryBase):
@@ -175,7 +178,7 @@ _entry_adapter: TypeAdapter[Entry] = TypeAdapter(Entry)
 class Journal:
     """An append-only entry tree, kept in memory and mirrored to a JSONL file when it has a path."""
 
-    def __init__(self, cwd: str, path: Path | None = None) -> None:
+    def __init__(self, cwd: str, path: Path | None = None, user: str = "") -> None:
         self.path = path
         self._entries: dict[str, Entry] = {}
         self._order: list[str] = []
@@ -186,11 +189,17 @@ class Journal:
         if path is not None and path.exists() and path.stat().st_size > 0:
             self._load(path)
         if not self._order:
-            self.append(SessionEntry(cwd=cwd))
+            self.append(SessionEntry(cwd=cwd, user=user))
 
     @property
     def session_id(self) -> str:
         return self._order[0]
+
+    @property
+    def user(self) -> str:
+        """The session's user as the host named them when the session began; a resumed session keeps it."""
+        first = self._entries[self._order[0]]
+        return first.user if isinstance(first, SessionEntry) else ""
 
     def _load(self, path: Path) -> None:
         # Coordinate recovery with appends: never mistake another writer's in-progress line for a tear.

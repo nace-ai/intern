@@ -993,7 +993,8 @@ async def _items(
     places = list(dict.fromkeys(o.place for o in ex.observations))
     places += list(file_pages(ex.observations))[:MAX_FILE_PAGES]
     subjects = _subjects(files)
-    mentioned = _mentioned(subjects, _session_text(ex))
+    # The session's user has a page of their own when the host named them, whether or not the session says the name.
+    mentioned = _mentioned(subjects, f"{ex.user} {_session_text(ex)}")
     listed = [f"{p} ({'; '.join(_names(subjects[p]))})" for p in mentioned]
     known = _known(files, [*places, *mentioned])
     try:
