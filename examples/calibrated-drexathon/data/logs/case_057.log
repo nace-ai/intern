@@ -1,0 +1,24 @@
+=== CI run #47790  job=unit-tests  runner=ci-runner-10
+commit 62acee5  branch=feature/refactor-943
+changed files in this PR:
+  M src/search/indexer.py
+  M src/search/locks.py
+framework: pytest 8.3.2 (-n 8 xdist)
+failing test: tests/search/test_indexer_concurrency.py::test_parallel_indexer_updates_are_atomic
+test file: tests/search/test_indexer_concurrency.py
+duration: 3.13s
+
+=================================== FAILURES ===================================
+___________________________ test_parallel_indexer_updates_are_atomic ___________________________
+
+tests/search/test_indexer_concurrency.py:57: in asyncio.gather
+    results = await asyncio.gather(*[svc.increment() for _ in range(20)])
+tests/search/test_indexer_concurrency.py:114: in call
+    assert svc.count == 20
+E   assert 19 == 20
+=========================== short test summary info ============================
+FAILED tests/search/test_indexer_concurrency.py::test_parallel_indexer_updates_are_atomic - assert 19 == 20
+retry history:
+  attempt 2: PASSED (0.54s)
+  attempt 3: FAILED (4.30s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

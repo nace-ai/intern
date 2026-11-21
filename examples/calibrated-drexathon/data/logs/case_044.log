@@ -1,0 +1,25 @@
+=== CI run #42790  job=unit-tests  runner=ci-runner-05
+commit e4a57b1  branch=feature/perf-530
+changed files in this PR:
+  M src/web/DatePicker.tsx
+  M src/web/types.ts
+framework: jest 29.7.0
+failing test: DatePicker › renders with default props
+test file: src/web/__tests__/DatePicker.test.tsx
+duration: 1.00s
+
+ FAIL  src/web/__tests__/DatePicker.test.tsx
+  ● DatePicker › renders with default props
+
+    TypeError: Cannot read properties of undefined (reading 'map')
+    
+    > 41 |   {props.items.map((item) => <Row key={item.id} {...item} />)}
+
+      at DatePicker (src/web/DatePicker.tsx:41:22)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom.development.js:16305:18)
+
+Tests:       1 failed, 22 passed, 23 total
+retry history:
+  attempt 2: FAILED (6.73s)
+  attempt 3: FAILED (7.79s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

@@ -1,0 +1,110 @@
+{
+  "mode": {
+    "drex": "mock",
+    "llm": "mock"
+  },
+  "drex_model": "drex-max-v1.1 (MOCK)",
+  "llm_model": "meta-llama/Llama-3.3-70B-Instruct-Turbo (MOCK)",
+  "thresholds_before": {
+    "lo": 0.4,
+    "hi": 0.8
+  },
+  "thresholds_after": {
+    "lo": 0.4,
+    "hi": 0.82
+  },
+  "tables": {
+    "heldout": {
+      "Drex (before learning)": {
+        "n": 44,
+        "accuracy": 0.932,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 4,
+        "expected_cost_eng_min": 122.0,
+        "cost_per_failure": 2.77,
+        "p50_latency_ms": 258.15,
+        "usd_per_1k_decisions": 0.060565999999999995
+      },
+      "Drex (after learning)": {
+        "n": 44,
+        "accuracy": 0.932,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 4,
+        "expected_cost_eng_min": 122.0,
+        "cost_per_failure": 2.77,
+        "p50_latency_ms": 258.15,
+        "usd_per_1k_decisions": 0.060565999999999995
+      },
+      "Rule baseline (retry passed => quarantine, else block)": {
+        "n": 44,
+        "accuracy": 0.932,
+        "wrong_quarantines_of_real_bugs": 1,
+        "needless_blocks": 2,
+        "retries": 0,
+        "expected_cost_eng_min": 218.0,
+        "cost_per_failure": 4.95,
+        "p50_latency_ms": 0.0,
+        "usd_per_1k_decisions": 0.0
+      },
+      "LLM baseline: meta-llama/Llama-3.3-70B-Instruct-Turbo (MOCK) (DeepInfra)": {
+        "n": 44,
+        "accuracy": 0.682,
+        "wrong_quarantines_of_real_bugs": 3,
+        "needless_blocks": 8,
+        "retries": 7,
+        "expected_cost_eng_min": 622.0,
+        "cost_per_failure": 14.14,
+        "p50_latency_ms": 1589.5,
+        "usd_per_1k_decisions": 0.05823833333333334
+      }
+    },
+    "all": {
+      "Drex (before learning)": {
+        "n": 60,
+        "accuracy": 0.933,
+        "wrong_quarantines_of_real_bugs": 1,
+        "needless_blocks": 2,
+        "retries": 5,
+        "expected_cost_eng_min": 264.0,
+        "cost_per_failure": 4.4,
+        "p50_latency_ms": 255.8,
+        "usd_per_1k_decisions": 0.060565999999999995
+      },
+      "Drex (after learning)": {
+        "n": 60,
+        "accuracy": 0.933,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 6,
+        "expected_cost_eng_min": 150.0,
+        "cost_per_failure": 2.5,
+        "p50_latency_ms": 255.8,
+        "usd_per_1k_decisions": 0.060565999999999995
+      },
+      "Rule baseline (retry passed => quarantine, else block)": {
+        "n": 60,
+        "accuracy": 0.933,
+        "wrong_quarantines_of_real_bugs": 2,
+        "needless_blocks": 2,
+        "retries": 0,
+        "expected_cost_eng_min": 358.0,
+        "cost_per_failure": 5.97,
+        "p50_latency_ms": 0.0,
+        "usd_per_1k_decisions": 0.0
+      },
+      "LLM baseline: meta-llama/Llama-3.3-70B-Instruct-Turbo (MOCK) (DeepInfra)": {
+        "n": 60,
+        "accuracy": 0.733,
+        "wrong_quarantines_of_real_bugs": 3,
+        "needless_blocks": 9,
+        "retries": 10,
+        "expected_cost_eng_min": 675.0,
+        "cost_per_failure": 11.25,
+        "p50_latency_ms": 1577.25,
+        "usd_per_1k_decisions": 0.05823833333333334
+      }
+    }
+  }
+}

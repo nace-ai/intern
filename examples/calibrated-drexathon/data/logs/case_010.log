@@ -1,0 +1,32 @@
+=== CI run #43215  job=unit-tests  runner=ci-runner-06
+commit 0f78af0  branch=feature/ui-723
+changed files in this PR:
+  M src/web/SearchBar.tsx
+  M src/web/theme/tokens.ts
+framework: jest 29.7.0
+failing test: SearchBar › matches snapshot
+test file: src/web/__tests__/SearchBar.snap.test.tsx
+duration: 0.26s
+
+ FAIL  src/web/__tests__/SearchBar.snap.test.tsx
+  ● SearchBar › matches snapshot
+
+    expect(received).toMatchSnapshot()
+    
+    Snapshot name: `matches snapshot 1`
+    
+    - Snapshot  - 2
+    + Received  + 2
+    
+    -   className="btn btn-primary"
+    +   className="btn btn-primary-v2"
+    -   aria-label="Checkout"
+    +   aria-label={undefined}
+
+      at Object.<anonymous> (src/web/__tests__/SearchBar.snap.test.tsx:12:31)
+
+Tests:       1 failed, 31 passed, 32 total
+retry history:
+  attempt 2: FAILED (7.89s)
+  attempt 3: FAILED (1.92s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

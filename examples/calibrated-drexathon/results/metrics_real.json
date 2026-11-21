@@ -1,0 +1,132 @@
+{
+  "mode": {
+    "drex": "real",
+    "llm": "real"
+  },
+  "drex_model": "drex-max-v1.1",
+  "llm_model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+  "thresholds_before": {
+    "lo": 0.4,
+    "hi": 0.8
+  },
+  "thresholds_after": {
+    "lo": 0.4,
+    "hi": 0.8
+  },
+  "tables": {
+    "heldout": {
+      "Drex (before learning)": {
+        "n": 44,
+        "accuracy": 0.955,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 0,
+        "expected_cost_eng_min": 98.0,
+        "cost_per_failure": 2.23,
+        "p50_latency_ms": 277.4,
+        "usd_per_1k_decisions": 0.072448
+      },
+      "Drex (after learning)": {
+        "n": 44,
+        "accuracy": 0.955,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 0,
+        "expected_cost_eng_min": 98.0,
+        "cost_per_failure": 2.23,
+        "p50_latency_ms": 277.4,
+        "usd_per_1k_decisions": 0.072448
+      },
+      "Rule baseline (retry passed => quarantine, else block)": {
+        "n": 44,
+        "accuracy": 0.932,
+        "wrong_quarantines_of_real_bugs": 1,
+        "needless_blocks": 2,
+        "retries": 0,
+        "expected_cost_eng_min": 218.0,
+        "cost_per_failure": 4.95,
+        "p50_latency_ms": 0.0,
+        "usd_per_1k_decisions": 0.0
+      },
+      "LLM baseline: meta-llama/Llama-3.3-70B-Instruct-Turbo (DeepInfra)": {
+        "n": 44,
+        "accuracy": 0.841,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 29,
+        "expected_cost_eng_min": 176.0,
+        "cost_per_failure": 4.0,
+        "p50_latency_ms": 2106.8,
+        "usd_per_1k_decisions": 0.06422266666666666
+      },
+      "LLM baseline: deepseek-ai/DeepSeek-V3.2 (DeepInfra)": {
+        "n": 44,
+        "accuracy": 0.886,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 26,
+        "expected_cost_eng_min": 162.0,
+        "cost_per_failure": 3.68,
+        "p50_latency_ms": 1596.8,
+        "usd_per_1k_decisions": 0.153805
+      }
+    },
+    "all": {
+      "Drex (before learning)": {
+        "n": 60,
+        "accuracy": 0.967,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 0,
+        "expected_cost_eng_min": 118.0,
+        "cost_per_failure": 1.97,
+        "p50_latency_ms": 291.55,
+        "usd_per_1k_decisions": 0.072448
+      },
+      "Drex (after learning)": {
+        "n": 60,
+        "accuracy": 0.967,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 0,
+        "expected_cost_eng_min": 118.0,
+        "cost_per_failure": 1.97,
+        "p50_latency_ms": 291.55,
+        "usd_per_1k_decisions": 0.072448
+      },
+      "Rule baseline (retry passed => quarantine, else block)": {
+        "n": 60,
+        "accuracy": 0.933,
+        "wrong_quarantines_of_real_bugs": 2,
+        "needless_blocks": 2,
+        "retries": 0,
+        "expected_cost_eng_min": 358.0,
+        "cost_per_failure": 5.97,
+        "p50_latency_ms": 0.0,
+        "usd_per_1k_decisions": 0.0
+      },
+      "LLM baseline: meta-llama/Llama-3.3-70B-Instruct-Turbo (DeepInfra)": {
+        "n": 60,
+        "accuracy": 0.85,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 41,
+        "expected_cost_eng_min": 228.0,
+        "cost_per_failure": 3.8,
+        "p50_latency_ms": 2455.8,
+        "usd_per_1k_decisions": 0.06422266666666666
+      },
+      "LLM baseline: deepseek-ai/DeepSeek-V3.2 (DeepInfra)": {
+        "n": 60,
+        "accuracy": 0.883,
+        "wrong_quarantines_of_real_bugs": 0,
+        "needless_blocks": 2,
+        "retries": 36,
+        "expected_cost_eng_min": 210.0,
+        "cost_per_failure": 3.5,
+        "p50_latency_ms": 1618.4,
+        "usd_per_1k_decisions": 0.153805
+      }
+    }
+  }
+}

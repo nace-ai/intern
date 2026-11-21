@@ -1,0 +1,23 @@
+=== CI run #48246  job=unit-tests  runner=ci-runner-14
+commit 83ba384  branch=feature/ui-540
+changed files in this PR:
+  M tests/payments/test_stripe_webhook_cache.py
+framework: pytest 8.3.2 (-p randomly, seed=64341)
+failing test: tests/payments/test_stripe_webhook_settings.py::test_default_stripe_webhook_config
+test file: tests/payments/test_stripe_webhook_settings.py
+duration: 0.18s
+
+=================================== FAILURES ===================================
+___________________________ test_default_stripe_webhook_config ___________________________
+
+tests/payments/test_stripe_webhook_settings.py:50: in get_settings
+    assert get_settings().stripe_webhook_ttl == 300
+E   assert 5 == 300
+E    +  where 5 = Settings(stripe_webhook_ttl=5, cache='memory').stripe_webhook_ttl
+E   (module-level singleton mutated by an earlier test in this worker)
+=========================== short test summary info ============================
+FAILED tests/payments/test_stripe_webhook_settings.py::test_default_stripe_webhook_config - (module-level singleton mutated by an earlier test in this worker)
+rerun in isolation: `pytest tests/payments/test_stripe_webhook_settings.py::test_default_stripe_webhook_config` -> 1 passed
+retry history:
+  attempt 2: PASSED (6.47s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

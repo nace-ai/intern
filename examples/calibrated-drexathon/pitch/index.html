@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- agent: claude-code  2026-11-14 (added speaker notes, key S) -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calibrated: Flaky or Real? — Drex decides | Nace AI Drexathon 2026</title>
+<style>
+  :root{
+    --bg:#F7F7F4; --card:#FFFFFF; --ink:#14161A; --muted:#5B6270; --line:#E3E4E0;
+    --accent:#0E7C66; --accent-soft:#E3F2EE; --ph:#B45309; --ph-bg:#FFF4E0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#E9E9E5;overflow:hidden;
+    font-family:"Inter","Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;color:var(--ink)}
+  #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  #stage{width:1920px;height:1080px;position:relative;transform-origin:center center;flex:none}
+  .slide{position:absolute;inset:0;background:var(--bg);padding:110px 140px 120px;display:none;flex-direction:column}
+  .slide.active{display:flex}
+  .slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:14px;background:var(--accent)}
+  .kicker{font-size:26px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:22px}
+  h1{font-size:112px;line-height:1.02;font-weight:800;letter-spacing:-.03em}
+  h2{font-size:72px;line-height:1.08;font-weight:800;letter-spacing:-.02em;margin-bottom:44px}
+  h3{font-size:34px;font-weight:700;margin-bottom:12px}
+  p,li{font-size:36px;line-height:1.4;color:var(--ink)}
+  .muted{color:var(--muted)}
+  .accent{color:var(--accent)}
+  ul.clean{list-style:none}
+  ul.clean li{padding-left:44px;position:relative;margin-bottom:22px}
+  ul.clean li::before{content:"";position:absolute;left:0;top:20px;width:20px;height:6px;background:var(--accent);border-radius:3px}
+  .ph{background:var(--ph-bg);color:var(--ph);border:2px dashed #E5A54B;border-radius:10px;padding:2px 12px;font-weight:700;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.82em;white-space:nowrap}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:56px;flex:1;min-height:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:40px 44px;box-shadow:0 2px 0 rgba(0,0,0,.03)}
+  .imgslot{position:relative;background:var(--card);border:2px dashed #C9CCC4;border-radius:22px;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:0}
+  .imgslot img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  .imgslot .fallback{display:none;text-align:center;color:var(--ph);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:28px;padding:30px}
+  .imgslot.missing .fallback{display:block}
+  .imgslot.missing img{display:none}
+  .imgslot.loaded{border:1px solid var(--line)}
+  footer{position:absolute;left:140px;right:140px;bottom:44px;display:flex;justify-content:space-between;font-size:22px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
+  footer b{color:var(--accent);font-weight:700}
+  /* title */
+  .title-wrap{flex:1;display:flex;flex-direction:column;justify-content:center}
+  .hook{font-size:48px;line-height:1.3;color:var(--muted);margin-top:40px;max-width:1400px}
+  .hook strong{color:var(--ink)}
+  .byline{margin-top:70px;font-size:30px;color:var(--muted)}
+  .pill{display:inline-block;background:var(--accent-soft);color:var(--accent);font-weight:700;border-radius:999px;padding:8px 24px;font-size:26px;margin-right:12px}
+  /* problem */
+  .quote{font-size:40px;line-height:1.35;border-left:8px solid var(--accent);padding:10px 0 10px 36px;margin-top:20px}
+  .verdict{display:flex;gap:24px;margin-top:34px}
+  .verdict div{flex:1;border-radius:18px;padding:26px 30px;font-size:30px}
+  .verdict .bad{background:#F1F1EE}
+  .verdict .good{background:var(--accent-soft)}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+  /* learning */
+  .insight{font-size:52px;line-height:1.2;font-weight:800;letter-spacing:-.01em;margin-bottom:36px}
+  /* pipeline */
+  .pipe{display:flex;align-items:stretch;gap:0;margin-top:20px}
+  .node{flex:1;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:34px 30px;text-align:left}
+  .node .tag{font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  .node h3{font-size:38px;margin:10px 0 12px}
+  .node p{font-size:27px;line-height:1.35;color:var(--muted)}
+  .node.hl{border:3px solid var(--accent);background:var(--accent-soft)}
+  .arrow{width:70px;display:flex;align-items:center;justify-content:center;font-size:52px;color:var(--accent);font-weight:800}
+  .loop{margin-top:34px;display:flex;align-items:center;gap:22px;font-size:30px;color:var(--muted)}
+  .loop .ret{font-size:46px;color:var(--accent)}
+  .policy{display:flex;gap:18px;margin-top:40px}
+  .policy div{flex:1;border-radius:16px;padding:20px 26px;font-size:28px;background:var(--card);border:1px solid var(--line)}
+  .policy b{display:block;font-size:30px;margin-bottom:4px}
+  /* demo */
+  .demo-center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+  .demo-big{font-size:150px;font-weight:800;letter-spacing:-.04em;line-height:1}
+  .term{margin-top:50px;background:#14161A;color:#E8EAE6;border-radius:18px;padding:34px 40px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:30px;line-height:1.55;width:100%}
+  .term .c{color:#7FD1BC}
+  .term .d{color:#8A8F98}
+  /* results */
+  table{width:100%;border-collapse:collapse;font-size:28px;background:var(--card);border-radius:18px;overflow:hidden}
+  th,td{text-align:left;padding:14px 24px;border-bottom:1px solid var(--line)}
+  th{font-size:22px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:#FBFBF9}
+  td.drex{background:var(--accent-soft);font-weight:700}
+  th.drex{color:var(--accent);background:var(--accent-soft)}
+  tr:last-child td{border-bottom:none}
+  .res-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;flex:1;min-height:0}
+  .res-right{display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:24px;min-height:0}
+  .res-right .imgslot{height:100%}
+  .res-right .imgslot img{width:100%;height:100%;object-fit:contain}
+  .res-grid table{font-size:25px}
+  .res-grid th,.res-grid td{padding:9px 20px}
+  .res-grid td{white-space:nowrap}
+  .cap{font-size:22px;color:var(--muted);margin-top:16px}
+  /* close */
+  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;flex:1}
+  .three .card p,.three .card li{font-size:30px}
+  .three .card li{margin-bottom:14px}
+  .ask{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .ask h3,.ask p,.ask li{color:#fff}
+  .ask .tag{color:#CFEDE5}
+  /* challenger extras */
+  .stakes{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px}
+  .stakes .card{padding:44px 48px}
+  .stakes .card h3{font-size:40px;margin:10px 0 18px}
+  .stakes .card p{font-size:32px;line-height:1.4;color:var(--muted)}
+  .stakes .tag-warn{font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#B45309}
+  .stakes .tag-danger{font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#B42318}
+  .reframe{font-size:40px;line-height:1.4;color:var(--muted);max-width:1640px;margin-bottom:8px}
+  .reframe strong{color:var(--ink)}
+  .pain-stats{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:44px;flex:1;min-height:0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:44px 48px;box-shadow:0 2px 0 rgba(0,0,0,.03);display:flex;flex-direction:column;justify-content:center}
+  .stat .num{font-size:108px;font-weight:800;letter-spacing:-.04em;line-height:1}
+  .stat .num span{font-size:52px;color:var(--muted);font-weight:700}
+  .stat h3{font-size:32px;margin:18px 0 8px}
+  .stat p{font-size:28px;line-height:1.4;color:var(--muted)}
+  .strip{display:flex;gap:16px;margin:0 0 32px}
+  .strip div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 22px}
+  .strip .tag{font-size:18px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  .strip b{display:block;font-size:26px;margin-top:4px}
+  .learn-callout{margin-top:22px;font-size:28px;line-height:1.4;color:var(--muted)}
+  .learn-callout strong{color:var(--ink)}
+  h2.tight{margin-bottom:28px}
+  .policy-rows{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+  .policy-rows div{display:flex;justify-content:space-between;align-items:baseline;border:1px solid var(--line);border-radius:14px;padding:14px 20px;font-size:28px;background:#FBFBF9}
+  .policy-rows b{font-size:28px;font-weight:700}
+  /* chrome */
+  #progress{position:fixed;left:0;bottom:0;height:5px;background:var(--accent);transition:width .25s ease;z-index:10}
+  #counter{position:fixed;right:18px;bottom:14px;font-size:13px;color:#888;z-index:10;font-family:ui-monospace,Menlo,monospace}
+  #help{position:fixed;left:18px;bottom:14px;font-size:13px;color:#888;z-index:10;opacity:.0;transition:opacity .3s}
+  body:hover #help{opacity:.8}
+  /* opener (unused) */
+  #opener-wrap{display:none;position:absolute;inset:0;background:var(--bg);z-index:3}
+  .slide.has-opener{padding:0}
+  .slide.has-opener::before{display:none}
+  .slide.has-opener .title-wrap,
+  .slide.has-opener > footer{display:none}
+  .slide.has-opener #opener-wrap{display:block}
+  #opener-video{width:100%;height:100%;object-fit:contain;background:var(--bg);display:block}
+  #opener-credit,#opener-skip{
+    position:absolute;bottom:36px;font-size:22px;z-index:4;
+    background:rgba(247,247,244,.88);padding:8px 18px;border-radius:10px;color:var(--muted)
+  }
+  #opener-credit{left:48px}
+  #opener-credit b{color:var(--accent);font-weight:700}
+  #opener-skip{right:48px}
+  @media print{
+    html,body{overflow:visible;background:#fff}
+    #viewport{position:static;display:block}
+    #stage{transform:none!important;width:1920px;height:auto}
+    .slide{display:flex!important;position:relative;width:1920px;height:1080px;page-break-after:always}
+    #progress,#counter,#help{display:none}
+    @page{size:1920px 1080px;margin:0}
+  }
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<!-- ============ 1. TITLE / WARMER ============ -->
+<section class="slide" data-title="Title">
+  <div class="title-wrap">
+    <div class="kicker">Team Calibrated · Nace AI Drexathon · Apex Predator track</div>
+    <h1>Flaky or real?<br><span class="accent">Let Drex decide.</span></h1>
+    <p class="hook">A flaky test is a test that sometimes fails even when the code is fine — <strong>like a smoke alarm that goes off when you make toast.</strong></p>
+    <p class="hook" style="margin-top:28px;font-size:40px">Every red build forces the same call: <strong>toast, or a real fire?</strong></p>
+    <div class="byline"><span class="pill">Alexandra</span> Associate Engineer, Agentic Experiences · San Francisco · Nov 14, 2026</div>
+  </div>
+  <footer><span>Built with <b>Drex</b> · <b>Intern</b> (Nace harness) · <b>NDI</b> (Nace Document Intelligence) · <b>DeepInfra</b></span><span>1 / 7</span></footer>
+</section>
+
+<!-- ============ 2. STAKES ============ -->
+<section class="slide" data-title="The stakes">
+  <div class="kicker">The stakes</div>
+  <h2 class="tight">Guess wrong, and you either waste an hour or ship a bug.</h2>
+  <p class="quote">Every failure forces a call: is it the toast, or a real fire? The two mistakes do not cost the same.</p>
+  <div class="stakes">
+    <div class="card">
+      <div class="tag-warn">Wrong call · it was toast</div>
+      <h3>You waste an engineer’s hour.</h3>
+      <p>A false alarm still pages someone. They dig through the log, rerun the test, and lose an hour that wasn’t a fire.</p>
+    </div>
+    <div class="card">
+      <div class="tag-danger">Wrong call · it was a fire</div>
+      <h3>A real bug ships.</h3>
+      <p>Quarantine a real regression and the smoke alarm goes quiet — while the fire moves into production.</p>
+    </div>
+  </div>
+  <footer><span>Built with <b>Drex</b> · <b>Intern</b> · <b>NDI</b> · <b>DeepInfra</b></span><span>2 / 7</span></footer>
+</section>
+
+<!-- ============ 3. REFRAME + PAIN ============ -->
+<section class="slide" data-title="The reframe">
+  <div class="kicker">The insight they don’t have</div>
+  <h2 class="tight">The expensive part isn’t reading the logs. It’s the decision.</h2>
+  <p class="reframe">Most teams think the fix is a <strong>smarter AI that reads the logs</strong>. A typical LLM shrugs — and pushes the call back onto an engineer.</p>
+  <div class="pain-stats">
+    <div class="stat">
+      <div class="num">41<span> / 60</span></div>
+      <h3>Llama-3.3-70B said “retry.”</h3>
+      <p>On 60 real CI failures, the model hedged 41 times. That’s not triage. That’s hesitation.</p>
+    </div>
+    <div class="stat">
+      <div class="num">36<span> / 60</span></div>
+      <h3>DeepSeek-V3.2 said it too.</h3>
+      <p>Same logs, same cost table, same shrug. Drex retried none of the 60.</p>
+    </div>
+  </div>
+  <footer><span>Built with <b>Drex</b> · <b>Intern</b> · <b>NDI</b> · <b>DeepInfra</b></span><span>3 / 7</span></footer>
+</section>
+
+<!-- ============ 4. THE NEW WAY ============ -->
+<section class="slide" data-title="The new way">
+  <div class="kicker">The new way</div>
+  <h2 class="tight">Drex gives the odds. The loop makes the call.</h2>
+  <div class="strip">
+    <div><div class="tag">1 · NDI</div><b>Extract the log</b></div>
+    <div><div class="tag">2 · Drex</div><b>P(flaky), not a verdict</b></div>
+    <div><div class="tag">3 · Policy</div><b>Quarantine, retry, or block</b></div>
+    <div><div class="tag">4 · Learn</div><b>Refit only if cost falls</b></div>
+  </div>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr">
+    <div class="imgslot" data-src="../results/prob_histogram.png">
+      <img alt="Histogram of Drex P(flaky) across CI failures, split by true label">
+      <div class="fallback">&lt;img src="../results/prob_histogram.png"&gt;<br>[CHART: P(flaky) histogram, by true label]</div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+      <h3>Two thresholds, priced by cost</h3>
+      <div class="policy-rows">
+        <div><b class="accent">QUARANTINE</b><span>P ≥ 0.80</span></div>
+        <div><b>RETRY</b><span>0.40 – 0.80</span></div>
+        <div><b style="color:#B42318">BLOCK</b><span>P &lt; 0.40</span></div>
+      </div>
+      <p class="learn-callout">The loop doesn’t overreact. One noisy override would have raised cost from <strong>118 to 484</strong> engineer-minutes. The thresholds held at 0.40 / 0.80.</p>
+    </div>
+  </div>
+  <footer><span>Built with <b>Drex</b> · <b>Intern</b> · <b>NDI</b> · <b>DeepInfra</b></span><span>4 / 7</span></footer>
+</section>
+
+<!-- ============ 5. LIVE DEMO ============ -->
+<section class="slide" data-title="Live demo">
+  <div class="demo-center">
+    <div class="kicker">Live demo</div>
+    <div class="demo-big">Watch it decide.</div>
+    <div class="term">
+      <div><span class="d">$</span> <span class="c">python demo.py --live</span></div>
+      <div class="d"># Case 7: a real bug that looks flaky — the retry passed</div>
+      <div class="d"># 1. NDI pulls fields from the log</div>
+      <div class="d"># 2. Drex returns P(flaky)</div>
+      <div class="d"># 3. Policy picks QUARANTINE / RETRY / BLOCK</div>
+      <div class="d"># 4. A human override is tested against the cost table</div>
+    </div>
+  </div>
+  <footer><span>Built with <b>Drex</b> · <b>Intern</b> · <b>NDI</b> · <b>DeepInfra</b></span><span>5 / 7</span></footer>
+</section>
+
+<!-- ============ 6. PROOF ============ -->
+<section class="slide" data-title="Proof">
+  <div class="kicker">Proof · same failures, same cost table</div>
+  <h2 style="margin-bottom:30px;font-size:60px">96.7% accurate. Zero real bugs quarantined. 48% lower cost.</h2>
+  <div class="res-grid">
+    <div>
+      <table>
+        <tr><th>Metric</th><th class="drex">Drex + policy</th><th>Llama-3.3-70B <span style="text-transform:none;letter-spacing:0">(DeepInfra)</span></th></tr>
+        <tr><td>Accuracy</td><td class="drex">96.7%</td><td>85.0%</td></tr>
+        <tr><td>Real bugs quarantined</td><td class="drex">0</td><td>0</td></tr>
+        <tr><td>Exp. cost, all 60</td><td class="drex">118 eng-min</td><td>228 eng-min</td></tr>
+        <tr><td>Exp. cost, held-out 44</td><td class="drex">98 eng-min</td><td>176 eng-min</td></tr>
+        <tr><td>Hedged with RETRY</td><td class="drex">0 / 60</td><td>41 / 60</td></tr>
+        <tr><td>Latency (p50)</td><td class="drex">292 ms</td><td>2,456 ms · 8× slower</td></tr>
+      </table>
+      <p class="cap">60 labeled CI failures · drex-max-v1.1 · real API calls. DeepSeek-V3.2: 88.3%, cost 210, RETRY on 36/60. Intern ran the loop for real: 6 turns, 39 s, 16 Drex checks. The savings come from better decisions, not cheaper tokens.</p>
+    </div>
+    <div class="res-right">
+      <div class="imgslot" data-src="../results/drex_vs_llm.png">
+        <img alt="Drex vs frontier LLM comparison chart">
+        <div class="fallback">&lt;img src="../results/drex_vs_llm.png"&gt;<br>[CHART: Drex vs LLM]</div>
+      </div>
+      <div class="imgslot" data-src="../results/cost_before_after.png">
+        <img alt="Expected cost before and after threshold recalibration">
+        <div class="fallback">&lt;img src="../results/cost_before_after.png"&gt;<br>[CHART: cost before → after learning]<br>118 → 118 eng-min (thresholds held)</div>
+      </div>
+    </div>
+  </div>
+  <footer><span>Built with <b>Drex</b> · <b>Intern</b> · <b>NDI</b> · <b>DeepInfra</b></span><span>6 / 7</span></footer>
+</section>
+
+<!-- ============ 7. CLOSE ============ -->
+<section class="slide" data-title="Close">
+  <div class="title-wrap">
+    <div class="kicker">The takeaway</div>
+    <h1>Stop asking AI<br>what it thinks.</h1>
+    <p class="hook"><strong>Ask it how sure it is.</strong> That’s what Calibrated means.</p>
+    <p class="hook" style="margin-top:28px;font-size:40px">A verdict can’t learn your costs. A probability can.</p>
+    <div class="byline"><span class="pill">The ask</span> Pilot it on one team’s CI. Send us your flakiest repo.</div>
+  </div>
+  <footer><span>Built with <b>Drex</b> · <b>Intern</b> (Nace harness) · <b>NDI</b> (Nace Document Intelligence) · <b>DeepInfra</b></span><span>7 / 7</span></footer>
+</section>
+
+</div></div>
+<div id="progress"></div>
+<div id="counter"></div>
+<div id="help">← → / Space / PgUp PgDn · Home End · 1–7 · S speaker notes · F fullscreen</div>
+
+<script>
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  const stage=document.getElementById('stage');
+  const prog=document.getElementById('progress'), ctr=document.getElementById('counter');
+  let i=0;
+  const opener=document.getElementById('opener-video');
+  const titleSlide=document.querySelector('.slide[data-title="Title"]');
+  if(opener && titleSlide){
+    const arm=()=>{
+      titleSlide.classList.add('has-opener');
+      opener.muted=true;
+      opener.loop=true;
+      opener.playsInline=true;
+      opener.play().catch(()=>{});
+    };
+    opener.addEventListener('loadeddata',arm);
+    opener.addEventListener('canplay',()=>{ if(opener.readyState>=2) arm(); });
+    opener.addEventListener('error',()=>titleSlide.classList.remove('has-opener'));
+  }
+  // image slots: load if file exists, otherwise show placeholder
+  document.querySelectorAll('.imgslot').forEach(s=>{
+    const img=s.querySelector('img');
+    s.classList.add('missing');
+    img.onload=()=>{s.classList.remove('missing');s.classList.add('loaded')};
+    img.onerror=()=>{s.classList.add('missing')};
+    img.src=s.dataset.src;
+  });
+  // ---- speaker notes: press S to open a separate notes window (keep it on your laptop screen) ----
+  const NOTES=[
+    {t:'0:00',cue:'A flaky test is a smoke alarm that goes off when you make toast.',
+     body:"Hi, I'm Alexandra.\nA flaky test is a test that sometimes fails even when the code is fine.\nLike a smoke alarm that goes off when you make toast.\nEvery time one fails, an engineer has to decide: is it the toast, or a real fire?"},
+    {t:'0:30',cue:'Wrong one way wastes an hour. Wrong the other way ships a bug.',
+     body:"Guess wrong one way, and you waste an engineer's hour chasing a false alarm.\nGuess wrong the other way, and a real bug ships.\nEvery CI pipeline makes that bet, and almost nobody prices it.\nToday: what happened when we stopped asking AI what it thinks, and started asking how sure it is."},
+    {t:'1:05',cue:"Llama said 'just retry' 41 times out of 60.",
+     body:"Most teams think the fix is a smarter AI that reads the logs.\nBut reading isn't the expensive part. The decision is.\nOn 60 real failures, Llama 3.3 70B said 'just retry' 41 times. DeepSeek V3.2 said it 36 times.\nRetry means the model handed the decision back to an engineer.\nThat's not triage. That's hesitation with a confident tone."},
+    {t:'1:40',cue:'Drex gives odds. Odds plus a cost table give a decision.',
+     body:"Drex doesn't guess. It gives you the odds. (point at the chart)\nOdds plus a cost table give one of three actions: quarantine, retry, or block.\nTwo thresholds: 0.80 high, 0.40 low.\nThe loop doesn't overreact. An engineer overrode Drex on one case.\nChanging the thresholds to fix that one case would raise total cost from 118 to 484 engineer-minutes.\nSo the thresholds stayed put.\n\nNEXT: switch to the Terminal."},
+    {t:'2:15',cue:'Log in, a number out, an action.',
+     body:"TERMINAL:  python demo.py --live --step\nFAILS?  Ctrl+C, then  python demo.py --offline --step\n\nThis is case 7: a real bug that looks flaky. The PR removed a lock, and the retry passed.\n\nEnter > NDI pulls the key facts out of the log.\nEnter > Drex call. 'What comes back is a number, not a paragraph. P(flaky) equals...' READ IT OFF THE SCREEN.\nEnter > Policy action. READ IT OFF THE SCREEN.\nEnter > Feedback. 16 human labels changed zero decisions. An engineer overrides Drex on a flaky test it was sure was real. Moving the thresholds would take cost from 118 to 484, so they stay put.\n'Took ... (read latency). Fast enough to sit inside CI.'\n\nBACKUP LINE: \"The live environment isn't cooperating, so here's the same run we recorded this morning.\"\n\nMUST BE BACK ON SLIDE 6 BY 3:30."},
+    {t:'3:30',cue:'96.7% accurate. Zero real bugs quarantined. 48% cheaper. 8x faster.',
+     body:"Same 60 failures, same cost table.\nDrex: 96.7% accurate, zero real bugs quarantined.\nExpected cost 118 engineer-minutes vs 228 for Llama: about 48% lower. Held-out: 98 vs 176.\n292 ms vs about 2.5 s: eight times faster. Drex retried none of the 60.\nIntern ran the loop for real: 6 turns, 39 seconds, 16 Drex checks, none failed."},
+    {t:'4:20',cue:'Ask AI how sure it is. We want a pilot. Send us your flakiest repo.',
+     body:"Stop asking AI what it thinks. Ask it how sure it is. That's what Calibrated means.\nA verdict can't learn your costs. A probability can.\nNext: run this as a CI check with a cost table per repo.\nOur ask is a pilot on one team's CI. Send us your flakiest repo.\nThank you!  STOP at 5:00.\n\nIF RUNNING LONG: cut the latency line in the demo and the 'Next' sentence."}
+  ];
+  let notesWin=null, notesStart=null;
+  function openNotes(){
+    if(notesWin && !notesWin.closed){notesWin.focus();return}
+    notesWin=window.open('','calibrated-notes','width=900,height=800');
+    if(!notesWin) return;
+    notesWin.document.write('<!doctype html><title>Speaker notes</title><style>body{margin:0;padding:28px 34px;background:#14161A;color:#E8EAE6;font:26px/1.45 system-ui,sans-serif}#top{display:flex;justify-content:space-between;color:#8A8F98;font-size:22px}#cue{font-size:40px;font-weight:800;line-height:1.2;margin:18px 0 22px;color:#7FD1BC}#body{white-space:pre-wrap}#next{margin-top:30px;padding-top:18px;border-top:1px solid #333;color:#8A8F98;font-size:22px}</style><div id="top"><span id="pos"></span><span id="clock"></span></div><div id="cue"></div><div id="body"></div><div id="next"></div>');
+    notesWin.document.close();
+    notesWin.addEventListener('keydown',e=>{
+      const k=e.key;
+      if(['ArrowRight','ArrowDown','PageDown',' ','Enter','n'].includes(k)){e.preventDefault();show(i+1)}
+      else if(['ArrowLeft','ArrowUp','PageUp','Backspace','p'].includes(k)){e.preventDefault();show(i-1)}
+      else if(k==='r'||k==='R'){notesStart=Date.now()}
+    });
+    notesStart=Date.now();
+    setInterval(()=>{
+      if(!notesWin||notesWin.closed) return;
+      const s=Math.floor((Date.now()-notesStart)/1000);
+      notesWin.document.getElementById('clock').textContent='Elapsed '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')+'  (R resets)';
+    },500);
+    updateNotes();
+  }
+  function updateNotes(){
+    if(!notesWin||notesWin.closed) return;
+    const d=notesWin.document, n=NOTES[i]||{t:'',cue:'',body:''}, nx=NOTES[i+1];
+    d.getElementById('pos').textContent='Slide '+(i+1)+' / '+slides.length+'   target '+n.t;
+    d.getElementById('cue').textContent=n.cue;
+    d.getElementById('body').textContent=n.body;
+    d.getElementById('next').textContent=nx?('NEXT ('+nx.t+'): '+nx.cue):'END. Say thank you and stop.';
+  }
+  function fit(){
+    const k=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+    stage.style.transform='scale('+k+')';
+  }
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,j)=>s.classList.toggle('active',j===i));
+    prog.style.width=((i+1)/slides.length*100)+'%';
+    ctr.textContent=(i+1)+' / '+slides.length;
+    updateNotes();
+    if(location.hash!=='#'+(i+1)) history.replaceState(null,'','#'+(i+1));
+    if(opener){
+      if(slides[i].classList.contains('has-opener')){
+        try{opener.currentTime=0}catch(e){}
+        opener.play().catch(()=>{});
+      }else{
+        opener.pause();
+      }
+    }
+  }
+  document.addEventListener('keydown',e=>{
+    const k=e.key;
+    if(['ArrowRight','ArrowDown','PageDown',' ','Enter','n'].includes(k)){e.preventDefault();show(i+1)}
+    else if(['ArrowLeft','ArrowUp','PageUp','Backspace','p'].includes(k)){e.preventDefault();show(i-1)}
+    else if(k==='Home'){show(0)} else if(k==='End'){show(slides.length-1)}
+    else if(/^[1-9]$/.test(k)){show(+k-1)}
+    else if(k==='s'||k==='S'){openNotes()}
+    else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}
+  });
+  document.addEventListener('click',e=>{ if(e.clientX>window.innerWidth/2) show(i+1); else show(i-1); });
+  window.addEventListener('resize',fit);
+  fit();
+  show((parseInt(location.hash.slice(1))||1)-1);
+})();
+</script>
+</body>
+</html>

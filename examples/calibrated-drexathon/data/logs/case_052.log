@@ -1,0 +1,25 @@
+=== CI run #46411  job=unit-tests  runner=ci-runner-01
+commit 853d7a4  branch=feature/perf-106
+changed files in this PR:
+  M src/checkout/cart.py
+  M src/checkout/rounding.py
+framework: pytest 8.3.2
+failing test: tests/checkout/test_cart.py::test_cart_total_includes_tax
+test file: tests/checkout/test_cart.py
+duration: 0.15s
+
+=================================== FAILURES ===================================
+___________________________ test_cart_total_includes_tax ___________________________
+
+tests/checkout/test_cart.py:45: in cart.total
+    assert cart.total() == Decimal('42.00')
+E   AssertionError: assert Decimal('41.50') == Decimal('42.00')
+E     - 42.00
+E     + 41.50
+=========================== short test summary info ============================
+FAILED tests/checkout/test_cart.py::test_cart_total_includes_tax - + 41.50
+retry history:
+  attempt 2: FAILED (identical assertion) (0.94s)
+  attempt 3: FAILED (identical assertion) (1.96s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)
+first failure of this test on any branch: this PR

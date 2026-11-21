@@ -1,0 +1,23 @@
+=== CI run #43834  job=unit-tests  runner=ci-runner-13
+commit 0b9f8ae  branch=feature/fix-363
+changed files in this PR:
+  M tests/reports/test_exporter_cache.py
+framework: pytest 8.3.2 (-p randomly, seed=92074)
+failing test: tests/reports/test_exporter_settings.py::test_default_exporter_config
+test file: tests/reports/test_exporter_settings.py
+duration: 0.06s
+
+=================================== FAILURES ===================================
+___________________________ test_default_exporter_config ___________________________
+
+tests/reports/test_exporter_settings.py:30: in get_settings
+    assert get_settings().exporter_ttl == 300
+E   assert 5 == 300
+E    +  where 5 = Settings(exporter_ttl=5, cache='memory').exporter_ttl
+E   (module-level singleton mutated by an earlier test in this worker)
+=========================== short test summary info ============================
+FAILED tests/reports/test_exporter_settings.py::test_default_exporter_config - (module-level singleton mutated by an earlier test in this worker)
+rerun in isolation: `pytest tests/reports/test_exporter_settings.py::test_default_exporter_config` -> 1 passed
+retry history:
+  attempt 2: PASSED (7.94s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

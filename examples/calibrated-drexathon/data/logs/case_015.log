@@ -1,0 +1,22 @@
+=== CI run #42245  job=unit-tests  runner=ci-runner-18
+commit 1b0ee37  branch=feature/fix-101
+changed files in this PR:
+  M src/checkout/__init__.py
+  M src/checkout/cart.py
+framework: pytest 8.3.2
+failing test: tests/checkout/test_cart_api.py
+test file: tests/checkout/test_cart_api.py
+duration: 0.00s
+
+==================================== ERRORS ====================================
+_____________ ERROR collecting tests/checkout/test_cart_api.py _____________
+ImportError while importing test module 'tests/checkout/test_cart_api.py'.
+Traceback:
+tests/checkout/test_cart_api.py:3: in <module>
+    from src.checkout.cart import CartService
+E   ImportError: cannot import name 'CartService' from 'src.checkout.cart' (did you mean 'CartClient'?)
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+retry history:
+  attempt 2: ERROR (collection) (7.82s)
+  attempt 3: ERROR (collection) (5.21s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

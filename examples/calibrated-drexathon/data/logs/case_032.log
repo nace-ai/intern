@@ -1,0 +1,25 @@
+=== CI run #46498  job=unit-tests  runner=ci-runner-16
+commit a297700  branch=feature/deps-699
+changed files in this PR:
+  M src/web/InvoiceTable.tsx
+  M src/web/types.ts
+framework: jest 29.7.0
+failing test: InvoiceTable › renders with default props
+test file: src/web/__tests__/InvoiceTable.test.tsx
+duration: 0.49s
+
+ FAIL  src/web/__tests__/InvoiceTable.test.tsx
+  ● InvoiceTable › renders with default props
+
+    TypeError: Cannot read properties of undefined (reading 'map')
+    
+    > 41 |   {props.items.map((item) => <Row key={item.id} {...item} />)}
+
+      at InvoiceTable (src/web/InvoiceTable.tsx:41:22)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom.development.js:16305:18)
+
+Tests:       1 failed, 72 passed, 73 total
+retry history:
+  attempt 2: FAILED (5.21s)
+  attempt 3: FAILED (1.31s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

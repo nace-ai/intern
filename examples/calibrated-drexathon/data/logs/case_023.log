@@ -1,0 +1,24 @@
+=== CI run #49004  job=unit-tests  runner=ci-runner-17
+commit 9282c0a  branch=feature/fix-538
+changed files in this PR:
+  M src/billing/utils.py
+  M README.md
+framework: pytest 8.3.2
+failing test: tests/reports/test_exporter.py::test_exporter_sync
+test file: tests/reports/test_exporter.py
+duration: 30.56s
+
+=================================== FAILURES ===================================
+___________________________ test_exporter_sync ___________________________
+
+tests/reports/test_exporter.py:44: in client.get
+    resp = client.get('/reports/exporter', timeout=30)
+venv/lib/python3.12/site-packages/httpx/_client.py:1014: in mapped_exc
+    raise mapped_exc(message) from exc
+E   httpx.ReadTimeout: timed out
+E   (waited 30.6s for postgres-test.internal:5432 fixture warm-up)
+=========================== short test summary info ============================
+FAILED tests/reports/test_exporter.py::test_exporter_sync - (waited 30.6s for postgres-test.internal:5432 fixture warm-up)
+retry history:
+  attempt 2: PASSED (2.42s)
+history: failed 12/50 recent runs on main (recent_fail_rate=0.24)

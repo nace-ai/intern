@@ -1,0 +1,25 @@
+=== CI run #47743  job=unit-tests  runner=ci-runner-20
+commit 595d833  branch=feature/perf-102
+changed files in this PR:
+  M src/billing/queries.py
+  M src/billing/serializers.py
+framework: pytest 8.3.2
+failing test: tests/billing/test_invoice_list.py::test_list_invoices_paginated
+test file: tests/billing/test_invoice_list.py
+duration: 30.45s
+
+=================================== FAILURES ===================================
+___________________________ test_list_invoices_paginated ___________________________
+
+tests/billing/test_invoice_list.py:31: in client.get
+    resp = client.get('/billing/invoices?page=1', timeout=30)
+venv/lib/python3.12/site-packages/httpx/_client.py:1014: in mapped_exc
+    raise mapped_exc(message) from exc
+E   httpx.ReadTimeout: timed out
+E   (SQL log: 1,204 queries issued for 50 rows)
+=========================== short test summary info ============================
+FAILED tests/billing/test_invoice_list.py::test_list_invoices_paginated - (SQL log: 1,204 queries issued for 50 rows)
+retry history:
+  attempt 2: FAILED (timeout) (6.62s)
+  attempt 3: FAILED (timeout) (8.78s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

@@ -1,0 +1,25 @@
+=== CI run #42153  job=unit-tests  runner=ci-runner-18
+commit b4ef7a4  branch=feature/refactor-764
+changed files in this PR:
+  M src/inventory/queries.py
+  M src/inventory/serializers.py
+framework: pytest 8.3.2
+failing test: tests/inventory/test_stock_list.py::test_list_stocks_paginated
+test file: tests/inventory/test_stock_list.py
+duration: 30.14s
+
+=================================== FAILURES ===================================
+___________________________ test_list_stocks_paginated ___________________________
+
+tests/inventory/test_stock_list.py:27: in client.get
+    resp = client.get('/inventory/stocks?page=1', timeout=30)
+venv/lib/python3.12/site-packages/httpx/_client.py:1014: in mapped_exc
+    raise mapped_exc(message) from exc
+E   httpx.ReadTimeout: timed out
+E   (SQL log: 1,204 queries issued for 50 rows)
+=========================== short test summary info ============================
+FAILED tests/inventory/test_stock_list.py::test_list_stocks_paginated - (SQL log: 1,204 queries issued for 50 rows)
+retry history:
+  attempt 2: FAILED (timeout) (1.64s)
+  attempt 3: FAILED (timeout) (6.79s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

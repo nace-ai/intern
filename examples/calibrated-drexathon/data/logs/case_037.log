@@ -1,0 +1,22 @@
+=== CI run #48151  job=unit-tests  runner=ci-runner-04
+commit f2290b9  branch=feature/fix-324
+changed files in this PR:
+  M src/checkout/cart.py
+framework: pytest 8.3.2
+failing test: tests/integration/test_cart_client.py::test_cart_fetch_remote
+test file: tests/integration/test_cart_client.py
+duration: 0.56s
+
+=================================== FAILURES ===================================
+___________________________ test_cart_fetch_remote ___________________________
+
+tests/integration/test_cart_client.py:54: in session.get
+    r = session.get(REMOTE_URL + '/cart')
+E   urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded
+E   Caused by NewConnectionError: [Errno 111] Connection refused
+=========================== short test summary info ============================
+FAILED tests/integration/test_cart_client.py::test_cart_fetch_remote - Caused by NewConnectionError: [Errno 111] Connection refused
+retry history:
+  attempt 2: PASSED (4.04s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)
+note: 3 other jobs on this runner pool reported network errors in the same 5-minute window

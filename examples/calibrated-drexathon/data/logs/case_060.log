@@ -1,0 +1,20 @@
+=== CI run #49742  job=unit-tests  runner=ci-runner-23
+commit 1cc1cf5  branch=feature/deps-146
+changed files in this PR:
+  M Makefile
+framework: pytest 8.3.2
+failing test: tests/search/test_indexer_server.py::test_indexer_server_boots
+test file: tests/search/test_indexer_server.py
+duration: 1.21s
+
+=================================== FAILURES ===================================
+___________________________ test_indexer_server_boots ___________________________
+
+tests/search/test_indexer_server.py:17: in start_server
+    server = start_server(port=8081)
+E   OSError: [Errno 98] Address already in use: ('127.0.0.1', 8081)
+=========================== short test summary info ============================
+FAILED tests/search/test_indexer_server.py::test_indexer_server_boots - OSError: [Errno 98] Address already in use: ('127.0.0.1', 8081)
+retry history:
+  attempt 2: PASSED (4.09s)
+history: failed 4/50 recent runs on main (recent_fail_rate=0.08)

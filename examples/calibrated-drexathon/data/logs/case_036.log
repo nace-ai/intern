@@ -1,0 +1,22 @@
+=== CI run #47549  job=unit-tests  runner=ci-runner-13
+commit befef06  branch=feature/perf-998
+changed files in this PR:
+  M src/api/rate_limiter.py
+framework: pytest 8.3.2
+failing test: tests/integration/test_rate_limiter_client.py::test_rate_limiter_fetch_remote
+test file: tests/integration/test_rate_limiter_client.py
+duration: 1.44s
+
+=================================== FAILURES ===================================
+___________________________ test_rate_limiter_fetch_remote ___________________________
+
+tests/integration/test_rate_limiter_client.py:66: in session.get
+    r = session.get(REMOTE_URL + '/rate_limiter')
+E   urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded
+E   Caused by NewConnectionError: [Errno 111] Connection refused
+=========================== short test summary info ============================
+FAILED tests/integration/test_rate_limiter_client.py::test_rate_limiter_fetch_remote - Caused by NewConnectionError: [Errno 111] Connection refused
+retry history:
+  attempt 2: PASSED (6.70s)
+history: failed 1/50 recent runs on main (recent_fail_rate=0.02)
+note: 3 other jobs on this runner pool reported network errors in the same 5-minute window

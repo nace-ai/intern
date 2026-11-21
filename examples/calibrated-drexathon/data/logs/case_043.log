@@ -1,0 +1,22 @@
+=== CI run #44485  job=unit-tests  runner=ci-runner-18
+commit c13aeb1  branch=feature/fix-617
+changed files in this PR:
+  M src/auth/http_config.py
+framework: pytest 8.3.2
+failing test: tests/integration/test_session_client.py::test_session_fetch_remote
+test file: tests/integration/test_session_client.py
+duration: 0.95s
+
+=================================== FAILURES ===================================
+___________________________ test_session_fetch_remote ___________________________
+
+tests/integration/test_session_client.py:58: in session.get
+    r = session.get(REMOTE_URL + '/session')
+E   requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+=========================== short test summary info ============================
+FAILED tests/integration/test_session_client.py::test_session_fetch_remote - requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Co
+retry history:
+  attempt 2: FAILED (same error) (4.90s)
+  attempt 3: PASSED (9.38s)
+history: failed 6/50 recent runs on main (recent_fail_rate=0.12)
+

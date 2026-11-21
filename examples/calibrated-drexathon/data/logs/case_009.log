@@ -1,0 +1,26 @@
+=== CI run #45388  job=unit-tests  runner=ci-runner-04
+commit 2a69f16  branch=feature/ui-774
+changed files in this PR:
+  M package-lock.json
+  M docs/CHANGELOG.md
+framework: jest 29.7.0
+failing test: useWebsocket › updates after async fetch
+test file: src/web/__tests__/useWebsocket.test.tsx
+duration: 5.11s
+
+ FAIL  src/web/__tests__/useWebsocket.test.tsx
+  ● useWebsocket › updates after async fetch
+
+    expect(screen.getByText('Total: $42.00')).toBeInTheDocument()
+    
+    TestingLibraryElementError: Unable to find an element with the text: Total: $42.00
+    Warning: An update to CartDrawer inside a test was not wrapped in act(...)
+
+      at Object.<anonymous> (src/web/__tests__/useWebsocket.test.tsx:55:27)
+      at processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+Tests:       1 failed, 44 passed, 45 total
+retry history:
+  attempt 2: PASSED (7.91s)
+  attempt 3: PASSED (6.86s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

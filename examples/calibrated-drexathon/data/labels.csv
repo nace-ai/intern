@@ -1,0 +1,61 @@
+case_id,test_name,category,truth,ambiguous,feedback_set
+case_001,tests/billing/test_invoice_server.py::test_invoice_server_boots,environment_resource,flaky,0,1
+case_002,tests/checkout/test_cart.py::test_cart_roundtrip,timeout,flaky,0,1
+case_003,tests/inventory/test_stock_settings.py::test_default_stock_config,order_dependence,flaky,0,1
+case_004,useWebsocket › updates after async fetch,race_condition_in_test,flaky,1,1
+case_005,tests/payments/test_stripe_webhook.py::test_stripe_webhook_refresh,timeout,flaky,0,1
+case_006,tests/payments/test_stripe_webhook_settings.py::test_default_stripe_webhook_config,order_dependence,flaky,0,1
+case_007,tests/payments/test_stripe_webhook_concurrency.py::test_parallel_stripe_webhook_updates_are_atomic,race_condition_in_product_code,real,1,1
+case_008,tests/reports/test_exporter_api.py,import_error,real,0,1
+case_009,useWebsocket › updates after async fetch,race_condition_in_test,flaky,0,1
+case_010,SearchBar › matches snapshot,snapshot_regression,real,0,1
+case_011,tests/reports/test_exporter.py::test_exporter_total_includes_tax,assertion_regression,real,0,1
+case_012,tests/users/test_profile_stats.py::test_profile_average_latency,numeric_drift,real,1,1
+case_013,tests/search/test_indexer.py::test_indexer_bulk_update,timeout,flaky,1,1
+case_014,tests/billing/test_invoice_settings.py::test_default_invoice_config,order_dependence,flaky,0,1
+case_015,tests/checkout/test_cart_api.py,import_error,real,0,1
+case_016,tests/auth/test_session_server.py::test_session_server_boots,environment_resource,flaky,1,1
+case_017,InvoiceTable › updates after async fetch,race_condition_in_test,flaky,1,0
+case_018,tests/checkout/test_cart.py::test_cart_sync,timeout,flaky,1,0
+case_019,tests/payments/test_stripe_webhook_server.py::test_stripe_webhook_server_boots,environment_resource,flaky,0,0
+case_020,tests/integration/test_profile_client.py::test_profile_fetch_remote,network_blip,flaky,0,0
+case_021,tests/notifications/test_email_queue_async.py::test_concurrent_email_queue_writes,race_condition_in_test,flaky,0,0
+case_022,tests/payments/test_stripe_webhook_server.py::test_stripe_webhook_server_boots,environment_resource,flaky,0,0
+case_023,tests/reports/test_exporter.py::test_exporter_sync,timeout,flaky,0,0
+case_024,CartDrawer › renders with default props,signature_change,real,0,0
+case_025,tests/reports/test_exporter.py::test_exporter_total_includes_tax,assertion_regression,real,0,0
+case_026,tests/search/test_indexer.py::test_indexer_refresh,timeout,flaky,0,0
+case_027,tests/checkout/test_cart_async.py::test_concurrent_cart_writes,race_condition_in_test,flaky,0,0
+case_028,tests/integration/test_cart_client.py::test_cart_fetch_remote,network_blip,flaky,0,0
+case_029,tests/inventory/test_stock.py::test_stock_roundtrip,timeout,flaky,0,0
+case_030,useWebsocket › renders with default props,signature_change,real,0,0
+case_031,tests/api/test_rate_limiter_async.py::test_concurrent_rate_limiter_writes,race_condition_in_test,flaky,0,0
+case_032,InvoiceTable › renders with default props,signature_change,real,0,0
+case_033,tests/inventory/test_stock_list.py::test_list_stocks_paginated,timeout_from_perf_regression,real,1,0
+case_034,tests/users/test_profile_server.py::test_profile_server_boots,environment_resource,flaky,0,0
+case_035,tests/auth/test_session_api.py,import_error,real,0,0
+case_036,tests/integration/test_rate_limiter_client.py::test_rate_limiter_fetch_remote,network_blip,flaky,0,0
+case_037,tests/integration/test_cart_client.py::test_cart_fetch_remote,network_blip,flaky,0,0
+case_038,tests/checkout/test_cart_async.py::test_concurrent_cart_writes,race_condition_in_test,flaky,0,0
+case_039,useWebsocket › matches snapshot,snapshot_regression,real,0,0
+case_040,tests/billing/test_invoice_list.py::test_list_invoices_paginated,timeout_from_perf_regression,real,1,0
+case_041,tests/integration/test_stripe_webhook_client.py::test_stripe_webhook_fetch_remote,network_error_from_config_change,real,1,0
+case_042,tests/integration/test_email_queue_client.py::test_email_queue_fetch_remote,network_blip,flaky,1,0
+case_043,tests/integration/test_session_client.py::test_session_fetch_remote,network_blip,flaky,1,0
+case_044,DatePicker › renders with default props,signature_change,real,0,0
+case_045,tests/reports/test_exporter_settings.py::test_default_exporter_config,order_dependence,flaky,0,0
+case_046,tests/notifications/test_email_queue.py::test_email_queue_total_includes_tax,assertion_regression,real,0,0
+case_047,tests/integration/test_indexer_client.py::test_indexer_fetch_remote,network_blip,flaky,0,0
+case_048,tests/notifications/test_email_queue.py::test_email_queue_sync,timeout,flaky,0,0
+case_049,tests/search/test_indexer_settings.py::test_default_indexer_config,order_dependence,flaky,1,0
+case_050,tests/checkout/test_cart_server.py::test_cart_server_boots,environment_resource,flaky,0,0
+case_051,tests/billing/test_invoice.py::test_invoice_total_includes_tax,assertion_regression,real,0,0
+case_052,tests/checkout/test_cart.py::test_cart_total_includes_tax,assertion_regression,real,0,0
+case_053,tests/checkout/test_cart.py::test_cart_total_includes_tax,assertion_regression,real,0,0
+case_054,useWebsocket › matches snapshot,snapshot_regression,real,0,0
+case_055,tests/integration/test_indexer_client.py::test_indexer_fetch_remote,network_error_from_config_change,real,1,0
+case_056,tests/inventory/test_stock_api.py,import_error,real,0,0
+case_057,tests/search/test_indexer_concurrency.py::test_parallel_indexer_updates_are_atomic,race_condition_in_product_code,real,1,0
+case_058,tests/search/test_indexer_settings.py::test_default_indexer_config,order_dependence,flaky,1,0
+case_059,tests/integration/test_cart_client.py::test_cart_fetch_remote,network_blip,flaky,0,0
+case_060,tests/search/test_indexer_server.py::test_indexer_server_boots,environment_resource,flaky,0,0

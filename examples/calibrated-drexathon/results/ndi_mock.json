@@ -1,0 +1,1230 @@
+{
+  "mode": "mock",
+  "paths_used": {
+    "ndi": 0,
+    "local_regex": 60
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "test_name": {
+        "type": "string",
+        "description": "The failing test id from the 'failing test:' line."
+      },
+      "framework": {
+        "type": "string",
+        "description": "Test framework and version, e.g. 'pytest 8.3.2'."
+      },
+      "error_type": {
+        "type": "string",
+        "description": "Exception or error class of the failure, e.g. httpx.ReadTimeout, AssertionError, ImportError, TypeError, TestingLibraryElementError, SnapshotMismatch."
+      },
+      "error_message": {
+        "type": "string",
+        "description": "The first error line of the failure, verbatim, without the leading 'E'."
+      },
+      "duration_seconds": {
+        "type": "number",
+        "description": "Value of the 'duration:' line in seconds."
+      },
+      "retry_attempts": {
+        "type": "integer",
+        "description": "Number of automatic retry attempts listed under 'retry history'. 0 if none."
+      },
+      "retry_passed": {
+        "type": "boolean",
+        "description": "True if any retry attempt PASSED."
+      },
+      "recent_fail_rate": {
+        "type": "number",
+        "description": "recent_fail_rate value on the 'history:' line (0 to 1)."
+      },
+      "changed_files": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Paths listed under 'changed files in this PR'."
+      }
+    },
+    "required": [
+      "test_name",
+      "error_type",
+      "duration_seconds",
+      "retry_passed",
+      "recent_fail_rate"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "case_001",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/billing/test_invoice_server.py::test_invoice_server_boots",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: expected report date 2026-11-14, got 2026-11-15",
+        "duration_seconds": 1.22,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "Makefile"
+        ]
+      },
+      "latency_ms": 0.5
+    },
+    {
+      "case_id": "case_002",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/checkout/test_cart.py::test_cart_roundtrip",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 30.6,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.18,
+        "changed_files": [
+          "src/api/utils.py",
+          "README.md"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_003",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/inventory/test_stock_settings.py::test_default_stock_config",
+        "framework": "pytest 8.3.2 (-p randomly, seed=54939)",
+        "error_type": "AssertionError",
+        "error_message": "assert 5 == 300",
+        "duration_seconds": 0.05,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.14,
+        "changed_files": [
+          "tests/inventory/test_stock_cache.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_004",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "useWebsocket \u203a updates after async fetch",
+        "framework": "jest 29.7.0",
+        "error_type": "TestingLibraryElementError",
+        "error_message": "TestingLibraryElementError: Unable to find an element with the text: Total: $42.00",
+        "duration_seconds": 4.26,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "src/web/useWebsocket.tsx"
+        ]
+      },
+      "latency_ms": 0.1
+    },
+    {
+      "case_id": "case_005",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/payments/test_stripe_webhook.py::test_stripe_webhook_refresh",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 30.91,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.24,
+        "changed_files": [
+          "src/billing/utils.py",
+          "README.md"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_006",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/payments/test_stripe_webhook_settings.py::test_default_stripe_webhook_config",
+        "framework": "pytest 8.3.2 (-p randomly, seed=64341)",
+        "error_type": "AssertionError",
+        "error_message": "assert 5 == 300",
+        "duration_seconds": 0.18,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "tests/payments/test_stripe_webhook_cache.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_007",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/payments/test_stripe_webhook_concurrency.py::test_parallel_stripe_webhook_updates_are_atomic",
+        "framework": "pytest 8.3.2 (-n 8 xdist)",
+        "error_type": "AssertionError",
+        "error_message": "assert 19 == 20",
+        "duration_seconds": 3.71,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/payments/stripe_webhook.py",
+          "src/payments/locks.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_008",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/reports/test_exporter_api.py",
+        "framework": "pytest 8.3.2",
+        "error_type": "ImportError",
+        "error_message": "ImportError: cannot import name 'ExporterService' from 'src.reports.exporter' (did you mean 'ExporterClient'?)",
+        "duration_seconds": 0.0,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/reports/__init__.py",
+          "src/reports/exporter.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_009",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "useWebsocket \u203a updates after async fetch",
+        "framework": "jest 29.7.0",
+        "error_type": "TestingLibraryElementError",
+        "error_message": "TestingLibraryElementError: Unable to find an element with the text: Total: $42.00",
+        "duration_seconds": 5.11,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "package-lock.json",
+          "docs/CHANGELOG.md"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_010",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "SearchBar \u203a matches snapshot",
+        "framework": "jest 29.7.0",
+        "error_type": "SnapshotMismatch",
+        "error_message": "expect(received).toMatchSnapshot()",
+        "duration_seconds": 0.26,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/web/SearchBar.tsx",
+          "src/web/theme/tokens.ts"
+        ]
+      },
+      "latency_ms": 0.1
+    },
+    {
+      "case_id": "case_011",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/reports/test_exporter.py::test_exporter_total_includes_tax",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: assert Decimal('1299.49') == Decimal('1299.99')",
+        "duration_seconds": 0.02,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/reports/exporter.py",
+          "src/reports/rounding.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_012",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/users/test_profile_stats.py::test_profile_average_latency",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "assert 12.50390625 == 12.5 \u00b1 1.0e-03",
+        "duration_seconds": 0.08,
+        "retry_attempts": 1,
+        "retry_passed": false,
+        "recent_fail_rate": 0.02,
+        "changed_files": [
+          "src/users/stats.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_013",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/search/test_indexer.py::test_indexer_bulk_update",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 60.85,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.12,
+        "changed_files": [
+          "src/search/indexer.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_014",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/billing/test_invoice_settings.py::test_default_invoice_config",
+        "framework": "pytest 8.3.2 (-p randomly, seed=47128)",
+        "error_type": "AssertionError",
+        "error_message": "assert 5 == 300",
+        "duration_seconds": 0.15,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.1,
+        "changed_files": [
+          "tests/billing/test_invoice_cache.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_015",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/checkout/test_cart_api.py",
+        "framework": "pytest 8.3.2",
+        "error_type": "ImportError",
+        "error_message": "ImportError: cannot import name 'CartService' from 'src.checkout.cart' (did you mean 'CartClient'?)",
+        "duration_seconds": 0.0,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/checkout/__init__.py",
+          "src/checkout/cart.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_016",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/auth/test_session_server.py::test_session_server_boots",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: expected report date 2026-11-14, got 2026-11-15",
+        "duration_seconds": 0.69,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "src/auth/session.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_017",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "InvoiceTable \u203a updates after async fetch",
+        "framework": "jest 29.7.0",
+        "error_type": "TestingLibraryElementError",
+        "error_message": "TestingLibraryElementError: Unable to find an element with the text: Total: $42.00",
+        "duration_seconds": 4.73,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.14,
+        "changed_files": [
+          "src/web/InvoiceTable.tsx"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_018",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/checkout/test_cart.py::test_cart_sync",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 60.78,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.08,
+        "changed_files": [
+          "src/checkout/cart.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_019",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/payments/test_stripe_webhook_server.py::test_stripe_webhook_server_boots",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: expected report date 2026-11-14, got 2026-11-15",
+        "duration_seconds": 0.93,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "Makefile"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_020",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_profile_client.py::test_profile_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "urllib3.exceptions.MaxRetryError",
+        "error_message": "urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded",
+        "duration_seconds": 0.86,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.1,
+        "changed_files": [
+          "src/users/profile.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_021",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/notifications/test_email_queue_async.py::test_concurrent_email_queue_writes",
+        "framework": "pytest 8.3.2 (pytest-asyncio, -n 8 xdist)",
+        "error_type": "AssertionError",
+        "error_message": "assert 2 == 3",
+        "duration_seconds": 1.55,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.18,
+        "changed_files": [
+          "tests/conftest.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_022",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/payments/test_stripe_webhook_server.py::test_stripe_webhook_server_boots",
+        "framework": "pytest 8.3.2",
+        "error_type": "OSError",
+        "error_message": "OSError: [Errno 28] No space left on device: '/tmp/pytest-of-ci/pytest-311'",
+        "duration_seconds": 1.18,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "Makefile"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_023",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/reports/test_exporter.py::test_exporter_sync",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 30.56,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.24,
+        "changed_files": [
+          "src/billing/utils.py",
+          "README.md"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_024",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "CartDrawer \u203a renders with default props",
+        "framework": "jest 29.7.0",
+        "error_type": "TypeError",
+        "error_message": "TypeError: Cannot read properties of undefined (reading 'map')",
+        "duration_seconds": 0.84,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/web/CartDrawer.tsx",
+          "src/web/types.ts"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_025",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/reports/test_exporter.py::test_exporter_total_includes_tax",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: assert Decimal('1299.49') == Decimal('1299.99')",
+        "duration_seconds": 0.11,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/reports/exporter.py",
+          "src/reports/rounding.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_026",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/search/test_indexer.py::test_indexer_refresh",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 30.4,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.24,
+        "changed_files": [
+          "src/notifications/utils.py",
+          "README.md"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_027",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/checkout/test_cart_async.py::test_concurrent_cart_writes",
+        "framework": "pytest 8.3.2 (pytest-asyncio, -n 8 xdist)",
+        "error_type": "AssertionError",
+        "error_message": "assert 2 == 3",
+        "duration_seconds": 1.2,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.18,
+        "changed_files": [
+          "tests/conftest.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_028",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_cart_client.py::test_cart_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "requests.exceptions.ConnectionError",
+        "error_message": "requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+        "duration_seconds": 1.19,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.04,
+        "changed_files": [
+          "src/checkout/cart.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_029",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/inventory/test_stock.py::test_stock_roundtrip",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 30.8,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.16,
+        "changed_files": [
+          "src/users/utils.py",
+          "README.md"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_030",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "useWebsocket \u203a renders with default props",
+        "framework": "jest 29.7.0",
+        "error_type": "TypeError",
+        "error_message": "TypeError: Cannot read properties of undefined (reading 'map')",
+        "duration_seconds": 0.33,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/web/useWebsocket.tsx",
+          "src/web/types.ts"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_031",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/api/test_rate_limiter_async.py::test_concurrent_rate_limiter_writes",
+        "framework": "pytest 8.3.2 (pytest-asyncio, -n 8 xdist)",
+        "error_type": "AssertionError",
+        "error_message": "assert 2 == 3",
+        "duration_seconds": 2.52,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.12,
+        "changed_files": [
+          "tests/conftest.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_032",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "InvoiceTable \u203a renders with default props",
+        "framework": "jest 29.7.0",
+        "error_type": "TypeError",
+        "error_message": "TypeError: Cannot read properties of undefined (reading 'map')",
+        "duration_seconds": 0.49,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/web/InvoiceTable.tsx",
+          "src/web/types.ts"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_033",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/inventory/test_stock_list.py::test_list_stocks_paginated",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 30.14,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "src/inventory/queries.py",
+          "src/inventory/serializers.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_034",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/users/test_profile_server.py::test_profile_server_boots",
+        "framework": "pytest 8.3.2",
+        "error_type": "OSError",
+        "error_message": "OSError: [Errno 28] No space left on device: '/tmp/pytest-of-ci/pytest-311'",
+        "duration_seconds": 1.3,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.04,
+        "changed_files": [
+          "Makefile"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_035",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/auth/test_session_api.py",
+        "framework": "pytest 8.3.2",
+        "error_type": "ImportError",
+        "error_message": "ImportError: cannot import name 'SessionService' from 'src.auth.session' (did you mean 'SessionClient'?)",
+        "duration_seconds": 0.0,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/auth/__init__.py",
+          "src/auth/session.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_036",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_rate_limiter_client.py::test_rate_limiter_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "urllib3.exceptions.MaxRetryError",
+        "error_message": "urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded",
+        "duration_seconds": 1.44,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.02,
+        "changed_files": [
+          "src/api/rate_limiter.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_037",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_cart_client.py::test_cart_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "urllib3.exceptions.MaxRetryError",
+        "error_message": "urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded",
+        "duration_seconds": 0.56,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "src/checkout/cart.py"
+        ]
+      },
+      "latency_ms": 0.1
+    },
+    {
+      "case_id": "case_038",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/checkout/test_cart_async.py::test_concurrent_cart_writes",
+        "framework": "pytest 8.3.2 (pytest-asyncio, -n 8 xdist)",
+        "error_type": "AssertionError",
+        "error_message": "assert 2 == 3",
+        "duration_seconds": 2.65,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.08,
+        "changed_files": [
+          "tests/conftest.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_039",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "useWebsocket \u203a matches snapshot",
+        "framework": "jest 29.7.0",
+        "error_type": "SnapshotMismatch",
+        "error_message": "expect(received).toMatchSnapshot()",
+        "duration_seconds": 0.42,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/web/useWebsocket.tsx",
+          "src/web/theme/tokens.ts"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_040",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/billing/test_invoice_list.py::test_list_invoices_paginated",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 30.45,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "src/billing/queries.py",
+          "src/billing/serializers.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_041",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_stripe_webhook_client.py::test_stripe_webhook_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "requests.exceptions.ConnectionError",
+        "error_message": "requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=9090): Max retries exceeded",
+        "duration_seconds": 0.87,
+        "retry_attempts": 1,
+        "retry_passed": false,
+        "recent_fail_rate": 0.08,
+        "changed_files": [
+          "src/payments/http_config.py",
+          "config/test.yaml"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_042",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_email_queue_client.py::test_email_queue_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "requests.exceptions.ConnectionError",
+        "error_message": "requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+        "duration_seconds": 1.22,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.1,
+        "changed_files": [
+          "src/notifications/http_config.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_043",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_session_client.py::test_session_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "requests.exceptions.ConnectionError",
+        "error_message": "requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+        "duration_seconds": 0.95,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.12,
+        "changed_files": [
+          "src/auth/http_config.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_044",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "DatePicker \u203a renders with default props",
+        "framework": "jest 29.7.0",
+        "error_type": "TypeError",
+        "error_message": "TypeError: Cannot read properties of undefined (reading 'map')",
+        "duration_seconds": 1.0,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/web/DatePicker.tsx",
+          "src/web/types.ts"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_045",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/reports/test_exporter_settings.py::test_default_exporter_config",
+        "framework": "pytest 8.3.2 (-p randomly, seed=92074)",
+        "error_type": "AssertionError",
+        "error_message": "assert 5 == 300",
+        "duration_seconds": 0.06,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "tests/reports/test_exporter_cache.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_046",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/notifications/test_email_queue.py::test_email_queue_total_includes_tax",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: assert Decimal('107.49') == Decimal('107.50')",
+        "duration_seconds": 0.15,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/notifications/email_queue.py",
+          "src/notifications/rounding.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_047",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_indexer_client.py::test_indexer_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "urllib3.exceptions.MaxRetryError",
+        "error_message": "urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded",
+        "duration_seconds": 2.0,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "src/search/indexer.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_048",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/notifications/test_email_queue.py::test_email_queue_sync",
+        "framework": "pytest 8.3.2",
+        "error_type": "httpx.ReadTimeout",
+        "error_message": "httpx.ReadTimeout: timed out",
+        "duration_seconds": 30.46,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.2,
+        "changed_files": [
+          "src/auth/utils.py",
+          "README.md"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_049",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/search/test_indexer_settings.py::test_default_indexer_config",
+        "framework": "pytest 8.3.2 (-p randomly, seed=31379)",
+        "error_type": "AssertionError",
+        "error_message": "assert 5 == 300",
+        "duration_seconds": 0.26,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.14,
+        "changed_files": [
+          "src/search/settings.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_050",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/checkout/test_cart_server.py::test_cart_server_boots",
+        "framework": "pytest 8.3.2",
+        "error_type": "OSError",
+        "error_message": "OSError: [Errno 98] Address already in use: ('127.0.0.1', 8081)",
+        "duration_seconds": 1.17,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.1,
+        "changed_files": [
+          "Makefile"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_051",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/billing/test_invoice.py::test_invoice_total_includes_tax",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: assert Decimal('1299.49') == Decimal('1299.99')",
+        "duration_seconds": 0.02,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/billing/invoice.py",
+          "src/billing/rounding.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_052",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/checkout/test_cart.py::test_cart_total_includes_tax",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: assert Decimal('41.50') == Decimal('42.00')",
+        "duration_seconds": 0.15,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/checkout/cart.py",
+          "src/checkout/rounding.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_053",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/checkout/test_cart.py::test_cart_total_includes_tax",
+        "framework": "pytest 8.3.2",
+        "error_type": "AssertionError",
+        "error_message": "AssertionError: assert Decimal('1299.49') == Decimal('1299.99')",
+        "duration_seconds": 0.11,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/checkout/cart.py",
+          "src/checkout/rounding.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_054",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "useWebsocket \u203a matches snapshot",
+        "framework": "jest 29.7.0",
+        "error_type": "SnapshotMismatch",
+        "error_message": "expect(received).toMatchSnapshot()",
+        "duration_seconds": 0.51,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/web/useWebsocket.tsx",
+          "src/web/theme/tokens.ts"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_055",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_indexer_client.py::test_indexer_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "requests.exceptions.ConnectionError",
+        "error_message": "requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=9090): Max retries exceeded",
+        "duration_seconds": 0.86,
+        "retry_attempts": 1,
+        "retry_passed": false,
+        "recent_fail_rate": 0.08,
+        "changed_files": [
+          "src/search/http_config.py",
+          "config/test.yaml"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_056",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/inventory/test_stock_api.py",
+        "framework": "pytest 8.3.2",
+        "error_type": "ImportError",
+        "error_message": "ImportError: cannot import name 'StockService' from 'src.inventory.stock' (did you mean 'StockClient'?)",
+        "duration_seconds": 0.0,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/inventory/__init__.py",
+          "src/inventory/stock.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_057",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/search/test_indexer_concurrency.py::test_parallel_indexer_updates_are_atomic",
+        "framework": "pytest 8.3.2 (-n 8 xdist)",
+        "error_type": "AssertionError",
+        "error_message": "assert 19 == 20",
+        "duration_seconds": 3.13,
+        "retry_attempts": 2,
+        "retry_passed": true,
+        "recent_fail_rate": 0.0,
+        "changed_files": [
+          "src/search/indexer.py",
+          "src/search/locks.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_058",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/search/test_indexer_settings.py::test_default_indexer_config",
+        "framework": "pytest 8.3.2 (-p randomly, seed=20868)",
+        "error_type": "AssertionError",
+        "error_message": "assert 5 == 300",
+        "duration_seconds": 0.2,
+        "retry_attempts": 2,
+        "retry_passed": false,
+        "recent_fail_rate": 0.06,
+        "changed_files": [
+          "src/search/settings.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_059",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/integration/test_cart_client.py::test_cart_fetch_remote",
+        "framework": "pytest 8.3.2",
+        "error_type": "requests.exceptions.ConnectionError",
+        "error_message": "requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+        "duration_seconds": 0.29,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.04,
+        "changed_files": [
+          "src/checkout/cart.py"
+        ]
+      },
+      "latency_ms": 0.0
+    },
+    {
+      "case_id": "case_060",
+      "path": "local_regex",
+      "fallback_reason": "mock mode (no NACE_API_KEY)",
+      "fields": {
+        "test_name": "tests/search/test_indexer_server.py::test_indexer_server_boots",
+        "framework": "pytest 8.3.2",
+        "error_type": "OSError",
+        "error_message": "OSError: [Errno 98] Address already in use: ('127.0.0.1', 8081)",
+        "duration_seconds": 1.21,
+        "retry_attempts": 1,
+        "retry_passed": true,
+        "recent_fail_rate": 0.08,
+        "changed_files": [
+          "Makefile"
+        ]
+      },
+      "latency_ms": 0.0
+    }
+  ]
+}

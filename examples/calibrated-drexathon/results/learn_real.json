@@ -1,0 +1,733 @@
+{
+  "mode": "real",
+  "thresholds_before": {
+    "lo": 0.4,
+    "hi": 0.8
+  },
+  "thresholds_after": {
+    "lo": 0.4,
+    "hi": 0.8
+  },
+  "cost_derived_if_calibrated": {
+    "lo": 0.223,
+    "hi": 0.983
+  },
+  "feedback_n": 16,
+  "corrections": [],
+  "safe_band": {
+    "lo": [
+      0.08,
+      0.8
+    ],
+    "hi": [
+      0.4,
+      0.93
+    ]
+  },
+  "heldout_cost_cost_derived": 110.0,
+  "confident_disagreements": [
+    {
+      "case_id": "case_049",
+      "p_flaky": 0.000737538582297806,
+      "truth": "flaky",
+      "decision": "BLOCK",
+      "cost": 25.0,
+      "ideal": "QUARANTINE",
+      "refit_thresholds": {
+        "lo": 0.4,
+        "hi": 0.8
+      },
+      "cheapest_fix": {
+        "lo": 0.0007,
+        "hi": 0.08,
+        "all60_cost_with_fix": 484.0,
+        "all60_cost_current": 118.0
+      }
+    },
+    {
+      "case_id": "case_058",
+      "p_flaky": 0.001132797137080335,
+      "truth": "flaky",
+      "decision": "BLOCK",
+      "cost": 25.0,
+      "ideal": "QUARANTINE",
+      "refit_thresholds": {
+        "lo": 0.4,
+        "hi": 0.8
+      },
+      "cheapest_fix": {
+        "lo": 0.0008,
+        "hi": 0.08,
+        "all60_cost_with_fix": 499.0,
+        "all60_cost_current": 118.0
+      }
+    }
+  ],
+  "heldout_n": 44,
+  "heldout_cost_before": 98.0,
+  "heldout_cost_after": 98.0,
+  "all_cost_before": 118.0,
+  "all_cost_after": 118.0,
+  "replay": [
+    {
+      "case_id": "case_001",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.9957141975672588,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_002",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.9989650404153334,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_003",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.9988148720814911,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_004",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": true,
+      "p_flaky": 0.9322860171475558,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_005",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.9995807461610409,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_006",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.9989650404153334,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_007",
+      "truth": "real",
+      "ambiguous": true,
+      "feedback_set": true,
+      "p_flaky": 0.07365041532215981,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_008",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.0002080726568583013,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_009",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.9956166354791274,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_010",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.0006892107589846598,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_011",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.00027913640732391416,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_012",
+      "truth": "real",
+      "ambiguous": true,
+      "feedback_set": true,
+      "p_flaky": 0.010287334625128592,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_013",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": true,
+      "p_flaky": 0.996083284165903,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_014",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.9994247468814339,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_015",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": true,
+      "p_flaky": 0.0007049583684343104,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_016",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": true,
+      "p_flaky": 0.998446115372203,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_017",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.9749678460897884,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_018",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.9989650404153334,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_019",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9990961979601762,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_020",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9990107468852059,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_021",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9945108714553467,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_022",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9994247471723048,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_023",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9993981572063277,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_024",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.0006296607540100687,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_025",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.00016977410655398463,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_026",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9996255384561347,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_027",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.993994495135016,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_028",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9996944542255327,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_029",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9996255386597852,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_030",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.0005375532313828746,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_031",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9871367730942175,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_032",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.0010585972773339185,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_033",
+      "truth": "real",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.008600032575986096,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_034",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9991554115470511,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_035",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.0001209551315931686,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_036",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9993844049157428,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_037",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9994976766633055,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_038",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9928125369246104,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_039",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.0005752531185660534,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_040",
+      "truth": "real",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.023952077806531514,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_041",
+      "truth": "real",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.3468349770654745,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_042",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.9770824781813149,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_043",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.9824319006069947,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_044",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.0006892111079899411,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_045",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9982207871862138,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_046",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.00044865998660473174,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_047",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9991361168498806,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_048",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9994744560150906,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_049",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.000737538582297806,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 25.0,
+      "cost_after": 25.0
+    },
+    {
+      "case_id": "case_050",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9986732387827654,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_051",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.001297142322808518,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_052",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.00027289876859339687,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_053",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.0003917737078924172,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_054",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.002731195604484601,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_055",
+      "truth": "real",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.21994949549511827,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_056",
+      "truth": "real",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.0002080726568583013,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_057",
+      "truth": "real",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.08698072608488523,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 0.0,
+      "cost_after": 0.0
+    },
+    {
+      "case_id": "case_058",
+      "truth": "flaky",
+      "ambiguous": true,
+      "feedback_set": false,
+      "p_flaky": 0.001132797137080335,
+      "before": "BLOCK",
+      "after": "BLOCK",
+      "cost_before": 25.0,
+      "cost_after": 25.0
+    },
+    {
+      "case_id": "case_059",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9995410864420335,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    },
+    {
+      "case_id": "case_060",
+      "truth": "flaky",
+      "ambiguous": false,
+      "feedback_set": false,
+      "p_flaky": 0.9992456108695316,
+      "before": "QUARANTINE",
+      "after": "QUARANTINE",
+      "cost_before": 2.0,
+      "cost_after": 2.0
+    }
+  ]
+}

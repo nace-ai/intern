@@ -1,0 +1,25 @@
+=== CI run #46293  job=unit-tests  runner=ci-runner-23
+commit e585a3f  branch=feature/fix-174
+changed files in this PR:
+  M src/reports/exporter.py
+  M src/reports/rounding.py
+framework: pytest 8.3.2
+failing test: tests/reports/test_exporter.py::test_exporter_total_includes_tax
+test file: tests/reports/test_exporter.py
+duration: 0.11s
+
+=================================== FAILURES ===================================
+___________________________ test_exporter_total_includes_tax ___________________________
+
+tests/reports/test_exporter.py:90: in exporter.total
+    assert exporter.total() == Decimal('1299.99')
+E   AssertionError: assert Decimal('1299.49') == Decimal('1299.99')
+E     - 1299.99
+E     + 1299.49
+=========================== short test summary info ============================
+FAILED tests/reports/test_exporter.py::test_exporter_total_includes_tax - + 1299.49
+retry history:
+  attempt 2: FAILED (identical assertion) (8.34s)
+  attempt 3: FAILED (identical assertion) (4.19s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)
+first failure of this test on any branch: this PR

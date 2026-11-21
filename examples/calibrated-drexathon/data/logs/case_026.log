@@ -1,0 +1,24 @@
+=== CI run #49760  job=unit-tests  runner=ci-runner-15
+commit 02186d2  branch=feature/deps-964
+changed files in this PR:
+  M src/notifications/utils.py
+  M README.md
+framework: pytest 8.3.2
+failing test: tests/search/test_indexer.py::test_indexer_refresh
+test file: tests/search/test_indexer.py
+duration: 30.40s
+
+=================================== FAILURES ===================================
+___________________________ test_indexer_refresh ___________________________
+
+tests/search/test_indexer.py:105: in client.get
+    resp = client.get('/search/indexer', timeout=30)
+venv/lib/python3.12/site-packages/httpx/_client.py:1014: in mapped_exc
+    raise mapped_exc(message) from exc
+E   httpx.ReadTimeout: timed out
+E   (waited 30.4s for postgres-test.internal:5432 fixture warm-up)
+=========================== short test summary info ============================
+FAILED tests/search/test_indexer.py::test_indexer_refresh - (waited 30.4s for postgres-test.internal:5432 fixture warm-up)
+retry history:
+  attempt 2: PASSED (4.79s)
+history: failed 12/50 recent runs on main (recent_fail_rate=0.24)

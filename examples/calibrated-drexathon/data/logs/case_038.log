@@ -1,0 +1,24 @@
+=== CI run #49765  job=unit-tests  runner=ci-runner-22
+commit 113c2db  branch=feature/perf-848
+changed files in this PR:
+  M tests/conftest.py
+framework: pytest 8.3.2 (pytest-asyncio, -n 8 xdist)
+failing test: tests/checkout/test_cart_async.py::test_concurrent_cart_writes
+test file: tests/checkout/test_cart_async.py
+duration: 2.65s
+
+=================================== FAILURES ===================================
+___________________________ test_concurrent_cart_writes ___________________________
+
+tests/checkout/test_cart_async.py:58: in asyncio.sleep
+    await asyncio.sleep(0.05)  # wait for worker
+tests/checkout/test_cart_async.py:141: in len
+    assert len(events) == 3
+E   assert 2 == 3
+E    +  where 2 = len([<Event id=1>, <Event id=2>])
+=========================== short test summary info ============================
+FAILED tests/checkout/test_cart_async.py::test_concurrent_cart_writes - +  where 2 = len([<Event id=1>, <Event id=2>])
+retry history:
+  attempt 2: PASSED (3.95s)
+  attempt 3: PASSED (4.31s)
+history: failed 4/50 recent runs on main (recent_fail_rate=0.08)

@@ -1,0 +1,25 @@
+=== CI run #46014  job=unit-tests  runner=ci-runner-08
+commit 3e507b8  branch=feature/deps-614
+changed files in this PR:
+  M src/web/useWebsocket.tsx
+  M src/web/types.ts
+framework: jest 29.7.0
+failing test: useWebsocket › renders with default props
+test file: src/web/__tests__/useWebsocket.test.tsx
+duration: 0.33s
+
+ FAIL  src/web/__tests__/useWebsocket.test.tsx
+  ● useWebsocket › renders with default props
+
+    TypeError: Cannot read properties of undefined (reading 'map')
+    
+    > 41 |   {props.items.map((item) => <Row key={item.id} {...item} />)}
+
+      at useWebsocket (src/web/useWebsocket.tsx:41:22)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom.development.js:16305:18)
+
+Tests:       1 failed, 32 passed, 33 total
+retry history:
+  attempt 2: FAILED (1.34s)
+  attempt 3: FAILED (2.90s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

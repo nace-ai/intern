@@ -1,0 +1,23 @@
+=== CI run #45300  job=unit-tests  runner=ci-runner-18
+commit 5af0db9  branch=feature/perf-883
+changed files in this PR:
+  M src/search/settings.py
+framework: pytest 8.3.2 (-p randomly, seed=20868)
+failing test: tests/search/test_indexer_settings.py::test_default_indexer_config
+test file: tests/search/test_indexer_settings.py
+duration: 0.20s
+
+=================================== FAILURES ===================================
+___________________________ test_default_indexer_config ___________________________
+
+tests/search/test_indexer_settings.py:38: in get_settings
+    assert get_settings().indexer_ttl == 300
+E   assert 5 == 300
+E    +  where 5 = Settings(indexer_ttl=5, cache='memory').indexer_ttl
+E
+=========================== short test summary info ============================
+FAILED tests/search/test_indexer_settings.py::test_default_indexer_config - 
+retry history:
+  attempt 2: FAILED (1.93s)
+  attempt 3: FAILED (7.66s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

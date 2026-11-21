@@ -1,0 +1,612 @@
+{
+  "mode": "mock",
+  "question": "Is this failure caused by test flakiness rather than a real code regression? Answer yes if the evidence points to the test or CI environment (timeouts on shared infra, races in test code, network blips, test-order coupling, resource exhaustion) and no if the evidence points to a change in this PR breaking behaviour.",
+  "model_requested": "drex-max-v1.1 (MOCK)",
+  "note": "MOCK probabilities from a local heuristic; not Drex output",
+  "total_input_tokens": 30283,
+  "price_per_m_input": 0.12,
+  "usd_per_1k": 0.060565999999999995,
+  "errors": 0,
+  "cases": [
+    {
+      "case_id": "case_001",
+      "p_flaky": 0.8821,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 487
+      },
+      "latency_ms": 194.6,
+      "mock": true
+    },
+    {
+      "case_id": "case_002",
+      "p_flaky": 0.9853,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 492
+      },
+      "latency_ms": 232.5,
+      "mock": true
+    },
+    {
+      "case_id": "case_003",
+      "p_flaky": 0.9397,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 537
+      },
+      "latency_ms": 253.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_004",
+      "p_flaky": 0.9493,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 477
+      },
+      "latency_ms": 282.5,
+      "mock": true
+    },
+    {
+      "case_id": "case_005",
+      "p_flaky": 0.996,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 519
+      },
+      "latency_ms": 298.6,
+      "mock": true
+    },
+    {
+      "case_id": "case_006",
+      "p_flaky": 0.8825,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 570
+      },
+      "latency_ms": 251.9,
+      "mock": true
+    },
+    {
+      "case_id": "case_007",
+      "p_flaky": 0.8181,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 540
+      },
+      "latency_ms": 214.8,
+      "mock": true
+    },
+    {
+      "case_id": "case_008",
+      "p_flaky": 0.0138,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 499
+      },
+      "latency_ms": 210.6,
+      "mock": true
+    },
+    {
+      "case_id": "case_009",
+      "p_flaky": 0.9512,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 483
+      },
+      "latency_ms": 261.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_010",
+      "p_flaky": 0.0138,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 457
+      },
+      "latency_ms": 276.6,
+      "mock": true
+    },
+    {
+      "case_id": "case_011",
+      "p_flaky": 0.0379,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 518
+      },
+      "latency_ms": 289.5,
+      "mock": true
+    },
+    {
+      "case_id": "case_012",
+      "p_flaky": 0.2398,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 454
+      },
+      "latency_ms": 209.4,
+      "mock": true
+    },
+    {
+      "case_id": "case_013",
+      "p_flaky": 0.9648,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 506
+      },
+      "latency_ms": 266.4,
+      "mock": true
+    },
+    {
+      "case_id": "case_014",
+      "p_flaky": 0.8678,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 540
+      },
+      "latency_ms": 198.6,
+      "mock": true
+    },
+    {
+      "case_id": "case_015",
+      "p_flaky": 0.0079,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 486
+      },
+      "latency_ms": 214.4,
+      "mock": true
+    },
+    {
+      "case_id": "case_016",
+      "p_flaky": 0.7942,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 497
+      },
+      "latency_ms": 296.1,
+      "mock": true
+    },
+    {
+      "case_id": "case_017",
+      "p_flaky": 0.9847,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 476
+      },
+      "latency_ms": 256.7,
+      "mock": true
+    },
+    {
+      "case_id": "case_018",
+      "p_flaky": 0.9636,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 492
+      },
+      "latency_ms": 295.6,
+      "mock": true
+    },
+    {
+      "case_id": "case_019",
+      "p_flaky": 0.8969,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 505
+      },
+      "latency_ms": 281.9,
+      "mock": true
+    },
+    {
+      "case_id": "case_020",
+      "p_flaky": 0.9041,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 552
+      },
+      "latency_ms": 233.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_021",
+      "p_flaky": 0.9722,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 523
+      },
+      "latency_ms": 191.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_022",
+      "p_flaky": 0.9806,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 487
+      },
+      "latency_ms": 215.0,
+      "mock": true
+    },
+    {
+      "case_id": "case_023",
+      "p_flaky": 0.9925,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 499
+      },
+      "latency_ms": 228.1,
+      "mock": true
+    },
+    {
+      "case_id": "case_024",
+      "p_flaky": 0.0163,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 449
+      },
+      "latency_ms": 272.8,
+      "mock": true
+    },
+    {
+      "case_id": "case_025",
+      "p_flaky": 0.1085,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 518
+      },
+      "latency_ms": 292.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_026",
+      "p_flaky": 0.9948,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 501
+      },
+      "latency_ms": 277.9,
+      "mock": true
+    },
+    {
+      "case_id": "case_027",
+      "p_flaky": 0.9691,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 498
+      },
+      "latency_ms": 279.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_028",
+      "p_flaky": 0.9566,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 534
+      },
+      "latency_ms": 250.5,
+      "mock": true
+    },
+    {
+      "case_id": "case_029",
+      "p_flaky": 0.9933,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 498
+      },
+      "latency_ms": 252.3,
+      "mock": true
+    },
+    {
+      "case_id": "case_030",
+      "p_flaky": 0.0362,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 453
+      },
+      "latency_ms": 203.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_031",
+      "p_flaky": 0.9684,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 511
+      },
+      "latency_ms": 276.8,
+      "mock": true
+    },
+    {
+      "case_id": "case_032",
+      "p_flaky": 0.0388,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 453
+      },
+      "latency_ms": 190.8,
+      "mock": true
+    },
+    {
+      "case_id": "case_033",
+      "p_flaky": 0.4556,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 529
+      },
+      "latency_ms": 297.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_034",
+      "p_flaky": 0.9565,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 468
+      },
+      "latency_ms": 221.0,
+      "mock": true
+    },
+    {
+      "case_id": "case_035",
+      "p_flaky": 0.0176,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 485
+      },
+      "latency_ms": 298.9,
+      "mock": true
+    },
+    {
+      "case_id": "case_036",
+      "p_flaky": 0.8859,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 567
+      },
+      "latency_ms": 243.9,
+      "mock": true
+    },
+    {
+      "case_id": "case_037",
+      "p_flaky": 0.8939,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 545
+      },
+      "latency_ms": 274.4,
+      "mock": true
+    },
+    {
+      "case_id": "case_038",
+      "p_flaky": 0.9442,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 498
+      },
+      "latency_ms": 237.3,
+      "mock": true
+    },
+    {
+      "case_id": "case_039",
+      "p_flaky": 0.0223,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 463
+      },
+      "latency_ms": 254.9,
+      "mock": true
+    },
+    {
+      "case_id": "case_040",
+      "p_flaky": 0.3401,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 528
+      },
+      "latency_ms": 261.5,
+      "mock": true
+    },
+    {
+      "case_id": "case_041",
+      "p_flaky": 0.4781,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 558
+      },
+      "latency_ms": 230.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_042",
+      "p_flaky": 0.9847,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 545
+      },
+      "latency_ms": 296.3,
+      "mock": true
+    },
+    {
+      "case_id": "case_043",
+      "p_flaky": 0.9727,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 531
+      },
+      "latency_ms": 202.9,
+      "mock": true
+    },
+    {
+      "case_id": "case_044",
+      "p_flaky": 0.0119,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 448
+      },
+      "latency_ms": 266.6,
+      "mock": true
+    },
+    {
+      "case_id": "case_045",
+      "p_flaky": 0.8261,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 544
+      },
+      "latency_ms": 217.0,
+      "mock": true
+    },
+    {
+      "case_id": "case_046",
+      "p_flaky": 0.0426,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 539
+      },
+      "latency_ms": 280.1,
+      "mock": true
+    },
+    {
+      "case_id": "case_047",
+      "p_flaky": 0.9225,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 554
+      },
+      "latency_ms": 211.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_048",
+      "p_flaky": 0.9863,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 514
+      },
+      "latency_ms": 210.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_049",
+      "p_flaky": 0.2065,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 479
+      },
+      "latency_ms": 269.0,
+      "mock": true
+    },
+    {
+      "case_id": "case_050",
+      "p_flaky": 0.977,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 460
+      },
+      "latency_ms": 181.9,
+      "mock": true
+    },
+    {
+      "case_id": "case_051",
+      "p_flaky": 0.0468,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 515
+      },
+      "latency_ms": 259.6,
+      "mock": true
+    },
+    {
+      "case_id": "case_052",
+      "p_flaky": 0.0458,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 504
+      },
+      "latency_ms": 182.3,
+      "mock": true
+    },
+    {
+      "case_id": "case_053",
+      "p_flaky": 0.1132,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 508
+      },
+      "latency_ms": 290.4,
+      "mock": true
+    },
+    {
+      "case_id": "case_054",
+      "p_flaky": 0.0253,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 463
+      },
+      "latency_ms": 272.1,
+      "mock": true
+    },
+    {
+      "case_id": "case_055",
+      "p_flaky": 0.4449,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 539
+      },
+      "latency_ms": 283.7,
+      "mock": true
+    },
+    {
+      "case_id": "case_056",
+      "p_flaky": 0.0103,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 494
+      },
+      "latency_ms": 210.1,
+      "mock": true
+    },
+    {
+      "case_id": "case_057",
+      "p_flaky": 0.5873,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 515
+      },
+      "latency_ms": 286.2,
+      "mock": true
+    },
+    {
+      "case_id": "case_058",
+      "p_flaky": 0.2732,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 479
+      },
+      "latency_ms": 267.1,
+      "mock": true
+    },
+    {
+      "case_id": "case_059",
+      "p_flaky": 0.8987,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 535
+      },
+      "latency_ms": 296.1,
+      "mock": true
+    },
+    {
+      "case_id": "case_060",
+      "p_flaky": 0.9733,
+      "model": "drex-max-v1.1 (MOCK)",
+      "usage": {
+        "input_tokens": 465
+      },
+      "latency_ms": 208.7,
+      "mock": true
+    }
+  ]
+}

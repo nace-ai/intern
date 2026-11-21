@@ -1,0 +1,23 @@
+=== CI run #42086  job=unit-tests  runner=ci-runner-07
+commit 49f0ae9  branch=feature/perf-760
+changed files in this PR:
+  M tests/inventory/test_stock_cache.py
+framework: pytest 8.3.2 (-p randomly, seed=54939)
+failing test: tests/inventory/test_stock_settings.py::test_default_stock_config
+test file: tests/inventory/test_stock_settings.py
+duration: 0.05s
+
+=================================== FAILURES ===================================
+___________________________ test_default_stock_config ___________________________
+
+tests/inventory/test_stock_settings.py:23: in get_settings
+    assert get_settings().stock_ttl == 300
+E   assert 5 == 300
+E    +  where 5 = Settings(stock_ttl=5, cache='memory').stock_ttl
+E   (module-level singleton mutated by an earlier test in this worker)
+=========================== short test summary info ============================
+FAILED tests/inventory/test_stock_settings.py::test_default_stock_config - (module-level singleton mutated by an earlier test in this worker)
+rerun in isolation: `pytest tests/inventory/test_stock_settings.py::test_default_stock_config` -> 1 passed
+retry history:
+  attempt 2: PASSED (7.34s)
+history: failed 7/50 recent runs on main (recent_fail_rate=0.14)

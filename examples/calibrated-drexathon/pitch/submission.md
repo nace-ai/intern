@@ -1,0 +1,3 @@
+# Submission: project description
+
+Every CI pipeline has a smoke alarm that goes off when you make toast: flaky tests. Teams assume they need a smarter AI to read the logs, but the expensive part is the decision. One wrong quarantine ships a real bug, and one wrong block burns an engineer's hour. LLMs hedge: Llama-3.3-70B said "retry" on 41 of 60 real failures. Calibrated uses Drex probabilities to make the call, quarantining, retrying, or blocking based on what each mistake costs. On real logs, it was 96.7% accurate, quarantined zero real bugs, and cut expected engineer-time cost by 48%, at 292 ms per decision. Built with Intern, NDI, and DeepInfra.

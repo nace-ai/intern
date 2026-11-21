@@ -1,0 +1,22 @@
+=== CI run #42689  job=unit-tests  runner=ci-runner-24
+commit 7b5bc0b  branch=feature/perf-984
+changed files in this PR:
+  M src/search/http_config.py
+  M config/test.yaml
+framework: pytest 8.3.2
+failing test: tests/integration/test_indexer_client.py::test_indexer_fetch_remote
+test file: tests/integration/test_indexer_client.py
+duration: 0.86s
+
+=================================== FAILURES ===================================
+___________________________ test_indexer_fetch_remote ___________________________
+
+tests/integration/test_indexer_client.py:57: in session.get
+    r = session.get(REMOTE_URL + '/indexer')
+E   requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=9090): Max retries exceeded
+E   Caused by NewConnectionError: [Errno 111] Connection refused
+=========================== short test summary info ============================
+FAILED tests/integration/test_indexer_client.py::test_indexer_fetch_remote - Caused by NewConnectionError: [Errno 111] Connection refused
+retry history:
+  attempt 2: FAILED (same error) (4.04s)
+history: failed 4/50 recent runs on main (recent_fail_rate=0.08)

@@ -1,0 +1,1297 @@
+{
+  "mode": "real",
+  "paths_used": {
+    "ndi": 60,
+    "local_regex": 0
+  },
+  "ndi_usd_total": 0.228,
+  "agreement_with_regex": {
+    "error_type": 60,
+    "retry_passed": 60,
+    "recent_fail_rate": 41,
+    "duration_seconds": 54
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "test_name": {
+        "type": "string",
+        "description": "The failing test id from the 'failing test:' line."
+      },
+      "framework": {
+        "type": "string",
+        "description": "Test framework and version, e.g. 'pytest 8.3.2'."
+      },
+      "error_type": {
+        "type": "string",
+        "description": "Exception or error class of the failure, e.g. httpx.ReadTimeout, AssertionError, ImportError, TypeError, TestingLibraryElementError, SnapshotMismatch."
+      },
+      "error_message": {
+        "type": "string",
+        "description": "The first error line of the failure, verbatim, without the leading 'E'."
+      },
+      "duration_seconds": {
+        "type": "number",
+        "description": "Value of the 'duration:' line in seconds."
+      },
+      "retry_attempts": {
+        "type": "integer",
+        "description": "Number of automatic retry attempts listed under 'retry history'. 0 if none."
+      },
+      "retry_passed": {
+        "type": "boolean",
+        "description": "True if any retry attempt PASSED."
+      },
+      "recent_fail_rate": {
+        "type": "number",
+        "description": "recent_fail_rate value on the 'history:' line (0 to 1)."
+      },
+      "changed_files": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Paths listed under 'changed files in this PR'."
+      }
+    },
+    "required": [
+      "test_name",
+      "error_type",
+      "duration_seconds",
+      "retry_passed",
+      "recent_fail_rate"
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "case_001",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/billing/test_invoice_server.py::test_invoice_server_boots",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "Makefile"
+        ],
+        "error_message": "AssertionError: expected report date 2026-11-14, got 2026-11-15",
+        "retry_attempts": 1,
+        "duration_seconds": 1.22,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "509d028d-8b23-4de0-bce4-98fc8ecd230c",
+      "ndi_cost": 0.0,
+      "latency_ms": 1719.3
+    },
+    {
+      "case_id": "case_002",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/checkout/test_cart.py::test_cart_roundtrip",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": true,
+        "changed_files": [
+          "src/api/utils.py",
+          "README.md"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 1,
+        "duration_seconds": 30.6,
+        "recent_fail_rate": 0.18
+      },
+      "ndi_job_id": "2aa5cdfd-035c-49b2-809d-e404676c688f",
+      "ndi_cost": 0.0,
+      "latency_ms": 1801.0
+    },
+    {
+      "case_id": "case_003",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/inventory/test_stock_settings.py::test_default_stock_config",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "tests/inventory/test_stock_cache.py"
+        ],
+        "error_message": "assert 5 == 300",
+        "retry_attempts": 1,
+        "duration_seconds": 0.05,
+        "recent_fail_rate": 0.14
+      },
+      "ndi_job_id": "0ce008a7-2acd-4fbe-a564-c82c6be62708",
+      "ndi_cost": 0.0,
+      "latency_ms": 2009.6
+    },
+    {
+      "case_id": "case_004",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "useWebsocket \u203a updates after async fetch",
+        "error_type": "TestingLibraryElementError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/web/useWebsocket.tsx"
+        ],
+        "error_message": "Unable to find an element with the text: Total: $42.00",
+        "retry_attempts": 2,
+        "duration_seconds": 4.26,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "86ce11c6-a4b9-4c6a-bd3b-bc02cb843d2d",
+      "ndi_cost": 0.0,
+      "latency_ms": 1743.5
+    },
+    {
+      "case_id": "case_005",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/payments/test_stripe_webhook.py::test_stripe_webhook_refresh",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": true,
+        "changed_files": [
+          "src/billing/utils.py",
+          "README.md"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 1,
+        "duration_seconds": 30.91,
+        "recent_fail_rate": 0.24
+      },
+      "ndi_job_id": "0001241b-0666-463b-8240-f91bf1745f83",
+      "ndi_cost": 0.0,
+      "latency_ms": 2004.5
+    },
+    {
+      "case_id": "case_006",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (-p randomly, seed=64341)",
+        "test_name": "tests/payments/test_stripe_webhook_settings.py::test_default_stripe_webhook_config",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "tests/payments/test_stripe_webhook_cache.py"
+        ],
+        "error_message": "assert 5 == 300",
+        "retry_attempts": 1,
+        "duration_seconds": 0.18,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "276e5070-55b4-4e5a-a677-85b029fed46f",
+      "ndi_cost": 0.0,
+      "latency_ms": 1648.6
+    },
+    {
+      "case_id": "case_007",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (-n 8 xdist)",
+        "test_name": "tests/payments/test_stripe_webhook_concurrency.py::test_parallel_stripe_webhook_updates_are_atomic",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/payments/stripe_webhook.py",
+          "src/payments/locks.py"
+        ],
+        "error_message": "assert 19 == 20",
+        "retry_attempts": 2,
+        "duration_seconds": 3.71,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "6a76add8-3481-4eb0-8365-7e782ade3aed",
+      "ndi_cost": 0.0,
+      "latency_ms": 1880.2
+    },
+    {
+      "case_id": "case_008",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/reports/test_exporter_api.py",
+        "error_type": "ImportError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/reports/__init__.py",
+          "src/reports/exporter.py"
+        ],
+        "error_message": "ImportError: cannot import name 'ExporterService' from 'src.reports.exporter' (did you mean 'ExporterClient'?)",
+        "retry_attempts": 2,
+        "duration_seconds": 0,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "fcbfc61d-1f5f-46a4-ab30-856d2aa924b1",
+      "ndi_cost": 0.0,
+      "latency_ms": 1987.6
+    },
+    {
+      "case_id": "case_009",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "useWebsocket \u203a updates after async fetch",
+        "error_type": "TestingLibraryElementError",
+        "retry_passed": true,
+        "changed_files": [
+          "package-lock.json",
+          "docs/CHANGELOG.md"
+        ],
+        "error_message": "Unable to find an element with the text: Total: $42.00",
+        "retry_attempts": 2,
+        "duration_seconds": 5.11,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "f56529e2-46f0-46c9-a6f1-aa3c6e1aca66",
+      "ndi_cost": 0.0,
+      "latency_ms": 1748.9
+    },
+    {
+      "case_id": "case_010",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "SearchBar \u203a matches snapshot",
+        "error_type": "SnapshotMismatch",
+        "retry_passed": false,
+        "changed_files": [
+          "src/web/SearchBar.tsx",
+          "src/web/theme/tokens.ts"
+        ],
+        "error_message": "expect(received).toMatchSnapshot()",
+        "retry_attempts": 2,
+        "duration_seconds": 0.26,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "b9b28dc1-cc9d-47ae-a139-c1a493a155bc",
+      "ndi_cost": 0.0,
+      "latency_ms": 1418.5
+    },
+    {
+      "case_id": "case_011",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/reports/test_exporter.py::test_exporter_total_includes_tax",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/reports/exporter.py",
+          "src/reports/rounding.py"
+        ],
+        "error_message": "AssertionError: assert Decimal('1299.49') == Decimal('1299.99')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.02,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "6c314dc9-7543-48b2-9afa-c09b3f64babb",
+      "ndi_cost": 0.0,
+      "latency_ms": 1330.1
+    },
+    {
+      "case_id": "case_012",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/users/test_profile_stats.py::test_profile_average_latency",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/users/stats.py"
+        ],
+        "error_message": "assert 12.50390625 == 12.5 \u00b1 1.0e-03",
+        "retry_attempts": 1,
+        "duration_seconds": 0.08,
+        "recent_fail_rate": 0.02
+      },
+      "ndi_job_id": "fee0fc96-b2e4-4e33-88ae-ff26405aeecb",
+      "ndi_cost": 0.0,
+      "latency_ms": 1240.5
+    },
+    {
+      "case_id": "case_013",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/search/test_indexer.py::test_indexer_bulk_update",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": true,
+        "changed_files": [
+          "src/search/indexer.py"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 2,
+        "duration_seconds": 60.85,
+        "recent_fail_rate": 0.12
+      },
+      "ndi_job_id": "9af8d7b8-25bb-499e-bfb8-84429bec2549",
+      "ndi_cost": 0.0,
+      "latency_ms": 1287.7
+    },
+    {
+      "case_id": "case_014",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (-p randomly, seed=47128)",
+        "test_name": "tests/billing/test_invoice_settings.py::test_default_invoice_config",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "tests/billing/test_invoice_cache.py"
+        ],
+        "error_message": "assert 5 == 300",
+        "retry_attempts": 1,
+        "duration_seconds": 0.15,
+        "recent_fail_rate": 0.1
+      },
+      "ndi_job_id": "a0159dc3-c0a1-4177-b239-356bf528f79e",
+      "ndi_cost": 0.0,
+      "latency_ms": 1348.7
+    },
+    {
+      "case_id": "case_015",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/checkout/test_cart_api.py",
+        "error_type": "ImportError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/checkout/__init__.py",
+          "src/checkout/cart.py"
+        ],
+        "error_message": "ImportError: cannot import name 'CartService' from 'src.checkout.cart' (did you mean 'CartClient'?)",
+        "retry_attempts": 2,
+        "duration_seconds": 0,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "6fd9d5a8-f955-4efa-861d-3f72b80fe89b",
+      "ndi_cost": 0.0,
+      "latency_ms": 2330.1
+    },
+    {
+      "case_id": "case_016",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/auth/test_session_server.py::test_session_server_boots",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/auth/session.py"
+        ],
+        "error_message": "AssertionError: expected report date 2026-11-14, got 2026-11-15",
+        "retry_attempts": 2,
+        "duration_seconds": 0.69,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "567420df-6862-43d4-91a4-c5235fc79965",
+      "ndi_cost": 0.0,
+      "latency_ms": 1313.8
+    },
+    {
+      "case_id": "case_017",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "InvoiceTable \u203a updates after async fetch",
+        "error_type": "TestingLibraryElementError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/web/InvoiceTable.tsx"
+        ],
+        "error_message": "Unable to find an element with the text: Total: $42.00",
+        "retry_attempts": 2,
+        "duration_seconds": 4.73,
+        "recent_fail_rate": 0.14
+      },
+      "ndi_job_id": "6815993c-fb2b-48cb-854d-775083b5a2df",
+      "ndi_cost": 0.0,
+      "latency_ms": 1387.7
+    },
+    {
+      "case_id": "case_018",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/checkout/test_cart.py::test_cart_sync",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": true,
+        "changed_files": [
+          "src/checkout/cart.py"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 2,
+        "duration_seconds": 60.78,
+        "recent_fail_rate": 0.08
+      },
+      "ndi_job_id": "55048f2c-ed02-467f-a481-8ae6d29e0393",
+      "ndi_cost": 0.0,
+      "latency_ms": 1395.8
+    },
+    {
+      "case_id": "case_019",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/payments/test_stripe_webhook_server.py::test_stripe_webhook_server_boots",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "Makefile"
+        ],
+        "error_message": "AssertionError: expected report date 2026-11-14, got 2026-11-15",
+        "retry_attempts": 1,
+        "duration_seconds": 0.93,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "66fd473d-ffe2-41a9-870e-c58dfa63b8a8",
+      "ndi_cost": 0.0,
+      "latency_ms": 1313.7
+    },
+    {
+      "case_id": "case_020",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_profile_client.py::test_profile_fetch_remote",
+        "error_type": "urllib3.exceptions.MaxRetryError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/users/profile.py"
+        ],
+        "error_message": "urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded",
+        "retry_attempts": 1,
+        "duration_seconds": 0.86,
+        "recent_fail_rate": 0.1
+      },
+      "ndi_job_id": "6661cde9-f6f9-4226-a9a3-111130d9fdc2",
+      "ndi_cost": 0.0,
+      "latency_ms": 1723.9
+    },
+    {
+      "case_id": "case_021",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (pytest-asyncio, -n 8 xdist)",
+        "test_name": "tests/notifications/test_email_queue_async.py::test_concurrent_email_queue_writes",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "tests/conftest.py"
+        ],
+        "error_message": "assert 2 == 3",
+        "retry_attempts": 2,
+        "duration_seconds": 1.55,
+        "recent_fail_rate": 0.18
+      },
+      "ndi_job_id": "75f049af-e0fe-4094-a352-565ba5b4e785",
+      "ndi_cost": 0.0,
+      "latency_ms": 1387.2
+    },
+    {
+      "case_id": "case_022",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/payments/test_stripe_webhook_server.py::test_stripe_webhook_server_boots",
+        "error_type": "OSError",
+        "retry_passed": true,
+        "changed_files": [
+          "Makefile"
+        ],
+        "error_message": "OSError: [Errno 28] No space left on device: '/tmp/pytest-of-ci/pytest-311'",
+        "retry_attempts": 1,
+        "duration_seconds": 1.18,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "bd1e4f6f-f4bd-4d92-ac27-bc0127023b1f",
+      "ndi_cost": 0.0,
+      "latency_ms": 1289.0
+    },
+    {
+      "case_id": "case_023",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/reports/test_exporter.py::test_exporter_sync",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": true,
+        "changed_files": [
+          "src/billing/utils.py",
+          "README.md"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 1,
+        "duration_seconds": 30.56,
+        "recent_fail_rate": 0.24
+      },
+      "ndi_job_id": "f81a9983-22e7-4005-ab56-ea71e92a3456",
+      "ndi_cost": 0.0,
+      "latency_ms": 1385.2
+    },
+    {
+      "case_id": "case_024",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "CartDrawer \u203a renders with default props",
+        "error_type": "TypeError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/web/CartDrawer.tsx",
+          "src/web/types.ts"
+        ],
+        "error_message": "Cannot read properties of undefined (reading 'map')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.84,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "b0cf732d-62c5-4b37-92ed-006b9a048e8e",
+      "ndi_cost": 0.0,
+      "latency_ms": 1508.6
+    },
+    {
+      "case_id": "case_025",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/reports/test_exporter.py::test_exporter_total_includes_tax",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/reports/exporter.py",
+          "src/reports/rounding.py"
+        ],
+        "error_message": "AssertionError: assert Decimal('1299.49') == Decimal('1299.99')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.11,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "9b4d67f7-7b87-40a9-a643-865ad54e33f5",
+      "ndi_cost": 0.0,
+      "latency_ms": 1528.5
+    },
+    {
+      "case_id": "case_026",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/search/test_indexer.py::test_indexer_refresh",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": true,
+        "changed_files": [
+          "src/notifications/utils.py",
+          "README.md"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 1,
+        "duration_seconds": 30.4,
+        "recent_fail_rate": 0.24
+      },
+      "ndi_job_id": "426e3f3e-b62d-477d-a89c-2520977780c3",
+      "ndi_cost": 0.0,
+      "latency_ms": 1665.2
+    },
+    {
+      "case_id": "case_027",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (pytest-asyncio, -n 8 xdist)",
+        "test_name": "tests/checkout/test_cart_async.py::test_concurrent_cart_writes",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "tests/conftest.py"
+        ],
+        "error_message": "assert 2 == 3",
+        "retry_attempts": 2,
+        "duration_seconds": 1.2,
+        "recent_fail_rate": 0.18
+      },
+      "ndi_job_id": "fecc323e-49ca-4145-8a97-c0278f152976",
+      "ndi_cost": 0.0,
+      "latency_ms": 1774.4
+    },
+    {
+      "case_id": "case_028",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_cart_client.py::test_cart_fetch_remote",
+        "error_type": "requests.exceptions.ConnectionError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/checkout/cart.py"
+        ],
+        "error_message": "requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+        "retry_attempts": 1,
+        "duration_seconds": 1.19,
+        "recent_fail_rate": 0.04
+      },
+      "ndi_job_id": "6bfd5e35-b4f4-4c0d-a382-d5a8b6852a2d",
+      "ndi_cost": 0.0,
+      "latency_ms": 1587.7
+    },
+    {
+      "case_id": "case_029",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/inventory/test_stock.py::test_stock_roundtrip",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": true,
+        "changed_files": [
+          "src/users/utils.py",
+          "README.md"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 1,
+        "duration_seconds": 30.8,
+        "recent_fail_rate": 0.16
+      },
+      "ndi_job_id": "e6c3c18d-5458-4ebf-83e1-87926e441c89",
+      "ndi_cost": 0.0,
+      "latency_ms": 1696.4
+    },
+    {
+      "case_id": "case_030",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "useWebsocket \u203a renders with default props",
+        "error_type": "TypeError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/web/useWebsocket.tsx",
+          "src/web/types.ts"
+        ],
+        "error_message": "Cannot read properties of undefined (reading 'map')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.33,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "3aa8cb25-31c4-48b8-92a7-09e3a7d31ce1",
+      "ndi_cost": 0.0,
+      "latency_ms": 1712.8
+    },
+    {
+      "case_id": "case_031",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (pytest-asyncio, -n 8 xdist)",
+        "test_name": "tests/api/test_rate_limiter_async.py::test_concurrent_rate_limiter_writes",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "tests/conftest.py"
+        ],
+        "error_message": "assert 2 == 3",
+        "retry_attempts": 2,
+        "duration_seconds": 2.52,
+        "recent_fail_rate": 0.12
+      },
+      "ndi_job_id": "7469fe6c-9e4d-495a-9ed7-5a18d6bf3824",
+      "ndi_cost": 0.0,
+      "latency_ms": 1710.3
+    },
+    {
+      "case_id": "case_032",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "InvoiceTable \u203a renders with default props",
+        "error_type": "TypeError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/web/InvoiceTable.tsx",
+          "src/web/types.ts"
+        ],
+        "error_message": "Cannot read properties of undefined (reading 'map')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.49,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "7e9a2691-850e-4c18-a35c-bfb97c398849",
+      "ndi_cost": 0.0,
+      "latency_ms": 1426.6
+    },
+    {
+      "case_id": "case_033",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/inventory/test_stock_list.py::test_list_stocks_paginated",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": false,
+        "changed_files": [
+          "src/inventory/queries.py",
+          "src/inventory/serializers.py"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 2,
+        "duration_seconds": 30.14,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "c0cb5445-b166-40e7-b648-6bd589ed54ce",
+      "ndi_cost": 0.0,
+      "latency_ms": 1341.6
+    },
+    {
+      "case_id": "case_034",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/users/test_profile_server.py::test_profile_server_boots",
+        "error_type": "OSError",
+        "retry_passed": true,
+        "changed_files": [
+          "Makefile"
+        ],
+        "error_message": "OSError: [Errno 28] No space left on device: '/tmp/pytest-of-ci/pytest-311'",
+        "retry_attempts": 1,
+        "duration_seconds": 1.3,
+        "recent_fail_rate": 0.04
+      },
+      "ndi_job_id": "f4d4ae2b-9b2b-4744-b7cd-a47dd36ea61d",
+      "ndi_cost": 0.0,
+      "latency_ms": 1322.7
+    },
+    {
+      "case_id": "case_035",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/auth/test_session_api.py",
+        "error_type": "ImportError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/auth/__init__.py",
+          "src/auth/session.py"
+        ],
+        "error_message": "ImportError: cannot import name 'SessionService' from 'src.auth.session' (did you mean 'SessionClient'?)",
+        "retry_attempts": 2,
+        "duration_seconds": 0,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "8d176b1a-cdd0-4bb8-993b-858377210793",
+      "ndi_cost": 0.0,
+      "latency_ms": 1425.9
+    },
+    {
+      "case_id": "case_036",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_rate_limiter_client.py::test_rate_limiter_fetch_remote",
+        "error_type": "urllib3.exceptions.MaxRetryError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/api/rate_limiter.py"
+        ],
+        "error_message": "urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded",
+        "retry_attempts": 1,
+        "duration_seconds": 1.44,
+        "recent_fail_rate": 0.02
+      },
+      "ndi_job_id": "f592db6a-c083-4f73-a58a-1cfe95577f08",
+      "ndi_cost": 0.0,
+      "latency_ms": 1584.0
+    },
+    {
+      "case_id": "case_037",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_cart_client.py::test_cart_fetch_remote",
+        "error_type": "urllib3.exceptions.MaxRetryError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/checkout/cart.py"
+        ],
+        "error_message": "urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded",
+        "retry_attempts": 1,
+        "duration_seconds": 0.56,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "68cbcdf8-884d-411b-9229-053bcb4f45bf",
+      "ndi_cost": 0.0,
+      "latency_ms": 1387.5
+    },
+    {
+      "case_id": "case_038",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (pytest-asyncio, -n 8 xdist)",
+        "test_name": "tests/checkout/test_cart_async.py::test_concurrent_cart_writes",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "tests/conftest.py"
+        ],
+        "error_message": "assert 2 == 3",
+        "retry_attempts": 2,
+        "duration_seconds": 2.65,
+        "recent_fail_rate": 0.08
+      },
+      "ndi_job_id": "bc5863eb-b57a-4da4-94b0-ad2d65b01661",
+      "ndi_cost": 0.0,
+      "latency_ms": 1655.3
+    },
+    {
+      "case_id": "case_039",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "useWebsocket \u203a matches snapshot",
+        "error_type": "SnapshotMismatch",
+        "retry_passed": false,
+        "changed_files": [
+          "src/web/useWebsocket.tsx",
+          "src/web/theme/tokens.ts"
+        ],
+        "error_message": "expect(received).toMatchSnapshot()",
+        "retry_attempts": 2,
+        "duration_seconds": 0.42,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "ae073667-9796-4393-b2f9-2532950acf4f",
+      "ndi_cost": 0.0,
+      "latency_ms": 1256.9
+    },
+    {
+      "case_id": "case_040",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/billing/test_invoice_list.py::test_list_invoices_paginated",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": false,
+        "changed_files": [
+          "src/billing/queries.py",
+          "src/billing/serializers.py"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 2,
+        "duration_seconds": 30.45,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "b48d4378-432a-4066-ba65-9a631062a5ed",
+      "ndi_cost": 0.0,
+      "latency_ms": 1257.9
+    },
+    {
+      "case_id": "case_041",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_stripe_webhook_client.py::test_stripe_webhook_fetch_remote",
+        "error_type": "requests.exceptions.ConnectionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/payments/http_config.py",
+          "config/test.yaml"
+        ],
+        "error_message": "requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=9090): Max retries exceeded",
+        "retry_attempts": 1,
+        "duration_seconds": 0.87,
+        "recent_fail_rate": 0.08
+      },
+      "ndi_job_id": "34f51aab-1ec8-47d6-8f86-343dd2e4a213",
+      "ndi_cost": 0.0,
+      "latency_ms": 1537.6
+    },
+    {
+      "case_id": "case_042",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_email_queue_client.py::test_email_queue_fetch_remote",
+        "error_type": "requests.exceptions.ConnectionError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/notifications/http_config.py"
+        ],
+        "error_message": "requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+        "retry_attempts": 2,
+        "duration_seconds": 1.22,
+        "recent_fail_rate": 0.1
+      },
+      "ndi_job_id": "98ac9037-8348-48e9-8c23-4da2d790c71d",
+      "ndi_cost": 0.012,
+      "latency_ms": 6541.5
+    },
+    {
+      "case_id": "case_043",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_session_client.py::test_session_fetch_remote",
+        "error_type": "requests.exceptions.ConnectionError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/auth/http_config.py"
+        ],
+        "error_message": "requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+        "retry_attempts": 2,
+        "duration_seconds": 0.95,
+        "recent_fail_rate": 0.12
+      },
+      "ndi_job_id": "faaba4f2-d46e-4366-b11f-59930cda81e5",
+      "ndi_cost": 0.012,
+      "latency_ms": 6299.5
+    },
+    {
+      "case_id": "case_044",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "DatePicker \u203a renders with default props",
+        "error_type": "TypeError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/web/DatePicker.tsx",
+          "src/web/types.ts"
+        ],
+        "error_message": "Cannot read properties of undefined (reading 'map')",
+        "retry_attempts": 2,
+        "duration_seconds": 1,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "50b71156-5f25-445d-9a82-119d3bf986f1",
+      "ndi_cost": 0.012,
+      "latency_ms": 6360.2
+    },
+    {
+      "case_id": "case_045",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (-p randomly, seed=92074)",
+        "test_name": "tests/reports/test_exporter_settings.py::test_default_exporter_config",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "tests/reports/test_exporter_cache.py"
+        ],
+        "error_message": "assert 5 == 300",
+        "retry_attempts": 1,
+        "duration_seconds": 0.06,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "e89da0bd-02ac-440d-bfed-39b88e88e5ef",
+      "ndi_cost": 0.012,
+      "latency_ms": 6130.1
+    },
+    {
+      "case_id": "case_046",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/notifications/test_email_queue.py::test_email_queue_total_includes_tax",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/notifications/email_queue.py",
+          "src/notifications/rounding.py"
+        ],
+        "error_message": "AssertionError: assert Decimal('107.49') == Decimal('107.50')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.15,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "59ff6a44-84ed-43c6-9f95-54bf20fc6a95",
+      "ndi_cost": 0.012,
+      "latency_ms": 6311.5
+    },
+    {
+      "case_id": "case_047",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_indexer_client.py::test_indexer_fetch_remote",
+        "error_type": "urllib3.exceptions.MaxRetryError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/search/indexer.py"
+        ],
+        "error_message": "urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='sandbox.stripe-mock.internal', port=443): Max retries exceeded",
+        "retry_attempts": 1,
+        "duration_seconds": 2,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "e3a192cc-3153-46ed-99f4-235280104037",
+      "ndi_cost": 0.012,
+      "latency_ms": 6086.0
+    },
+    {
+      "case_id": "case_048",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/notifications/test_email_queue.py::test_email_queue_sync",
+        "error_type": "httpx.ReadTimeout",
+        "retry_passed": true,
+        "changed_files": [
+          "src/auth/utils.py",
+          "README.md"
+        ],
+        "error_message": "httpx.ReadTimeout: timed out",
+        "retry_attempts": 1,
+        "duration_seconds": 30.46,
+        "recent_fail_rate": 0.2
+      },
+      "ndi_job_id": "3b9ab188-ede6-4b3a-ace6-ca99b97762f5",
+      "ndi_cost": 0.012,
+      "latency_ms": 5508.1
+    },
+    {
+      "case_id": "case_049",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (-p randomly, seed=31379)",
+        "test_name": "tests/search/test_indexer_settings.py::test_default_indexer_config",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/search/settings.py"
+        ],
+        "error_message": "assert 5 == 300",
+        "retry_attempts": 2,
+        "duration_seconds": 0.26,
+        "recent_fail_rate": 0.14
+      },
+      "ndi_job_id": "cfe43df1-6a27-48dd-b4b4-843dc00d7d0a",
+      "ndi_cost": 0.012,
+      "latency_ms": 5676.0
+    },
+    {
+      "case_id": "case_050",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/checkout/test_cart_server.py::test_cart_server_boots",
+        "error_type": "OSError",
+        "retry_passed": true,
+        "changed_files": [
+          "Makefile"
+        ],
+        "error_message": "OSError: [Errno 98] Address already in use: ('127.0.0.1', 8081)",
+        "retry_attempts": 1,
+        "duration_seconds": 1.17,
+        "recent_fail_rate": 0.1
+      },
+      "ndi_job_id": "99077a7d-4840-46cc-9db7-d701e77b16b7",
+      "ndi_cost": 0.012,
+      "latency_ms": 6307.0
+    },
+    {
+      "case_id": "case_051",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/billing/test_invoice.py::test_invoice_total_includes_tax",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/billing/invoice.py",
+          "src/billing/rounding.py"
+        ],
+        "error_message": "AssertionError: assert Decimal('1299.49') == Decimal('1299.99')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.02,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "589cd57a-1112-401e-a5b0-efbcb7cf1364",
+      "ndi_cost": 0.012,
+      "latency_ms": 6596.4
+    },
+    {
+      "case_id": "case_052",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/checkout/test_cart.py::test_cart_total_includes_tax",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/checkout/cart.py",
+          "src/checkout/rounding.py"
+        ],
+        "error_message": "AssertionError: assert Decimal('41.50') == Decimal('42.00')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.15,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "77cc9012-c04f-4f44-b439-0d1921e335e8",
+      "ndi_cost": 0.012,
+      "latency_ms": 6522.9
+    },
+    {
+      "case_id": "case_053",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/checkout/test_cart.py::test_cart_total_includes_tax",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/checkout/cart.py",
+          "src/checkout/rounding.py"
+        ],
+        "error_message": "AssertionError: assert Decimal('1299.49') == Decimal('1299.99')",
+        "retry_attempts": 2,
+        "duration_seconds": 0.11,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "b3e58f77-e537-46e5-a965-ee5149e56831",
+      "ndi_cost": 0.012,
+      "latency_ms": 6647.6
+    },
+    {
+      "case_id": "case_054",
+      "path": "ndi",
+      "fields": {
+        "framework": "jest 29.7.0",
+        "test_name": "useWebsocket \u203a matches snapshot",
+        "error_type": "SnapshotMismatch",
+        "retry_passed": false,
+        "changed_files": [
+          "src/web/useWebsocket.tsx",
+          "src/web/theme/tokens.ts"
+        ],
+        "error_message": "expect(received).toMatchSnapshot()",
+        "retry_attempts": 2,
+        "duration_seconds": 0.51,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "f2eda42c-b4a2-48f7-967a-ea6cee133348",
+      "ndi_cost": 0.012,
+      "latency_ms": 6391.8
+    },
+    {
+      "case_id": "case_055",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_indexer_client.py::test_indexer_fetch_remote",
+        "error_type": "requests.exceptions.ConnectionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/search/http_config.py",
+          "config/test.yaml"
+        ],
+        "error_message": "requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=9090): Max retries exceeded",
+        "retry_attempts": 1,
+        "duration_seconds": 0.86,
+        "recent_fail_rate": 0.08
+      },
+      "ndi_job_id": "baf90540-d68c-47ad-9bb9-c27740bce516",
+      "ndi_cost": 0.012,
+      "latency_ms": 6258.4
+    },
+    {
+      "case_id": "case_056",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/inventory/test_stock_api.py",
+        "error_type": "ImportError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/inventory/__init__.py",
+          "src/inventory/stock.py"
+        ],
+        "error_message": "ImportError: cannot import name 'StockService' from 'src.inventory.stock' (did you mean 'StockClient'?)",
+        "retry_attempts": 2,
+        "duration_seconds": 0,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "d600dbcd-a66c-46f1-a4ad-934d06dc1922",
+      "ndi_cost": 0.012,
+      "latency_ms": 6497.9
+    },
+    {
+      "case_id": "case_057",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (-n 8 xdist)",
+        "test_name": "tests/search/test_indexer_concurrency.py::test_parallel_indexer_updates_are_atomic",
+        "error_type": "AssertionError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/search/indexer.py",
+          "src/search/locks.py"
+        ],
+        "error_message": "assert 19 == 20",
+        "retry_attempts": 2,
+        "duration_seconds": 3.13,
+        "recent_fail_rate": 0
+      },
+      "ndi_job_id": "306fccac-a62d-4153-a9e9-4edb8182a544",
+      "ndi_cost": 0.012,
+      "latency_ms": 5716.8
+    },
+    {
+      "case_id": "case_058",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2 (-p randomly, seed=20868)",
+        "test_name": "tests/search/test_indexer_settings.py::test_default_indexer_config",
+        "error_type": "AssertionError",
+        "retry_passed": false,
+        "changed_files": [
+          "src/search/settings.py"
+        ],
+        "error_message": "assert 5 == 300",
+        "retry_attempts": 2,
+        "duration_seconds": 0.2,
+        "recent_fail_rate": 0.06
+      },
+      "ndi_job_id": "3ca51cbb-5db6-4398-b1a1-302177311131",
+      "ndi_cost": 0.012,
+      "latency_ms": 5751.0
+    },
+    {
+      "case_id": "case_059",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/integration/test_cart_client.py::test_cart_fetch_remote",
+        "error_type": "requests.exceptions.ConnectionError",
+        "retry_passed": true,
+        "changed_files": [
+          "src/checkout/cart.py"
+        ],
+        "error_message": "requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+        "retry_attempts": 1,
+        "duration_seconds": 0.29,
+        "recent_fail_rate": 0.04
+      },
+      "ndi_job_id": "5ac77a67-ec58-4813-9a07-6b2f7c07d896",
+      "ndi_cost": 0.012,
+      "latency_ms": 5766.9
+    },
+    {
+      "case_id": "case_060",
+      "path": "ndi",
+      "fields": {
+        "framework": "pytest 8.3.2",
+        "test_name": "tests/search/test_indexer_server.py::test_indexer_server_boots",
+        "error_type": "OSError",
+        "retry_passed": true,
+        "changed_files": [
+          "Makefile"
+        ],
+        "error_message": "OSError: [Errno 98] Address already in use: ('127.0.0.1', 8081)",
+        "retry_attempts": 1,
+        "duration_seconds": 1.21,
+        "recent_fail_rate": 0.08
+      },
+      "ndi_job_id": "763fdde7-2a97-4342-ae55-149312f2bccd",
+      "ndi_cost": 0.012,
+      "latency_ms": 5567.5
+    }
+  ]
+}

@@ -1,0 +1,673 @@
+{
+  "mode": "real",
+  "model": "deepseek-ai/DeepSeek-V3.2",
+  "price_per_m": {
+    "input": 0.26,
+    "output": 0.38
+  },
+  "usd_total": 0.0092283,
+  "usd_per_1k": 0.153805,
+  "errors": 0,
+  "cases": [
+    {
+      "case_id": "case_001",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a race condition around midnight UTC where fixture timing causes date mismatch, as evidenced by the 6% recent failure rate on main and the fact that the second attempt passed.",
+      "latency_ms": 1988.4,
+      "usage": {
+        "input_tokens": 481,
+        "output_tokens": 68
+      }
+    },
+    {
+      "case_id": "case_002",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a database fixture timeout (postgres-test.internal:5432), which is a known infrastructure issue with a recent failure rate of 18% on main, and the PR only modifies utility code and documentation.",
+      "latency_ms": 2390.3,
+      "usage": {
+        "input_tokens": 512,
+        "output_tokens": 75
+      }
+    },
+    {
+      "case_id": "case_003",
+      "label": "flaky",
+      "action": "QUARANTINE",
+      "reason": "The test failure is due to a module-level singleton being mutated by an earlier test, indicating test-order coupling, and it has a high recent flaky failure rate (14%).",
+      "latency_ms": 1466.3,
+      "usage": {
+        "input_tokens": 516,
+        "output_tokens": 57
+      }
+    },
+    {
+      "case_id": "case_004",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high pass rate historically (94% on main) and passed on a recent retry, and the failure includes a warning about an update not wrapped in act(...), which is a common flaky pattern in React testing.",
+      "latency_ms": 2113.5,
+      "usage": {
+        "input_tokens": 507,
+        "output_tokens": 72
+      }
+    },
+    {
+      "case_id": "case_005",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a database fixture warm-up timeout, which is a known flaky infrastructure issue, and the test has a high pass rate on retry.",
+      "latency_ms": 2172.7,
+      "usage": {
+        "input_tokens": 530,
+        "output_tokens": 54
+      }
+    },
+    {
+      "case_id": "case_006",
+      "label": "flaky",
+      "action": "QUARANTINE",
+      "reason": "The test failure is due to a module-level singleton being mutated by an earlier test, indicating test-order coupling, which is a known flaky pattern.",
+      "latency_ms": 1388.3,
+      "usage": {
+        "input_tokens": 554,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_007",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test is a concurrency test with a history of intermittent failures and passes, indicating a race condition rather than a real bug from the PR changes.",
+      "latency_ms": 1460.6,
+      "usage": {
+        "input_tokens": 545,
+        "output_tokens": 50
+      }
+    },
+    {
+      "case_id": "case_008",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test fails due to an ImportError indicating a missing or renamed class (ExporterService) in a file modified by this PR, which is a clear regression.",
+      "latency_ms": 1385.9,
+      "usage": {
+        "input_tokens": 475,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_009",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high pass rate historically (94% on main) and passes on retry attempts, indicating a transient issue like timing or async state update.",
+      "latency_ms": 1897.0,
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_010",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The snapshot diff shows a concrete change in the component's rendered output (className and aria-label) that directly corresponds to the modified files in the PR, indicating a real regression.",
+      "latency_ms": 1509.6,
+      "usage": {
+        "input_tokens": 502,
+        "output_tokens": 58
+      }
+    },
+    {
+      "case_id": "case_011",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure is consistent across retries and only started occurring with changes to the rounding and exporter modules in this PR, indicating a real bug in the code change.",
+      "latency_ms": 1974.2,
+      "usage": {
+        "input_tokens": 506,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_012",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure shows a tiny floating-point difference (0.0039) within the tolerance range, suggesting a non-deterministic calculation likely due to timing or ordering issues rather than the code change.",
+      "latency_ms": 2473.2,
+      "usage": {
+        "input_tokens": 462,
+        "output_tokens": 68
+      }
+    },
+    {
+      "case_id": "case_013",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high recent failure rate (12%) on main, shows inconsistent timing (passing in 9.48s vs timing out at 60.9s), and the timeout is on a shared test database fixture, indicating infrastructure flakiness.",
+      "latency_ms": 2180.9,
+      "usage": {
+        "input_tokens": 516,
+        "output_tokens": 77
+      }
+    },
+    {
+      "case_id": "case_014",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The failure is due to a module-level singleton being mutated by an earlier test, which is a known flaky pattern of test-order coupling, and retrying once is a low-cost action given the high recent pass rate.",
+      "latency_ms": 1376.3,
+      "usage": {
+        "input_tokens": 515,
+        "output_tokens": 68
+      }
+    },
+    {
+      "case_id": "case_015",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "ImportError shows the PR changed the CartService import, indicating a real code break rather than a flaky test.",
+      "latency_ms": 1335.1,
+      "usage": {
+        "input_tokens": 482,
+        "output_tokens": 50
+      }
+    },
+    {
+      "case_id": "case_016",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a race condition around midnight UTC where a fixture computes 'today' before the test executes, and the test has a high recent pass rate (94%) with a history of intermittent failures.",
+      "latency_ms": 1816.7,
+      "usage": {
+        "input_tokens": 487,
+        "output_tokens": 67
+      }
+    },
+    {
+      "case_id": "case_017",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high recent failure rate on main (14%) and passed on retry in this run, indicating flakiness likely due to async timing or test environment issues.",
+      "latency_ms": 1387.2,
+      "usage": {
+        "input_tokens": 500,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_018",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a timeout on a shared PostgreSQL test fixture, which passed on a retry, and the recent failure rate on main is low (8%), indicating an infrastructure issue.",
+      "latency_ms": 1636.2,
+      "usage": {
+        "input_tokens": 522,
+        "output_tokens": 59
+      }
+    },
+    {
+      "case_id": "case_019",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a race condition around midnight UTC where a fixture's 'today' value can differ from the test's execution time by one day.",
+      "latency_ms": 1564.9,
+      "usage": {
+        "input_tokens": 501,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_020",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a network connection error to an external service, which is corroborated by other jobs on the same runner pool experiencing network issues in the same timeframe, indicating a likely transient infrastructure problem.",
+      "latency_ms": 1241.2,
+      "usage": {
+        "input_tokens": 504,
+        "output_tokens": 62
+      }
+    },
+    {
+      "case_id": "case_021",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high recent failure rate (18%) on main and passes on retry, indicating a race condition or timing issue.",
+      "latency_ms": 1158.7,
+      "usage": {
+        "input_tokens": 537,
+        "output_tokens": 47
+      }
+    },
+    {
+      "case_id": "case_022",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The failure is due to a CI environment issue (disk space exhaustion) and the test has a low recent failure rate on main.",
+      "latency_ms": 1491.2,
+      "usage": {
+        "input_tokens": 484,
+        "output_tokens": 50
+      }
+    },
+    {
+      "case_id": "case_023",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test shows a high recent failure rate (24%) on main with inconsistent results, and the timeout is related to database fixture warm-up rather than the specific code changes in this PR.",
+      "latency_ms": 1751.8,
+      "usage": {
+        "input_tokens": 506,
+        "output_tokens": 65
+      }
+    },
+    {
+      "case_id": "case_024",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure is a clear TypeError on a line of code that was changed in this PR, indicating a regression introduced by the commit.",
+      "latency_ms": 1581.8,
+      "usage": {
+        "input_tokens": 486,
+        "output_tokens": 50
+      }
+    },
+    {
+      "case_id": "case_025",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure is consistent across retries and directly corresponds to changes in the PR's rounding or exporter logic, indicating a real bug introduced by the code changes.",
+      "latency_ms": 1494.6,
+      "usage": {
+        "input_tokens": 509,
+        "output_tokens": 51
+      }
+    },
+    {
+      "case_id": "case_026",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high recent failure rate (24%) on main, indicating flakiness, and the timeout is related to a database fixture warm-up, which is a known intermittent environment issue.",
+      "latency_ms": 1890.7,
+      "usage": {
+        "input_tokens": 501,
+        "output_tokens": 59
+      }
+    },
+    {
+      "case_id": "case_027",
+      "label": "flaky",
+      "action": "QUARANTINE",
+      "reason": "The test has a high recent failure rate (18%) on main, passes on retry, and involves concurrency/asyncio which is prone to timing issues.",
+      "latency_ms": 1506.8,
+      "usage": {
+        "input_tokens": 537,
+        "output_tokens": 63
+      }
+    },
+    {
+      "case_id": "case_028",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The ConnectionResetError is a network issue, not related to the PR's code changes, as evidenced by other jobs reporting network errors in the same timeframe and the test's low recent failure rate.",
+      "latency_ms": 1600.6,
+      "usage": {
+        "input_tokens": 491,
+        "output_tokens": 67
+      }
+    },
+    {
+      "case_id": "case_029",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high recent failure rate (16%) on main and passed on retry, indicating a flaky network timeout issue rather than a code change problem.",
+      "latency_ms": 1671.5,
+      "usage": {
+        "input_tokens": 511,
+        "output_tokens": 57
+      }
+    },
+    {
+      "case_id": "case_030",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure is due to a TypeError accessing 'map' on undefined, which is a direct result of a code change in the PR (specifically in useWebsocket.tsx), indicating a real bug that should block the merge.",
+      "latency_ms": 1593.0,
+      "usage": {
+        "input_tokens": 487,
+        "output_tokens": 66
+      }
+    },
+    {
+      "case_id": "case_031",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high recent failure rate (12%) on main and passes on retry, indicating a race condition or timing issue rather than a real bug from the PR changes.",
+      "latency_ms": 1571.1,
+      "usage": {
+        "input_tokens": 543,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_032",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The error 'Cannot read properties of undefined (reading 'map')' indicates a code change in the PR broke the component by not providing a default or required 'items' prop.",
+      "latency_ms": 1790.7,
+      "usage": {
+        "input_tokens": 477,
+        "output_tokens": 55
+      }
+    },
+    {
+      "case_id": "case_033",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test shows a timeout with excessive SQL queries (1,204 queries for 50 rows) and has a low recent failure rate (6%), suggesting a database performance issue rather than a code regression.",
+      "latency_ms": 2130.0,
+      "usage": {
+        "input_tokens": 537,
+        "output_tokens": 68
+      }
+    },
+    {
+      "case_id": "case_034",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a temporary disk space issue on the CI runner, which is a known flaky environment problem, and retrying once is the most cost-effective action.",
+      "latency_ms": 1168.3,
+      "usage": {
+        "input_tokens": 455,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_035",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure is due to an ImportError from a missing SessionService import, which directly corresponds to changes in the PR's modified src/auth/session.py file.",
+      "latency_ms": 1480.8,
+      "usage": {
+        "input_tokens": 459,
+        "output_tokens": 52
+      }
+    },
+    {
+      "case_id": "case_036",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "Network errors are occurring across multiple jobs on the same runner pool, indicating a shared infrastructure issue rather than a code change.",
+      "latency_ms": 1315.1,
+      "usage": {
+        "input_tokens": 531,
+        "output_tokens": 44
+      }
+    },
+    {
+      "case_id": "case_037",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The failure is a network connection error to an external sandbox host, and other jobs on the same runner pool reported similar network errors in the same timeframe, indicating a shared infrastructure issue.",
+      "latency_ms": 1780.1,
+      "usage": {
+        "input_tokens": 515,
+        "output_tokens": 61
+      }
+    },
+    {
+      "case_id": "case_038",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high recent pass rate (92%) and passed on retry, indicating a transient race condition rather than a real bug introduced by the PR.",
+      "latency_ms": 2001.9,
+      "usage": {
+        "input_tokens": 538,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_039",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The snapshot mismatch shows a direct change in the component's output (className and aria-label) that aligns with the PR's modified files, indicating a real regression.",
+      "latency_ms": 942.0,
+      "usage": {
+        "input_tokens": 508,
+        "output_tokens": 55
+      }
+    },
+    {
+      "case_id": "case_040",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure is likely real due to a significant increase in SQL queries (1,204 for 50 rows) introduced by changes in the PR's billing-related files, indicating a performance regression.",
+      "latency_ms": 2014.5,
+      "usage": {
+        "input_tokens": 534,
+        "output_tokens": 62
+      }
+    },
+    {
+      "case_id": "case_041",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test is failing due to a connection refused error on localhost:9090, which is likely a transient infrastructure issue, and it has a recent failure rate of only 8% on main.",
+      "latency_ms": 1444.6,
+      "usage": {
+        "input_tokens": 518,
+        "output_tokens": 64
+      }
+    },
+    {
+      "case_id": "case_042",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a 10% recent failure rate on main with transient network errors, and the PR only modifies unrelated configuration files.",
+      "latency_ms": 1824.7,
+      "usage": {
+        "input_tokens": 489,
+        "output_tokens": 54
+      }
+    },
+    {
+      "case_id": "case_043",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a high recent pass rate (88%) and a transient network error ('Connection reset by peer'), indicating an unstable environment rather than a code bug.",
+      "latency_ms": 1897.6,
+      "usage": {
+        "input_tokens": 478,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_044",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure is a clear TypeError on a line that uses 'props.items.map', indicating a regression in the PR's code change that introduced undefined 'items'.",
+      "latency_ms": 1703.0,
+      "usage": {
+        "input_tokens": 480,
+        "output_tokens": 52
+      }
+    },
+    {
+      "case_id": "case_045",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a module-level singleton being mutated by an earlier test, which is a known flaky pattern in test-order coupling.",
+      "latency_ms": 1337.6,
+      "usage": {
+        "input_tokens": 519,
+        "output_tokens": 57
+      }
+    },
+    {
+      "case_id": "case_046",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure is consistent across retries and the assertion shows a specific decimal mismatch (107.49 vs 107.50) directly related to changes in the PR's email_queue.py and rounding.py files, indicating a real bug introduced by the code changes.",
+      "latency_ms": 1864.2,
+      "usage": {
+        "input_tokens": 513,
+        "output_tokens": 71
+      }
+    },
+    {
+      "case_id": "case_047",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a network connection error to an external service, and other jobs on the same runner pool reported similar network issues in the same timeframe.",
+      "latency_ms": 1527.8,
+      "usage": {
+        "input_tokens": 515,
+        "output_tokens": 60
+      }
+    },
+    {
+      "case_id": "case_048",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test has a 20% recent failure rate on main and shows inconsistent timing (30.5s timeout vs 3.74s pass), indicating infrastructure flakiness rather than a code change issue.",
+      "latency_ms": 2104.6,
+      "usage": {
+        "input_tokens": 509,
+        "output_tokens": 70
+      }
+    },
+    {
+      "case_id": "case_049",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure shows a clear regression where indexer_ttl changed from 300 to 5, directly related to the PR's changes to settings.py.",
+      "latency_ms": 1560.2,
+      "usage": {
+        "input_tokens": 470,
+        "output_tokens": 59
+      }
+    },
+    {
+      "case_id": "case_050",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a port conflict, which is a known flaky issue indicated by a 10% recent failure rate on main and a previous retry success.",
+      "latency_ms": 1398.3,
+      "usage": {
+        "input_tokens": 472,
+        "output_tokens": 59
+      }
+    },
+    {
+      "case_id": "case_051",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure shows a consistent discrepancy in invoice calculation (1299.49 vs 1299.99) that appears only in this PR, which modified billing/invoice.py and billing/rounding.py - indicating a real bug in the code changes.",
+      "latency_ms": 1718.6,
+      "usage": {
+        "input_tokens": 508,
+        "output_tokens": 78
+      }
+    },
+    {
+      "case_id": "case_052",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure shows a consistent discrepancy in tax calculation (41.50 vs 42.00) across multiple attempts, with no history of flakiness on main and the first occurrence coinciding with changes to cart.py and rounding.py in this PR.",
+      "latency_ms": 1957.9,
+      "usage": {
+        "input_tokens": 510,
+        "output_tokens": 78
+      }
+    },
+    {
+      "case_id": "case_053",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure shows a consistent discrepancy in tax calculation (1299.49 vs 1299.99) that appears only in this PR, has identical failures across retries, and has zero recent failures on main, indicating the code changes likely introduced a bug.",
+      "latency_ms": 1719.4,
+      "usage": {
+        "input_tokens": 516,
+        "output_tokens": 80
+      }
+    },
+    {
+      "case_id": "case_054",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The snapshot failure shows a concrete change in className and aria-label that directly corresponds to the modified files in the PR, indicating a real regression.",
+      "latency_ms": 1181.7,
+      "usage": {
+        "input_tokens": 508,
+        "output_tokens": 47
+      }
+    },
+    {
+      "case_id": "case_055",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test is failing due to a connection refused error on localhost:9090, which suggests a timing issue with the test environment setup rather than a code change, and with a recent failure rate of only 8% on main, a single retry is the most cost-effective approach.",
+      "latency_ms": 2031.5,
+      "usage": {
+        "input_tokens": 496,
+        "output_tokens": 86
+      }
+    },
+    {
+      "case_id": "case_056",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test fails due to an ImportError from a missing 'StockService' import, which is directly related to changes in the PR's modified src/inventory/stock.py file.",
+      "latency_ms": 1313.6,
+      "usage": {
+        "input_tokens": 474,
+        "output_tokens": 55
+      }
+    },
+    {
+      "case_id": "case_057",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test failure indicates a concurrency bug in the indexer's atomic update logic, as evidenced by the assertion that 19 equals 20, which is directly related to the changed files in the PR (src/search/indexer.py and src/search/locks.py).",
+      "latency_ms": 1714.5,
+      "usage": {
+        "input_tokens": 511,
+        "output_tokens": 77
+      }
+    },
+    {
+      "case_id": "case_058",
+      "label": "real",
+      "action": "BLOCK",
+      "reason": "The test is asserting that a default value is 300, but the actual value is 5, and the PR modifies the settings file, indicating a likely bug in the change.",
+      "latency_ms": 1986.7,
+      "usage": {
+        "input_tokens": 471,
+        "output_tokens": 55
+      }
+    },
+    {
+      "case_id": "case_059",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The failure is a network connection error, which is likely due to transient infrastructure issues, especially given that other jobs on the same runner pool also reported network errors around the same time.",
+      "latency_ms": 1373.0,
+      "usage": {
+        "input_tokens": 492,
+        "output_tokens": 56
+      }
+    },
+    {
+      "case_id": "case_060",
+      "label": "flaky",
+      "action": "RETRY",
+      "reason": "The test failure is due to a port conflict, a common flaky issue in CI environments, and the test has a high pass rate historically.",
+      "latency_ms": 1859.3,
+      "usage": {
+        "input_tokens": 466,
+        "output_tokens": 53
+      }
+    }
+  ]
+}

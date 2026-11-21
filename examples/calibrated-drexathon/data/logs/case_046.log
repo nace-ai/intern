@@ -1,0 +1,25 @@
+=== CI run #41398  job=unit-tests  runner=ci-runner-11
+commit 5a515f9  branch=feature/fix-576
+changed files in this PR:
+  M src/notifications/email_queue.py
+  M src/notifications/rounding.py
+framework: pytest 8.3.2
+failing test: tests/notifications/test_email_queue.py::test_email_queue_total_includes_tax
+test file: tests/notifications/test_email_queue.py
+duration: 0.15s
+
+=================================== FAILURES ===================================
+___________________________ test_email_queue_total_includes_tax ___________________________
+
+tests/notifications/test_email_queue.py:43: in email_queue.total
+    assert email_queue.total() == Decimal('107.50')
+E   AssertionError: assert Decimal('107.49') == Decimal('107.50')
+E     - 107.50
+E     + 107.49
+=========================== short test summary info ============================
+FAILED tests/notifications/test_email_queue.py::test_email_queue_total_includes_tax - + 107.49
+retry history:
+  attempt 2: FAILED (identical assertion) (7.34s)
+  attempt 3: FAILED (identical assertion) (2.93s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)
+first failure of this test on any branch: this PR

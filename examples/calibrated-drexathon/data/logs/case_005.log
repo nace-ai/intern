@@ -1,0 +1,24 @@
+=== CI run #48620  job=unit-tests  runner=ci-runner-04
+commit 127d5e4  branch=feature/perf-194
+changed files in this PR:
+  M src/billing/utils.py
+  M README.md
+framework: pytest 8.3.2
+failing test: tests/payments/test_stripe_webhook.py::test_stripe_webhook_refresh
+test file: tests/payments/test_stripe_webhook.py
+duration: 30.91s
+
+=================================== FAILURES ===================================
+___________________________ test_stripe_webhook_refresh ___________________________
+
+tests/payments/test_stripe_webhook.py:132: in client.get
+    resp = client.get('/payments/stripe_webhook', timeout=30)
+venv/lib/python3.12/site-packages/httpx/_client.py:1014: in mapped_exc
+    raise mapped_exc(message) from exc
+E   httpx.ReadTimeout: timed out
+E   (waited 30.9s for postgres-test.internal:5432 fixture warm-up)
+=========================== short test summary info ============================
+FAILED tests/payments/test_stripe_webhook.py::test_stripe_webhook_refresh - (waited 30.9s for postgres-test.internal:5432 fixture warm-up)
+retry history:
+  attempt 2: PASSED (0.47s)
+history: failed 12/50 recent runs on main (recent_fail_rate=0.24)

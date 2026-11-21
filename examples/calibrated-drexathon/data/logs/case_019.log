@@ -1,0 +1,21 @@
+=== CI run #46880  job=unit-tests  runner=ci-runner-23
+commit b705db1  branch=feature/refactor-849
+changed files in this PR:
+  M Makefile
+framework: pytest 8.3.2
+failing test: tests/payments/test_stripe_webhook_server.py::test_stripe_webhook_server_boots
+test file: tests/payments/test_stripe_webhook_server.py
+duration: 0.93s
+
+=================================== FAILURES ===================================
+___________________________ test_stripe_webhook_server_boots ___________________________
+
+tests/payments/test_stripe_webhook_server.py:59: in run_job
+    result = run_job()
+E   AssertionError: expected report date 2026-11-14, got 2026-11-15
+E   (test executed at 23:59:59.871 UTC; fixture computed 'today' before midnight)
+=========================== short test summary info ============================
+FAILED tests/payments/test_stripe_webhook_server.py::test_stripe_webhook_server_boots - (test executed at 23:59:59.871 UTC; fixture computed 'today' before midnight)
+retry history:
+  attempt 2: PASSED (7.42s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

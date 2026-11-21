@@ -1,0 +1,20 @@
+=== CI run #43040  job=unit-tests  runner=ci-runner-01
+commit 6c591e7  branch=feature/refactor-416
+changed files in this PR:
+  M Makefile
+framework: pytest 8.3.2
+failing test: tests/users/test_profile_server.py::test_profile_server_boots
+test file: tests/users/test_profile_server.py
+duration: 1.30s
+
+=================================== FAILURES ===================================
+___________________________ test_profile_server_boots ___________________________
+
+tests/users/test_profile_server.py:35: in run_job
+    result = run_job()
+E   OSError: [Errno 28] No space left on device: '/tmp/pytest-of-ci/pytest-311'
+=========================== short test summary info ============================
+FAILED tests/users/test_profile_server.py::test_profile_server_boots - OSError: [Errno 28] No space left on device: '/tmp/pytest-of-ci/pytest-311'
+retry history:
+  attempt 2: PASSED (0.67s)
+history: failed 2/50 recent runs on main (recent_fail_rate=0.04)

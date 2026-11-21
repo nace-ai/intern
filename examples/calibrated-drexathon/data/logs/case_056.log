@@ -1,0 +1,22 @@
+=== CI run #48995  job=unit-tests  runner=ci-runner-14
+commit 78d3873  branch=feature/perf-103
+changed files in this PR:
+  M src/inventory/__init__.py
+  M src/inventory/stock.py
+framework: pytest 8.3.2
+failing test: tests/inventory/test_stock_api.py
+test file: tests/inventory/test_stock_api.py
+duration: 0.00s
+
+==================================== ERRORS ====================================
+_____________ ERROR collecting tests/inventory/test_stock_api.py _____________
+ImportError while importing test module 'tests/inventory/test_stock_api.py'.
+Traceback:
+tests/inventory/test_stock_api.py:3: in <module>
+    from src.inventory.stock import StockService
+E   ImportError: cannot import name 'StockService' from 'src.inventory.stock' (did you mean 'StockClient'?)
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+retry history:
+  attempt 2: ERROR (collection) (1.94s)
+  attempt 3: ERROR (collection) (3.41s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

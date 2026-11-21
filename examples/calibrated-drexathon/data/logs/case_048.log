@@ -1,0 +1,24 @@
+=== CI run #46130  job=unit-tests  runner=ci-runner-03
+commit a4472a6  branch=feature/deps-205
+changed files in this PR:
+  M src/auth/utils.py
+  M README.md
+framework: pytest 8.3.2
+failing test: tests/notifications/test_email_queue.py::test_email_queue_sync
+test file: tests/notifications/test_email_queue.py
+duration: 30.46s
+
+=================================== FAILURES ===================================
+___________________________ test_email_queue_sync ___________________________
+
+tests/notifications/test_email_queue.py:148: in client.get
+    resp = client.get('/notifications/email_queue', timeout=30)
+venv/lib/python3.12/site-packages/httpx/_client.py:1014: in mapped_exc
+    raise mapped_exc(message) from exc
+E   httpx.ReadTimeout: timed out
+E   (waited 30.5s for postgres-test.internal:5432 fixture warm-up)
+=========================== short test summary info ============================
+FAILED tests/notifications/test_email_queue.py::test_email_queue_sync - (waited 30.5s for postgres-test.internal:5432 fixture warm-up)
+retry history:
+  attempt 2: PASSED (3.74s)
+history: failed 10/50 recent runs on main (recent_fail_rate=0.20)

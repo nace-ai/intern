@@ -1,0 +1,7 @@
+truth,action,cost_minutes,why
+real,QUARANTINE,120,real bug silently skipped and ships; incident + debugging later
+real,RETRY,6,one wasted CI rerun before the failure is escalated
+real,BLOCK,0,correct: merge blocked and owner alerted
+flaky,QUARANTINE,2,correct: test quarantined + ticket filed for the owner
+flaky,RETRY,4,one cheap rerun
+flaky,BLOCK,25,needless merge block; an engineer triages a non-bug

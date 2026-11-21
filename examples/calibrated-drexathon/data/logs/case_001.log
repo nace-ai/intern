@@ -1,0 +1,21 @@
+=== CI run #45592  job=unit-tests  runner=ci-runner-06
+commit 3a4b429  branch=feature/perf-458
+changed files in this PR:
+  M Makefile
+framework: pytest 8.3.2
+failing test: tests/billing/test_invoice_server.py::test_invoice_server_boots
+test file: tests/billing/test_invoice_server.py
+duration: 1.22s
+
+=================================== FAILURES ===================================
+___________________________ test_invoice_server_boots ___________________________
+
+tests/billing/test_invoice_server.py:40: in run_job
+    result = run_job()
+E   AssertionError: expected report date 2026-11-14, got 2026-11-15
+E   (test executed at 23:59:59.871 UTC; fixture computed 'today' before midnight)
+=========================== short test summary info ============================
+FAILED tests/billing/test_invoice_server.py::test_invoice_server_boots - (test executed at 23:59:59.871 UTC; fixture computed 'today' before midnight)
+retry history:
+  attempt 2: PASSED (3.45s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

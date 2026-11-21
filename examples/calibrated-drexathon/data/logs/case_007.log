@@ -1,0 +1,24 @@
+=== CI run #41695  job=unit-tests  runner=ci-runner-11
+commit 3778d3e  branch=feature/fix-513
+changed files in this PR:
+  M src/payments/stripe_webhook.py
+  M src/payments/locks.py
+framework: pytest 8.3.2 (-n 8 xdist)
+failing test: tests/payments/test_stripe_webhook_concurrency.py::test_parallel_stripe_webhook_updates_are_atomic
+test file: tests/payments/test_stripe_webhook_concurrency.py
+duration: 3.71s
+
+=================================== FAILURES ===================================
+___________________________ test_parallel_stripe_webhook_updates_are_atomic ___________________________
+
+tests/payments/test_stripe_webhook_concurrency.py:68: in asyncio.gather
+    results = await asyncio.gather(*[svc.increment() for _ in range(20)])
+tests/payments/test_stripe_webhook_concurrency.py:118: in call
+    assert svc.count == 20
+E   assert 19 == 20
+=========================== short test summary info ============================
+FAILED tests/payments/test_stripe_webhook_concurrency.py::test_parallel_stripe_webhook_updates_are_atomic - assert 19 == 20
+retry history:
+  attempt 2: PASSED (6.50s)
+  attempt 3: FAILED (8.37s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

@@ -1,0 +1,21 @@
+=== CI run #45735  job=unit-tests  runner=ci-runner-12
+commit fcfcbd4  branch=feature/refactor-311
+changed files in this PR:
+  M src/checkout/cart.py
+framework: pytest 8.3.2
+failing test: tests/integration/test_cart_client.py::test_cart_fetch_remote
+test file: tests/integration/test_cart_client.py
+duration: 0.29s
+
+=================================== FAILURES ===================================
+___________________________ test_cart_fetch_remote ___________________________
+
+tests/integration/test_cart_client.py:27: in session.get
+    r = session.get(REMOTE_URL + '/cart')
+E   requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+=========================== short test summary info ============================
+FAILED tests/integration/test_cart_client.py::test_cart_fetch_remote - requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Co
+retry history:
+  attempt 2: PASSED (1.09s)
+history: failed 2/50 recent runs on main (recent_fail_rate=0.04)
+note: 3 other jobs on this runner pool reported network errors in the same 5-minute window

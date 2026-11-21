@@ -1,0 +1,22 @@
+=== CI run #47990  job=unit-tests  runner=ci-runner-10
+commit 7e3fe55  branch=feature/refactor-845
+changed files in this PR:
+  M src/auth/session.py
+framework: pytest 8.3.2
+failing test: tests/auth/test_session_server.py::test_session_server_boots
+test file: tests/auth/test_session_server.py
+duration: 0.69s
+
+=================================== FAILURES ===================================
+___________________________ test_session_server_boots ___________________________
+
+tests/auth/test_session_server.py:44: in run_job
+    result = run_job()
+E   AssertionError: expected report date 2026-11-14, got 2026-11-15
+E   (test executed at 23:59:59.871 UTC; fixture computed 'today' before midnight)
+=========================== short test summary info ============================
+FAILED tests/auth/test_session_server.py::test_session_server_boots - (test executed at 23:59:59.871 UTC; fixture computed 'today' before midnight)
+retry history:
+  attempt 2: FAILED (2.35s)
+  attempt 3: PASSED (1.65s)
+history: failed 3/50 recent runs on main (recent_fail_rate=0.06)

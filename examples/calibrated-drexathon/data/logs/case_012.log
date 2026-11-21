@@ -1,0 +1,20 @@
+=== CI run #49618  job=unit-tests  runner=ci-runner-02
+commit 11f08c5  branch=feature/ui-195
+changed files in this PR:
+  M src/users/stats.py
+framework: pytest 8.3.2
+failing test: tests/users/test_profile_stats.py::test_profile_average_latency
+test file: tests/users/test_profile_stats.py
+duration: 0.08s
+
+=================================== FAILURES ===================================
+___________________________ test_profile_average_latency ___________________________
+
+tests/users/test_profile_stats.py:49: in pytest.approx
+    assert avg == pytest.approx(12.5, abs=1e-3)
+E   assert 12.50390625 == 12.5 ± 1.0e-03
+=========================== short test summary info ============================
+FAILED tests/users/test_profile_stats.py::test_profile_average_latency - assert 12.50390625 == 12.5 ± 1.0e-03
+retry history:
+  attempt 2: FAILED (9.34s)
+history: failed 1/50 recent runs on main (recent_fail_rate=0.02)

@@ -1,0 +1,802 @@
+{
+  "mode": "real",
+  "question": "Is this failure caused by test flakiness rather than a real code regression? Answer yes if the evidence points to the test or CI environment (timeouts on shared infra, races in test code, network blips, test-order coupling, resource exhaustion) and no if the evidence points to a change in this PR breaking behaviour.",
+  "model_requested": "drex-max-v1.1",
+  "models_available": [
+    "drex-v2.0",
+    "drex-max-v1.1",
+    "drex-max-finance",
+    "drex-latest",
+    "drex-v1.0",
+    "drex-v1.1",
+    "drex-v1.5",
+    "drex-max"
+  ],
+  "total_input_tokens": 36224,
+  "price_per_m_input": 0.12,
+  "usd_total": 0.00434688,
+  "usd_per_1k": 0.072448,
+  "errors": 0,
+  "cases": [
+    {
+      "case_id": "case_001",
+      "p_flaky": 0.9957141975672588,
+      "confidence": 0.9957141975672588,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 599,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 124,
+      "request_id": "req_63fa5ebbe00c7bda2706bb19a0287ea3",
+      "latency_ms": 440.2
+    },
+    {
+      "case_id": "case_002",
+      "p_flaky": 0.9989650404153334,
+      "confidence": 0.9989650404153334,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 589,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 118.3,
+      "request_id": "req_2d1cc81c15a0da1b33490f60430fec94",
+      "latency_ms": 384.3
+    },
+    {
+      "case_id": "case_003",
+      "p_flaky": 0.9988148720814911,
+      "confidence": 0.9988148720814911,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 596,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 122.9,
+      "request_id": "req_c749d5004310754908b36ffaab7e3713",
+      "latency_ms": 333.6
+    },
+    {
+      "case_id": "case_004",
+      "p_flaky": 0.9322860171475558,
+      "confidence": 0.9322860171475558,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 605,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 137.4,
+      "request_id": "req_30ece533551fce6c3703ee00be1ec249",
+      "latency_ms": 316.8
+    },
+    {
+      "case_id": "case_005",
+      "p_flaky": 0.9995807461610409,
+      "confidence": 0.9995807461610409,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 624,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 132,
+      "request_id": "req_32019485d061bda49e66eabb15e3931b",
+      "latency_ms": 458.3
+    },
+    {
+      "case_id": "case_006",
+      "p_flaky": 0.9989650404153334,
+      "confidence": 0.9989650404153334,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 652,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 183,
+      "request_id": "req_f3b9d7fd4f3d9154b6d640321378a3d2",
+      "latency_ms": 403.7
+    },
+    {
+      "case_id": "case_007",
+      "p_flaky": 0.07365041532215981,
+      "confidence": 0.926349584678,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 639,
+        "output_tokens": 37
+      },
+      "evaluation_time_ms": 116,
+      "request_id": "req_304544eb6cd28e039ab7e714d5bd62ff",
+      "latency_ms": 299.5
+    },
+    {
+      "case_id": "case_008",
+      "p_flaky": 0.0002080726568583013,
+      "confidence": 0.999791927343,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 585,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 176.3,
+      "request_id": "req_d9086bd5c0952844673402f198f02473",
+      "latency_ms": 441.4
+    },
+    {
+      "case_id": "case_009",
+      "p_flaky": 0.9956166354791274,
+      "confidence": 0.9956166354791274,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 612,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 127.2,
+      "request_id": "req_9ff638d727ee8ac2c4f67739e10bb786",
+      "latency_ms": 264.6
+    },
+    {
+      "case_id": "case_010",
+      "p_flaky": 0.0006892107589846598,
+      "confidence": 0.999310789241,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 590,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 123.6,
+      "request_id": "req_fcc51d1cfd8ea260ae10230c91cefa4f",
+      "latency_ms": 239.4
+    },
+    {
+      "case_id": "case_011",
+      "p_flaky": 0.00027913640732391416,
+      "confidence": 0.999720863593,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 642,
+        "output_tokens": 40
+      },
+      "evaluation_time_ms": 159.2,
+      "request_id": "req_c4296d5f1ac678edcfcbb9a9fb1e5e13",
+      "latency_ms": 405.8
+    },
+    {
+      "case_id": "case_012",
+      "p_flaky": 0.010287334625128592,
+      "confidence": 0.989712665375,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 575,
+        "output_tokens": 38
+      },
+      "evaluation_time_ms": 124,
+      "request_id": "req_808ab80a21091397d13546b63f6a1524",
+      "latency_ms": 291.8
+    },
+    {
+      "case_id": "case_013",
+      "p_flaky": 0.996083284165903,
+      "confidence": 0.996083284165903,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 609,
+        "output_tokens": 35
+      },
+      "evaluation_time_ms": 135.3,
+      "request_id": "req_84b9c66e64ab311dcfb77f1952bff350",
+      "latency_ms": 365.4
+    },
+    {
+      "case_id": "case_014",
+      "p_flaky": 0.9994247468814339,
+      "confidence": 0.9994247468814339,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 608,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 146.2,
+      "request_id": "req_3464acd478aa80d1cc986eec745cff4d",
+      "latency_ms": 266.4
+    },
+    {
+      "case_id": "case_015",
+      "p_flaky": 0.0007049583684343104,
+      "confidence": 0.999295041632,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 577,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 113.2,
+      "request_id": "req_a5f08b63b883a4360eadfbd1ce86ba4c",
+      "latency_ms": 242.9
+    },
+    {
+      "case_id": "case_016",
+      "p_flaky": 0.998446115372203,
+      "confidence": 0.998446115372203,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 611,
+        "output_tokens": 35
+      },
+      "evaluation_time_ms": 194.5,
+      "request_id": "req_6b19df4be16e5680a64cce003584e813",
+      "latency_ms": 332.1
+    },
+    {
+      "case_id": "case_017",
+      "p_flaky": 0.9749678460897884,
+      "confidence": 0.9749678460897884,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 599,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 129.2,
+      "request_id": "req_03dd162a4ece51510a767a00ba645ae3",
+      "latency_ms": 249.6
+    },
+    {
+      "case_id": "case_018",
+      "p_flaky": 0.9989650404153334,
+      "confidence": 0.9989650404153334,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 598,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 138.3,
+      "request_id": "req_46d9f2b0e9af7829a18b84bfb81a21ea",
+      "latency_ms": 277.4
+    },
+    {
+      "case_id": "case_019",
+      "p_flaky": 0.9990961979601762,
+      "confidence": 0.9990961979601762,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 624,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 172.9,
+      "request_id": "req_5162af582fe5665241978bce4bdc071c",
+      "latency_ms": 293.0
+    },
+    {
+      "case_id": "case_020",
+      "p_flaky": 0.9990107468852059,
+      "confidence": 0.9990107468852059,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 607,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 130.3,
+      "request_id": "req_ad54ae1bca19d63b6931f8356510cb58",
+      "latency_ms": 250.6
+    },
+    {
+      "case_id": "case_021",
+      "p_flaky": 0.9945108714553467,
+      "confidence": 0.9945108714553467,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 631,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 229.6,
+      "request_id": "req_834058a8232c41d5519502211a9dc85a",
+      "latency_ms": 565.8
+    },
+    {
+      "case_id": "case_022",
+      "p_flaky": 0.9994247471723048,
+      "confidence": 0.9994247471723048,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 592,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 125,
+      "request_id": "req_d2b444215963acbd7f5923131c1cbdd8",
+      "latency_ms": 286.6
+    },
+    {
+      "case_id": "case_023",
+      "p_flaky": 0.9993981572063277,
+      "confidence": 0.9993981572063277,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 603,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 115.1,
+      "request_id": "req_52a7bcf10b26215981e95cee25f81949",
+      "latency_ms": 239.0
+    },
+    {
+      "case_id": "case_024",
+      "p_flaky": 0.0006296607540100687,
+      "confidence": 0.999370339246,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 582,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 172.6,
+      "request_id": "req_ab3fc7bb902d8eb2f021976472ebd959",
+      "latency_ms": 293.7
+    },
+    {
+      "case_id": "case_025",
+      "p_flaky": 0.00016977410655398463,
+      "confidence": 0.999830225893,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 643,
+        "output_tokens": 40
+      },
+      "evaluation_time_ms": 218.5,
+      "request_id": "req_4ed9499686ba130486b3dee9c25ce3b8",
+      "latency_ms": 342.2
+    },
+    {
+      "case_id": "case_026",
+      "p_flaky": 0.9996255384561347,
+      "confidence": 0.9996255384561347,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 598,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 111.8,
+      "request_id": "req_5092db7d64a09abd356de478835178d9",
+      "latency_ms": 255.5
+    },
+    {
+      "case_id": "case_027",
+      "p_flaky": 0.993994495135016,
+      "confidence": 0.993994495135016,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 622,
+        "output_tokens": 35
+      },
+      "evaluation_time_ms": 125.8,
+      "request_id": "req_844749ff95ae931b099969bf3574251a",
+      "latency_ms": 582.8
+    },
+    {
+      "case_id": "case_028",
+      "p_flaky": 0.9996944542255327,
+      "confidence": 0.9996944542255327,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 578,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 116,
+      "request_id": "req_84258a9c8ee0ad5d09bff3fc55063696",
+      "latency_ms": 227.3
+    },
+    {
+      "case_id": "case_029",
+      "p_flaky": 0.9996255386597852,
+      "confidence": 0.9996255386597852,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 594,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 169,
+      "request_id": "req_fabc1b9dce4e477a3b42a4d56cc40fc8",
+      "latency_ms": 291.3
+    },
+    {
+      "case_id": "case_030",
+      "p_flaky": 0.0005375532313828746,
+      "confidence": 0.999462446769,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 589,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 123.9,
+      "request_id": "req_e0a9dd374fd5e98ab7c755cd53e58680",
+      "latency_ms": 249.1
+    },
+    {
+      "case_id": "case_031",
+      "p_flaky": 0.9871367730942175,
+      "confidence": 0.9871367730942175,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 637,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 172.1,
+      "request_id": "req_e4f2f486055141ceb1fcbf17a9ced4fe",
+      "latency_ms": 347.6
+    },
+    {
+      "case_id": "case_032",
+      "p_flaky": 0.0010585972773339185,
+      "confidence": 0.998941402723,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 582,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 143,
+      "request_id": "req_e1bc7f5dc13b3bdc4ac5193e3b4162b7",
+      "latency_ms": 268.3
+    },
+    {
+      "case_id": "case_033",
+      "p_flaky": 0.008600032575986096,
+      "confidence": 0.991399967424,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 634,
+        "output_tokens": 38
+      },
+      "evaluation_time_ms": 146.5,
+      "request_id": "req_49fac679dc9442ddc310f0e3c2b7428b",
+      "latency_ms": 256.8
+    },
+    {
+      "case_id": "case_034",
+      "p_flaky": 0.9991554115470511,
+      "confidence": 0.9991554115470511,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 561,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 115.2,
+      "request_id": "req_c89a8325cee8270f5182085a5e871979",
+      "latency_ms": 280.7
+    },
+    {
+      "case_id": "case_035",
+      "p_flaky": 0.0001209551315931686,
+      "confidence": 0.999879044868,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 564,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 157.9,
+      "request_id": "req_b661277d885344522e57a81f1aa6b126",
+      "latency_ms": 272.2
+    },
+    {
+      "case_id": "case_036",
+      "p_flaky": 0.9993844049157428,
+      "confidence": 0.9993844049157428,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 632,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 223.2,
+      "request_id": "req_6580e8158e9ed9b3507350b7a1983cc3",
+      "latency_ms": 399.6
+    },
+    {
+      "case_id": "case_037",
+      "p_flaky": 0.9994976766633055,
+      "confidence": 0.9994976766633055,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 611,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 119.5,
+      "request_id": "req_23f56d98d0d3a31bcbd96f7f783a6ce8",
+      "latency_ms": 330.3
+    },
+    {
+      "case_id": "case_038",
+      "p_flaky": 0.9928125369246104,
+      "confidence": 0.9928125369246104,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 624,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 224.5,
+      "request_id": "req_e86ddc5ac651450c785668cf0e31f724",
+      "latency_ms": 358.3
+    },
+    {
+      "case_id": "case_039",
+      "p_flaky": 0.0005752531185660534,
+      "confidence": 0.999424746881,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 599,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 190.6,
+      "request_id": "req_112d8ae0cafa0bb31334396cef68744c",
+      "latency_ms": 297.2
+    },
+    {
+      "case_id": "case_040",
+      "p_flaky": 0.023952077806531514,
+      "confidence": 0.976047922193,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 636,
+        "output_tokens": 38
+      },
+      "evaluation_time_ms": 122.8,
+      "request_id": "req_11c9689abb298ce23d1f4d24cd6fbe35",
+      "latency_ms": 236.9
+    },
+    {
+      "case_id": "case_041",
+      "p_flaky": 0.3468349770654745,
+      "confidence": 0.653165022935,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 618,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 133.9,
+      "request_id": "req_822562b7cdb81a6a6eb6e4a6ac98c842",
+      "latency_ms": 253.3
+    },
+    {
+      "case_id": "case_042",
+      "p_flaky": 0.9770824781813149,
+      "confidence": 0.9770824781813149,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 589,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 133.7,
+      "request_id": "req_9a15ddfef3da9bd0f54cad4d0f2bfd96",
+      "latency_ms": 253.0
+    },
+    {
+      "case_id": "case_043",
+      "p_flaky": 0.9824319006069947,
+      "confidence": 0.9824319006069947,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 577,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 128.1,
+      "request_id": "req_1337450d64d8d47570a677cd7228ddd6",
+      "latency_ms": 247.4
+    },
+    {
+      "case_id": "case_044",
+      "p_flaky": 0.0006892111079899411,
+      "confidence": 0.999310788892,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 570,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 108.4,
+      "request_id": "req_4e9925768058df85a2ef7eb1b47f14e4",
+      "latency_ms": 225.1
+    },
+    {
+      "case_id": "case_045",
+      "p_flaky": 0.9982207871862138,
+      "confidence": 0.9982207871862138,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 624,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 184,
+      "request_id": "req_23d24ef204dd1c034939efa1078d805e",
+      "latency_ms": 360.3
+    },
+    {
+      "case_id": "case_046",
+      "p_flaky": 0.00044865998660473174,
+      "confidence": 0.999551340013,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 638,
+        "output_tokens": 40
+      },
+      "evaluation_time_ms": 137.8,
+      "request_id": "req_8c3813de7786da681e37d26bce0dd4fc",
+      "latency_ms": 243.4
+    },
+    {
+      "case_id": "case_047",
+      "p_flaky": 0.9991361168498806,
+      "confidence": 0.9991361168498806,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 617,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 124.7,
+      "request_id": "req_21985c7d6748a0d77d0442122fabe474",
+      "latency_ms": 306.3
+    },
+    {
+      "case_id": "case_048",
+      "p_flaky": 0.9994744560150906,
+      "confidence": 0.9994744560150906,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 600,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 111.4,
+      "request_id": "req_c9fdef30603a4c8578e3525a21f05326",
+      "latency_ms": 250.8
+    },
+    {
+      "case_id": "case_049",
+      "p_flaky": 0.000737538582297806,
+      "confidence": 0.999262461418,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 571,
+        "output_tokens": 38
+      },
+      "evaluation_time_ms": 127.9,
+      "request_id": "req_6f01b00c3ba47c55cc29d24faa1d81ee",
+      "latency_ms": 234.4
+    },
+    {
+      "case_id": "case_050",
+      "p_flaky": 0.9986732387827654,
+      "confidence": 0.9986732387827654,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 579,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 145.9,
+      "request_id": "req_c7ca59478ccdc2fae06ba39c3e71a434",
+      "latency_ms": 277.4
+    },
+    {
+      "case_id": "case_051",
+      "p_flaky": 0.001297142322808518,
+      "confidence": 0.998702857677,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 632,
+        "output_tokens": 38
+      },
+      "evaluation_time_ms": 187.6,
+      "request_id": "req_a60e9895f8b6bb14012bda506edd1afe",
+      "latency_ms": 311.8
+    },
+    {
+      "case_id": "case_052",
+      "p_flaky": 0.00027289876859339687,
+      "confidence": 0.999727101231,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 617,
+        "output_tokens": 40
+      },
+      "evaluation_time_ms": 126.3,
+      "request_id": "req_6b7fcd10f350a6f7cc878d1ea91ecf76",
+      "latency_ms": 250.1
+    },
+    {
+      "case_id": "case_053",
+      "p_flaky": 0.0003917737078924172,
+      "confidence": 0.999608226292,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 632,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 159.4,
+      "request_id": "req_bd80d71ca2032ea22a1b67abfbc331ff",
+      "latency_ms": 294.8
+    },
+    {
+      "case_id": "case_054",
+      "p_flaky": 0.002731195604484601,
+      "confidence": 0.997268804396,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 600,
+        "output_tokens": 38
+      },
+      "evaluation_time_ms": 166.4,
+      "request_id": "req_d48dae8297eb5f216fe7dedc24085e84",
+      "latency_ms": 350.0
+    },
+    {
+      "case_id": "case_055",
+      "p_flaky": 0.21994949549511827,
+      "confidence": 0.780050504505,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 598,
+        "output_tokens": 37
+      },
+      "evaluation_time_ms": 133.5,
+      "request_id": "req_4326807bbffc542d3dbda293c2e7f4e5",
+      "latency_ms": 263.7
+    },
+    {
+      "case_id": "case_056",
+      "p_flaky": 0.0002080726568583013,
+      "confidence": 0.999791927343,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 577,
+        "output_tokens": 39
+      },
+      "evaluation_time_ms": 196.2,
+      "request_id": "req_56fee122b8f2ddbfec222228cde5f76e",
+      "latency_ms": 373.0
+    },
+    {
+      "case_id": "case_057",
+      "p_flaky": 0.08698072608488523,
+      "confidence": 0.913019273915,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 603,
+        "output_tokens": 37
+      },
+      "evaluation_time_ms": 129.1,
+      "request_id": "req_18c804089bc9ab6fa2a0ce5655d7d4a4",
+      "latency_ms": 260.5
+    },
+    {
+      "case_id": "case_058",
+      "p_flaky": 0.001132797137080335,
+      "confidence": 0.998867202863,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 568,
+        "output_tokens": 38
+      },
+      "evaluation_time_ms": 172.1,
+      "request_id": "req_634f4cad308089277f1f9cee3223f58d",
+      "latency_ms": 321.4
+    },
+    {
+      "case_id": "case_059",
+      "p_flaky": 0.9995410864420335,
+      "confidence": 0.9995410864420335,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 577,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 194.5,
+      "request_id": "req_67defa6e71eff5f893da2d8b47f5027d",
+      "latency_ms": 312.4
+    },
+    {
+      "case_id": "case_060",
+      "p_flaky": 0.9992456108695316,
+      "confidence": 0.9992456108695316,
+      "model": "drex-max-v1.1",
+      "usage": {
+        "input_tokens": 584,
+        "output_tokens": 36
+      },
+      "evaluation_time_ms": 125.2,
+      "request_id": "req_c457914aaf387d63216cbc6dcb00cab1",
+      "latency_ms": 249.2
+    }
+  ]
+}

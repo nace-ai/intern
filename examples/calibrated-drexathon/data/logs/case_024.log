@@ -1,0 +1,25 @@
+=== CI run #43085  job=unit-tests  runner=ci-runner-17
+commit a42127e  branch=feature/refactor-519
+changed files in this PR:
+  M src/web/CartDrawer.tsx
+  M src/web/types.ts
+framework: jest 29.7.0
+failing test: CartDrawer › renders with default props
+test file: src/web/__tests__/CartDrawer.test.tsx
+duration: 0.84s
+
+ FAIL  src/web/__tests__/CartDrawer.test.tsx
+  ● CartDrawer › renders with default props
+
+    TypeError: Cannot read properties of undefined (reading 'map')
+    
+    > 41 |   {props.items.map((item) => <Row key={item.id} {...item} />)}
+
+      at CartDrawer (src/web/CartDrawer.tsx:41:22)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom.development.js:16305:18)
+
+Tests:       1 failed, 53 passed, 54 total
+retry history:
+  attempt 2: FAILED (2.86s)
+  attempt 3: FAILED (8.06s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)

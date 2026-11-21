@@ -1,0 +1,24 @@
+=== CI run #44138  job=unit-tests  runner=ci-runner-03
+commit a9638dd  branch=feature/deps-381
+changed files in this PR:
+  M tests/conftest.py
+framework: pytest 8.3.2 (pytest-asyncio, -n 8 xdist)
+failing test: tests/api/test_rate_limiter_async.py::test_concurrent_rate_limiter_writes
+test file: tests/api/test_rate_limiter_async.py
+duration: 2.52s
+
+=================================== FAILURES ===================================
+___________________________ test_concurrent_rate_limiter_writes ___________________________
+
+tests/api/test_rate_limiter_async.py:41: in asyncio.sleep
+    await asyncio.sleep(0.05)  # wait for worker
+tests/api/test_rate_limiter_async.py:123: in len
+    assert len(events) == 3
+E   assert 2 == 3
+E    +  where 2 = len([<Event id=1>, <Event id=2>])
+=========================== short test summary info ============================
+FAILED tests/api/test_rate_limiter_async.py::test_concurrent_rate_limiter_writes - +  where 2 = len([<Event id=1>, <Event id=2>])
+retry history:
+  attempt 2: PASSED (6.63s)
+  attempt 3: PASSED (8.44s)
+history: failed 6/50 recent runs on main (recent_fail_rate=0.12)

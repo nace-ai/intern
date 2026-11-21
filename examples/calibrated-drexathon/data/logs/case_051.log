@@ -1,0 +1,25 @@
+=== CI run #45346  job=unit-tests  runner=ci-runner-20
+commit bcef249  branch=feature/perf-570
+changed files in this PR:
+  M src/billing/invoice.py
+  M src/billing/rounding.py
+framework: pytest 8.3.2
+failing test: tests/billing/test_invoice.py::test_invoice_total_includes_tax
+test file: tests/billing/test_invoice.py
+duration: 0.02s
+
+=================================== FAILURES ===================================
+___________________________ test_invoice_total_includes_tax ___________________________
+
+tests/billing/test_invoice.py:39: in invoice.total
+    assert invoice.total() == Decimal('1299.99')
+E   AssertionError: assert Decimal('1299.49') == Decimal('1299.99')
+E     - 1299.99
+E     + 1299.49
+=========================== short test summary info ============================
+FAILED tests/billing/test_invoice.py::test_invoice_total_includes_tax - + 1299.49
+retry history:
+  attempt 2: FAILED (identical assertion) (6.95s)
+  attempt 3: FAILED (identical assertion) (4.91s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)
+first failure of this test on any branch: this PR

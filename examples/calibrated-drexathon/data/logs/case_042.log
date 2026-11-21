@@ -1,0 +1,22 @@
+=== CI run #44313  job=unit-tests  runner=ci-runner-04
+commit 52a3cd1  branch=feature/perf-674
+changed files in this PR:
+  M src/notifications/http_config.py
+framework: pytest 8.3.2
+failing test: tests/integration/test_email_queue_client.py::test_email_queue_fetch_remote
+test file: tests/integration/test_email_queue_client.py
+duration: 1.22s
+
+=================================== FAILURES ===================================
+___________________________ test_email_queue_fetch_remote ___________________________
+
+tests/integration/test_email_queue_client.py:73: in session.get
+    r = session.get(REMOTE_URL + '/email_queue')
+E   requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+=========================== short test summary info ============================
+FAILED tests/integration/test_email_queue_client.py::test_email_queue_fetch_remote - requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Co
+retry history:
+  attempt 2: FAILED (same error) (3.62s)
+  attempt 3: PASSED (5.30s)
+history: failed 5/50 recent runs on main (recent_fail_rate=0.10)
+

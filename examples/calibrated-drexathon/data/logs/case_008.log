@@ -1,0 +1,22 @@
+=== CI run #49520  job=unit-tests  runner=ci-runner-01
+commit abb7aca  branch=feature/fix-102
+changed files in this PR:
+  M src/reports/__init__.py
+  M src/reports/exporter.py
+framework: pytest 8.3.2
+failing test: tests/reports/test_exporter_api.py
+test file: tests/reports/test_exporter_api.py
+duration: 0.00s
+
+==================================== ERRORS ====================================
+_____________ ERROR collecting tests/reports/test_exporter_api.py _____________
+ImportError while importing test module 'tests/reports/test_exporter_api.py'.
+Traceback:
+tests/reports/test_exporter_api.py:3: in <module>
+    from src.reports.exporter import ExporterService
+E   ImportError: cannot import name 'ExporterService' from 'src.reports.exporter' (did you mean 'ExporterClient'?)
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+retry history:
+  attempt 2: ERROR (collection) (3.87s)
+  attempt 3: ERROR (collection) (4.09s)
+history: failed 0/50 recent runs on main (recent_fail_rate=0.00)
