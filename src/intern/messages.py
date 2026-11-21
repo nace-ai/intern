@@ -66,6 +66,11 @@ class ToolCall(BaseModel):
     id: str
     name: str
     arguments: JsonObject = Field(default_factory=dict)
+    extra_content: JsonObject | None = Field(
+        default=None,
+        description="What the provider attached to the call and wants back with it unchanged, such as Gemini's "
+        "thought signature (`google.thought_signature`); sent back only to the model that made the call.",
+    )
 
 
 class InvalidToolCall(BaseModel):
