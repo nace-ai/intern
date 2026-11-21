@@ -1693,7 +1693,8 @@ def readiness(h: HandoverJudgement) -> list[Part]:
         return []
     columns = [LADDER[max(0, math.ceil(p * len(LADDER)) - 1)] for p in h.ready[-READY_SHOWN:]]
     trail: list[Part] = [("".join(columns[:-1]), S_MUTED), (columns[-1], S_BRAND_BOLD), " "]
-    return [("ready ", S_MUTED), *trail, (f"{h.ready[-1]:.2f}", S_INK)]
+    said = "efficient " if h.handed_at == 0 else "ready "  # judged at the run's start: P(efficient)
+    return [(said, S_MUTED), *trail, (f"{h.ready[-1]:.2f}", S_INK)]
 
 
 READY_SHOWN = 12
@@ -1706,7 +1707,7 @@ def handoff_card(h: HandoverJudgement, name: str = "") -> Content:
     head = Content.assemble(
         (f"{HANDOVER_SIGN} ", S_BRAND_BOLD),
         (f"Handed over to the efficient model ({name or model_name(h.target)})", S_BRAND_BOLD),
-        (f" at turn {h.handed_at}", S_MUTED),
+        (" from the start" if h.handed_at == 0 else f" at turn {h.handed_at}", S_MUTED),
     )
     return Content("\n").join([head, Content.assemble("  ", card("Decision model", "", readiness(h), []))])
 

@@ -6,6 +6,11 @@ exercised it, and what remains is localized repair, validation or finishing. Sys
 until the hand-over, from the first turn whose streak could reach `min_turn`, in its own ask: the supervisor looks
 only every few turns, and the hand-over's timing is what it is for.
 
+With `at_start` set, a run that answers a later message of the session can hand over before its first turn instead:
+System 1 judges the new message against the session (`ROUTE`), and a request that needs no new open-ended reasoning
+starts on the cheaper model. A run judged to need System 2 starts on it and may still hand over during the run. The
+session's first message is never judged, so a session of one task runs as it would without `at_start`.
+
 The model taken over by inherits the workspace and the conversation, without the reasoning of the model before it,
 which only goes back to the model that wrote it, and goes on until the run ends. It never hands back within the run.
 
@@ -52,6 +57,23 @@ READY = ChoiceQuestion(
     },
 )
 
+ROUTE = ChoiceQuestion(
+    instructions="The state is an agent's session so far, oldest first; its last entry is the user's new request. "
+    "Either a strong model or a weaker, cheaper model will handle this request, in the same workspace and with the "
+    "same session. Judge how demanding the request is given what the session already holds, not how it reads on "
+    "its own.",
+    criteria={
+        "efficient": "it can be done well without new open-ended reasoning: the approach is clear from the request or "
+        "from work already in the session, and what remains is execution: a lookup, a small or mechanical change, a "
+        "calculation from known inputs, reformatting, or summarizing or presenting results already established",
+        "frontier": "doing it well needs reasoning the session has not done yet: choosing an approach, investigating "
+        "an unknown cause, multi-step analysis, building something substantial, or judgment where a subtle mistake "
+        "would be costly; or explaining why earlier work was done as it was, where an answer has to keep to the "
+        "reasons the session actually records",
+        "unclear": "the session shows too little to tell",
+    },
+)
+
 TAKEOVER_NOTE = """\
 You are taking over this task from another agent, whose turns are above; its work is in the workspace. The main \
 solution exists and has been checked, so finish it rather than redo it: keep its approach and files, and change only \
@@ -78,13 +100,13 @@ class HandoffTarget:
         return cls(binding=binding, config=config)
 
 
-def ready_probability(answer: object) -> float:
-    """P(ready); a choice given without probabilities counts as certain."""
+def ready_probability(answer: object, choice: str = "ready") -> float:
+    """P(`choice`); a choice given without probabilities counts as certain."""
     if not isinstance(answer, ChoiceAnswer):
         return 0.0
     if not answer.probabilities:
-        return 1.0 if answer.choice == "ready" else 0.0
-    return answer.probabilities.get("ready", 0.0)
+        return 1.0 if answer.choice == choice else 0.0
+    return answer.probabilities.get(choice, 0.0)
 
 
 class Readiness:
@@ -103,3 +125,12 @@ class Readiness:
         self.probability = ready_probability(answer)
         self.streak = self.streak + 1 if self.probability >= config.threshold else 0
         return self.streak >= config.streak and turn >= config.min_turn
+
+    async def at_start(self, decisions: DecisionClient, state: Callable[[], str]) -> bool:
+        """Whether the run starts on the cheaper model: System 1's P(efficient) for the new message, at turn 0."""
+        threshold = self.target.config.at_start
+        if threshold is None:
+            return False
+        answer = (await decisions.ask("handoff", state(), {"route": ROUTE}, turn=0))["route"]
+        self.probability = ready_probability(answer, "efficient")
+        return self.probability >= threshold

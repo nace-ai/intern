@@ -196,6 +196,9 @@ class HandoffConfig(_Settings):
     """Turns in a row at `threshold` or more before it hands over."""
     min_turn: int = Field(default=8, ge=1)
     """The earliest turn it hands over at."""
+    at_start: float | None = Field(default=None, gt=0, le=1)
+    """P(efficient) at which a run starts on the cheaper model, judged on the session and the new message; unset,
+    every run starts on System 2. The session's first message is never judged: it always starts on System 2."""
 
     @model_validator(mode="before")
     @classmethod

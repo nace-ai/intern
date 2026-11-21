@@ -71,7 +71,7 @@ one switch each, and settings for the whole session. Which is an extension and w
 | `secrets` | session setting | secret references for commands (bindings, `inject`); the top-level [`[secrets]`](secrets.md) store is separate | none |
 | `session_budget` | session setting | one model-call budget for the session | none |
 | `system2_fallbacks` | session setting | System 2 models to fall back to | none |
-| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, in the same conversation, its turns kept in the session, of which System 2, which answers the next message, is sent a record ([below](#what-system-2-reads-after-a-hand-over)), and when (`threshold`, `streak`, `min_turn`); `--handoff-to`, the terminal UI's `/handover` and the ACP `handoff` option set `to`; the terminal UI's auto mode (the top-level `auto`, on unless `false`) hands over to `anthropic/claude-haiku-5-5` while `to` names none | off |
+| `handoff` | session setting | one hand-over per run to a cheaper model (`to`, `effort`) once System 1 judges it can finish the task, in the same conversation, its turns kept in the session, of which System 2, which answers the next message, is sent a record ([below](#what-system-2-reads-after-a-hand-over)), and when (`threshold`, `streak`, `min_turn`); with `at_start`, a run that answers a later message of the session can start on the cheaper model ([below](#a-run-that-starts-on-the-cheaper-model)); `--handoff-to`, the terminal UI's `/handover` and the ACP `handoff` option set `to`; the terminal UI's auto mode (the top-level `auto`, on unless `false`) hands over to `anthropic/claude-haiku-5-5` while `to` names none | off |
 | `model_retries` | session setting | whether a System 2 call that fails with a retryable error is made again ([below](#model-retries)) | `true` |
 
 `web_search` and `web_reader` were `search` and `reader` before 0.44.0; the old table names still load.
@@ -471,6 +471,30 @@ sent in full, so a session's requests do not change under it. After a hand-over 
 journals a `files_changed` event, the files it created, changed or deleted, found by comparing the working
 directory before and after the turn. Hidden folders and dependency folders are not looked at, nor is a working
 directory of more than 5,000 files.
+
+## A run that starts on the cheaper model
+
+With `[capabilities.handoff] at_start` set, a probability such as `0.8`, System 1 judges each later message of a
+session before its run's first turn, from the session so far and the new message: does doing it well need reasoning
+the session has not done yet (choosing an approach, investigating an unknown cause, multi-step analysis, building
+something substantial, judgment where a subtle mistake would be costly, explaining why earlier work was done as it
+was), or only execution (a lookup, a small or mechanical change, a calculation from known inputs, reformatting,
+summarizing results already established)? When
+its P(efficient) is `at_start` or more, the run hands over at turn 0 and the cheaper model answers the message;
+otherwise System 2 does, and may still hand over during the run as before. There is one hand-over per run either way,
+and each message is judged afresh.
+
+The session's first message is never judged: it always starts on System 2, so a session of one task, as `-p` runs,
+goes as it would without `at_start`. A message the session sends itself, such as one telling the agent a job ended,
+is not judged either. A run that starts on the cheaper model is journaled like any hand-over, a `handoff` event at
+turn 0 whose `probability` is P(efficient), and System 2 is sent [a record](#what-system-2-reads-after-a-hand-over)
+of its turns at the next message it answers. Unset by default; the free credit's hand-over does not use it.
+
+```toml
+[capabilities.handoff]
+to = "anthropic/claude-haiku-5-5"
+at_start = 0.8
+```
 
 ## Subagents
 

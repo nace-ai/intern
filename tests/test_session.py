@@ -302,3 +302,60 @@ async def test_a_hand_over_stays_in_the_session_and_the_next_run_is_system_2s_ag
     told = [[TAKEOVER_NOTE in m.content for m in r.messages if isinstance(m, UserMessage)] for r in cheap.requests]
     assert all(any(each) for each in told)
     assert not any(TAKEOVER_NOTE in m.content for m in sent if isinstance(m, UserMessage))
+
+
+class Router:
+    """A System 1 that judges each new message against the session: P(efficient) from `efficient`, in turn."""
+
+    name = "router"
+
+    def __init__(self, efficient: list[float]) -> None:
+        self.efficient = efficient
+        self.states: list[str] = []
+
+    async def decide(self, state: str, questions: dict[str, Question]) -> Answers:
+        if "route" not in questions:
+            return Answers(answers={})
+        self.states.append(state)
+        p = self.efficient[len(self.states) - 1]
+        route = ChoiceAnswer(choice="efficient" if p >= 0.5 else "frontier", probabilities={"efficient": p})
+        return Answers(answers={"route": route})
+
+
+async def test_a_later_message_judged_efficient_starts_on_the_cheaper_model_and_the_first_is_never_judged(
+    make_harness,
+):
+    strong = [
+        Turn(text="built", tool_calls=[("write", {"path": "a.txt", "content": "one\n"})]),
+        Turn(text="first answer"),
+        Turn(text="third answer"),
+    ]
+    router = Router([0.9, 0.5])
+    harness = make_harness(strong, system1=router)
+    cheap = FakeProvider(
+        [Turn(text="converting", tool_calls=[("bash", {"command": "echo converted"})]), Turn(text="made it md")],
+        "cheap/small",
+    )
+    config = HandoffConfig(at_start=0.8)
+    harness.deps.handoff = HandoffTarget(binding=replace(binding(cheap), ref="cheap/small"), config=config)
+    session = Session(harness.deps)
+
+    assert (await session.run("do the task")).final_text == "first answer"
+    assert router.states == [] and not cheap.requests  # a session's first task runs as it would without `at_start`
+
+    second = await session.run("make it md")
+
+    assert second.final_text == "made it md" and len(harness.provider.requests) == 2  # System 2 was not called
+    assert "make it md" in router.states[0] and "first answer" in router.states[0]  # judged against the session
+    assert not any(TAKEOVER_NOTE in m.content for r in cheap.requests for m in r.messages if isinstance(m, UserMessage))
+    path = harness.deps.journal.active_path()
+    (handoff,) = [e for e in path if isinstance(e, EventEntry) and isinstance(e.event, Handoff)]
+    assert isinstance(handoff.event, Handoff) and (handoff.event.turn, handoff.event.probability) == (0, 0.9)
+
+    third = await session.run("next")
+
+    assert third.final_text == "third answer" and len(cheap.requests) == 2  # judged below `at_start`: System 2's
+    sent = harness.provider.requests[-1].messages
+    # System 2 has its own run in full and a record of the cheaper model's, before the reply the user read.
+    assert [m.text for m in sent if isinstance(m, AssistantMessage)] == ["built", "first answer", "made it md"]
+    assert sum("[Record" in m.content for m in sent if isinstance(m, UserMessage)) == 1
