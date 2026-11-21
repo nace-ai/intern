@@ -3,6 +3,7 @@ that knows the answers proves the plumbing; the 15-question gold set is tests/da
 
 from __future__ import annotations
 
+import ast
 import asyncio
 import io
 import json
@@ -37,6 +38,7 @@ from intern.locate import index as wi
 from intern.locate import tree
 from intern.locate.lexical import Lexical
 from intern.locate.processors import (
+    MAX_AST_CHARS,
     Derivative,
     KeyedProcessor,
     MarkdownProcessor,
@@ -213,6 +215,21 @@ def test_a_definition_is_titled_by_its_signature_and_code_outside_definitions_is
     assert (take.key, take.kind, take.parent, take.start, take.end) == ("Pool.Take", "method", None, 14, 17)
     assert take.title == "func (p *Pool) Take(ctx context.Context, n int) error"
     assert take.summary == "Take takes n connections"
+
+
+def test_a_huge_python_file_is_indexed_by_windows_without_building_its_syntax_tree(tmp_path: Path, monkeypatch):
+    # A data module's syntax tree is over a hundred times its text (30 MB of literals: 4.7 GB in the agent's process).
+    rows = "".join(f"    ({i}, 'name{i}', [1, 2, 3]),\n" for i in range(MAX_AST_CHARS // 30))
+    (tmp_path / "data.py").write_text(f'"""Rows."""\nimport os\nROWS = [\n{rows}]\n')
+    (tmp_path / "small.py").write_text("import data\n\ndef f():\n    return 1\n")
+    parsed: list[int] = []
+    parse = ast.parse
+    monkeypatch.setattr(ast, "parse", lambda source, *a, **kw: parsed.append(len(source)) or parse(source, *a, **kw))
+    index = build(tmp_path)
+    assert parsed and max(parsed) < MAX_AST_CHARS
+    entry = index.files["data.py"]
+    assert entry.units > 1000 and entry.chunks[0].kind == "window" and entry.imports == []
+    assert [c.key for c in index.files["small.py"].chunks] == ["f"]
 
 
 def test_code_keeps_its_windows_where_symbols_would_lose_lines(tmp_path: Path):
