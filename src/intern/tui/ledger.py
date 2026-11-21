@@ -426,6 +426,8 @@ class Ledger:
         run = self.current
         if turn is None or answers is None:
             return None  # a tool's own ask (a search's, the recall's): counted, and the tool's row shows it
+        if purpose == "handoff" and "route" in answers:
+            return None  # the judgement at a run's start: a hand-over it makes shows as the hand-over's own row
         if purpose == "handoff":
             choice, probabilities = _choice(answers.get("ready"))
             if run.handover is None:

@@ -18,7 +18,7 @@ extra, and a toggle that cannot work here is not offered. [0.25.0](#0250) rename
 [0.54.0](#0540) runs sessions on free credit: clients that send a model with every turn need a look.
 
 ```bash
-uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.61.1"
+uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.62.0"
 intern acp                         # System 2 from config.toml or $INTERN_SYSTEM2; System 1 drex-latest
 intern acp --system2 openrouter/qwen/qwen3.8-27b --system1 drex-max-v1.1
 ```
@@ -165,7 +165,7 @@ Every session advertises these `configOptions`, in this order, then the
 - **`handoff`** names the cheaper model a run hands over to once System 1 judges the rest of the task within its
   reach ([0.45.0](#0450)), or `off`. It is `[capabilities.handoff] to` for this session: the model is bound when it
   is set, from the next run, with the rest of `[capabilities.handoff]` (`effort`, `threshold`, `streak`,
-  `min_turn`) as configured. Like `model`, its list fills in once the catalog arrives, any model the harness can
+  `min_turn`, `at_start`) as configured. Like `model`, its list fills in once the catalog arrives, any model the harness can
   resolve is accepted, listed or not, and a model that cannot be bound (its key is missing) fails with `-32602` and
   changes nothing. A change is journaled as a `model_change` entry with role `handoff` (model `""` for `off`), holds
   across a capability reopen, and is restored on `session/load`, unless the model can no longer be bound there, when
@@ -310,7 +310,9 @@ run's updates: after the last update of the turn it handed over at, before the f
 ```
 
 `turn` is the turn it handed over after, `from` and `to` the models, and `probability` System 1's P(ready) there.
-The run goes on to its end on `to`; the next prompt is System 2's again. A client that does not know the method
+`turn` 0 is a run that starts on `to` ([`at_start`](capability-settings.md#a-run-that-starts-on-the-cheaper-model)),
+sent before its first update, with System 1's P(efficient) for the message. The run goes on to its end on `to`; the
+next prompt starts on System 2 again, unless `at_start` judges it otherwise. A client that does not know the method
 ignores it, as ACP asks of extension notifications.
 
 On `session/load` the active branch is replayed: user prompts as `user_message_chunk`, replies as
@@ -1833,3 +1835,15 @@ is missing a thought_signature"). The signature goes back only to the model that
 
 A tool call in the journal and in `-p --json` messages gains `extra_content`: what the provider attached to it, or
 null. Additive: 0.61.0 clients keep working, and ACP carries none of it.
+
+### 0.62.0
+
+A run that answers a later message of a session can start on the hand-over model, when `[capabilities.handoff]
+at_start` is set: System 1 judges the new message against the session, and a request that needs no new open-ended
+reasoning is answered by the cheaper model from turn 0
+([details](capability-settings.md#a-run-that-starts-on-the-cheaper-model)). Unset by default, and the session's first
+message is never judged. Additive on the wire: 0.61.1 clients keep working.
+
+- Such a run sends [`_nace/handoff`](#updates) with `turn` 0, before its first update, and `probability` System 1's
+  P(efficient). Its updates carry `_meta.nace.model` of the cheaper model, as after any hand-over.
+- The `handoff` event likewise has `turn` 0, in the journal and in `-p --json`.

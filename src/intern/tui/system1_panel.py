@@ -319,7 +319,8 @@ def handover_lines(h: HandoverJudgement, room: int) -> list[list[Part]]:
     head: list[Part] = [("hand-over ", S_MUTED), *readiness(h)]
     if not h.target:
         return [head]
-    said = f"→ Efficient · {model_label(h.target)} from turn {h.handed_at}"
+    start = "the start" if h.handed_at == 0 else f"turn {h.handed_at}"
+    said = f"→ Efficient · {model_label(h.target)} from {start}"
     return [head, [(clip(said, room), S_BRAND_BOLD)]]
 
 

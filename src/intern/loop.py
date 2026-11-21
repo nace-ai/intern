@@ -308,6 +308,8 @@ class Run:
         before it in each request the cheaper model is sent for the rest of the run, at the end until there is one,
         and no longer once a compaction has cut that message. The journal does not keep the note, so the conversation
         reads on as one agent's: to System 1, to a compaction, and to System 2 at the next run."""
+        self._takeover_note: str | None = TAKEOVER_NOTE
+        """None for a run that starts on the cheaper model: it answers a new message, with nothing to take over."""
         target = deps.handoff
         # None once the run has handed over, and on a System 2 that is the cheaper model itself.
         self.handoff = (
@@ -506,6 +508,10 @@ class Run:
                 for message in prompt:
                     self._record(message)
             await self.deps.hooks.call("before_agent_start", lambda e: e.before_agent_start(self._ctx()))
+            if await self._starts_handed_over():
+                # After the prompt is journaled, so the hand-over's turns are this run's (`handover_record`).
+                self._hand_over()
+                self._taken_over, self._takeover_note = True, None
             outcome = await self._run_with_finish_gate()
         except System1Unavailable as e:
             outcome = self._outcome("system1_unavailable", str(e))
@@ -546,6 +552,22 @@ class Run:
             reopens += 1
             self._nudge(gate.text, gate.reason)
             outcome = await self._loop()
+
+    async def _starts_handed_over(self) -> bool:
+        """Whether this run starts on the cheaper model (`[capabilities.handoff] at_start`). Only a run opened by a
+        user's message that follows an earlier one of theirs is judged: the session's first task starts on System 2."""
+        if self.handoff is None or self.handoff.target.config.at_start is None:
+            return False
+        asked = {
+            entry.run_id
+            for entry in self.deps.journal.active_path()
+            if isinstance(entry, MessageEntry)
+            and isinstance(entry.message, UserMessage)
+            and entry.message.source == "user"
+        }
+        if self.run_id not in asked or len(asked) < 2:
+            return False
+        return bool(await self._abortable(self.handoff.at_start(self.deps.decisions, self._system1_state)))
 
     def _record_system_prompt(self) -> None:
         system = self.deps.instructions.system
@@ -742,7 +764,8 @@ class Run:
         view = build_view(path, self.deps.instructions, self.meter, self.window)
         view.model, view.replay = self.binding.ref, self.binding.profile.reasoning_replay
         if self._taken_over:
-            view.asides = {self._takeover_before: TAKEOVER_NOTE}
+            if self._takeover_note is not None:
+                view.asides = {self._takeover_before: self._takeover_note}
         else:
             # System 2's own run: the turns of earlier hand-overs as their events say. The cheaper model reads all.
             handover_record.apply(view, path, self.deps.cwd)
@@ -1174,8 +1197,8 @@ class Run:
         session's journal keeps its turns as it keeps System 2's, each reply under the model that wrote it, so a
         model is sent back its own reasoning only. The run's tools, extensions, System 1, supervisor and turn count
         go on as they were. The swap is the run's alone, as is the take-over note the cheaper model is sent
-        (`_takeover_before`): the session's next run is System 2's again, and is sent a record of these turns as
-        part of its own conversation (`handover_record`)."""
+        (`_takeover_before`): the session's next run starts on System 2 again (unless `at_start` judges otherwise), and
+        is sent a record of these turns as part of its own conversation (`handover_record`)."""
         assert self.handoff is not None and self.deps.handoff is not None
         target, readiness = self.deps.handoff, self.handoff
         self.handoff = None

@@ -298,14 +298,15 @@ class Nudge(_EventBase):
 
 class Handoff(_EventBase):
     """System 2 handed the run over to a cheaper model, which takes the next turn and every one after it in this run,
-    in the same conversation: its turns are the session's own, and the next run is System 2's again."""
+    in the same conversation: its turns are the session's own, and the next run starts on System 2 again. At turn 0
+    the run started on the cheaper model (`[capabilities.handoff] at_start`), and `probability` is P(efficient)."""
 
     type: Literal["handoff"] = "handoff"
     turn: int
     source: str
     target: str
     transfer: Literal["context"] = "context"
-    probability: float = Field(description="System 1's P(ready) at the turn it handed over.")
+    probability: float = Field(description="System 1's P(ready) at the turn it handed over; P(efficient) at turn 0.")
     tokens: int = Field(description="The size of the last request the model handed over by sent.")
     record_rule: int | None = Field(
         default=None,
