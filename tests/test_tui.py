@@ -1530,16 +1530,17 @@ async def test_a_hand_overs_turns_fold_into_their_record_once_the_run_is_over_an
 async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_path: Path, monkeypatch):
     from textual.widgets import Input
 
-    from intern.tui.pickers import SecretForm
+    from intern.tui.pickers import SecretForm, SecretRefForm
 
-    from .test_secrets_commands import FAKE_SECURITY
+    from .test_secrets_commands import FAKE_OP, FAKE_SECURITY
 
     monkeypatch.setattr(sys, "platform", "darwin")
     bin_dir, keychain, home = tmp_path / "bin", tmp_path / "keychain", tmp_path / "home"
     for folder in (bin_dir, keychain, home):
         folder.mkdir()
-    (bin_dir / "security").write_text(FAKE_SECURITY)
-    (bin_dir / "security").chmod(0o755)
+    for tool, script in (("security", FAKE_SECURITY), ("op", FAKE_OP)):
+        (bin_dir / tool).write_text(script)
+        (bin_dir / tool).chmod(0o755)
     (home / "config.toml").write_text('[secrets]\nBROKEN = ["sh", "-c", "exit 3"]\n')
     env = {"PATH": f"{bin_dir}:{os.environ['PATH']}", "FAKE_KEYCHAIN": str(keychain)}
     monkeypatch.setattr(app_module, "process_env", lambda: env)
@@ -1570,6 +1571,30 @@ async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_p
         await wait_for(lambda: "Removed GITHUB_TOKEN" in transcript_text(app))
         assert "GITHUB_TOKEN" not in (home / "config.toml").read_text()
         assert "ghp-typed-secret-value" not in transcript_text(app)
+
+        # Adding asks where the secret is; 1Password takes a reference, read once before it is saved.
+        await send(app, pilot, "/secrets")
+        await wait_for(lambda: isinstance(app.screen, ModelPicker))
+        app.screen.dismiss("+add")
+        await wait_for(lambda: isinstance(app.screen, ModelPicker) and "where is it" in app.screen.title_text)
+        where = {c.id: c.group for c in app.screen.choices}  # pyright: ignore[reportAttributeAccessIssue]
+        assert where == {"keychain": "works here", "1password": "works here", "command": "works here"}
+        app.screen.dismiss("1password")
+        await wait_for(lambda: isinstance(app.screen, SecretRefForm))
+        app.screen.query_one("#secret-name", Input).value = "GH_TOKEN"
+        reference = app.screen.query_one("#secret-ref", Input)
+        reference.value = "op://Work/GitHub/token"
+        reference.focus()
+        await pilot.press("enter")  # on to the account, which one account leaves empty
+        assert app.screen.focused is app.screen.query_one("#secret-account", Input)
+        await pilot.press("enter")
+        await wait_for(lambda: "GH_TOKEN now comes from 1Password" in transcript_text(app))
+        assert '"op://Work/GitHub/token"' in (home / "config.toml").read_text()
+        await send(app, pilot, "/secrets")
+        await wait_for(lambda: isinstance(app.screen, ModelPicker))
+        rows = {c.id: (c.group, c.note) for c in app.screen.choices}  # pyright: ignore[reportAttributeAccessIssue]
+        assert rows["GH_TOKEN"] == ("loads", "1Password · op://Work/GitHub/token")
+        assert "ghp-from-1password-value" not in transcript_text(app)
         await app.action_quit()
 
 

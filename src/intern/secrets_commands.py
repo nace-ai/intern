@@ -1,7 +1,8 @@
-"""`intern secrets set|list|test|remove`: manage the `[secrets]` store from a terminal, the TUI or a GUI.
+"""`intern secrets set|list|test|remove|providers`: manage the `[secrets]` store from a terminal, the TUI or a GUI.
 
 Every command takes `--json`, so a GUI can spawn it and read one JSON document from stdout. No output, JSON or
-text, ever holds a value. `set` reads the value from the terminal without echo, or from stdin with `--stdin`.
+text, ever holds a value. `set` reads the value from the terminal without echo, or from stdin with `--stdin`;
+`set --ref` points the entry at an item already in a password manager instead, and stores no value.
 """
 
 from __future__ import annotations
@@ -23,6 +24,14 @@ from intern import names
 from intern.config import CONFIG_FILE, harness_keys, home_dir, load_user_config, process_env
 from intern.config_file import editing
 from intern.models.registry import ConfigError
+from intern.secret_providers import (
+    ONE_PASSWORD_TOOL,
+    ProviderId,
+    ProviderStatus,
+    recognise,
+    reference_entry,
+    statuses,
+)
 from intern.secret_store import (
     ENV_NAME,
     KEYCHAIN,
@@ -40,6 +49,11 @@ EXIT_OK, EXIT_FAILED, EXIT_USAGE = 0, 1, 2
 class SecretEntry(BaseModel):
     name: str
     source: Literal["keychain", "command"]
+    provider: ProviderId = "keychain"
+    """Where the value lives: the keychain, a password manager Intern knows, or any other command."""
+    reference: str | None = None
+    """The item a password-manager entry reads, e.g. op://Work/GitHub/token."""
+    account: str | None = None
     command: list[str] | None = None
     """For a command entry, its words as configured."""
     harness_only: bool = False
@@ -49,6 +63,7 @@ class SecretEntry(BaseModel):
 class SecretStatus(BaseModel):
     name: str
     source: Literal["keychain", "command"]
+    provider: ProviderId = "keychain"
     ok: bool
     harness_only: bool = False
     reason: Reason | None = None
@@ -62,7 +77,16 @@ class SecretStatus(BaseModel):
 def _entry(name: str, entry: StoreEntry, harness: frozenset[str] = frozenset()) -> SecretEntry:
     if entry == KEYCHAIN:
         return SecretEntry(name=name, source="keychain", harness_only=name in harness)
-    return SecretEntry(name=name, source="command", command=list(entry), harness_only=name in harness)
+    linked = recognise(entry)
+    return SecretEntry(
+        name=name,
+        source="command",
+        provider=linked.provider if linked else "command",
+        reference=linked.reference if linked else None,
+        account=linked.account if linked else None,
+        command=list(entry),
+        harness_only=name in harness,
+    )
 
 
 def entries(home: Path) -> list[SecretEntry]:
@@ -88,11 +112,19 @@ def check(home: Path, env: Mapping[str, str], names: list[str] | None = None) ->
         started = time.monotonic()
         try:
             read_entry(name, entry, env, cwd=home if home.is_dir() else None, home=home)
-            status = SecretStatus(name=name, source=info.source, ok=True, path=path, harness_only=info.harness_only)
+            status = SecretStatus(
+                name=name,
+                source=info.source,
+                provider=info.provider,
+                ok=True,
+                path=path,
+                harness_only=info.harness_only,
+            )
         except SecretFailure as failure:
             status = SecretStatus(
                 name=name,
                 source=info.source,
+                provider=info.provider,
                 ok=False,
                 reason=failure.reason,
                 message=str(failure),
@@ -118,6 +150,42 @@ def store(name: str, value: str, home: Path, env: Mapping[str, str]) -> None:
                 table = tomlkit.table()
                 document["secrets"] = table
             table[name] = KEYCHAIN
+
+
+def link(name: str, reference: str, account: str | None, home: Path, env: Mapping[str, str]) -> None:
+    """Point `name` at an item already in a password manager: read it once now, the way a session would, and only
+    then write the entry to config.toml. No value is stored anywhere by Intern."""
+    if not ENV_NAME.fullmatch(name):
+        raise ConfigError(f"{name!r} is not an environment variable name")
+    entry = reference_entry(name, reference, account or None)
+    current = load_user_config(home).secrets.get(name)
+    if current == KEYCHAIN:
+        raise ConfigError(
+            f"{name} is in the keychain; remove it first ({names.NAME} secrets remove {name}), then point it at "
+            "the password manager"
+        )
+    if current is not None and recognise(current) is None:
+        raise ConfigError(f"{name} comes from a command in config.toml; remove that line to point it at 1Password")
+    if shutil.which(ONE_PASSWORD_TOOL, path=env.get("PATH")) is None:
+        detail = next(status.detail for status in statuses(env) if status.id == "1password")
+        raise SecretFailure(name, "command_failed", detail)
+    try:
+        read_entry(name, entry, env, cwd=home if home.is_dir() else None, home=home)
+    except SecretFailure as failure:
+        why = str(failure).removeprefix(f"{name}: ")
+        check = "; check the reference" if failure.reason == "command_failed" else ""
+        raise SecretFailure(name, failure.reason, f"could not read {reference} ({why}){check}") from None
+    with editing(home / CONFIG_FILE) as document:
+        table = document.get("secrets")
+        if table is None:
+            table = tomlkit.table()
+            document["secrets"] = table
+        table[name] = entry
+
+
+def providers(env: Mapping[str, str]) -> list[ProviderStatus]:
+    """Where a secret can be kept or found on this host; runs nothing and reads no value."""
+    return statuses(env)
 
 
 def remove(name: str, home: Path, env: Mapping[str, str]) -> None:
@@ -149,9 +217,15 @@ def _parser() -> argparse.ArgumentParser:
         prog=f"{names.NAME} secrets", description="Keep keys in the OS keychain instead of plain-text files."
     )
     commands = parser.add_subparsers(dest="command", required=True)
-    put = commands.add_parser("set", help="Store a value in the keychain and name it in config.toml.")
+    put = commands.add_parser(
+        "set", help="Store a value in the keychain, or point at a password manager's item with --ref."
+    )
     put.add_argument("name", help="The environment variable commands will see, e.g. GITHUB_TOKEN.")
-    put.add_argument("--stdin", action="store_true", help="Read the value from stdin instead of asking for it.")
+    source = put.add_mutually_exclusive_group()
+    source.add_argument("--stdin", action="store_true", help="Read the value from stdin instead of asking for it.")
+    source.add_argument("--ref", help="An item already in a password manager, e.g. op://Work/GitHub/token.")
+    put.add_argument("--account", help="With --ref: the 1Password account, as `op account list` shows it.")
+    commands.add_parser("providers", help="Where secrets can be kept or found on this host.")
     commands.add_parser("list", help="Show each entry and where it comes from; reads no values.")
     test = commands.add_parser("test", help="Read each entry now and say whether it works.")
     test.add_argument("names", nargs="*")
@@ -171,7 +245,7 @@ def secrets_main(argv: list[str], env: Mapping[str, str] | None = None) -> int:
             if args.json:
                 print(_dump([entry.model_dump(exclude_none=True) for entry in listed]))
             for entry in [] if args.json else listed:
-                where = " ".join(entry.command) if entry.command else entry.source
+                where = entry.reference or (" ".join(entry.command) if entry.command else entry.source)
                 print(f"{entry.name}  {where}" + ("  (harness only)" if entry.harness_only else ""))
             return EXIT_OK
         if args.command == "test":
@@ -181,7 +255,19 @@ def secrets_main(argv: list[str], env: Mapping[str, str] | None = None) -> int:
             for status in [] if args.json else statuses:
                 print(f"{status.name}  ok" if status.ok else status.message)
             return EXIT_OK if all(status.ok for status in statuses) else EXIT_FAILED
-        if args.command == "set":
+        if args.command == "providers":
+            found = providers(env)
+            if args.json:
+                print(_dump([status.model_dump(exclude_none=True) for status in found]))
+            for status in [] if args.json else found:
+                print(f"{status.label}  " + ("ok" if status.available else status.detail))
+            return EXIT_OK
+        if args.command == "set" and args.ref is not None:
+            link(args.name, args.ref, args.account, home, env)
+            done = f"Pointed {args.name} at {args.ref}"
+        elif args.command == "set":
+            if args.account is not None:
+                raise ConfigError("--account goes with --ref")
             store(args.name, _read_value(args.stdin), home, env)
             done = f"Stored {args.name} in the keychain"
         else:

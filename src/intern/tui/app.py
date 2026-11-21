@@ -108,6 +108,7 @@ from intern.needs import InstallFailed, Needs, Say, install
 from intern.onboarding import FREE_ABOUT, PROVIDER_BY_ID, free_names, offered_models
 from intern.onboarding import Role as OfferedRole
 from intern.processes import duration_text
+from intern.secret_providers import ProviderStatus, built_by_intern
 from intern.session import Session, SessionBusy
 from intern.session_cut import STATE_SHARE, CutView, cut_view
 from intern.session_setup import capability_needs, runner_choices, runner_config, runner_problem
@@ -122,7 +123,7 @@ from intern.tui.ledger import (
     TurnJudgement,
 )
 from intern.tui.onboarding import Onboarded, OnboardingScreen, StartedFree, free_blocked
-from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm
+from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm, SecretRefForm
 from intern.tui.schedule import TimerDelivery
 from intern.tui.state_panel import StatePanel, system2_start
 from intern.tui.system1_panel import System1Panel
@@ -517,6 +518,8 @@ class HarnessApp(App[None]):
         self._capabilities_at_start = capabilities if capabilities is not None else CapabilitySettings()
         self._memory_at_start = memory
         self._home = home
+        self._secret_entries: dict[str, secrets_commands.SecretEntry] = {}
+        self._secret_providers: dict[str, ProviderStatus] = {}
         self._copy = clipboard_copy if copy is None else copy
         """What else takes the copied text, besides the terminal: the machine's clipboard by default."""
         self._install = install
@@ -1676,33 +1679,116 @@ class HarnessApp(App[None]):
         self.run_worker(self._show_secrets(), group="secrets", exit_on_error=False)
 
     async def _show_secrets(self) -> None:
+        home, env = self._secrets_home(), process_env()
         try:
-            statuses = await asyncio.to_thread(secrets_commands.check, self._secrets_home(), process_env())
+            statuses = await asyncio.to_thread(secrets_commands.check, home, env)
+            self._secret_entries = {
+                entry.name: entry for entry in await asyncio.to_thread(secrets_commands.entries, home)
+            }
         except ConfigError as error:
             await self.transcript.notice(str(error), "warn")
             return
+
+        def where(name: str) -> str:
+            entry = self._secret_entries.get(name)
+            if entry is None or entry.provider == "keychain":
+                return "keychain"
+            if entry.reference:
+                return f"1Password · {entry.reference}"
+            return "command · edit in config.toml"
+
         choices = [
             Choice(
                 id=status.name,
                 name=status.name,
                 group="loads" if status.ok else "does not load",
-                note=(status.source if status.ok else status.message.removeprefix(f"{status.name}: "))
-                + ("" if status.source == "keychain" else " · edit in config.toml")
+                note=(where(status.name) if status.ok else status.message.removeprefix(f"{status.name}: "))
+                + ("" if status.ok or status.provider != "command" else " · edit in config.toml")
                 + (" · harness only, not the agent's" if status.harness_only else ""),
             )
             for status in statuses
         ]
         choices.sort(key=lambda choice: choice.group != "does not load")
-        choices.append(Choice(id=ADD_SECRET, name="Add a secret…", group="new", note="stored in the OS keychain"))
-        hint = "Enter replaces a keychain value, or adds one; values are never shown"
+        choices.append(
+            Choice(id=ADD_SECRET, name="Add a secret…", group="new", note="in the OS keychain, or from 1Password")
+        )
+        hint = "Enter changes an entry, or adds one; values are never shown"
         picker = ModelPicker(
             "Secrets · keys the agent's commands get", choices, "", hint=hint, typed=False, stacked=True
         )
         self.push_screen(picker, callback=self._secret_picked)
 
     def _secret_picked(self, picked: str | None) -> None:
-        if picked:
-            self.push_screen(SecretForm("" if picked == ADD_SECRET else picked), callback=self._secret_entered)
+        if not picked:
+            return
+        if picked == ADD_SECRET:
+            self._pick_secret_provider()
+            return
+        entry = self._secret_entries.get(picked)
+        if entry is not None and entry.provider == "1password" and built_by_intern(entry.command or []):
+            form = SecretRefForm(picked, entry.reference or "", entry.account or "")
+            self.push_screen(form, callback=self._secret_linked)
+        elif entry is not None and entry.provider != "keychain":
+            self.run_worker(
+                self.transcript.notice(f"{picked} runs a command; change it in config.toml under [secrets].", "warn")
+            )
+        else:
+            self.push_screen(SecretForm(picked), callback=self._secret_entered)
+
+    def _pick_secret_provider(self) -> None:
+        """ "Where is it?": each place a secret can be kept or found, the ones that work here first."""
+        found = secrets_commands.providers(process_env())
+        self._secret_providers = {status.id: status for status in found}
+        notes = {
+            "keychain": "type the value; Intern keeps it in the keychain",
+            "1password": "an item already there; paste its op:// reference",
+            "command": "any other password manager: a command in config.toml",
+        }
+        choices = [
+            Choice(
+                id=status.id,
+                name=status.label,
+                group="works here" if status.available else "not set up",
+                note=notes[status.id] if status.available else status.detail,
+            )
+            for status in sorted(found, key=lambda status: not status.available)
+        ]
+        picker = ModelPicker("Add a secret · where is it?", choices, "", typed=False, stacked=True)
+        self.push_screen(picker, callback=self._secret_provider_picked)
+
+    def _secret_provider_picked(self, picked: str | None) -> None:
+        status = self._secret_providers.get(picked or "")
+        if status is None:
+            return
+        if not status.available:
+            self.run_worker(self.transcript.notice(f"{status.label}: {status.detail}", "warn"))
+        elif status.id == "keychain":
+            self.push_screen(SecretForm(""), callback=self._secret_entered)
+        elif status.id == "1password":
+            self.push_screen(SecretRefForm(), callback=self._secret_linked)
+        else:
+            self.run_worker(
+                self.transcript.notice(
+                    'Add a line under [secrets] in config.toml: NAME = ["tool", "arg", ...], a command that prints '
+                    "the value. Then /secrets shows whether it loads."
+                )
+            )
+
+    def _secret_linked(self, entered: tuple[str, str, str] | None) -> None:
+        if entered:
+            self.run_worker(self._link_secret(*entered), group="secrets", exit_on_error=False)
+
+    async def _link_secret(self, name: str, reference: str, account: str) -> None:
+        try:
+            await asyncio.to_thread(
+                secrets_commands.link, name, reference, account or None, self._secrets_home(), process_env()
+            )
+        except (ConfigError, ValueError) as error:
+            await self.transcript.notice(f"Not saved: {error}", "warn")
+            return
+        await self.transcript.notice(
+            f"{name} now comes from 1Password ({reference}). New sessions get it; /reload to use it now."
+        )
 
     def _secret_entered(self, entered: tuple[str, str] | None) -> None:
         if entered:
