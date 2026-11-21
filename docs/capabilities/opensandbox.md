@@ -102,6 +102,8 @@ saying so. `terminate` interrupts the job on the server.
   its `hosts` is sent with it. Give it only the hosts and token scope the task needs.
 - **Lifetime.** The server ends the sandbox after `timeout_s`. A longer session then fails its next command;
   changes not yet copied back are lost.
-- **Close.** The last copy-back runs before the sandbox is killed. If it fails, session close reports it.
+- **Close.** The last copy-back runs before the sandbox is killed. If it fails twice, session close reports it and
+  the sandbox is left running, because it holds the only copy of those changes; the server removes it when
+  `timeout_s` runs out.
 - **Upload size.** A workspace over `max_upload_mb` fails the first command, not setup.
 - **Stopping jobs.** `terminate` relies on the server's interrupt to stop what the job started.

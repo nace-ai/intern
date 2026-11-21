@@ -424,7 +424,46 @@ async def test_dependency_folders_are_not_uploaded(sdk, tmp_path):
     await executor.aclose()
 
 
-async def test_a_failed_final_copy_back_is_reported_and_the_sandbox_still_killed(sdk, tmp_path):
+def fail_once(call: Any) -> Any:
+    """`call`, but its first use fails as a server that went away for a moment does."""
+    failed: list[bool] = []
+
+    async def flaky(*args: Any) -> Any:
+        if not failed:
+            failed.append(True)
+            raise OSError("server went away")
+        return await call(*args)
+
+    return flaky
+
+
+async def test_a_failed_copy_back_is_sent_again_by_the_next_one(sdk, tmp_path):
+    executor = copy_executor(tmp_path)
+    await run(executor, "true")
+    (sandbox,) = FakeSandbox.made
+    sandbox.files.read_bytes = fail_once(sandbox.files.read_bytes)
+    with pytest.raises(OSError, match="server went away"):
+        await run(executor, "echo edited > lost.txt")
+    await run(executor, "true")
+    assert (executor.workspace / "lost.txt").read_text() == "edited\n"
+    await executor.aclose()
+
+
+async def test_a_failed_upload_of_the_harness_files_is_sent_again_by_the_next_command(sdk, tmp_path):
+    executor = copy_executor(tmp_path)
+    await run(executor, "true")
+    (sandbox,) = FakeSandbox.made
+    own = executor.workspace / ".intern-resources" / "page.txt"
+    own.parent.mkdir(parents=True)
+    own.write_text("retained source")
+    sandbox.files.write_file = fail_once(sandbox.files.write_file)
+    with pytest.raises(OSError, match="server went away"):
+        await run(executor, "true")
+    assert "retained source" in await run(executor, "cat .intern-resources/page.txt")
+    await executor.aclose()
+
+
+async def test_a_failed_final_copy_back_is_reported_and_the_sandbox_keeps_the_changes(sdk, tmp_path):
     executor = copy_executor(tmp_path)
     await run(executor, "true")
     (sandbox,) = FakeSandbox.made
@@ -433,9 +472,22 @@ async def test_a_failed_final_copy_back_is_reported_and_the_sandbox_still_killed
         raise OSError("server went away")
 
     sandbox.files.read_bytes = broken
-    with pytest.raises(OSError, match="server went away"):
+    with pytest.raises(RuntimeError, match="server went away"):
         await executor.aclose()
-    assert sandbox.killed and sandbox.closed
+    # The sandbox holds the only copy of the unsynced changes, so it is left for its own timeout to remove.
+    assert not sandbox.killed and sandbox.closed
+    await sandbox.kill()
+
+
+async def test_the_final_copy_back_is_tried_again_before_giving_up(sdk, tmp_path):
+    executor = copy_executor(tmp_path)
+    await run(executor, "true")
+    (sandbox,) = FakeSandbox.made
+    job = await executor.start_job("echo late > late.txt", cwd=executor.workspace)
+    await sandbox.commands.processes[job.id].wait()  # nothing has copied its file back yet
+    sandbox.files.read_bytes = fail_once(sandbox.files.read_bytes)
+    await executor.aclose()
+    assert (executor.workspace / "late.txt").read_text() == "late\n" and sandbox.killed
 
 
 def test_its_toggle_says_why_it_cannot_switch_on(monkeypatch):
