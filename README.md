@@ -590,6 +590,13 @@ Intern collects no telemetry. What leaves your machine:
 
 Sessions are journaled, and memory kept, on your machine in `~/.intern/`.
 
+## Built with Intern
+
+- [Fossil Filter](https://github.com/aswin215/Fossil-Filter): personalized email triage. Every Drex call in its
+  pipeline goes through `intern.decisions.DecisionClient`, and an Intern session (System 2 Qwen3.8 27B on DeepInfra,
+  System 1 Drex) triages a guardrail-filtered inbox, optionally through the project's own MCP tools. Measured
+  against Claude and Qwen baselines on a hand-labeled inbox.
+
 ## Contributing
 
 Questions, problems and ideas are welcome in [#intern on Discord](https://discord.com/invite/nace-ai).
