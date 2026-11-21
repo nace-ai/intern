@@ -24,7 +24,6 @@ from intern.mcp_credentials import (
     run_credential_command,
 )
 from intern.models.registry import ConfigError
-from intern.session_resources import ResourceCleanupError
 
 from .fake_openai import Reply
 from .test_session_setup import configured, mcp_toml, outputs, stdio_script
@@ -364,20 +363,29 @@ print("Bearer " + Path({str(token)!r}).read_text())""",
     async with rotating_server(tmp_path) as (url, accepted):
         token.write_text("synthetic-token-one")
         accepted.write_text("synthetic-token-one")
-        replies = [Reply(tool_calls=[("mcp__remote__add", {"a": 2, "b": 5})]), Reply(text="done")]
+        replies = [
+            Reply(tool_calls=[("mcp__remote__add", {"a": 2, "b": 5})]),
+            Reply(text="done"),
+            Reply(tool_calls=[("mcp__remote__add", {"a": 30, "b": 12})]),
+            Reply(text="done"),
+        ]
         env = {"SYNTHETIC_CLIENT_SECRET": "synthetic-client-secret"}
-        # The MCP SDK runs each request in its transport's task group, so an error raised while sending ends the
-        # transport and is reported again when the session closes. A stale static header does the same on main.
-        with pytest.raises(ResourceCleanupError):
-            async with configured(tmp_path, replies, credential_toml(url, command), env=env) as values:
-                session = values[0]
-                accepted.write_text("synthetic-token-two")
-                broken.write_text("yes")
-                started = time.monotonic()
-                await session.run("add")
-                elapsed = time.monotonic() - started
-                assert "MCP" in outputs(session)[0] and outputs(session)[0].startswith("Error")
-                assert elapsed < 10, f"refresh failure took {elapsed:.1f}s to reach the tool call"
+        # Leaving `configured` closes the session: it raises if the failed call left the connection broken.
+        async with configured(tmp_path, replies, credential_toml(url, command), env=env) as values:
+            session = values[0]
+            accepted.write_text("synthetic-token-two")
+            broken.write_text("yes")
+            started = time.monotonic()
+            await session.run("add")
+            elapsed = time.monotonic() - started
+            failed = outputs(session)[0]
+            assert failed.startswith("Error") and "credential command failed (exit 4)" in failed
+            assert elapsed < 10, f"refresh failure took {elapsed:.1f}s to reach the tool call"
+
+            broken.unlink()
+            token.write_text("synthetic-token-two")
+            await session.run("add again")
+            assert "42" in outputs(session)[1]  # the same connection works once the command does
 
 
 async def test_failing_command_stops_setup_before_any_server_starts(tmp_path):
