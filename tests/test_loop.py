@@ -271,6 +271,44 @@ async def test_turn_budget_ends_with_a_tool_less_reply_to_the_user(make_harness)
     assert nudge.reason == "turn_budget" and "no turns left" in nudge.text
 
 
+async def test_the_out_of_turns_notice_is_for_that_run_alone(make_harness):
+    def script(request: ProviderRequest) -> Turn:
+        if not request.tools:
+            return Turn(text="Ran out of turns; the report is not written.")
+        asked = [m.content for m in request.messages if isinstance(m, UserMessage) and m.source == "user"]
+        if asked[-1].endswith("write the report"):
+            return Turn(tool_calls=[("bash", {"command": "true"})])
+        return Turn(text="Done.")
+
+    harness = make_harness(script, profile=Profile(max_turns=2))
+    session = Session(harness.deps)
+    assert (await session.run("write the report")).reason == "turn_budget"
+    wrap_up = harness.provider.requests[-1]
+    assert not wrap_up.tools and "no turns left" in wrap_up.messages[-1].content
+
+    harness.provider.requests.clear()
+    assert (await session.run("go on")).final_text == "Done."
+
+    # The next run is sent the reply the last one ended on, not the notice that it had no turns or tools.
+    sent = [m.content for m in harness.provider.requests[0].messages if isinstance(m, UserMessage)]
+    assert not any("no turns left" in text for text in sent)
+    said = [m.text for m in harness.provider.requests[0].messages if isinstance(m, AssistantMessage)]
+    assert said[-1] == "Ran out of turns; the report is not written."
+
+
+async def test_a_session_journaled_with_the_out_of_turns_notice_is_not_sent_it_as_current(make_harness):
+    harness = make_harness([Turn(text="Done.")])
+    journal = harness.deps.journal
+    journal.append(MessageEntry(message=UserMessage(content="write the report")))
+    journal.append(MessageEntry(message=UserMessage(content=loop.BUDGET_NUDGE, source="harness")))
+    journal.append(MessageEntry(message=AssistantMessage(text="Ran out of turns.", model="fake/model")))
+
+    await Session(harness.deps).run("go on")
+
+    sent = " ".join(m.content for m in harness.provider.requests[0].messages if isinstance(m, UserMessage))
+    assert "no turns left" not in sent and "ran out of turns here" in sent
+
+
 async def test_turn_budget_still_ends_when_the_wrap_up_call_fails(make_harness):
     def script(request: ProviderRequest) -> Turn:
         return Turn(error="down") if not request.tools else Turn(tool_calls=[("bash", {"command": "true"})])
