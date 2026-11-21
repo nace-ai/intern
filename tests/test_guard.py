@@ -257,6 +257,55 @@ def test_docker_workspace_paths_count_as_the_working_directory():
     assert not needs_judgement(TOOLS["write"], {"path": f"{CWD}/a.py", "content": ""}, docker)
 
 
+MACOS = Scope(  # a Mac: file and command names ignore case
+    cwd=PurePosixPath("/Users/dev/work"),
+    roots=(PurePosixPath("/Users/dev/work"),),
+    home=PurePosixPath("/Users/dev"),
+    folds_case=True,
+)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "rm -rf //",
+        "rm -rf //Users/dev",
+        "rm -rf ~dev",
+        "rm -rf ~other/",
+        "rm -rf ${HOME:-/}",
+        'rm -rf "${HOME:?}"/*',
+        "rm -rf .GIT",
+        "rm -rf /USERS/DEV",
+        "RM -rf ~",
+        "/BIN/RM -rf ~",
+        "rm -rf /private/etc",
+        "rm -rf /System/Volumes/Data/Users/dev",
+    ],
+)
+def test_another_spelling_of_a_protected_path_is_not_deleted(command: str):
+    assert rules(command, MACOS) == ["delete_protected"]
+
+
+def test_another_spelling_of_a_protected_path_is_not_written():
+    for path in (
+        "//Users/dev/.zshrc",
+        "~dev/Library/LaunchAgents/x.plist",
+        ".GIT/hooks/pre-commit",
+        "/private/etc/hosts",
+    ):
+        assert [h.rule for h in rule_hits("write", {"path": path, "content": ""}, MACOS)] == ["protected_write"]
+    assert rules("echo x > .Git/hooks/pre-commit", MACOS) == ["protected_write"]
+    assert rules("SUDO ls", MACOS) == ["privilege"]
+
+
+def test_case_counts_where_the_filesystem_keeps_it_and_ordinary_paths_stay_free():
+    assert rules("rm -rf .GIT") == []  # on Linux `.GIT` is another folder, and `RM` no command
+    assert rule_hits("write", {"path": ".GIT/notes", "content": ""}, SCOPE) == []
+    for command in ("rm -rf build//tmp", "rm -rf ~/work/BUILD", "rm -rf ${TMPDIR:-/tmp}/x", "RM -rf build"):
+        assert rules(command, MACOS) == []
+    assert not needs_judgement(TOOLS["write"], {"path": "//Users/dev/work/a.py", "content": ""}, MACOS)
+
+
 @pytest.mark.parametrize(
     ("tool", "arguments", "judged"),
     [
