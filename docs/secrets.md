@@ -41,7 +41,9 @@ your keys, and yours never reach it. A home elsewhere that stored keys before 0.
 | Command | What it does |
 |---|---|
 | `intern secrets set NAME` | Store a value in the keychain and name it in config. `--stdin` reads the value from stdin. |
+| `intern secrets set NAME --ref op://...` | Point the entry at an item already in 1Password (see below). Stores no value. |
 | `intern secrets list` | Show each entry, where it comes from, and whether it is harness only. Reads no values. |
+| `intern secrets providers` | Show where secrets can be kept or found on this machine, and what to install if not. |
 | `intern secrets test [NAME...]` | Read each entry now and say whether it works; exits 1 if one doesn't. |
 | `intern secrets remove NAME` | Delete the entry and its keychain item. |
 
@@ -49,7 +51,24 @@ Every command takes `--json` and then prints one JSON document to stdout, for a 
 how a GUI passes a value: on stdin, never as an argument. No output ever contains a value. A keychain value is
 one line of plain ASCII, as API keys are; for a multi-line key (PEM, JSON) or other text, use a command entry.
 
-## From a password manager
+## From 1Password
+
+Install the 1Password CLI (`brew install 1password-cli`), turn on **Settings → Developer → Integrate with 1Password
+CLI** in the 1Password app, and copy the item's reference (right-click the field, **Copy Secret Reference**):
+
+```bash
+intern secrets set GITHUB_TOKEN --ref op://Work/GitHub/token
+intern secrets set GITHUB_TOKEN --ref op://Work/GitHub/token --account my.1password.com   # several accounts
+```
+
+Intern reads the item once to check it, then adds `GITHUB_TOKEN = ["op", "read", "--cache=false",
+"op://Work/GitHub/token"]` to `[secrets]`. Nothing of the value is kept by Intern: 1Password still holds it, and
+changing it there applies after a restart. If the read fails, nothing is saved and the error names the reference.
+In the terminal UI, `/secrets` → **Add a secret…** asks where the secret is and offers 1Password when `op` is
+installed. `--cache=false` keeps `op` from starting its background daemon, which can wait on a prompt nobody sees
+when an editor runs Intern. An entry you already wrote by hand as `["op", "read", ...]` is shown as 1Password too.
+
+## From another password manager
 
 Any command that prints the value works. It runs with your environment, so the CLI finds its own session:
 

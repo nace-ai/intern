@@ -1812,3 +1812,15 @@ ACP carries none of it.
   `lines`), is journaled and printed by `-p --json` after each turn of the cheaper model that changed files in the
   working directory.
 - `session/load` replays what it did: the journal keeps every turn in full.
+
+### 0.61.0
+
+`intern secrets` knows 1Password by name. `intern secrets set NAME --ref op://vault/item/field [--account A]`
+reads the item once and, if it reads, adds an `op read` entry to `[secrets]`; it stores no value. A new command,
+`intern secrets providers --json`, prints where secrets can be kept or found on this machine: an array of `id`
+(`keychain`, `1password`, `command`), `label`, `available`, `detail` (what to install or why not, when not
+available), `stores_values` and `reference_hint`. The terminal UI's `/secrets` asks where a new secret is.
+
+`intern secrets list --json` entries gain `provider` (`keychain`, `1password` or `command`) and, for a 1Password
+entry, `reference` and `account`; `test --json` statuses gain `provider`. `source` is unchanged. Additive: 0.60.0
+clients keep working, and the config format is the same.
