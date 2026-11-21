@@ -140,6 +140,8 @@ BUDGET_NUDGE = (
     "You have no turns left and cannot call tools any more. Reply to the user now: say what is done, what is "
     "not done, and what they should check or do themselves. Do not claim anything you did not do."
 )
+# What a session journaled before the notice was the wrap-up turn's alone is sent in its place: that run is over.
+BUDGET_PAST = "[That run ran out of turns here and ended. Each run has its own turns and tools.]"
 
 
 class StateCall(NamedTuple):
@@ -308,6 +310,9 @@ class Run:
         before it in each request the cheaper model is sent for the rest of the run, at the end until there is one,
         and no longer once a compaction has cut that message. The journal does not keep the note, so the conversation
         reads on as one agent's: to System 1, to a compaction, and to System 2 at the next run."""
+        self._out_of_turns = False
+        """The turn budget ran out: the wrap-up turn is told so (`BUDGET_NUDGE`) in its request alone. The journal does
+        not keep the notice, so a later run of the session is not told it has no turns or tools."""
         target = deps.handoff
         # None once the run has handed over, and on a System 2 that is the cheaper model itself.
         self.handoff = (
@@ -642,10 +647,12 @@ class Run:
         """One tool-less turn when the budget runs out, so the user gets a reply instead of silence.
 
         Without it the run ends on whatever the last message carried: nothing after a tool call, or mid-work
-        narration. The model is told it is out of turns and asked to say what is done and what is not."""
+        narration. The model is told it is out of turns and asked to say what is done and what is not; the journal
+        keeps the reply, not the notice, which holds for this run alone (`_out_of_turns`)."""
         self.turn += 1
         self.deps.emit(TurnStart(turn=self.turn))
-        self._nudge(BUDGET_NUDGE, "turn_budget")
+        self.deps.emit(Nudge(turn=self.turn, reason="turn_budget", text=BUDGET_NUDGE))
+        self._out_of_turns = True
         try:
             request = await self._prepare_request()
             request.tools = []
@@ -746,6 +753,11 @@ class Run:
         else:
             # System 2's own run: the turns of earlier hand-overs as their events say. The cheaper model reads all.
             handover_record.apply(view, path, self.deps.cwd)
+        if self._out_of_turns:
+            view.asides[None] = BUDGET_NUDGE
+        for index, message in enumerate(view.history):
+            if isinstance(message, UserMessage) and message.source == "harness" and message.content == BUDGET_NUDGE:
+                view.history[index] = UserMessage(content=BUDGET_PAST, source="harness")
         return view
 
     def _files_changed(self) -> None:
