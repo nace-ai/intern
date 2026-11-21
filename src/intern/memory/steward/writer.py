@@ -23,6 +23,9 @@ GENERAL = "general"
 INSTRUCTIONS = "instructions"
 ME = "user/me"
 NEW = "new"
+# The two pages above as "Already in memory" shows them, by their paths. A writer copies what it reads: named this
+# way a rule was refused its page and lost.
+BY_PATH = {f"lessons/{GENERAL}": GENERAL, f"user/{INSTRUCTIONS}": INSTRUCTIONS}
 GROUPS = ("people", "organisations", "projects", "places", "things")
 KINDS = ("where", "how", "fails", "state", "event", "rule", "preference", "told")
 # Which kinds each source may give: a user's words, the assistant's words, a tool's result, the agent's own change.
@@ -615,6 +618,7 @@ def _text(value: object, limit: int) -> str:
 
 def _page(raw: object, kind: str, line: Line, pages: set[str], subjects: set[str]) -> str | None:
     page = _KIND_SUFFIX.sub("", raw) if isinstance(raw, str) else ""
+    page = BY_PATH.get(page, page)
     if page == GENERAL:
         return page if line.source in ("tool", "action") and kind in ("rule", "how", "fails") else None
     if page == INSTRUCTIONS:
