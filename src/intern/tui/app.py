@@ -108,7 +108,7 @@ from intern.needs import InstallFailed, Needs, Say, install
 from intern.onboarding import FREE_ABOUT, PROVIDER_BY_ID, free_names, offered_models
 from intern.onboarding import Role as OfferedRole
 from intern.processes import duration_text
-from intern.secret_providers import ProviderStatus, built_by_intern
+from intern.secret_providers import ProviderStatus, built_by_intern, provider_for
 from intern.session import Session, SessionBusy
 from intern.session_cut import STATE_SHARE, CutView, cut_view
 from intern.session_setup import capability_needs, runner_choices, runner_config, runner_problem
@@ -123,7 +123,14 @@ from intern.tui.ledger import (
     TurnJudgement,
 )
 from intern.tui.onboarding import Onboarded, OnboardingScreen, StartedFree, free_blocked
-from intern.tui.pickers import THINKING_DEFAULT, Choice, ModelPicker, SecretForm, SecretRefForm
+from intern.tui.pickers import (
+    THINKING_DEFAULT,
+    Choice,
+    MasterPasswordForm,
+    ModelPicker,
+    SecretForm,
+    SecretRefForm,
+)
 from intern.tui.schedule import TimerDelivery
 from intern.tui.state_panel import StatePanel, system2_start
 from intern.tui.system1_panel import System1Panel
@@ -215,6 +222,8 @@ DECIDES = " · decision model"
 ENTERING_HIDES = ("#status", "#side")
 """What the entering page takes the place of."""
 ADD_SECRET = "+add"
+LABELS = {"1password": "1Password", "bitwarden": "Bitwarden"}
+"""The password managers /secrets has a form for, by provider id."""
 """The /secrets row that adds an entry; no secret can have this name."""
 
 HELP: dict[str, dict[str, str]] = {
@@ -241,8 +250,8 @@ HELP: dict[str, dict[str, str]] = {
         "on or off; the session reopens on its journal (also /capabilities)",
         "/runner [name]": "pick where commands run: local, docker, opensandbox or an installed runner; the session "
         "reopens on its journal",
-        "/secrets [set|remove NAME]": "keys in the OS keychain or a password manager, with whether each loads; Enter "
-        "on one replaces it; new sessions use them",
+        "/secrets [set|remove NAME|unlock|lock bitwarden]": "keys in the OS keychain or a password manager, with "
+        "whether each loads; Enter on one replaces it; new sessions use them",
         "/schedule": "the timers; Enter stops one (switch them on with /caps schedule)",
     },
     "Screen": {
@@ -1670,11 +1679,19 @@ class HarnessApp(App[None]):
         if verb == "set":
             self.push_screen(SecretForm(name.strip()), callback=self._secret_entered)
             return
+        if verb in ("unlock", "lock") and name.strip() == "bitwarden":
+            if verb == "unlock":
+                self.push_screen(MasterPasswordForm(), callback=self._bitwarden_unlock_only)
+            else:
+                self.run_worker(self._lock_bitwarden(), group="secrets", exit_on_error=False)
+            return
         if verb == "remove" and name.strip():
             self.run_worker(self._remove_secret(name.strip()), group="secrets", exit_on_error=False)
             return
         if verb:
-            await self.transcript.notice("/secrets, /secrets set <NAME> or /secrets remove <NAME>.", "warn")
+            await self.transcript.notice(
+                "/secrets, /secrets set <NAME>, /secrets remove <NAME> or /secrets unlock|lock bitwarden.", "warn"
+            )
             return
         self.run_worker(self._show_secrets(), group="secrets", exit_on_error=False)
 
@@ -1694,7 +1711,7 @@ class HarnessApp(App[None]):
             if entry is None or entry.provider == "keychain":
                 return "keychain"
             if entry.reference:
-                return f"1Password · {entry.reference}"
+                return f"{LABELS[entry.provider]} · {entry.reference}"
             return "command · edit in config.toml"
 
         choices = [
@@ -1710,7 +1727,9 @@ class HarnessApp(App[None]):
         ]
         choices.sort(key=lambda choice: choice.group != "does not load")
         choices.append(
-            Choice(id=ADD_SECRET, name="Add a secret…", group="new", note="in the OS keychain, or from 1Password")
+            Choice(
+                id=ADD_SECRET, name="Add a secret…", group="new", note="in the keychain, or from 1Password or Bitwarden"
+            )
         )
         hint = "Enter changes an entry, or adds one; values are never shown"
         picker = ModelPicker(
@@ -1722,11 +1741,11 @@ class HarnessApp(App[None]):
         if not picked:
             return
         if picked == ADD_SECRET:
-            self._pick_secret_provider()
+            self.run_worker(self._pick_secret_provider(), group="secrets", exit_on_error=False)
             return
         entry = self._secret_entries.get(picked)
-        if entry is not None and entry.provider == "1password" and built_by_intern(entry.command or []):
-            form = SecretRefForm(picked, entry.reference or "", entry.account or "")
+        if entry is not None and entry.provider in LABELS and built_by_intern(entry.command or []):
+            form = SecretRefForm(entry.provider, picked, entry.reference or "", entry.account or "")
             self.push_screen(form, callback=self._secret_linked)
         elif entry is not None and entry.provider != "keychain":
             self.run_worker(
@@ -1735,13 +1754,14 @@ class HarnessApp(App[None]):
         else:
             self.push_screen(SecretForm(picked), callback=self._secret_entered)
 
-    def _pick_secret_provider(self) -> None:
+    async def _pick_secret_provider(self) -> None:
         """ "Where is it?": each place a secret can be kept or found, the ones that work here first."""
-        found = secrets_commands.providers(process_env())
+        found = await asyncio.to_thread(secrets_commands.providers, process_env(), self._secrets_home())
         self._secret_providers = {status.id: status for status in found}
         notes = {
             "keychain": "type the value; Intern keeps it in the keychain",
             "1password": "an item already there; paste its op:// reference",
+            "bitwarden": "an item already there; paste bw://<item id>",
             "command": "any other password manager: a command in config.toml",
         }
         choices = [
@@ -1749,7 +1769,7 @@ class HarnessApp(App[None]):
                 id=status.id,
                 name=status.label,
                 group="works here" if status.available else "not set up",
-                note=notes[status.id] if status.available else status.detail,
+                note=status.detail if not status.available or status.needs_unlock else notes[status.id],
             )
             for status in sorted(found, key=lambda status: not status.available)
         ]
@@ -1764,8 +1784,10 @@ class HarnessApp(App[None]):
             self.run_worker(self.transcript.notice(f"{status.label}: {status.detail}", "warn"))
         elif status.id == "keychain":
             self.push_screen(SecretForm(""), callback=self._secret_entered)
-        elif status.id == "1password":
-            self.push_screen(SecretRefForm(), callback=self._secret_linked)
+        elif status.id == "bitwarden" and status.needs_unlock:
+            self.push_screen(MasterPasswordForm(), callback=self._bitwarden_password_entered)
+        elif status.id in LABELS:
+            self.push_screen(SecretRefForm(status.id), callback=self._secret_linked)
         else:
             self.run_worker(
                 self.transcript.notice(
@@ -1773,6 +1795,24 @@ class HarnessApp(App[None]):
                     "the value. Then /secrets shows whether it loads."
                 )
             )
+
+    def _bitwarden_password_entered(self, password: str | None) -> None:
+        if password:
+            self.run_worker(self._unlock_bitwarden(password, then_add=True), group="secrets", exit_on_error=False)
+
+    def _bitwarden_unlock_only(self, password: str | None) -> None:
+        if password:
+            self.run_worker(self._unlock_bitwarden(password, then_add=False), group="secrets", exit_on_error=False)
+
+    async def _unlock_bitwarden(self, password: str, *, then_add: bool) -> None:
+        try:
+            await asyncio.to_thread(secrets_commands.unlock, "bitwarden", password, self._secrets_home(), process_env())
+        except (ConfigError, ValueError) as error:
+            await self.transcript.notice(f"Not unlocked: {error}", "warn")
+            return
+        await self.transcript.notice("Bitwarden is unlocked for Intern until you lock it (/secrets lock bitwarden).")
+        if then_add:
+            self.push_screen(SecretRefForm("bitwarden"), callback=self._secret_linked)
 
     def _secret_linked(self, entered: tuple[str, str, str] | None) -> None:
         if entered:
@@ -1787,8 +1827,17 @@ class HarnessApp(App[None]):
             await self.transcript.notice(f"Not saved: {error}", "warn")
             return
         await self.transcript.notice(
-            f"{name} now comes from 1Password ({reference}). New sessions get it; /reload to use it now."
+            f"{name} now comes from {LABELS.get(provider_for(reference) or '', 'the password manager')} "
+            f"({reference}). New sessions get it; /reload to use it now."
         )
+
+    async def _lock_bitwarden(self) -> None:
+        try:
+            await asyncio.to_thread(secrets_commands.lock, "bitwarden", self._secrets_home(), process_env())
+        except (ConfigError, ValueError) as error:
+            await self.transcript.notice(f"Not locked: {error}", "warn")
+            return
+        await self.transcript.notice("Bitwarden is locked; Intern forgot its unlock.")
 
     def _secret_entered(self, entered: tuple[str, str] | None) -> None:
         if entered:

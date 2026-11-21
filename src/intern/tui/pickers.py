@@ -320,31 +320,42 @@ class SecretForm(ModalScreen[tuple[str, str] | None]):
 
 
 class SecretRefForm(ModalScreen[tuple[str, str, str] | None]):
-    """/secrets, 1Password: a name, the item's reference and an optional account; dismisses with all three, or
-    None. A reference is where the value lives, not the value, so it is shown as typed."""
+    """/secrets, a password manager: a name, the item's reference and, for 1Password, an optional account; dismisses
+    with all three, or None. A reference is where the value lives, not the value, so it is shown as typed."""
 
     BINDINGS: ClassVar[list[BindingType]] = [Binding("escape", "cancel", "Cancel")]
+    TEXT: ClassVar[dict[str, tuple[str, str, str]]] = {
+        "1password": (
+            "1Password",
+            "op://vault/item/field",
+            "In 1Password: right-click the field, Copy Secret Reference. Intern reads it now to check.  ",
+        ),
+        "bitwarden": (
+            "Bitwarden",
+            "bw://<item id>  or  bw://<item id>/username",
+            "The item's id is in bw list items --search <name>. Intern reads it now to check.  ",
+        ),
+    }
 
-    def __init__(self, name: str = "", reference: str = "", account: str = "") -> None:
+    def __init__(self, provider: str = "1password", name: str = "", reference: str = "", account: str = "") -> None:
         super().__init__()
+        self.provider = provider
         self.secret_name, self.reference, self.account = name, reference, account
 
     def compose(self) -> ComposeResult:
+        label, placeholder, hint = self.TEXT[self.provider]
         with Vertical(id="picker"):
-            yield Static(Content.assemble(("Use a secret from 1Password", "bold")), id="picker-title")
+            yield Static(Content.assemble((f"Use a secret from {label}", "bold")), id="picker-title")
             yield Input(value=self.secret_name, placeholder="Name, e.g. GITHUB_TOKEN", id="secret-name")
-            yield Input(value=self.reference, placeholder="op://vault/item/field", id="secret-ref")
-            yield Input(
-                value=self.account, placeholder="Account (optional, as `op account list` shows)", id="secret-account"
-            )
+            yield Input(value=self.reference, placeholder=placeholder, id="secret-ref")
+            if self.provider == "1password":
+                yield Input(
+                    value=self.account,
+                    placeholder="Account (optional, as `op account list` shows)",
+                    id="secret-account",
+                )
             yield Static(
-                Content.assemble(
-                    (
-                        "In 1Password: right-click the field, Copy Secret Reference. Intern reads it now to check.  ",
-                        S_MUTED,
-                    ),
-                    ("Enter saves · Esc closes", S_MUTED),
-                ),
+                Content.assemble((hint, S_MUTED), ("Enter saves · Esc closes", S_MUTED)),
                 id="picker-hint",
             )
 
@@ -356,16 +367,51 @@ class SecretRefForm(ModalScreen[tuple[str, str, str] | None]):
         self.query_one("#secret-ref", Input).focus()
 
     @on(Input.Submitted, "#secret-ref")
-    def _to_account(self) -> None:
-        self.query_one("#secret-account", Input).focus()
+    def _after_reference(self) -> None:
+        if self.provider == "1password":
+            self.query_one("#secret-account", Input).focus()
+        else:
+            self._submit()
 
     @on(Input.Submitted, "#secret-account")
     def _submit(self) -> None:
         name = self.query_one("#secret-name", Input).value.strip()
         reference = self.query_one("#secret-ref", Input).value.strip()
-        account = self.query_one("#secret-account", Input).value.strip()
+        accounts = self.query("#secret-account").results(Input)
+        account = next((field.value.strip() for field in accounts), "")
         if name and reference:
             self.dismiss((name, reference, account))
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+
+class MasterPasswordForm(ModalScreen[str | None]):
+    """/secrets, Bitwarden: the master password, hidden; dismisses with it, or None. Not kept after the unlock."""
+
+    BINDINGS: ClassVar[list[BindingType]] = [Binding("escape", "cancel", "Cancel")]
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="picker"):
+            yield Static(Content.assemble(("Unlock Bitwarden", "bold")), id="picker-title")
+            yield Input(placeholder="Master password (hidden)", password=True, id="master-password")
+            yield Static(
+                Content.assemble(
+                    ("Intern keeps the unlock in the keychain until /secrets locks it; never the password.  ", S_MUTED),
+                    ("Enter unlocks · Esc closes", S_MUTED),
+                ),
+                id="picker-hint",
+            )
+
+    def on_mount(self) -> None:
+        self.query_one("#master-password", Input).focus()
+
+    @on(Input.Submitted, "#master-password")
+    def _submit(self) -> None:
+        field = self.query_one("#master-password", Input)
+        if field.value:
+            password, field.value = field.value, ""
+            self.dismiss(password)
 
     def action_cancel(self) -> None:
         self.dismiss(None)

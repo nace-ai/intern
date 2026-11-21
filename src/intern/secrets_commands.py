@@ -25,12 +25,15 @@ from intern.config import CONFIG_FILE, harness_keys, home_dir, load_user_config,
 from intern.config_file import editing
 from intern.models.registry import ConfigError
 from intern.secret_providers import (
-    ONE_PASSWORD_TOOL,
     ProviderId,
     ProviderStatus,
+    lock_bitwarden,
+    provider_for,
     recognise,
     reference_entry,
+    status_of,
     statuses,
+    unlock_bitwarden,
 )
 from intern.secret_store import (
     ENV_NAME,
@@ -164,11 +167,13 @@ def link(name: str, reference: str, account: str | None, home: Path, env: Mappin
             f"{name} is in the keychain; remove it first ({names.NAME} secrets remove {name}), then point it at "
             "the password manager"
         )
+    provider = provider_for(reference)
+    assert provider is not None  # reference_entry refused any other
+    status = status_of(provider, env, home=home)
     if current is not None and recognise(current) is None:
-        raise ConfigError(f"{name} comes from a command in config.toml; remove that line to point it at 1Password")
-    if shutil.which(ONE_PASSWORD_TOOL, path=env.get("PATH")) is None:
-        detail = next(status.detail for status in statuses(env) if status.id == "1password")
-        raise SecretFailure(name, "command_failed", detail)
+        raise ConfigError(f"{name} comes from a command in config.toml; remove that line to point it at {status.label}")
+    if not status.available or status.needs_unlock:
+        raise SecretFailure(name, "command_failed", status.detail)
     try:
         read_entry(name, entry, env, cwd=home if home.is_dir() else None, home=home)
     except SecretFailure as failure:
@@ -183,9 +188,22 @@ def link(name: str, reference: str, account: str | None, home: Path, env: Mappin
         table[name] = entry
 
 
-def providers(env: Mapping[str, str]) -> list[ProviderStatus]:
-    """Where a secret can be kept or found on this host; runs nothing and reads no value."""
-    return statuses(env)
+def providers(env: Mapping[str, str], home: Path | None = None) -> list[ProviderStatus]:
+    """Where a secret can be kept or found on this host; reads no value."""
+    return statuses(env, home=home)
+
+
+def unlock(provider: str, password: str, home: Path, env: Mapping[str, str]) -> None:
+    """Unlock a password manager that needs it (Bitwarden) for every Intern process, until `lock`."""
+    if provider != "bitwarden":
+        raise ConfigError(f"only bitwarden is unlocked through {names.NAME}; {provider} unlocks itself")
+    unlock_bitwarden(password, env, home=home)
+
+
+def lock(provider: str, home: Path, env: Mapping[str, str]) -> None:
+    if provider != "bitwarden":
+        raise ConfigError(f"only bitwarden is unlocked through {names.NAME}")
+    lock_bitwarden(env, home=home)
 
 
 def remove(name: str, home: Path, env: Mapping[str, str]) -> None:
@@ -199,11 +217,11 @@ def remove(name: str, home: Path, env: Mapping[str, str]) -> None:
         del document["secrets"][name]  # type: ignore[union-attr]
 
 
-def _read_value(from_stdin: bool) -> str:
+def _read_value(from_stdin: bool, prompt: str = "Value (not shown): ") -> str:
     if from_stdin:
         value = sys.stdin.read()
     elif sys.stdin.isatty():
-        value = getpass.getpass("Value (not shown): ")
+        value = getpass.getpass(prompt)
     else:
         raise ConfigError("no terminal to ask for the value; pass it on stdin with --stdin")
     for newline in ("\r\n", "\n"):
@@ -226,6 +244,12 @@ def _parser() -> argparse.ArgumentParser:
     source.add_argument("--ref", help="An item already in a password manager, e.g. op://Work/GitHub/token.")
     put.add_argument("--account", help="With --ref: the 1Password account, as `op account list` shows it.")
     commands.add_parser("providers", help="Where secrets can be kept or found on this host.")
+    opened = commands.add_parser("unlock", help="Unlock Bitwarden for Intern with the master password.")
+    opened.add_argument("provider", choices=["bitwarden"])
+    opened.add_argument("--stdin", action="store_true", help="Read the master password from stdin.")
+    commands.add_parser("lock", help="Lock Bitwarden and forget Intern's unlock.").add_argument(
+        "provider", choices=["bitwarden"]
+    )
     commands.add_parser("list", help="Show each entry and where it comes from; reads no values.")
     test = commands.add_parser("test", help="Read each entry now and say whether it works.")
     test.add_argument("names", nargs="*")
@@ -256,11 +280,22 @@ def secrets_main(argv: list[str], env: Mapping[str, str] | None = None) -> int:
                 print(f"{status.name}  ok" if status.ok else status.message)
             return EXIT_OK if all(status.ok for status in statuses) else EXIT_FAILED
         if args.command == "providers":
-            found = providers(env)
+            found = providers(env, home)
             if args.json:
                 print(_dump([status.model_dump(exclude_none=True) for status in found]))
             for status in [] if args.json else found:
-                print(f"{status.label}  " + ("ok" if status.available else status.detail))
+                print(f"{status.label}  " + (status.detail or "ok"))
+            return EXIT_OK
+        if args.command in ("unlock", "lock"):
+            if args.command == "unlock":
+                password = _read_value(args.stdin, prompt="Bitwarden master password (not shown): ")
+                unlock(args.provider, password, home, env)
+            else:
+                lock(args.provider, home, env)
+            if args.json:
+                print(_dump({"ok": True, "provider": args.provider}))
+            else:
+                print(f"{'Unlocked' if args.command == 'unlock' else 'Locked'} {args.provider}", file=sys.stderr)
             return EXIT_OK
         if args.command == "set" and args.ref is not None:
             link(args.name, args.ref, args.account, home, env)

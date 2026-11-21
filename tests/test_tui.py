@@ -1530,19 +1530,20 @@ async def test_a_hand_overs_turns_fold_into_their_record_once_the_run_is_over_an
 async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_path: Path, monkeypatch):
     from textual.widgets import Input
 
-    from intern.tui.pickers import SecretForm, SecretRefForm
+    from intern.tui.pickers import MasterPasswordForm, SecretForm, SecretRefForm
 
-    from .test_secrets_commands import FAKE_OP, FAKE_SECURITY
+    from .test_secrets_commands import FAKE_BW, FAKE_OP, FAKE_SECURITY
 
     monkeypatch.setattr(sys, "platform", "darwin")
     bin_dir, keychain, home = tmp_path / "bin", tmp_path / "keychain", tmp_path / "home"
     for folder in (bin_dir, keychain, home):
         folder.mkdir()
-    for tool, script in (("security", FAKE_SECURITY), ("op", FAKE_OP)):
+    for tool, script in (("security", FAKE_SECURITY), ("op", FAKE_OP), ("bw", FAKE_BW)):
         (bin_dir / tool).write_text(script)
         (bin_dir / tool).chmod(0o755)
     (home / "config.toml").write_text('[secrets]\nBROKEN = ["sh", "-c", "exit 3"]\n')
-    env = {"PATH": f"{bin_dir}:{os.environ['PATH']}", "FAKE_KEYCHAIN": str(keychain)}
+    (tmp_path / "bw").mkdir()
+    env = {"PATH": f"{bin_dir}:{os.environ['PATH']}", "FAKE_KEYCHAIN": str(keychain), "FAKE_BW": str(tmp_path / "bw")}
     monkeypatch.setattr(app_module, "process_env", lambda: env)
     app = HarnessApp(make_opener(tmp_path, [Turn(text="ok")]), home=home)
     async with app.run_test(size=SIZE) as pilot:
@@ -1578,7 +1579,12 @@ async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_p
         app.screen.dismiss("+add")
         await wait_for(lambda: isinstance(app.screen, ModelPicker) and "where is it" in app.screen.title_text)
         where = {c.id: c.group for c in app.screen.choices}  # pyright: ignore[reportAttributeAccessIssue]
-        assert where == {"keychain": "works here", "1password": "works here", "command": "works here"}
+        assert where == {
+            "keychain": "works here",
+            "1password": "works here",
+            "bitwarden": "works here",
+            "command": "works here",
+        }
         app.screen.dismiss("1password")
         await wait_for(lambda: isinstance(app.screen, SecretRefForm))
         app.screen.query_one("#secret-name", Input).value = "GH_TOKEN"
@@ -1595,6 +1601,32 @@ async def test_secrets_are_added_listed_with_whether_they_load_and_removed(tmp_p
         rows = {c.id: (c.group, c.note) for c in app.screen.choices}  # pyright: ignore[reportAttributeAccessIssue]
         assert rows["GH_TOKEN"] == ("loads", "1Password · op://Work/GitHub/token")
         assert "ghp-from-1password-value" not in transcript_text(app)
+        app.screen.dismiss(None)
+        await pilot.pause()
+
+        # Bitwarden is locked: picking it asks for the master password first, then takes a reference.
+        await send(app, pilot, "/secrets")
+        await wait_for(lambda: isinstance(app.screen, ModelPicker))
+        app.screen.dismiss("+add")
+        await wait_for(lambda: isinstance(app.screen, ModelPicker) and "where is it" in app.screen.title_text)
+        app.screen.dismiss("bitwarden")
+        await wait_for(lambda: isinstance(app.screen, MasterPasswordForm))
+        password = app.screen.query_one("#master-password", Input)
+        assert password.password
+        password.value = "correct horse battery staple"
+        password.focus()
+        await pilot.press("enter")
+        await wait_for(lambda: isinstance(app.screen, SecretRefForm))
+        assert not app.screen.query("#secret-account")  # 1Password's account has no place here
+        app.screen.query_one("#secret-name", Input).value = "BW_TOKEN"
+        reference = app.screen.query_one("#secret-ref", Input)
+        reference.value = "bw://github-token"
+        reference.focus()
+        await pilot.press("enter")
+        await wait_for(lambda: "BW_TOKEN now comes from Bitwarden" in transcript_text(app))
+        assert "correct horse" not in transcript_text(app) and "bw-secret-password-value" not in transcript_text(app)
+        await send(app, pilot, "/secrets lock bitwarden")
+        await wait_for(lambda: "Bitwarden is locked" in transcript_text(app))
         await app.action_quit()
 
 

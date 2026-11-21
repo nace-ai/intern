@@ -1824,3 +1824,16 @@ available), `stores_values` and `reference_hint`. The terminal UI's `/secrets` a
 `intern secrets list --json` entries gain `provider` (`keychain`, `1password` or `command`) and, for a 1Password
 entry, `reference` and `account`; `test --json` statuses gain `provider`. `source` is unchanged. Additive: 0.60.0
 clients keep working, and the config format is the same.
+
+### 0.62.0
+
+`intern secrets` knows Bitwarden. `intern secrets set NAME --ref bw://<item id>[/username|/notes]` adds a `bw get`
+entry once it reads. `intern secrets unlock bitwarden [--stdin] [--json]` takes the master password (on stdin with
+`--stdin`, never as an argument) and keeps Bitwarden's session key in the keychain for every Intern process;
+`intern secrets lock bitwarden [--json]` locks the vault and deletes it. Both print `{"ok": true, "provider":
+"bitwarden"}` or `{"ok": false, "error": "..."}`.
+
+`providers --json` gains a `bitwarden` entry and a `needs_unlock` field (installed and signed in, but locked: `detail`
+says how to unlock); `list` and `test --json` report `provider: "bitwarden"` with its `reference`. Additive: 0.61.0
+clients keep working.
+
