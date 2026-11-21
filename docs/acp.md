@@ -18,7 +18,7 @@ extra, and a toggle that cannot work here is not offered. [0.25.0](#0250) rename
 [0.54.0](#0540) runs sessions on free credit: clients that send a model with every turn need a look.
 
 ```bash
-uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.56.1"
+uv tool install "intern-agent @ git+https://github.com/nace-ai/intern@v0.61.1"
 intern acp                         # System 2 from config.toml or $INTERN_SYSTEM2; System 1 drex-latest
 intern acp --system2 openrouter/qwen/qwen3.8-27b --system1 drex-max-v1.1
 ```
@@ -1824,3 +1824,12 @@ available), `stores_values` and `reference_hint`. The terminal UI's `/secrets` a
 `intern secrets list --json` entries gain `provider` (`keychain`, `1password` or `command`) and, for a 1Password
 entry, `reference` and `account`; `test --json` statuses gain `provider`. `source` is unchanged. Additive: 0.60.0
 clients keep working, and the config format is the same.
+
+### 0.61.1
+
+A Gemini model that thinks (Gemini 4) can call tools: its tool calls keep the thought signature Gemini attaches
+to them (`extra_content`) and send it back, where before its next request was refused with HTTP 400 ("Function call
+is missing a thought_signature"). The signature goes back only to the model that made the call.
+
+A tool call in the journal and in `-p --json` messages gains `extra_content`: what the provider attached to it, or
+null. Additive: 0.61.0 clients keep working, and ACP carries none of it.

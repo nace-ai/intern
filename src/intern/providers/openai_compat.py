@@ -10,7 +10,7 @@ import json
 import time
 from collections.abc import AsyncGenerator, AsyncIterator
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
@@ -83,6 +83,7 @@ class _PendingCall:
     id: str = ""
     name: str = ""
     arguments: str = ""
+    extra_content: dict[str, Any] | None = None
 
 
 @dataclass
@@ -105,6 +106,8 @@ class _Reply:
         function = delta.get("function") or {}
         pending.name = function.get("name") or pending.name
         pending.arguments += function.get("arguments") or ""
+        if isinstance(extra := delta.get("extra_content"), dict):
+            pending.extra_content = cast(dict[str, Any], extra)
 
 
 def _first_choice(data: dict[str, Any]) -> list[dict[str, Any]]:
@@ -188,12 +191,15 @@ class OpenAICompatProvider:
                     item: dict[str, Any] = {"role": "assistant", "content": message.text}
                     if message.tool_calls:
                         item["content"] = message.text or None
+                        # Gemini refuses a call of its own sent back without the thought signature it came with.
+                        own = message.model == self.endpoint.ref
                         item["tool_calls"] = [
                             {
                                 "id": call.id,
                                 "type": "function",
                                 "function": {"name": call.name, "arguments": json.dumps(call.arguments)},
                             }
+                            | ({"extra_content": call.extra_content} if own and call.extra_content else {})
                             for call in message.tool_calls
                         ]
                     if request.reasoning_replay and message.reasoning and message.model == self.endpoint.ref:
@@ -357,7 +363,9 @@ class OpenAICompatProvider:
                     InvalidToolCall(id=call_id, name=pending.name, raw_arguments=pending.arguments, error=error or "")
                 )
             else:
-                calls.append(ToolCall(id=call_id, name=pending.name, arguments=arguments))
+                calls.append(
+                    ToolCall(id=call_id, name=pending.name, arguments=arguments, extra_content=pending.extra_content)
+                )
 
         if not reply.calls and request.compat.text_tool_calls:
             text, found = extract_text_tool_calls(text)
