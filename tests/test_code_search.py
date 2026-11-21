@@ -13,7 +13,7 @@ import pytest
 from intern.capability_settings import CapabilitySettings
 from intern.decisions import Answers, Question
 from intern.events import Indexing, RunEnd, ToolCallEnd
-from intern.extensions.code_search import CodeSearch
+from intern.extensions.code_search import USE, CodeSearch
 from intern.locate import index as wi
 from intern.models.registry import ConfigError
 from intern.providers.fake import Turn
@@ -130,7 +130,7 @@ async def test_the_index_is_built_before_the_run_and_refreshed_after_an_edit(mak
         "decision_code",
     ]
     heads = [r.messages[1].content for r in harness.provider.requests]
-    assert all("`decision_code` finds the places" in h and "group .  (1 files)" in h for h in heads)
+    assert all(USE in h and "group .  (1 files)" in h for h in heads)
     assert all(
         h.index("group .  (") < h.index("find the alpha and beta functions") for h in heads
     )  # the task stays last
