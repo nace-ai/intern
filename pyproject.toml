@@ -1,6 +1,6 @@
 [project]
 name = "intern-agent"
-version = "0.61.0"
+version = "0.62.0"
 description = "An agent harness for models of 35B parameters or less, with a second model watching every turn"
 readme = "README.md"
 license = "LicenseRef-Nace-AI-Open-RAIL-M"

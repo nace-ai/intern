@@ -11,6 +11,7 @@ commands print. An entry that can't be read is reported, and the session runs wi
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import re
 import shutil
@@ -28,6 +29,9 @@ from intern.secrets import MAX_COMMAND_SECRET_BYTES
 
 KEYCHAIN = "keychain"
 KEYCHAIN_SERVICE = names.NAME
+BITWARDEN_TOOL = "bw"
+BITWARDEN_SESSION = f"{names.NAME}-bitwarden-session"
+"""The keychain account of Bitwarden's unlock (its session key). Not a variable name, so no `[secrets]` entry is it."""
 MIN_SECRET_CHARS = 8
 """Shorter values can't be redacted without mangling ordinary output."""
 TIMEOUT_S = 30.0
@@ -39,6 +43,7 @@ ENV_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _MAC_ITEM_NOT_FOUND = 44
 _HINTS = {
     "op": "Try: op signin",
+    "bw": f"Bitwarden may be locked. Try: {names.NAME} secrets unlock bitwarden",
     "security": "Try: security unlock-keychain",
     "vault": "Try: vault login",
     "aws": "Try: aws sso login",
@@ -159,6 +164,15 @@ def _run_keychain(name: str, argv: list[str], stdin: str, env: Mapping[str, str]
     raise SecretFailure(name, "command_failed", f"{argv[0]} exited {done.returncode}" + (f". {hint}" if hint else ""))
 
 
+def bitwarden_env(env: Mapping[str, str], *, home: Path | None = None) -> dict[str, str]:
+    """`env` for a `bw` command: with `BW_SESSION` from Intern's unlock, else the caller's own. The stored one wins
+    because it is the latest: an unlock through Intern voids any key issued before it. Intern gives it to `bw` only."""
+    child = dict(env)
+    with contextlib.suppress(SecretFailure):  # not unlocked through Intern: the caller's key, or `bw` says locked
+        child["BW_SESSION"] = read_entry(BITWARDEN_SESSION, KEYCHAIN, env, home=home).get_secret_value()
+    return child
+
+
 def store_hint(name: str) -> str:
     return f"Store it with: {names.NAME} secrets set {name}"
 
@@ -179,6 +193,7 @@ def read_entry(
     keychain = entry == KEYCHAIN
     argv = keychain_command(name, env, platform, home=home) if keychain else list(entry)
     tool = Path(argv[0]).name
+    child_env = bitwarden_env(env, home=home) if tool == BITWARDEN_TOOL else dict(env)
     executable = argv[0] if "/" in argv[0] else shutil.which(argv[0], path=env.get("PATH"))
     if executable is None:
         raise SecretFailure(name, "command_failed", f"{argv[0]} is not on PATH")
@@ -187,7 +202,7 @@ def read_entry(
             [executable, *argv[1:]],
             stdin=subprocess.DEVNULL,
             capture_output=True,
-            env=dict(env),
+            env=child_env,
             cwd=cwd,
             timeout=timeout_s,
             check=False,

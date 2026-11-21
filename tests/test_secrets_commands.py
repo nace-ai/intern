@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from intern.config import Bootstrap, Options
+from intern.config import Bootstrap, Options, harness_keys, load_user_config
 from intern.secrets_commands import secrets_main
 
 FAKE_SECURITY = r"""#!/bin/sh
@@ -208,3 +208,97 @@ def test_a_hand_written_op_entry_is_listed_as_1password_and_other_commands_as_co
     code, out = run(["set", "B_KEY", "--ref", "op://Work/GitHub/token", "--json"], mac, monkeypatch, capsys)
     assert code == 2 and "comes from a command" in json.loads(out)["error"]  # a hand-written command is never replaced
     assert '"pass", "show", "npm"' in (home / "config.toml").read_text()
+
+
+FAKE_BW = r"""#!/bin/sh
+state="$FAKE_BW"
+printf '%s\n' "$*" >> "$state/argv"
+valid() { [ -f "$state/key" ] && [ "$BW_SESSION" = "$(cat "$state/key")" ]; }
+case "$1" in
+  status)
+    if [ -f "$state/signed-out" ]; then echo '{"status":"unauthenticated"}'
+    elif valid; then echo '{"status":"unlocked"}'; else echo '{"status":"locked"}'; fi ;;
+  unlock)
+    [ -f "$state/signed-out" ] && { echo "You are not logged in." >&2; exit 1; }
+    [ "$(head -n 1 "$3")" = "correct horse battery staple" ] || { echo "Invalid master password." >&2; exit 1; }
+    printf 'session-%s-key' "$$" > "$state/key"; cat "$state/key" ;;
+  get)
+    valid || { echo "Vault is locked." >&2; exit 1; }
+    case "$2/$3" in
+      password/github-token) echo "bw-secret-password-value" ;;
+      username/github-token) echo "octocat-username" ;;
+      *) echo "Not found." >&2; exit 1 ;;
+    esac ;;
+  lock) rm -f "$state/key" ;;
+esac
+"""
+"""`bw` with a vault that the master password `correct horse battery staple` unlocks: each unlock issues a new session
+key, `lock` voids it, and every call's arguments are logged to `$FAKE_BW/argv`."""
+
+
+@pytest.fixture
+def mac_with_bw(mac, tmp_path) -> dict[str, str]:
+    bw = Path(mac["PATH"].split(":")[0]) / "bw"
+    bw.write_text(FAKE_BW)
+    bw.chmod(0o755)
+    (tmp_path / "bw").mkdir()
+    return {**mac, "FAKE_BW": str(tmp_path / "bw")}
+
+
+def test_bitwarden_is_unlocked_once_for_intern_and_its_items_reach_sessions_but_the_unlock_never_does(
+    mac_with_bw, monkeypatch, capsys
+):
+    env, home = mac_with_bw, Path(mac_with_bw["INTERN_HOME"])
+    bitwarden = {p["id"]: p for p in json.loads(run(["providers", "--json"], env, monkeypatch, capsys)[1])}["bitwarden"]
+    assert bitwarden["available"] and bitwarden["needs_unlock"] and "secrets unlock bitwarden" in bitwarden["detail"]
+    code, out = run(["set", "GH_TOKEN", "--ref", "bw://github-token", "--json"], env, monkeypatch, capsys)
+    assert code == 1 and "unlock bitwarden" in json.loads(out)["error"] and not (home / "config.toml").exists()
+
+    code, out = run(["unlock", "bitwarden", "--stdin", "--json"], env, monkeypatch, capsys, "wrong password\n")
+    assert code == 1 and "wrong master password" in json.loads(out)["error"]
+    assert items(Path(env["FAKE_KEYCHAIN"])) == []
+    code, out = run(
+        ["unlock", "bitwarden", "--stdin", "--json"], env, monkeypatch, capsys, "correct horse battery staple\n"
+    )
+    assert (code, json.loads(out)) == (0, {"ok": True, "provider": "bitwarden"})
+    assert items(Path(env["FAKE_KEYCHAIN"])) == ["intern-bitwarden-session"]
+    assert "correct horse" not in (Path(env["FAKE_BW"]) / "argv").read_text()  # never an argument
+    assert not list(Path(env["FAKE_BW"]).glob("master*"))
+
+    run(["set", "GH_TOKEN", "--ref", "bw://github-token"], env, monkeypatch, capsys)
+    run(["set", "GH_USER", "--ref", "bw://github-token/username"], env, monkeypatch, capsys)
+    config = (home / "config.toml").read_text()
+    assert 'GH_TOKEN = ["bw", "get", "password", "github-token", "--nointeraction"]' in config
+    listed = {e["name"]: e for e in json.loads(run(["list", "--json"], env, monkeypatch, capsys)[1])}
+    assert (listed["GH_USER"]["provider"], listed["GH_USER"]["reference"]) == (
+        "bitwarden",
+        "bw://github-token/username",
+    )
+    session = Bootstrap(Options(cwd=home), env).env
+    assert (session["GH_TOKEN"], session["GH_USER"]) == ("bw-secret-password-value", "octocat-username")
+    assert "BW_SESSION" not in session  # the unlock reaches bw, not the agent's commands
+    stale = {**env, "BW_SESSION": "an-expired-session-key"}  # a key exported in the shell, voided by the unlock
+    code, out = run(["test", "GH_TOKEN", "--json"], stale, monkeypatch, capsys)
+    assert code == 0 and json.loads(out)[0]["ok"]
+    assert "BW_SESSION" in harness_keys(load_user_config(home))  # an exported one is never printed to the model
+
+    code, out = run(["lock", "bitwarden", "--json"], env, monkeypatch, capsys)
+    assert code == 0 and items(Path(env["FAKE_KEYCHAIN"])) == []
+    code, out = run(["test", "GH_TOKEN", "--json"], env, monkeypatch, capsys)
+    assert code == 1 and "secrets unlock bitwarden" in json.loads(out)[0]["message"]
+
+
+def test_bitwarden_signed_out_or_given_a_bad_reference_says_what_to_do(mac_with_bw, monkeypatch, capsys):
+    env = mac_with_bw
+    (Path(env["FAKE_BW"]) / "signed-out").touch()
+    bitwarden = {p["id"]: p for p in json.loads(run(["providers", "--json"], env, monkeypatch, capsys)[1])}["bitwarden"]
+    assert not bitwarden["available"] and "bw login" in bitwarden["detail"]
+    code, out = run(
+        ["unlock", "bitwarden", "--stdin", "--json"], env, monkeypatch, capsys, "correct horse battery staple"
+    )
+    assert code == 1 and "bw login" in json.loads(out)["error"]
+    for reference in ("bw://-flag", "bw://github-token/totp", "bw://"):
+        code, out = run(["set", "X_KEY", "--ref", reference, "--json"], env, monkeypatch, capsys)
+        assert code == 1 and "bw://<item id>" in json.loads(out)["error"], reference
+    code, out = run(["set", "X_KEY", "--ref", "bw://github-token", "--account=me", "--json"], env, monkeypatch, capsys)
+    assert code == 1 and "--account is for 1Password" in json.loads(out)["error"]

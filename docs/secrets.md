@@ -44,6 +44,8 @@ your keys, and yours never reach it. A home elsewhere that stored keys before 0.
 | `intern secrets set NAME --ref op://...` | Point the entry at an item already in 1Password (see below). Stores no value. |
 | `intern secrets list` | Show each entry, where it comes from, and whether it is harness only. Reads no values. |
 | `intern secrets providers` | Show where secrets can be kept or found on this machine, and what to install if not. |
+| `intern secrets unlock bitwarden` | Unlock Bitwarden for Intern with the master password (see below). `--stdin` reads it. |
+| `intern secrets lock bitwarden` | Lock Bitwarden and forget Intern's unlock. |
 | `intern secrets test [NAME...]` | Read each entry now and say whether it works; exits 1 if one doesn't. |
 | `intern secrets remove NAME` | Delete the entry and its keychain item. |
 
@@ -67,6 +69,33 @@ changing it there applies after a restart. If the read fails, nothing is saved a
 In the terminal UI, `/secrets` → **Add a secret…** asks where the secret is and offers 1Password when `op` is
 installed. `--cache=false` keeps `op` from starting its background daemon, which can wait on a prompt nobody sees
 when an editor runs Intern. An entry you already wrote by hand as `["op", "read", ...]` is shown as 1Password too.
+
+## From Bitwarden
+
+Install the Bitwarden CLI (`brew install bitwarden-cli`) and sign in once in a terminal: `bw login`. Then unlock it
+for Intern and point an entry at an item by its id (`bw list items --search github` shows it):
+
+```bash
+intern secrets unlock bitwarden                       # asks for the master password without showing it
+intern secrets set GITHUB_TOKEN --ref bw://<item id>   # the item's password
+intern secrets set GITHUB_USER --ref bw://<item id>/username   # or /notes
+```
+
+The entry is `GITHUB_TOKEN = ["bw", "get", "password", "<item id>", "--nointeraction"]`. An exact item name works
+in place of the id, but Bitwarden refuses a name that matches more than one item, so the id is safer.
+
+Bitwarden reads nothing while the vault is locked, so the unlock is a session key, not your master password. Intern
+gives the master password to `bw unlock` in a file only you can read, deleted at once, and keeps only the session key,
+in the keychain, so the terminal UI and your editor's agent both read with it. Intern gives it to `bw` and to nothing
+else; like every keychain item, though, a command run as you could read it, so treat an unlocked vault as open to the
+agent and lock it when you are done: `intern secrets lock bitwarden` locks the vault, which voids the key, and deletes
+it. Each unlock issues a new key and voids the one before, including one you exported in a shell. If you export
+`BW_SESSION` yourself, Intern uses it until you unlock through Intern; like any exported variable it also reaches the
+agent's commands (hidden from what they print), so prefer `intern secrets unlock bitwarden`. In the terminal UI: `/secrets` → **Add a secret…** →
+Bitwarden asks for the master password when the vault is locked; `/secrets lock bitwarden` locks it.
+
+On a server with no keychain, start Intern from a shell with `BW_SESSION="$(bw unlock --raw)"` exported. Bitwarden
+Secrets Manager (`bws`) can't print a value alone, so it is not a provider yet; use an environment variable for it.
 
 ## From another password manager
 

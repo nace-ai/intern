@@ -85,7 +85,7 @@ from intern.providers.anthropic import AnthropicProvider
 from intern.providers.base import Provider
 from intern.providers.openai_compat import OpenAICompatProvider
 from intern.providers.openai_responses import OpenAIResponsesProvider
-from intern.secret_store import StoreEntry, check_entries, read_store
+from intern.secret_store import BITWARDEN_TOOL, StoreEntry, check_entries, read_store
 from intern.session import Session
 from intern.session_setup import capability_extensions, capability_problem, prepare_session, runner_choices
 from intern.tools import load_packs, with_extension_tools
@@ -318,6 +318,8 @@ def harness_keys(config: UserConfig) -> frozenset[str]:
                 walk(item)
 
     walk(config.model_dump(exclude={"secrets"}))
+    if any(entry != "keychain" and Path(entry[0]).name == BITWARDEN_TOOL for entry in config.secrets.values()):
+        names.add("BW_SESSION")  # an exported unlock opens the whole vault: never in what commands print
     return frozenset(names)
 
 
