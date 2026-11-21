@@ -1439,6 +1439,13 @@ class Transcript(Following):
             self._reasoning.finish()
             self._reasoning = None
 
+    async def discard_reply(self) -> None:
+        """The reply being streamed broke off and comes again: what is shown of it goes."""
+        shown = [widget for widget in (self._reply, self._reasoning) if widget is not None]
+        await self.finish_reply()
+        for widget in shown:
+            await widget.remove()
+
     async def text(self, delta: str) -> None:
         if self._reasoning is not None:  # the thinking is over once the reply starts
             self._reasoning.finish()

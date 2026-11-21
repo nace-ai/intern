@@ -36,6 +36,7 @@ from intern.events import (
     Event,
     Handoff,
     Indexing,
+    ReplyDiscarded,
     RunEnd,
     SecretUnavailable,
     SubagentEnd,
@@ -135,6 +136,11 @@ def _text_sink(event: Event) -> None:
         case TextDelta(text=text):
             sys.stdout.write(text)
             sys.stdout.flush()
+        case ReplyDiscarded():
+            # Printed text cannot be taken back: end its line and say that the reply comes again.
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+            print("[the reply broke off; it starts again]", file=sys.stderr)
         case ToolCallStart(name=name, arguments=arguments):
             preview = json.dumps(arguments)
             preview = preview if len(preview) <= ARG_PREVIEW_CHARS else preview[:ARG_PREVIEW_CHARS] + "..."

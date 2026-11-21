@@ -82,6 +82,14 @@ class ReasoningDelta(_EventBase):
     text: str
 
 
+class ReplyDiscarded(_EventBase):
+    """The reply this turn was streaming broke off and is requested again. The `text_delta` and `reasoning_delta`
+    events sent for it so far are not part of the conversation; the reply's deltas start over after this event."""
+
+    type: Literal["reply_discarded"] = "reply_discarded"
+    turn: int
+
+
 class MessageEvent(_EventBase):
     """A message was added to the conversation: the system prompt, a prompt, a reply or a tool result."""
 
@@ -514,6 +522,7 @@ Event = Annotated[
     | TurnStart
     | TextDelta
     | ReasoningDelta
+    | ReplyDiscarded
     | MessageEvent
     | ToolCallStart
     | ToolCallEnd
